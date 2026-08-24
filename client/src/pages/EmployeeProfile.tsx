@@ -5,7 +5,13 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReentryBadge } from "@/components/ReentryBadge";
 import { EmployeeTimeline } from "@/components/EmployeeTimeline";
@@ -48,16 +54,52 @@ import {
 import SignatureCanvas from "@/components/SignatureCanvas";
 
 // Helper: contract expiration status
-function contractStatus(dateStr: string | null | undefined): { label: string; color: string; icon: React.ReactNode; daysLeft: number | null } {
-  if (!dateStr) return { label: "Sin fecha", color: "text-muted-foreground", icon: null, daysLeft: null };
+function contractStatus(dateStr: string | null | undefined): {
+  label: string;
+  color: string;
+  icon: React.ReactNode;
+  daysLeft: number | null;
+} {
+  if (!dateStr)
+    return {
+      label: "Sin fecha",
+      color: "text-muted-foreground",
+      icon: null,
+      daysLeft: null,
+    };
   const expDate = new Date(dateStr);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const daysLeft = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  if (daysLeft < 0) return { label: `Vencido hace ${Math.abs(daysLeft)} días`, color: "text-red-600", icon: <XCircle className="h-4 w-4 text-red-500" />, daysLeft };
-  if (daysLeft <= 7) return { label: `Vence en ${daysLeft} día${daysLeft !== 1 ? 's' : ''}`, color: "text-red-600", icon: <AlertTriangle className="h-4 w-4 text-red-500" />, daysLeft };
-  if (daysLeft <= 30) return { label: `Vence en ${daysLeft} días`, color: "text-amber-600", icon: <Clock className="h-4 w-4 text-amber-500" />, daysLeft };
-  return { label: `Vigente (${daysLeft} días)`, color: "text-green-600", icon: <CheckCircle2 className="h-4 w-4 text-green-500" />, daysLeft };
+  const daysLeft = Math.ceil(
+    (expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  if (daysLeft < 0)
+    return {
+      label: `Vencido hace ${Math.abs(daysLeft)} días`,
+      color: "text-red-600",
+      icon: <XCircle className="h-4 w-4 text-red-500" />,
+      daysLeft,
+    };
+  if (daysLeft <= 7)
+    return {
+      label: `Vence en ${daysLeft} día${daysLeft !== 1 ? "s" : ""}`,
+      color: "text-red-600",
+      icon: <AlertTriangle className="h-4 w-4 text-red-500" />,
+      daysLeft,
+    };
+  if (daysLeft <= 30)
+    return {
+      label: `Vence en ${daysLeft} días`,
+      color: "text-amber-600",
+      icon: <Clock className="h-4 w-4 text-amber-500" />,
+      daysLeft,
+    };
+  return {
+    label: `Vigente (${daysLeft} días)`,
+    color: "text-green-600",
+    icon: <CheckCircle2 className="h-4 w-4 text-green-500" />,
+    daysLeft,
+  };
 }
 
 const DOC_LABELS: Record<string, string> = {
@@ -79,24 +121,40 @@ const DOC_LABELS: Record<string, string> = {
   other: "Otro Documento",
 };
 
-const REQUIRED_DOCS = ["ine", "curp_document", "rfc_document", "nss_document", "birth_certificate", "contract"];
+const REQUIRED_DOCS = [
+  "ine",
+  "curp_document",
+  "rfc_document",
+  "nss_document",
+  "birth_certificate",
+  "contract",
+];
 
-function PortalLinkButton({ employeeId, employeeEmail }: { employeeId: number; employeeEmail?: string }) {
-  const generatePortalLinkMutation = trpc.employees.generatePortalLink.useMutation({
-    onSuccess: () => {
-      toast.success(`Enlace enviado a ${employeeEmail || 'empleado'}`);
-    },
-    onError: (err: any) => {
-      toast.error(`Error al generar enlace de portal: ${err.message}`);
-    },
-  });
+function PortalLinkButton({
+  employeeId,
+  employeeEmail,
+}: {
+  employeeId: number;
+  employeeEmail?: string;
+}) {
+  const generatePortalLinkMutation =
+    trpc.employees.generatePortalLink.useMutation({
+      onSuccess: () => {
+        toast.success(`Enlace enviado a ${employeeEmail || "empleado"}`);
+      },
+      onError: (err: any) => {
+        toast.error(`Error al generar enlace de portal: ${err.message}`);
+      },
+    });
   return (
     <Button
       onClick={() => generatePortalLinkMutation.mutate({ employeeId })}
       disabled={generatePortalLinkMutation.isPending}
       className="w-full"
     >
-      {generatePortalLinkMutation.isPending ? 'Enviando...' : 'Enviar Enlace de Portal'}
+      {generatePortalLinkMutation.isPending
+        ? "Enviando..."
+        : "Enviar Enlace de Portal"}
     </Button>
   );
 }
@@ -105,15 +163,34 @@ export default function EmployeeProfile() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const employeeId = parseInt(id || "0");
-  const [activeTab, setActiveTab] = useState<"info" | "dnc" | "contracts" | "docs" | "salary" | "vacations" | "psychometric">("info");
+  const [activeTab, setActiveTab] = useState<
+    | "info"
+    | "dnc"
+    | "contracts"
+    | "docs"
+    | "salary"
+    | "vacations"
+    | "psychometric"
+  >("info");
   // Salary history state
   const [showAddSalary, setShowAddSalary] = useState(false);
   const [newSalary, setNewSalary] = useState("");
   const [prevSalary, setPrevSalary] = useState("");
   const [salaryReason, setSalaryReason] = useState("");
-  const [salaryDate, setSalaryDate] = useState(new Date().toISOString().split("T")[0]);
-  const [salaryType, setSalaryType] = useState<"annual_review" | "promotion" | "market_adjustment" | "retention" | "correction" | "other">("annual_review");
-  const [signingContract, setSigningContract] = useState<"1" | "2" | "3" | null>(null);
+  const [salaryDate, setSalaryDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [salaryType, setSalaryType] = useState<
+    | "annual_review"
+    | "promotion"
+    | "market_adjustment"
+    | "retention"
+    | "correction"
+    | "other"
+  >("annual_review");
+  const [signingContract, setSigningContract] = useState<
+    "1" | "2" | "3" | null
+  >(null);
   const [signerName, setSignerName] = useState("");
   const [signerRole, setSignerRole] = useState("");
   const [uploadType, setUploadType] = useState<string>("ine");
@@ -122,7 +199,11 @@ export default function EmployeeProfile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const utils = trpc.useUtils();
 
-  const { data: employee, isLoading, refetch } = trpc.employees.getById.useQuery(
+  const {
+    data: employee,
+    isLoading,
+    refetch,
+  } = trpc.employees.getById.useQuery(
     { id: employeeId },
     { enabled: employeeId > 0 }
   ) as { data: any; isLoading: boolean; refetch: () => void };
@@ -134,11 +215,19 @@ export default function EmployeeProfile() {
     { employeeId },
     { enabled: employeeId > 0 }
   );
-  const { data: profileComparison, isLoading: dncLoading, refetch: refetchDNC } = trpc.jobProfiles.getProfileComparison.useQuery(
+  const {
+    data: profileComparison,
+    isLoading: dncLoading,
+    refetch: refetchDNC,
+  } = trpc.jobProfiles.getProfileComparison.useQuery(
     { employeeId },
     { enabled: employeeId > 0 && activeTab === "dnc" }
   );
-  const { data: empDocuments, isLoading: docsLoading, refetch: refetchDocs } = trpc.employeeDocuments.list.useQuery(
+  const {
+    data: empDocuments,
+    isLoading: docsLoading,
+    refetch: refetchDocs,
+  } = trpc.employeeDocuments.list.useQuery(
     { employeeId },
     { enabled: employeeId > 0 && activeTab === "docs" }
   );
@@ -148,14 +237,19 @@ export default function EmployeeProfile() {
   );
 
   // Salary history queries
-  const { data: salaryHistoryData, isLoading: salaryLoading, refetch: refetchSalary } = trpc.salaryHistory.list.useQuery(
+  const {
+    data: salaryHistoryData,
+    isLoading: salaryLoading,
+    refetch: refetchSalary,
+  } = trpc.salaryHistory.list.useQuery(
     { employeeId },
     { enabled: employeeId > 0 && activeTab === "salary" }
   );
-  const { data: currentSalaryData } = trpc.salaryHistory.getCurrentSalary.useQuery(
-    { employeeId },
-    { enabled: employeeId > 0 && activeTab === "salary" }
-  );
+  const { data: currentSalaryData } =
+    trpc.salaryHistory.getCurrentSalary.useQuery(
+      { employeeId },
+      { enabled: employeeId > 0 && activeTab === "salary" }
+    );
   const addSalaryMutation = trpc.salaryHistory.add.useMutation({
     onSuccess: () => {
       toast.success("Cambio salarial registrado");
@@ -168,7 +262,10 @@ export default function EmployeeProfile() {
     onError: (e: any) => toast.error(`Error: ${e.message}`),
   });
   const deleteSalaryMutation = trpc.salaryHistory.delete.useMutation({
-    onSuccess: () => { toast.success("Registro eliminado"); refetchSalary(); },
+    onSuccess: () => {
+      toast.success("Registro eliminado");
+      refetchSalary();
+    },
     onError: (e: any) => toast.error(`Error: ${e.message}`),
   });
 
@@ -182,37 +279,52 @@ export default function EmployeeProfile() {
     { enabled: employeeId > 0 && activeTab === "vacations" }
   );
 
-  const { data: contractSigs, refetch: refetchContractSigs } = trpc.hiring.getContractSignatures.useQuery(
-    { employeeId },
-    { enabled: employeeId > 0 && activeTab === "contracts" }
-  );
-  const saveContractSigMutation = trpc.hiring.saveContractSignature.useMutation({
-    onSuccess: () => {
-      toast.success("Firma guardada exitosamente (NOM-151)");
-      setSigningContract(null);
-      setSignerName("");
-      setSignerRole("");
-      refetchContractSigs();
-    },
-    onError: (error: any) => toast.error(`Error al guardar firma: ${error.message}`),
-  });
-  const handleContractSignature = useCallback((dataUrl: string) => {
-    if (!signingContract || !signerName.trim()) {
-      toast.error("Ingrese el nombre del firmante");
-      return;
+  const { data: contractSigs, refetch: refetchContractSigs } =
+    trpc.hiring.getContractSignatures.useQuery(
+      { employeeId },
+      { enabled: employeeId > 0 && activeTab === "contracts" }
+    );
+  const saveContractSigMutation = trpc.hiring.saveContractSignature.useMutation(
+    {
+      onSuccess: () => {
+        toast.success("Firma guardada exitosamente (NOM-151)");
+        setSigningContract(null);
+        setSignerName("");
+        setSignerRole("");
+        refetchContractSigs();
+      },
+      onError: (error: any) =>
+        toast.error(`Error al guardar firma: ${error.message}`),
     }
-    saveContractSigMutation.mutate({
+  );
+  const handleContractSignature = useCallback(
+    (dataUrl: string) => {
+      if (!signingContract || !signerName.trim()) {
+        toast.error("Ingrese el nombre del firmante");
+        return;
+      }
+      saveContractSigMutation.mutate({
+        employeeId,
+        contractNumber: signingContract,
+        signatureDataUrl: dataUrl,
+        signerName: signerName.trim(),
+        signerRole: signerRole.trim() || undefined,
+      });
+    },
+    [
+      signingContract,
+      signerName,
+      signerRole,
       employeeId,
-      contractNumber: signingContract,
-      signatureDataUrl: dataUrl,
-      signerName: signerName.trim(),
-      signerRole: signerRole.trim() || undefined,
-    });
-  }, [signingContract, signerName, signerRole, employeeId, saveContractSigMutation]);
+      saveContractSigMutation,
+    ]
+  );
 
   const generateDNCMutation = trpc.jobProfiles.generateDNC.useMutation({
     onSuccess: (data: any) => {
-      toast.success(`DNC generada: ${data.needsCreated} necesidades de capacitación registradas`);
+      toast.success(
+        `DNC generada: ${data.needsCreated} necesidades de capacitación registradas`
+      );
       refetchDNC();
     },
     onError: (error: any) => {
@@ -288,13 +400,23 @@ export default function EmployeeProfile() {
   });
 
   const handleDeactivate = () => {
-    if (employee && window.confirm(`¿Está seguro de desactivar a ${employee.firstName} ${employee.lastName}?`)) {
+    if (
+      employee &&
+      window.confirm(
+        `¿Está seguro de desactivar a ${employee.firstName} ${employee.lastName}?`
+      )
+    ) {
       deactivateMutation.mutate({ id: employeeId });
     }
   };
 
   const handleReactivate = () => {
-    if (employee && window.confirm(`¿Está seguro de reactivar a ${employee.firstName} ${employee.lastName}?`)) {
+    if (
+      employee &&
+      window.confirm(
+        `¿Está seguro de reactivar a ${employee.firstName} ${employee.lastName}?`
+      )
+    ) {
       reactivateMutation.mutate({ id: employeeId });
     }
   };
@@ -303,11 +425,30 @@ export default function EmployeeProfile() {
     if (!employee) return;
     const emp = employee as any;
     const courses = coursesHistory || [];
-    const contractTypeLabel = emp.contractType === 'permanent' ? 'Permanente' : emp.contractType === 'temporary' ? 'Temporal' : emp.contractType === 'project' ? 'Por Proyecto' : emp.contractType || 'No especificado';
-    const statusLabel = emp.isActive ? 'Activo' : 'Inactivo';
-    const hireDateStr = emp.hireDate ? new Date(emp.hireDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No registrada';
-    const createdAtStr = emp.createdAt ? new Date(emp.createdAt).toLocaleDateString('es-MX') : '';
-    const printDate = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+    const contractTypeLabel =
+      emp.contractType === "permanent"
+        ? "Permanente"
+        : emp.contractType === "temporary"
+          ? "Temporal"
+          : emp.contractType === "project"
+            ? "Por Proyecto"
+            : emp.contractType || "No especificado";
+    const statusLabel = emp.isActive ? "Activo" : "Inactivo";
+    const hireDateStr = emp.hireDate
+      ? new Date(emp.hireDate).toLocaleDateString("es-MX", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "No registrada";
+    const createdAtStr = emp.createdAt
+      ? new Date(emp.createdAt).toLocaleDateString("es-MX")
+      : "";
+    const printDate = new Date().toLocaleDateString("es-MX", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
     const html = `<!DOCTYPE html>
 <html lang="es">
@@ -348,7 +489,7 @@ export default function EmployeeProfile() {
     </div>
     <div class="meta">
       <div>Generado: ${printDate}</div>
-      <div>No. Empleado: ${emp.employeeNumber || 'N/A'}</div>
+      <div>No. Empleado: ${emp.employeeNumber || "N/A"}</div>
       <div>Folio: EXP-${emp.id}-${new Date().getFullYear()}</div>
     </div>
   </div>
@@ -358,32 +499,38 @@ export default function EmployeeProfile() {
       <div class="section-title">1. Datos Generales del Trabajador</div>
       <div class="grid">
         <div class="field"><div class="field-label">Nombre Completo</div><div class="field-value">${emp.firstName} ${emp.lastName}</div></div>
-        <div class="field"><div class="field-label">Estado</div><div class="field-value"><span class="badge ${emp.isActive ? 'badge-active' : 'badge-inactive'}">${statusLabel}</span></div></div>
-        <div class="field"><div class="field-label">Correo Electrónico</div><div class="field-value">${emp.email || '—'}</div></div>
-        <div class="field"><div class="field-label">Teléfono</div><div class="field-value">${emp.phone || '—'}</div></div>
-        <div class="field"><div class="field-label">CURP</div><div class="field-value mono">${emp.curp || '—'}</div></div>
-        <div class="field"><div class="field-label">RFC</div><div class="field-value mono">${emp.rfc || '—'}</div></div>
-        <div class="field"><div class="field-label">NSS (IMSS)</div><div class="field-value mono">${emp.nss || '—'}</div></div>
-        <div class="field"><div class="field-label">Cédula Profesional</div><div class="field-value mono">${emp.cedulaProfesional || '—'}</div></div>
-        <div class="field"><div class="field-label">Nivel de Estudios</div><div class="field-value">${({
-          primaria: 'Primaria',
-          secundaria: 'Secundaria',
-          preparatoria: 'Preparatoria / Bachillerato',
-          tecnico: 'Técnico / Carrera Técnica',
-          licenciatura: 'Licenciatura',
-          especialidad: 'Especialidad',
-          maestria: 'Maestría',
-          doctorado: 'Doctorado',
-          otro: 'Otro',
-        } as Record<string, string>)[(emp as any).educationLevel] || (emp as any).educationLevel || '—'}</div></div>
+        <div class="field"><div class="field-label">Estado</div><div class="field-value"><span class="badge ${emp.isActive ? "badge-active" : "badge-inactive"}">${statusLabel}</span></div></div>
+        <div class="field"><div class="field-label">Correo Electrónico</div><div class="field-value">${emp.email || "—"}</div></div>
+        <div class="field"><div class="field-label">Teléfono</div><div class="field-value">${emp.phone || "—"}</div></div>
+        <div class="field"><div class="field-label">CURP</div><div class="field-value mono">${emp.curp || "—"}</div></div>
+        <div class="field"><div class="field-label">RFC</div><div class="field-value mono">${emp.rfc || "—"}</div></div>
+        <div class="field"><div class="field-label">NSS (IMSS)</div><div class="field-value mono">${emp.nss || "—"}</div></div>
+        <div class="field"><div class="field-label">Cédula Profesional</div><div class="field-value mono">${emp.cedulaProfesional || "—"}</div></div>
+        <div class="field"><div class="field-label">Nivel de Estudios</div><div class="field-value">${
+          (
+            {
+              primaria: "Primaria",
+              secundaria: "Secundaria",
+              preparatoria: "Preparatoria / Bachillerato",
+              tecnico: "Técnico / Carrera Técnica",
+              licenciatura: "Licenciatura",
+              especialidad: "Especialidad",
+              maestria: "Maestría",
+              doctorado: "Doctorado",
+              otro: "Otro",
+            } as Record<string, string>
+          )[(emp as any).educationLevel] ||
+          (emp as any).educationLevel ||
+          "—"
+        }</div></div>
       </div>
     </div>
     <div class="section">
       <div class="section-title">2. Información Laboral</div>
       <div class="grid">
-        <div class="field"><div class="field-label">Número de Empleado</div><div class="field-value">${emp.employeeNumber || '—'}</div></div>
-        <div class="field"><div class="field-label">Departamento</div><div class="field-value">${emp.department || '—'}</div></div>
-        <div class="field"><div class="field-label">Puesto</div><div class="field-value">${emp.position || '—'}</div></div>
+        <div class="field"><div class="field-label">Número de Empleado</div><div class="field-value">${emp.employeeNumber || "—"}</div></div>
+        <div class="field"><div class="field-label">Departamento</div><div class="field-value">${emp.department || "—"}</div></div>
+        <div class="field"><div class="field-label">Puesto</div><div class="field-value">${emp.position || "—"}</div></div>
         <div class="field"><div class="field-label">Tipo de Contrato</div><div class="field-value">${contractTypeLabel}</div></div>
         <div class="field"><div class="field-label">Fecha de Ingreso</div><div class="field-value">${hireDateStr}</div></div>
         <div class="field"><div class="field-label">Alta en Sistema</div><div class="field-value">${createdAtStr}</div></div>
@@ -391,23 +538,27 @@ export default function EmployeeProfile() {
     </div>
     <div class="section">
       <div class="section-title">4. Historial de Capacitación NOM-035</div>
-      ${courses.length === 0
-        ? '<p style="font-size:10pt;color:#6b7280;font-style:italic;">Sin cursos completados registrados en el sistema.</p>'
-        : `<table style="width:100%;border-collapse:collapse;font-size:10pt;">
+      ${
+        courses.length === 0
+          ? '<p style="font-size:10pt;color:#6b7280;font-style:italic;">Sin cursos completados registrados en el sistema.</p>'
+          : `<table style="width:100%;border-collapse:collapse;font-size:10pt;">
             <thead><tr style="background:#7c3aed;color:#fff;">
               <th style="padding:6px 10px;text-align:left;">Núm.</th>
               <th style="padding:6px 10px;text-align:left;">Curso</th>
               <th style="padding:6px 10px;text-align:center;">Fecha de Término</th>
               <th style="padding:6px 10px;text-align:center;">Avance</th>
             </tr></thead>
-            <tbody>${courses.map((c: any, i: number) =>
-              `<tr style="background:${i % 2 === 0 ? '#f9fafb' : '#fff'};">
+            <tbody>${courses
+              .map(
+                (c: any, i: number) =>
+                  `<tr style="background:${i % 2 === 0 ? "#f9fafb" : "#fff"};">
                 <td style="padding:5px 10px;">${i + 1}</td>
                 <td style="padding:5px 10px;font-weight:500;">${c.courseName}</td>
                 <td style="padding:5px 10px;text-align:center;">${c.completedAt}</td>
                 <td style="padding:5px 10px;text-align:center;">${c.progressPercentage}%</td>
               </tr>`
-            ).join('')}</tbody>
+              )
+              .join("")}</tbody>
           </table>`
       }
     </div>
@@ -433,7 +584,7 @@ export default function EmployeeProfile() {
 </body>
 </html>`;
 
-    const win = window.open('', '_blank');
+    const win = window.open("", "_blank");
     if (win) {
       win.document.write(html);
       win.document.close();
@@ -443,7 +594,9 @@ export default function EmployeeProfile() {
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
-        <p className="text-center text-muted-foreground">Cargando perfil del trabajador...</p>
+        <p className="text-center text-muted-foreground">
+          Cargando perfil del trabajador...
+        </p>
       </div>
     );
   }
@@ -490,7 +643,7 @@ export default function EmployeeProfile() {
                   <Badge variant={employee.isActive ? "default" : "secondary"}>
                     {employee.isActive ? "Activo" : "Inactivo"}
                   </Badge>
-                  <ReentryBadge 
+                  <ReentryBadge
                     reentryCount={employee.reentryCount || 0}
                     previousHireDates={employee.previousHireDates}
                   />
@@ -506,7 +659,11 @@ export default function EmployeeProfile() {
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
-              <Button variant="outline" onClick={handleExportPDF} title="Exportar expediente completo a PDF">
+              <Button
+                variant="outline"
+                onClick={handleExportPDF}
+                title="Exportar expediente completo a PDF"
+              >
                 <Download className="mr-2 h-4 w-4" />
                 Exportar Expediente PDF
               </Button>
@@ -549,38 +706,55 @@ export default function EmployeeProfile() {
               )}
             </div>
           </div>
-                </CardHeader>
+        </CardHeader>
       </Card>
 
       {/* P13: Indicador de completitud del perfil */}
       {(() => {
         const fields = [
-          { label: "Nombre",           value: employee.firstName || employee.lastName },
-          { label: "Email",            value: employee.email },
-          { label: "Teléfono",         value: employee.phone },
-          { label: "CURP",             value: employee.curp },
-          { label: "RFC",              value: employee.rfc },
-          { label: "NSS",              value: employee.nss },
-          { label: "Departamento",     value: employee.departmentId },
-          { label: "Puesto",           value: employee.positionId },
+          { label: "Nombre", value: employee.firstName || employee.lastName },
+          { label: "Email", value: employee.email },
+          { label: "Teléfono", value: employee.phone },
+          { label: "CURP", value: employee.curp },
+          { label: "RFC", value: employee.rfc },
+          { label: "NSS", value: employee.nss },
+          { label: "Departamento", value: employee.departmentId },
+          { label: "Puesto", value: employee.positionId },
           { label: "Fecha de ingreso", value: employee.hireDate },
-          { label: "Escolaridad",      value: employee.educationLevel },
-          { label: "Género",           value: employee.gender },
-          { label: "Núm. Empleado",    value: employee.employeeNumber },
+          { label: "Escolaridad", value: employee.educationLevel },
+          { label: "Género", value: employee.gender },
+          { label: "Núm. Empleado", value: employee.employeeNumber },
         ];
-        const filled = fields.filter(f => f.value != null && f.value !== "").length;
+        const filled = fields.filter(
+          f => f.value != null && f.value !== ""
+        ).length;
         const pct = Math.round((filled / fields.length) * 100);
         const missing = fields.filter(f => !f.value);
-        const barColor = pct >= 90 ? "bg-green-500" : pct >= 60 ? "bg-amber-500" : "bg-red-500";
-        const textColor = pct >= 90 ? "text-green-600" : pct >= 60 ? "text-amber-600" : "text-red-600";
+        const barColor =
+          pct >= 90
+            ? "bg-green-500"
+            : pct >= 60
+              ? "bg-amber-500"
+              : "bg-red-500";
+        const textColor =
+          pct >= 90
+            ? "text-green-600"
+            : pct >= 60
+              ? "text-amber-600"
+              : "text-red-600";
         return (
           <div className="rounded-lg border bg-card p-4 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Completitud del perfil</span>
+              <span className="text-sm font-medium">
+                Completitud del perfil
+              </span>
               <span className={`text-sm font-bold ${textColor}`}>{pct}%</span>
             </div>
             <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-              <div className={`h-2 rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+              <div
+                className={`h-2 rounded-full transition-all ${barColor}`}
+                style={{ width: `${pct}%` }}
+              />
             </div>
             {missing.length > 0 && (
               <p className="text-xs text-muted-foreground">
@@ -603,7 +777,9 @@ export default function EmployeeProfile() {
                 <Mail className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Correo Electrónico</p>
-                  <p className="text-sm text-muted-foreground">{employee.email}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {employee.email}
+                  </p>
                 </div>
               </div>
             )}
@@ -612,7 +788,9 @@ export default function EmployeeProfile() {
                 <Phone className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Teléfono</p>
-                  <p className="text-sm text-muted-foreground">{employee.phone}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {employee.phone}
+                  </p>
                 </div>
               </div>
             )}
@@ -621,7 +799,9 @@ export default function EmployeeProfile() {
                 <FileText className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">CURP</p>
-                  <p className="text-sm text-muted-foreground font-mono">{employee.curp}</p>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    {employee.curp}
+                  </p>
                 </div>
               </div>
             )}
@@ -630,7 +810,9 @@ export default function EmployeeProfile() {
                 <FileText className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">RFC</p>
-                  <p className="text-sm text-muted-foreground font-mono">{(employee as any).rfc}</p>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    {(employee as any).rfc}
+                  </p>
                 </div>
               </div>
             )}
@@ -638,8 +820,12 @@ export default function EmployeeProfile() {
               <div className="flex items-start">
                 <FileText className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium">NSS — Número de Seguridad Social</p>
-                  <p className="text-sm text-muted-foreground font-mono">{(employee as any).nss}</p>
+                  <p className="text-sm font-medium">
+                    NSS — Número de Seguridad Social
+                  </p>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    {(employee as any).nss}
+                  </p>
                 </div>
               </div>
             )}
@@ -648,7 +834,9 @@ export default function EmployeeProfile() {
                 <FileText className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Cédula Profesional</p>
-                  <p className="text-sm text-muted-foreground font-mono">{(employee as any).cedulaProfesional}</p>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    {(employee as any).cedulaProfesional}
+                  </p>
                 </div>
               </div>
             )}
@@ -656,31 +844,49 @@ export default function EmployeeProfile() {
               <div className="flex items-start">
                 <GraduationCap className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium">Nivel de Estudios
+                  <p className="text-sm font-medium">
+                    Nivel de Estudios
                     {(() => {
-                      const eduOrder = ['primaria','secundaria','preparatoria','tecnico','licenciatura','especialidad','maestria','doctorado'];
+                      const eduOrder = [
+                        "primaria",
+                        "secundaria",
+                        "preparatoria",
+                        "tecnico",
+                        "licenciatura",
+                        "especialidad",
+                        "maestria",
+                        "doctorado",
+                      ];
                       const empEdu = (employee as any).educationLevel;
                       const posEdu = (employee as any).positionMinimumEducation;
                       if (!posEdu || !empEdu) return null;
-                      const meets = eduOrder.indexOf(empEdu) >= eduOrder.indexOf(posEdu);
+                      const meets =
+                        eduOrder.indexOf(empEdu) >= eduOrder.indexOf(posEdu);
                       return (
-                        <span className={`ml-2 text-xs px-1.5 py-0.5 rounded font-normal ${meets ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                          {meets ? '✓ Cumple requisito' : '⚠ No cumple requisito del puesto'}
+                        <span
+                          className={`ml-2 text-xs px-1.5 py-0.5 rounded font-normal ${meets ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}
+                        >
+                          {meets
+                            ? "✓ Cumple requisito"
+                            : "⚠ No cumple requisito del puesto"}
                         </span>
                       );
                     })()}
                   </p>
-                  <p className="text-sm text-muted-foreground capitalize">{{
-                    primaria: 'Primaria',
-                    secundaria: 'Secundaria',
-                    preparatoria: 'Preparatoria / Bachillerato',
-                    tecnico: 'Técnico / Carrera Técnica',
-                    licenciatura: 'Licenciatura',
-                    especialidad: 'Especialidad',
-                    maestria: 'Maestría',
-                    doctorado: 'Doctorado',
-                    otro: 'Otro',
-                  }[(employee as any).educationLevel as string] || (employee as any).educationLevel}</p>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {{
+                      primaria: "Primaria",
+                      secundaria: "Secundaria",
+                      preparatoria: "Preparatoria / Bachillerato",
+                      tecnico: "Técnico / Carrera Técnica",
+                      licenciatura: "Licenciatura",
+                      especialidad: "Especialidad",
+                      maestria: "Maestría",
+                      doctorado: "Doctorado",
+                      otro: "Otro",
+                    }[(employee as any).educationLevel as string] ||
+                      (employee as any).educationLevel}
+                  </p>
                 </div>
               </div>
             )}
@@ -698,7 +904,9 @@ export default function EmployeeProfile() {
                 <Briefcase className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Número de Empleado</p>
-                  <p className="text-sm text-muted-foreground">{employee.employeeNumber}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {employee.employeeNumber}
+                  </p>
                 </div>
               </div>
             )}
@@ -707,7 +915,9 @@ export default function EmployeeProfile() {
                 <Building className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Departamento</p>
-                  <p className="text-sm text-muted-foreground">{employee.department}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {employee.department}
+                  </p>
                 </div>
               </div>
             )}
@@ -735,8 +945,8 @@ export default function EmployeeProfile() {
                     {employee.contractType === "permanent"
                       ? "Permanente"
                       : employee.contractType === "temporary"
-                      ? "Temporal"
-                      : "Por Contrato"}
+                        ? "Temporal"
+                        : "Por Contrato"}
                   </p>
                 </div>
               </div>
@@ -774,9 +984,9 @@ export default function EmployeeProfile() {
         </Card>
       </div>
 
-       {/* Timeline de historial laboral */}
+      {/* Timeline de historial laboral */}
       <div className="mt-6">
-        <EmployeeTimeline 
+        <EmployeeTimeline
           history={employeeHistory || []}
           employeeName={`${employee.firstName} ${employee.lastName}`}
         />
@@ -786,15 +996,45 @@ export default function EmployeeProfile() {
       <div className="mt-8">
         {/* Tab navigation */}
         <div className="flex gap-1 border-b mb-6">
-          {([
-            { key: "info", label: "Información", icon: <User className="h-4 w-4" /> },
-            { key: "contracts", label: "Contratos", icon: <Calendar className="h-4 w-4" /> },
-            { key: "dnc", label: "Comparativa DNC", icon: <Target className="h-4 w-4" /> },
-            { key: "docs", label: "Expediente Electrónico", icon: <FolderOpen className="h-4 w-4" /> },
-            { key: "salary", label: "Historial Salarial", icon: <DollarSign className="h-4 w-4" /> },
-            { key: "vacations", label: "Vacaciones", icon: <Calendar className="h-4 w-4" /> },
-            { key: "psychometric", label: "Evaluación Psicometrica", icon: <ShieldCheck className="h-4 w-4" /> },
-          ] as const).map((tab) => (
+          {(
+            [
+              {
+                key: "info",
+                label: "Información",
+                icon: <User className="h-4 w-4" />,
+              },
+              {
+                key: "contracts",
+                label: "Contratos",
+                icon: <Calendar className="h-4 w-4" />,
+              },
+              {
+                key: "dnc",
+                label: "Comparativa DNC",
+                icon: <Target className="h-4 w-4" />,
+              },
+              {
+                key: "docs",
+                label: "Expediente Electrónico",
+                icon: <FolderOpen className="h-4 w-4" />,
+              },
+              {
+                key: "salary",
+                label: "Historial Salarial",
+                icon: <DollarSign className="h-4 w-4" />,
+              },
+              {
+                key: "vacations",
+                label: "Vacaciones",
+                icon: <Calendar className="h-4 w-4" />,
+              },
+              {
+                key: "psychometric",
+                label: "Evaluación Psicometrica",
+                icon: <ShieldCheck className="h-4 w-4" />,
+              },
+            ] as const
+          ).map(tab => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
@@ -817,10 +1057,15 @@ export default function EmployeeProfile() {
             <Card>
               <CardHeader>
                 <CardTitle>Portal del Empleado</CardTitle>
-                <CardDescription>Enviar enlace de acceso al portal personal</CardDescription>
+                <CardDescription>
+                  Enviar enlace de acceso al portal personal
+                </CardDescription>
               </CardHeader>
               <CardContent>
-<PortalLinkButton employeeId={employeeId} employeeEmail={employee?.email} />
+                <PortalLinkButton
+                  employeeId={employeeId}
+                  employeeEmail={employee?.email}
+                />
               </CardContent>
             </Card>
 
@@ -828,25 +1073,34 @@ export default function EmployeeProfile() {
             <Card>
               <CardHeader>
                 <CardTitle>Historial de Capacitación</CardTitle>
-                <CardDescription>Cursos completados en la plataforma NOM-035</CardDescription>
+                <CardDescription>
+                  Cursos completados en la plataforma NOM-035
+                </CardDescription>
               </CardHeader>
-            <CardContent>
-              {(coursesHistory || []).length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Sin cursos completados registrados.</p>
-              ) : (
-                <div className="space-y-2">
-                  {(coursesHistory as any[]).map((c: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
-                      <div>
-                        <p className="text-sm font-medium">{c.courseName}</p>
-                        <p className="text-xs text-muted-foreground">{c.completedAt}</p>
+              <CardContent>
+                {(coursesHistory || []).length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">
+                    Sin cursos completados registrados.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {(coursesHistory as any[]).map((c: any, i: number) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between py-2 border-b last:border-0"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">{c.courseName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {c.completedAt}
+                          </p>
+                        </div>
+                        <Badge variant="outline">{c.progressPercentage}%</Badge>
                       </div>
-                      <Badge variant="outline">{c.progressPercentage}%</Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
             </Card>
           </div>
         )}
@@ -859,7 +1113,9 @@ export default function EmployeeProfile() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>Vencimiento de Contratos</CardTitle>
-                  <CardDescription>Fechas de vencimiento y estado de cada contrato</CardDescription>
+                  <CardDescription>
+                    Fechas de vencimiento y estado de cada contrato
+                  </CardDescription>
                 </div>
                 <Link href={`/employees/${employeeId}/edit`}>
                   <Button variant="outline" size="sm">
@@ -870,36 +1126,56 @@ export default function EmployeeProfile() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {([1, 2, 3] as const).map((n) => {
+                  {([1, 2, 3] as const).map(n => {
                     const dateKey = `contract${n}ExpirationDate` as string;
                     const dateVal = (employee as any)[dateKey];
                     const status = contractStatus(dateVal);
-                    const sigForContract = (contractSigs || []).filter((s: any) => s.contractNumber === String(n));
+                    const sigForContract = (contractSigs || []).filter(
+                      (s: any) => s.contractNumber === String(n)
+                    );
                     const lastSig = sigForContract[sigForContract.length - 1];
                     return (
-                      <div key={n} className={`rounded-lg border p-4 space-y-3 ${
-                        !dateVal ? "bg-muted/30" :
-                        status.daysLeft !== null && status.daysLeft < 0 ? "bg-red-50 border-red-200" :
-                        status.daysLeft !== null && status.daysLeft <= 7 ? "bg-red-50 border-red-200" :
-                        status.daysLeft !== null && status.daysLeft <= 30 ? "bg-amber-50 border-amber-200" :
-                        "bg-green-50 border-green-200"
-                      }`}>
+                      <div
+                        key={n}
+                        className={`rounded-lg border p-4 space-y-3 ${
+                          !dateVal
+                            ? "bg-muted/30"
+                            : status.daysLeft !== null && status.daysLeft < 0
+                              ? "bg-red-50 border-red-200"
+                              : status.daysLeft !== null && status.daysLeft <= 7
+                                ? "bg-red-50 border-red-200"
+                                : status.daysLeft !== null &&
+                                    status.daysLeft <= 30
+                                  ? "bg-amber-50 border-amber-200"
+                                  : "bg-green-50 border-green-200"
+                        }`}
+                      >
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-semibold">Contrato {n}</span>
+                          <span className="text-sm font-semibold">
+                            Contrato {n}
+                          </span>
                         </div>
                         {dateVal ? (
                           <>
                             <p className="text-sm font-mono">
-                              {new Date(dateVal).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}
+                              {new Date(dateVal).toLocaleDateString("es-MX", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
                             </p>
-                            <div className={`flex items-center gap-1.5 text-xs font-medium ${status.color}`}>
+                            <div
+                              className={`flex items-center gap-1.5 text-xs font-medium ${status.color}`}
+                            >
                               {status.icon}
                               {status.label}
                             </div>
                           </>
                         ) : (
-                          <p className="text-sm text-muted-foreground italic">Sin fecha registrada</p>
+                          <p className="text-sm text-muted-foreground italic">
+                            Sin fecha registrada
+                          </p>
                         )}
                         {/* Firma digital */}
                         {lastSig ? (
@@ -908,10 +1184,20 @@ export default function EmployeeProfile() {
                               <ShieldCheck className="h-3.5 w-3.5" />
                               Firmado digitalmente
                             </div>
-                            <img src={lastSig.signatureImageUrl} alt="Firma" className="h-10 object-contain border rounded bg-white" />
-                            <p className="text-xs text-muted-foreground">{lastSig.signerName}</p>
-                            <p className="text-xs text-muted-foreground font-mono truncate" title={lastSig.signatureHash ?? undefined}>
-                              SHA-256: {lastSig.signatureHash?.substring(0, 12)}…
+                            <img
+                              src={lastSig.signatureImageUrl}
+                              alt="Firma"
+                              className="h-10 object-contain border rounded bg-white"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              {lastSig.signerName}
+                            </p>
+                            <p
+                              className="text-xs text-muted-foreground font-mono truncate"
+                              title={lastSig.signatureHash ?? undefined}
+                            >
+                              SHA-256: {lastSig.signatureHash?.substring(0, 12)}
+                              …
                             </p>
                           </div>
                         ) : (
@@ -919,7 +1205,9 @@ export default function EmployeeProfile() {
                             variant="outline"
                             size="sm"
                             className="w-full gap-1.5 text-xs"
-                            onClick={() => setSigningContract(String(n) as "1" | "2" | "3")}
+                            onClick={() =>
+                              setSigningContract(String(n) as "1" | "2" | "3")
+                            }
                           >
                             <PenLine className="h-3.5 w-3.5" />
                             Agregar firma digital
@@ -931,7 +1219,8 @@ export default function EmployeeProfile() {
                 </div>
                 <p className="text-xs text-muted-foreground mt-4">
                   <AlertTriangle className="inline h-3 w-3 mr-1" />
-                  Se envía alerta automática a RH 7 días antes del vencimiento de cualquier contrato.
+                  Se envía alerta automática a RH 7 días antes del vencimiento
+                  de cualquier contrato.
                 </p>
               </CardContent>
             </Card>
@@ -945,18 +1234,21 @@ export default function EmployeeProfile() {
                     Firma Digital — Contrato {signingContract} (NOM-151)
                   </CardTitle>
                   <CardDescription>
-                    La firma se almacenará con hash SHA-256 y marca de tiempo del servidor para garantizar su validez legal.
+                    La firma se almacenará con hash SHA-256 y marca de tiempo
+                    del servidor para garantizar su validez legal.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium">Nombre del firmante *</label>
+                      <label className="text-sm font-medium">
+                        Nombre del firmante *
+                      </label>
                       <input
                         className="w-full border rounded-md px-3 py-2 text-sm bg-background"
                         placeholder="Nombre completo"
                         value={signerName}
-                        onChange={(e) => setSignerName(e.target.value)}
+                        onChange={e => setSignerName(e.target.value)}
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -965,16 +1257,22 @@ export default function EmployeeProfile() {
                         className="w-full border rounded-md px-3 py-2 text-sm bg-background"
                         placeholder="Ej: Trabajador, Representante Legal"
                         value={signerRole}
-                        onChange={(e) => setSignerRole(e.target.value)}
+                        onChange={e => setSignerRole(e.target.value)}
                       />
                     </div>
                   </div>
                   <SignatureCanvas
                     onSave={handleContractSignature}
-                    onCancel={() => { setSigningContract(null); setSignerName(""); setSignerRole(""); }}
+                    onCancel={() => {
+                      setSigningContract(null);
+                      setSignerName("");
+                      setSignerRole("");
+                    }}
                   />
                   {saveContractSigMutation.isPending && (
-                    <p className="text-sm text-blue-600 animate-pulse">Guardando firma y subiendo a S3…</p>
+                    <p className="text-sm text-blue-600 animate-pulse">
+                      Guardando firma y subiendo a S3…
+                    </p>
                   )}
                 </CardContent>
               </Card>
@@ -986,30 +1284,56 @@ export default function EmployeeProfile() {
         {activeTab === "dnc" && (
           <div className="space-y-4">
             {dncLoading ? (
-              <Card><CardContent className="py-8 text-center text-muted-foreground">Cargando comparativa...</CardContent></Card>
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Cargando comparativa...
+                </CardContent>
+              </Card>
             ) : !profileComparison ? (
-              <Card><CardContent className="py-8 text-center text-muted-foreground">No se pudo cargar la comparativa.</CardContent></Card>
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  No se pudo cargar la comparativa.
+                </CardContent>
+              </Card>
             ) : (
               <>
                 {/* Summary cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="rounded-lg border p-3 text-center">
-                    <p className="text-2xl font-bold">{(profileComparison as any).summary.compliancePercentage}%</p>
-                    <p className="text-xs text-muted-foreground mt-1">Cumplimiento</p>
-                  </div>
-                  <div className="rounded-lg border p-3 text-center">
-                    <p className="text-2xl font-bold text-green-600">{(profileComparison as any).summary.compliantCount}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Competencias OK</p>
-                  </div>
-                  <div className="rounded-lg border p-3 text-center">
-                    <p className="text-2xl font-bold text-red-600">{(profileComparison as any).summary.gapCount}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Con Brecha</p>
-                  </div>
-                  <div className="rounded-lg border p-3 text-center">
-                    <p className={`text-sm font-semibold ${ (profileComparison as any).employee.educationCompliant ? "text-green-600" : "text-red-600" }`}>
-                      {(profileComparison as any).employee.educationCompliant ? "✓ Cumple" : "✗ No cumple"}
+                    <p className="text-2xl font-bold">
+                      {(profileComparison as any).summary.compliancePercentage}%
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Escolaridad</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Cumplimiento
+                    </p>
+                  </div>
+                  <div className="rounded-lg border p-3 text-center">
+                    <p className="text-2xl font-bold text-green-600">
+                      {(profileComparison as any).summary.compliantCount}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Competencias OK
+                    </p>
+                  </div>
+                  <div className="rounded-lg border p-3 text-center">
+                    <p className="text-2xl font-bold text-red-600">
+                      {(profileComparison as any).summary.gapCount}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Con Brecha
+                    </p>
+                  </div>
+                  <div className="rounded-lg border p-3 text-center">
+                    <p
+                      className={`text-sm font-semibold ${(profileComparison as any).employee.educationCompliant ? "text-green-600" : "text-red-600"}`}
+                    >
+                      {(profileComparison as any).employee.educationCompliant
+                        ? "✓ Cumple"
+                        : "✗ No cumple"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Escolaridad
+                    </p>
                   </div>
                 </div>
 
@@ -1021,15 +1345,29 @@ export default function EmployeeProfile() {
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">Nivel del empleado</p>
-                        <Badge variant={(profileComparison as any).employee.educationCompliant ? "default" : "destructive"} className="capitalize">
-                          {(profileComparison as any).employee.educationLevel || "No registrado"}
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Nivel del empleado
+                        </p>
+                        <Badge
+                          variant={
+                            (profileComparison as any).employee
+                              .educationCompliant
+                              ? "default"
+                              : "destructive"
+                          }
+                          className="capitalize"
+                        >
+                          {(profileComparison as any).employee.educationLevel ||
+                            "No registrado"}
                         </Badge>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">Mínimo requerido por el puesto</p>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Mínimo requerido por el puesto
+                        </p>
                         <Badge variant="outline" className="capitalize">
-                          {(profileComparison as any).employee.minimumEducation || "Sin requisito"}
+                          {(profileComparison as any).employee
+                            .minimumEducation || "Sin requisito"}
                         </Badge>
                       </div>
                     </div>
@@ -1041,19 +1379,28 @@ export default function EmployeeProfile() {
                   <Card>
                     <CardContent className="py-6 text-center">
                       <BookOpen className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">El puesto de este empleado no tiene un perfil de competencias configurado.</p>
-                      <p className="text-xs text-muted-foreground mt-1">Configúralo en Gestión de Talento → Perfiles de Puesto.</p>
+                      <p className="text-sm text-muted-foreground">
+                        El puesto de este empleado no tiene un perfil de
+                        competencias configurado.
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Configúralo en Gestión de Talento → Perfiles de Puesto.
+                      </p>
                     </CardContent>
                   </Card>
                 ) : (
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-base">Competencias del Puesto vs Empleado</CardTitle>
+                      <CardTitle className="text-base">
+                        Competencias del Puesto vs Empleado
+                      </CardTitle>
                       <LoadingButton
                         size="sm"
                         loading={generateDNCMutation.isPending}
                         loadingText="Generando DNC..."
-                        onClick={() => generateDNCMutation.mutate({ employeeId })}
+                        onClick={() =>
+                          generateDNCMutation.mutate({ employeeId })
+                        }
                       >
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Generar DNC
@@ -1061,42 +1408,77 @@ export default function EmployeeProfile() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {(profileComparison as any).comparison.map((item: any, i: number) => (
-                          <div key={i} className={`flex items-center justify-between p-3 rounded-lg border ${
-                            item.compliant ? "bg-green-50/50 border-green-100" : "bg-red-50/50 border-red-100"
-                          }`}>
-                            <div className="flex items-center gap-3">
-                              {item.compliant
-                                ? <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
-                                : <XCircle className="h-4 w-4 text-red-500 shrink-0" />}
-                              <div>
-                                <p className="text-sm font-medium">{item.competencyName}</p>
-                                <p className="text-xs text-muted-foreground capitalize">{item.competencyType}</p>
+                        {(profileComparison as any).comparison.map(
+                          (item: any, i: number) => (
+                            <div
+                              key={i}
+                              className={`flex items-center justify-between p-3 rounded-lg border ${
+                                item.compliant
+                                  ? "bg-green-50/50 border-green-100"
+                                  : "bg-red-50/50 border-red-100"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                {item.compliant ? (
+                                  <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                                ) : (
+                                  <XCircle className="h-4 w-4 text-red-500 shrink-0" />
+                                )}
+                                <div>
+                                  <p className="text-sm font-medium">
+                                    {item.competencyName}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground capitalize">
+                                    {item.competencyType}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3 text-xs">
+                                <div className="text-center">
+                                  <p className="text-muted-foreground">
+                                    Actual
+                                  </p>
+                                  <Badge
+                                    variant="outline"
+                                    className="capitalize text-xs"
+                                  >
+                                    {item.currentLevel}
+                                  </Badge>
+                                </div>
+                                <span className="text-muted-foreground">→</span>
+                                <div className="text-center">
+                                  <p className="text-muted-foreground">
+                                    Requerido
+                                  </p>
+                                  <Badge
+                                    variant={
+                                      item.compliant ? "default" : "destructive"
+                                    }
+                                    className="capitalize text-xs"
+                                  >
+                                    {item.requiredLevel}
+                                  </Badge>
+                                </div>
+                                {!item.compliant && item.priority && (
+                                  <Badge
+                                    variant="outline"
+                                    className={`text-xs ${
+                                      item.priority === "critica"
+                                        ? "border-red-400 text-red-600"
+                                        : item.priority === "alta"
+                                          ? "border-orange-400 text-orange-600"
+                                          : item.priority === "media"
+                                            ? "border-amber-400 text-amber-600"
+                                            : "border-gray-300 text-gray-500"
+                                    }`}
+                                  >
+                                    {item.priority}
+                                  </Badge>
+                                )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 text-xs">
-                              <div className="text-center">
-                                <p className="text-muted-foreground">Actual</p>
-                                <Badge variant="outline" className="capitalize text-xs">{item.currentLevel}</Badge>
-                              </div>
-                              <span className="text-muted-foreground">→</span>
-                              <div className="text-center">
-                                <p className="text-muted-foreground">Requerido</p>
-                                <Badge variant={item.compliant ? "default" : "destructive"} className="capitalize text-xs">{item.requiredLevel}</Badge>
-                              </div>
-                              {!item.compliant && item.priority && (
-                                <Badge variant="outline" className={`text-xs ${
-                                  item.priority === "critica" ? "border-red-400 text-red-600" :
-                                  item.priority === "alta" ? "border-orange-400 text-orange-600" :
-                                  item.priority === "media" ? "border-amber-400 text-amber-600" :
-                                  "border-gray-300 text-gray-500"
-                                }`}>
-                                  {item.priority}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -1113,72 +1495,109 @@ export default function EmployeeProfile() {
             {docStats && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="rounded-lg border p-3 text-center">
-                  <p className="text-2xl font-bold">{(docStats as any).total}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Total documentos</p>
+                  <p className="text-2xl font-bold">
+                    {(docStats as any).total}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Total documentos
+                  </p>
                 </div>
                 <div className="rounded-lg border p-3 text-center">
-                  <p className="text-2xl font-bold text-green-600">{(docStats as any).vigente}</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {(docStats as any).vigente}
+                  </p>
                   <p className="text-xs text-muted-foreground mt-1">Vigentes</p>
                 </div>
                 <div className="rounded-lg border p-3 text-center">
-                  <p className="text-2xl font-bold text-amber-600">{(docStats as any).porVencer}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Por vencer</p>
+                  <p className="text-2xl font-bold text-amber-600">
+                    {(docStats as any).porVencer}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Por vencer
+                  </p>
                 </div>
                 <div className="rounded-lg border p-3 text-center">
-                  <p className="text-2xl font-bold text-red-600">{(docStats as any).vencido}</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {(docStats as any).vencido}
+                  </p>
                   <p className="text-xs text-muted-foreground mt-1">Vencidos</p>
                 </div>
               </div>
             )}
 
             {/* Completeness indicator */}
-            {empDocuments && (() => {
-              const uploadedTypes = new Set((empDocuments as any[]).map((d: any) => d.documentType));
-              const completedRequired = REQUIRED_DOCS.filter(t => uploadedTypes.has(t)).length;
-              const pct = Math.round((completedRequired / REQUIRED_DOCS.length) * 100);
-              return (
-                <Card>
-                  <CardContent className="pt-4 pb-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-medium">Completitud del expediente obligatorio</p>
-                      <span className="text-sm font-bold">{completedRequired}/{REQUIRED_DOCS.length} ({pct}%)</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-muted overflow-hidden">
-                      <div className={`h-full rounded-full transition-all ${ pct === 100 ? "bg-green-500" : pct >= 60 ? "bg-amber-500" : "bg-red-500" }`} style={{ width: `${pct}%` }} />
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {REQUIRED_DOCS.map(t => (
-                        <span key={t} className={`text-xs px-2 py-0.5 rounded-full border ${ uploadedTypes.has(t) ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700" }`}>
-                          {uploadedTypes.has(t) ? "✓" : "✗"} {DOC_LABELS[t]}
+            {empDocuments &&
+              (() => {
+                const uploadedTypes = new Set(
+                  (empDocuments as any[]).map((d: any) => d.documentType)
+                );
+                const completedRequired = REQUIRED_DOCS.filter(t =>
+                  uploadedTypes.has(t)
+                ).length;
+                const pct = Math.round(
+                  (completedRequired / REQUIRED_DOCS.length) * 100
+                );
+                return (
+                  <Card>
+                    <CardContent className="pt-4 pb-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium">
+                          Completitud del expediente obligatorio
+                        </p>
+                        <span className="text-sm font-bold">
+                          {completedRequired}/{REQUIRED_DOCS.length} ({pct}%)
                         </span>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })()}
+                      </div>
+                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${pct === 100 ? "bg-green-500" : pct >= 60 ? "bg-amber-500" : "bg-red-500"}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {REQUIRED_DOCS.map(t => (
+                          <span
+                            key={t}
+                            className={`text-xs px-2 py-0.5 rounded-full border ${uploadedTypes.has(t) ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700"}`}
+                          >
+                            {uploadedTypes.has(t) ? "✓" : "✗"} {DOC_LABELS[t]}
+                          </span>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
 
             {/* Upload form */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Cargar Nuevo Documento</CardTitle>
+                <CardTitle className="text-base">
+                  Cargar Nuevo Documento
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground block mb-1">Tipo de documento</label>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">
+                      Tipo de documento
+                    </label>
                     <select
                       value={uploadType}
                       onChange={e => setUploadType(e.target.value)}
                       className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                     >
                       {Object.entries(DOC_LABELS).map(([k, v]) => (
-                        <option key={k} value={k}>{v}</option>
+                        <option key={k} value={k}>
+                          {v}
+                        </option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground block mb-1">Notas (opcional)</label>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">
+                      Notas (opcional)
+                    </label>
                     <input
                       type="text"
                       value={uploadNotes}
@@ -1188,7 +1607,9 @@ export default function EmployeeProfile() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground block mb-1">Archivo (máx. 16 MB)</label>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">
+                      Archivo (máx. 16 MB)
+                    </label>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -1199,7 +1620,11 @@ export default function EmployeeProfile() {
                     />
                   </div>
                 </div>
-                {isUploading && <p className="text-xs text-muted-foreground mt-2">Cargando documento...</p>}
+                {isUploading && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Cargando documento...
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -1217,26 +1642,64 @@ export default function EmployeeProfile() {
                 ) : !(empDocuments as any[])?.length ? (
                   <div className="text-center py-6">
                     <FolderOpen className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No hay documentos cargados aún.</p>
+                    <p className="text-sm text-muted-foreground">
+                      No hay documentos cargados aún.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     {(empDocuments as any[]).map((doc: any) => (
-                      <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/30 transition-colors">
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/30 transition-colors"
+                      >
                         <div className="flex items-center gap-3">
                           <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                           <div>
-                            <p className="text-sm font-medium">{DOC_LABELS[doc.documentType] || doc.documentType}</p>
-                            <p className="text-xs text-muted-foreground">{doc.fileName} · {new Date(doc.createdAt).toLocaleDateString("es-MX")}</p>
-                            {doc.notes && <p className="text-xs text-muted-foreground italic">{doc.notes}</p>}
+                            <p className="text-sm font-medium">
+                              {DOC_LABELS[doc.documentType] || doc.documentType}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {doc.fileName} ·{" "}
+                              {new Date(doc.createdAt).toLocaleDateString(
+                                "es-MX"
+                              )}
+                            </p>
+                            {doc.notes && (
+                              <p className="text-xs text-muted-foreground italic">
+                                {doc.notes}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant={doc.status === "vigente" ? "default" : doc.status === "por_vencer" ? "secondary" : "destructive"} className="text-xs">
-                            {doc.status === "vigente" ? "Vigente" : doc.status === "por_vencer" ? "Por vencer" : "Vencido"}
+                          <Badge
+                            variant={
+                              doc.status === "vigente"
+                                ? "default"
+                                : doc.status === "por_vencer"
+                                  ? "secondary"
+                                  : "destructive"
+                            }
+                            className="text-xs"
+                          >
+                            {doc.status === "vigente"
+                              ? "Vigente"
+                              : doc.status === "por_vencer"
+                                ? "Por vencer"
+                                : "Vencido"}
                           </Badge>
-                          <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" title="Ver documento">
+                          <a
+                            href={doc.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              title="Ver documento"
+                            >
                               <Eye className="h-3.5 w-3.5" />
                             </Button>
                           </a>
@@ -1246,8 +1709,14 @@ export default function EmployeeProfile() {
                             className="h-7 w-7 text-destructive hover:text-destructive"
                             title="Eliminar documento"
                             onClick={() => {
-                              if (window.confirm(`¿Eliminar "${DOC_LABELS[doc.documentType] || doc.documentType}"?`)) {
-                                deleteDocMutation.mutate({ documentId: doc.id });
+                              if (
+                                window.confirm(
+                                  `¿Eliminar "${DOC_LABELS[doc.documentType] || doc.documentType}"?`
+                                )
+                              ) {
+                                deleteDocMutation.mutate({
+                                  documentId: doc.id,
+                                });
                               }
                             }}
                           >
@@ -1269,21 +1738,40 @@ export default function EmployeeProfile() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div>
-                  <CardTitle className="flex items-center gap-2"><DollarSign className="h-5 w-5 text-primary" /> Salario Actual</CardTitle>
-                  <CardDescription>Salario mensual bruto registrado en el sistema</CardDescription>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-primary" /> Salario
+                    Actual
+                  </CardTitle>
+                  <CardDescription>
+                    Salario mensual bruto registrado en el sistema
+                  </CardDescription>
                 </div>
-                <Button size="sm" onClick={() => setShowAddSalary(!showAddSalary)} className="gap-1">
+                <Button
+                  size="sm"
+                  onClick={() => setShowAddSalary(!showAddSalary)}
+                  className="gap-1"
+                >
                   <Plus className="h-4 w-4" /> Registrar Cambio
                 </Button>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-primary">
-                  {currentSalaryData?.currentSalary
-                    ? new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(parseFloat(currentSalaryData.currentSalary))
-                    : <span className="text-muted-foreground text-lg">No registrado</span>}
+                  {currentSalaryData?.currentSalary ? (
+                    new Intl.NumberFormat("es-MX", {
+                      style: "currency",
+                      currency: "MXN",
+                    }).format(parseFloat(currentSalaryData.currentSalary))
+                  ) : (
+                    <span className="text-muted-foreground text-lg">
+                      No registrado
+                    </span>
+                  )}
                 </div>
                 {currentSalaryData?.position && (
-                  <p className="text-sm text-muted-foreground mt-1">{currentSalaryData.position} · {currentSalaryData.department}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {currentSalaryData.position} ·{" "}
+                    {currentSalaryData.department}
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -1291,44 +1779,92 @@ export default function EmployeeProfile() {
             {/* Add salary form */}
             {showAddSalary && (
               <Card className="border-primary/30">
-                <CardHeader><CardTitle className="text-base">Registrar Cambio Salarial</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    Registrar Cambio Salarial
+                  </CardTitle>
+                </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Salario Anterior (MXN)</label>
-                      <input type="number" value={prevSalary} onChange={e => setPrevSalary(e.target.value)} placeholder="Ej. 25000" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Salario Anterior (MXN)
+                      </label>
+                      <input
+                        type="number"
+                        value={prevSalary}
+                        onChange={e => setPrevSalary(e.target.value)}
+                        placeholder="Ej. 25000"
+                        className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nuevo Salario (MXN) *</label>
-                      <input type="number" value={newSalary} onChange={e => setNewSalary(e.target.value)} placeholder="Ej. 28000" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Nuevo Salario (MXN) *
+                      </label>
+                      <input
+                        type="number"
+                        value={newSalary}
+                        onChange={e => setNewSalary(e.target.value)}
+                        placeholder="Ej. 28000"
+                        className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tipo de Ajuste</label>
-                      <select value={salaryType} onChange={e => setSalaryType(e.target.value as any)} className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Tipo de Ajuste
+                      </label>
+                      <select
+                        value={salaryType}
+                        onChange={e => setSalaryType(e.target.value as any)}
+                        className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      >
                         <option value="annual_review">Revisión Anual</option>
                         <option value="promotion">Promoción</option>
-                        <option value="market_adjustment">Ajuste de Mercado</option>
+                        <option value="market_adjustment">
+                          Ajuste de Mercado
+                        </option>
                         <option value="retention">Retención</option>
                         <option value="correction">Corrección</option>
                         <option value="other">Otro</option>
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Fecha Efectiva *</label>
-                      <input type="date" value={salaryDate} onChange={e => setSalaryDate(e.target.value)} className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Fecha Efectiva *
+                      </label>
+                      <input
+                        type="date"
+                        value={salaryDate}
+                        onChange={e => setSalaryDate(e.target.value)}
+                        className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      />
                     </div>
                     <div className="col-span-2">
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Motivo / Notas</label>
-                      <input type="text" value={salaryReason} onChange={e => setSalaryReason(e.target.value)} placeholder="Descripción del cambio salarial" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Motivo / Notas
+                      </label>
+                      <input
+                        type="text"
+                        value={salaryReason}
+                        onChange={e => setSalaryReason(e.target.value)}
+                        placeholder="Descripción del cambio salarial"
+                        className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      />
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4">
                     <Button
                       onClick={() => {
-                        if (!newSalary || parseFloat(newSalary) <= 0) { toast.error("Ingrese el nuevo salario"); return; }
+                        if (!newSalary || parseFloat(newSalary) <= 0) {
+                          toast.error("Ingrese el nuevo salario");
+                          return;
+                        }
                         addSalaryMutation.mutate({
                           employeeId,
-                          previousSalary: prevSalary ? parseFloat(prevSalary) : undefined,
+                          previousSalary: prevSalary
+                            ? parseFloat(prevSalary)
+                            : undefined,
                           newSalary: parseFloat(newSalary),
                           adjustmentType: salaryType,
                           effectiveDate: salaryDate,
@@ -1337,9 +1873,16 @@ export default function EmployeeProfile() {
                       }}
                       disabled={addSalaryMutation.isPending}
                     >
-                      {addSalaryMutation.isPending ? "Guardando..." : "Guardar Cambio"}
+                      {addSalaryMutation.isPending
+                        ? "Guardando..."
+                        : "Guardar Cambio"}
                     </Button>
-                    <Button variant="outline" onClick={() => setShowAddSalary(false)}>Cancelar</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAddSalary(false)}
+                    >
+                      Cancelar
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -1348,35 +1891,61 @@ export default function EmployeeProfile() {
             {/* Salary history table */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Historial de Cambios Salariales</CardTitle>
-                <CardDescription>Registro de ajustes salariales para auditoría NMX-025 (Igualdad Laboral)</CardDescription>
+                <CardTitle className="text-base">
+                  Historial de Cambios Salariales
+                </CardTitle>
+                <CardDescription>
+                  Registro de ajustes salariales para auditoría NMX-025
+                  (Igualdad Laboral)
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {salaryLoading ? (
-                  <p className="text-sm text-muted-foreground">Cargando historial...</p>
+                  <p className="text-sm text-muted-foreground">
+                    Cargando historial...
+                  </p>
                 ) : !salaryHistoryData || salaryHistoryData.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <DollarSign className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">No hay cambios salariales registrados</p>
-                    <p className="text-xs mt-1">Use el botón "Registrar Cambio" para agregar el primer registro</p>
+                    <p className="text-sm">
+                      No hay cambios salariales registrados
+                    </p>
+                    <p className="text-xs mt-1">
+                      Use el botón "Registrar Cambio" para agregar el primer
+                      registro
+                    </p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Fecha Efectiva</th>
-                          <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Salario Anterior</th>
-                          <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Nuevo Salario</th>
-                          <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Ajuste</th>
-                          <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Tipo</th>
-                          <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Motivo</th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                            Fecha Efectiva
+                          </th>
+                          <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                            Salario Anterior
+                          </th>
+                          <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                            Nuevo Salario
+                          </th>
+                          <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                            Ajuste
+                          </th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                            Tipo
+                          </th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                            Motivo
+                          </th>
                           <th className="py-2 px-3"></th>
                         </tr>
                       </thead>
                       <tbody>
                         {salaryHistoryData.map((row: any) => {
-                          const pct = row.adjustmentPercentage ? parseFloat(row.adjustmentPercentage) : null;
+                          const pct = row.adjustmentPercentage
+                            ? parseFloat(row.adjustmentPercentage)
+                            : null;
                           const isPositive = pct !== null && pct > 0;
                           const isNegative = pct !== null && pct < 0;
                           const typeLabels: Record<string, string> = {
@@ -1388,30 +1957,73 @@ export default function EmployeeProfile() {
                             other: "Otro",
                           };
                           return (
-                            <tr key={row.id} className="border-b hover:bg-muted/30">
-                              <td className="py-2 px-3">{row.effectiveDate ? new Date(row.effectiveDate).toLocaleDateString("es-MX") : "—"}</td>
+                            <tr
+                              key={row.id}
+                              className="border-b hover:bg-muted/30"
+                            >
+                              <td className="py-2 px-3">
+                                {row.effectiveDate
+                                  ? new Date(
+                                      row.effectiveDate
+                                    ).toLocaleDateString("es-MX")
+                                  : "—"}
+                              </td>
                               <td className="py-2 px-3 text-right text-muted-foreground">
-                                {row.previousSalary ? new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(parseFloat(row.previousSalary)) : "—"}
+                                {row.previousSalary
+                                  ? new Intl.NumberFormat("es-MX", {
+                                      style: "currency",
+                                      currency: "MXN",
+                                    }).format(parseFloat(row.previousSalary))
+                                  : "—"}
                               </td>
                               <td className="py-2 px-3 text-right font-medium">
-                                {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(parseFloat(row.newSalary))}
+                                {new Intl.NumberFormat("es-MX", {
+                                  style: "currency",
+                                  currency: "MXN",
+                                }).format(parseFloat(row.newSalary))}
                               </td>
                               <td className="py-2 px-3 text-center">
                                 {pct !== null ? (
-                                  <span className={`flex items-center justify-center gap-1 text-xs font-medium ${isPositive ? "text-green-600" : isNegative ? "text-red-600" : "text-muted-foreground"}`}>
-                                    {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
-                                    {isPositive ? "+" : ""}{pct.toFixed(1)}%
+                                  <span
+                                    className={`flex items-center justify-center gap-1 text-xs font-medium ${isPositive ? "text-green-600" : isNegative ? "text-red-600" : "text-muted-foreground"}`}
+                                  >
+                                    {isPositive ? (
+                                      <TrendingUp className="h-3 w-3" />
+                                    ) : isNegative ? (
+                                      <TrendingDown className="h-3 w-3" />
+                                    ) : (
+                                      <Minus className="h-3 w-3" />
+                                    )}
+                                    {isPositive ? "+" : ""}
+                                    {pct.toFixed(1)}%
                                   </span>
-                                ) : "—"}
+                                ) : (
+                                  "—"
+                                )}
                               </td>
                               <td className="py-2 px-3">
-                                <Badge variant="outline" className="text-xs">{typeLabels[row.adjustmentType] || row.adjustmentType || "—"}</Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {typeLabels[row.adjustmentType] ||
+                                    row.adjustmentType ||
+                                    "—"}
+                                </Badge>
                               </td>
-                              <td className="py-2 px-3 text-muted-foreground text-xs max-w-[200px] truncate">{row.reason || "—"}</td>
+                              <td className="py-2 px-3 text-muted-foreground text-xs max-w-[200px] truncate">
+                                {row.reason || "—"}
+                              </td>
                               <td className="py-2 px-3">
                                 <Button
-                                  variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
-                                  onClick={() => { if (window.confirm("¿Eliminar este registro?")) deleteSalaryMutation.mutate({ id: row.id }); }}
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-destructive hover:text-destructive"
+                                  onClick={() => {
+                                    if (
+                                      window.confirm("¿Eliminar este registro?")
+                                    )
+                                      deleteSalaryMutation.mutate({
+                                        id: row.id,
+                                      });
+                                  }}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
@@ -1434,81 +2046,178 @@ export default function EmployeeProfile() {
             {vacationBalance ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card>
-                  <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Días ganados</CardTitle></CardHeader>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm text-muted-foreground">
+                      Días ganados
+                    </CardTitle>
+                  </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-green-600">{vacationBalance.earnedDays}</div>
-                    <p className="text-xs text-muted-foreground mt-1">Antigüedad: {vacationBalance.yearsOfService} año{vacationBalance.yearsOfService !== 1 ? 's' : ''}</p>
+                    <div className="text-3xl font-bold text-green-600">
+                      {vacationBalance.earnedDays}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Antigüedad: {vacationBalance.yearsOfService} año
+                      {vacationBalance.yearsOfService !== 1 ? "s" : ""}
+                    </p>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Días usados</CardTitle></CardHeader>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm text-muted-foreground">
+                      Días usados
+                    </CardTitle>
+                  </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-amber-600">{vacationBalance.usedDays}</div>
-                    <p className="text-xs text-muted-foreground mt-1">Solicitudes aprobadas</p>
+                    <div className="text-3xl font-bold text-amber-600">
+                      {vacationBalance.usedDays}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Solicitudes aprobadas
+                    </p>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Días pendientes</CardTitle></CardHeader>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm text-muted-foreground">
+                      Días pendientes
+                    </CardTitle>
+                  </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-blue-600">{vacationBalance.pendingDays}</div>
-                    <p className="text-xs text-muted-foreground mt-1">En espera de aprobación</p>
+                    <div className="text-3xl font-bold text-blue-600">
+                      {vacationBalance.pendingDays}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      En espera de aprobación
+                    </p>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Días disponibles</CardTitle></CardHeader>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm text-muted-foreground">
+                      Días disponibles
+                    </CardTitle>
+                  </CardHeader>
                   <CardContent>
-                    <div className={`text-3xl font-bold ${(vacationBalance.availableDays ?? 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>{vacationBalance.availableDays}</div>
-                    <p className="text-xs text-muted-foreground mt-1">Saldo actual</p>
+                    <div
+                      className={`text-3xl font-bold ${(vacationBalance.availableDays ?? 0) > 0 ? "text-green-600" : "text-red-600"}`}
+                    >
+                      {vacationBalance.availableDays}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Saldo actual
+                    </p>
                   </CardContent>
                 </Card>
               </div>
             ) : (
-              <Card><CardContent className="py-8 text-center text-muted-foreground">Calculando saldo de vacaciones...</CardContent></Card>
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Calculando saldo de vacaciones...
+                </CardContent>
+              </Card>
             )}
 
             {/* Vacation history table */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5" /> Historial de Solicitudes</CardTitle>
-                <CardDescription>Todas las solicitudes de vacaciones del empleado, ordenadas por fecha de creación</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" /> Historial de Solicitudes
+                </CardTitle>
+                <CardDescription>
+                  Todas las solicitudes de vacaciones del empleado, ordenadas
+                  por fecha de creación
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {(vacationHistory as any[]).length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">No hay solicitudes de vacaciones registradas</div>
+                  <div className="text-center py-8 text-muted-foreground">
+                    No hay solicitudes de vacaciones registradas
+                  </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead><tr className="border-b bg-muted/30">
-                        <th className="text-left py-2 px-3">Periodo</th>
-                        <th className="text-left py-2 px-3">Días</th>
-                        <th className="text-left py-2 px-3">Regreso</th>
-                        <th className="text-left py-2 px-3">Estado</th>
-                        <th className="text-left py-2 px-3">Notas</th>
-                        <th className="text-left py-2 px-3">Solicitado</th>
-                      </tr></thead>
+                      <thead>
+                        <tr className="border-b bg-muted/30">
+                          <th className="text-left py-2 px-3">Periodo</th>
+                          <th className="text-left py-2 px-3">Días</th>
+                          <th className="text-left py-2 px-3">Regreso</th>
+                          <th className="text-left py-2 px-3">Estado</th>
+                          <th className="text-left py-2 px-3">Notas</th>
+                          <th className="text-left py-2 px-3">Solicitado</th>
+                        </tr>
+                      </thead>
                       <tbody>
-                        {(vacationHistory as any[]).map((req) => {
-                          const statusMap: Record<string, { label: string; cls: string }> = {
-                            pending: { label: "Pendiente", cls: "bg-amber-100 text-amber-800" },
-                            approved: { label: "Aprobado", cls: "bg-green-100 text-green-800" },
-                            rejected: { label: "Rechazado", cls: "bg-red-100 text-red-800" },
-                            cancelled: { label: "Cancelado", cls: "bg-gray-100 text-gray-600" },
+                        {(vacationHistory as any[]).map(req => {
+                          const statusMap: Record<
+                            string,
+                            { label: string; cls: string }
+                          > = {
+                            pending: {
+                              label: "Pendiente",
+                              cls: "bg-amber-100 text-amber-800",
+                            },
+                            approved: {
+                              label: "Aprobado",
+                              cls: "bg-green-100 text-green-800",
+                            },
+                            rejected: {
+                              label: "Rechazado",
+                              cls: "bg-red-100 text-red-800",
+                            },
+                            cancelled: {
+                              label: "Cancelado",
+                              cls: "bg-gray-100 text-gray-600",
+                            },
                           };
-                          const s = statusMap[req.status] || { label: req.status, cls: "bg-gray-100" };
+                          const s = statusMap[req.status] || {
+                            label: req.status,
+                            cls: "bg-gray-100",
+                          };
                           return (
-                            <tr key={req.id} className="border-b hover:bg-muted/30">
+                            <tr
+                              key={req.id}
+                              className="border-b hover:bg-muted/30"
+                            >
                               <td className="py-2 px-3">
-                                {req.startDate ? new Date(req.startDate).toLocaleDateString('es-MX') : '-'}
-                                {' — '}
-                                {req.endDate ? new Date(req.endDate).toLocaleDateString('es-MX') : '-'}
+                                {req.startDate
+                                  ? new Date(req.startDate).toLocaleDateString(
+                                      "es-MX"
+                                    )
+                                  : "-"}
+                                {" — "}
+                                {req.endDate
+                                  ? new Date(req.endDate).toLocaleDateString(
+                                      "es-MX"
+                                    )
+                                  : "-"}
                               </td>
-                              <td className="py-2 px-3 font-semibold">{req.requestedDays}</td>
-                              <td className="py-2 px-3">{req.returnDate ? new Date(req.returnDate).toLocaleDateString('es-MX') : '-'}</td>
+                              <td className="py-2 px-3 font-semibold">
+                                {req.requestedDays}
+                              </td>
                               <td className="py-2 px-3">
-                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.cls}`}>{s.label}</span>
+                                {req.returnDate
+                                  ? new Date(req.returnDate).toLocaleDateString(
+                                      "es-MX"
+                                    )
+                                  : "-"}
                               </td>
-                              <td className="py-2 px-3 text-muted-foreground max-w-[200px] truncate">{req.notes || '-'}</td>
-                              <td className="py-2 px-3 text-muted-foreground">{req.createdAt ? new Date(req.createdAt).toLocaleDateString('es-MX') : '-'}</td>
+                              <td className="py-2 px-3">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.cls}`}
+                                >
+                                  {s.label}
+                                </span>
+                              </td>
+                              <td className="py-2 px-3 text-muted-foreground max-w-[200px] truncate">
+                                {req.notes || "-"}
+                              </td>
+                              <td className="py-2 px-3 text-muted-foreground">
+                                {req.createdAt
+                                  ? new Date(req.createdAt).toLocaleDateString(
+                                      "es-MX"
+                                    )
+                                  : "-"}
+                              </td>
                             </tr>
                           );
                         })}
@@ -1522,14 +2231,14 @@ export default function EmployeeProfile() {
         )}
       </div>
 
-        {activeTab === "psychometric" && employee && (
-          <div className="mt-4">
-            <PsychometricTab
-              employeeId={employeeId}
-              employeeName={`${employee.firstName} ${employee.lastName}`}
-            />
-          </div>
-        )}
+      {activeTab === "psychometric" && employee && (
+        <div className="mt-4">
+          <PsychometricTab
+            employeeId={employeeId}
+            employeeName={`${employee.firstName} ${employee.lastName}`}
+          />
+        </div>
+      )}
     </div>
   );
 }

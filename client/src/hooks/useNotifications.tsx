@@ -71,10 +71,10 @@ export function useNotifications() {
     // Escuchar nuevas notificaciones
     socketInstance.on("new-notification", (notification: Notification) => {
       console.log("[WebSocket] Nueva notificación recibida:", notification);
-      
+
       // Agregar a lista de notificaciones
-      setNotifications((prev) => [notification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
+      setNotifications(prev => [notification, ...prev]);
+      setUnreadCount(prev => prev + 1);
 
       // Mostrar toast
       toast.info(notification.title, {
@@ -104,19 +104,15 @@ export function useNotifications() {
 
   // Marcar notificación como leída
   const markAsRead = useCallback((notificationId: number) => {
-    setNotifications((prev) =>
-      prev.map((n: any) =>
-        n.id === notificationId ? { ...n, read: true } : n
-      )
+    setNotifications(prev =>
+      prev.map((n: any) => (n.id === notificationId ? { ...n, read: true } : n))
     );
-    setUnreadCount((prev) => Math.max(0, prev - 1));
+    setUnreadCount(prev => Math.max(0, prev - 1));
   }, []);
 
   // Marcar todas como leídas
   const markAllAsRead = useCallback(() => {
-    setNotifications((prev) =>
-      prev.map((n: any) => ({ ...n, read: true }))
-    );
+    setNotifications(prev => prev.map((n: any) => ({ ...n, read: true })));
     setUnreadCount(0);
   }, []);
 

@@ -29,13 +29,30 @@ interface CourseDialogProps {
   };
 }
 
-export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) {
+export function CourseDialog({
+  open,
+  onOpenChange,
+  course,
+}: CourseDialogProps) {
   const [title, setTitle] = useState(course?.title || "");
   const [description, setDescription] = useState(course?.description || "");
   const [duration, setDuration] = useState(course?.duration?.toString() || "");
-  const [category, setCategory] = useState<"fundamentos" | "categorias_dominios" | "mobbing" | "burnout" | "protocolos" | "comite" | "analisis_puestos" | "otros">(course?.category as any || "fundamentos");
-  const [level, setLevel] = useState<"basico" | "intermedio" | "avanzado">(course?.level as any || "basico");
-  const [status, setStatus] = useState<"draft" | "published" | "archived">(course?.status as any || "draft");
+  const [category, setCategory] = useState<
+    | "fundamentos"
+    | "categorias_dominios"
+    | "mobbing"
+    | "burnout"
+    | "protocolos"
+    | "comite"
+    | "analisis_puestos"
+    | "otros"
+  >((course?.category as any) || "fundamentos");
+  const [level, setLevel] = useState<"basico" | "intermedio" | "avanzado">(
+    (course?.level as any) || "basico"
+  );
+  const [status, setStatus] = useState<"draft" | "published" | "archived">(
+    (course?.status as any) || "draft"
+  );
 
   // Sync form state when course prop changes or dialog opens
   useEffect(() => {
@@ -61,7 +78,7 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
       onOpenChange(false);
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al crear el curso: ${error.message}`);
     },
   });
@@ -72,7 +89,7 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
       utils.courses.list.invalidate();
       onOpenChange(false);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al actualizar el curso: ${error.message}`);
     },
   });
@@ -125,7 +142,9 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
       <DialogContent className="sm:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{course ? "Editar Curso" : "Crear Nuevo Curso"}</DialogTitle>
+            <DialogTitle>
+              {course ? "Editar Curso" : "Crear Nuevo Curso"}
+            </DialogTitle>
             <DialogDescription>
               {course
                 ? "Modifica la información del curso existente"
@@ -139,7 +158,7 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
               <Input
                 id="title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={e => setTitle(e.target.value)}
                 placeholder="Ej: Fundamentos de la NOM-035 STPS 2018"
               />
             </div>
@@ -149,7 +168,7 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
               <Textarea
                 id="description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 placeholder="Describe los objetivos y contenido del curso"
                 rows={4}
               />
@@ -163,7 +182,7 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
                   type="number"
                   min="1"
                   value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
+                  onChange={e => setDuration(e.target.value)}
                   placeholder="Ej: 8"
                 />
               </div>
@@ -173,7 +192,7 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
                 <select
                   id="category"
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as any)}
+                  onChange={e => setCategory(e.target.value as any)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="fundamentos">Fundamentos NOM-035</option>
@@ -192,7 +211,7 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
                 <select
                   id="level"
                   value={level}
-                  onChange={(e) => setLevel(e.target.value as any)}
+                  onChange={e => setLevel(e.target.value as any)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="basico">Básico</option>
@@ -206,7 +225,7 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
                 <select
                   id="status"
                   value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
+                  onChange={e => setStatus(e.target.value as any)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="draft">Borrador</option>
@@ -235,8 +254,8 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
               {createMutation.isPending || updateMutation.isPending
                 ? "Guardando..."
                 : course
-                ? "Actualizar"
-                : "Crear Curso"}
+                  ? "Actualizar"
+                  : "Crear Curso"}
             </Button>
           </DialogFooter>
         </form>

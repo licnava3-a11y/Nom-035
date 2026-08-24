@@ -16,7 +16,7 @@ export function initializeWebSocket(httpServer: HTTPServer) {
     },
   });
 
-  io.on("connection", (socket) => {
+  io.on("connection", socket => {
     console.log(`[WebSocket] Cliente conectado: ${socket.id}`);
 
     // Unirse a sala de usuario específico
@@ -60,7 +60,9 @@ export async function emitCriticalAlert(alert: {
   threshold: number;
 }) {
   if (!io) {
-    console.warn("[WebSocket] Servidor no inicializado, no se puede emitir alerta");
+    console.warn(
+      "[WebSocket] Servidor no inicializado, no se puede emitir alerta"
+    );
     return;
   }
 
@@ -70,7 +72,10 @@ export async function emitCriticalAlert(alert: {
     if (db) {
       await db.insert(notificationHistory).values({
         alertId: alert.id,
-        alertType: alert.alertType as "critical_cases" | "low_coverage" | "excellent_compliance",
+        alertType: alert.alertType as
+          | "critical_cases"
+          | "low_coverage"
+          | "excellent_compliance",
         priority: alert.priority as "info" | "warning" | "critical",
         description: alert.description,
         currentValue: alert.currentValue,
@@ -108,7 +113,10 @@ export function emitNotificationToUser(
 
   const roomName = `user-${userId}`;
   io.to(roomName).emit("new-notification", notification);
-  console.log(`[WebSocket] Notificación enviada a usuario ${userId}:`, notification.title);
+  console.log(
+    `[WebSocket] Notificación enviada a usuario ${userId}:`,
+    notification.title
+  );
 }
 
 /**

@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +27,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Eye, Search, Filter, Calendar } from "lucide-react";
+import {
+  FileText,
+  Download,
+  Eye,
+  Search,
+  Filter,
+  Calendar,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 export default function DocumentsHistory() {
@@ -39,7 +52,9 @@ export default function DocumentsHistory() {
 
   // Filtrar por folio localmente
   const filteredDocuments = documents?.filter((doc: any) =>
-    searchFolio ? doc.folio.toLowerCase().includes(searchFolio.toLowerCase()) : true
+    searchFolio
+      ? doc.folio.toLowerCase().includes(searchFolio.toLowerCase())
+      : true
   );
 
   const getStatusBadge = (status: string) => {
@@ -48,7 +63,8 @@ export default function DocumentsHistory() {
       final: { label: "Final", variant: "default" as const },
       archived: { label: "Archivado", variant: "outline" as const },
     };
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
@@ -80,7 +96,9 @@ export default function DocumentsHistory() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Historial de Documentos</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Historial de Documentos
+        </h1>
         <p className="text-muted-foreground mt-2">
           Consulta, filtra y descarga todos los documentos generados
         </p>
@@ -93,7 +111,9 @@ export default function DocumentsHistory() {
             <Filter className="h-5 w-5" />
             Filtros de Búsqueda
           </CardTitle>
-          <CardDescription>Filtra los documentos por tipo, estado o folio</CardDescription>
+          <CardDescription>
+            Filtra los documentos por tipo, estado o folio
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
@@ -106,7 +126,7 @@ export default function DocumentsHistory() {
                   id="searchFolio"
                   placeholder="Ej: AC-001/2026"
                   value={searchFolio}
-                  onChange={(e) => setSearchFolio(e.target.value)}
+                  onChange={e => setSearchFolio(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -121,11 +141,21 @@ export default function DocumentsHistory() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los tipos</SelectItem>
-                  <SelectItem value="acta_constitutiva">Acta Constitutiva</SelectItem>
-                  <SelectItem value="funciones_comite">Funciones del Comité</SelectItem>
-                  <SelectItem value="aceptacion_cargo">Aceptación de Cargo</SelectItem>
-                  <SelectItem value="acta_recorrido">Acta de Recorrido NOM-019</SelectItem>
-                  <SelectItem value="acta_final_resultados">Acta Final de Resultados</SelectItem>
+                  <SelectItem value="acta_constitutiva">
+                    Acta Constitutiva
+                  </SelectItem>
+                  <SelectItem value="funciones_comite">
+                    Funciones del Comité
+                  </SelectItem>
+                  <SelectItem value="aceptacion_cargo">
+                    Aceptación de Cargo
+                  </SelectItem>
+                  <SelectItem value="acta_recorrido">
+                    Acta de Recorrido NOM-019
+                  </SelectItem>
+                  <SelectItem value="acta_final_resultados">
+                    Acta Final de Resultados
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -173,7 +203,9 @@ export default function DocumentsHistory() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando documentos...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              Cargando documentos...
+            </div>
           ) : !filteredDocuments || filteredDocuments.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -196,7 +228,9 @@ export default function DocumentsHistory() {
                 <TableBody>
                   {filteredDocuments.map((doc: any) => (
                     <TableRow key={doc.id}>
-                      <TableCell className="font-mono font-semibold">{doc.folio}</TableCell>
+                      <TableCell className="font-mono font-semibold">
+                        {doc.folio}
+                      </TableCell>
                       <TableCell>{doc.title}</TableCell>
                       <TableCell>{getTypeLabel(doc.type)}</TableCell>
                       <TableCell>{getStatusBadge(doc.status)}</TableCell>
@@ -214,14 +248,19 @@ export default function DocumentsHistory() {
                         {doc.finalizedAt ? (
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Calendar className="h-4 w-4" />
-                            {new Date(doc.finalizedAt).toLocaleDateString("es-MX", {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            })}
+                            {new Date(doc.finalizedAt).toLocaleDateString(
+                              "es-MX",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
                           </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">-</span>
+                          <span className="text-sm text-muted-foreground">
+                            -
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -238,7 +277,9 @@ export default function DocumentsHistory() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDownloadPDF(doc.pdfUrl!, doc.folio)}
+                              onClick={() =>
+                                handleDownloadPDF(doc.pdfUrl!, doc.folio)
+                              }
                               title="Descargar PDF"
                             >
                               <Download className="h-4 w-4" />

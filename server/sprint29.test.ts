@@ -42,8 +42,8 @@ describe("Sprint 29 – Performance LCP alert job", () => {
     expect(fs.existsSync(filePath)).toBe(true);
     const content = fs.readFileSync(filePath, "utf-8");
     expect(content).toContain("runPerformanceLcpAlertsJob");
-    expect(content).toContain("4000");   // LCP threshold
-    expect(content).toContain("3");      // 3 consecutive days
+    expect(content).toContain("4000"); // LCP threshold
+    expect(content).toContain("3"); // 3 consecutive days
   });
 
   it("alertType enum in schema includes performance_lcp", async () => {
@@ -68,10 +68,7 @@ describe("Sprint 29 – Company logo in PDF cover", () => {
   it("getCompanyInfo returns company_logo field", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const filePath = path.resolve(
-      __dirname,
-      "./routers/systemSettings.ts"
-    );
+    const filePath = path.resolve(__dirname, "./routers/systemSettings.ts");
     const content = fs.readFileSync(filePath, "utf-8");
     expect(content).toContain("company_logo");
     // Ensure it's included in the inArray query
@@ -81,10 +78,7 @@ describe("Sprint 29 – Company logo in PDF cover", () => {
   it("saveCompanyInfo accepts company_logo field", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const filePath = path.resolve(
-      __dirname,
-      "./routers/systemSettings.ts"
-    );
+    const filePath = path.resolve(__dirname, "./routers/systemSettings.ts");
     const content = fs.readFileSync(filePath, "utf-8");
     expect(content).toContain("company_logo: z.string().max(2048)");
   });

@@ -231,7 +231,9 @@ class SDKServer {
 
       // openId and appId are required; name may be empty (some OAuth providers omit it)
       if (!isNonEmptyString(openId) || !isNonEmptyString(appId)) {
-        console.warn("[Auth] Session payload missing required fields (openId or appId)");
+        console.warn(
+          "[Auth] Session payload missing required fields (openId or appId)"
+        );
         return null;
       }
 
@@ -284,7 +286,8 @@ class SDKServer {
     // Cron short-circuit: cron callers have openId starting with "cron_"
     if (session.openId.startsWith(CRON_OPEN_ID_PREFIX)) {
       const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
-      if (!userInfo.taskUid) throw ForbiddenError("Cron session missing task_uid");
+      if (!userInfo.taskUid)
+        throw ForbiddenError("Cron session missing task_uid");
       const now = new Date();
       return {
         id: -1,
@@ -311,7 +314,7 @@ class SDKServer {
         const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
         await db.upsertUser({
           openId: userInfo.openId,
-          departamento: 'General',
+          departamento: "General",
           name: userInfo.name || null,
           email: userInfo.email ?? null,
           loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
@@ -330,7 +333,7 @@ class SDKServer {
 
     await db.upsertUser({
       openId: user.openId,
-      departamento: user.departamento || 'General',
+      departamento: user.departamento || "General",
       lastSignedIn: signedInAt,
     });
 

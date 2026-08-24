@@ -1,35 +1,41 @@
 # Guía de Pruebas Manuales de Permisos - Fase 96
 
 ## Objetivo
+
 Validar que el sistema de permisos funciona correctamente en todos los módulos, especialmente en los 6 routers críticos que recibieron validación backend en esta fase.
 
 ## Usuarios de Prueba
 
 ### 1. Gerente (Acceso Total)
+
 - **Email:** gerente.test@example.com
 - **Permisos:** view, create, edit, delete, export, approve (6/6)
 - **Rol:** Gerente General
 - **Expectativa:** Debe ver y ejecutar TODAS las acciones en TODAS las páginas
 
 ### 2. Instructor
+
 - **Email:** instructor.test@example.com
 - **Permisos:** view, create, edit, export (4/6)
 - **Rol:** Instructor de Capacitación
 - **Expectativa:** Puede crear, editar y exportar, pero NO puede eliminar ni aprobar
 
 ### 3. Administrador
+
 - **Email:** admin.test@example.com
 - **Permisos:** view, create, edit, export (4/6)
 - **Rol:** Administrador del Sistema
 - **Expectativa:** Puede crear, editar y exportar, pero NO puede eliminar ni aprobar
 
 ### 4. Comité
+
 - **Email:** committee.test@example.com
 - **Permisos:** view, create, approve (3/6)
 - **Rol:** Miembro del Comité
 - **Expectativa:** Puede ver, crear y aprobar, pero NO puede editar, eliminar ni exportar
 
 ### 5. Estudiante (Solo Lectura)
+
 - **Email:** student.test@example.com
 - **Permisos:** view (1/6)
 - **Rol:** Estudiante/Trabajador
@@ -40,9 +46,11 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ## Módulos Críticos con Validación Backend (Fase 96)
 
 ### 1. Actas de Comité (committeeMinutes.ts)
+
 **Ruta:** `/equality/committee-minutes`
 
 **Procedures protegidos:**
+
 - `create` → Requiere `can_create`
 - `update` → Requiere `can_edit`
 - `delete` → Requiere `can_delete`
@@ -60,9 +68,11 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ---
 
 ### 2. Formatos de Documentos (documentFormats.ts)
+
 **Ruta:** `/compliance/document-formats`
 
 **Procedures protegidos:**
+
 - `create` → Requiere `can_create`
 - `update` → Requiere `can_edit`
 - `delete` → Requiere `can_delete`
@@ -79,9 +89,11 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ---
 
 ### 3. Notificaciones (notifications.ts)
+
 **Ruta:** `/notifications` (componente global)
 
 **Procedures protegidos:**
+
 - `markAsRead` → Requiere `can_edit`
 - `markAllAsRead` → Requiere `can_edit`
 - `delete` → Requiere `can_edit`
@@ -98,9 +110,11 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ---
 
 ### 4. Encuestas NOM-035 (surveys.ts)
+
 **Ruta:** `/surveys/admin-panel`
 
 **Procedures protegidos:**
+
 - `generateToken` → Requiere `can_create`
 - `submitResponse` → Público (sin autenticación)
 - `generateGuideIPDF` → Requiere `can_export`
@@ -121,9 +135,11 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ---
 
 ### 5. Investigaciones (investigations.ts)
+
 **Ruta:** `/surveys/investigations`
 
 **Procedures protegidos:**
+
 - `sendQuestionnaire` → Requiere `can_create`
 
 **Pruebas:**
@@ -138,9 +154,11 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ---
 
 ### 6. Acciones Correctivas (correctiveActions.ts)
+
 **Ruta:** `/surveys/corrective-actions`
 
 **Procedures protegidos:**
+
 - `create` → Requiere `can_create`
 - `update` → Requiere `can_edit`
 - `updateStatus` → Requiere `can_edit`
@@ -160,9 +178,11 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ## Módulos Financieros (Nuevos en Fase 96)
 
 ### 7. Dashboard Administrativo Financiero
+
 **Ruta:** `/administrative`
 
 **Características:**
+
 - Filtros avanzados (departamento, categoría, fechas)
 - Exportación Excel/PDF
 - Gráfico de tendencias Chart.js
@@ -179,6 +199,7 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ---
 
 ### 8. Facturas (Payments)
+
 **Ruta:** `/administrative/payments`
 
 **Pruebas:**
@@ -193,6 +214,7 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ---
 
 ### 9. Órdenes de Compra (PurchaseOrders)
+
 **Ruta:** `/administrative/purchase-orders`
 
 **Pruebas:**
@@ -207,6 +229,7 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ---
 
 ### 10. Solicitudes de Gasto (ExpenseRequests)
+
 **Ruta:** `/administrative/expenses`
 
 **Pruebas:**
@@ -223,6 +246,7 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ## Instrucciones de Prueba
 
 ### Paso 1: Login con cada usuario
+
 1. Abrir navegador en modo incógnito
 2. Navegar a la URL del proyecto
 3. Hacer clic en "Iniciar Sesión"
@@ -230,18 +254,21 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 5. Verificar que el login sea exitoso
 
 ### Paso 2: Validar visibilidad de botones
+
 1. Navegar a cada página listada arriba
 2. Verificar que los botones de acción coincidan con la tabla de permisos
 3. **Botones que deben estar OCULTOS:** No deben aparecer en la interfaz
 4. **Botones que deben estar VISIBLES:** Deben aparecer y ser clickeables
 
 ### Paso 3: Validar ejecución de acciones
+
 1. Hacer clic en cada botón visible
 2. Verificar que la acción se ejecute correctamente
 3. Si el usuario NO tiene permiso, debe aparecer un error 403 (Forbidden)
 4. Si el usuario SÍ tiene permiso, la acción debe completarse exitosamente
 
 ### Paso 4: Validar filtros y exportación (Dashboard Financiero)
+
 1. Navegar a `/administrative`
 2. Probar cada filtro (periodo, departamento, categoría, fechas)
 3. Verificar que el gráfico se actualice correctamente
@@ -249,6 +276,7 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 5. Hacer clic en "Exportar PDF" y verificar ventana de impresión
 
 ### Paso 5: Documentar resultados
+
 1. Crear tabla de resultados con formato:
    - Usuario | Página | Acción | Resultado Esperado | Resultado Real | ✅/❌
 2. Reportar cualquier discrepancia encontrada
@@ -259,6 +287,7 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 ## Checklist de Validación
 
 ### Validación Backend (6 routers críticos)
+
 - [ ] committeeMinutes.ts: 4 procedures protegidos
 - [ ] documentFormats.ts: 3 procedures protegidos
 - [ ] notifications.ts: 3 procedures protegidos
@@ -267,6 +296,7 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 - [ ] correctiveActions.ts: 4 procedures protegidos
 
 ### Validación Frontend (10 páginas)
+
 - [ ] Actas de Comité
 - [ ] Formatos de Documentos
 - [ ] Notificaciones
@@ -279,6 +309,7 @@ Validar que el sistema de permisos funciona correctamente en todos los módulos,
 - [ ] Solicitudes de Gasto
 
 ### Validación de Usuarios (5 usuarios)
+
 - [ ] Gerente (6/6 permisos)
 - [ ] Instructor (4/6 permisos)
 - [ ] Admin (4/6 permisos)

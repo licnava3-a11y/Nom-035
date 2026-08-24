@@ -13,10 +13,12 @@ Esta guía documenta la configuración completa de CI/CD implementada con GitHub
 **Propósito**: Ejecutar tests end-to-end con Playwright en cada PR y push
 
 **Triggers**:
+
 - Pull requests a `main` o `develop`
 - Push a `main` o `develop`
 
 **Pasos**:
+
 1. Checkout del código
 2. Setup de Node.js 22 con cache de pnpm
 3. Instalación de dependencias
@@ -28,6 +30,7 @@ Esta guía documenta la configuración completa de CI/CD implementada con GitHub
 9. Comentario automático en PR con resultados
 
 **Artifacts generados**:
+
 - `playwright-report/` - Reporte HTML completo (30 días de retención)
 - `test-results/` - Screenshots de fallos (7 días de retención)
 
@@ -40,10 +43,12 @@ Esta guía documenta la configuración completa de CI/CD implementada con GitHub
 **Propósito**: Validar que no hay errores de TypeScript
 
 **Triggers**:
+
 - Pull requests a `main` o `develop`
 - Push a `main` o `develop`
 
 **Pasos**:
+
 1. Checkout del código
 2. Setup de Node.js 22 con cache de pnpm
 3. Instalación de dependencias
@@ -63,17 +68,20 @@ Esta guía documenta la configuración completa de CI/CD implementada con GitHub
 **Propósito**: Validar estilo de código con ESLint y Prettier
 
 **Triggers**:
+
 - Pull requests a `main` o `develop`
 - Push a `main` o `develop`
 
 **Jobs**:
 
 #### Job 1: ESLint Check
+
 - Ejecuta ESLint en todos los archivos `.ts`, `.tsx`, `.js`, `.jsx`
 - Falla si hay warnings o errors (`--max-warnings 0`)
 - Comenta en PR si hay issues
 
 #### Job 2: Prettier Format Check
+
 - Verifica formateo de archivos `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.css`, `.md`
 - Falla si hay archivos sin formatear
 - Comenta en PR con instrucciones de auto-fix
@@ -120,6 +128,7 @@ Include administrators: ✅
 ### Secrets de GitHub Actions
 
 Actualmente no se requieren secrets adicionales. Los workflows usan:
+
 - Variables de entorno del sistema
 - Tokens de GitHub automáticos (`GITHUB_TOKEN`)
 
@@ -165,6 +174,7 @@ git push origin feature/nueva-funcionalidad
 ### 3. Revisión Automática
 
 GitHub Actions ejecuta:
+
 1. ✅ E2E Tests (30 min)
 2. ✅ TypeScript Check (10 min)
 3. ✅ ESLint Check (10 min)
@@ -204,6 +214,7 @@ GitHub Actions ejecuta:
 ❌ Failed: 4/34
 
 ### Failed Tests
+
 - Workflow de aprobación: Crear y aprobar base completa
 - Calendario: Navegación entre meses
 - Gráficos: Renderizado de Chart.js
@@ -238,21 +249,23 @@ Run `pnpm exec eslint . --ext .ts,.tsx,.js,.jsx` locally to see detailed warning
 ### Tests E2E Fallan en CI pero Pasan Localmente
 
 **Causas comunes**:
+
 1. Timeouts muy cortos
 2. Diferencias de timing en CI
 3. Dependencias de estado previo
 
 **Soluciones**:
+
 ```typescript
 // Aumentar timeouts en CI
 test.setTimeout(process.env.CI ? 60000 : 30000);
 
 // Esperas más robustas
-await expect(page.locator('button')).toBeVisible({ timeout: 10000 });
+await expect(page.locator("button")).toBeVisible({ timeout: 10000 });
 
 // Limpiar estado antes de cada test
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto("/");
   await page.evaluate(() => localStorage.clear());
 });
 ```
@@ -260,6 +273,7 @@ test.beforeEach(async ({ page }) => {
 ### TypeScript Check Falla con Muchos Errores
 
 **Solución**:
+
 1. Ejecutar localmente: `pnpm exec tsc --noEmit`
 2. Corregir errores uno por uno
 3. Considerar agregar `// @ts-ignore` solo en casos extremos
@@ -267,6 +281,7 @@ test.beforeEach(async ({ page }) => {
 ### Workflow Tarda Demasiado
 
 **Optimizaciones**:
+
 1. Usar cache de dependencias (ya configurado)
 2. Ejecutar solo tests afectados:
    ```yaml
@@ -288,6 +303,7 @@ test.beforeEach(async ({ page }) => {
 ### 1. Commits Pequeños y Frecuentes
 
 ✅ **Bueno**:
+
 ```
 feat: agregar validación de email
 fix: corregir error en formulario de registro
@@ -295,6 +311,7 @@ test: agregar tests para login
 ```
 
 ❌ **Malo**:
+
 ```
 feat: implementar todo el módulo de usuarios con login, registro, perfil, y configuración
 ```
@@ -302,6 +319,7 @@ feat: implementar todo el módulo de usuarios con login, registro, perfil, y con
 ### 2. Tests Antes de Push
 
 Siempre ejecutar localmente antes de push:
+
 ```bash
 pnpm exec playwright test
 pnpm exec tsc --noEmit
@@ -310,6 +328,7 @@ pnpm exec tsc --noEmit
 ### 3. Mensajes de Commit Descriptivos
 
 Usar [Conventional Commits](https://www.conventionalcommits.org/):
+
 - `feat:` - Nueva funcionalidad
 - `fix:` - Corrección de bug
 - `docs:` - Cambios en documentación
@@ -330,12 +349,12 @@ Usar [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Métricas Clave
 
-| Métrica | Objetivo | Actual |
-|---------|----------|--------|
-| **Test Success Rate** | >95% | - |
-| **Build Time** | <40 min | ~35 min |
-| **TypeScript Errors** | 0 | 734 |
-| **Test Coverage** | >80% | 93% |
+| Métrica               | Objetivo | Actual  |
+| --------------------- | -------- | ------- |
+| **Test Success Rate** | >95%     | -       |
+| **Build Time**        | <40 min  | ~35 min |
+| **TypeScript Errors** | 0        | 734     |
+| **Test Coverage**     | >80%     | 93%     |
 
 ### Dashboards Recomendados
 
@@ -352,18 +371,21 @@ Usar [Conventional Commits](https://www.conventionalcommits.org/):
 ## Roadmap de CI/CD
 
 ### Fase 1: Básico (Actual) ✅
+
 - ✅ Tests E2E automatizados
 - ✅ Validación TypeScript
 - ✅ Linting y formateo
 - ✅ Branch protection
 
 ### Fase 2: Intermedio (1-2 meses)
+
 - [ ] Code coverage reports
 - [ ] Performance testing con Lighthouse
 - [ ] Visual regression testing
 - [ ] Deployment preview para cada PR
 
 ### Fase 3: Avanzado (3-6 meses)
+
 - [ ] Deployment automático a staging
 - [ ] Deployment automático a producción (con aprobación)
 - [ ] Rollback automático en fallos
@@ -428,6 +450,7 @@ gh run list --status in_progress --json databaseId -q '.[].databaseId' | xargs -
 ## Contacto y Soporte
 
 Para preguntas o problemas con CI/CD:
+
 - Consultar esta documentación
 - Revisar logs de GitHub Actions
 - Contactar al equipo de DevOps

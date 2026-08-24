@@ -2,13 +2,23 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { departments, surveyAnswers, surveyQuestions, surveyResponses, surveys, users } from "../../drizzle/schema";
+import {
+  departments,
+  surveyAnswers,
+  surveyQuestions,
+  surveyResponses,
+  surveys,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc, count, inArray } from "drizzle-orm";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== 'admin') {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo los administradores pueden acceder a este recurso' });
+  if (ctx.user.role !== "admin") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Solo los administradores pueden acceder a este recurso",
+    });
   }
   return next({ ctx });
 });
@@ -16,28 +26,45 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
 export const surveysAdminRouter = router({
   // Obtener estadísticas generales de encuestas
   getStats: adminProcedure
-    .input(z.object({
-      surveyType: z.enum(['guia_i', 'guia_ii', 'guia_iii', 'all']).optional().default('all'),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        surveyType: z
+          .enum(["guia_i", "guia_ii", "guia_iii", "all"])
+          .optional()
+          .default("all"),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Build where conditions
       const conditions = [];
-      if (input.surveyType !== 'all') {
-        const [survey] = await db.select().from(surveys).where(eq(surveys.type, input.surveyType)).limit(1);
+      if (input.surveyType !== "all") {
+        const [survey] = await db
+          .select()
+          .from(surveys)
+          .where(eq(surveys.type, input.surveyType))
+          .limit(1);
         if (survey) {
           conditions.push(eq(surveyResponses.surveyId, survey.id));
         }
       }
       if (input.startDate) {
-        conditions.push(gte(surveyResponses.startedAt, new Date(input.startDate)));
+        conditions.push(
+          gte(surveyResponses.startedAt, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
-        conditions.push(lte(surveyResponses.startedAt, new Date(input.endDate)));
+        conditions.push(
+          lte(surveyResponses.startedAt, new Date(input.endDate))
+        );
       }
 
       // Get total responses
@@ -47,11 +74,18 @@ export const surveysAdminRouter = router({
         .where(conditions.length > 0 ? and(...conditions) : undefined);
 
       // Get completed responses
-      const completedConditions = [...conditions, sql`${surveyResponses.completedAt} IS NOT NULL`];
+      const completedConditions = [
+        ...conditions,
+        sql`${surveyResponses.completedAt} IS NOT NULL`,
+      ];
       const [completedResult] = await db
         .select({ count: count() })
         .from(surveyResponses)
-        .where(completedConditions.length > 0 ? and(...completedConditions) : undefined);
+        .where(
+          completedConditions.length > 0
+            ? and(...completedConditions)
+            : undefined
+        );
 
       // Get total users
       const [usersResult] = await db.select({ count: count() }).from(users);
@@ -71,8 +105,10 @@ export const surveysAdminRouter = router({
       const totalResponses = totalResult?.count || 0;
       const completedResponses = completedResult?.count || 0;
       const totalUsers = usersResult?.count || 0;
-      const participationRate = totalUsers > 0 ? (totalResponses / totalUsers) * 100 : 0;
-      const completionRate = totalResponses > 0 ? (completedResponses / totalResponses) * 100 : 0;
+      const participationRate =
+        totalUsers > 0 ? (totalResponses / totalUsers) * 100 : 0;
+      const completionRate =
+        totalResponses > 0 ? (completedResponses / totalResponses) * 100 : 0;
 
       return {
         totalResponses,
@@ -87,40 +123,60 @@ export const surveysAdminRouter = router({
 
   // Obtener lista de respuestas con filtros
   getResponses: adminProcedure
-    .input(z.object({
-      surveyType: z.enum(['guia_i', 'guia_ii', 'guia_iii', 'all']).optional().default('all'),
-      status: z.enum(['completed', 'in_progress', 'all']).optional().default('all'),
-      departamento: z.string().optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      page: z.number().optional().default(1),
-      pageSize: z.number().optional().default(50),
-    }))
+    .input(
+      z.object({
+        surveyType: z
+          .enum(["guia_i", "guia_ii", "guia_iii", "all"])
+          .optional()
+          .default("all"),
+        status: z
+          .enum(["completed", "in_progress", "all"])
+          .optional()
+          .default("all"),
+        departamento: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        page: z.number().optional().default(1),
+        pageSize: z.number().optional().default(50),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Build where conditions
       const conditions = [];
-      
-      if (input.surveyType !== 'all') {
-        const [survey] = await db.select().from(surveys).where(eq(surveys.type, input.surveyType)).limit(1);
+
+      if (input.surveyType !== "all") {
+        const [survey] = await db
+          .select()
+          .from(surveys)
+          .where(eq(surveys.type, input.surveyType))
+          .limit(1);
         if (survey) {
           conditions.push(eq(surveyResponses.surveyId, survey.id));
         }
       }
 
-      if (input.status === 'completed') {
+      if (input.status === "completed") {
         conditions.push(sql`${surveyResponses.completedAt} IS NOT NULL`);
-      } else if (input.status === 'in_progress') {
+      } else if (input.status === "in_progress") {
         conditions.push(sql`${surveyResponses.completedAt} IS NULL`);
       }
 
       if (input.startDate) {
-        conditions.push(gte(surveyResponses.startedAt, new Date(input.startDate)));
+        conditions.push(
+          gte(surveyResponses.startedAt, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
-        conditions.push(lte(surveyResponses.startedAt, new Date(input.endDate)));
+        conditions.push(
+          lte(surveyResponses.startedAt, new Date(input.endDate))
+        );
       }
 
       // Get responses with user and survey info
@@ -152,7 +208,9 @@ export const surveysAdminRouter = router({
       // Filter by departamento if specified (post-query filter since it's in users table)
       let filteredResponses = responses;
       if (input.departamento) {
-        filteredResponses = responses.filter(r => r.userDepartamento === input.departamento);
+        filteredResponses = responses.filter(
+          r => r.userDepartamento === input.departamento
+        );
       }
 
       // Get total count for pagination
@@ -176,7 +234,11 @@ export const surveysAdminRouter = router({
     .input(z.number())
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Get response with user and survey info
       const [response] = await db
@@ -203,7 +265,10 @@ export const surveysAdminRouter = router({
         .limit(1);
 
       if (!response) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Respuesta no encontrada",
+        });
       }
 
       // Get all answers for this response
@@ -219,7 +284,10 @@ export const surveysAdminRouter = router({
           answeredAt: surveyAnswers.answeredAt,
         })
         .from(surveyAnswers)
-        .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
+        .innerJoin(
+          surveyQuestions,
+          eq(surveyAnswers.questionId, surveyQuestions.id)
+        )
         .where(eq(surveyAnswers.responseId, input))
         .orderBy(surveyQuestions.order);
 
@@ -232,50 +300,76 @@ export const surveysAdminRouter = router({
   // Obtener lista de departamentos únicos
   getDepartments: adminProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     const departments = await db
       .selectDistinct({ departamento: users.departamento })
       .from(users)
-      .where(sql`${users.departamento} IS NOT NULL AND ${users.departamento} != ''`);
+      .where(
+        sql`${users.departamento} IS NOT NULL AND ${users.departamento} != ''`
+      );
 
     return departments.map(d => d.departamento).filter(Boolean);
   }),
 
   // Exportar datos de encuestas (devuelve datos para generar Excel en frontend)
   exportData: adminProcedure
-    .input(z.object({
-      surveyType: z.enum(['guia_i', 'guia_ii', 'guia_iii', 'all']).optional().default('all'),
-      status: z.enum(['completed', 'in_progress', 'all']).optional().default('all'),
-      departamento: z.string().optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        surveyType: z
+          .enum(["guia_i", "guia_ii", "guia_iii", "all"])
+          .optional()
+          .default("all"),
+        status: z
+          .enum(["completed", "in_progress", "all"])
+          .optional()
+          .default("all"),
+        departamento: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Build where conditions (same as getResponses)
       const conditions = [];
-      
-      if (input.surveyType !== 'all') {
-        const [survey] = await db.select().from(surveys).where(eq(surveys.type, input.surveyType)).limit(1);
+
+      if (input.surveyType !== "all") {
+        const [survey] = await db
+          .select()
+          .from(surveys)
+          .where(eq(surveys.type, input.surveyType))
+          .limit(1);
         if (survey) {
           conditions.push(eq(surveyResponses.surveyId, survey.id));
         }
       }
 
-      if (input.status === 'completed') {
+      if (input.status === "completed") {
         conditions.push(sql`${surveyResponses.completedAt} IS NOT NULL`);
-      } else if (input.status === 'in_progress') {
+      } else if (input.status === "in_progress") {
         conditions.push(sql`${surveyResponses.completedAt} IS NULL`);
       }
 
       if (input.startDate) {
-        conditions.push(gte(surveyResponses.startedAt, new Date(input.startDate)));
+        conditions.push(
+          gte(surveyResponses.startedAt, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
-        conditions.push(lte(surveyResponses.startedAt, new Date(input.endDate)));
+        conditions.push(
+          lte(surveyResponses.startedAt, new Date(input.endDate))
+        );
       }
 
       // Get all responses (no pagination for export)
@@ -302,7 +396,9 @@ export const surveysAdminRouter = router({
       // Filter by departamento if specified
       let filteredResponses = responses;
       if (input.departamento) {
-        filteredResponses = responses.filter(r => r.userDepartamento === input.departamento);
+        filteredResponses = responses.filter(
+          r => r.userDepartamento === input.departamento
+        );
       }
 
       return filteredResponses;

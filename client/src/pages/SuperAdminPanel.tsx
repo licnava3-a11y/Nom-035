@@ -119,18 +119,21 @@ export default function SuperAdminPanel() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<CompanyFormData>(EMPTY_FORM);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
+    null
+  );
   const [userSearch, setUserSearch] = useState("");
 
   // ─── Queries ────────────────────────────────────────────────────────────────
   const { data: stats } = trpc.superAdmin.getGlobalStats.useQuery();
-  const { data: companiesData, isLoading } = trpc.superAdmin.listCompanies.useQuery({
-    search: search || undefined,
-    status: statusFilter,
-    plan: planFilter,
-    page,
-    pageSize: 20,
-  });
+  const { data: companiesData, isLoading } =
+    trpc.superAdmin.listCompanies.useQuery({
+      search: search || undefined,
+      status: statusFilter,
+      plan: planFilter,
+      page,
+      pageSize: 20,
+    });
   const { data: companyUsers } = trpc.superAdmin.listCompanyUsers.useQuery(
     { companyId: selectedCompanyId!, pageSize: 50 },
     { enabled: selectedCompanyId !== null }
@@ -145,7 +148,7 @@ export default function SuperAdminPanel() {
       setShowForm(false);
       setFormData(EMPTY_FORM);
     },
-    onError: (e) => toast.error(`Error: ${e.message}`),
+    onError: e => toast.error(`Error: ${e.message}`),
   });
 
   const updateCompany = trpc.superAdmin.updateCompany.useMutation({
@@ -156,7 +159,7 @@ export default function SuperAdminPanel() {
       setEditingId(null);
       setFormData(EMPTY_FORM);
     },
-    onError: (e) => toast.error(`Error: ${e.message}`),
+    onError: e => toast.error(`Error: ${e.message}`),
   });
 
   const setStatus = trpc.superAdmin.setCompanyStatus.useMutation({
@@ -166,7 +169,7 @@ export default function SuperAdminPanel() {
       );
       utils.superAdmin.listCompanies.invalidate();
     },
-    onError: (e) => toast.error(`Error: ${e.message}`),
+    onError: e => toast.error(`Error: ${e.message}`),
   });
 
   const setUserRole = trpc.superAdmin.setUserRole.useMutation({
@@ -174,7 +177,7 @@ export default function SuperAdminPanel() {
       toast.success("Rol actualizado");
       utils.superAdmin.listCompanyUsers.invalidate();
     },
-    onError: (e) => toast.error(`Error: ${e.message}`),
+    onError: e => toast.error(`Error: ${e.message}`),
   });
 
   // ─── Acceso restringido ──────────────────────────────────────────────────────
@@ -197,7 +200,9 @@ export default function SuperAdminPanel() {
     setShowForm(true);
   };
 
-  const handleOpenEdit = (company: NonNullable<typeof companiesData>["data"][0]) => {
+  const handleOpenEdit = (
+    company: NonNullable<typeof companiesData>["data"][0]
+  ) => {
     setEditingId(company.id);
     setFormData({
       razonSocial: company.razonSocial,
@@ -257,7 +262,9 @@ export default function SuperAdminPanel() {
                 <Building2 className="w-8 h-8 text-blue-500" />
                 <div>
                   <p className="text-2xl font-bold">{stats.totalCompanies}</p>
-                  <p className="text-xs text-muted-foreground">Total Empresas</p>
+                  <p className="text-xs text-muted-foreground">
+                    Total Empresas
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -279,7 +286,9 @@ export default function SuperAdminPanel() {
                 <Users className="w-8 h-8 text-purple-500" />
                 <div>
                   <p className="text-2xl font-bold">{stats.totalUsers}</p>
-                  <p className="text-xs text-muted-foreground">Usuarios Totales</p>
+                  <p className="text-xs text-muted-foreground">
+                    Usuarios Totales
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -290,7 +299,7 @@ export default function SuperAdminPanel() {
                 <BarChart3 className="w-8 h-8 text-amber-500" />
                 <div>
                   <div className="flex gap-1 flex-wrap">
-                    {stats.planBreakdown.map((p) => (
+                    {stats.planBreakdown.map(p => (
                       <span key={p.plan} className="text-xs">
                         {PLAN_LABELS[p.plan as PlanType]}: {p.count}
                       </span>
@@ -330,11 +339,20 @@ export default function SuperAdminPanel() {
               <Input
                 placeholder="Buscar por razón social, RFC o correo..."
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                onChange={e => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 className="pl-9"
               />
             </div>
-            <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as "all" | StatusType); setPage(1); }}>
+            <Select
+              value={statusFilter}
+              onValueChange={v => {
+                setStatusFilter(v as "all" | StatusType);
+                setPage(1);
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
@@ -345,7 +363,13 @@ export default function SuperAdminPanel() {
                 <SelectItem value="cancelled">Cancelada</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={planFilter} onValueChange={(v) => { setPlanFilter(v as "all" | PlanType); setPage(1); }}>
+            <Select
+              value={planFilter}
+              onValueChange={v => {
+                setPlanFilter(v as "all" | PlanType);
+                setPage(1);
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Plan" />
               </SelectTrigger>
@@ -376,28 +400,42 @@ export default function SuperAdminPanel() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell
+                      colSpan={7}
+                      className="text-center py-8 text-muted-foreground"
+                    >
                       Cargando empresas...
                     </TableCell>
                   </TableRow>
                 ) : !companiesData?.data.length ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell
+                      colSpan={7}
+                      className="text-center py-8 text-muted-foreground"
+                    >
                       No se encontraron empresas
                     </TableCell>
                   </TableRow>
                 ) : (
-                  companiesData.data.map((company) => (
+                  companiesData.data.map(company => (
                     <TableRow key={company.id}>
-                      <TableCell className="font-medium">{company.razonSocial}</TableCell>
-                      <TableCell className="font-mono text-sm">{company.rfc}</TableCell>
+                      <TableCell className="font-medium">
+                        {company.razonSocial}
+                      </TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {company.rfc}
+                      </TableCell>
                       <TableCell>
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${PLAN_COLORS[company.plan as PlanType]}`}>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${PLAN_COLORS[company.plan as PlanType]}`}
+                        >
                           {PLAN_LABELS[company.plan as PlanType]}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[company.status as StatusType]}`}>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[company.status as StatusType]}`}
+                        >
                           {STATUS_LABELS[company.status as StatusType]}
                         </span>
                       </TableCell>
@@ -410,7 +448,9 @@ export default function SuperAdminPanel() {
                         </button>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {new Date(company.createdAt).toLocaleDateString("es-MX")}
+                        {new Date(company.createdAt).toLocaleDateString(
+                          "es-MX"
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
@@ -426,7 +466,12 @@ export default function SuperAdminPanel() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => setStatus.mutate({ id: company.id, status: "suspended" })}
+                              onClick={() =>
+                                setStatus.mutate({
+                                  id: company.id,
+                                  status: "suspended",
+                                })
+                              }
                               title="Suspender"
                               className="text-yellow-600 hover:text-yellow-700"
                             >
@@ -436,7 +481,12 @@ export default function SuperAdminPanel() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => setStatus.mutate({ id: company.id, status: "active" })}
+                              onClick={() =>
+                                setStatus.mutate({
+                                  id: company.id,
+                                  status: "active",
+                                })
+                              }
                               title="Reactivar"
                               className="text-green-600 hover:text-green-700"
                             >
@@ -457,14 +507,15 @@ export default function SuperAdminPanel() {
             <div className="flex justify-between items-center text-sm text-muted-foreground">
               <span>
                 Mostrando {(page - 1) * 20 + 1}–
-                {Math.min(page * 20, companiesData.total)} de {companiesData.total}
+                {Math.min(page * 20, companiesData.total)} de{" "}
+                {companiesData.total}
               </span>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   disabled={page === 1}
-                  onClick={() => setPage((p) => p - 1)}
+                  onClick={() => setPage(p => p - 1)}
                 >
                   Anterior
                 </Button>
@@ -472,7 +523,7 @@ export default function SuperAdminPanel() {
                   variant="outline"
                   size="sm"
                   disabled={page >= companiesData.totalPages}
-                  onClick={() => setPage((p) => p + 1)}
+                  onClick={() => setPage(p => p + 1)}
                 >
                   Siguiente
                 </Button>
@@ -486,13 +537,13 @@ export default function SuperAdminPanel() {
           <div className="flex gap-3 items-center">
             <Select
               value={selectedCompanyId?.toString() ?? ""}
-              onValueChange={(v) => setSelectedCompanyId(Number(v))}
+              onValueChange={v => setSelectedCompanyId(Number(v))}
             >
               <SelectTrigger className="w-64">
                 <SelectValue placeholder="Seleccionar empresa..." />
               </SelectTrigger>
               <SelectContent>
-                {companiesData?.data.map((c) => (
+                {companiesData?.data.map(c => (
                   <SelectItem key={c.id} value={c.id.toString()}>
                     {c.razonSocial}
                   </SelectItem>
@@ -504,7 +555,7 @@ export default function SuperAdminPanel() {
               <Input
                 placeholder="Buscar usuario..."
                 value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
+                onChange={e => setUserSearch(e.target.value)}
                 className="pl-9"
               />
             </div>
@@ -525,22 +576,33 @@ export default function SuperAdminPanel() {
                 <TableBody>
                   {!companyUsers?.data.length ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      <TableCell
+                        colSpan={5}
+                        className="text-center py-8 text-muted-foreground"
+                      >
                         No hay usuarios en esta empresa
                       </TableCell>
                     </TableRow>
                   ) : (
                     companyUsers.data
                       .filter(
-                        (u) =>
+                        u =>
                           !userSearch ||
-                          u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
-                          u.email?.toLowerCase().includes(userSearch.toLowerCase())
+                          u.name
+                            ?.toLowerCase()
+                            .includes(userSearch.toLowerCase()) ||
+                          u.email
+                            ?.toLowerCase()
+                            .includes(userSearch.toLowerCase())
                       )
-                      .map((u) => (
+                      .map(u => (
                         <TableRow key={u.id}>
-                          <TableCell className="font-medium">{u.name ?? "—"}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{u.email ?? "—"}</TableCell>
+                          <TableCell className="font-medium">
+                            {u.name ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {u.email ?? "—"}
+                          </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="text-xs">
                               {u.role}
@@ -548,14 +610,19 @@ export default function SuperAdminPanel() {
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground">
                             {u.lastSignedIn
-                              ? new Date(u.lastSignedIn).toLocaleDateString("es-MX")
+                              ? new Date(u.lastSignedIn).toLocaleDateString(
+                                  "es-MX"
+                                )
                               : "—"}
                           </TableCell>
                           <TableCell className="text-right">
                             <Select
                               value={u.role}
-                              onValueChange={(v) =>
-                                setUserRole.mutate({ userId: u.id, role: v as any })
+                              onValueChange={v =>
+                                setUserRole.mutate({
+                                  userId: u.id,
+                                  role: v as any,
+                                })
                               }
                             >
                               <SelectTrigger className="w-36 h-7 text-xs">
@@ -563,11 +630,22 @@ export default function SuperAdminPanel() {
                               </SelectTrigger>
                               <SelectContent>
                                 {[
-                                  "super_admin", "admin", "director", "gerente",
-                                  "rh", "supervisor", "jefe_area", "empleado",
-                                  "instructor", "responsable_nom035",
-                                ].map((r) => (
-                                  <SelectItem key={r} value={r} className="text-xs">
+                                  "super_admin",
+                                  "admin",
+                                  "director",
+                                  "gerente",
+                                  "rh",
+                                  "supervisor",
+                                  "jefe_area",
+                                  "empleado",
+                                  "instructor",
+                                  "responsable_nom035",
+                                ].map(r => (
+                                  <SelectItem
+                                    key={r}
+                                    value={r}
+                                    className="text-xs"
+                                  >
                                     {r}
                                   </SelectItem>
                                 ))}
@@ -608,7 +686,9 @@ export default function SuperAdminPanel() {
               <Label>Razón Social *</Label>
               <Input
                 value={formData.razonSocial}
-                onChange={(e) => setFormData((f) => ({ ...f, razonSocial: e.target.value }))}
+                onChange={e =>
+                  setFormData(f => ({ ...f, razonSocial: e.target.value }))
+                }
                 placeholder="Empresa S.A. de C.V."
               />
             </div>
@@ -616,7 +696,12 @@ export default function SuperAdminPanel() {
               <Label>RFC *</Label>
               <Input
                 value={formData.rfc}
-                onChange={(e) => setFormData((f) => ({ ...f, rfc: e.target.value.toUpperCase() }))}
+                onChange={e =>
+                  setFormData(f => ({
+                    ...f,
+                    rfc: e.target.value.toUpperCase(),
+                  }))
+                }
                 placeholder="EMP000101ABC"
                 maxLength={13}
               />
@@ -625,7 +710,9 @@ export default function SuperAdminPanel() {
               <Label>Giro</Label>
               <Input
                 value={formData.giro}
-                onChange={(e) => setFormData((f) => ({ ...f, giro: e.target.value }))}
+                onChange={e =>
+                  setFormData(f => ({ ...f, giro: e.target.value }))
+                }
                 placeholder="Manufactura / Servicios..."
               />
             </div>
@@ -633,7 +720,9 @@ export default function SuperAdminPanel() {
               <Label>Dirección Fiscal</Label>
               <Textarea
                 value={formData.direccionFiscal}
-                onChange={(e) => setFormData((f) => ({ ...f, direccionFiscal: e.target.value }))}
+                onChange={e =>
+                  setFormData(f => ({ ...f, direccionFiscal: e.target.value }))
+                }
                 rows={2}
               />
             </div>
@@ -641,14 +730,21 @@ export default function SuperAdminPanel() {
               <Label>Representante Legal</Label>
               <Input
                 value={formData.representanteLegal}
-                onChange={(e) => setFormData((f) => ({ ...f, representanteLegal: e.target.value }))}
+                onChange={e =>
+                  setFormData(f => ({
+                    ...f,
+                    representanteLegal: e.target.value,
+                  }))
+                }
               />
             </div>
             <div className="space-y-1">
               <Label>Teléfono</Label>
               <Input
                 value={formData.telefonoContacto}
-                onChange={(e) => setFormData((f) => ({ ...f, telefonoContacto: e.target.value }))}
+                onChange={e =>
+                  setFormData(f => ({ ...f, telefonoContacto: e.target.value }))
+                }
               />
             </div>
             <div className="space-y-1">
@@ -656,14 +752,18 @@ export default function SuperAdminPanel() {
               <Input
                 type="email"
                 value={formData.emailContacto}
-                onChange={(e) => setFormData((f) => ({ ...f, emailContacto: e.target.value }))}
+                onChange={e =>
+                  setFormData(f => ({ ...f, emailContacto: e.target.value }))
+                }
               />
             </div>
             <div className="space-y-1">
               <Label>Página Web</Label>
               <Input
                 value={formData.paginaWeb}
-                onChange={(e) => setFormData((f) => ({ ...f, paginaWeb: e.target.value }))}
+                onChange={e =>
+                  setFormData(f => ({ ...f, paginaWeb: e.target.value }))
+                }
                 placeholder="https://..."
               />
             </div>
@@ -671,7 +771,9 @@ export default function SuperAdminPanel() {
               <Label>Plan</Label>
               <Select
                 value={formData.plan}
-                onValueChange={(v) => setFormData((f) => ({ ...f, plan: v as PlanType }))}
+                onValueChange={v =>
+                  setFormData(f => ({ ...f, plan: v as PlanType }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -691,8 +793,11 @@ export default function SuperAdminPanel() {
                 min={1}
                 max={100}
                 value={formData.conflictThreshold}
-                onChange={(e) =>
-                  setFormData((f) => ({ ...f, conflictThreshold: Number(e.target.value) }))
+                onChange={e =>
+                  setFormData(f => ({
+                    ...f,
+                    conflictThreshold: Number(e.target.value),
+                  }))
                 }
               />
             </div>
@@ -701,14 +806,21 @@ export default function SuperAdminPanel() {
               <Input
                 type="email"
                 value={formData.notificationEmail}
-                onChange={(e) => setFormData((f) => ({ ...f, notificationEmail: e.target.value }))}
+                onChange={e =>
+                  setFormData(f => ({
+                    ...f,
+                    notificationEmail: e.target.value,
+                  }))
+                }
               />
             </div>
             <div className="col-span-2 space-y-1">
               <Label>Notas Internas (solo super_admin)</Label>
               <Textarea
                 value={formData.internalNotes}
-                onChange={(e) => setFormData((f) => ({ ...f, internalNotes: e.target.value }))}
+                onChange={e =>
+                  setFormData(f => ({ ...f, internalNotes: e.target.value }))
+                }
                 rows={2}
                 placeholder="Notas de seguimiento, acuerdos comerciales..."
               />
@@ -726,8 +838,8 @@ export default function SuperAdminPanel() {
               {createCompany.isPending || updateCompany.isPending
                 ? "Guardando..."
                 : editingId
-                ? "Actualizar"
-                : "Crear Empresa"}
+                  ? "Actualizar"
+                  : "Crear Empresa"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -744,9 +856,12 @@ function UnassignedUsersSection({
 }) {
   const utils = trpc.useUtils();
   const [assigningId, setAssigningId] = useState<number | null>(null);
-  const [selectedCompany, setSelectedCompany] = useState<Record<number, string>>({});
+  const [selectedCompany, setSelectedCompany] = useState<
+    Record<number, string>
+  >({});
 
-  const { data: unassigned, isLoading } = trpc.superAdmin.listUnassignedUsers.useQuery();
+  const { data: unassigned, isLoading } =
+    trpc.superAdmin.listUnassignedUsers.useQuery();
 
   const assignUser = trpc.superAdmin.assignUserToCompany.useMutation({
     onSuccess: (_, vars) => {
@@ -755,7 +870,7 @@ function UnassignedUsersSection({
       utils.superAdmin.getGlobalStats.invalidate();
       setAssigningId(null);
     },
-    onError: (e) => toast.error(`Error: ${e.message}`),
+    onError: e => toast.error(`Error: ${e.message}`),
   });
 
   const handleAssign = (userId: number) => {
@@ -779,8 +894,12 @@ function UnassignedUsersSection({
     return (
       <div className="text-center py-12 border rounded-lg">
         <UserCheck className="w-12 h-12 mx-auto mb-3 text-green-500 opacity-70" />
-        <p className="font-medium text-green-700">Todos los usuarios tienen empresa asignada</p>
-        <p className="text-sm text-muted-foreground mt-1">No hay usuarios sin empresa en el sistema</p>
+        <p className="font-medium text-green-700">
+          Todos los usuarios tienen empresa asignada
+        </p>
+        <p className="text-sm text-muted-foreground mt-1">
+          No hay usuarios sin empresa en el sistema
+        </p>
       </div>
     );
   }
@@ -790,8 +909,9 @@ function UnassignedUsersSection({
       <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
         <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0" />
         <p className="text-sm text-yellow-800">
-          <strong>{unassigned.length} usuario(s)</strong> no tienen empresa asignada.
-          Asígnalos a una empresa para completar el aislamiento de tenant.
+          <strong>{unassigned.length} usuario(s)</strong> no tienen empresa
+          asignada. Asígnalos a una empresa para completar el aislamiento de
+          tenant.
         </p>
       </div>
 
@@ -808,29 +928,39 @@ function UnassignedUsersSection({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {unassigned.map((u) => (
+            {unassigned.map(u => (
               <TableRow key={u.id}>
                 <TableCell className="font-medium">{u.name ?? "—"}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{u.email ?? "—"}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">
+                  {u.email ?? "—"}
+                </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="text-xs">{u.role}</Badge>
+                  <Badge variant="outline" className="text-xs">
+                    {u.role}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {u.createdAt ? new Date(u.createdAt).toLocaleDateString("es-MX") : "—"}
+                  {u.createdAt
+                    ? new Date(u.createdAt).toLocaleDateString("es-MX")
+                    : "—"}
                 </TableCell>
                 <TableCell>
                   <Select
                     value={selectedCompany[u.id] ?? ""}
-                    onValueChange={(v) =>
-                      setSelectedCompany((prev) => ({ ...prev, [u.id]: v }))
+                    onValueChange={v =>
+                      setSelectedCompany(prev => ({ ...prev, [u.id]: v }))
                     }
                   >
                     <SelectTrigger className="w-48 h-8 text-xs">
                       <SelectValue placeholder="Seleccionar empresa..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {companiesData.map((c) => (
-                        <SelectItem key={c.id} value={c.id.toString()} className="text-xs">
+                      {companiesData.map(c => (
+                        <SelectItem
+                          key={c.id}
+                          value={c.id.toString()}
+                          className="text-xs"
+                        >
                           {c.razonSocial}
                         </SelectItem>
                       ))}

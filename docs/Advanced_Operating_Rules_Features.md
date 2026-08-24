@@ -40,6 +40,7 @@ https://[dominio]/verify-operating-rules?id=[ID]&v=[VERSION]
 ```
 
 La página de verificación muestra:
+
 - Versión del documento
 - Fecha de vigencia
 - Estado (Activo/Inactivo)
@@ -50,9 +51,10 @@ La página de verificación muestra:
 
 ```typescript
 // Generar PDF
-const { pdfBase64, filename } = await trpc.committeeOperatingRules.generatePDF.mutate({
-  id: operatingRuleId
-});
+const { pdfBase64, filename } =
+  await trpc.committeeOperatingRules.generatePDF.mutate({
+    id: operatingRuleId,
+  });
 
 // Convertir base64 a blob y descargar
 const blob = base64ToBlob(pdfBase64, "application/pdf");
@@ -82,6 +84,7 @@ Sistema de notificaciones que alerta automáticamente a todos los miembros del c
 ### Contenido de Notificación
 
 Cada notificación incluye:
+
 - Tipo de cambio (creación, actualización, restauración, aprobación)
 - Versión afectada
 - Nombre del usuario que realizó el cambio
@@ -154,6 +157,7 @@ Sistema de aprobación que requiere firmas digitales de múltiples miembros del 
 ### Componente de Firma Digital
 
 El componente `DigitalSignaturePad` permite:
+
 - Dibujar firma con mouse o pantalla táctil
 - Limpiar y redibujar
 - Confirmar firma

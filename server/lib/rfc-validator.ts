@@ -54,7 +54,13 @@ export function validateRFC(rfc: string, strict = false): RFCValidationResult {
   const rfcClean = rfc.trim().toUpperCase().replace(/\s+/g, "");
 
   if (!rfcClean) {
-    return { valid: false, type: null, error: "El RFC no puede estar vacío", rfc: rfcClean, homoclave: null };
+    return {
+      valid: false,
+      type: null,
+      error: "El RFC no puede estar vacío",
+      rfc: rfcClean,
+      homoclave: null,
+    };
   }
 
   // Determinar tipo por longitud
@@ -83,9 +89,18 @@ export function validateRFC(rfc: string, strict = false): RFCValidationResult {
   }
 
   // Validar fecha incrustada en el RFC
-  const yearStr = rfcClean.slice(type === "moral" ? 3 : 4, type === "moral" ? 5 : 6);
-  const monthStr = rfcClean.slice(type === "moral" ? 5 : 6, type === "moral" ? 7 : 8);
-  const dayStr = rfcClean.slice(type === "moral" ? 7 : 8, type === "moral" ? 9 : 10);
+  const yearStr = rfcClean.slice(
+    type === "moral" ? 3 : 4,
+    type === "moral" ? 5 : 6
+  );
+  const monthStr = rfcClean.slice(
+    type === "moral" ? 5 : 6,
+    type === "moral" ? 7 : 8
+  );
+  const dayStr = rfcClean.slice(
+    type === "moral" ? 7 : 8,
+    type === "moral" ? 9 : 10
+  );
   const month = parseInt(monthStr, 10);
   const day = parseInt(dayStr, 10);
 
@@ -139,7 +154,9 @@ export function validateRFC(rfc: string, strict = false): RFCValidationResult {
  */
 export function formatRFC(rfc: string): string {
   const clean = rfc.trim().toUpperCase();
-  if (clean.length === 12) return `${clean.slice(0, 3)}-${clean.slice(3, 9)}-${clean.slice(9)}`;
-  if (clean.length === 13) return `${clean.slice(0, 4)}-${clean.slice(4, 10)}-${clean.slice(10)}`;
+  if (clean.length === 12)
+    return `${clean.slice(0, 3)}-${clean.slice(3, 9)}-${clean.slice(9)}`;
+  if (clean.length === 13)
+    return `${clean.slice(0, 4)}-${clean.slice(4, 10)}-${clean.slice(10)}`;
   return clean;
 }

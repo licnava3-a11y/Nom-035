@@ -63,13 +63,14 @@ describe("Sprint 48 — Página de Bienvenida Pública /welcome", () => {
   it("Welcome.tsx usa el color verde corporativo (#22c55e o green-400/500)", () => {
     const content = readFileSync(welcomePath, "utf-8");
     const hasGreenHex = content.includes("#22c55e");
-    const hasGreenClass = content.includes("green-4") || content.includes("green-5");
+    const hasGreenClass =
+      content.includes("green-4") || content.includes("green-5");
     expect(hasGreenHex || hasGreenClass).toBe(true);
   });
 
   it("App.tsx tiene import lazy de Welcome", () => {
     const content = readFileSync(appPath, "utf-8");
-    expect(content).toContain("import(\"./pages/Welcome\")");
+    expect(content).toContain('import("./pages/Welcome")');
   });
 
   it("App.tsx tiene la ruta /welcome registrada", () => {

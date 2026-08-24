@@ -15,7 +15,8 @@ interface BrowserNotificationOptions {
  * Hook para gestionar notificaciones del navegador (Browser Notifications API)
  */
 export function useBrowserNotifications() {
-  const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [permission, setPermission] =
+    useState<NotificationPermission>("default");
   const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
@@ -25,32 +26,38 @@ export function useBrowserNotifications() {
       setPermission(Notification.permission);
     } else {
       setIsSupported(false);
-      console.warn("[BrowserNotifications] El navegador no soporta notificaciones");
+      console.warn(
+        "[BrowserNotifications] El navegador no soporta notificaciones"
+      );
     }
   }, []);
 
   /**
    * Solicita permiso al usuario para mostrar notificaciones
    */
-  const requestPermission = useCallback(async (): Promise<NotificationPermission> => {
-    if (!isSupported) {
-      console.warn("[BrowserNotifications] Notificaciones no soportadas");
-      return "denied";
-    }
+  const requestPermission =
+    useCallback(async (): Promise<NotificationPermission> => {
+      if (!isSupported) {
+        console.warn("[BrowserNotifications] Notificaciones no soportadas");
+        return "denied";
+      }
 
-    if (permission === "granted") {
-      return "granted";
-    }
+      if (permission === "granted") {
+        return "granted";
+      }
 
-    try {
-      const result = await Notification.requestPermission();
-      setPermission(result);
-      return result;
-    } catch (error) {
-      console.error("[BrowserNotifications] Error al solicitar permiso:", error);
-      return "denied";
-    }
-  }, [isSupported, permission]);
+      try {
+        const result = await Notification.requestPermission();
+        setPermission(result);
+        return result;
+      } catch (error) {
+        console.error(
+          "[BrowserNotifications] Error al solicitar permiso:",
+          error
+        );
+        return "denied";
+      }
+    }, [isSupported, permission]);
 
   /**
    * Muestra una notificación del navegador
@@ -85,7 +92,10 @@ export function useBrowserNotifications() {
 
         return notification;
       } catch (error) {
-        console.error("[BrowserNotifications] Error al mostrar notificación:", error);
+        console.error(
+          "[BrowserNotifications] Error al mostrar notificación:",
+          error
+        );
         return null;
       }
     },

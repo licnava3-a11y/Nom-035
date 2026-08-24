@@ -6,7 +6,13 @@ import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +30,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Edit, Trash2, Users, AlertCircle, UserCog, FileText, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Users,
+  AlertCircle,
+  UserCog,
+  FileText,
+  Loader2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
@@ -50,7 +65,11 @@ export default function DepartmentManagement() {
   });
 
   // Obtener lista de departamentos con paginación
-  const { data: departmentsData, isLoading, refetch } = trpc.departments.list.useQuery({
+  const {
+    data: departmentsData,
+    isLoading,
+    refetch,
+  } = trpc.departments.list.useQuery({
     page,
     pageSize: 20,
     search: searchTerm || undefined,
@@ -88,10 +107,11 @@ export default function DepartmentManagement() {
 
   // Query para obtener historial de reasignaciones
   const [historyPage, setHistoryPage] = useState(1);
-  const { data: reassignmentHistory, isLoading: historyLoading } = trpc.departments.getReassignmentHistory.useQuery({
-    page: historyPage,
-    pageSize: 10,
-  });
+  const { data: reassignmentHistory, isLoading: historyLoading } =
+    trpc.departments.getReassignmentHistory.useQuery({
+      page: historyPage,
+      pageSize: 10,
+    });
 
   // Query para obtener lista de empleados
   const { data: employeesData } = trpc.employees.list.useQuery(
@@ -100,40 +120,45 @@ export default function DepartmentManagement() {
   );
 
   // Mutation para generar reporte PDF
-   const exportAllMutation = trpc.departments.exportAll.useMutation({
-    onSuccess: (data) => {
+  const exportAllMutation = trpc.departments.exportAll.useMutation({
+    onSuccess: data => {
       // Descargar archivo Excel
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
       link.download = data.filename;
       link.click();
-      toast(`Exportación completada: ${data.departmentCount} departamentos, ${data.employeeCount} empleados`);
+      toast(
+        `Exportación completada: ${data.departmentCount} departamentos, ${data.employeeCount} empleados`
+      );
     },
-    onError: (error) => {
-      toast.error(error.message || 'Error al exportar datos');
+    onError: error => {
+      toast.error(error.message || "Error al exportar datos");
     },
   });
 
-  const generateReportMutation = trpc.reports.generateOrgStructurePDF.useMutation({
-    onSuccess: (data) => {
-      // Descargar PDF
-      const link = document.createElement("a");
-      link.href = `data:application/pdf;base64,${data.data}`;
-      link.download = data.filename;
-      link.click();
-      alert(`Reporte generado exitosamente: ${(data as any).totalDepartments} departamentos, ${(data as any).totalEmployees} empleados`);
-    },
-    onError: (error: any) => {
-      alert(`Error al generar reporte: ${error.message}`);
-    },
-  });
+  const generateReportMutation =
+    trpc.reports.generateOrgStructurePDF.useMutation({
+      onSuccess: data => {
+        // Descargar PDF
+        const link = document.createElement("a");
+        link.href = `data:application/pdf;base64,${data.data}`;
+        link.download = data.filename;
+        link.click();
+        alert(
+          `Reporte generado exitosamente: ${(data as any).totalDepartments} departamentos, ${(data as any).totalEmployees} empleados`
+        );
+      },
+      onError: (error: any) => {
+        alert(`Error al generar reporte: ${error.message}`);
+      },
+    });
   const handleGenerateReport = () => {
     generateReportMutation.mutate({});
   };
 
   // Mutation para reasignación masiva
   const bulkReassignMutation = trpc.departments.bulkReassign.useMutation({
-    onSuccess: async (result) => {
+    onSuccess: async result => {
       await utils.departments.list.invalidate();
       setIsReassignDialogOpen(false);
       setSelectedEmployees([]);
@@ -209,12 +234,12 @@ export default function DepartmentManagement() {
   const handleDeleteClick = (dept: any) => {
     setDepartmentToDelete(dept);
     setDeleteConfirmOpen(true);
-  }
+  };
   const handleDelete = () => {
     if (selectedDepartment) {
       deleteMutation.mutate({ id: selectedDepartment.id });
     }
-  };;
+  };
 
   const confirmDelete = () => {
     if (!departmentToDelete) return;
@@ -243,7 +268,7 @@ export default function DepartmentManagement() {
   };
 
   const toggleEmployeeSelection = (employeeId: number) => {
-    setSelectedEmployees((prev) =>
+    setSelectedEmployees(prev =>
       prev.includes(employeeId)
         ? prev.filter((id: any) => id !== employeeId)
         : [...prev, employeeId]
@@ -267,7 +292,7 @@ export default function DepartmentManagement() {
               <Input
                 placeholder="Buscar departamento por nombre..."
                 value={searchTerm}
-                onChange={(e) => {
+                onChange={e => {
                   setSearchTerm(e.target.value);
                   setPage(1);
                 }}
@@ -288,7 +313,9 @@ export default function DepartmentManagement() {
                 disabled={generateReportMutation.isPending}
               >
                 <FileText className="mr-2 h-4 w-4" />
-                {generateReportMutation.isPending ? "Generando..." : "Generar Reporte PDF"}
+                {generateReportMutation.isPending
+                  ? "Generando..."
+                  : "Generar Reporte PDF"}
               </Button>
               <Button
                 variant="outline"
@@ -296,7 +323,9 @@ export default function DepartmentManagement() {
                 disabled={exportAllMutation.isPending}
               >
                 <FileText className="mr-2 h-4 w-4" />
-                {exportAllMutation.isPending ? "Exportando..." : "Exportar Todo (Excel)"}
+                {exportAllMutation.isPending
+                  ? "Exportando..."
+                  : "Exportar Todo (Excel)"}
               </Button>
               <Button
                 onClick={() => {
@@ -317,7 +346,8 @@ export default function DepartmentManagement() {
         <CardHeader>
           <CardTitle>Departamentos Registrados</CardTitle>
           <CardDescription>
-            {departmentsData?.pagination.total || 0} departamento(s) encontrado(s)
+            {departmentsData?.pagination.total || 0} departamento(s)
+            encontrado(s)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -390,7 +420,7 @@ export default function DepartmentManagement() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
                       disabled={page === 1}
                     >
                       Anterior
@@ -398,7 +428,7 @@ export default function DepartmentManagement() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setPage((p) => p + 1)}
+                      onClick={() => setPage(p => p + 1)}
                       disabled={page >= departmentsData.pagination.totalPages}
                     >
                       Siguiente
@@ -430,12 +460,15 @@ export default function DepartmentManagement() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="createName">
-                Nombre del Departamento <span className="text-destructive">*</span>
+                Nombre del Departamento{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="createName"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Ej: Recursos Humanos"
                 required
               />
@@ -448,7 +481,9 @@ export default function DepartmentManagement() {
               <Input
                 id="createCode"
                 value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, code: e.target.value })
+                }
                 placeholder="Ej: RH"
                 maxLength={10}
                 required
@@ -460,7 +495,7 @@ export default function DepartmentManagement() {
               <Textarea
                 id="createDescription"
                 value={formData.description}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, description: e.target.value })
                 }
                 placeholder="Descripción del departamento..."
@@ -480,10 +515,14 @@ export default function DepartmentManagement() {
             >
               Cancelar
             </Button>
-            <LoadingButton type="button"
+            <LoadingButton
+              type="button"
               onClick={handleCreate}
-              loading={createMutation.isPending} loadingText="Creando..."
-            >Crear Departamento</LoadingButton>
+              loading={createMutation.isPending}
+              loadingText="Creando..."
+            >
+              Crear Departamento
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -501,12 +540,15 @@ export default function DepartmentManagement() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="editName">
-                Nombre del Departamento <span className="text-destructive">*</span>
+                Nombre del Departamento{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="editName"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Ej: Recursos Humanos"
                 required
               />
@@ -517,7 +559,9 @@ export default function DepartmentManagement() {
               <Input
                 id="editCode"
                 value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, code: e.target.value })
+                }
                 placeholder="Ej: RH"
                 maxLength={10}
               />
@@ -528,7 +572,7 @@ export default function DepartmentManagement() {
               <Textarea
                 id="editDescription"
                 value={formData.description}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, description: e.target.value })
                 }
                 placeholder="Descripción del departamento..."
@@ -549,10 +593,14 @@ export default function DepartmentManagement() {
             >
               Cancelar
             </Button>
-            <LoadingButton type="button"
+            <LoadingButton
+              type="button"
               onClick={handleUpdate}
-              loading={updateMutation.isPending} loadingText="Actualizando..."
-            >Actualizar</LoadingButton>
+              loading={updateMutation.isPending}
+              loadingText="Actualizando..."
+            >
+              Actualizar
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -576,8 +624,9 @@ export default function DepartmentManagement() {
                   No se puede eliminar este departamento
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Este departamento tiene {selectedDepartment.employeeCount} empleado(s)
-                  asignado(s). Primero debe reasignar o eliminar a todos los empleados.
+                  Este departamento tiene {selectedDepartment.employeeCount}{" "}
+                  empleado(s) asignado(s). Primero debe reasignar o eliminar a
+                  todos los empleados.
                 </p>
               </div>
             </div>
@@ -614,12 +663,13 @@ export default function DepartmentManagement() {
         </DialogContent>
       </Dialog>
 
-        {/* Historial de Reasignaciones Masivas */}
+      {/* Historial de Reasignaciones Masivas */}
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Historial de Reasignaciones Masivas</CardTitle>
           <CardDescription>
-            Registro de todas las reasignaciones masivas de empleados entre departamentos
+            Registro de todas las reasignaciones masivas de empleados entre
+            departamentos
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -627,7 +677,8 @@ export default function DepartmentManagement() {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
-          ) : reassignmentHistory && reassignmentHistory.reassignments.length > 0 ? (
+          ) : reassignmentHistory &&
+            reassignmentHistory.reassignments.length > 0 ? (
             <>
               <div className="space-y-4">
                 {reassignmentHistory.reassignments.map((reassignment: any) => (
@@ -636,8 +687,9 @@ export default function DepartmentManagement() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-semibold">
-                            {reassignment.sourceDepartmentName || 'Varios departamentos'} →{' '}
-                            {reassignment.targetDepartmentName}
+                            {reassignment.sourceDepartmentName ||
+                              "Varios departamentos"}{" "}
+                            → {reassignment.targetDepartmentName}
                           </h4>
                           <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
                             {reassignment.employeeCount} empleado(s)
@@ -645,11 +697,14 @@ export default function DepartmentManagement() {
                         </div>
                         <div className="text-sm text-muted-foreground space-y-1">
                           <p>
-                            <strong>Realizado por:</strong> {reassignment.performedByName}
+                            <strong>Realizado por:</strong>{" "}
+                            {reassignment.performedByName}
                           </p>
                           <p>
-                            <strong>Fecha:</strong>{' '}
-                            {new Date(reassignment.createdAt).toLocaleString('es-MX')}
+                            <strong>Fecha:</strong>{" "}
+                            {new Date(reassignment.createdAt).toLocaleString(
+                              "es-MX"
+                            )}
                           </p>
                           {reassignment.reason && (
                             <p>
@@ -659,20 +714,26 @@ export default function DepartmentManagement() {
                         </div>
                       </div>
                     </div>
-                    {reassignment.affectedEmployees && reassignment.affectedEmployees.length > 0 && (
-                      <details className="mt-3">
-                        <summary className="cursor-pointer text-sm font-medium text-primary hover:underline">
-                          Ver empleados afectados ({reassignment.affectedEmployees.length})
-                        </summary>
-                        <div className="mt-2 pl-4 space-y-1">
-                          {reassignment.affectedEmployees.map((emp: any) => (
-                            <div key={emp.id} className="text-sm text-muted-foreground">
-                              • {emp.employeeName} {emp.employeeEmail && `(${emp.employeeEmail})`}
-                            </div>
-                          ))}
-                        </div>
-                      </details>
-                    )}
+                    {reassignment.affectedEmployees &&
+                      reassignment.affectedEmployees.length > 0 && (
+                        <details className="mt-3">
+                          <summary className="cursor-pointer text-sm font-medium text-primary hover:underline">
+                            Ver empleados afectados (
+                            {reassignment.affectedEmployees.length})
+                          </summary>
+                          <div className="mt-2 pl-4 space-y-1">
+                            {reassignment.affectedEmployees.map((emp: any) => (
+                              <div
+                                key={emp.id}
+                                className="text-sm text-muted-foreground"
+                              >
+                                • {emp.employeeName}{" "}
+                                {emp.employeeEmail && `(${emp.employeeEmail})`}
+                              </div>
+                            ))}
+                          </div>
+                        </details>
+                      )}
                   </div>
                 ))}
               </div>
@@ -681,13 +742,16 @@ export default function DepartmentManagement() {
               {reassignmentHistory.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4">
                   <p className="text-sm text-muted-foreground">
-                    Página {reassignmentHistory.page} de {reassignmentHistory.totalPages}
+                    Página {reassignmentHistory.page} de{" "}
+                    {reassignmentHistory.totalPages}
                   </p>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setHistoryPage((prev) => Math.max(1, prev - 1))}
+                      onClick={() =>
+                        setHistoryPage(prev => Math.max(1, prev - 1))
+                      }
                       disabled={historyPage === 1}
                     >
                       Anterior
@@ -695,7 +759,7 @@ export default function DepartmentManagement() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setHistoryPage((prev) => prev + 1)}
+                      onClick={() => setHistoryPage(prev => prev + 1)}
                       disabled={historyPage >= reassignmentHistory.totalPages}
                     >
                       Siguiente
@@ -713,12 +777,16 @@ export default function DepartmentManagement() {
       </Card>
 
       {/* Dialog de Reasignación Masiva */}
-      <Dialog open={isReassignDialogOpen} onOpenChange={setIsReassignDialogOpen}>
+      <Dialog
+        open={isReassignDialogOpen}
+        onOpenChange={setIsReassignDialogOpen}
+      >
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Reasignación Masiva de Empleados</DialogTitle>
             <DialogDescription>
-              Seleccione los empleados y el departamento destino para la reasignación
+              Seleccione los empleados y el departamento destino para la
+              reasignación
             </DialogDescription>
           </DialogHeader>
 
@@ -731,8 +799,10 @@ export default function DepartmentManagement() {
               <select
                 id="targetDept"
                 value={targetDepartmentId}
-                onChange={(e) =>
-                  setTargetDepartmentId(e.target.value ? parseInt(e.target.value) : "")
+                onChange={e =>
+                  setTargetDepartmentId(
+                    e.target.value ? parseInt(e.target.value) : ""
+                  )
                 }
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
@@ -751,7 +821,7 @@ export default function DepartmentManagement() {
               <Textarea
                 id="reassignReason"
                 value={reassignReason}
-                onChange={(e) => setReassignReason(e.target.value)}
+                onChange={e => setReassignReason(e.target.value)}
                 placeholder="Ej: Reestructuración organizacional, cambio de proyecto..."
                 rows={2}
               />
@@ -760,7 +830,8 @@ export default function DepartmentManagement() {
             {/* Lista de empleados con checkboxes */}
             <div className="space-y-2">
               <Label>
-                Seleccionar Empleados <span className="text-destructive">*</span>
+                Seleccionar Empleados{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <div className="border rounded-md p-4 max-h-64 overflow-y-auto">
                 {employeesData && (employeesData as any)?.data.length > 0 ? (
@@ -781,7 +852,8 @@ export default function DepartmentManagement() {
                             {emp.firstName} {emp.lastName}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {emp.email} - {emp.departmentName || "Sin departamento"}
+                            {emp.email} -{" "}
+                            {emp.departmentName || "Sin departamento"}
                           </p>
                         </div>
                       </label>
@@ -836,7 +908,11 @@ export default function DepartmentManagement() {
         onConfirm={confirmDelete}
         title="¿Eliminar departamento?"
         description="Esta acción no se puede deshacer. El departamento será eliminado permanentemente."
-        impactMessage={departmentToDelete ? `Se eliminarán ${departmentToDelete.employeeCount || 0} empleados asignados y sus relaciones jerárquicas` : ""}
+        impactMessage={
+          departmentToDelete
+            ? `Se eliminarán ${departmentToDelete.employeeCount || 0} empleados asignados y sus relaciones jerárquicas`
+            : ""
+        }
         variant="destructive"
         confirmText="Eliminar"
       />

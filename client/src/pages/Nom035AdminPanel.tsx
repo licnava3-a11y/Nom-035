@@ -2,12 +2,36 @@ import { useState } from "react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { trpc } from "../lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { BarChart3, TrendingUp, AlertTriangle, CheckCircle2, Users, FileText } from "lucide-react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import {
+  BarChart3,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  Users,
+  FileText,
+} from "lucide-react";
 import { toast } from "sonner";
 import ProtectedButton from "@/components/ProtectedButton";
 import {
@@ -38,8 +62,12 @@ ChartJS.register(
 );
 
 export default function Nom035AdminPanel() {
-  const [surveyType, setSurveyType] = useState<"guia_i" | "guia_ii" | "guia_iii">("guia_i");
-  const [selectedPeriodId, setSelectedPeriodId] = useState<number | undefined>();
+  const [surveyType, setSurveyType] = useState<
+    "guia_i" | "guia_ii" | "guia_iii"
+  >("guia_i");
+  const [selectedPeriodId, setSelectedPeriodId] = useState<
+    number | undefined
+  >();
   const [comparisonPeriods, setComparisonPeriods] = useState<number[]>([]);
 
   // Mutations para exportación
@@ -52,14 +80,16 @@ export default function Nom035AdminPanel() {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
       const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const blob = new Blob([byteArray], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = data.filename;
       a.click();
       window.URL.revokeObjectURL(url);
-      toast.success('Reporte exportado exitosamente');
+      toast.success("Reporte exportado exitosamente");
     },
     onError: (error: any) => {
       toast.error(`Error al exportar: ${error.message}`);
@@ -75,14 +105,14 @@ export default function Nom035AdminPanel() {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
       const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const blob = new Blob([byteArray], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = data.filename;
       a.click();
       window.URL.revokeObjectURL(url);
-      toast.success('Reporte exportado exitosamente');
+      toast.success("Reporte exportado exitosamente");
     },
     onError: (error: any) => {
       toast.error(`Error al exportar: ${error.message}`);
@@ -114,10 +144,11 @@ export default function Nom035AdminPanel() {
     surveyType,
   });
 
-  const { data: departmentResults } = trpc.nom035Admin.getResultsByDepartment.useQuery({
-    periodId: selectedPeriodId,
-    surveyType,
-  });
+  const { data: departmentResults } =
+    trpc.nom035Admin.getResultsByDepartment.useQuery({
+      periodId: selectedPeriodId,
+      surveyType,
+    });
 
   const { data: comparison } = trpc.nom035Admin.comparePeriods.useQuery(
     {
@@ -134,24 +165,25 @@ export default function Nom035AdminPanel() {
     limit: 12,
   });
 
-  const { data: recommendations } = trpc.nom035Admin.getRecommendations.useQuery(
-    {
-      periodId: selectedPeriodId!,
-      surveyType,
-    },
-    {
-      enabled: !!selectedPeriodId,
-    }
-  );
+  const { data: recommendations } =
+    trpc.nom035Admin.getRecommendations.useQuery(
+      {
+        periodId: selectedPeriodId!,
+        surveyType,
+      },
+      {
+        enabled: !!selectedPeriodId,
+      }
+    );
 
   // Colores para gráficas
   // Colores oficiales según NOM-035-STPS-2018
   const riskColors = {
-    "Nulo": "#10b981",      // Verde - Sin riesgo
-    "Bajo": "#3b82f6",      // Azul - Riesgo mínimo
-    "Medio": "#f59e0b",     // Naranja - Riesgo moderado
-    "Alto": "#ef4444",      // Rojo - Riesgo significativo
-    "Muy Alto": "#991b1b",  // Rojo oscuro - Riesgo crítico
+    Nulo: "#10b981", // Verde - Sin riesgo
+    Bajo: "#3b82f6", // Azul - Riesgo mínimo
+    Medio: "#f59e0b", // Naranja - Riesgo moderado
+    Alto: "#ef4444", // Rojo - Riesgo significativo
+    "Muy Alto": "#991b1b", // Rojo oscuro - Riesgo crítico
   };
 
   // Datos para gráfica de distribución de riesgo
@@ -160,7 +192,10 @@ export default function Nom035AdminPanel() {
     datasets: [
       {
         data: stats?.riskDistribution.map(r => r.count) || [],
-        backgroundColor: stats?.riskDistribution.map(r => riskColors[r.level as keyof typeof riskColors] || "#6b7280") || [],
+        backgroundColor:
+          stats?.riskDistribution.map(
+            r => riskColors[r.level as keyof typeof riskColors] || "#6b7280"
+          ) || [],
         borderWidth: 0,
       },
     ],
@@ -254,32 +289,48 @@ export default function Nom035AdminPanel() {
 
   return (
     <div className="container mx-auto py-8 space-y-8">
-      <Breadcrumb items={[
-        { label: "Prevención de Riesgos", href: "/prevention" },
-        { label: "Panel Administrativo" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Prevención de Riesgos", href: "/prevention" },
+          { label: "Panel Administrativo" },
+        ]}
+      />
 
       {/* Header */}
       <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Panel de Administración NOM-035</h1>
+          <h1 className="text-3xl font-bold">
+            Panel de Administración NOM-035
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Análisis comparativo, tendencias históricas y recomendaciones automáticas
+            Análisis comparativo, tendencias históricas y recomendaciones
+            automáticas
           </p>
         </div>
 
         {/* Filtros Globales */}
         <div className="flex gap-4 items-end">
           <div className="flex-1">
-            <label className="text-sm font-medium mb-2 block">Tipo de Encuesta</label>
-            <Select value={surveyType} onValueChange={(v: any) => setSurveyType(v)}>
+            <label className="text-sm font-medium mb-2 block">
+              Tipo de Encuesta
+            </label>
+            <Select
+              value={surveyType}
+              onValueChange={(v: any) => setSurveyType(v)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="guia_i">Guía I - Identificación de factores de riesgo</SelectItem>
-                <SelectItem value="guia_ii">Guía II - Identificación y análisis (16-50 trabajadores)</SelectItem>
-                <SelectItem value="guia_iii">Guía III - Identificación y análisis (más de 50 trabajadores)</SelectItem>
+                <SelectItem value="guia_i">
+                  Guía I - Identificación de factores de riesgo
+                </SelectItem>
+                <SelectItem value="guia_ii">
+                  Guía II - Identificación y análisis (16-50 trabajadores)
+                </SelectItem>
+                <SelectItem value="guia_iii">
+                  Guía III - Identificación y análisis (más de 50 trabajadores)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -288,7 +339,9 @@ export default function Nom035AdminPanel() {
             <label className="text-sm font-medium mb-2 block">Periodo</label>
             <Select
               value={selectedPeriodId?.toString() || "all"}
-              onValueChange={(v) => setSelectedPeriodId(v === "all" ? undefined : parseInt(v))}
+              onValueChange={v =>
+                setSelectedPeriodId(v === "all" ? undefined : parseInt(v))
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Todos los periodos" />
@@ -333,7 +386,9 @@ export default function Nom035AdminPanel() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Resumen General</TabsTrigger>
-          <TabsTrigger value="comparison">Comparación entre Periodos</TabsTrigger>
+          <TabsTrigger value="comparison">
+            Comparación entre Periodos
+          </TabsTrigger>
           <TabsTrigger value="trends">Tendencias Históricas</TabsTrigger>
           <TabsTrigger value="recommendations">Recomendaciones</TabsTrigger>
         </TabsList>
@@ -344,7 +399,9 @@ export default function Nom035AdminPanel() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total de Respuestas</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total de Respuestas
+                </CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -357,24 +414,35 @@ export default function Nom035AdminPanel() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Completadas</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Completadas
+                </CardTitle>
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats?.completed || 0}</div>
+                <div className="text-2xl font-bold">
+                  {stats?.completed || 0}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {stats?.total ? Math.round((stats.completed / stats.total) * 100) : 0}% del total
+                  {stats?.total
+                    ? Math.round((stats.completed / stats.total) * 100)
+                    : 0}
+                  % del total
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">En Progreso</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  En Progreso
+                </CardTitle>
                 <Users className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats?.inProgress || 0}</div>
+                <div className="text-2xl font-bold">
+                  {stats?.inProgress || 0}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Encuestas iniciadas
                 </p>
@@ -383,7 +451,9 @@ export default function Nom035AdminPanel() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Alto Riesgo</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Alto Riesgo
+                </CardTitle>
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
@@ -402,7 +472,9 @@ export default function Nom035AdminPanel() {
           {/* Leyenda de Niveles de Riesgo */}
           <Card>
             <CardHeader>
-              <CardTitle>Leyenda de Niveles de Riesgo NOM-035-STPS-2018</CardTitle>
+              <CardTitle>
+                Leyenda de Niveles de Riesgo NOM-035-STPS-2018
+              </CardTitle>
               <CardDescription>
                 Clasificación oficial de niveles de riesgo psicosocial
               </CardDescription>
@@ -410,16 +482,23 @@ export default function Nom035AdminPanel() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Nulo"] }}></div>
+                  <div
+                    className="w-6 h-6 rounded"
+                    style={{ backgroundColor: riskColors["Nulo"] }}
+                  ></div>
                   <div>
                     <p className="font-semibold text-sm">Nulo o Despreciable</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      No requiere acciones correctivas. Mantener condiciones actuales.
+                      No requiere acciones correctivas. Mantener condiciones
+                      actuales.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Bajo"] }}></div>
+                  <div
+                    className="w-6 h-6 rounded"
+                    style={{ backgroundColor: riskColors["Bajo"] }}
+                  ></div>
                   <div>
                     <p className="font-semibold text-sm">Bajo</p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -428,7 +507,10 @@ export default function Nom035AdminPanel() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Medio"] }}></div>
+                  <div
+                    className="w-6 h-6 rounded"
+                    style={{ backgroundColor: riskColors["Medio"] }}
+                  ></div>
                   <div>
                     <p className="font-semibold text-sm">Medio</p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -437,7 +519,10 @@ export default function Nom035AdminPanel() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Alto"] }}></div>
+                  <div
+                    className="w-6 h-6 rounded"
+                    style={{ backgroundColor: riskColors["Alto"] }}
+                  ></div>
                   <div>
                     <p className="font-semibold text-sm">Alto</p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -446,7 +531,10 @@ export default function Nom035AdminPanel() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Muy Alto"] }}></div>
+                  <div
+                    className="w-6 h-6 rounded"
+                    style={{ backgroundColor: riskColors["Muy Alto"] }}
+                  ></div>
                   <div>
                     <p className="font-semibold text-sm">Muy Alto</p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -483,7 +571,9 @@ export default function Nom035AdminPanel() {
                       }}
                     />
                   ) : (
-                    <p className="text-muted-foreground">No hay datos disponibles</p>
+                    <p className="text-muted-foreground">
+                      No hay datos disponibles
+                    </p>
                   )}
                 </div>
               </CardContent>
@@ -518,7 +608,9 @@ export default function Nom035AdminPanel() {
                     />
                   ) : (
                     <div className="h-full flex items-center justify-center">
-                      <p className="text-muted-foreground">No hay datos disponibles</p>
+                      <p className="text-muted-foreground">
+                        No hay datos disponibles
+                      </p>
                     </div>
                   )}
                 </div>
@@ -533,7 +625,8 @@ export default function Nom035AdminPanel() {
             <CardHeader>
               <CardTitle>Seleccionar Periodos para Comparar</CardTitle>
               <CardDescription>
-                Selecciona de 2 a 5 periodos para comparar sus resultados (máximo 5)
+                Selecciona de 2 a 5 periodos para comparar sus resultados
+                (máximo 5)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -541,7 +634,11 @@ export default function Nom035AdminPanel() {
                 {periods?.map((period: any) => (
                   <Button
                     key={period.id}
-                    variant={comparisonPeriods.includes(period.id) ? "default" : "outline"}
+                    variant={
+                      comparisonPeriods.includes(period.id)
+                        ? "default"
+                        : "outline"
+                    }
                     onClick={() => handleTogglePeriodComparison(period.id)}
                     className="justify-start"
                   >
@@ -558,7 +655,8 @@ export default function Nom035AdminPanel() {
                 <CardHeader>
                   <CardTitle>Gráfica Comparativa</CardTitle>
                   <CardDescription>
-                    Comparación de tasas de completitud y porcentajes de alto riesgo
+                    Comparación de tasas de completitud y porcentajes de alto
+                    riesgo
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -601,19 +699,31 @@ export default function Nom035AdminPanel() {
                           <th className="text-right p-2">Total Respuestas</th>
                           <th className="text-right p-2">Completadas</th>
                           <th className="text-right p-2">Tasa Completitud</th>
-                          <th className="text-right p-2">Puntuación Promedio</th>
+                          <th className="text-right p-2">
+                            Puntuación Promedio
+                          </th>
                           <th className="text-right p-2">Alto Riesgo</th>
                         </tr>
                       </thead>
                       <tbody>
                         {comparison.stats.map((stat: any) => (
                           <tr key={stat.periodId} className="border-b">
-                            <td className="p-2 font-medium">{stat.periodName}</td>
-                            <td className="text-right p-2">{stat.totalResponses}</td>
-                            <td className="text-right p-2">{stat.completedResponses}</td>
-                            <td className="text-right p-2">{stat.completionRate}%</td>
+                            <td className="p-2 font-medium">
+                              {stat.periodName}
+                            </td>
+                            <td className="text-right p-2">
+                              {stat.totalResponses}
+                            </td>
+                            <td className="text-right p-2">
+                              {stat.completedResponses}
+                            </td>
+                            <td className="text-right p-2">
+                              {stat.completionRate}%
+                            </td>
                             <td className="text-right p-2">{stat.avgScore}</td>
-                            <td className="text-right p-2">{stat.highRiskPercentage}%</td>
+                            <td className="text-right p-2">
+                              {stat.highRiskPercentage}%
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -642,7 +752,8 @@ export default function Nom035AdminPanel() {
             <CardHeader>
               <CardTitle>Evolución Temporal</CardTitle>
               <CardDescription>
-                Tendencias de puntuación promedio y porcentaje de alto riesgo en los últimos periodos cerrados
+                Tendencias de puntuación promedio y porcentaje de alto riesgo en
+                los últimos periodos cerrados
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -669,7 +780,10 @@ export default function Nom035AdminPanel() {
                   <div className="h-full flex items-center justify-center">
                     <div className="text-center text-muted-foreground">
                       <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No hay periodos cerrados suficientes para mostrar tendencias</p>
+                      <p>
+                        No hay periodos cerrados suficientes para mostrar
+                        tendencias
+                      </p>
                     </div>
                   </div>
                 )}
@@ -692,21 +806,33 @@ export default function Nom035AdminPanel() {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Completadas</p>
-                      <p className="text-2xl font-bold">{recommendations.stats.totalCompleted}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Total Completadas
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {recommendations.stats.totalCompleted}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Puntuación Promedio</p>
-                      <p className="text-2xl font-bold">{recommendations.stats.avgScore}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Puntuación Promedio
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {recommendations.stats.avgScore}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">% Alto Riesgo</p>
+                      <p className="text-sm text-muted-foreground">
+                        % Alto Riesgo
+                      </p>
                       <p className="text-2xl font-bold text-red-600">
                         {recommendations.stats.highRiskPercentage}%
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">% Riesgo Medio</p>
+                      <p className="text-sm text-muted-foreground">
+                        % Riesgo Medio
+                      </p>
                       <p className="text-2xl font-bold text-orange-600">
                         {recommendations.stats.mediumRiskPercentage}%
                       </p>
@@ -727,13 +853,17 @@ export default function Nom035AdminPanel() {
                               Prioridad {rec.priority}
                             </Badge>
                           </div>
-                          <CardDescription>{rec.recommendation}</CardDescription>
+                          <CardDescription>
+                            {rec.recommendation}
+                          </CardDescription>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        <p className="font-medium text-sm">Acciones Recomendadas:</p>
+                        <p className="font-medium text-sm">
+                          Acciones Recomendadas:
+                        </p>
                         <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                           {rec.actions.map((action, actionIndex) => (
                             <li key={actionIndex}>{action}</li>
@@ -750,8 +880,13 @@ export default function Nom035AdminPanel() {
                   <CardContent className="py-12">
                     <div className="text-center text-muted-foreground">
                       <CheckCircle2 className="h-12 w-12 mx-auto mb-4 text-green-600 opacity-50" />
-                      <p>No se generaron recomendaciones específicas para este periodo</p>
-                      <p className="text-sm mt-2">Los resultados están dentro de parámetros aceptables</p>
+                      <p>
+                        No se generaron recomendaciones específicas para este
+                        periodo
+                      </p>
+                      <p className="text-sm mt-2">
+                        Los resultados están dentro de parámetros aceptables
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -762,7 +897,10 @@ export default function Nom035AdminPanel() {
               <CardContent className="py-12">
                 <div className="text-center text-muted-foreground">
                   <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Selecciona un periodo específico para ver las recomendaciones automáticas</p>
+                  <p>
+                    Selecciona un periodo específico para ver las
+                    recomendaciones automáticas
+                  </p>
                 </div>
               </CardContent>
             </Card>

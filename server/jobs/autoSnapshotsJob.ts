@@ -1,5 +1,13 @@
 import { getDb } from "../db";
-import { competencies, departments, employees, organizationalCompetencies, positions, skillsMatrix, skillsMatrixSnapshots } from "../../drizzle/schema";
+import {
+  competencies,
+  departments,
+  employees,
+  organizationalCompetencies,
+  positions,
+  skillsMatrix,
+  skillsMatrixSnapshots,
+} from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 /**
@@ -10,7 +18,9 @@ import { eq } from "drizzle-orm";
 
 export async function generateMonthlySnapshots() {
   const startTime = Date.now();
-  console.log(`[Auto Snapshots Job] Starting monthly snapshots generation at ${new Date().toISOString()}`);
+  console.log(
+    `[Auto Snapshots Job] Starting monthly snapshots generation at ${new Date().toISOString()}`
+  );
 
   try {
     const db = await getDb();
@@ -21,7 +31,9 @@ export async function generateMonthlySnapshots() {
 
     // Get all departments
     const allDepartments = await db.select().from(departments);
-    console.log(`[Auto Snapshots Job] Found ${allDepartments.length} departments`);
+    console.log(
+      `[Auto Snapshots Job] Found ${allDepartments.length} departments`
+    );
 
     const results = {
       totalSnapshots: 0,
@@ -33,7 +45,9 @@ export async function generateMonthlySnapshots() {
     // Generate snapshot for each department
     for (const dept of allDepartments) {
       try {
-        console.log(`[Auto Snapshots Job] Generating snapshot for department: ${dept.name}`);
+        console.log(
+          `[Auto Snapshots Job] Generating snapshot for department: ${dept.name}`
+        );
 
         // Get skills matrix data for this department
         const matrixData = await db
@@ -52,20 +66,29 @@ export async function generateMonthlySnapshots() {
           })
           .from(skillsMatrix)
           .innerJoin(employees, eq(skillsMatrix.employeeId, employees.id))
-          .innerJoin(organizationalCompetencies, eq(skillsMatrix.competencyId, organizationalCompetencies.id))
+          .innerJoin(
+            organizationalCompetencies,
+            eq(skillsMatrix.competencyId, organizationalCompetencies.id)
+          )
           .leftJoin(departments, eq(employees.departmentId, departments.id))
           .leftJoin(positions, eq(employees.positionId, positions.id))
           .where(eq(employees.departmentId, dept.id));
 
         if (matrixData.length === 0) {
-          console.log(`[Auto Snapshots Job] No data found for department: ${dept.name}, skipping`);
+          console.log(
+            `[Auto Snapshots Job] No data found for department: ${dept.name}, skipping`
+          );
           continue;
         }
 
         // Calculate summary statistics
-        const employeeIds = new Set(matrixData.map((row: any) => row.employeeId));
+        const employeeIds = new Set(
+          matrixData.map((row: any) => row.employeeId)
+        );
         const totalEmployees = employeeIds.size;
-        const totalCompetencies = new Set(matrixData.map((row: any) => row.competencyId)).size;
+        const totalCompetencies = new Set(
+          matrixData.map((row: any) => row.competencyId)
+        ).size;
 
         let totalCurrentLevel = 0;
         let totalGaps = 0;
@@ -73,7 +96,8 @@ export async function generateMonthlySnapshots() {
 
         for (const row of matrixData) {
           totalCurrentLevel += Number(row.currentLevel || 0);
-          const gap = Number(row.requiredLevel || 0) - Number(row.currentLevel || 0);
+          const gap =
+            Number(row.requiredLevel || 0) - Number(row.currentLevel || 0);
           if (gap > 0) {
             totalGaps++;
             if (gap >= 2) {
@@ -89,23 +113,44 @@ export async function generateMonthlySnapshots() {
           summary: {
             totalEmployees,
             totalCompetencies,
-            averageCompetencyLevel: parseFloat(averageCompetencyLevel.toFixed(2)),
+            averageCompetencyLevel: parseFloat(
+              averageCompetencyLevel.toFixed(2)
+            ),
             totalGaps,
             criticalGaps,
           },
           employees: Array.from(employeeIds).map((empId: any) => {
-            const empData = matrixData.filter((row: any) => row.employeeId === empId);
+            const empData = matrixData.filter(
+              (row: any) => row.employeeId === empId
+            );
             const empInfo = empData[0];
-            
+
             let empTotalLevel = 0;
             let empTotalGaps = 0;
             let empCriticalGaps = 0;
 
             for (const row of empData) {
               // Convert level strings to numbers
-              const levelMap: Record<string, number> = { 'Sin evaluar': 0, 'sin_evaluar': 0, 'basico': 1, 'Básico': 1, 'intermedio': 2, 'Intermedio': 2, 'avanzado': 3, 'Avanzado': 3, 'experto': 4, 'Experto': 4 };
-              const currentLevelNum = typeof row.currentLevel === 'string' ? (levelMap[row.currentLevel] || 0) : (row.currentLevel || 0);
-              const requiredLevelNum = typeof row.requiredLevel === 'string' ? (levelMap[row.requiredLevel] || 0) : (row.requiredLevel || 0);
+              const levelMap: Record<string, number> = {
+                "Sin evaluar": 0,
+                sin_evaluar: 0,
+                basico: 1,
+                Básico: 1,
+                intermedio: 2,
+                Intermedio: 2,
+                avanzado: 3,
+                Avanzado: 3,
+                experto: 4,
+                Experto: 4,
+              };
+              const currentLevelNum =
+                typeof row.currentLevel === "string"
+                  ? levelMap[row.currentLevel] || 0
+                  : row.currentLevel || 0;
+              const requiredLevelNum =
+                typeof row.requiredLevel === "string"
+                  ? levelMap[row.requiredLevel] || 0
+                  : row.requiredLevel || 0;
               empTotalLevel += currentLevelNum;
               const gap = requiredLevelNum - currentLevelNum;
               if (gap > 0) {
@@ -122,7 +167,9 @@ export async function generateMonthlySnapshots() {
               lastName: empInfo.lastName,
               positionId: empInfo.positionId,
               positionName: empInfo.positionName,
-              averageLevel: parseFloat((empTotalLevel / empData.length).toFixed(2)),
+              averageLevel: parseFloat(
+                (empTotalLevel / empData.length).toFixed(2)
+              ),
               totalGaps: empTotalGaps,
               criticalGaps: empCriticalGaps,
               competencies: empData.map((row: any) => ({
@@ -137,12 +184,15 @@ export async function generateMonthlySnapshots() {
 
         // Insert snapshot
         const currentDate = new Date();
-        const monthName = currentDate.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
-        
+        const monthName = currentDate.toLocaleDateString("es-MX", {
+          month: "long",
+          year: "numeric",
+        });
+
         await (db.insert(skillsMatrixSnapshots) as any).values({
           snapshotDate: currentDate,
           name: `Snapshot Automático - ${dept.name} - ${monthName}`,
-          description: `Snapshot generado automáticamente el ${currentDate.toLocaleDateString('es-MX')}`,
+          description: `Snapshot generado automáticamente el ${currentDate.toLocaleDateString("es-MX")}`,
           data: snapshotData as any,
           createdBy: 1, // System user
           departmentId: dept.id,
@@ -150,18 +200,27 @@ export async function generateMonthlySnapshots() {
 
         results.totalSnapshots++;
         results.successfulSnapshots++;
-        console.log(`[Auto Snapshots Job] Successfully generated snapshot for department: ${dept.name}`);
+        console.log(
+          `[Auto Snapshots Job] Successfully generated snapshot for department: ${dept.name}`
+        );
       } catch (error: any) {
         results.totalSnapshots++;
         results.failedSnapshots++;
-        results.errors.push(`Error generating snapshot for ${dept.name}: ${error.message}`);
-        console.error(`[Auto Snapshots Job] Error generating snapshot for ${dept.name}:`, error);
+        results.errors.push(
+          `Error generating snapshot for ${dept.name}: ${error.message}`
+        );
+        console.error(
+          `[Auto Snapshots Job] Error generating snapshot for ${dept.name}:`,
+          error
+        );
       }
     }
 
     // Generate global snapshot (all departments)
     try {
-      console.log(`[Auto Snapshots Job] Generating global snapshot (all departments)`);
+      console.log(
+        `[Auto Snapshots Job] Generating global snapshot (all departments)`
+      );
 
       const matrixData = await db
         .select({
@@ -179,14 +238,21 @@ export async function generateMonthlySnapshots() {
         })
         .from(skillsMatrix)
         .innerJoin(employees, eq(skillsMatrix.employeeId, employees.id))
-        .innerJoin(organizationalCompetencies, eq(skillsMatrix.competencyId, organizationalCompetencies.id))
+        .innerJoin(
+          organizationalCompetencies,
+          eq(skillsMatrix.competencyId, organizationalCompetencies.id)
+        )
         .leftJoin(departments, eq(employees.departmentId, departments.id))
         .leftJoin(positions, eq(employees.positionId, positions.id));
 
       if (matrixData.length > 0) {
-        const employeeIds = new Set(matrixData.map((row: any) => row.employeeId));
+        const employeeIds = new Set(
+          matrixData.map((row: any) => row.employeeId)
+        );
         const totalEmployees = employeeIds.size;
-        const totalCompetencies = new Set(matrixData.map((row: any) => row.competencyId)).size;
+        const totalCompetencies = new Set(
+          matrixData.map((row: any) => row.competencyId)
+        ).size;
 
         let totalCurrentLevel = 0;
         let totalGaps = 0;
@@ -194,7 +260,8 @@ export async function generateMonthlySnapshots() {
 
         for (const row of matrixData) {
           totalCurrentLevel += Number(row.currentLevel || 0);
-          const gap = Number(row.requiredLevel || 0) - Number(row.currentLevel || 0);
+          const gap =
+            Number(row.requiredLevel || 0) - Number(row.currentLevel || 0);
           if (gap > 0) {
             totalGaps++;
             if (gap >= 2) {
@@ -209,23 +276,44 @@ export async function generateMonthlySnapshots() {
           summary: {
             totalEmployees,
             totalCompetencies,
-            averageCompetencyLevel: parseFloat(averageCompetencyLevel.toFixed(2)),
+            averageCompetencyLevel: parseFloat(
+              averageCompetencyLevel.toFixed(2)
+            ),
             totalGaps,
             criticalGaps,
           },
           employees: Array.from(employeeIds).map((empId: any) => {
-            const empData = matrixData.filter((row: any) => row.employeeId === empId);
+            const empData = matrixData.filter(
+              (row: any) => row.employeeId === empId
+            );
             const empInfo = empData[0];
-            
+
             let empTotalLevel = 0;
             let empTotalGaps = 0;
             let empCriticalGaps = 0;
 
             for (const row of empData) {
               // Convert level strings to numbers
-              const levelMap: Record<string, number> = { 'Sin evaluar': 0, 'sin_evaluar': 0, 'basico': 1, 'Básico': 1, 'intermedio': 2, 'Intermedio': 2, 'avanzado': 3, 'Avanzado': 3, 'experto': 4, 'Experto': 4 };
-              const currentLevelNum = typeof row.currentLevel === 'string' ? (levelMap[row.currentLevel] || 0) : (row.currentLevel || 0);
-              const requiredLevelNum = typeof row.requiredLevel === 'string' ? (levelMap[row.requiredLevel] || 0) : (row.requiredLevel || 0);
+              const levelMap: Record<string, number> = {
+                "Sin evaluar": 0,
+                sin_evaluar: 0,
+                basico: 1,
+                Básico: 1,
+                intermedio: 2,
+                Intermedio: 2,
+                avanzado: 3,
+                Avanzado: 3,
+                experto: 4,
+                Experto: 4,
+              };
+              const currentLevelNum =
+                typeof row.currentLevel === "string"
+                  ? levelMap[row.currentLevel] || 0
+                  : row.currentLevel || 0;
+              const requiredLevelNum =
+                typeof row.requiredLevel === "string"
+                  ? levelMap[row.requiredLevel] || 0
+                  : row.requiredLevel || 0;
               empTotalLevel += currentLevelNum;
               const gap = requiredLevelNum - currentLevelNum;
               if (gap > 0) {
@@ -244,7 +332,9 @@ export async function generateMonthlySnapshots() {
               departmentName: empInfo.departmentName,
               positionId: empInfo.positionId,
               positionName: empInfo.positionName,
-              averageLevel: parseFloat((empTotalLevel / empData.length).toFixed(2)),
+              averageLevel: parseFloat(
+                (empTotalLevel / empData.length).toFixed(2)
+              ),
               totalGaps: empTotalGaps,
               criticalGaps: empCriticalGaps,
               competencies: empData.map((row: any) => ({
@@ -258,12 +348,15 @@ export async function generateMonthlySnapshots() {
         };
 
         const currentDate = new Date();
-        const monthName = currentDate.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
-        
+        const monthName = currentDate.toLocaleDateString("es-MX", {
+          month: "long",
+          year: "numeric",
+        });
+
         await (db.insert(skillsMatrixSnapshots) as any).values({
           snapshotDate: currentDate,
           name: `Snapshot Automático Global - ${monthName}`,
-          description: `Snapshot global generado automáticamente el ${currentDate.toLocaleDateString('es-MX')}`,
+          description: `Snapshot global generado automáticamente el ${currentDate.toLocaleDateString("es-MX")}`,
           data: snapshotData as any,
           createdBy: 1, // System user
           departmentId: null,
@@ -271,17 +364,25 @@ export async function generateMonthlySnapshots() {
 
         results.totalSnapshots++;
         results.successfulSnapshots++;
-        console.log(`[Auto Snapshots Job] Successfully generated global snapshot`);
+        console.log(
+          `[Auto Snapshots Job] Successfully generated global snapshot`
+        );
       }
     } catch (error: any) {
       results.totalSnapshots++;
       results.failedSnapshots++;
       results.errors.push(`Error generating global snapshot: ${error.message}`);
-      console.error(`[Auto Snapshots Job] Error generating global snapshot:`, error);
+      console.error(
+        `[Auto Snapshots Job] Error generating global snapshot:`,
+        error
+      );
     }
 
     const duration = Date.now() - startTime;
-    console.log(`[Auto Snapshots Job] Completed in ${duration}ms. Results:`, results);
+    console.log(
+      `[Auto Snapshots Job] Completed in ${duration}ms. Results:`,
+      results
+    );
 
     return {
       success: true,

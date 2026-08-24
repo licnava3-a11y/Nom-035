@@ -12,8 +12,20 @@ interface LeadCardProps {
   isDragging?: boolean;
 }
 
-export function LeadCard({ lead, onEdit, onReassign, isDragging = false }: LeadCardProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging: isSortableDragging } = useSortable({
+export function LeadCard({
+  lead,
+  onEdit,
+  onReassign,
+  isDragging = false,
+}: LeadCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isSortableDragging,
+  } = useSortable({
     id: lead.id,
   });
 
@@ -25,12 +37,16 @@ export function LeadCard({ lead, onEdit, onReassign, isDragging = false }: LeadC
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <Card className={`cursor-move hover:shadow-md transition-shadow ${isDragging ? "shadow-lg" : ""}`}>
+      <Card
+        className={`cursor-move hover:shadow-md transition-shadow ${isDragging ? "shadow-lg" : ""}`}
+      >
         <CardContent className="p-4 space-y-3">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h3 className="font-semibold text-sm line-clamp-1">{lead.nombre}</h3>
+              <h3 className="font-semibold text-sm line-clamp-1">
+                {lead.nombre}
+              </h3>
               {lead.empresa && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                   <Building className="w-3 h-3" />
@@ -42,7 +58,7 @@ export function LeadCard({ lead, onEdit, onReassign, isDragging = false }: LeadC
               variant="ghost"
               size="sm"
               className="h-6 w-6 p-0"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 onEdit(lead);
               }}
@@ -85,11 +101,12 @@ export function LeadCard({ lead, onEdit, onReassign, isDragging = false }: LeadC
                 <DollarSign className="w-3 h-3" />
                 <span>${Number(lead.valorEstimado).toLocaleString()}</span>
               </div>
-              {lead.probabilidadCierre !== null && lead.probabilidadCierre !== undefined && (
-                <Badge variant="outline" className="text-xs">
-                  {lead.probabilidadCierre}% prob.
-                </Badge>
-              )}
+              {lead.probabilidadCierre !== null &&
+                lead.probabilidadCierre !== undefined && (
+                  <Badge variant="outline" className="text-xs">
+                    {lead.probabilidadCierre}% prob.
+                  </Badge>
+                )}
             </div>
           )}
 
@@ -104,7 +121,7 @@ export function LeadCard({ lead, onEdit, onReassign, isDragging = false }: LeadC
                   variant="ghost"
                   size="sm"
                   className="h-6 px-2 text-xs"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onReassign(lead);
                   }}
@@ -115,7 +132,7 @@ export function LeadCard({ lead, onEdit, onReassign, isDragging = false }: LeadC
               )}
             </div>
           )}
-          
+
           {/* Origen */}
           {lead.origen && (
             <div className="text-xs text-muted-foreground">

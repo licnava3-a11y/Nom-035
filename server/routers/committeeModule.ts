@@ -20,7 +20,8 @@ import crypto from "crypto";
 
 function generateMeetingFolio(type: string, id: number): string {
   const year = new Date().getFullYear();
-  const typeCode = type === "ordinaria" ? "ORD" : type === "extraordinaria" ? "EXT" : "URG";
+  const typeCode =
+    type === "ordinaria" ? "ORD" : type === "extraordinaria" ? "EXT" : "URG";
   return `NOM035-COM-${typeCode}-${String(id).padStart(4, "0")}/${year}`;
 }
 
@@ -32,49 +33,75 @@ function generateAgreementFolio(meetingId: number, seq: number): string {
 // ─── Router ─────────────────────────────────────────────────────────────────
 
 export const committeeModuleRouter = router({
-
   // ── Integrantes ──────────────────────────────────────────────────────────
 
   listMembers: protectedProcedure
-    .input(z.object({
-      companyId: z.number().optional(),
-      activeOnly: z.boolean().default(true),
-      search: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        companyId: z.number().optional(),
+        activeOnly: z.boolean().default(true),
+        search: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       let query = db.select().from(nom035CommitteeMembers).$dynamic();
       const conditions = [];
-      if (input.activeOnly) conditions.push(eq(nom035CommitteeMembers.isActive, true));
-      if (input.companyId) conditions.push(eq(nom035CommitteeMembers.companyId, input.companyId));
+      if (input.activeOnly)
+        conditions.push(eq(nom035CommitteeMembers.isActive, true));
+      if (input.companyId)
+        conditions.push(eq(nom035CommitteeMembers.companyId, input.companyId));
       if (input.search) {
-        conditions.push(or(
-          like(nom035CommitteeMembers.employeeName, `%${input.search}%`),
-          like(nom035CommitteeMembers.department, `%${input.search}%`),
-          like(nom035CommitteeMembers.position, `%${input.search}%`),
-        ));
+        conditions.push(
+          or(
+            like(nom035CommitteeMembers.employeeName, `%${input.search}%`),
+            like(nom035CommitteeMembers.department, `%${input.search}%`),
+            like(nom035CommitteeMembers.position, `%${input.search}%`)
+          )
+        );
       }
       if (conditions.length > 0) query = query.where(and(...conditions));
-      return query.orderBy(asc(nom035CommitteeMembers.role), asc(nom035CommitteeMembers.employeeName));
+      return query.orderBy(
+        asc(nom035CommitteeMembers.role),
+        asc(nom035CommitteeMembers.employeeName)
+      );
     }),
 
   addMember: protectedProcedure
-    .input(z.object({
-      companyId: z.number().optional(),
-      employeeId: z.number().optional(),
-      employeeName: z.string().min(2),
-      employeeEmail: z.string().email().optional(),
-      position: z.string().optional(),
-      department: z.string().optional(),
-      role: z.enum(["presidente", "secretario", "vocal", "suplente", "asesor_externo"]).default("vocal"),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      notes: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        companyId: z.number().optional(),
+        employeeId: z.number().optional(),
+        employeeName: z.string().min(2),
+        employeeEmail: z.string().email().optional(),
+        position: z.string().optional(),
+        department: z.string().optional(),
+        role: z
+          .enum([
+            "presidente",
+            "secretario",
+            "vocal",
+            "suplente",
+            "asesor_externo",
+          ])
+          .default("vocal"),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        notes: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const [result] = await db.insert(nom035CommitteeMembers).values({
         employeeName: input.employeeName,
         employeeEmail: input.employeeEmail,
@@ -93,26 +120,43 @@ export const committeeModuleRouter = router({
     }),
 
   updateMember: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      employeeName: z.string().min(2).optional(),
-      employeeEmail: z.string().email().optional(),
-      position: z.string().optional(),
-      department: z.string().optional(),
-      role: z.enum(["presidente", "secretario", "vocal", "suplente", "asesor_externo"]).optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      isActive: z.boolean().optional(),
-      notes: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        employeeName: z.string().min(2).optional(),
+        employeeEmail: z.string().email().optional(),
+        position: z.string().optional(),
+        department: z.string().optional(),
+        role: z
+          .enum([
+            "presidente",
+            "secretario",
+            "vocal",
+            "suplente",
+            "asesor_externo",
+          ])
+          .optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        isActive: z.boolean().optional(),
+        notes: z.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const { id, startDate, endDate, ...rest } = input;
       const updateData: Record<string, unknown> = { ...rest };
       if (startDate) updateData.startDate = new Date(startDate);
       if (endDate) updateData.endDate = new Date(endDate);
-      await db.update(nom035CommitteeMembers).set(updateData).where(eq(nom035CommitteeMembers.id, id));
+      await db
+        .update(nom035CommitteeMembers)
+        .set(updateData)
+        .where(eq(nom035CommitteeMembers.id, id));
       return { success: true };
     }),
 
@@ -120,8 +164,13 @@ export const committeeModuleRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      await db.update(nom035CommitteeMembers)
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      await db
+        .update(nom035CommitteeMembers)
         .set({ isActive: false })
         .where(eq(nom035CommitteeMembers.id, input.id));
       return { success: true };
@@ -130,28 +179,51 @@ export const committeeModuleRouter = router({
   // ── Reuniones / Convocatorias ─────────────────────────────────────────────
 
   listMeetings: protectedProcedure
-    .input(z.object({
-      companyId: z.number().optional(),
-      status: z.enum(["convocada", "en_curso", "celebrada", "cancelada", "reprogramada"]).optional(),
-      meetingType: z.enum(["ordinaria", "extraordinaria", "urgente"]).optional(),
-      limit: z.number().default(20),
-      offset: z.number().default(0),
-    }))
+    .input(
+      z.object({
+        companyId: z.number().optional(),
+        status: z
+          .enum([
+            "convocada",
+            "en_curso",
+            "celebrada",
+            "cancelada",
+            "reprogramada",
+          ])
+          .optional(),
+        meetingType: z
+          .enum(["ordinaria", "extraordinaria", "urgente"])
+          .optional(),
+        limit: z.number().default(20),
+        offset: z.number().default(0),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       let query = db.select().from(nom035CommitteeMeetings).$dynamic();
       const conditions = [];
-      if (input.companyId) conditions.push(eq(nom035CommitteeMeetings.companyId, input.companyId));
-      if (input.status) conditions.push(eq(nom035CommitteeMeetings.status, input.status));
-      if (input.meetingType) conditions.push(eq(nom035CommitteeMeetings.meetingType, input.meetingType));
+      if (input.companyId)
+        conditions.push(eq(nom035CommitteeMeetings.companyId, input.companyId));
+      if (input.status)
+        conditions.push(eq(nom035CommitteeMeetings.status, input.status));
+      if (input.meetingType)
+        conditions.push(
+          eq(nom035CommitteeMeetings.meetingType, input.meetingType)
+        );
       if (conditions.length > 0) query = query.where(and(...conditions));
       const meetings = await query
         .orderBy(desc(nom035CommitteeMeetings.scheduledAt))
         .limit(input.limit)
         .offset(input.offset);
       // Count total
-      const [countRow] = await db.select({ count: sql<number>`COUNT(*)` }).from(nom035CommitteeMeetings);
+      const [countRow] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(nom035CommitteeMeetings);
       return { meetings, total: Number(countRow?.count ?? 0) };
     }),
 
@@ -159,31 +231,53 @@ export const committeeModuleRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      const [meeting] = await db.select().from(nom035CommitteeMeetings)
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      const [meeting] = await db
+        .select()
+        .from(nom035CommitteeMeetings)
         .where(eq(nom035CommitteeMeetings.id, input.id));
-      if (!meeting) throw new TRPCError({ code: "NOT_FOUND", message: "Reunión no encontrada" });
-      const agreements = await db.select().from(nom035CommitteeAgreements)
+      if (!meeting)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Reunión no encontrada",
+        });
+      const agreements = await db
+        .select()
+        .from(nom035CommitteeAgreements)
         .where(eq(nom035CommitteeAgreements.meetingId, input.id))
         .orderBy(asc(nom035CommitteeAgreements.id));
-      const signatures = await db.select().from(nom035MeetingSignatures)
+      const signatures = await db
+        .select()
+        .from(nom035MeetingSignatures)
         .where(eq(nom035MeetingSignatures.meetingId, input.id))
         .orderBy(asc(nom035MeetingSignatures.signedAt));
       return { meeting, agreements, signatures };
     }),
 
   createMeeting: protectedProcedure
-    .input(z.object({
-      companyId: z.number().optional(),
-      title: z.string().min(3),
-      meetingType: z.enum(["ordinaria", "extraordinaria", "urgente"]).default("ordinaria"),
-      scheduledAt: z.string(),
-      location: z.string().optional(),
-      agenda: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        companyId: z.number().optional(),
+        title: z.string().min(3),
+        meetingType: z
+          .enum(["ordinaria", "extraordinaria", "urgente"])
+          .default("ordinaria"),
+        scheduledAt: z.string(),
+        location: z.string().optional(),
+        agenda: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       // Generar folio temporal
       const tempFolio = `NOM035-COM-DRAFT-${Date.now()}`;
       const [result] = await db.insert(nom035CommitteeMeetings).values({
@@ -197,54 +291,79 @@ export const committeeModuleRouter = router({
       const newId = result.insertId;
       // Actualizar folio con ID real
       const folio = generateMeetingFolio(input.meetingType, newId);
-      await db.update(nom035CommitteeMeetings)
+      await db
+        .update(nom035CommitteeMeetings)
         .set({ folio })
         .where(eq(nom035CommitteeMeetings.id, newId));
       return { id: newId, folio, success: true };
     }),
 
   updateMeeting: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      title: z.string().min(3).optional(),
-      status: z.enum(["convocada", "en_curso", "celebrada", "cancelada", "reprogramada"]).optional(),
-      scheduledAt: z.string().optional(),
-      location: z.string().optional(),
-      agenda: z.string().optional(),
-      minutesContent: z.string().optional(),
-      attendeesJson: z.string().optional(),
-      quorumReached: z.boolean().optional(),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        title: z.string().min(3).optional(),
+        status: z
+          .enum([
+            "convocada",
+            "en_curso",
+            "celebrada",
+            "cancelada",
+            "reprogramada",
+          ])
+          .optional(),
+        scheduledAt: z.string().optional(),
+        location: z.string().optional(),
+        agenda: z.string().optional(),
+        minutesContent: z.string().optional(),
+        attendeesJson: z.string().optional(),
+        quorumReached: z.boolean().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const { id, scheduledAt, ...rest } = input;
       const data: Record<string, unknown> = { ...rest };
       if (scheduledAt) data.scheduledAt = new Date(scheduledAt);
       if (rest.status === "celebrada" && rest.minutesContent) {
         data.minutesApprovedAt = new Date();
       }
-      await db.update(nom035CommitteeMeetings).set(data).where(eq(nom035CommitteeMeetings.id, id));
+      await db
+        .update(nom035CommitteeMeetings)
+        .set(data)
+        .where(eq(nom035CommitteeMeetings.id, id));
       return { success: true };
     }),
 
   // ── Acuerdos ─────────────────────────────────────────────────────────────
 
   addAgreement: protectedProcedure
-    .input(z.object({
-      meetingId: z.number(),
-      companyId: z.number().optional(),
-      description: z.string().min(5),
-      responsible: z.string().optional(),
-      responsibleEmployeeId: z.number().optional(),
-      dueDate: z.string().optional(),
-      priority: z.enum(["alta", "media", "baja"]).default("media"),
-    }))
+    .input(
+      z.object({
+        meetingId: z.number(),
+        companyId: z.number().optional(),
+        description: z.string().min(5),
+        responsible: z.string().optional(),
+        responsibleEmployeeId: z.number().optional(),
+        dueDate: z.string().optional(),
+        priority: z.enum(["alta", "media", "baja"]).default("media"),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       // Contar acuerdos existentes para el folio
-      const [countRow] = await db.select({ count: sql<number>`COUNT(*)` })
+      const [countRow] = await db
+        .select({ count: sql<number>`COUNT(*)` })
         .from(nom035CommitteeAgreements)
         .where(eq(nom035CommitteeAgreements.meetingId, input.meetingId));
       const seq = Number(countRow?.count ?? 0) + 1;
@@ -265,40 +384,66 @@ export const committeeModuleRouter = router({
     }),
 
   updateAgreement: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      status: z.enum(["pendiente", "en_proceso", "cumplido", "cancelado", "vencido"]).optional(),
-      responsible: z.string().optional(),
-      dueDate: z.string().optional(),
-      priority: z.enum(["alta", "media", "baja"]).optional(),
-      completionNotes: z.string().optional(),
-      evidenceUrl: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        status: z
+          .enum(["pendiente", "en_proceso", "cumplido", "cancelado", "vencido"])
+          .optional(),
+        responsible: z.string().optional(),
+        dueDate: z.string().optional(),
+        priority: z.enum(["alta", "media", "baja"]).optional(),
+        completionNotes: z.string().optional(),
+        evidenceUrl: z.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const { id, dueDate, ...data } = input;
       const updateData: Record<string, unknown> = { ...data };
       if (dueDate) updateData.dueDate = new Date(dueDate);
       if (data.status === "cumplido") updateData.completedAt = new Date();
-      await db.update(nom035CommitteeAgreements).set(updateData).where(eq(nom035CommitteeAgreements.id, id));
+      await db
+        .update(nom035CommitteeAgreements)
+        .set(updateData)
+        .where(eq(nom035CommitteeAgreements.id, id));
       return { success: true };
     }),
 
   listAgreements: protectedProcedure
-    .input(z.object({
-      meetingId: z.number().optional(),
-      companyId: z.number().optional(),
-      status: z.enum(["pendiente", "en_proceso", "cumplido", "cancelado", "vencido"]).optional(),
-    }))
+    .input(
+      z.object({
+        meetingId: z.number().optional(),
+        companyId: z.number().optional(),
+        status: z
+          .enum(["pendiente", "en_proceso", "cumplido", "cancelado", "vencido"])
+          .optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       let query = db.select().from(nom035CommitteeAgreements).$dynamic();
       const conditions = [];
-      if (input.meetingId) conditions.push(eq(nom035CommitteeAgreements.meetingId, input.meetingId));
-      if (input.companyId) conditions.push(eq(nom035CommitteeAgreements.companyId, input.companyId));
-      if (input.status) conditions.push(eq(nom035CommitteeAgreements.status, input.status));
+      if (input.meetingId)
+        conditions.push(
+          eq(nom035CommitteeAgreements.meetingId, input.meetingId)
+        );
+      if (input.companyId)
+        conditions.push(
+          eq(nom035CommitteeAgreements.companyId, input.companyId)
+        );
+      if (input.status)
+        conditions.push(eq(nom035CommitteeAgreements.status, input.status));
       if (conditions.length > 0) query = query.where(and(...conditions));
       return query.orderBy(desc(nom035CommitteeAgreements.createdAt));
     }),
@@ -306,19 +451,28 @@ export const committeeModuleRouter = router({
   // ── Firmas Digitales ──────────────────────────────────────────────────────
 
   saveSignature: protectedProcedure
-    .input(z.object({
-      meetingId: z.number(),
-      signerName: z.string().min(2),
-      signerRole: z.string().optional(),
-      signerEmail: z.string().email().optional(),
-      employeeId: z.number().optional(),
-      signatureDataUrl: z.string(), // base64 PNG del canvas
-    }))
+    .input(
+      z.object({
+        meetingId: z.number(),
+        signerName: z.string().min(2),
+        signerRole: z.string().optional(),
+        signerEmail: z.string().email().optional(),
+        employeeId: z.number().optional(),
+        signatureDataUrl: z.string(), // base64 PNG del canvas
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       // Subir firma a S3
-      const base64Data = input.signatureDataUrl.replace(/^data:image\/png;base64,/, "");
+      const base64Data = input.signatureDataUrl.replace(
+        /^data:image\/png;base64,/,
+        ""
+      );
       const buffer = Buffer.from(base64Data, "base64");
       const fileKey = `committee-signatures/meeting-${input.meetingId}-${Date.now()}.png`;
       const { url } = await storagePut(fileKey, buffer, "image/png");
@@ -340,8 +494,14 @@ export const committeeModuleRouter = router({
     .input(z.object({ meetingId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      return db.select().from(nom035MeetingSignatures)
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      return db
+        .select()
+        .from(nom035MeetingSignatures)
         .where(eq(nom035MeetingSignatures.meetingId, input.meetingId))
         .orderBy(asc(nom035MeetingSignatures.signedAt));
     }),
@@ -352,29 +512,39 @@ export const committeeModuleRouter = router({
     .input(z.object({ companyId: z.number().optional() }))
     .query(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const conditions = input.companyId
         ? [eq(nom035CommitteeMembers.companyId, input.companyId)]
         : [];
-      const [membersRow] = await db.select({ count: sql<number>`COUNT(*)` })
+      const [membersRow] = await db
+        .select({ count: sql<number>`COUNT(*)` })
         .from(nom035CommitteeMembers)
         .where(and(eq(nom035CommitteeMembers.isActive, true), ...conditions));
-      const [meetingsRow] = await db.select({ count: sql<number>`COUNT(*)` })
+      const [meetingsRow] = await db
+        .select({ count: sql<number>`COUNT(*)` })
         .from(nom035CommitteeMeetings);
-      const [pendingAgreementsRow] = await db.select({ count: sql<number>`COUNT(*)` })
+      const [pendingAgreementsRow] = await db
+        .select({ count: sql<number>`COUNT(*)` })
         .from(nom035CommitteeAgreements)
         .where(eq(nom035CommitteeAgreements.status, "pendiente"));
-      const [completedAgreementsRow] = await db.select({ count: sql<number>`COUNT(*)` })
+      const [completedAgreementsRow] = await db
+        .select({ count: sql<number>`COUNT(*)` })
         .from(nom035CommitteeAgreements)
         .where(eq(nom035CommitteeAgreements.status, "cumplido"));
-      const recentMeetings = await db.select({
-        id: nom035CommitteeMeetings.id,
-        folio: nom035CommitteeMeetings.folio,
-        title: nom035CommitteeMeetings.title,
-        status: nom035CommitteeMeetings.status,
-        meetingType: nom035CommitteeMeetings.meetingType,
-        scheduledAt: nom035CommitteeMeetings.scheduledAt,
-      }).from(nom035CommitteeMeetings)
+      const recentMeetings = await db
+        .select({
+          id: nom035CommitteeMeetings.id,
+          folio: nom035CommitteeMeetings.folio,
+          title: nom035CommitteeMeetings.title,
+          status: nom035CommitteeMeetings.status,
+          meetingType: nom035CommitteeMeetings.meetingType,
+          scheduledAt: nom035CommitteeMeetings.scheduledAt,
+        })
+        .from(nom035CommitteeMeetings)
         .orderBy(desc(nom035CommitteeMeetings.scheduledAt))
         .limit(5);
       return {
@@ -392,25 +562,44 @@ export const committeeModuleRouter = router({
     .input(z.object({ meetingId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      const [meeting] = await db.select().from(nom035CommitteeMeetings)
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      const [meeting] = await db
+        .select()
+        .from(nom035CommitteeMeetings)
         .where(eq(nom035CommitteeMeetings.id, input.meetingId));
-      if (!meeting) throw new TRPCError({ code: "NOT_FOUND", message: "Reunión no encontrada" });
-      const agreements = await db.select().from(nom035CommitteeAgreements)
+      if (!meeting)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Reunión no encontrada",
+        });
+      const agreements = await db
+        .select()
+        .from(nom035CommitteeAgreements)
         .where(eq(nom035CommitteeAgreements.meetingId, input.meetingId))
         .orderBy(asc(nom035CommitteeAgreements.id));
-      const signatures = await db.select().from(nom035MeetingSignatures)
+      const signatures = await db
+        .select()
+        .from(nom035MeetingSignatures)
         .where(eq(nom035MeetingSignatures.meetingId, input.meetingId))
         .orderBy(asc(nom035MeetingSignatures.signedAt));
       const attendees: string[] = meeting.attendeesJson
         ? JSON.parse(meeting.attendeesJson)
         : [];
       const statusLabel: Record<string, string> = {
-        pendiente: "Pendiente", en_proceso: "En Proceso", cumplido: "Cumplido",
-        cancelado: "Cancelado", vencido: "Vencido",
+        pendiente: "Pendiente",
+        en_proceso: "En Proceso",
+        cumplido: "Cumplido",
+        cancelado: "Cancelado",
+        vencido: "Vencido",
       };
       const priorityColor: Record<string, string> = {
-        alta: "#dc2626", media: "#d97706", baja: "#16a34a",
+        alta: "#dc2626",
+        media: "#d97706",
+        baja: "#16a34a",
       };
       const html = `<!DOCTYPE html>
 <html lang="es">
@@ -467,21 +656,31 @@ export const committeeModuleRouter = router({
   </div>
 </div>
 
-${meeting.agenda ? `
+${
+  meeting.agenda
+    ? `
 <div class="section">
   <div class="section-title">Orden del Día</div>
   <div class="agenda-box">${meeting.agenda}</div>
-</div>` : ""}
+</div>`
+    : ""
+}
 
-${meeting.minutesContent ? `
+${
+  meeting.minutesContent
+    ? `
 <div class="section">
   <div class="section-title">Desarrollo de la Sesión</div>
   <div class="minutes-box">${meeting.minutesContent}</div>
-</div>` : ""}
+</div>`
+    : ""
+}
 
 <div class="section">
   <div class="section-title">Acuerdos (${agreements.length})</div>
-  ${agreements.length > 0 ? `
+  ${
+    agreements.length > 0
+      ? `
   <table>
     <thead>
       <tr>
@@ -494,7 +693,9 @@ ${meeting.minutesContent ? `
       </tr>
     </thead>
     <tbody>
-      ${agreements.map(a => `
+      ${agreements
+        .map(
+          a => `
       <tr>
         <td>${a.folio ?? "-"}</td>
         <td>${a.description}</td>
@@ -502,31 +703,47 @@ ${meeting.minutesContent ? `
         <td>${a.dueDate ? new Date(a.dueDate).toLocaleDateString("es-MX") : "-"}</td>
         <td style="color:${priorityColor[a.priority] ?? "#374151"};font-weight:bold">${a.priority.toUpperCase()}</td>
         <td><span class="badge badge-${a.status}">${statusLabel[a.status] ?? a.status}</span></td>
-      </tr>`).join("")}
+      </tr>`
+        )
+        .join("")}
     </tbody>
-  </table>` : "<p style='color:#6b7280'>Sin acuerdos registrados.</p>"}
+  </table>`
+      : "<p style='color:#6b7280'>Sin acuerdos registrados.</p>"
+  }
 </div>
 
 <div class="section">
   <div class="section-title">Firmas de Asistentes (${signatures.length})</div>
-  ${signatures.length > 0 ? `
+  ${
+    signatures.length > 0
+      ? `
   <div class="signatures-grid">
-    ${signatures.map(s => `
+    ${signatures
+      .map(
+        s => `
     <div class="sig-box">
       ${s.signatureImageUrl ? `<img src="${s.signatureImageUrl}" alt="Firma"/>` : "<div style='height:60px;border-bottom:1px solid #374151;'></div>"}
       <div class="sig-name">${s.signerName}</div>
       <div class="sig-role">${s.signerRole ?? ""}</div>
       <div class="sig-hash">${s.signatureHash ? `SHA-256: ${s.signatureHash.substring(0, 16)}...` : ""}</div>
-    </div>`).join("")}
-  </div>` : `
+    </div>`
+      )
+      .join("")}
+  </div>`
+      : `
   <div class="signatures-grid">
-    ${["Presidente", "Secretario", "Vocal 1"].map(role => `
+    ${["Presidente", "Secretario", "Vocal 1"]
+      .map(
+        role => `
     <div class="empty-sig">
       <div class="sig-line"></div>
       <div style="font-size:10px;font-weight:bold">${role}</div>
       <div style="font-size:9px;color:#6b7280">Nombre y Firma</div>
-    </div>`).join("")}
-  </div>`}
+    </div>`
+      )
+      .join("")}
+  </div>`
+  }
 </div>
 
 <div class="footer">
@@ -538,11 +755,15 @@ ${meeting.minutesContent ? `
       // Convertir HTML a PDF con puppeteer
       const { generatePDFFromHTML } = await import("../_core/pdfGenerator");
       const fileName = `acta-${input.meetingId}-${Date.now()}`;
-      const pdfUrl = await generatePDFFromHTML(html, fileName, { format: "A4", orientation: "portrait" });
+      const pdfUrl = await generatePDFFromHTML(html, fileName, {
+        format: "A4",
+        orientation: "portrait",
+      });
       // generatePDFFromHTML ya sube a S3 y retorna la URL directamente
       const url = pdfUrl;
       // Guardar URL en la reunión
-      await db.update(nom035CommitteeMeetings)
+      await db
+        .update(nom035CommitteeMeetings)
         .set({ actaPdfUrl: url })
         .where(eq(nom035CommitteeMeetings.id, input.meetingId));
       return { url, success: true };

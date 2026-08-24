@@ -31,6 +31,7 @@
 ### 📋 Pendiente
 
 **Routers Críticos** (6 routers, ~20 procedures):
+
 - `committeeMinutes.ts` - create, update, delete, publish
 - `documentFormats.ts` - create, update, delete
 - `notifications.ts` - create, markAsRead, markAllAsRead, delete
@@ -49,7 +50,12 @@
 **Paso 1**: Agregar import al inicio del archivo
 
 ```typescript
-import { requirePermission, requireDelete, requireApprove, requireExport } from "../permissions";
+import {
+  requirePermission,
+  requireDelete,
+  requireApprove,
+  requireExport,
+} from "../permissions";
 ```
 
 **Paso 2**: Aplicar middleware ANTES de `.input()`
@@ -67,14 +73,14 @@ create: protectedProcedure
 
 **Paso 3**: Aplicar según tipo de operación
 
-| Operación | Middleware | Roles Permitidos |
-|-----------|-----------|------------------|
-| **Crear** | `.use(requirePermission('can_create'))` | gerente, instructor, administrativo, committee |
-| **Editar** | `.use(requirePermission('can_edit'))` | gerente, instructor, administrativo |
-| **Eliminar** | `.use(requireDelete())` | gerente |
-| **Aprobar** | `.use(requireApprove())` | gerente, committee |
-| **Exportar** | `.use(requireExport())` | gerente, instructor, administrativo |
-| **Ver** | `.use(requirePermission('can_view'))` | todos |
+| Operación    | Middleware                              | Roles Permitidos                               |
+| ------------ | --------------------------------------- | ---------------------------------------------- |
+| **Crear**    | `.use(requirePermission('can_create'))` | gerente, instructor, administrativo, committee |
+| **Editar**   | `.use(requirePermission('can_edit'))`   | gerente, instructor, administrativo            |
+| **Eliminar** | `.use(requireDelete())`                 | gerente                                        |
+| **Aprobar**  | `.use(requireApprove())`                | gerente, committee                             |
+| **Exportar** | `.use(requireExport())`                 | gerente, instructor, administrativo            |
+| **Ver**      | `.use(requirePermission('can_view'))`   | todos                                          |
 
 ### Opción 2: Validación en Runtime (Alternativa)
 
@@ -85,7 +91,7 @@ import { hasPermission } from "../permissions";
 
 .mutation(async ({ input, ctx }) => {
   if (!ctx.user) throw new Error('User not authenticated');
-  
+
   // Validar permiso manualmente
   if (!hasPermission(ctx.user.role, 'can_create')) {
     throw new TRPCError({
@@ -93,7 +99,7 @@ import { hasPermission } from "../permissions";
       message: 'No tienes permisos para crear este recurso'
     });
   }
-  
+
   // Continuar con la lógica
   // ...
 })
@@ -103,13 +109,13 @@ import { hasPermission } from "../permissions";
 
 ## 📊 Matriz de Permisos por Rol
 
-| Rol | can_view | can_create | can_edit | can_delete | can_approve | can_export |
-|-----|----------|------------|----------|------------|-------------|------------|
-| **gerente** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **instructor** | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
-| **administrativo** | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
-| **committee** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **student** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Rol                | can_view | can_create | can_edit | can_delete | can_approve | can_export |
+| ------------------ | -------- | ---------- | -------- | ---------- | ----------- | ---------- |
+| **gerente**        | ✅       | ✅         | ✅       | ✅         | ✅          | ✅         |
+| **instructor**     | ✅       | ✅         | ✅       | ❌         | ❌          | ✅         |
+| **administrativo** | ✅       | ✅         | ✅       | ❌         | ❌          | ✅         |
+| **committee**      | ✅       | ✅         | ❌       | ❌         | ✅          | ❌         |
+| **student**        | ✅       | ❌         | ❌       | ❌         | ❌          | ❌         |
 
 ---
 
@@ -177,14 +183,14 @@ pnpm test server/permissions.test.ts
 
 ## 📚 Archivos de Referencia
 
-| Archivo | Descripción |
-|---------|-------------|
-| `server/permissions.ts` | Middleware y funciones de validación |
-| `server/permissions.test.ts` | Tests unitarios (24 tests) |
-| `GUIA_IMPLEMENTACION_PERMISOS_BACKEND.md` | Guía detallada con ejemplos |
-| `GUIA_VALIDACION_PERMISOS_DETALLADA.md` | 75 casos de prueba frontend |
-| `PATRON_PROTECCION_BOTONES.md` | Análisis de 42 botones |
-| `GUIA_PRUEBAS_PERMISOS.md` | Guía original de pruebas |
+| Archivo                                   | Descripción                          |
+| ----------------------------------------- | ------------------------------------ |
+| `server/permissions.ts`                   | Middleware y funciones de validación |
+| `server/permissions.test.ts`              | Tests unitarios (24 tests)           |
+| `GUIA_IMPLEMENTACION_PERMISOS_BACKEND.md` | Guía detallada con ejemplos          |
+| `GUIA_VALIDACION_PERMISOS_DETALLADA.md`   | 75 casos de prueba frontend          |
+| `PATRON_PROTECCION_BOTONES.md`            | Análisis de 42 botones               |
+| `GUIA_PRUEBAS_PERMISOS.md`                | Guía original de pruebas             |
 
 ---
 
@@ -193,20 +199,23 @@ pnpm test server/permissions.test.ts
 1. **No modificar `server/_core/trpc.ts`** - Los middlewares personalizados se aplican a nivel de procedure, no a nivel de configuración global
 
 2. **Siempre agregar assertion de `ctx.user`** cuando TypeScript reporte que puede ser null:
+
    ```typescript
-   if (!ctx.user) throw new Error('User not authenticated');
+   if (!ctx.user) throw new Error("User not authenticated");
    ```
 
 3. **Eliminar validaciones redundantes** de rol después de aplicar middlewares:
+
    ```typescript
    // ❌ ELIMINAR (redundante)
    if (ctx.user.role !== "admin") { ... }
-   
+
    // ✅ MANTENER (específico del negocio)
    if (resource.ownerId !== ctx.user.id) { ... }
    ```
 
 4. **Compilación TypeScript debe estar limpia** antes de cada checkpoint:
+
    ```bash
    pnpm tsc  # Debe retornar 0 errores
    ```
@@ -221,16 +230,19 @@ pnpm test server/permissions.test.ts
 ## 🎓 Beneficios del Sistema
 
 ### Seguridad
+
 - ✅ Validación en servidor (no se puede bypass desde frontend)
 - ✅ Matriz de permisos centralizada
 - ✅ Auditoría de intentos de acceso
 
 ### Mantenibilidad
+
 - ✅ Un solo lugar para modificar permisos (`rolePermissions`)
 - ✅ Tests automatizados
 - ✅ Documentación completa
 
 ### Escalabilidad
+
 - ✅ Fácil agregar nuevos roles
 - ✅ Fácil agregar nuevos permisos
 - ✅ Middlewares reutilizables

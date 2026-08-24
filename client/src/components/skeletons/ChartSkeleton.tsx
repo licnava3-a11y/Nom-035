@@ -4,39 +4,39 @@
  */
 
 interface ChartSkeletonProps {
-  type?: 'line' | 'bar' | 'pie' | 'doughnut';
+  type?: "line" | "bar" | "pie" | "doughnut";
   height?: string;
   title?: boolean;
 }
 
-export function ChartSkeleton({ 
-  type = 'bar', 
-  height = 'h-64',
-  title = true 
+export function ChartSkeleton({
+  type = "bar",
+  height = "h-64",
+  title = true,
 }: ChartSkeletonProps) {
   return (
     <div className="border rounded-lg p-6 space-y-4">
-      {title && (
-        <div className="h-6 w-48 bg-muted rounded animate-pulse" />
-      )}
-      
-      <div className={`${height} flex items-end justify-around gap-2 animate-pulse`}>
-        {type === 'bar' && (
+      {title && <div className="h-6 w-48 bg-muted rounded animate-pulse" />}
+
+      <div
+        className={`${height} flex items-end justify-around gap-2 animate-pulse`}
+      >
+        {type === "bar" && (
           <>
             {[60, 80, 45, 90, 70, 55].map((height, i) => (
-              <div 
+              <div
                 key={i}
                 className="flex-1 bg-muted rounded-t"
-                style={{ 
+                style={{
                   height: `${height}%`,
-                  animationDelay: `${i * 100}ms`
+                  animationDelay: `${i * 100}ms`,
                 }}
               />
             ))}
           </>
         )}
-        
-        {type === 'line' && (
+
+        {type === "line" && (
           <div className="w-full h-full relative">
             <svg className="w-full h-full" viewBox="0 0 400 200">
               <path
@@ -55,12 +55,12 @@ export function ChartSkeleton({
             </svg>
           </div>
         )}
-        
-        {(type === 'pie' || type === 'doughnut') && (
+
+        {(type === "pie" || type === "doughnut") && (
           <div className="w-full h-full flex items-center justify-center">
             <div className="relative">
               <div className="w-40 h-40 rounded-full bg-muted" />
-              {type === 'doughnut' && (
+              {type === "doughnut" && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-24 h-24 rounded-full bg-background" />
                 </div>
@@ -69,7 +69,7 @@ export function ChartSkeleton({
           </div>
         )}
       </div>
-      
+
       {/* Legend skeleton */}
       <div className="flex flex-wrap gap-4 justify-center">
         {[1, 2, 3].map((i: any) => (

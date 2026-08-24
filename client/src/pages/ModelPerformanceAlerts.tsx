@@ -1,11 +1,33 @@
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { AlertTriangle, CheckCircle2, TrendingDown, Clock, AlertCircle, FileDown, FileText, Sheet } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  TrendingDown,
+  Clock,
+  AlertCircle,
+  FileDown,
+  FileText,
+  Sheet,
+} from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -49,7 +71,10 @@ async function exportToXLSX(alertHistory: any[], stats: any) {
   const wsHistory = XLSX.utils.json_to_sheet(historyRows);
   XLSX.utils.book_append_sheet(wb, wsHistory, "Historial de Alertas");
 
-  XLSX.writeFile(wb, `alertas-modelo-predictivo-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+  XLSX.writeFile(
+    wb,
+    `alertas-modelo-predictivo-${format(new Date(), "yyyy-MM-dd")}.xlsx`
+  );
   toast.success("Archivo XLSX generado correctamente");
 }
 
@@ -66,10 +91,14 @@ async function exportToPDF(alertHistory: any[], stats: any) {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(13);
   doc.setFont("helvetica", "bold");
-  doc.text("Alertas de Rendimiento del Modelo Predictivo", pageW / 2, 11, { align: "center" });
+  doc.text("Alertas de Rendimiento del Modelo Predictivo", pageW / 2, 11, {
+    align: "center",
+  });
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
-  doc.text(`Generado: ${new Date().toLocaleString("es-MX")}`, pageW / 2, 16, { align: "center" });
+  doc.text(`Generado: ${new Date().toLocaleString("es-MX")}`, pageW / 2, 16, {
+    align: "center",
+  });
 
   // KPIs
   doc.setTextColor(0, 0, 0);
@@ -89,7 +118,10 @@ async function exportToPDF(alertHistory: any[], stats: any) {
     theme: "grid",
     styles: { fontSize: 9 },
     headStyles: { fillColor: [30, 64, 175] },
-    columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 30, halign: "center" } },
+    columnStyles: {
+      0: { cellWidth: 60 },
+      1: { cellWidth: 30, halign: "center" },
+    },
     margin: { left: 14 },
     tableWidth: 95,
   });
@@ -149,14 +181,25 @@ async function exportToWord(alertHistory: any[], stats: any) {
 
   const makeBoldCell = (text: string) =>
     new TableCell({
-      children: [new Paragraph({ children: [new TextRun({ text, bold: true })] })],
+      children: [
+        new Paragraph({ children: [new TextRun({ text, bold: true })] }),
+      ],
     });
   const makeCell = (text: string) =>
-    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text })] })] });
+    new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text })] })],
+    });
 
   const historyTableRows = [
     new TableRow({
-      children: ["Fecha", "Métrica", "Severidad", "Valor", "Umbral", "Estado"].map(makeBoldCell),
+      children: [
+        "Fecha",
+        "Métrica",
+        "Severidad",
+        "Valor",
+        "Umbral",
+        "Estado",
+      ].map(makeBoldCell),
     }),
     ...alertHistory.map(
       (a: any) =>
@@ -188,7 +231,10 @@ async function exportToWord(alertHistory: any[], stats: any) {
             ],
           }),
           new Paragraph({ text: "" }),
-          new Paragraph({ text: "Resumen Ejecutivo", heading: HeadingLevel.HEADING_2 }),
+          new Paragraph({
+            text: "Resumen Ejecutivo",
+            heading: HeadingLevel.HEADING_2,
+          }),
           new Paragraph({
             children: [
               new TextRun({ text: "Alertas Activas: ", bold: true }),
@@ -214,7 +260,10 @@ async function exportToWord(alertHistory: any[], stats: any) {
             ],
           }),
           new Paragraph({ text: "" }),
-          new Paragraph({ text: "Historial de Alertas", heading: HeadingLevel.HEADING_2 }),
+          new Paragraph({
+            text: "Historial de Alertas",
+            heading: HeadingLevel.HEADING_2,
+          }),
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: historyTableRows,
@@ -238,38 +287,61 @@ async function exportToWord(alertHistory: any[], stats: any) {
 
 function getMetricLabelStr(metricName: string): string {
   switch (metricName) {
-    case "precision": return "Precisión";
-    case "recall": return "Recall";
-    case "f1Score": return "F1-Score";
-    case "accuracy": return "Accuracy";
-    default: return metricName;
+    case "precision":
+      return "Precisión";
+    case "recall":
+      return "Recall";
+    case "f1Score":
+      return "F1-Score";
+    case "accuracy":
+      return "Accuracy";
+    default:
+      return metricName;
   }
 }
 
 // ─── Componente principal ────────────────────────────────────────────────────
 
 export default function ModelPerformanceAlerts() {
-  const { data: activeAlerts = [], isLoading: loadingActive, refetch: refetchActive } = trpc.modelPerformanceAlerts.getActiveAlerts.useQuery();
-  const { data: alertHistory = [], isLoading: loadingHistory, refetch: refetchHistory } = trpc.modelPerformanceAlerts.getAlertHistory.useQuery({ limit: 50 });
-  const { data: stats, isLoading: loadingStats } = trpc.modelPerformanceAlerts.getAlertStats.useQuery();
+  const {
+    data: activeAlerts = [],
+    isLoading: loadingActive,
+    refetch: refetchActive,
+  } = trpc.modelPerformanceAlerts.getActiveAlerts.useQuery();
+  const {
+    data: alertHistory = [],
+    isLoading: loadingHistory,
+    refetch: refetchHistory,
+  } = trpc.modelPerformanceAlerts.getAlertHistory.useQuery({ limit: 50 });
+  const { data: stats, isLoading: loadingStats } =
+    trpc.modelPerformanceAlerts.getAlertStats.useQuery();
 
-  const resolveAlertMutation = trpc.modelPerformanceAlerts.resolveAlert.useMutation({
-    onSuccess: () => {
-      toast.success("Alerta marcada como resuelta");
-      refetchActive();
-      refetchHistory();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al resolver alerta");
-    },
-  });
+  const resolveAlertMutation =
+    trpc.modelPerformanceAlerts.resolveAlert.useMutation({
+      onSuccess: () => {
+        toast.success("Alerta marcada como resuelta");
+        refetchActive();
+        refetchHistory();
+      },
+      onError: error => {
+        toast.error(error.message || "Error al resolver alerta");
+      },
+    });
 
   const getSeverityBadge = (severity: string) => {
     switch (severity) {
       case "critical":
-        return <Badge variant="destructive" className="bg-red-600">Crítico</Badge>;
+        return (
+          <Badge variant="destructive" className="bg-red-600">
+            Crítico
+          </Badge>
+        );
       case "high":
-        return <Badge variant="destructive" className="bg-orange-600">Alto</Badge>;
+        return (
+          <Badge variant="destructive" className="bg-orange-600">
+            Alto
+          </Badge>
+        );
       case "medium":
         return <Badge className="bg-yellow-600">Medio</Badge>;
       case "low":
@@ -292,9 +364,12 @@ export default function ModelPerformanceAlerts() {
       {/* Encabezado con botones de exportación */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Alertas de Rendimiento del Modelo Predictivo</h1>
+          <h1 className="text-3xl font-bold">
+            Alertas de Rendimiento del Modelo Predictivo
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Monitoreo automático de métricas del modelo con alertas cuando caen por debajo de umbrales críticos
+            Monitoreo automático de métricas del modelo con alertas cuando caen
+            por debajo de umbrales críticos
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -332,7 +407,9 @@ export default function ModelPerformanceAlerts() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Alertas Activas</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Alertas Activas
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -344,19 +421,25 @@ export default function ModelPerformanceAlerts() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Alertas Críticas</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Alertas Críticas
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-red-600" />
-              <div className="text-2xl font-bold">{stats?.bySeverity.critical || 0}</div>
+              <div className="text-2xl font-bold">
+                {stats?.bySeverity.critical || 0}
+              </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Alertas Resueltas</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Alertas Resueltas
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -368,7 +451,9 @@ export default function ModelPerformanceAlerts() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Histórico</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Histórico
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -388,19 +473,27 @@ export default function ModelPerformanceAlerts() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{stats.byMetric.precision}</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {stats.byMetric.precision}
+                </div>
                 <div className="text-sm text-muted-foreground">Precisión</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{stats.byMetric.recall}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {stats.byMetric.recall}
+                </div>
                 <div className="text-sm text-muted-foreground">Recall</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{stats.byMetric.f1Score}</div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {stats.byMetric.f1Score}
+                </div>
                 <div className="text-sm text-muted-foreground">F1-Score</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">{stats.byMetric.accuracy}</div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {stats.byMetric.accuracy}
+                </div>
                 <div className="text-sm text-muted-foreground">Accuracy</div>
               </div>
             </div>
@@ -411,8 +504,12 @@ export default function ModelPerformanceAlerts() {
       {/* Tabs de Alertas */}
       <Tabs defaultValue="active" className="w-full">
         <TabsList>
-          <TabsTrigger value="active">Alertas Activas ({activeAlerts.length})</TabsTrigger>
-          <TabsTrigger value="history">Historial ({alertHistory.length})</TabsTrigger>
+          <TabsTrigger value="active">
+            Alertas Activas ({activeAlerts.length})
+          </TabsTrigger>
+          <TabsTrigger value="history">
+            Historial ({alertHistory.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
@@ -421,7 +518,10 @@ export default function ModelPerformanceAlerts() {
               <CardContent className="py-12 text-center">
                 <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-4" />
                 <p className="text-lg font-medium">No hay alertas activas</p>
-                <p className="text-muted-foreground">Todas las métricas del modelo están dentro de los umbrales aceptables</p>
+                <p className="text-muted-foreground">
+                  Todas las métricas del modelo están dentro de los umbrales
+                  aceptables
+                </p>
               </CardContent>
             </Card>
           ) : (
@@ -432,16 +532,24 @@ export default function ModelPerformanceAlerts() {
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <CardTitle className="text-lg">{getMetricLabelStr(alert.metricName)}</CardTitle>
+                          <CardTitle className="text-lg">
+                            {getMetricLabelStr(alert.metricName)}
+                          </CardTitle>
                           {getSeverityBadge(alert.severity)}
                         </div>
                         <CardDescription className="text-sm">
-                          {format(new Date(alert.createdAt), "PPP 'a las' HH:mm", { locale: es })}
+                          {format(
+                            new Date(alert.createdAt),
+                            "PPP 'a las' HH:mm",
+                            { locale: es }
+                          )}
                         </CardDescription>
                       </div>
                       <Button
                         size="sm"
-                        onClick={() => resolveAlertMutation.mutate({ alertId: alert.id })}
+                        onClick={() =>
+                          resolveAlertMutation.mutate({ alertId: alert.id })
+                        }
                         disabled={resolveAlertMutation.isPending}
                       >
                         <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -452,22 +560,36 @@ export default function ModelPerformanceAlerts() {
                   <CardContent className="space-y-3">
                     <div className="flex items-center gap-4 text-sm">
                       <div>
-                        <span className="text-muted-foreground">Valor Actual:</span>{" "}
-                        <span className="font-medium text-red-600">{alert.currentValue}%</span>
+                        <span className="text-muted-foreground">
+                          Valor Actual:
+                        </span>{" "}
+                        <span className="font-medium text-red-600">
+                          {alert.currentValue}%
+                        </span>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Umbral Crítico:</span>{" "}
-                        <span className="font-medium">{alert.thresholdValue}%</span>
+                        <span className="text-muted-foreground">
+                          Umbral Crítico:
+                        </span>{" "}
+                        <span className="font-medium">
+                          {alert.thresholdValue}%
+                        </span>
                       </div>
                     </div>
                     <div>
                       <p className="text-sm font-medium mb-1">Mensaje:</p>
-                      <p className="text-sm text-muted-foreground">{alert.message}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {alert.message}
+                      </p>
                     </div>
                     {alert.recommendation && (
                       <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-md">
-                        <p className="text-sm font-medium mb-1 text-blue-900 dark:text-blue-100">Recomendación:</p>
-                        <p className="text-sm text-blue-800 dark:text-blue-200">{alert.recommendation}</p>
+                        <p className="text-sm font-medium mb-1 text-blue-900 dark:text-blue-100">
+                          Recomendación:
+                        </p>
+                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                          {alert.recommendation}
+                        </p>
                       </div>
                     )}
                   </CardContent>
@@ -483,18 +605,35 @@ export default function ModelPerformanceAlerts() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Historial de Alertas</CardTitle>
-                  <CardDescription>Últimas 50 alertas generadas por el sistema</CardDescription>
+                  <CardDescription>
+                    Últimas 50 alertas generadas por el sistema
+                  </CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => exportToXLSX(alertHistory, stats)} className="gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => exportToXLSX(alertHistory, stats)}
+                    className="gap-1"
+                  >
                     <Sheet className="h-3 w-3 text-green-600" />
                     XLSX
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => exportToPDF(alertHistory, stats)} className="gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => exportToPDF(alertHistory, stats)}
+                    className="gap-1"
+                  >
                     <FileDown className="h-3 w-3 text-red-600" />
                     PDF
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => exportToWord(alertHistory, stats)} className="gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => exportToWord(alertHistory, stats)}
+                    className="gap-1"
+                  >
                     <FileText className="h-3 w-3 text-blue-600" />
                     Word
                   </Button>
@@ -519,18 +658,28 @@ export default function ModelPerformanceAlerts() {
                       <TableCell className="text-sm">
                         {format(new Date(alert.createdAt), "dd/MM/yyyy HH:mm")}
                       </TableCell>
-                      <TableCell>{getMetricLabelStr(alert.metricName)}</TableCell>
+                      <TableCell>
+                        {getMetricLabelStr(alert.metricName)}
+                      </TableCell>
                       <TableCell>{getSeverityBadge(alert.severity)}</TableCell>
-                      <TableCell className="font-medium">{alert.currentValue}%</TableCell>
+                      <TableCell className="font-medium">
+                        {alert.currentValue}%
+                      </TableCell>
                       <TableCell>{alert.thresholdValue}%</TableCell>
                       <TableCell>
                         {alert.isResolved ? (
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          <Badge
+                            variant="secondary"
+                            className="bg-green-100 text-green-800"
+                          >
                             <CheckCircle2 className="mr-1 h-3 w-3" />
                             Resuelta
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                          <Badge
+                            variant="secondary"
+                            className="bg-orange-100 text-orange-800"
+                          >
                             <AlertTriangle className="mr-1 h-3 w-3" />
                             Activa
                           </Badge>

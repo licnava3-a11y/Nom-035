@@ -1,6 +1,6 @@
-import { ChevronRight, Home } from 'lucide-react';
-import { Link } from 'wouter';
-import { Fragment } from 'react';
+import { ChevronRight, Home } from "lucide-react";
+import { Link } from "wouter";
+import { Fragment } from "react";
 
 export interface BreadcrumbItem {
   label: string;
@@ -18,24 +18,30 @@ interface BreadcrumbProps {
  */
 export function Breadcrumb({ items, showHome = true }: BreadcrumbProps) {
   return (
-    <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
+    <nav
+      aria-label="Breadcrumb"
+      className="flex items-center space-x-2 text-sm text-muted-foreground mb-4"
+    >
       {showHome && (
         <>
-          <Link href="/" className="hover:text-foreground transition-colors flex items-center">
+          <Link
+            href="/"
+            className="hover:text-foreground transition-colors flex items-center"
+          >
             <Home className="h-4 w-4" />
           </Link>
           {items.length > 0 && <ChevronRight className="h-4 w-4" />}
         </>
       )}
-      
+
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
-        
+
         return (
           <Fragment key={index}>
             {item.href && !isLast ? (
-              <Link 
-                href={item.href} 
+              <Link
+                href={item.href}
                 className="hover:text-foreground transition-colors"
               >
                 {item.label}

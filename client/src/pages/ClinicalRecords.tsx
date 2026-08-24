@@ -47,10 +47,21 @@ import {
   Archive,
 } from "lucide-react";
 
-const AUTHORIZED_ROLES = ["admin", "super_admin", "psychologist", "clinical_professional"];
+const AUTHORIZED_ROLES = [
+  "admin",
+  "super_admin",
+  "psychologist",
+  "clinical_professional",
+];
 
 // ─── Formulario de nuevo expediente ──────────────────────────────────────────
-function NewRecordForm({ onSubmit, loading }: { onSubmit: (data: Record<string, unknown>) => void; loading: boolean }) {
+function NewRecordForm({
+  onSubmit,
+  loading,
+}: {
+  onSubmit: (data: Record<string, unknown>) => void;
+  loading: boolean;
+}) {
   const [form, setForm] = useState({
     patientName: "",
     patientAge: "",
@@ -76,25 +87,47 @@ function NewRecordForm({ onSubmit, loading }: { onSubmit: (data: Record<string, 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 max-h-[65vh] overflow-y-auto pr-2"
+    >
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
         <Lock className="h-4 w-4 inline mr-1" />
-        Este expediente es confidencial y solo accesible para personal clínico autorizado y administradores.
+        Este expediente es confidencial y solo accesible para personal clínico
+        autorizado y administradores.
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>Nombre del paciente *</Label>
-          <Input value={form.patientName} onChange={e => setForm(p => ({ ...p, patientName: e.target.value }))} required />
+          <Input
+            value={form.patientName}
+            onChange={e =>
+              setForm(p => ({ ...p, patientName: e.target.value }))
+            }
+            required
+          />
         </div>
         <div>
           <Label>Edad</Label>
-          <Input type="number" min="0" max="120" value={form.patientAge} onChange={e => setForm(p => ({ ...p, patientAge: e.target.value }))} />
+          <Input
+            type="number"
+            min="0"
+            max="120"
+            value={form.patientAge}
+            onChange={e => setForm(p => ({ ...p, patientAge: e.target.value }))}
+          />
         </div>
       </div>
       <div>
         <Label>Contacto del paciente</Label>
-        <Input placeholder="Teléfono o correo de contacto" value={form.patientContact} onChange={e => setForm(p => ({ ...p, patientContact: e.target.value }))} />
+        <Input
+          placeholder="Teléfono o correo de contacto"
+          value={form.patientContact}
+          onChange={e =>
+            setForm(p => ({ ...p, patientContact: e.target.value }))
+          }
+        />
       </div>
 
       <div className="border-t pt-4">
@@ -102,16 +135,33 @@ function NewRecordForm({ onSubmit, loading }: { onSubmit: (data: Record<string, 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label>Nombre del profesional *</Label>
-            <Input value={form.professionalName} onChange={e => setForm(p => ({ ...p, professionalName: e.target.value }))} required />
+            <Input
+              value={form.professionalName}
+              onChange={e =>
+                setForm(p => ({ ...p, professionalName: e.target.value }))
+              }
+              required
+            />
           </div>
           <div>
             <Label>Cédula profesional</Label>
-            <Input value={form.professionalLicense} onChange={e => setForm(p => ({ ...p, professionalLicense: e.target.value }))} />
+            <Input
+              value={form.professionalLicense}
+              onChange={e =>
+                setForm(p => ({ ...p, professionalLicense: e.target.value }))
+              }
+            />
           </div>
         </div>
         <div className="mt-3">
           <Label>Especialidad</Label>
-          <Input placeholder="Psicología clínica, Psiquiatría, etc." value={form.professionalSpecialty} onChange={e => setForm(p => ({ ...p, professionalSpecialty: e.target.value }))} />
+          <Input
+            placeholder="Psicología clínica, Psiquiatría, etc."
+            value={form.professionalSpecialty}
+            onChange={e =>
+              setForm(p => ({ ...p, professionalSpecialty: e.target.value }))
+            }
+          />
         </div>
       </div>
 
@@ -120,23 +170,80 @@ function NewRecordForm({ onSubmit, loading }: { onSubmit: (data: Record<string, 
         <div className="space-y-3">
           <div>
             <Label>Motivo de consulta</Label>
-            <Textarea rows={2} value={form.consultationReason} onChange={e => setForm(p => ({ ...p, consultationReason: e.target.value }))} />
-            <AIFieldAssistant fieldType="chiefComplaint" currentValue={form.consultationReason} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, consultationReason: text }))} />
+            <Textarea
+              rows={2}
+              value={form.consultationReason}
+              onChange={e =>
+                setForm(p => ({ ...p, consultationReason: e.target.value }))
+              }
+            />
+            <AIFieldAssistant
+              fieldType="chiefComplaint"
+              currentValue={form.consultationReason}
+              patientAge={
+                form.patientAge ? parseInt(form.patientAge) : undefined
+              }
+              onApply={text =>
+                setForm(p => ({ ...p, consultationReason: text }))
+              }
+            />
           </div>
           <div>
             <Label>Antecedentes médicos</Label>
-            <Textarea rows={2} placeholder="Enfermedades, tratamientos previos, medicación actual..." value={form.medicalHistory} onChange={e => setForm(p => ({ ...p, medicalHistory: e.target.value }))} />
-            <AIFieldAssistant fieldType="medicalHistory" currentValue={form.medicalHistory} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, medicalHistory: text }))} />
+            <Textarea
+              rows={2}
+              placeholder="Enfermedades, tratamientos previos, medicación actual..."
+              value={form.medicalHistory}
+              onChange={e =>
+                setForm(p => ({ ...p, medicalHistory: e.target.value }))
+              }
+            />
+            <AIFieldAssistant
+              fieldType="medicalHistory"
+              currentValue={form.medicalHistory}
+              patientAge={
+                form.patientAge ? parseInt(form.patientAge) : undefined
+              }
+              onApply={text => setForm(p => ({ ...p, medicalHistory: text }))}
+            />
           </div>
           <div>
             <Label>Historia personal</Label>
-            <Textarea rows={2} placeholder="Desarrollo, educación, relaciones, eventos significativos..." value={form.personalHistory} onChange={e => setForm(p => ({ ...p, personalHistory: e.target.value }))} />
-            <AIFieldAssistant fieldType="personalHistory" currentValue={form.personalHistory} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, personalHistory: text }))} />
+            <Textarea
+              rows={2}
+              placeholder="Desarrollo, educación, relaciones, eventos significativos..."
+              value={form.personalHistory}
+              onChange={e =>
+                setForm(p => ({ ...p, personalHistory: e.target.value }))
+              }
+            />
+            <AIFieldAssistant
+              fieldType="personalHistory"
+              currentValue={form.personalHistory}
+              patientAge={
+                form.patientAge ? parseInt(form.patientAge) : undefined
+              }
+              onApply={text => setForm(p => ({ ...p, personalHistory: text }))}
+            />
           </div>
           <div>
             <Label>Historia familiar</Label>
-            <Textarea rows={2} placeholder="Dinámica familiar, antecedentes relevantes..." value={form.familyHistory} onChange={e => setForm(p => ({ ...p, familyHistory: e.target.value }))} />
-            <AIFieldAssistant fieldType="familyHistory" currentValue={form.familyHistory} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, familyHistory: text }))} />
+            <Textarea
+              rows={2}
+              placeholder="Dinámica familiar, antecedentes relevantes..."
+              value={form.familyHistory}
+              onChange={e =>
+                setForm(p => ({ ...p, familyHistory: e.target.value }))
+              }
+            />
+            <AIFieldAssistant
+              fieldType="familyHistory"
+              currentValue={form.familyHistory}
+              patientAge={
+                form.patientAge ? parseInt(form.patientAge) : undefined
+              }
+              onApply={text => setForm(p => ({ ...p, familyHistory: text }))}
+            />
           </div>
         </div>
       </div>
@@ -146,18 +253,42 @@ function NewRecordForm({ onSubmit, loading }: { onSubmit: (data: Record<string, 
         <div className="space-y-3">
           <div>
             <Label>Objetivos terapéuticos</Label>
-            <Textarea rows={2} value={form.treatmentObjectives} onChange={e => setForm(p => ({ ...p, treatmentObjectives: e.target.value }))} />
-            <AIFieldAssistant fieldType="therapeuticObjectives" currentValue={form.treatmentObjectives} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, treatmentObjectives: text }))} />
+            <Textarea
+              rows={2}
+              value={form.treatmentObjectives}
+              onChange={e =>
+                setForm(p => ({ ...p, treatmentObjectives: e.target.value }))
+              }
+            />
+            <AIFieldAssistant
+              fieldType="therapeuticObjectives"
+              currentValue={form.treatmentObjectives}
+              patientAge={
+                form.patientAge ? parseInt(form.patientAge) : undefined
+              }
+              onApply={text =>
+                setForm(p => ({ ...p, treatmentObjectives: text }))
+              }
+            />
           </div>
           <div>
             <Label>Actividades/Intervenciones planificadas</Label>
-            <Textarea rows={2} value={form.treatmentActivities} onChange={e => setForm(p => ({ ...p, treatmentActivities: e.target.value }))} />
+            <Textarea
+              rows={2}
+              value={form.treatmentActivities}
+              onChange={e =>
+                setForm(p => ({ ...p, treatmentActivities: e.target.value }))
+              }
+            />
           </div>
         </div>
       </div>
 
       <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-        <Switch checked={form.consentSigned} onCheckedChange={v => setForm(p => ({ ...p, consentSigned: v }))} />
+        <Switch
+          checked={form.consentSigned}
+          onCheckedChange={v => setForm(p => ({ ...p, consentSigned: v }))}
+        />
         <Label>Consentimiento informado firmado</Label>
       </div>
 
@@ -169,68 +300,148 @@ function NewRecordForm({ onSubmit, loading }: { onSubmit: (data: Record<string, 
 }
 
 // ─── Panel de detalle del expediente ─────────────────────────────────────────
-function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: () => void }) {
-  const { data, isLoading, refetch } = trpc.clinicalRecords.getDetail.useQuery({ id: recordId });
+function RecordDetailPanel({
+  recordId,
+  onClose,
+}: {
+  recordId: number;
+  onClose: () => void;
+}) {
+  const { data, isLoading, refetch } = trpc.clinicalRecords.getDetail.useQuery({
+    id: recordId,
+  });
   const { toast } = useToast();
   const utils = trpc.useUtils();
 
   const [activeTab, setActiveTab] = useState("historia");
-  const [evalForm, setEvalForm] = useState({ testName: "", evaluationDate: "", result: "", interpretation: "" });
-  const [sessionForm, setSessionForm] = useState({ sessionDate: "", observations: "", nextAppointment: "", sessionType: "individual" as const });
+  const [evalForm, setEvalForm] = useState({
+    testName: "",
+    evaluationDate: "",
+    result: "",
+    interpretation: "",
+  });
+  const [sessionForm, setSessionForm] = useState({
+    sessionDate: "",
+    observations: "",
+    nextAppointment: "",
+    sessionType: "individual" as const,
+  });
   const [showEvalForm, setShowEvalForm] = useState(false);
   const [showSessionForm, setShowSessionForm] = useState(false);
 
   const addEvalMutation = trpc.clinicalRecords.addEvaluation.useMutation({
-    onSuccess: () => { refetch(); setShowEvalForm(false); setEvalForm({ testName: "", evaluationDate: "", result: "", interpretation: "" }); toast({ title: "Evaluación agregada" }); },
-    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+    onSuccess: () => {
+      refetch();
+      setShowEvalForm(false);
+      setEvalForm({
+        testName: "",
+        evaluationDate: "",
+        result: "",
+        interpretation: "",
+      });
+      toast({ title: "Evaluación agregada" });
+    },
+    onError: e =>
+      toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   const deleteEvalMutation = trpc.clinicalRecords.deleteEvaluation.useMutation({
-    onSuccess: () => { refetch(); toast({ title: "Evaluación eliminada" }); },
+    onSuccess: () => {
+      refetch();
+      toast({ title: "Evaluación eliminada" });
+    },
   });
 
   const addSessionMutation = trpc.clinicalRecords.addSessionNote.useMutation({
-    onSuccess: () => { refetch(); setShowSessionForm(false); setSessionForm({ sessionDate: "", observations: "", nextAppointment: "", sessionType: "individual" }); toast({ title: "Nota de sesión agregada" }); },
-    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+    onSuccess: () => {
+      refetch();
+      setShowSessionForm(false);
+      setSessionForm({
+        sessionDate: "",
+        observations: "",
+        nextAppointment: "",
+        sessionType: "individual",
+      });
+      toast({ title: "Nota de sesión agregada" });
+    },
+    onError: e =>
+      toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  const deleteSessionMutation = trpc.clinicalRecords.deleteSessionNote.useMutation({
-    onSuccess: () => { refetch(); toast({ title: "Nota eliminada" }); },
-  });
+  const deleteSessionMutation =
+    trpc.clinicalRecords.deleteSessionNote.useMutation({
+      onSuccess: () => {
+        refetch();
+        toast({ title: "Nota eliminada" });
+      },
+    });
 
   const closeMutation = trpc.clinicalRecords.closeRecord.useMutation({
-    onSuccess: () => { utils.clinicalRecords.list.invalidate(); toast({ title: "Expediente cerrado" }); onClose(); },
+    onSuccess: () => {
+      utils.clinicalRecords.list.invalidate();
+      toast({ title: "Expediente cerrado" });
+      onClose();
+    },
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewFolio, setPreviewFolio] = useState<string | null>(null);
-  const saveSignatureMutation = trpc.clinicalRecords.saveProfessionalSignature.useMutation({
-    onSuccess: () => { refetch(); toast({ title: "Firma guardada correctamente" }); },
-    onError: (e) => toast({ title: "Error al guardar firma", description: e.message, variant: "destructive" }),
-  });
+  const saveSignatureMutation =
+    trpc.clinicalRecords.saveProfessionalSignature.useMutation({
+      onSuccess: () => {
+        refetch();
+        toast({ title: "Firma guardada correctamente" });
+      },
+      onError: e =>
+        toast({
+          title: "Error al guardar firma",
+          description: e.message,
+          variant: "destructive",
+        }),
+    });
 
-  const { data: exportedPdfs, refetch: refetchPdfs } = trpc.clinicalRecords.getExportedPdfs.useQuery(
-    { recordId },
-    { enabled: activeTab === "documentos" }
-  );
+  const { data: exportedPdfs, refetch: refetchPdfs } =
+    trpc.clinicalRecords.getExportedPdfs.useQuery(
+      { recordId },
+      { enabled: activeTab === "documentos" }
+    );
 
-  const downloadZipMutation = trpc.clinicalRecords.downloadAllPdfsZip.useMutation({
-    onSuccess: (data) => {
-      window.open(data.url, '_blank');
-      toast({ title: `ZIP generado con ${data.count} PDF(s)`, description: "El archivo se abrió en una nueva pestaña" });
-    },
-    onError: (err) => toast({ title: "Error al generar ZIP", description: err.message, variant: "destructive" }),
-  });
+  const downloadZipMutation =
+    trpc.clinicalRecords.downloadAllPdfsZip.useMutation({
+      onSuccess: data => {
+        window.open(data.url, "_blank");
+        toast({
+          title: `ZIP generado con ${data.count} PDF(s)`,
+          description: "El archivo se abrió en una nueva pestaña",
+        });
+      },
+      onError: err =>
+        toast({
+          title: "Error al generar ZIP",
+          description: err.message,
+          variant: "destructive",
+        }),
+    });
   const exportPdfMutation = trpc.clinicalRecords.exportPdf.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast({ title: "PDF generado", description: `Folio: ${data.folio}` });
       setPreviewUrl(data.url);
       setPreviewFolio(data.folio);
       refetchPdfs();
     },
-    onError: (err) => toast({ title: "Error al generar PDF", description: err.message, variant: "destructive" }),
+    onError: err =>
+      toast({
+        title: "Error al generar PDF",
+        description: err.message,
+        variant: "destructive",
+      }),
   });
 
-  if (isLoading) return <div className="p-8 text-center text-muted-foreground">Cargando expediente...</div>;
+  if (isLoading)
+    return (
+      <div className="p-8 text-center text-muted-foreground">
+        Cargando expediente...
+      </div>
+    );
   if (!data) return null;
 
   const { record, evaluations, sessionNotes } = data;
@@ -240,10 +451,18 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-bold text-lg">{record.patientName}</h3>
-          <p className="text-sm text-muted-foreground">{record.professionalName} · {record.professionalSpecialty}</p>
+          <p className="text-sm text-muted-foreground">
+            {record.professionalName} · {record.professionalSpecialty}
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge className={record.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+          <Badge
+            className={
+              record.isActive
+                ? "bg-green-100 text-green-800"
+                : "bg-gray-100 text-gray-800"
+            }
+          >
             {record.isActive ? "Activo" : "Cerrado"}
           </Badge>
           <Button
@@ -256,7 +475,11 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
             {exportPdfMutation.isPending ? "Generando..." : "Exportar PDF"}
           </Button>
           {record.isActive && (
-            <Button size="sm" variant="outline" onClick={() => closeMutation.mutate({ id: record.id })}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => closeMutation.mutate({ id: record.id })}
+            >
               Cerrar expediente
             </Button>
           )}
@@ -266,17 +489,38 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
       {/* Modal de vista previa del PDF */}
       {previewUrl && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-          <div className="bg-background rounded-xl shadow-2xl w-full max-w-4xl flex flex-col" style={{ height: '90vh' }}>
+          <div
+            className="bg-background rounded-xl shadow-2xl w-full max-w-4xl flex flex-col"
+            style={{ height: "90vh" }}
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
               <div>
-                <p className="font-semibold text-sm">Vista previa del Expediente Clínico</p>
-                {previewFolio && <p className="text-xs text-muted-foreground">Folio: {previewFolio}</p>}
+                <p className="font-semibold text-sm">
+                  Vista previa del Expediente Clínico
+                </p>
+                {previewFolio && (
+                  <p className="text-xs text-muted-foreground">
+                    Folio: {previewFolio}
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" onClick={() => window.open(previewUrl, '_blank')}>
-                  <ExternalLink className="h-4 w-4 mr-1" />Abrir en nueva pestaña
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(previewUrl, "_blank")}
+                >
+                  <ExternalLink className="h-4 w-4 mr-1" />
+                  Abrir en nueva pestaña
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => { setPreviewUrl(null); setPreviewFolio(null); }}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setPreviewUrl(null);
+                    setPreviewFolio(null);
+                  }}
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -292,107 +536,248 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-5 w-full">
-          <TabsTrigger value="historia"><ClipboardList className="h-4 w-4 mr-1" />Historia</TabsTrigger>
-          <TabsTrigger value="evaluaciones"><Brain className="h-4 w-4 mr-1" />Evaluaciones ({evaluations.length})</TabsTrigger>
-          <TabsTrigger value="sesiones"><Calendar className="h-4 w-4 mr-1" />Sesiones ({sessionNotes.length})</TabsTrigger>
-          <TabsTrigger value="documentos"><History className="h-4 w-4 mr-1" />PDFs ({exportedPdfs?.length ?? 0})</TabsTrigger>
-          <TabsTrigger value="firma"><CheckCircle className="h-4 w-4 mr-1" />Firma</TabsTrigger>
+          <TabsTrigger value="historia">
+            <ClipboardList className="h-4 w-4 mr-1" />
+            Historia
+          </TabsTrigger>
+          <TabsTrigger value="evaluaciones">
+            <Brain className="h-4 w-4 mr-1" />
+            Evaluaciones ({evaluations.length})
+          </TabsTrigger>
+          <TabsTrigger value="sesiones">
+            <Calendar className="h-4 w-4 mr-1" />
+            Sesiones ({sessionNotes.length})
+          </TabsTrigger>
+          <TabsTrigger value="documentos">
+            <History className="h-4 w-4 mr-1" />
+            PDFs ({exportedPdfs?.length ?? 0})
+          </TabsTrigger>
+          <TabsTrigger value="firma">
+            <CheckCircle className="h-4 w-4 mr-1" />
+            Firma
+          </TabsTrigger>
         </TabsList>
 
         {/* Tab Historia Clínica */}
-        <TabsContent value="historia" className="space-y-3 max-h-[50vh] overflow-y-auto">
+        <TabsContent
+          value="historia"
+          className="space-y-3 max-h-[50vh] overflow-y-auto"
+        >
           {[
             { label: "Motivo de consulta", value: record.consultationReason },
             { label: "Antecedentes médicos", value: record.medicalHistory },
             { label: "Historia personal", value: record.personalHistory },
             { label: "Historia familiar", value: record.familyHistory },
-            { label: "Objetivos terapéuticos", value: record.treatmentObjectives },
-            { label: "Actividades/Intervenciones", value: record.treatmentActivities },
-          ].map(({ label, value }) => value ? (
-            <div key={label} className="border rounded-lg p-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
-              <p className="text-sm whitespace-pre-wrap">{value}</p>
-            </div>
-          ) : null)}
+            {
+              label: "Objetivos terapéuticos",
+              value: record.treatmentObjectives,
+            },
+            {
+              label: "Actividades/Intervenciones",
+              value: record.treatmentActivities,
+            },
+          ].map(({ label, value }) =>
+            value ? (
+              <div key={label} className="border rounded-lg p-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                  {label}
+                </p>
+                <p className="text-sm whitespace-pre-wrap">{value}</p>
+              </div>
+            ) : null
+          )}
           <div className="border rounded-lg p-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Consentimiento informado</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              Consentimiento informado
+            </p>
             <div className="flex items-center gap-2">
-              {record.consentSigned ? <CheckCircle className="h-4 w-4 text-green-600" /> : <XCircle className="h-4 w-4 text-red-500" />}
-              <span className="text-sm">{record.consentSigned ? `Firmado el ${new Date(record.consentSignedAt!).toLocaleDateString()}` : "Pendiente"}</span>
+              {record.consentSigned ? (
+                <CheckCircle className="h-4 w-4 text-green-600" />
+              ) : (
+                <XCircle className="h-4 w-4 text-red-500" />
+              )}
+              <span className="text-sm">
+                {record.consentSigned
+                  ? `Firmado el ${new Date(record.consentSignedAt!).toLocaleDateString()}`
+                  : "Pendiente"}
+              </span>
             </div>
           </div>
         </TabsContent>
 
         {/* Tab Evaluaciones */}
-        <TabsContent value="evaluaciones" className="space-y-3 max-h-[50vh] overflow-y-auto">
+        <TabsContent
+          value="evaluaciones"
+          className="space-y-3 max-h-[50vh] overflow-y-auto"
+        >
           <Button size="sm" onClick={() => setShowEvalForm(!showEvalForm)}>
-            <Plus className="h-4 w-4 mr-1" />Nueva evaluación
+            <Plus className="h-4 w-4 mr-1" />
+            Nueva evaluación
           </Button>
           {showEvalForm && (
             <div className="border rounded-lg p-4 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Nombre del test *</Label>
-                  <Input placeholder="Ej: MMPI-2, Beck, Rorschach..." value={evalForm.testName} onChange={e => setEvalForm(p => ({ ...p, testName: e.target.value }))} />
+                  <Input
+                    placeholder="Ej: MMPI-2, Beck, Rorschach..."
+                    value={evalForm.testName}
+                    onChange={e =>
+                      setEvalForm(p => ({ ...p, testName: e.target.value }))
+                    }
+                  />
                 </div>
                 <div>
                   <Label>Fecha de aplicación *</Label>
-                  <Input type="date" value={evalForm.evaluationDate} onChange={e => setEvalForm(p => ({ ...p, evaluationDate: e.target.value }))} />
+                  <Input
+                    type="date"
+                    value={evalForm.evaluationDate}
+                    onChange={e =>
+                      setEvalForm(p => ({
+                        ...p,
+                        evaluationDate: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
               </div>
               <div>
                 <Label>Resultado</Label>
-                <Textarea rows={2} placeholder="Puntuaciones, categorías, percentiles..." value={evalForm.result} onChange={e => setEvalForm(p => ({ ...p, result: e.target.value }))} />
+                <Textarea
+                  rows={2}
+                  placeholder="Puntuaciones, categorías, percentiles..."
+                  value={evalForm.result}
+                  onChange={e =>
+                    setEvalForm(p => ({ ...p, result: e.target.value }))
+                  }
+                />
               </div>
               <div>
                 <Label>Interpretación clínica</Label>
-                <Textarea rows={3} placeholder="Análisis e interpretación de los resultados..." value={evalForm.interpretation} onChange={e => setEvalForm(p => ({ ...p, interpretation: e.target.value }))} />
-                <AIFieldAssistant fieldType="psychometricInterpretation" currentValue={evalForm.interpretation} diagnosisContext={evalForm.testName ? `Test aplicado: ${evalForm.testName}. Resultado: ${evalForm.result}` : undefined} onApply={(text) => setEvalForm(p => ({ ...p, interpretation: text }))} />
+                <Textarea
+                  rows={3}
+                  placeholder="Análisis e interpretación de los resultados..."
+                  value={evalForm.interpretation}
+                  onChange={e =>
+                    setEvalForm(p => ({ ...p, interpretation: e.target.value }))
+                  }
+                />
+                <AIFieldAssistant
+                  fieldType="psychometricInterpretation"
+                  currentValue={evalForm.interpretation}
+                  diagnosisContext={
+                    evalForm.testName
+                      ? `Test aplicado: ${evalForm.testName}. Resultado: ${evalForm.result}`
+                      : undefined
+                  }
+                  onApply={text =>
+                    setEvalForm(p => ({ ...p, interpretation: text }))
+                  }
+                />
               </div>
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => addEvalMutation.mutate({ recordId: record.id, ...evalForm })} disabled={!evalForm.testName || !evalForm.evaluationDate || addEvalMutation.isPending}>
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    addEvalMutation.mutate({ recordId: record.id, ...evalForm })
+                  }
+                  disabled={
+                    !evalForm.testName ||
+                    !evalForm.evaluationDate ||
+                    addEvalMutation.isPending
+                  }
+                >
                   Guardar evaluación
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setShowEvalForm(false)}>Cancelar</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowEvalForm(false)}
+                >
+                  Cancelar
+                </Button>
               </div>
             </div>
           )}
-          {evaluations.map((ev) => (
+          {evaluations.map(ev => (
             <div key={ev.id} className="border rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <p className="font-semibold">{ev.testName}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(ev.evaluationDate).toLocaleDateString()}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(ev.evaluationDate).toLocaleDateString()}
+                  </p>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => deleteEvalMutation.mutate({ id: ev.id })}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => deleteEvalMutation.mutate({ id: ev.id })}
+                >
                   <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
               </div>
-              {ev.result && <div className="text-sm mb-2"><span className="font-medium">Resultado: </span>{ev.result}</div>}
-              {ev.interpretation && <div className="text-sm text-muted-foreground italic">{ev.interpretation}</div>}
+              {ev.result && (
+                <div className="text-sm mb-2">
+                  <span className="font-medium">Resultado: </span>
+                  {ev.result}
+                </div>
+              )}
+              {ev.interpretation && (
+                <div className="text-sm text-muted-foreground italic">
+                  {ev.interpretation}
+                </div>
+              )}
             </div>
           ))}
           {!evaluations.length && !showEvalForm && (
-            <p className="text-center text-muted-foreground text-sm py-4">No hay evaluaciones registradas</p>
+            <p className="text-center text-muted-foreground text-sm py-4">
+              No hay evaluaciones registradas
+            </p>
           )}
         </TabsContent>
 
         {/* Tab Notas de sesión */}
-        <TabsContent value="sesiones" className="space-y-3 max-h-[50vh] overflow-y-auto">
-          <Button size="sm" onClick={() => setShowSessionForm(!showSessionForm)}>
-            <Plus className="h-4 w-4 mr-1" />Nueva nota de sesión
+        <TabsContent
+          value="sesiones"
+          className="space-y-3 max-h-[50vh] overflow-y-auto"
+        >
+          <Button
+            size="sm"
+            onClick={() => setShowSessionForm(!showSessionForm)}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Nueva nota de sesión
           </Button>
           {showSessionForm && (
             <div className="border rounded-lg p-4 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Fecha de sesión *</Label>
-                  <Input type="date" value={sessionForm.sessionDate} onChange={e => setSessionForm(p => ({ ...p, sessionDate: e.target.value }))} />
+                  <Input
+                    type="date"
+                    value={sessionForm.sessionDate}
+                    onChange={e =>
+                      setSessionForm(p => ({
+                        ...p,
+                        sessionDate: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
                 <div>
                   <Label>Tipo de sesión</Label>
-                  <Select value={sessionForm.sessionType} onValueChange={v => setSessionForm(p => ({ ...p, sessionType: v as typeof sessionForm.sessionType }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={sessionForm.sessionType}
+                    onValueChange={v =>
+                      setSessionForm(p => ({
+                        ...p,
+                        sessionType: v as typeof sessionForm.sessionType,
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="individual">Individual</SelectItem>
                       <SelectItem value="grupal">Grupal</SelectItem>
@@ -404,32 +789,87 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
               </div>
               <div>
                 <Label>Observaciones clínicas *</Label>
-                <Textarea rows={4} placeholder="Descripción de la sesión, observaciones, avances, regresiones..." value={sessionForm.observations} onChange={e => setSessionForm(p => ({ ...p, observations: e.target.value }))} />
-                <AIFieldAssistant fieldType="sessionNote" currentValue={sessionForm.observations} diagnosisContext={`Tipo de sesión: ${sessionForm.sessionType}`} onApply={(text) => setSessionForm(p => ({ ...p, observations: text }))} />
+                <Textarea
+                  rows={4}
+                  placeholder="Descripción de la sesión, observaciones, avances, regresiones..."
+                  value={sessionForm.observations}
+                  onChange={e =>
+                    setSessionForm(p => ({
+                      ...p,
+                      observations: e.target.value,
+                    }))
+                  }
+                />
+                <AIFieldAssistant
+                  fieldType="sessionNote"
+                  currentValue={sessionForm.observations}
+                  diagnosisContext={`Tipo de sesión: ${sessionForm.sessionType}`}
+                  onApply={text =>
+                    setSessionForm(p => ({ ...p, observations: text }))
+                  }
+                />
               </div>
               <div>
                 <Label>Próxima cita</Label>
-                <Input type="date" value={sessionForm.nextAppointment} onChange={e => setSessionForm(p => ({ ...p, nextAppointment: e.target.value }))} />
+                <Input
+                  type="date"
+                  value={sessionForm.nextAppointment}
+                  onChange={e =>
+                    setSessionForm(p => ({
+                      ...p,
+                      nextAppointment: e.target.value,
+                    }))
+                  }
+                />
               </div>
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => addSessionMutation.mutate({ recordId: record.id, ...sessionForm })} disabled={!sessionForm.sessionDate || !sessionForm.observations || addSessionMutation.isPending}>
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    addSessionMutation.mutate({
+                      recordId: record.id,
+                      ...sessionForm,
+                    })
+                  }
+                  disabled={
+                    !sessionForm.sessionDate ||
+                    !sessionForm.observations ||
+                    addSessionMutation.isPending
+                  }
+                >
                   Guardar nota
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setShowSessionForm(false)}>Cancelar</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowSessionForm(false)}
+                >
+                  Cancelar
+                </Button>
               </div>
             </div>
           )}
-          {sessionNotes.map((note) => (
+          {sessionNotes.map(note => (
             <div key={note.id} className="border rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="font-semibold">{new Date(note.sessionDate).toLocaleDateString()}</p>
+                  <p className="font-semibold">
+                    {new Date(note.sessionDate).toLocaleDateString()}
+                  </p>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs capitalize">{note.sessionType}</Badge>
-                    <span className="text-xs text-muted-foreground">Por: {note.authorName}</span>
+                    <Badge variant="outline" className="text-xs capitalize">
+                      {note.sessionType}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      Por: {note.authorName}
+                    </span>
                   </div>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => deleteSessionMutation.mutate({ id: note.id })}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => deleteSessionMutation.mutate({ id: note.id })}
+                >
                   <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
               </div>
@@ -437,18 +877,24 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
               {note.nextAppointment && (
                 <p className="text-xs text-muted-foreground mt-2">
                   <Calendar className="h-3 w-3 inline mr-1" />
-                  Próxima cita: {new Date(note.nextAppointment).toLocaleDateString()}
+                  Próxima cita:{" "}
+                  {new Date(note.nextAppointment).toLocaleDateString()}
                 </p>
               )}
             </div>
           ))}
           {!sessionNotes.length && !showSessionForm && (
-            <p className="text-center text-muted-foreground text-sm py-4">No hay notas de sesión registradas</p>
+            <p className="text-center text-muted-foreground text-sm py-4">
+              No hay notas de sesión registradas
+            </p>
           )}
         </TabsContent>
 
         {/* Tab Documentos exportados */}
-        <TabsContent value="documentos" className="space-y-3 max-h-[50vh] overflow-y-auto">
+        <TabsContent
+          value="documentos"
+          className="space-y-3 max-h-[50vh] overflow-y-auto"
+        >
           {exportedPdfs && exportedPdfs.length > 1 && (
             <div className="space-y-2 pb-1">
               <div className="flex justify-end">
@@ -461,9 +907,25 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
                 >
                   {downloadZipMutation.isPending ? (
                     <>
-                      <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      <svg
+                        className="animate-spin h-4 w-4 text-primary"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
                       </svg>
                       Empaquetando PDFs...
                     </>
@@ -478,16 +940,19 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
               {downloadZipMutation.isPending && (
                 <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 flex items-center gap-3">
                   <div className="flex gap-1">
-                    {[0, 1, 2].map((i) => (
+                    {[0, 1, 2].map(i => (
                       <div
                         key={i}
                         className="h-2 w-2 rounded-full bg-blue-400"
-                        style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
+                        style={{
+                          animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+                        }}
                       />
                     ))}
                   </div>
                   <p className="text-xs text-blue-700">
-                    Descargando y empaquetando {exportedPdfs.length} PDFs en un archivo ZIP. Esto puede tomar unos segundos...
+                    Descargando y empaquetando {exportedPdfs.length} PDFs en un
+                    archivo ZIP. Esto puede tomar unos segundos...
                   </p>
                 </div>
               )}
@@ -497,22 +962,42 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
             <div className="text-center py-8 text-muted-foreground">
               <History className="h-10 w-10 mx-auto mb-2 opacity-40" />
               <p className="text-sm">No hay PDFs exportados aún.</p>
-              <p className="text-xs mt-1">Usa el botón "Exportar PDF" para generar el primer documento.</p>
+              <p className="text-xs mt-1">
+                Usa el botón "Exportar PDF" para generar el primer documento.
+              </p>
             </div>
           ) : (
-            exportedPdfs.map((pdf) => (
-              <div key={pdf.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            exportedPdfs.map(pdf => (
+              <div
+                key={pdf.id}
+                className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
+              >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">Folio: {pdf.folio}</p>
+                  <p className="text-sm font-medium truncate">
+                    Folio: {pdf.folio}
+                  </p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(pdf.createdAt).toLocaleString('es-MX')} — {pdf.generatedByName ?? 'Sistema'}
+                    {new Date(pdf.createdAt).toLocaleString("es-MX")} —{" "}
+                    {pdf.generatedByName ?? "Sistema"}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-2">
-                  <Button size="sm" variant="outline" onClick={() => { setPreviewUrl(pdf.fileUrl); setPreviewFolio(pdf.folio); }}>
-                    <Eye className="h-4 w-4 mr-1" />Vista previa
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setPreviewUrl(pdf.fileUrl);
+                      setPreviewFolio(pdf.folio);
+                    }}
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Vista previa
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => window.open(pdf.fileUrl, '_blank')}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => window.open(pdf.fileUrl, "_blank")}
+                  >
                     <Download className="h-4 w-4" />
                   </Button>
                 </div>
@@ -522,18 +1007,27 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
         </TabsContent>
 
         {/* Tab Firma electrónica del profesional */}
-        <TabsContent value="firma" className="space-y-4 max-h-[55vh] overflow-y-auto">
+        <TabsContent
+          value="firma"
+          className="space-y-4 max-h-[55vh] overflow-y-auto"
+        >
           <div className="space-y-3">
             <div>
-              <h3 className="font-semibold text-sm">Firma electrónica del profesional responsable</h3>
+              <h3 className="font-semibold text-sm">
+                Firma electrónica del profesional responsable
+              </h3>
               <p className="text-xs text-muted-foreground mt-1">
-                La firma se incrusta automáticamente en los PDFs exportados del expediente.
-                Solo el personal clínico autorizado puede modificarla.
+                La firma se incrusta automáticamente en los PDFs exportados del
+                expediente. Solo el personal clínico autorizado puede
+                modificarla.
               </p>
             </div>
             <SignaturePad
-              onSave={(signatureDataUrl) =>
-                saveSignatureMutation.mutate({ id: record.id, signatureBase64: signatureDataUrl })
+              onSave={signatureDataUrl =>
+                saveSignatureMutation.mutate({
+                  id: record.id,
+                  signatureBase64: signatureDataUrl,
+                })
               }
               onCancel={() => setActiveTab("historia")}
               signerName={record.professionalName}
@@ -564,7 +1058,9 @@ export default function ClinicalRecords() {
         <Lock className="h-16 w-16 text-muted-foreground" />
         <h2 className="text-xl font-bold">Acceso Restringido</h2>
         <p className="text-muted-foreground text-center max-w-md">
-          Los expedientes clínicos psicométricos son confidenciales y solo accesibles para personal clínico autorizado y administradores del sistema.
+          Los expedientes clínicos psicométricos son confidenciales y solo
+          accesibles para personal clínico autorizado y administradores del
+          sistema.
         </p>
       </div>
     );
@@ -573,16 +1069,28 @@ export default function ClinicalRecords() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [showActive, setShowActive] = useState<boolean | undefined>(true);
-  const [departmentId, setDepartmentId] = useState<number | undefined>(undefined);
+  const [departmentId, setDepartmentId] = useState<number | undefined>(
+    undefined
+  );
   const [newRecordOpen, setNewRecordOpen] = useState(false);
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
-  const [zipProgress, setZipProgress] = useState<{ step: string; pct: number } | null>(null);
+  const [zipProgress, setZipProgress] = useState<{
+    step: string;
+    pct: number;
+  } | null>(null);
 
   // Cargar lista de departamentos para el filtro (sin paginación, todos activos)
-  const { data: deptListData } = trpc.departments.list.useQuery({ pageSize: 100, isActive: true });
+  const { data: deptListData } = trpc.departments.list.useQuery({
+    pageSize: 100,
+    isActive: true,
+  });
   const deptList = deptListData?.data ?? [];
 
-  const { data: listData, isLoading, refetch } = trpc.clinicalRecords.list.useQuery({
+  const {
+    data: listData,
+    isLoading,
+    refetch,
+  } = trpc.clinicalRecords.list.useQuery({
     search: search || undefined,
     isActive: showActive,
     departmentId: departmentId,
@@ -593,22 +1101,27 @@ export default function ClinicalRecords() {
   const { data: stats } = trpc.clinicalRecords.getStats.useQuery();
   const [bulkExporting, setBulkExporting] = useState(false);
   const bulkExportZipMutation = trpc.clinicalRecords.bulkExportZip.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setBulkExporting(false);
       setZipProgress(null);
-      window.open(data.url, '_blank');
+      window.open(data.url, "_blank");
       const deptName = departmentId
-        ? (deptList.find((d: any) => d.id === departmentId)?.name ?? 'Departamento seleccionado')
-        : 'Todos los departamentos';
+        ? (deptList.find((d: any) => d.id === departmentId)?.name ??
+          "Departamento seleccionado")
+        : "Todos los departamentos";
       toast({
         title: `✅ ZIP generado exitosamente`,
-        description: `${data.count} expediente${data.count !== 1 ? 's' : ''} exportado${data.count !== 1 ? 's' : ''} — ${deptName}. El archivo se abrió en una nueva pestaña.`,
+        description: `${data.count} expediente${data.count !== 1 ? "s" : ""} exportado${data.count !== 1 ? "s" : ""} — ${deptName}. El archivo se abrió en una nueva pestaña.`,
       });
     },
-    onError: (err) => {
+    onError: err => {
       setBulkExporting(false);
       setZipProgress(null);
-      toast({ title: 'Error al generar ZIP', description: err.message, variant: 'destructive' });
+      toast({
+        title: "Error al generar ZIP",
+        description: err.message,
+        variant: "destructive",
+      });
     },
   });
   const createMutation = trpc.clinicalRecords.create.useMutation({
@@ -617,7 +1130,8 @@ export default function ClinicalRecords() {
       setNewRecordOpen(false);
       toast({ title: "Expediente creado correctamente" });
     },
-    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+    onError: e =>
+      toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   return (
@@ -635,7 +1149,8 @@ export default function ClinicalRecords() {
           </p>
         </div>
         <Button onClick={() => setNewRecordOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />Nuevo Expediente
+          <Plus className="h-4 w-4 mr-2" />
+          Nuevo Expediente
         </Button>
       </div>
 
@@ -648,7 +1163,9 @@ export default function ClinicalRecords() {
                 <FileText className="h-5 w-5 text-blue-600" />
                 <div>
                   <p className="text-2xl font-bold">{stats.totalRecords}</p>
-                  <p className="text-xs text-muted-foreground">Total expedientes</p>
+                  <p className="text-xs text-muted-foreground">
+                    Total expedientes
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -659,7 +1176,9 @@ export default function ClinicalRecords() {
                 <Activity className="h-5 w-5 text-green-600" />
                 <div>
                   <p className="text-2xl font-bold">{stats.activeRecords}</p>
-                  <p className="text-xs text-muted-foreground">Expedientes activos</p>
+                  <p className="text-xs text-muted-foreground">
+                    Expedientes activos
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -681,7 +1200,9 @@ export default function ClinicalRecords() {
                 <Calendar className="h-5 w-5 text-orange-600" />
                 <div>
                   <p className="text-2xl font-bold">{stats.totalSessions}</p>
-                  <p className="text-xs text-muted-foreground">Notas de sesión</p>
+                  <p className="text-xs text-muted-foreground">
+                    Notas de sesión
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -694,22 +1215,48 @@ export default function ClinicalRecords() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-card border rounded-xl shadow-2xl p-8 flex flex-col items-center gap-5 min-w-[320px]">
             <div className="relative">
-              <svg className="animate-spin h-16 w-16 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              <svg
+                className="animate-spin h-16 w-16 text-purple-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-20"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                />
+                <path
+                  className="opacity-90"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
               </svg>
               <Archive className="absolute inset-0 m-auto h-7 w-7 text-purple-400" />
             </div>
             <div className="text-center">
               <p className="font-semibold text-lg">Generando archivo ZIP</p>
               <p className="text-muted-foreground text-sm mt-1">
-                Compilando {listData?.total ?? 0} expediente{(listData?.total ?? 0) !== 1 ? 's' : ''}
-                {departmentId && deptList.find((d: any) => d.id === departmentId) ? ` — ${deptList.find((d: any) => d.id === departmentId)?.name}` : ''}...
+                Compilando {listData?.total ?? 0} expediente
+                {(listData?.total ?? 0) !== 1 ? "s" : ""}
+                {departmentId &&
+                deptList.find((d: any) => d.id === departmentId)
+                  ? ` — ${deptList.find((d: any) => d.id === departmentId)?.name}`
+                  : ""}
+                ...
               </p>
-              <p className="text-xs text-muted-foreground mt-2">Esto puede tardar unos segundos</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Esto puede tardar unos segundos
+              </p>
             </div>
             <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-              <div className="h-2 bg-purple-500 rounded-full animate-pulse" style={{ width: '70%' }} />
+              <div
+                className="h-2 bg-purple-500 rounded-full animate-pulse"
+                style={{ width: "70%" }}
+              />
             </div>
           </div>
         </div>
@@ -719,13 +1266,24 @@ export default function ClinicalRecords() {
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por nombre del paciente..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
+          <Input
+            placeholder="Buscar por nombre del paciente..."
+            className="pl-9"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
         </div>
         <Select
-          value={showActive === undefined ? "all" : showActive ? "active" : "closed"}
-          onValueChange={v => setShowActive(v === "all" ? undefined : v === "active")}
+          value={
+            showActive === undefined ? "all" : showActive ? "active" : "closed"
+          }
+          onValueChange={v =>
+            setShowActive(v === "all" ? undefined : v === "active")
+          }
         >
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="active">Activos</SelectItem>
@@ -735,7 +1293,9 @@ export default function ClinicalRecords() {
         {/* Filtro por departamento */}
         <Select
           value={departmentId ? String(departmentId) : "all"}
-          onValueChange={v => setDepartmentId(v === "all" ? undefined : Number(v))}
+          onValueChange={v =>
+            setDepartmentId(v === "all" ? undefined : Number(v))
+          }
         >
           <SelectTrigger className="w-52">
             <SelectValue placeholder="Todos los departamentos" />
@@ -743,13 +1303,19 @@ export default function ClinicalRecords() {
           <SelectContent>
             <SelectItem value="all">Todos los departamentos</SelectItem>
             {deptList.map((d: any) => (
-              <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+              <SelectItem key={d.id} value={String(d.id)}>
+                {d.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Button
           variant="outline"
-          disabled={bulkExporting || bulkExportZipMutation.isPending || !listData?.records.length}
+          disabled={
+            bulkExporting ||
+            bulkExportZipMutation.isPending ||
+            !listData?.records.length
+          }
           onClick={() => {
             setBulkExporting(true);
             bulkExportZipMutation.mutate({
@@ -769,15 +1335,19 @@ export default function ClinicalRecords() {
 
       {/* Lista de expedientes */}
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Cargando expedientes...</div>
+        <div className="text-center py-12 text-muted-foreground">
+          Cargando expedientes...
+        </div>
       ) : !listData?.records.length ? (
         <div className="text-center py-12">
           <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-          <p className="text-muted-foreground">No hay expedientes registrados</p>
+          <p className="text-muted-foreground">
+            No hay expedientes registrados
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
-          {listData.records.map((record) => (
+          {listData.records.map(record => (
             <div
               key={record.id}
               className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
@@ -785,21 +1355,37 @@ export default function ClinicalRecords() {
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                  <span className="text-purple-700 font-bold text-sm">{record.patientName.charAt(0).toUpperCase()}</span>
+                  <span className="text-purple-700 font-bold text-sm">
+                    {record.patientName.charAt(0).toUpperCase()}
+                  </span>
                 </div>
                 <div>
                   <p className="font-medium">{record.patientName}</p>
-                  <p className="text-xs text-muted-foreground">{record.professionalName} · {record.professionalSpecialty}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {record.professionalName} · {record.professionalSpecialty}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <p className="text-xs text-muted-foreground">{new Date(record.createdAt).toLocaleDateString()}</p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(record.createdAt).toLocaleDateString()}
+                </p>
                 {record.professionalSignature && (
-                  <Badge className="bg-blue-100 text-blue-800 flex items-center gap-1" title="Firma electrónica registrada">
-                    <CheckCircle className="h-3 w-3" />Firmado
+                  <Badge
+                    className="bg-blue-100 text-blue-800 flex items-center gap-1"
+                    title="Firma electrónica registrada"
+                  >
+                    <CheckCircle className="h-3 w-3" />
+                    Firmado
                   </Badge>
                 )}
-                <Badge className={record.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                <Badge
+                  className={
+                    record.isActive
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                  }
+                >
                   {record.isActive ? "Activo" : "Cerrado"}
                 </Badge>
                 <Eye className="h-4 w-4 text-muted-foreground" />
@@ -815,18 +1401,31 @@ export default function ClinicalRecords() {
           <DialogHeader>
             <DialogTitle>Nuevo Expediente Clínico</DialogTitle>
           </DialogHeader>
-          <NewRecordForm onSubmit={(data) => createMutation.mutate(data as Parameters<typeof createMutation.mutate>[0])} loading={createMutation.isPending} />
+          <NewRecordForm
+            onSubmit={data =>
+              createMutation.mutate(
+                data as Parameters<typeof createMutation.mutate>[0]
+              )
+            }
+            loading={createMutation.isPending}
+          />
         </DialogContent>
       </Dialog>
 
       {/* Modal detalle */}
-      <Dialog open={selectedRecordId !== null} onOpenChange={(open) => !open && setSelectedRecordId(null)}>
+      <Dialog
+        open={selectedRecordId !== null}
+        onOpenChange={open => !open && setSelectedRecordId(null)}
+      >
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Expediente Clínico</DialogTitle>
           </DialogHeader>
           {selectedRecordId !== null && (
-            <RecordDetailPanel recordId={selectedRecordId} onClose={() => setSelectedRecordId(null)} />
+            <RecordDetailPanel
+              recordId={selectedRecordId}
+              onClose={() => setSelectedRecordId(null)}
+            />
           )}
         </DialogContent>
       </Dialog>

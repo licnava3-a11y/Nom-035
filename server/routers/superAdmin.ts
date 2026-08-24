@@ -24,15 +24,23 @@ export const superAdminRouter = router({
     .input(
       z.object({
         search: z.string().optional(),
-        status: z.enum(["active", "suspended", "cancelled", "all"]).default("all"),
-        plan: z.enum(["trial", "basic", "professional", "enterprise", "all"]).default("all"),
+        status: z
+          .enum(["active", "suspended", "cancelled", "all"])
+          .default("all"),
+        plan: z
+          .enum(["trial", "basic", "professional", "enterprise", "all"])
+          .default("all"),
         page: z.number().int().min(1).default(1),
         pageSize: z.number().int().min(1).max(100).default(20),
       })
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const { search, status, plan, page, pageSize } = input;
       const offset = (page - 1) * pageSize;
@@ -73,11 +81,11 @@ export const superAdminRouter = router({
         .groupBy(users.companyId);
 
       const userCountMap = new Map(
-        userCounts.map((r) => [r.companyId, r.userCount])
+        userCounts.map(r => [r.companyId, r.userCount])
       );
 
       return {
-        data: rows.map((c) => ({
+        data: rows.map(c => ({
           ...c,
           userCount: userCountMap.get(c.id) ?? 0,
         })),
@@ -93,14 +101,22 @@ export const superAdminRouter = router({
     .input(z.object({ id: z.number().int() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const [company] = await db
         .select()
         .from(companies)
         .where(eq(companies.id, input.id))
         .limit(1);
-      if (!company) throw new TRPCError({ code: "NOT_FOUND", message: "Empresa no encontrada" });
+      if (!company)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Empresa no encontrada",
+        });
       return company;
     }),
 
@@ -118,7 +134,9 @@ export const superAdminRouter = router({
         telefonoContacto: z.string().optional(),
         emailContacto: z.string().email().optional(),
         paginaWeb: z.string().optional(),
-        plan: z.enum(["trial", "basic", "professional", "enterprise"]).default("trial"),
+        plan: z
+          .enum(["trial", "basic", "professional", "enterprise"])
+          .default("trial"),
         conflictThreshold: z.number().min(0).max(100).default(30),
         notificationEmail: z.string().email().optional(),
         internalNotes: z.string().optional(),
@@ -126,7 +144,11 @@ export const superAdminRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const [result] = await (db.insert(companies) as any).values({
         razonSocial: input.razonSocial,
@@ -162,7 +184,9 @@ export const superAdminRouter = router({
         telefonoContacto: z.string().optional(),
         emailContacto: z.string().email().optional(),
         paginaWeb: z.string().optional(),
-        plan: z.enum(["trial", "basic", "professional", "enterprise"]).optional(),
+        plan: z
+          .enum(["trial", "basic", "professional", "enterprise"])
+          .optional(),
         status: z.enum(["active", "suspended", "cancelled"]).optional(),
         conflictThreshold: z.number().min(0).max(100).optional(),
         notificationEmail: z.string().email().optional(),
@@ -171,7 +195,11 @@ export const superAdminRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const { id, conflictThreshold, ...rest } = input;
       const updateData: Record<string, unknown> = { ...rest };
@@ -193,7 +221,11 @@ export const superAdminRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       await db
         .update(companies)
@@ -216,12 +248,18 @@ export const superAdminRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const { companyId, search, page, pageSize } = input;
       const offset = (page - 1) * pageSize;
 
-      const conditions: ReturnType<typeof eq>[] = [eq(users.companyId, companyId)];
+      const conditions: ReturnType<typeof eq>[] = [
+        eq(users.companyId, companyId),
+      ];
       if (search) {
         conditions.push(
           or(
@@ -271,7 +309,11 @@ export const superAdminRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       await db
         .update(users)
@@ -286,16 +328,34 @@ export const superAdminRouter = router({
       z.object({
         userId: z.number().int(),
         role: z.enum([
-          "super_admin", "admin", "instructor", "student", "committee",
-          "committee_member", "committee_coordinator", "administrativo",
-          "director", "responsable_nom035", "gerente", "rh", "supervisor",
-          "jefe_area", "empleado", "auxiliar_rh", "recursos_humanos", "demo",
+          "super_admin",
+          "admin",
+          "instructor",
+          "student",
+          "committee",
+          "committee_member",
+          "committee_coordinator",
+          "administrativo",
+          "director",
+          "responsable_nom035",
+          "gerente",
+          "rh",
+          "supervisor",
+          "jefe_area",
+          "empleado",
+          "auxiliar_rh",
+          "recursos_humanos",
+          "demo",
         ]),
       })
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       await db
         .update(users)
@@ -307,7 +367,11 @@ export const superAdminRouter = router({
   /** Listar usuarios sin empresa asignada */
   listUnassignedUsers: superAdminProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "DB no disponible",
+      });
 
     const unassigned = await db
       .select({
@@ -328,7 +392,11 @@ export const superAdminRouter = router({
   /** Estadísticas globales del sistema */
   getGlobalStats: superAdminProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "DB no disponible",
+      });
 
     const [
       [{ totalCompanies }],
@@ -352,7 +420,7 @@ export const superAdminRouter = router({
       totalCompanies: Number(totalCompanies),
       activeCompanies: Number(activeCompanies),
       totalUsers: Number(totalUsers),
-      planBreakdown: planBreakdown.map((r) => ({
+      planBreakdown: planBreakdown.map(r => ({
         plan: r.plan,
         count: Number(r.cnt),
       })),
@@ -362,9 +430,17 @@ export const superAdminRouter = router({
   /** Listado simple de empresas activas para selectores en el frontend (accesible para todos los usuarios autenticados) */
   listCompaniesSimple: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "DB no disponible",
+      });
     const rows = await db
-      .select({ id: companies.id, name: companies.razonSocial, rfc: companies.rfc })
+      .select({
+        id: companies.id,
+        name: companies.razonSocial,
+        rfc: companies.rfc,
+      })
       .from(companies)
       .where(eq(companies.status, "active"))
       .orderBy(companies.razonSocial);

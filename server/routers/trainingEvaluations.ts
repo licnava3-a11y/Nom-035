@@ -1,7 +1,13 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { committeeTrainings, evaluations, trainingAssignments, trainingEvaluations, users } from "../../drizzle/schema";
+import {
+  committeeTrainings,
+  evaluations,
+  trainingAssignments,
+  trainingEvaluations,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, desc, sql, avg } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -30,7 +36,11 @@ export const trainingEvaluationsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Verificar que la asignación existe y pertenece al usuario
       const [assignment] = await db
@@ -39,11 +49,20 @@ export const trainingEvaluationsRouter = router({
         .where(eq(trainingAssignments.id, input.assignmentId));
 
       if (!assignment) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Asignación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Asignación no encontrada",
+        });
       }
 
-      if (assignment.committeeMemberId !== ctx.user.id && ctx.user.role !== "admin") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permiso para evaluar esta capacitación" });
+      if (
+        assignment.committeeMemberId !== ctx.user.id &&
+        ctx.user.role !== "admin"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permiso para evaluar esta capacitación",
+        });
       }
 
       // Verificar que no exista ya una evaluación
@@ -53,10 +72,15 @@ export const trainingEvaluationsRouter = router({
         .where(eq(trainingEvaluations.assignmentId, input.assignmentId));
 
       if (existing) {
-        throw new TRPCError({ code: "CONFLICT", message: "Ya existe una evaluación para esta capacitación" });
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Ya existe una evaluación para esta capacitación",
+        });
       }
 
-      const [newEvaluation] = await (db.insert(trainingEvaluations) as any).values({
+      const [newEvaluation] = await (
+        db.insert(trainingEvaluations) as any
+      ).values({
         assignmentId: input.assignmentId,
         evaluatorId: ctx.user.id,
         instructorKnowledge: input.instructorKnowledge,
@@ -74,7 +98,11 @@ export const trainingEvaluationsRouter = router({
         additionalComments: input.additionalComments,
       });
 
-      return { success: true, evaluationId: newEvaluation.insertId, message: "Evaluación creada exitosamente" };
+      return {
+        success: true,
+        evaluationId: newEvaluation.insertId,
+        message: "Evaluación creada exitosamente",
+      };
     }),
 
   /**
@@ -84,7 +112,11 @@ export const trainingEvaluationsRouter = router({
     .input(z.object({ assignmentId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [evaluation] = await db
         .select({
@@ -110,7 +142,11 @@ export const trainingEvaluationsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const conditions = [];
       if (input.trainingId) {
@@ -128,8 +164,14 @@ export const trainingEvaluationsRouter = router({
           evaluator: users,
         })
         .from(trainingEvaluations)
-        .leftJoin(trainingAssignments, eq(trainingEvaluations.assignmentId, trainingAssignments.id))
-        .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+        .leftJoin(
+          trainingAssignments,
+          eq(trainingEvaluations.assignmentId, trainingAssignments.id)
+        )
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
         .leftJoin(users, eq(trainingEvaluations.evaluatorId, users.id))
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(trainingEvaluations.createdAt));
@@ -144,7 +186,11 @@ export const trainingEvaluationsRouter = router({
     .input(z.object({ trainingId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener todas las evaluaciones de la capacitación
       const evaluations = await db
@@ -154,7 +200,10 @@ export const trainingEvaluationsRouter = router({
           evaluator: users,
         })
         .from(trainingEvaluations)
-        .leftJoin(trainingAssignments, eq(trainingEvaluations.assignmentId, trainingAssignments.id))
+        .leftJoin(
+          trainingAssignments,
+          eq(trainingEvaluations.assignmentId, trainingAssignments.id)
+        )
         .leftJoin(users, eq(trainingEvaluations.evaluatorId, users.id))
         .where(eq(trainingAssignments.trainingId, input.trainingId));
 
@@ -172,15 +221,20 @@ export const trainingEvaluationsRouter = router({
         (acc, item) => {
           const e = item.evaluation;
           return {
-            instructorKnowledge: acc.instructorKnowledge + e.instructorKnowledge,
-            instructorCommunication: acc.instructorCommunication + e.instructorCommunication,
-            instructorEngagement: acc.instructorEngagement + e.instructorEngagement,
+            instructorKnowledge:
+              acc.instructorKnowledge + e.instructorKnowledge,
+            instructorCommunication:
+              acc.instructorCommunication + e.instructorCommunication,
+            instructorEngagement:
+              acc.instructorEngagement + e.instructorEngagement,
             contentRelevance: acc.contentRelevance + e.contentRelevance,
             contentClarity: acc.contentClarity + e.contentClarity,
             contentDepth: acc.contentDepth + e.contentDepth,
-            practicalApplication: acc.practicalApplication + e.practicalApplication,
+            practicalApplication:
+              acc.practicalApplication + e.practicalApplication,
             workplaceRelevance: acc.workplaceRelevance + e.workplaceRelevance,
-            overallSatisfaction: acc.overallSatisfaction + e.overallSatisfaction,
+            overallSatisfaction:
+              acc.overallSatisfaction + e.overallSatisfaction,
           };
         },
         {
@@ -207,9 +261,19 @@ export const trainingEvaluationsRouter = router({
         practicalApplication: totals.practicalApplication / count,
         workplaceRelevance: totals.workplaceRelevance / count,
         overallSatisfaction: totals.overallSatisfaction / count,
-        instructorAverage: (totals.instructorKnowledge + totals.instructorCommunication + totals.instructorEngagement) / (count * 3),
-        contentAverage: (totals.contentRelevance + totals.contentClarity + totals.contentDepth) / (count * 3),
-        applicationAverage: (totals.practicalApplication + totals.workplaceRelevance) / (count * 2),
+        instructorAverage:
+          (totals.instructorKnowledge +
+            totals.instructorCommunication +
+            totals.instructorEngagement) /
+          (count * 3),
+        contentAverage:
+          (totals.contentRelevance +
+            totals.contentClarity +
+            totals.contentDepth) /
+          (count * 3),
+        applicationAverage:
+          (totals.practicalApplication + totals.workplaceRelevance) /
+          (count * 2),
       };
 
       // Contar recomendaciones
@@ -234,7 +298,11 @@ export const trainingEvaluationsRouter = router({
    */
   getGlobalDashboard: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     // Obtener todas las evaluaciones
     const allEvaluations = await db
@@ -244,31 +312,58 @@ export const trainingEvaluationsRouter = router({
         training: committeeTrainings,
       })
       .from(trainingEvaluations)
-      .leftJoin(trainingAssignments, eq(trainingEvaluations.assignmentId, trainingAssignments.id))
-      .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id));
+      .leftJoin(
+        trainingAssignments,
+        eq(trainingEvaluations.assignmentId, trainingAssignments.id)
+      )
+      .leftJoin(
+        committeeTrainings,
+        eq(trainingAssignments.trainingId, committeeTrainings.id)
+      );
 
     // Agrupar por capacitación
-    const byTraining = allEvaluations.reduce((acc: any, item: any) => {
-      const trainingId = item.training?.id;
-      if (!trainingId) return acc;
+    const byTraining = allEvaluations.reduce(
+      (acc: any, item: any) => {
+        const trainingId = item.training?.id;
+        if (!trainingId) return acc;
 
-      if (!acc[trainingId]) {
-        acc[trainingId] = {
-          training: item.training,
-          evaluations: [],
-        };
-      }
-      acc[trainingId].evaluations.push(item.evaluation);
-      return acc;
-    }, {} as Record<number, { training: any; evaluations: any[] }>);
+        if (!acc[trainingId]) {
+          acc[trainingId] = {
+            training: item.training,
+            evaluations: [],
+          };
+        }
+        acc[trainingId].evaluations.push(item.evaluation);
+        return acc;
+      },
+      {} as Record<number, { training: any; evaluations: any[] }>
+    );
 
     // Calcular promedios por capacitación
     const trainingStats = Object.values(byTraining).map((item: any) => {
       const count = item.evaluations.length;
-      const avgOverall = item.evaluations.reduce((sum: any, e: any) => sum + e.overallSatisfaction, 0) / count;
+      const avgOverall =
+        item.evaluations.reduce(
+          (sum: any, e: any) => sum + e.overallSatisfaction,
+          0
+        ) / count;
       const avgInstructor =
-        item.evaluations.reduce((sum: any, e: any) => sum + e.instructorKnowledge + e.instructorCommunication + e.instructorEngagement, 0) / (count * 3);
-      const avgContent = item.evaluations.reduce((sum: any, e: any) => sum + e.contentRelevance + e.contentClarity + e.contentDepth, 0) / (count * 3);
+        item.evaluations.reduce(
+          (sum: any, e: any) =>
+            sum +
+            e.instructorKnowledge +
+            e.instructorCommunication +
+            e.instructorEngagement,
+          0
+        ) /
+        (count * 3);
+      const avgContent =
+        item.evaluations.reduce(
+          (sum: any, e: any) =>
+            sum + e.contentRelevance + e.contentClarity + e.contentDepth,
+          0
+        ) /
+        (count * 3);
 
       return {
         training: item.training,
@@ -284,7 +379,11 @@ export const trainingEvaluationsRouter = router({
 
     // Estadísticas globales
     const totalEvaluations = allEvaluations.length;
-    const globalAvgOverall = allEvaluations.reduce((sum: any, item: any) => sum + item.evaluation.overallSatisfaction, 0) / totalEvaluations;
+    const globalAvgOverall =
+      allEvaluations.reduce(
+        (sum: any, item: any) => sum + item.evaluation.overallSatisfaction,
+        0
+      ) / totalEvaluations;
     const globalRecommendation = allEvaluations.reduce(
       (acc, item) => {
         acc[item.evaluation.wouldRecommend]++;
@@ -309,9 +408,15 @@ export const trainingEvaluationsRouter = router({
     .input(z.object({ trainingId: z.number().optional() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
-      const conditions = input.trainingId ? [eq(trainingAssignments.trainingId, input.trainingId)] : [];
+      const conditions = input.trainingId
+        ? [eq(trainingAssignments.trainingId, input.trainingId)]
+        : [];
 
       const comments = await db
         .select({
@@ -320,12 +425,23 @@ export const trainingEvaluationsRouter = router({
           evaluator: users,
         })
         .from(trainingEvaluations)
-        .leftJoin(trainingAssignments, eq(trainingEvaluations.assignmentId, trainingAssignments.id))
-        .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+        .leftJoin(
+          trainingAssignments,
+          eq(trainingEvaluations.assignmentId, trainingAssignments.id)
+        )
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
         .leftJoin(users, eq(trainingEvaluations.evaluatorId, users.id))
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(trainingEvaluations.createdAt));
 
-      return comments.filter((c: any) => c.evaluation.improvements || c.evaluation.strengths || c.evaluation.additionalComments);
+      return comments.filter(
+        (c: any) =>
+          c.evaluation.improvements ||
+          c.evaluation.strengths ||
+          c.evaluation.additionalComments
+      );
     }),
 });

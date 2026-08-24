@@ -31,16 +31,28 @@ describe("ENV.appPublicUrl", () => {
 // ─── Test 2: oauth.ts debe usar el host real de la solicitud ─────────────────
 describe("buildRegisteredRedirectUri en oauth.ts", () => {
   it("debe reconstruir el redirectUri desde los headers del proxy", () => {
-    const oauthContent = readFileSync(join(ROOT, "server/_core/oauth.ts"), "utf-8");
-    const redirectFunction = oauthContent.match(/function buildRegisteredRedirectUri[\s\S]*?\n\}/)?.[0] ?? "";
+    const oauthContent = readFileSync(
+      join(ROOT, "server/_core/oauth.ts"),
+      "utf-8"
+    );
+    const redirectFunction =
+      oauthContent.match(
+        /function buildRegisteredRedirectUri[\s\S]*?\n\}/
+      )?.[0] ?? "";
     expect(redirectFunction).toContain("x-forwarded-proto");
     expect(redirectFunction).toContain("x-forwarded-host");
     expect(redirectFunction).toContain("/api/oauth/callback");
   });
 
   it("no debe priorizar APP_PUBLIC_URL sobre el host actual", () => {
-    const oauthContent = readFileSync(join(ROOT, "server/_core/oauth.ts"), "utf-8");
-    const redirectFunction = oauthContent.match(/function buildRegisteredRedirectUri[\s\S]*?\n\}/)?.[0] ?? "";
+    const oauthContent = readFileSync(
+      join(ROOT, "server/_core/oauth.ts"),
+      "utf-8"
+    );
+    const redirectFunction =
+      oauthContent.match(
+        /function buildRegisteredRedirectUri[\s\S]*?\n\}/
+      )?.[0] ?? "";
     expect(redirectFunction).not.toContain("ENV.appPublicUrl");
     expect(redirectFunction).toContain('req.get("host")');
   });
@@ -70,23 +82,39 @@ describe("DashboardLayout - enabled guards", () => {
 
     if (menuCountersIdx > -1) {
       // Buscar enabled: !!user cerca de menuCounters (dentro de 300 chars)
-      const nearMenuCounters = layoutContent.slice(menuCountersIdx, menuCountersIdx + 300);
+      const nearMenuCounters = layoutContent.slice(
+        menuCountersIdx,
+        menuCountersIdx + 300
+      );
       expect(nearMenuCounters).toContain("enabled");
     }
     if (postCaseSurveysIdx > -1) {
-      const nearPostCaseSurveys = layoutContent.slice(postCaseSurveysIdx, postCaseSurveysIdx + 300);
+      const nearPostCaseSurveys = layoutContent.slice(
+        postCaseSurveysIdx,
+        postCaseSurveysIdx + 300
+      );
       expect(nearPostCaseSurveys).toContain("enabled");
     }
     // Buscar la query específica de recognitions (no la primera ocurrencia del string en el menú)
-    const recognitionsQueryIdx = layoutContent.indexOf("trpc.recognitions.getUnreadCount");
+    const recognitionsQueryIdx = layoutContent.indexOf(
+      "trpc.recognitions.getUnreadCount"
+    );
     if (recognitionsQueryIdx > -1) {
-      const nearRecognitionsQuery = layoutContent.slice(recognitionsQueryIdx, recognitionsQueryIdx + 400);
+      const nearRecognitionsQuery = layoutContent.slice(
+        recognitionsQueryIdx,
+        recognitionsQueryIdx + 400
+      );
       expect(nearRecognitionsQuery).toContain("enabled");
     }
     // Buscar la query específica de internalMailbox (no la primera ocurrencia del string en el menú)
-    const internalMailboxQueryIdx = layoutContent.indexOf("trpc.internalMailbox.getUnreadCount");
+    const internalMailboxQueryIdx = layoutContent.indexOf(
+      "trpc.internalMailbox.getUnreadCount"
+    );
     if (internalMailboxQueryIdx > -1) {
-      const nearInternalMailboxQuery = layoutContent.slice(internalMailboxQueryIdx, internalMailboxQueryIdx + 400);
+      const nearInternalMailboxQuery = layoutContent.slice(
+        internalMailboxQueryIdx,
+        internalMailboxQueryIdx + 400
+      );
       expect(nearInternalMailboxQuery).toContain("enabled");
     }
   });
@@ -131,9 +159,11 @@ describe("ProtectedRoute - sin redirects en render", () => {
     expect(protectedRouteContent).toContain("useEffect");
     // window.location.href NO debe estar fuera de useEffect (en el cuerpo del render)
     // Verificar que window.location.href está dentro de un useEffect
-    const useEffectBlocks = protectedRouteContent.match(/useEffect\([\s\S]*?\}, \[/g) ?? [];
-    const hasRedirectInEffect = useEffectBlocks.some(block =>
-      block.includes("window.location") || block.includes("getLoginUrl")
+    const useEffectBlocks =
+      protectedRouteContent.match(/useEffect\([\s\S]*?\}, \[/g) ?? [];
+    const hasRedirectInEffect = useEffectBlocks.some(
+      block =>
+        block.includes("window.location") || block.includes("getLoginUrl")
     );
     expect(hasRedirectInEffect).toBe(true);
   });
@@ -147,7 +177,10 @@ describe("APP_PUBLIC_URL configuración", () => {
   });
 
   it("oauth.ts debe tener el comentario de causa raíz del ciclo para documentación", () => {
-    const oauthContent = readFileSync(join(ROOT, "server/_core/oauth.ts"), "utf-8");
+    const oauthContent = readFileSync(
+      join(ROOT, "server/_core/oauth.ts"),
+      "utf-8"
+    );
     // Debe tener documentación sobre por qué APP_PUBLIC_URL es necesario
     expect(oauthContent).toContain("APP_PUBLIC_URL");
     expect(oauthContent).toContain("redirectUri");

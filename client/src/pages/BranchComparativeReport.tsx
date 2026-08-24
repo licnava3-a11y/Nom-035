@@ -4,11 +4,33 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell,
 } from "recharts";
-import { FileDown, Building2, Users, TrendingDown, GraduationCap, ShieldCheck, AlertTriangle } from "lucide-react";
+import {
+  FileDown,
+  Building2,
+  Users,
+  TrendingDown,
+  GraduationCap,
+  ShieldCheck,
+  AlertTriangle,
+} from "lucide-react";
 
 type BranchRow = {
   branchId: number;
@@ -38,30 +60,75 @@ const METRIC_COLORS = {
 };
 
 function getRiskBadge(score: number) {
-  if (score >= 80) return <Badge className="bg-green-100 text-green-800 border-green-200">Bajo Riesgo</Badge>;
-  if (score >= 60) return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Riesgo Medio</Badge>;
-  return <Badge className="bg-red-100 text-red-800 border-red-200">Alto Riesgo</Badge>;
+  if (score >= 80)
+    return (
+      <Badge className="bg-green-100 text-green-800 border-green-200">
+        Bajo Riesgo
+      </Badge>
+    );
+  if (score >= 60)
+    return (
+      <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+        Riesgo Medio
+      </Badge>
+    );
+  return (
+    <Badge className="bg-red-100 text-red-800 border-red-200">
+      Alto Riesgo
+    </Badge>
+  );
 }
 
 function getTurnoverBadge(rate: number) {
-  if (rate <= 5) return <Badge className="bg-green-100 text-green-800 border-green-200">{rate}%</Badge>;
-  if (rate <= 15) return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">{rate}%</Badge>;
-  return <Badge className="bg-red-100 text-red-800 border-red-200">{rate}%</Badge>;
+  if (rate <= 5)
+    return (
+      <Badge className="bg-green-100 text-green-800 border-green-200">
+        {rate}%
+      </Badge>
+    );
+  if (rate <= 15)
+    return (
+      <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+        {rate}%
+      </Badge>
+    );
+  return (
+    <Badge className="bg-red-100 text-red-800 border-red-200">{rate}%</Badge>
+  );
 }
 
 function getTrainingBadge(rate: number) {
-  if (rate >= 80) return <Badge className="bg-green-100 text-green-800 border-green-200">{rate}%</Badge>;
-  if (rate >= 50) return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">{rate}%</Badge>;
-  return <Badge className="bg-red-100 text-red-800 border-red-200">{rate}%</Badge>;
+  if (rate >= 80)
+    return (
+      <Badge className="bg-green-100 text-green-800 border-green-200">
+        {rate}%
+      </Badge>
+    );
+  if (rate >= 50)
+    return (
+      <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+        {rate}%
+      </Badge>
+    );
+  return (
+    <Badge className="bg-red-100 text-red-800 border-red-200">{rate}%</Badge>
+  );
 }
 
 export default function BranchComparativeReport() {
   const [dateFrom, setDateFrom] = useState(DEFAULT_DATE_FROM);
   const [dateTo, setDateTo] = useState(DEFAULT_DATE_TO);
-  const [sortBy, setSortBy] = useState<"branchName" | "totalEmployees" | "turnoverRate" | "trainingRate" | "nom035Score">("branchName");
+  const [sortBy, setSortBy] = useState<
+    | "branchName"
+    | "totalEmployees"
+    | "turnoverRate"
+    | "trainingRate"
+    | "nom035Score"
+  >("branchName");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
-  const { data: rows = [], isLoading } = trpc.executiveReport.getBranchComparative.useQuery({ dateFrom, dateTo });
+  const { data: rows = [], isLoading } =
+    trpc.executiveReport.getBranchComparative.useQuery({ dateFrom, dateTo });
 
   const sorted = useMemo(() => {
     return [...rows].sort((a, b) => {
@@ -70,13 +137,18 @@ export default function BranchComparativeReport() {
       if (typeof va === "string" && typeof vb === "string") {
         return sortDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
       }
-      return sortDir === "asc" ? (va as number) - (vb as number) : (vb as number) - (va as number);
+      return sortDir === "asc"
+        ? (va as number) - (vb as number)
+        : (vb as number) - (va as number);
     });
   }, [rows, sortBy, sortDir]);
 
   function toggleSort(col: typeof sortBy) {
-    if (sortBy === col) setSortDir(d => d === "asc" ? "desc" : "asc");
-    else { setSortBy(col); setSortDir("asc"); }
+    if (sortBy === col) setSortDir(d => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortBy(col);
+      setSortDir("asc");
+    }
   }
 
   async function exportToExcel() {
@@ -86,20 +158,58 @@ export default function BranchComparativeReport() {
     // Hoja 1: Resumen comparativo
     const summaryData = [
       ["Reporte Comparativo por Sucursal", "", "", "", "", "", "", "", "", ""],
-      [`Periodo: ${dateFrom || "Inicio"} al ${dateTo || "Hoy"}`, "", "", "", "", "", "", "", "", ""],
-      [`Generado: ${new Date().toLocaleString("es-MX")}`, "", "", "", "", "", "", "", "", ""],
+      [
+        `Periodo: ${dateFrom || "Inicio"} al ${dateTo || "Hoy"}`,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+      ],
+      [
+        `Generado: ${new Date().toLocaleString("es-MX")}`,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+      ],
       [],
       [
-        "Sucursal", "Ciudad", "Estado",
-        "Total Empleados", "Activos", "Inactivos",
-        "Rotación (%)", "Capacitación (%)", "Completadas", "Total Asignaciones",
-        "Puntaje NOM-035", "Alto Riesgo"
+        "Sucursal",
+        "Ciudad",
+        "Estado",
+        "Total Empleados",
+        "Activos",
+        "Inactivos",
+        "Rotación (%)",
+        "Capacitación (%)",
+        "Completadas",
+        "Total Asignaciones",
+        "Puntaje NOM-035",
+        "Alto Riesgo",
       ],
       ...sorted.map(r => [
-        r.branchName, r.city, r.state,
-        r.totalEmployees, r.activeEmployees, r.totalEmployees - r.activeEmployees,
-        r.turnoverRate, r.trainingRate, r.trainingCompleted, r.trainingTotal,
-        r.nom035Score, r.highRiskCount
+        r.branchName,
+        r.city,
+        r.state,
+        r.totalEmployees,
+        r.activeEmployees,
+        r.totalEmployees - r.activeEmployees,
+        r.turnoverRate,
+        r.trainingRate,
+        r.trainingCompleted,
+        r.trainingTotal,
+        r.nom035Score,
+        r.highRiskCount,
       ]),
     ];
 
@@ -107,32 +217,64 @@ export default function BranchComparativeReport() {
 
     // Estilo de encabezados (ancho de columnas)
     ws1["!cols"] = [
-      { wch: 28 }, { wch: 16 }, { wch: 16 },
-      { wch: 14 }, { wch: 10 }, { wch: 10 },
-      { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 18 },
-      { wch: 14 }, { wch: 14 }, { wch: 16 }
+      { wch: 28 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 14 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 18 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 16 },
     ];
 
     XLSX.utils.book_append_sheet(wb, ws1, "Comparativo Sucursales");
 
     // Hoja 2: Ranking por rotación
-    const rankTurnover = [...sorted].sort((a, b) => a.turnoverRate - b.turnoverRate);
+    const rankTurnover = [...sorted].sort(
+      (a, b) => a.turnoverRate - b.turnoverRate
+    );
     const ws2 = XLSX.utils.aoa_to_sheet([
       ["Ranking por Rotación (menor es mejor)"],
       ["#", "Sucursal", "Ciudad", "Rotación (%)"],
-      ...rankTurnover.map((r, i) => [i + 1, r.branchName, r.city, r.turnoverRate])
+      ...rankTurnover.map((r, i) => [
+        i + 1,
+        r.branchName,
+        r.city,
+        r.turnoverRate,
+      ]),
     ]);
     ws2["!cols"] = [{ wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 14 }];
     XLSX.utils.book_append_sheet(wb, ws2, "Ranking Rotación");
 
     // Hoja 3: Ranking por capacitación
-    const rankTraining = [...sorted].sort((a, b) => b.trainingRate - a.trainingRate);
+    const rankTraining = [...sorted].sort(
+      (a, b) => b.trainingRate - a.trainingRate
+    );
     const ws3 = XLSX.utils.aoa_to_sheet([
       ["Ranking por Capacitación (mayor es mejor)"],
       ["#", "Sucursal", "Ciudad", "Capacitación (%)", "Completadas", "Total"],
-      ...rankTraining.map((r, i) => [i + 1, r.branchName, r.city, r.trainingRate, r.trainingCompleted, r.trainingTotal])
+      ...rankTraining.map((r, i) => [
+        i + 1,
+        r.branchName,
+        r.city,
+        r.trainingRate,
+        r.trainingCompleted,
+        r.trainingTotal,
+      ]),
     ]);
-    ws3["!cols"] = [{ wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 10 }];
+    ws3["!cols"] = [
+      { wch: 5 },
+      { wch: 28 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 14 },
+      { wch: 10 },
+    ];
     XLSX.utils.book_append_sheet(wb, ws3, "Ranking Capacitación");
 
     // Hoja 4: Ranking NOM-035
@@ -141,34 +283,58 @@ export default function BranchComparativeReport() {
       ["Ranking NOM-035 (mayor puntaje = menor riesgo)"],
       ["#", "Sucursal", "Ciudad", "Puntaje NOM-035", "Nivel de Riesgo"],
       ...rankNom.map((r, i) => [
-        i + 1, r.branchName, r.city, r.nom035Score,
-        r.nom035Score >= 80 ? "Bajo" : r.nom035Score >= 60 ? "Medio" : "Alto"
-      ])
+        i + 1,
+        r.branchName,
+        r.city,
+        r.nom035Score,
+        r.nom035Score >= 80 ? "Bajo" : r.nom035Score >= 60 ? "Medio" : "Alto",
+      ]),
     ]);
-    ws4["!cols"] = [{ wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
+    ws4["!cols"] = [
+      { wch: 5 },
+      { wch: 28 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+    ];
     XLSX.utils.book_append_sheet(wb, ws4, "Ranking NOM-035");
 
-    XLSX.writeFile(wb, `Reporte_Comparativo_Sucursales_${dateFrom}_${dateTo}.xlsx`);
+    XLSX.writeFile(
+      wb,
+      `Reporte_Comparativo_Sucursales_${dateFrom}_${dateTo}.xlsx`
+    );
   }
 
   const chartData = sorted.map(r => ({
-    name: r.branchName.length > 14 ? r.branchName.substring(0, 14) + "…" : r.branchName,
+    name:
+      r.branchName.length > 14
+        ? r.branchName.substring(0, 14) + "…"
+        : r.branchName,
     "Rotación %": r.turnoverRate,
     "Capacitación %": r.trainingRate,
     "NOM-035": r.nom035Score,
-    "Empleados": r.totalEmployees,
+    Empleados: r.totalEmployees,
   }));
 
   const totals = useMemo(() => {
     if (!rows.length) return null;
-    const total = rows.reduce((acc, r) => ({
-      employees: acc.employees + r.totalEmployees,
-      active: acc.active + r.activeEmployees,
-      inactive: acc.inactive + (r.totalEmployees - r.activeEmployees),
-    }), { employees: 0, active: 0, inactive: 0 });
-    const avgTurnover = Math.round(rows.reduce((s, r) => s + r.turnoverRate, 0) / rows.length);
-    const avgTraining = Math.round(rows.reduce((s, r) => s + r.trainingRate, 0) / rows.length);
-    const avgNom035 = Math.round(rows.reduce((s, r) => s + r.nom035Score, 0) / rows.length);
+    const total = rows.reduce(
+      (acc, r) => ({
+        employees: acc.employees + r.totalEmployees,
+        active: acc.active + r.activeEmployees,
+        inactive: acc.inactive + (r.totalEmployees - r.activeEmployees),
+      }),
+      { employees: 0, active: 0, inactive: 0 }
+    );
+    const avgTurnover = Math.round(
+      rows.reduce((s, r) => s + r.turnoverRate, 0) / rows.length
+    );
+    const avgTraining = Math.round(
+      rows.reduce((s, r) => s + r.trainingRate, 0) / rows.length
+    );
+    const avgNom035 = Math.round(
+      rows.reduce((s, r) => s + r.nom035Score, 0) / rows.length
+    );
     return { ...total, avgTurnover, avgTraining, avgNom035 };
   }, [rows]);
 
@@ -183,12 +349,15 @@ export default function BranchComparativeReport() {
               Reporte Comparativo por Sucursal
             </h1>
             <p className="text-sm text-slate-500 mt-1">
-              Análisis de métricas de rotación, capacitación y NOM-035 por sucursal
+              Análisis de métricas de rotación, capacitación y NOM-035 por
+              sucursal
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
-              <label className="text-xs text-slate-500 whitespace-nowrap">Desde</label>
+              <label className="text-xs text-slate-500 whitespace-nowrap">
+                Desde
+              </label>
               <input
                 type="date"
                 value={dateFrom}
@@ -197,7 +366,9 @@ export default function BranchComparativeReport() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-xs text-slate-500 whitespace-nowrap">Hasta</label>
+              <label className="text-xs text-slate-500 whitespace-nowrap">
+                Hasta
+              </label>
               <input
                 type="date"
                 value={dateTo}
@@ -232,9 +403,13 @@ export default function BranchComparativeReport() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-1">
                   <Users className="w-4 h-4 text-blue-500" />
-                  <span className="text-xs text-slate-500">Total Empleados</span>
+                  <span className="text-xs text-slate-500">
+                    Total Empleados
+                  </span>
                 </div>
-                <p className="text-2xl font-bold text-slate-900">{totals.employees}</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {totals.employees}
+                </p>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm">
@@ -243,7 +418,9 @@ export default function BranchComparativeReport() {
                   <Users className="w-4 h-4 text-green-500" />
                   <span className="text-xs text-slate-500">Activos</span>
                 </div>
-                <p className="text-2xl font-bold text-green-600">{totals.active}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {totals.active}
+                </p>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm">
@@ -252,16 +429,22 @@ export default function BranchComparativeReport() {
                   <TrendingDown className="w-4 h-4 text-red-500" />
                   <span className="text-xs text-slate-500">Rotación Prom.</span>
                 </div>
-                <p className="text-2xl font-bold text-red-600">{totals.avgTurnover}%</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {totals.avgTurnover}%
+                </p>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-1">
                   <GraduationCap className="w-4 h-4 text-green-500" />
-                  <span className="text-xs text-slate-500">Capacitación Prom.</span>
+                  <span className="text-xs text-slate-500">
+                    Capacitación Prom.
+                  </span>
                 </div>
-                <p className="text-2xl font-bold text-green-600">{totals.avgTraining}%</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {totals.avgTraining}%
+                </p>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm">
@@ -270,7 +453,9 @@ export default function BranchComparativeReport() {
                   <ShieldCheck className="w-4 h-4 text-blue-500" />
                   <span className="text-xs text-slate-500">NOM-035 Prom.</span>
                 </div>
-                <p className="text-2xl font-bold text-blue-600">{totals.avgNom035}</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {totals.avgNom035}
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -288,14 +473,25 @@ export default function BranchComparativeReport() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} domain={[0, 100]} />
                     <Tooltip />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="Rotación %" fill={METRIC_COLORS.turnover} radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="Capacitación %" fill={METRIC_COLORS.training} radius={[3, 3, 0, 0]} />
+                    <Bar
+                      dataKey="Rotación %"
+                      fill={METRIC_COLORS.turnover}
+                      radius={[3, 3, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="Capacitación %"
+                      fill={METRIC_COLORS.training}
+                      radius={[3, 3, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -310,7 +506,10 @@ export default function BranchComparativeReport() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} domain={[0, 100]} />
@@ -319,7 +518,13 @@ export default function BranchComparativeReport() {
                       {chartData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
-                          fill={entry["NOM-035"] >= 80 ? "#22c55e" : entry["NOM-035"] >= 60 ? "#f59e0b" : "#ef4444"}
+                          fill={
+                            entry["NOM-035"] >= 80
+                              ? "#22c55e"
+                              : entry["NOM-035"] >= 60
+                                ? "#f59e0b"
+                                : "#ef4444"
+                          }
                         />
                       ))}
                     </Bar>
@@ -343,12 +548,16 @@ export default function BranchComparativeReport() {
           </CardHeader>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="p-8 text-center text-slate-400">Cargando datos...</div>
+              <div className="p-8 text-center text-slate-400">
+                Cargando datos...
+              </div>
             ) : rows.length === 0 ? (
               <div className="p-8 text-center text-slate-400">
                 <Building2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p>No hay sucursales activas registradas.</p>
-                <p className="text-xs mt-1">Agrega sucursales en el panel de Administración → Sucursales.</p>
+                <p className="text-xs mt-1">
+                  Agrega sucursales en el panel de Administración → Sucursales.
+                </p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -359,36 +568,69 @@ export default function BranchComparativeReport() {
                         className="text-left px-4 py-3 font-semibold text-slate-600 cursor-pointer hover:text-slate-900 whitespace-nowrap"
                         onClick={() => toggleSort("branchName")}
                       >
-                        Sucursal {sortBy === "branchName" ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                        Sucursal{" "}
+                        {sortBy === "branchName"
+                          ? sortDir === "asc"
+                            ? "↑"
+                            : "↓"
+                          : ""}
                       </th>
-                      <th className="text-left px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">Ubicación</th>
+                      <th className="text-left px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">
+                        Ubicación
+                      </th>
                       <th
                         className="text-center px-4 py-3 font-semibold text-slate-600 cursor-pointer hover:text-slate-900 whitespace-nowrap"
                         onClick={() => toggleSort("totalEmployees")}
                       >
-                        Empleados {sortBy === "totalEmployees" ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                        Empleados{" "}
+                        {sortBy === "totalEmployees"
+                          ? sortDir === "asc"
+                            ? "↑"
+                            : "↓"
+                          : ""}
                       </th>
-                      <th className="text-center px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">Activos</th>
+                      <th className="text-center px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">
+                        Activos
+                      </th>
                       <th
                         className="text-center px-4 py-3 font-semibold text-slate-600 cursor-pointer hover:text-slate-900 whitespace-nowrap"
                         onClick={() => toggleSort("turnoverRate")}
                       >
-                        Rotación {sortBy === "turnoverRate" ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                        Rotación{" "}
+                        {sortBy === "turnoverRate"
+                          ? sortDir === "asc"
+                            ? "↑"
+                            : "↓"
+                          : ""}
                       </th>
                       <th
                         className="text-center px-4 py-3 font-semibold text-slate-600 cursor-pointer hover:text-slate-900 whitespace-nowrap"
                         onClick={() => toggleSort("trainingRate")}
                       >
-                        Capacitación {sortBy === "trainingRate" ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                        Capacitación{" "}
+                        {sortBy === "trainingRate"
+                          ? sortDir === "asc"
+                            ? "↑"
+                            : "↓"
+                          : ""}
                       </th>
                       <th
                         className="text-center px-4 py-3 font-semibold text-slate-600 cursor-pointer hover:text-slate-900 whitespace-nowrap"
                         onClick={() => toggleSort("nom035Score")}
                       >
-                        NOM-035 {sortBy === "nom035Score" ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                        NOM-035{" "}
+                        {sortBy === "nom035Score"
+                          ? sortDir === "asc"
+                            ? "↑"
+                            : "↓"
+                          : ""}
                       </th>
-                      <th className="text-center px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">Vac. Pend.</th>
-                      <th className="text-center px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">Alto Riesgo</th>
+                      <th className="text-center px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">
+                        Vac. Pend.
+                      </th>
+                      <th className="text-center px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">
+                        Alto Riesgo
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -397,28 +639,43 @@ export default function BranchComparativeReport() {
                         key={row.branchId}
                         className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? "" : "bg-slate-50/40"}`}
                       >
-                        <td className="px-4 py-3 font-medium text-slate-900">{row.branchName}</td>
-                        <td className="px-4 py-3 text-slate-500 text-xs">
-                          {row.city}{row.state ? `, ${row.state}` : ""}
+                        <td className="px-4 py-3 font-medium text-slate-900">
+                          {row.branchName}
                         </td>
-                        <td className="px-4 py-3 text-center font-semibold text-slate-900">{row.totalEmployees}</td>
-                        <td className="px-4 py-3 text-center text-green-700">{row.activeEmployees}</td>
-                        <td className="px-4 py-3 text-center">{getTurnoverBadge(row.turnoverRate)}</td>
+                        <td className="px-4 py-3 text-slate-500 text-xs">
+                          {row.city}
+                          {row.state ? `, ${row.state}` : ""}
+                        </td>
+                        <td className="px-4 py-3 text-center font-semibold text-slate-900">
+                          {row.totalEmployees}
+                        </td>
+                        <td className="px-4 py-3 text-center text-green-700">
+                          {row.activeEmployees}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {getTurnoverBadge(row.turnoverRate)}
+                        </td>
                         <td className="px-4 py-3 text-center">
                           <div className="flex flex-col items-center gap-1">
                             {getTrainingBadge(row.trainingRate)}
-                            <span className="text-xs text-slate-400">{row.trainingCompleted}/{row.trainingTotal}</span>
+                            <span className="text-xs text-slate-400">
+                              {row.trainingCompleted}/{row.trainingTotal}
+                            </span>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-center">
                           <div className="flex flex-col items-center gap-1">
                             {getRiskBadge(row.nom035Score)}
-                            <span className="text-xs text-slate-400">{row.nom035Score} pts</span>
+                            <span className="text-xs text-slate-400">
+                              {row.nom035Score} pts
+                            </span>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-center">
                           {row.highRiskCount > 0 ? (
-                            <Badge className="bg-red-100 text-red-700 border-red-200">{row.highRiskCount}</Badge>
+                            <Badge className="bg-red-100 text-red-700 border-red-200">
+                              {row.highRiskCount}
+                            </Badge>
                           ) : (
                             <span className="text-slate-400">0</span>
                           )}

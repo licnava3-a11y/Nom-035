@@ -6,7 +6,17 @@
 
 import cron from "node-cron";
 import { getDb, analyzeSentimentWithLLM } from "../db";
-import { cases, departments, nom035Cases, notifications, sentimentAnalysis, surveyAnswers, surveyQuestions, surveyResponses, users } from "../../drizzle/schema";
+import {
+  cases,
+  departments,
+  nom035Cases,
+  notifications,
+  sentimentAnalysis,
+  surveyAnswers,
+  surveyQuestions,
+  surveyResponses,
+  users,
+} from "../../drizzle/schema";
 import { eq, isNull, and, sql, gte, desc } from "drizzle-orm";
 import { emitCriticalAlertToAdmins } from "../_core/websocket";
 
@@ -14,8 +24,10 @@ import { emitCriticalAlertToAdmins } from "../_core/websocket";
  * Procesar respuestas pendientes de análisis
  */
 async function processPendingResponses() {
-  console.log("[Sentiment Analysis Job] Starting automated sentiment analysis...");
-  
+  console.log(
+    "[Sentiment Analysis Job] Starting automated sentiment analysis..."
+  );
+
   const db = await getDb();
   if (!db) {
     console.error("[Sentiment Analysis Job] Database not available");
@@ -32,7 +44,10 @@ async function processPendingResponses() {
         completedAt: surveyResponses.completedAt,
       })
       .from(surveyResponses)
-      .leftJoin(sentimentAnalysis, eq(surveyResponses.id, sentimentAnalysis.responseId))
+      .leftJoin(
+        sentimentAnalysis,
+        eq(surveyResponses.id, sentimentAnalysis.responseId)
+      )
       .where(
         and(
           isNull(sentimentAnalysis.id), // Sin análisis previo
@@ -41,7 +56,9 @@ async function processPendingResponses() {
       )
       .limit(50); // Procesar máximo 50 respuestas por ejecución
 
-    console.log(`[Sentiment Analysis Job] Found ${pendingResponses.length} pending responses`);
+    console.log(
+      `[Sentiment Analysis Job] Found ${pendingResponses.length} pending responses`
+    );
 
     let analyzed = 0;
     let errors = 0;
@@ -57,7 +74,10 @@ async function processPendingResponses() {
             questionText: surveyQuestions.questionText,
           })
           .from(surveyAnswers)
-          .leftJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
+          .leftJoin(
+            surveyQuestions,
+            eq(surveyAnswers.questionId, surveyQuestions.id)
+          )
           .where(eq(surveyAnswers.responseId, response.responseId));
 
         // Filtrar solo respuestas de texto significativas (más de 20 caracteres)
@@ -66,7 +86,9 @@ async function processPendingResponses() {
         );
 
         if (significantAnswers.length === 0) {
-          console.log(`[Sentiment Analysis Job] No significant text answers for response ${response.responseId}, skipping`);
+          console.log(
+            `[Sentiment Analysis Job] No significant text answers for response ${response.responseId}, skipping`
+          );
           continue;
         }
 
@@ -80,7 +102,10 @@ async function processPendingResponses() {
           .join(", ");
 
         // Analizar sentimiento con LLM
-        const analysis = await analyzeSentimentWithLLM(combinedText, questionContext);
+        const analysis = await analyzeSentimentWithLLM(
+          combinedText,
+          questionContext
+        );
 
         // Guardar análisis en base de datos
         await (db.insert(sentimentAnalysis) as any).values({
@@ -119,22 +144,34 @@ async function processPendingResponses() {
           });
 
           criticalAlerts++;
-          console.log(`[Sentiment Analysis Job] Critical alert generated for response ${response.responseId}`);
+          console.log(
+            `[Sentiment Analysis Job] Critical alert generated for response ${response.responseId}`
+          );
         }
 
-        console.log(`[Sentiment Analysis Job] Analyzed response ${response.responseId}: ${analysis.sentiment} / ${analysis.riskLevel}`);
+        console.log(
+          `[Sentiment Analysis Job] Analyzed response ${response.responseId}: ${analysis.sentiment} / ${analysis.riskLevel}`
+        );
       } catch (error) {
-        console.error(`[Sentiment Analysis Job] Error analyzing response ${response.responseId}:`, error);
+        console.error(
+          `[Sentiment Analysis Job] Error analyzing response ${response.responseId}:`,
+          error
+        );
         errors++;
       }
     }
 
-    console.log(`[Sentiment Analysis Job] Completed: ${analyzed} analyzed, ${criticalAlerts} critical alerts, ${errors} errors`);
-    
+    console.log(
+      `[Sentiment Analysis Job] Completed: ${analyzed} analyzed, ${criticalAlerts} critical alerts, ${errors} errors`
+    );
+
     // Verificar umbrales críticos por departamento y generar casos automáticos
     await checkCriticalThresholdAndCreateCase();
   } catch (error) {
-    console.error("[Sentiment Analysis Job] Error in sentiment analysis job:", error);
+    console.error(
+      "[Sentiment Analysis Job] Error in sentiment analysis job:",
+      error
+    );
   }
 }
 
@@ -143,8 +180,10 @@ async function processPendingResponses() {
  * Si se detectan 3+ comentarios críticos del mismo departamento en 30 días, crea caso de prevención
  */
 async function checkCriticalThresholdAndCreateCase() {
-  console.log("[Sentiment Analysis Job] Checking critical thresholds by department...");
-  
+  console.log(
+    "[Sentiment Analysis Job] Checking critical thresholds by department..."
+  );
+
   const db = await getDb();
   if (!db) return;
 
@@ -165,7 +204,10 @@ async function checkCriticalThresholdAndCreateCase() {
         analyzedAt: sentimentAnalysis.analyzedAt,
       })
       .from(sentimentAnalysis)
-      .innerJoin(surveyResponses, eq(sentimentAnalysis.responseId, surveyResponses.id))
+      .innerJoin(
+        surveyResponses,
+        eq(sentimentAnalysis.responseId, surveyResponses.id)
+      )
       .innerJoin(users, eq(surveyResponses.userId, users.id))
       .where(
         and(
@@ -196,7 +238,10 @@ async function checkCriticalThresholdAndCreateCase() {
           .from(nom035Cases)
           .where(
             and(
-              eq(nom035Cases.description, `[AUTO] Alerta de Riesgo Psicosocial - ${department}`),
+              eq(
+                nom035Cases.description,
+                `[AUTO] Alerta de Riesgo Psicosocial - ${department}`
+              ),
               gte(nom035Cases.createdAt, thirtyDaysAgo)
             )
           )
@@ -229,16 +274,25 @@ async function checkCriticalThresholdAndCreateCase() {
           });
 
           casesCreated++;
-          console.log(`[Sentiment Analysis Job] Auto-created case for department: ${department} (${analyses.length} critical comments)`);
+          console.log(
+            `[Sentiment Analysis Job] Auto-created case for department: ${department} (${analyses.length} critical comments)`
+          );
         } else {
-          console.log(`[Sentiment Analysis Job] Case already exists for department: ${department}`);
+          console.log(
+            `[Sentiment Analysis Job] Case already exists for department: ${department}`
+          );
         }
       }
     }
 
-    console.log(`[Sentiment Analysis Job] Critical threshold check completed: ${casesCreated} cases created`);
+    console.log(
+      `[Sentiment Analysis Job] Critical threshold check completed: ${casesCreated} cases created`
+    );
   } catch (error) {
-    console.error("[Sentiment Analysis Job] Error checking critical thresholds:", error);
+    console.error(
+      "[Sentiment Analysis Job] Error checking critical thresholds:",
+      error
+    );
   }
 }
 

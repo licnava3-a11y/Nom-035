@@ -56,13 +56,19 @@ export const postCaseSurveysRouter = router({
         conditions.push(eq(postCaseSurveys.status, input.status));
       }
       if (input.startDate) {
-        conditions.push(gte(postCaseSurveys.createdAt, new Date(input.startDate)));
+        conditions.push(
+          gte(postCaseSurveys.createdAt, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
-        conditions.push(lte(postCaseSurveys.createdAt, new Date(input.endDate)));
+        conditions.push(
+          lte(postCaseSurveys.createdAt, new Date(input.endDate))
+        );
       }
       if (input.period) {
-        conditions.push(eq(postCaseSurveys.daysSinceClosure, parseInt(input.period)));
+        conditions.push(
+          eq(postCaseSurveys.daysSinceClosure, parseInt(input.period))
+        );
       }
       if (input.departmentId) {
         conditions.push(eq(cases.departmentId, input.departmentId));
@@ -121,125 +127,134 @@ export const postCaseSurveysRouter = router({
   getEffectivenessStats: protectedProcedure
     .input(z.object({}).optional())
     .query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error("Database not available");
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
-    // Obtener todas las encuestas completadas
-    const completedSurveys = await db
-      .select()
-      .from(postCaseSurveys)
-      .where(eq(postCaseSurveys.status, "completed"));
+      // Obtener todas las encuestas completadas
+      const completedSurveys = await db
+        .select()
+        .from(postCaseSurveys)
+        .where(eq(postCaseSurveys.status, "completed"));
 
-    if (completedSurveys.length === 0) {
+      if (completedSurveys.length === 0) {
+        return {
+          totalCompleted: 0,
+          avgImprovement: 0,
+          avgSatisfaction: 0,
+          avgSupport: 0,
+          avgRecommendation: 0,
+          overallScore: 0,
+          byPeriod: {
+            "30": { count: 0, avgScore: 0 },
+            "60": { count: 0, avgScore: 0 },
+            "90": { count: 0, avgScore: 0 },
+          },
+        };
+      }
+
+      // Calcular promedios
+      const avgImprovement =
+        completedSurveys.reduce(
+          (sum: any, s: any) => sum + (s.improvementRating || 0),
+          0
+        ) / completedSurveys.length;
+      const avgSatisfaction =
+        completedSurveys.reduce(
+          (sum: any, s: any) => sum + (s.satisfactionRating || 0),
+          0
+        ) / completedSurveys.length;
+      const avgSupport =
+        completedSurveys.reduce(
+          (sum: any, s: any) => sum + (s.supportRating || 0),
+          0
+        ) / completedSurveys.length;
+      const avgRecommendation =
+        completedSurveys.reduce(
+          (sum: any, s: any) => sum + (s.recommendationRating || 0),
+          0
+        ) / completedSurveys.length;
+
+      const overallScore =
+        (avgImprovement + avgSatisfaction + avgSupport + avgRecommendation) / 4;
+
+      // Estadísticas por período
+      const byPeriod = {
+        "30": completedSurveys.filter((s: any) => s.daysSinceClosure === 30),
+        "60": completedSurveys.filter((s: any) => s.daysSinceClosure === 60),
+        "90": completedSurveys.filter((s: any) => s.daysSinceClosure === 90),
+      };
+
       return {
-        totalCompleted: 0,
-        avgImprovement: 0,
-        avgSatisfaction: 0,
-        avgSupport: 0,
-        avgRecommendation: 0,
-        overallScore: 0,
+        totalCompleted: completedSurveys.length,
+        avgImprovement: Math.round(avgImprovement * 10) / 10,
+        avgSatisfaction: Math.round(avgSatisfaction * 10) / 10,
+        avgSupport: Math.round(avgSupport * 10) / 10,
+        avgRecommendation: Math.round(avgRecommendation * 10) / 10,
+        overallScore: Math.round(overallScore * 10) / 10,
         byPeriod: {
-          "30": { count: 0, avgScore: 0 },
-          "60": { count: 0, avgScore: 0 },
-          "90": { count: 0, avgScore: 0 },
+          "30": {
+            count: byPeriod["30"].length,
+            avgScore:
+              byPeriod["30"].length > 0
+                ? Math.round(
+                    (byPeriod["30"].reduce(
+                      (sum, s) =>
+                        sum +
+                        ((s.improvementRating || 0) +
+                          (s.satisfactionRating || 0) +
+                          (s.supportRating || 0) +
+                          (s.recommendationRating || 0)) /
+                          4,
+                      0
+                    ) /
+                      byPeriod["30"].length) *
+                      10
+                  ) / 10
+                : 0,
+          },
+          "60": {
+            count: byPeriod["60"].length,
+            avgScore:
+              byPeriod["60"].length > 0
+                ? Math.round(
+                    (byPeriod["60"].reduce(
+                      (sum, s) =>
+                        sum +
+                        ((s.improvementRating || 0) +
+                          (s.satisfactionRating || 0) +
+                          (s.supportRating || 0) +
+                          (s.recommendationRating || 0)) /
+                          4,
+                      0
+                    ) /
+                      byPeriod["60"].length) *
+                      10
+                  ) / 10
+                : 0,
+          },
+          "90": {
+            count: byPeriod["90"].length,
+            avgScore:
+              byPeriod["90"].length > 0
+                ? Math.round(
+                    (byPeriod["90"].reduce(
+                      (sum, s) =>
+                        sum +
+                        ((s.improvementRating || 0) +
+                          (s.satisfactionRating || 0) +
+                          (s.supportRating || 0) +
+                          (s.recommendationRating || 0)) /
+                          4,
+                      0
+                    ) /
+                      byPeriod["90"].length) *
+                      10
+                  ) / 10
+                : 0,
+          },
         },
       };
-    }
-
-    // Calcular promedios
-    const avgImprovement =
-      completedSurveys.reduce((sum: any, s: any) => sum + (s.improvementRating || 0), 0) /
-      completedSurveys.length;
-    const avgSatisfaction =
-      completedSurveys.reduce((sum: any, s: any) => sum + (s.satisfactionRating || 0), 0) /
-      completedSurveys.length;
-    const avgSupport =
-      completedSurveys.reduce((sum: any, s: any) => sum + (s.supportRating || 0), 0) /
-      completedSurveys.length;
-    const avgRecommendation =
-      completedSurveys.reduce((sum: any, s: any) => sum + (s.recommendationRating || 0), 0) /
-      completedSurveys.length;
-
-    const overallScore = (avgImprovement + avgSatisfaction + avgSupport + avgRecommendation) / 4;
-
-    // Estadísticas por período
-    const byPeriod = {
-      "30": completedSurveys.filter((s: any) => s.daysSinceClosure === 30),
-      "60": completedSurveys.filter((s: any) => s.daysSinceClosure === 60),
-      "90": completedSurveys.filter((s: any) => s.daysSinceClosure === 90),
-    };
-
-    return {
-      totalCompleted: completedSurveys.length,
-      avgImprovement: Math.round(avgImprovement * 10) / 10,
-      avgSatisfaction: Math.round(avgSatisfaction * 10) / 10,
-      avgSupport: Math.round(avgSupport * 10) / 10,
-      avgRecommendation: Math.round(avgRecommendation * 10) / 10,
-      overallScore: Math.round(overallScore * 10) / 10,
-      byPeriod: {
-        "30": {
-          count: byPeriod["30"].length,
-          avgScore:
-            byPeriod["30"].length > 0
-              ? Math.round(
-                  (byPeriod["30"].reduce(
-                    (sum, s) =>
-                      sum +
-                      ((s.improvementRating || 0) +
-                        (s.satisfactionRating || 0) +
-                        (s.supportRating || 0) +
-                        (s.recommendationRating || 0)) /
-                        4,
-                    0
-                  ) /
-                    byPeriod["30"].length) *
-                    10
-                ) / 10
-              : 0,
-        },
-        "60": {
-          count: byPeriod["60"].length,
-          avgScore:
-            byPeriod["60"].length > 0
-              ? Math.round(
-                  (byPeriod["60"].reduce(
-                    (sum, s) =>
-                      sum +
-                      ((s.improvementRating || 0) +
-                        (s.satisfactionRating || 0) +
-                        (s.supportRating || 0) +
-                        (s.recommendationRating || 0)) /
-                        4,
-                    0
-                  ) /
-                    byPeriod["60"].length) *
-                    10
-                ) / 10
-              : 0,
-        },
-        "90": {
-          count: byPeriod["90"].length,
-          avgScore:
-            byPeriod["90"].length > 0
-              ? Math.round(
-                  (byPeriod["90"].reduce(
-                    (sum, s) =>
-                      sum +
-                      ((s.improvementRating || 0) +
-                        (s.satisfactionRating || 0) +
-                        (s.supportRating || 0) +
-                        (s.recommendationRating || 0)) /
-                        4,
-                    0
-                  ) /
-                    byPeriod["90"].length) *
-                    10
-                ) / 10
-              : 0,
-        },
-      },
-    };
-  }),
+    }),
 
   /**
    * Job automático: Crear encuestas pendientes para casos cerrados
@@ -248,65 +263,71 @@ export const postCaseSurveysRouter = router({
   createPendingSurveys: protectedProcedure
     .input(z.object({}).optional())
     .mutation(async () => {
-    const db = await getDb();
-    if (!db) throw new Error("Database not available");
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
-    const today = new Date();
-    const surveysCreated = [];
+      const today = new Date();
+      const surveysCreated = [];
 
-    // Obtener casos cerrados
-    const closedCases = await db
-      .select()
-      .from(cases)
-      .where(and(sql`${cases.status} = 'closed'`, sql`${cases.closedAt} IS NOT NULL`));
+      // Obtener casos cerrados
+      const closedCases = await db
+        .select()
+        .from(cases)
+        .where(
+          and(
+            sql`${cases.status} = 'closed'`,
+            sql`${cases.closedAt} IS NOT NULL`
+          )
+        );
 
-    for (const caseRecord of closedCases) {
-      if (!caseRecord.closedAt) continue;
+      for (const caseRecord of closedCases) {
+        if (!caseRecord.closedAt) continue;
 
-      const daysSinceClosure = Math.floor(
-        (today.getTime() - new Date(caseRecord.closedAt).getTime()) / (1000 * 60 * 60 * 24)
-      );
+        const daysSinceClosure = Math.floor(
+          (today.getTime() - new Date(caseRecord.closedAt).getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
 
-      // Verificar si corresponde crear encuesta de 30, 60 o 90 días
-      const periodsToCheck = [30, 60, 90];
-      for (const period of periodsToCheck) {
-        // Tolerancia de ±2 días para evitar perder encuestas
-        if (Math.abs(daysSinceClosure - period) <= 2) {
-          // Verificar si ya existe encuesta para este caso y período
-          const existing = await db
-            .select()
-            .from(postCaseSurveys)
-            .where(
-              and(
-                eq(postCaseSurveys.caseId, caseRecord.id),
-                eq(postCaseSurveys.daysSinceClosure, period)
-              )
-            );
+        // Verificar si corresponde crear encuesta de 30, 60 o 90 días
+        const periodsToCheck = [30, 60, 90];
+        for (const period of periodsToCheck) {
+          // Tolerancia de ±2 días para evitar perder encuestas
+          if (Math.abs(daysSinceClosure - period) <= 2) {
+            // Verificar si ya existe encuesta para este caso y período
+            const existing = await db
+              .select()
+              .from(postCaseSurveys)
+              .where(
+                and(
+                  eq(postCaseSurveys.caseId, caseRecord.id),
+                  eq(postCaseSurveys.daysSinceClosure, period)
+                )
+              );
 
-          if (existing.length === 0) {
-            // Crear nueva encuesta
-            await (db.insert(postCaseSurveys) as any).values({
-              caseId: caseRecord.id,
-              daysSinceClosure: period,
-              status: "pending",
-              createdAt: new Date(),
-            });
+            if (existing.length === 0) {
+              // Crear nueva encuesta
+              await (db.insert(postCaseSurveys) as any).values({
+                caseId: caseRecord.id,
+                daysSinceClosure: period,
+                status: "pending",
+                createdAt: new Date(),
+              });
 
-            surveysCreated.push({
-              caseId: caseRecord.id,
-              caseNumber: caseRecord.caseNumber,
-              period,
-            });
+              surveysCreated.push({
+                caseId: caseRecord.id,
+                caseNumber: caseRecord.caseNumber,
+                period,
+              });
+            }
           }
         }
       }
-    }
 
-    return {
-      surveysCreated: surveysCreated.length,
-      details: surveysCreated,
-    };
-  }),
+      return {
+        surveysCreated: surveysCreated.length,
+        details: surveysCreated,
+      };
+    }),
 
   /**
    * Job automático: Enviar encuestas pendientes
@@ -377,12 +398,20 @@ export const postCaseSurveysRouter = router({
 
       // Verificar si expiró
       const now = new Date();
-      if (survey.expiresAt && survey.expiresAt < now && survey.status === 'sent') {
+      if (
+        survey.expiresAt &&
+        survey.expiresAt < now &&
+        survey.status === "sent"
+      ) {
         await db
           .update(postCaseSurveys)
-          .set({ status: 'expired' } as any)
+          .set({ status: "expired" } as any)
           .where(eq((postCaseSurveys as any).surveyToken, input.token));
-        return { found: true as const, status: 'expired' as const, survey: null };
+        return {
+          found: true as const,
+          status: "expired" as const,
+          survey: null,
+        };
       }
 
       return {
@@ -422,7 +451,11 @@ export const postCaseSurveysRouter = router({
 
       // Buscar encuesta por token
       const [survey] = await db
-        .select({ id: postCaseSurveys.id, status: postCaseSurveys.status, expiresAt: postCaseSurveys.expiresAt })
+        .select({
+          id: postCaseSurveys.id,
+          status: postCaseSurveys.status,
+          expiresAt: postCaseSurveys.expiresAt,
+        })
         .from(postCaseSurveys)
         .where(eq((postCaseSurveys as any).surveyToken, token))
         .limit(1);
@@ -431,11 +464,11 @@ export const postCaseSurveysRouter = router({
         throw new Error("Encuesta no encontrada");
       }
 
-      if (survey.status === 'completed') {
+      if (survey.status === "completed") {
         throw new Error("Esta encuesta ya fue respondida");
       }
 
-      if (survey.status === 'expired') {
+      if (survey.status === "expired") {
         throw new Error("Esta encuesta ha expirado");
       }
 
@@ -443,7 +476,7 @@ export const postCaseSurveysRouter = router({
       if (survey.expiresAt && survey.expiresAt < now) {
         await db
           .update(postCaseSurveys)
-          .set({ status: 'expired' } as any)
+          .set({ status: "expired" } as any)
           .where(eq(postCaseSurveys.id, survey.id));
         throw new Error("Esta encuesta ha expirado");
       }
@@ -457,7 +490,7 @@ export const postCaseSurveysRouter = router({
           supportRating: ratings.supportRating,
           recommendationRating: ratings.recommendationRating,
           comments: ratings.comments ?? null,
-          status: 'completed',
+          status: "completed",
           completedAt: now,
         } as any)
         .where(eq(postCaseSurveys.id, survey.id));
@@ -469,23 +502,22 @@ export const postCaseSurveysRouter = router({
    * Conteo de encuestas urgentes (enviadas hace más de 5 días sin respuesta)
    * Usado para el badge de notificación en el menú lateral
    */
-  getUrgentPendingCount: protectedProcedure
-    .query(async () => {
-      const db = await getDb();
-      if (!db) return { count: 0 };
-      const fiveDaysAgo = new Date();
-      fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-      const urgentSurveys = await db
-        .select({ id: postCaseSurveys.id })
-        .from(postCaseSurveys)
-        .where(
-          and(
-            eq(postCaseSurveys.status, "sent"),
-            lt(postCaseSurveys.sentAt, fiveDaysAgo)
-          )
-        );
-      return { count: urgentSurveys.length };
-    }),
+  getUrgentPendingCount: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { count: 0 };
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+    const urgentSurveys = await db
+      .select({ id: postCaseSurveys.id })
+      .from(postCaseSurveys)
+      .where(
+        and(
+          eq(postCaseSurveys.status, "sent"),
+          lt(postCaseSurveys.sentAt, fiveDaysAgo)
+        )
+      );
+    return { count: urgentSurveys.length };
+  }),
 
   /**
    * Job automático: Marcar encuestas expiradas

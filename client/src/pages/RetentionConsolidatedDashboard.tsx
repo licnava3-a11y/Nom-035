@@ -1,81 +1,142 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Users, TrendingDown, DollarSign, Target, AlertTriangle, CheckCircle2, Download } from "lucide-react";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  Users,
+  TrendingDown,
+  DollarSign,
+  Target,
+  AlertTriangle,
+  CheckCircle2,
+  Download,
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function RetentionConsolidatedDashboard() {
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
   const [salaryAdjustment, setSalaryAdjustment] = useState<string>("");
-  const [adjustmentType, setAdjustmentType] = useState<"percentage" | "fixed" | "market">("percentage");
+  const [adjustmentType, setAdjustmentType] = useState<
+    "percentage" | "fixed" | "market"
+  >("percentage");
 
   // Queries
-  const { data: highRiskEmployees = [], isLoading: employeesLoading } = trpc.predictiveTurnoverDashboard.getHighRiskEmployees.useQuery({
-    departmentId: selectedDepartment && selectedDepartment !== "all" ? parseInt(selectedDepartment) : undefined,
-  });
+  const { data: highRiskEmployees = [], isLoading: employeesLoading } =
+    trpc.predictiveTurnoverDashboard.getHighRiskEmployees.useQuery({
+      departmentId:
+        selectedDepartment && selectedDepartment !== "all"
+          ? parseInt(selectedDepartment)
+          : undefined,
+    });
 
-  const selectedEmployeeData = (highRiskEmployees as any[]).find((e: any) => e.employeeId?.toString() === selectedEmployee);
-  const { data: recommendations = [] } = trpc.interventionRecommendations.getRecommendations.useQuery(
-    {
-      employeeId: selectedEmployee ? parseInt(selectedEmployee) : 0,
-      employeeName: selectedEmployeeData?.employeeName ?? "",
-      riskScore: selectedEmployeeData?.riskScore ?? 0,
-      turnoverProbability: selectedEmployeeData?.turnoverProbability ?? 0,
-      department: selectedEmployeeData?.department,
-      position: selectedEmployeeData?.position,
-    },
-    { enabled: !!selectedEmployee && !!selectedEmployeeData }
+  const selectedEmployeeData = (highRiskEmployees as any[]).find(
+    (e: any) => e.employeeId?.toString() === selectedEmployee
   );
+  const { data: recommendations = [] } =
+    trpc.interventionRecommendations.getRecommendations.useQuery(
+      {
+        employeeId: selectedEmployee ? parseInt(selectedEmployee) : 0,
+        employeeName: selectedEmployeeData?.employeeName ?? "",
+        riskScore: selectedEmployeeData?.riskScore ?? 0,
+        turnoverProbability: selectedEmployeeData?.turnoverProbability ?? 0,
+        department: selectedEmployeeData?.department,
+        position: selectedEmployeeData?.position,
+      },
+      { enabled: !!selectedEmployee && !!selectedEmployeeData }
+    );
 
-  const { data: payrollData = [] } = trpc.payrollIntegration.getAllPayrollData.useQuery();
-  const { data: criticalGaps = [] } = trpc.payrollIntegration.getCriticalSalaryGaps.useQuery();
-  const { data: interventions = [] } = trpc.retentionInterventions.getInterventions.useQuery({ limit: 10 });
+  const { data: payrollData = [] } =
+    trpc.payrollIntegration.getAllPayrollData.useQuery();
+  const { data: criticalGaps = [] } =
+    trpc.payrollIntegration.getCriticalSalaryGaps.useQuery();
+  const { data: interventions = [] } =
+    trpc.retentionInterventions.getInterventions.useQuery({ limit: 10 });
 
-  const { data: simulationResult } = trpc.salaryImpactSimulator.simulateImpact.useQuery(
-    {
-      employeeId: selectedEmployee ? parseInt(selectedEmployee) : 0,
-      adjustmentType,
-      adjustmentValue: salaryAdjustment ? parseFloat(salaryAdjustment) : 0,
-    },
-    { enabled: !!selectedEmployee && !!salaryAdjustment }
-  );
+  const { data: simulationResult } =
+    trpc.salaryImpactSimulator.simulateImpact.useQuery(
+      {
+        employeeId: selectedEmployee ? parseInt(selectedEmployee) : 0,
+        adjustmentType,
+        adjustmentValue: salaryAdjustment ? parseFloat(salaryAdjustment) : 0,
+      },
+      { enabled: !!selectedEmployee && !!salaryAdjustment }
+    );
 
   // Mutations
-  const exportPDFMutation = trpc.compensationReports.generateCompensationPDF.useMutation({
-    onSuccess: (data) => {
-      if (data.pdfUrl) {
-        window.open(data.pdfUrl, "_blank");
-        toast.success("Reporte PDF generado exitosamente");
-      }
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al generar PDF");
-    },
-  });
+  const exportPDFMutation =
+    trpc.compensationReports.generateCompensationPDF.useMutation({
+      onSuccess: data => {
+        if (data.pdfUrl) {
+          window.open(data.pdfUrl, "_blank");
+          toast.success("Reporte PDF generado exitosamente");
+        }
+      },
+      onError: error => {
+        toast.error(error.message || "Error al generar PDF");
+      },
+    });
 
   // Calcular métricas consolidadas
   const totalHighRisk = (highRiskEmployees as any)?.length;
   const criticalSalaryGaps = (criticalGaps as any)?.length;
-  const activeInterventions = interventions.filter((i: any) => i.outcome === "pending").length;
-  const successfulInterventions = interventions.filter((i: any) => i.outcome === "retained").length;
-  const totalInterventionCost = interventions.reduce((sum: any, i: any) => sum + parseFloat(i.cost || "0"), 0);
-  const retentionROI = successfulInterventions > 0 ? ((successfulInterventions * 50000 - totalInterventionCost) / totalInterventionCost) * 100 : 0;
+  const activeInterventions = interventions.filter(
+    (i: any) => i.outcome === "pending"
+  ).length;
+  const successfulInterventions = interventions.filter(
+    (i: any) => i.outcome === "retained"
+  ).length;
+  const totalInterventionCost = interventions.reduce(
+    (sum: any, i: any) => sum + parseFloat(i.cost || "0"),
+    0
+  );
+  const retentionROI =
+    successfulInterventions > 0
+      ? ((successfulInterventions * 50000 - totalInterventionCost) /
+          totalInterventionCost) *
+        100
+      : 0;
 
   // Preparar datos para gráfico de priorización
   const priorityData = highRiskEmployees.slice(0, 10).map((emp: any) => {
-    const payroll = payrollData.find((p: any) => p.employeeId === emp.employeeId);
+    const payroll = payrollData.find(
+      (p: any) => p.employeeId === emp.employeeId
+    );
     return {
       name: emp.employeeName,
       riesgo: parseFloat(emp.turnoverProbability),
-      brecha: payroll?.salaryGapPercentage ? Math.abs(parseFloat(payroll.salaryGapPercentage)) : 0,
+      brecha: payroll?.salaryGapPercentage
+        ? Math.abs(parseFloat(payroll.salaryGapPercentage))
+        : 0,
     };
   });
 
@@ -96,12 +157,17 @@ export default function RetentionConsolidatedDashboard() {
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard Consolidado de Retención</h1>
+          <h1 className="text-3xl font-bold">
+            Dashboard Consolidado de Retención
+          </h1>
           <p className="text-muted-foreground mt-2">
             Vista unificada de riesgo, recomendaciones y análisis salarial
           </p>
         </div>
-        <Button onClick={handleExportPDF} disabled={exportPDFMutation.isPending}>
+        <Button
+          onClick={handleExportPDF}
+          disabled={exportPDFMutation.isPending}
+        >
           <Download className="h-4 w-4 mr-2" />
           {exportPDFMutation.isPending ? "Generando..." : "Exportar PDF"}
         </Button>
@@ -111,45 +177,69 @@ export default function RetentionConsolidatedDashboard() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Empleados en Riesgo</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Empleados en Riesgo
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{totalHighRisk}</div>
-            <p className="text-xs text-muted-foreground">Requieren atención inmediata</p>
+            <div className="text-2xl font-bold text-red-600">
+              {totalHighRisk}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Requieren atención inmediata
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Brecha Salarial Crítica</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Brecha Salarial Crítica
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{criticalSalaryGaps}</div>
-            <p className="text-xs text-muted-foreground">Compensación por debajo del mercado</p>
+            <div className="text-2xl font-bold text-orange-600">
+              {criticalSalaryGaps}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Compensación por debajo del mercado
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Intervenciones Activas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Intervenciones Activas
+            </CardTitle>
             <Target className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{activeInterventions}</div>
-            <p className="text-xs text-muted-foreground">En proceso de ejecución</p>
+            <div className="text-2xl font-bold text-blue-600">
+              {activeInterventions}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              En proceso de ejecución
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">ROI de Retención</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              ROI de Retención
+            </CardTitle>
             <CheckCircle2 className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{retentionROI.toFixed(0)}%</div>
-            <p className="text-xs text-muted-foreground">Retorno de inversión en intervenciones</p>
+            <div className="text-2xl font-bold text-green-600">
+              {retentionROI.toFixed(0)}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Retorno de inversión en intervenciones
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -175,7 +265,10 @@ export default function RetentionConsolidatedDashboard() {
             <CardContent>
               <div className="mb-4">
                 <Label>Filtrar por Departamento</Label>
-                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                <Select
+                  value={selectedDepartment}
+                  onValueChange={setSelectedDepartment}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar departamento" />
                   </SelectTrigger>
@@ -184,7 +277,9 @@ export default function RetentionConsolidatedDashboard() {
                     <SelectItem value="Ventas">Ventas</SelectItem>
                     <SelectItem value="Operaciones">Operaciones</SelectItem>
                     <SelectItem value="Soporte">Soporte</SelectItem>
-                    <SelectItem value="Administración">Administración</SelectItem>
+                    <SelectItem value="Administración">
+                      Administración
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -192,12 +287,25 @@ export default function RetentionConsolidatedDashboard() {
               <ResponsiveContainer width="100%" height={400}>
                 <BarChart data={priorityData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                  <XAxis
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                  />
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="riesgo" name="Riesgo de Rotación (%)" fill="#dc2626" />
-                  <Bar dataKey="brecha" name="Brecha Salarial (%)" fill="#f97316" />
+                  <Bar
+                    dataKey="riesgo"
+                    name="Riesgo de Rotación (%)"
+                    fill="#dc2626"
+                  />
+                  <Bar
+                    dataKey="brecha"
+                    name="Brecha Salarial (%)"
+                    fill="#f97316"
+                  />
                 </BarChart>
               </ResponsiveContainer>
 
@@ -206,21 +314,34 @@ export default function RetentionConsolidatedDashboard() {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left p-3 font-medium">Nombre</th>
-                      <th className="text-center p-3 font-medium">Departamento</th>
+                      <th className="text-center p-3 font-medium">
+                        Departamento
+                      </th>
                       <th className="text-center p-3 font-medium">Riesgo</th>
-                      <th className="text-center p-3 font-medium">Brecha Salarial</th>
-                      <th className="text-center p-3 font-medium">Acción Recomendada</th>
+                      <th className="text-center p-3 font-medium">
+                        Brecha Salarial
+                      </th>
+                      <th className="text-center p-3 font-medium">
+                        Acción Recomendada
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {highRiskEmployees.slice(0, 10).map((emp: any) => {
-                      const payroll = payrollData.find((p: any) => p.employeeId === emp.employeeId);
+                      const payroll = payrollData.find(
+                        (p: any) => p.employeeId === emp.employeeId
+                      );
                       return (
-                        <tr key={emp.employeeId} className="border-b hover:bg-muted/50">
+                        <tr
+                          key={emp.employeeId}
+                          className="border-b hover:bg-muted/50"
+                        >
                           <td className="p-3">{emp.employeeName}</td>
                           <td className="p-3 text-center">{emp.department}</td>
                           <td className="p-3 text-center">
-                            <Badge variant="destructive">{emp.turnoverProbability}%</Badge>
+                            <Badge variant="destructive">
+                              {emp.turnoverProbability}%
+                            </Badge>
                           </td>
                           <td className="p-3 text-center">
                             {payroll?.salaryGapPercentage ? (
@@ -235,7 +356,9 @@ export default function RetentionConsolidatedDashboard() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => setSelectedEmployee(emp.employeeId.toString())}
+                              onClick={() =>
+                                setSelectedEmployee(emp.employeeId.toString())
+                              }
                             >
                               Ver Recomendaciones
                             </Button>
@@ -254,21 +377,30 @@ export default function RetentionConsolidatedDashboard() {
         <TabsContent value="recommendations" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Recomendaciones Inteligentes de Intervención</CardTitle>
+              <CardTitle>
+                Recomendaciones Inteligentes de Intervención
+              </CardTitle>
               <CardDescription>
-                Sugerencias basadas en efectividad histórica y perfil del empleado
+                Sugerencias basadas en efectividad histórica y perfil del
+                empleado
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-4">
                 <Label>Seleccionar Empleado</Label>
-                <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                <Select
+                  value={selectedEmployee}
+                  onValueChange={setSelectedEmployee}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar empleado" />
                   </SelectTrigger>
                   <SelectContent>
                     {(highRiskEmployees as any[]).map((emp: any) => (
-                      <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
+                      <SelectItem
+                        key={emp.employeeId}
+                        value={emp.employeeId.toString()}
+                      >
                         {emp.employeeName} - {emp.department}
                       </SelectItem>
                     ))}
@@ -283,7 +415,9 @@ export default function RetentionConsolidatedDashboard() {
                       <CardHeader>
                         <div className="flex justify-between items-start">
                           <div>
-                            <CardTitle className="text-lg">{rec.interventionType}</CardTitle>
+                            <CardTitle className="text-lg">
+                              {rec.interventionType}
+                            </CardTitle>
                             <CardDescription>{rec.rationale}</CardDescription>
                           </div>
                           <Badge className="bg-green-100 text-green-800">
@@ -294,16 +428,26 @@ export default function RetentionConsolidatedDashboard() {
                       <CardContent>
                         <div className="grid grid-cols-3 gap-4 text-sm">
                           <div>
-                            <p className="text-muted-foreground">Costo Estimado</p>
-                            <p className="font-semibold">${rec.estimatedCost.toLocaleString()} MXN</p>
+                            <p className="text-muted-foreground">
+                              Costo Estimado
+                            </p>
+                            <p className="font-semibold">
+                              ${rec.estimatedCost.toLocaleString()} MXN
+                            </p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground">ROI Esperado</p>
+                            <p className="text-muted-foreground">
+                              ROI Esperado
+                            </p>
                             <p className="font-semibold">{rec.expectedROI}%</p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground">Efectividad Histórica</p>
-                            <p className="font-semibold">{rec.historicalEffectiveness}%</p>
+                            <p className="text-muted-foreground">
+                              Efectividad Histórica
+                            </p>
+                            <p className="font-semibold">
+                              {rec.historicalEffectiveness}%
+                            </p>
                           </div>
                         </div>
                       </CardContent>
@@ -336,14 +480,21 @@ export default function RetentionConsolidatedDashboard() {
               <div className="grid gap-4 mb-6">
                 <div>
                   <Label>Seleccionar Empleado</Label>
-                  <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                  <Select
+                    value={selectedEmployee}
+                    onValueChange={setSelectedEmployee}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar empleado" />
                     </SelectTrigger>
                     <SelectContent>
                       {(criticalGaps as any[]).map((emp: any) => (
-                        <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
-                          {emp.employeeName} - Brecha: {emp.salaryGapPercentage}%
+                        <SelectItem
+                          key={emp.employeeId}
+                          value={emp.employeeId.toString()}
+                        >
+                          {emp.employeeName} - Brecha: {emp.salaryGapPercentage}
+                          %
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -352,14 +503,21 @@ export default function RetentionConsolidatedDashboard() {
 
                 <div>
                   <Label>Tipo de Ajuste</Label>
-                  <Select value={adjustmentType} onValueChange={(v: any) => setAdjustmentType(v)}>
+                  <Select
+                    value={adjustmentType}
+                    onValueChange={(v: any) => setAdjustmentType(v)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="percentage">Aumento Porcentual</SelectItem>
+                      <SelectItem value="percentage">
+                        Aumento Porcentual
+                      </SelectItem>
                       <SelectItem value="fixed">Aumento Fijo (MXN)</SelectItem>
-                      <SelectItem value="market">Ajustar a Tasa de Mercado</SelectItem>
+                      <SelectItem value="market">
+                        Ajustar a Tasa de Mercado
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -367,14 +525,17 @@ export default function RetentionConsolidatedDashboard() {
                 {adjustmentType !== "market" && (
                   <div>
                     <Label>
-                      Valor del Ajuste {adjustmentType === "percentage" ? "(%)" : "(MXN)"}
+                      Valor del Ajuste{" "}
+                      {adjustmentType === "percentage" ? "(%)" : "(MXN)"}
                     </Label>
                     <Input
                       type="number"
                       step="0.01"
                       value={salaryAdjustment}
-                      onChange={(e) => setSalaryAdjustment(e.target.value)}
-                      placeholder={adjustmentType === "percentage" ? "Ej: 10" : "Ej: 5000"}
+                      onChange={e => setSalaryAdjustment(e.target.value)}
+                      placeholder={
+                        adjustmentType === "percentage" ? "Ej: 10" : "Ej: 5000"
+                      }
                     />
                   </div>
                 )}
@@ -395,7 +556,9 @@ export default function RetentionConsolidatedDashboard() {
                     </Card>
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-sm">Riesgo Proyectado</CardTitle>
+                        <CardTitle className="text-sm">
+                          Riesgo Proyectado
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="text-3xl font-bold text-green-600">
@@ -409,19 +572,25 @@ export default function RetentionConsolidatedDashboard() {
                     <CardContent className="pt-6">
                       <div className="grid grid-cols-3 gap-4 text-center">
                         <div>
-                          <p className="text-sm text-muted-foreground">Reducción de Riesgo</p>
+                          <p className="text-sm text-muted-foreground">
+                            Reducción de Riesgo
+                          </p>
                           <p className="text-2xl font-bold text-blue-600">
                             {simulationResult.riskReduction}%
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Costo del Ajuste</p>
+                          <p className="text-sm text-muted-foreground">
+                            Costo del Ajuste
+                          </p>
                           <p className="text-2xl font-bold">
                             ${simulationResult.adjustmentCost.toLocaleString()}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">ROI Estimado</p>
+                          <p className="text-sm text-muted-foreground">
+                            ROI Estimado
+                          </p>
                           <p className="text-2xl font-bold text-green-600">
                             {simulationResult.estimatedROI}%
                           </p>
@@ -432,7 +601,9 @@ export default function RetentionConsolidatedDashboard() {
 
                   <div>
                     <h4 className="font-semibold mb-2">Análisis de Impacto</h4>
-                    <p className="text-sm text-muted-foreground">{simulationResult.analysis}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {simulationResult.analysis}
+                    </p>
                   </div>
                 </div>
               )}
@@ -454,11 +625,22 @@ export default function RetentionConsolidatedDashboard() {
                 <LineChart data={effectivenessData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="tipo" />
-                  <YAxis yAxisId="left" label={{ value: "Tasa de Éxito (%)", angle: -90, position: "insideLeft" }} />
+                  <YAxis
+                    yAxisId="left"
+                    label={{
+                      value: "Tasa de Éxito (%)",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
                   <YAxis
                     yAxisId="right"
                     orientation="right"
-                    label={{ value: "Costo (MXN)", angle: 90, position: "insideRight" }}
+                    label={{
+                      value: "Costo (MXN)",
+                      angle: 90,
+                      position: "insideRight",
+                    }}
                   />
                   <Tooltip />
                   <Legend />
@@ -482,14 +664,20 @@ export default function RetentionConsolidatedDashboard() {
               </ResponsiveContainer>
 
               <div className="mt-6">
-                <h4 className="font-semibold mb-4">Resumen de Intervenciones Históricas</h4>
+                <h4 className="font-semibold mb-4">
+                  Resumen de Intervenciones Históricas
+                </h4>
                 <div className="grid gap-4 md:grid-cols-3">
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm">Total Intervenciones</CardTitle>
+                      <CardTitle className="text-sm">
+                        Total Intervenciones
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{(interventions as any)?.length}</div>
+                      <div className="text-2xl font-bold">
+                        {(interventions as any)?.length}
+                      </div>
                     </CardContent>
                   </Card>
                   <Card>
@@ -499,7 +687,11 @@ export default function RetentionConsolidatedDashboard() {
                     <CardContent>
                       <div className="text-2xl font-bold text-green-600">
                         {(interventions as any)?.length > 0
-                          ? ((successfulInterventions / (interventions as any)?.length) * 100).toFixed(0)
+                          ? (
+                              (successfulInterventions /
+                                (interventions as any)?.length) *
+                              100
+                            ).toFixed(0)
                           : 0}
                         %
                       </div>

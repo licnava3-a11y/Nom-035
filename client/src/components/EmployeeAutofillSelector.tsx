@@ -7,7 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEmployeeAutofill, type EmployeeAutofillData } from "@/hooks/useEmployeeAutofill";
+import {
+  useEmployeeAutofill,
+  type EmployeeAutofillData,
+} from "@/hooks/useEmployeeAutofill";
 
 interface EmployeeAutofillSelectorProps {
   /** Callback cuando se selecciona un empleado */
@@ -56,13 +59,19 @@ export function EmployeeAutofillSelector({
           {label}
         </div>
       </Label>
-      <Select value={value ?? ""} onValueChange={handleChange} disabled={isLoading}>
+      <Select
+        value={value ?? ""}
+        onValueChange={handleChange}
+        disabled={isLoading}
+      >
         <SelectTrigger>
-          <SelectValue placeholder={isLoading ? "Cargando empleados..." : placeholder} />
+          <SelectValue
+            placeholder={isLoading ? "Cargando empleados..." : placeholder}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="manual">— Captura manual —</SelectItem>
-          {employeeOptions.map((opt) => (
+          {employeeOptions.map(opt => (
             <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
             </SelectItem>

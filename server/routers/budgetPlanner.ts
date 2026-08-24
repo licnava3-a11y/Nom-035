@@ -27,45 +27,67 @@ export const budgetPlannerRouter = router({
         ),
       })
     )
-        .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) {
-        throw new Error('Database not initialized');
+        throw new Error("Database not initialized");
       }
 
       // Calcular métricas del escenario
       const adjustments = input.employeeAdjustments.map((emp: any) => ({
         ...emp,
         increase: emp.newSalary - emp.currentSalary,
-        increasePercentage: ((emp.newSalary - emp.currentSalary) / emp.currentSalary) * 100,
+        increasePercentage:
+          ((emp.newSalary - emp.currentSalary) / emp.currentSalary) * 100,
         priority: emp.turnoverProbability || 0,
       }));
 
       // Ordenar por prioridad (turnover probability) descendente
-      const sortedAdjustments = [...adjustments].sort((a: any, b: any) => b.priority - a.priority);
-      const implementationSequence = sortedAdjustments.map((adj: any) => adj.employeeId);
+      const sortedAdjustments = [...adjustments].sort(
+        (a: any, b: any) => b.priority - a.priority
+      );
+      const implementationSequence = sortedAdjustments.map(
+        (adj: any) => adj.employeeId
+      );
 
-      const budgetUsed = adjustments.reduce((sum: any, adj: any) => sum + (adj.increase * 12), 0); // Costo anual
+      const budgetUsed = adjustments.reduce(
+        (sum: any, adj: any) => sum + adj.increase * 12,
+        0
+      ); // Costo anual
       const budgetRemaining = input.totalBudget - budgetUsed;
 
       const averageIncreasePercentage =
-        adjustments.reduce((sum: any, adj: any) => sum + adj.increasePercentage, 0) / adjustments.length;
+        adjustments.reduce(
+          (sum: any, adj: any) => sum + adj.increasePercentage,
+          0
+        ) / adjustments.length;
 
-      const highRiskEmployeesCovered = adjustments.filter((adj: any) => adj.priority >= 70).length;
+      const highRiskEmployeesCovered = adjustments.filter(
+        (adj: any) => adj.priority >= 70
+      ).length;
 
       // Estimar tasa de retención (simplificado)
-      const estimatedRetentionRate = Math.min(95, 60 + highRiskEmployeesCovered * 5);
+      const estimatedRetentionRate = Math.min(
+        95,
+        60 + highRiskEmployeesCovered * 5
+      );
 
       // Estimar ahorro en costos de rotación
       // Asumiendo costo de rotación = 1.5x salario anual por empleado
-      const avgSalary = adjustments.reduce((sum: any, adj: any) => sum + adj.currentSalary, 0) / adjustments.length;
-      const estimatedTurnoverCostSavings = highRiskEmployeesCovered * avgSalary * 1.5 * 12;
+      const avgSalary =
+        adjustments.reduce((sum: any, adj: any) => sum + adj.currentSalary, 0) /
+        adjustments.length;
+      const estimatedTurnoverCostSavings =
+        highRiskEmployeesCovered * avgSalary * 1.5 * 12;
 
       // Calcular ROI
-      const roi = ((estimatedTurnoverCostSavings - budgetUsed) / budgetUsed) * 100;
+      const roi =
+        ((estimatedTurnoverCostSavings - budgetUsed) / budgetUsed) * 100;
 
       // Crear escenario
-      const [scenario] = await (db.insert(budgetAdjustmentScenarios) as any).values({
+      const [scenario] = await (
+        db.insert(budgetAdjustmentScenarios) as any
+      ).values({
         scenarioName: input.scenarioName,
         description: input.description || "",
         createdBy: ctx.user!.id,
@@ -82,12 +104,17 @@ export const budgetPlannerRouter = router({
         roi: roi.toString(),
       });
 
-      return { scenarioId: scenario.insertId, budgetUsed, budgetRemaining, roi };
+      return {
+        scenarioId: scenario.insertId,
+        budgetUsed,
+        budgetRemaining,
+        roi,
+      };
     }),
 
   getScenarios: protectedProcedure.query(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
 
     const scenarios = await db
       .select()
@@ -101,7 +128,7 @@ export const budgetPlannerRouter = router({
     .input(z.object({ scenarioId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       const [scenario] = await db
         .select()
@@ -114,8 +141,10 @@ export const budgetPlannerRouter = router({
 
       return {
         ...scenario,
-        adjustments: JSON.parse(scenario.adjustments as string || "[]"),
-        implementationSequence: JSON.parse(scenario.implementationSequence as string || "[]"),
+        adjustments: JSON.parse((scenario.adjustments as string) || "[]"),
+        implementationSequence: JSON.parse(
+          (scenario.implementationSequence as string) || "[]"
+        ),
       };
     }),
 
@@ -128,7 +157,7 @@ export const budgetPlannerRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Obtener datos de empleados
       const employees = await db.execute(sql`
@@ -166,9 +195,14 @@ export const budgetPlannerRouter = router({
       });
 
       // Ordenar por prioridad
-      const sortedAdjustments = [...adjustments].sort((a: any, b: any) => b.priority - a.priority);
+      const sortedAdjustments = [...adjustments].sort(
+        (a: any, b: any) => b.priority - a.priority
+      );
 
-      const totalCost = adjustments.reduce((sum: any, adj: any) => sum + adj.annualCost, 0);
+      const totalCost = adjustments.reduce(
+        (sum: any, adj: any) => sum + adj.annualCost,
+        0
+      );
       const budgetRemaining = input.totalBudget - totalCost;
       const feasible = budgetRemaining >= 0;
 
@@ -189,7 +223,7 @@ export const budgetPlannerRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       const [scenario] = await db
         .select()
@@ -200,13 +234,17 @@ export const budgetPlannerRouter = router({
         throw new Error("Scenario not found");
       }
 
-      const adjustments = JSON.parse(scenario.adjustments as string || "[]");
+      const adjustments = JSON.parse((scenario.adjustments as string) || "[]");
 
       // Algoritmo de optimización: priorizar por ROI individual
       const optimized = adjustments.map((adj: any) => {
         const annualCost = adj.increase * 12;
-        const estimatedSavings = adj.priority >= 70 ? adj.currentSalary * 1.5 * 12 : 0;
-        const individualROI = estimatedSavings > 0 ? ((estimatedSavings - annualCost) / annualCost) * 100 : -100;
+        const estimatedSavings =
+          adj.priority >= 70 ? adj.currentSalary * 1.5 * 12 : 0;
+        const individualROI =
+          estimatedSavings > 0
+            ? ((estimatedSavings - annualCost) / annualCost) * 100
+            : -100;
 
         return {
           ...adj,
@@ -217,11 +255,14 @@ export const budgetPlannerRouter = router({
       });
 
       // Ordenar por ROI individual descendente
-      const sortedByROI = optimized.sort((a: any, b: any) => b.individualROI - a.individualROI);
+      const sortedByROI = optimized.sort(
+        (a: any, b: any) => b.individualROI - a.individualROI
+      );
 
       return {
         optimizedSequence: sortedByROI,
-        recommendation: "Implementar ajustes en el orden mostrado para maximizar ROI",
+        recommendation:
+          "Implementar ajustes en el orden mostrado para maximizar ROI",
       };
     }),
 
@@ -229,7 +270,7 @@ export const budgetPlannerRouter = router({
     .input(z.object({ scenarioId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       await db
         .update(budgetAdjustmentScenarios)
@@ -247,7 +288,7 @@ export const budgetPlannerRouter = router({
     .input(z.object({ scenarioId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       await db
         .delete(budgetAdjustmentScenarios)

@@ -1,14 +1,40 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, TrendingUp, DollarSign, Award, BarChart3, Download } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Loader2,
+  TrendingUp,
+  DollarSign,
+  Award,
+  BarChart3,
+  Download,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Bar } from "react-chartjs-2";
 import {
@@ -19,7 +45,7 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
+} from "chart.js";
 
 ChartJS.register(
   CategoryScale,
@@ -31,11 +57,15 @@ ChartJS.register(
 );
 
 export default function TrainingROIDashboard() {
-  const [selectedTrainingId, setSelectedTrainingId] = useState<number | null>(null);
+  const [selectedTrainingId, setSelectedTrainingId] = useState<number | null>(
+    null
+  );
   const [periodMonths, setPeriodMonths] = useState(6);
   const [costsDialogOpen, setCostsDialogOpen] = useState(false);
   const [roiDialogOpen, setRoiDialogOpen] = useState(false);
-  const [editingTrainingId, setEditingTrainingId] = useState<number | null>(null);
+  const [editingTrainingId, setEditingTrainingId] = useState<number | null>(
+    null
+  );
 
   // Form state para costos
   const [costsForm, setCostsForm] = useState({
@@ -48,12 +78,21 @@ export default function TrainingROIDashboard() {
   });
 
   // Queries
-  const { data: dashboard, isLoading: dashboardLoading, refetch: refetchDashboard } = trpc.trainingROI.getDashboard.useQuery({ periodMonths });
-  const { data: trainingsWithCosts, isLoading: trainingsLoading, refetch: refetchTrainings } = trpc.trainingROI.listWithCosts.useQuery();
-  const { data: selectedROI, isLoading: roiLoading } = trpc.trainingROI.calculateROI.useQuery(
-    { trainingId: selectedTrainingId!, periodMonths },
-    { enabled: !!selectedTrainingId && roiDialogOpen }
-  );
+  const {
+    data: dashboard,
+    isLoading: dashboardLoading,
+    refetch: refetchDashboard,
+  } = trpc.trainingROI.getDashboard.useQuery({ periodMonths });
+  const {
+    data: trainingsWithCosts,
+    isLoading: trainingsLoading,
+    refetch: refetchTrainings,
+  } = trpc.trainingROI.listWithCosts.useQuery();
+  const { data: selectedROI, isLoading: roiLoading } =
+    trpc.trainingROI.calculateROI.useQuery(
+      { trainingId: selectedTrainingId!, periodMonths },
+      { enabled: !!selectedTrainingId && roiDialogOpen }
+    );
 
   // Mutations
   const upsertCosts = trpc.trainingROI.upsertCosts.useMutation({
@@ -64,7 +103,7 @@ export default function TrainingROIDashboard() {
       setCostsDialogOpen(false);
       resetCostsForm();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al guardar costos: ${error.message}`);
     },
   });
@@ -146,7 +185,7 @@ export default function TrainingROIDashboard() {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function(value: any) {
+          callback: function (value: any) {
             return value + "%";
           },
         },
@@ -166,12 +205,18 @@ export default function TrainingROIDashboard() {
     <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard de ROI de Capacitaciones</h1>
+          <h1 className="text-3xl font-bold">
+            Dashboard de ROI de Capacitaciones
+          </h1>
           <p className="text-muted-foreground">
-            Análisis financiero y retorno de inversión en capacitaciones del comité
+            Análisis financiero y retorno de inversión en capacitaciones del
+            comité
           </p>
         </div>
-        <Select value={periodMonths.toString()} onValueChange={(v) => setPeriodMonths(parseInt(v))}>
+        <Select
+          value={periodMonths.toString()}
+          onValueChange={v => setPeriodMonths(parseInt(v))}
+        >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Período de análisis" />
           </SelectTrigger>
@@ -187,11 +232,15 @@ export default function TrainingROIDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inversión Total</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Inversión Total
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${dashboard?.totalInvestment?.toLocaleString() || 0} MXN</div>
+            <div className="text-2xl font-bold">
+              ${dashboard?.totalInvestment?.toLocaleString() || 0} MXN
+            </div>
             <p className="text-xs text-muted-foreground">
               {dashboard?.trainingsWithCosts || 0} capacitaciones con costos
             </p>
@@ -200,11 +249,15 @@ export default function TrainingROIDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Beneficios Totales</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Beneficios Totales
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${dashboard?.totalBenefits?.toLocaleString() || 0} MXN</div>
+            <div className="text-2xl font-bold">
+              ${dashboard?.totalBenefits?.toLocaleString() || 0} MXN
+            </div>
             <p className="text-xs text-muted-foreground">
               Estimación basada en reducción de casos y mejoras
             </p>
@@ -217,22 +270,30 @@ export default function TrainingROIDashboard() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${(dashboard?.avgROI || 0) >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <div
+              className={`text-2xl font-bold ${(dashboard?.avgROI || 0) >= 0 ? "text-green-600" : "text-red-600"}`}
+            >
               {dashboard?.avgROI?.toFixed(2) || 0}%
             </div>
             <p className="text-xs text-muted-foreground">
-              {(dashboard?.avgROI || 0) >= 0 ? "Retorno positivo" : "Retorno negativo"}
+              {(dashboard?.avgROI || 0) >= 0
+                ? "Retorno positivo"
+                : "Retorno negativo"}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Capacitaciones Analizadas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Capacitaciones Analizadas
+            </CardTitle>
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboard?.trainingsWithCosts || 0}</div>
+            <div className="text-2xl font-bold">
+              {dashboard?.trainingsWithCosts || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               Con datos de costos registrados
             </p>
@@ -280,7 +341,10 @@ export default function TrainingROIDashboard() {
               </thead>
               <tbody>
                 {trainingsWithCosts?.map((training: any) => (
-                  <tr key={training.trainingId} className="border-b hover:bg-muted/50">
+                  <tr
+                    key={training.trainingId}
+                    className="border-b hover:bg-muted/50"
+                  >
                     <td className="p-2 font-medium">{training.title}</td>
                     <td className="p-2">
                       <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
@@ -290,10 +354,18 @@ export default function TrainingROIDashboard() {
                     <td className="text-right p-2 font-semibold">
                       ${training.totalCost.toLocaleString()} MXN
                     </td>
-                    <td className="text-right p-2">${training.instructorCost.toLocaleString()}</td>
-                    <td className="text-right p-2">${training.materialsCost.toLocaleString()}</td>
-                    <td className="text-right p-2">${training.facilitiesCost.toLocaleString()}</td>
-                    <td className="text-right p-2">${training.laborHoursCost.toLocaleString()}</td>
+                    <td className="text-right p-2">
+                      ${training.instructorCost.toLocaleString()}
+                    </td>
+                    <td className="text-right p-2">
+                      ${training.materialsCost.toLocaleString()}
+                    </td>
+                    <td className="text-right p-2">
+                      ${training.facilitiesCost.toLocaleString()}
+                    </td>
+                    <td className="text-right p-2">
+                      ${training.laborHoursCost.toLocaleString()}
+                    </td>
                     <td className="text-center p-2">
                       <div className="flex gap-2 justify-center">
                         <Button
@@ -301,7 +373,9 @@ export default function TrainingROIDashboard() {
                           variant="outline"
                           onClick={() => handleEditCosts(training.trainingId)}
                         >
-                          {training.hasCosts ? "Editar Costos" : "Agregar Costos"}
+                          {training.hasCosts
+                            ? "Editar Costos"
+                            : "Agregar Costos"}
                         </Button>
                         {training.hasCosts && (
                           <Button
@@ -328,18 +402,26 @@ export default function TrainingROIDashboard() {
           <DialogHeader>
             <DialogTitle>Gestionar Costos de Capacitación</DialogTitle>
             <DialogDescription>
-              Registre los costos detallados de la capacitación para calcular el ROI
+              Registre los costos detallados de la capacitación para calcular el
+              ROI
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="instructorCost">Costo de Instructor (MXN)</Label>
+                <Label htmlFor="instructorCost">
+                  Costo de Instructor (MXN)
+                </Label>
                 <Input
                   id="instructorCost"
                   type="number"
                   value={costsForm.instructorCost}
-                  onChange={(e) => setCostsForm({ ...costsForm, instructorCost: parseFloat(e.target.value) || 0 })}
+                  onChange={e =>
+                    setCostsForm({
+                      ...costsForm,
+                      instructorCost: parseFloat(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -348,27 +430,46 @@ export default function TrainingROIDashboard() {
                   id="materialsCost"
                   type="number"
                   value={costsForm.materialsCost}
-                  onChange={(e) => setCostsForm({ ...costsForm, materialsCost: parseFloat(e.target.value) || 0 })}
+                  onChange={e =>
+                    setCostsForm({
+                      ...costsForm,
+                      materialsCost: parseFloat(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="facilitiesCost">Costo de Instalaciones (MXN)</Label>
+                <Label htmlFor="facilitiesCost">
+                  Costo de Instalaciones (MXN)
+                </Label>
                 <Input
                   id="facilitiesCost"
                   type="number"
                   value={costsForm.facilitiesCost}
-                  onChange={(e) => setCostsForm({ ...costsForm, facilitiesCost: parseFloat(e.target.value) || 0 })}
+                  onChange={e =>
+                    setCostsForm({
+                      ...costsForm,
+                      facilitiesCost: parseFloat(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="laborHoursCost">Costo de Horas Laborales (MXN)</Label>
+                <Label htmlFor="laborHoursCost">
+                  Costo de Horas Laborales (MXN)
+                </Label>
                 <Input
                   id="laborHoursCost"
                   type="number"
                   value={costsForm.laborHoursCost}
-                  onChange={(e) => setCostsForm({ ...costsForm, laborHoursCost: parseFloat(e.target.value) || 0 })}
+                  onChange={e =>
+                    setCostsForm({
+                      ...costsForm,
+                      laborHoursCost: parseFloat(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -378,7 +479,12 @@ export default function TrainingROIDashboard() {
                 id="otherCosts"
                 type="number"
                 value={costsForm.otherCosts}
-                onChange={(e) => setCostsForm({ ...costsForm, otherCosts: parseFloat(e.target.value) || 0 })}
+                onChange={e =>
+                  setCostsForm({
+                    ...costsForm,
+                    otherCosts: parseFloat(e.target.value) || 0,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -386,14 +492,24 @@ export default function TrainingROIDashboard() {
               <Input
                 id="notes"
                 value={costsForm.notes}
-                onChange={(e) => setCostsForm({ ...costsForm, notes: e.target.value })}
+                onChange={e =>
+                  setCostsForm({ ...costsForm, notes: e.target.value })
+                }
                 placeholder="Detalles adicionales sobre los costos..."
               />
             </div>
             <div className="p-4 bg-muted rounded-lg">
               <p className="text-sm font-medium">Costo Total:</p>
               <p className="text-2xl font-bold text-primary">
-                ${(costsForm.instructorCost + costsForm.materialsCost + costsForm.facilitiesCost + costsForm.laborHoursCost + costsForm.otherCosts).toLocaleString()} MXN
+                $
+                {(
+                  costsForm.instructorCost +
+                  costsForm.materialsCost +
+                  costsForm.facilitiesCost +
+                  costsForm.laborHoursCost +
+                  costsForm.otherCosts
+                ).toLocaleString()}{" "}
+                MXN
               </p>
             </div>
           </div>
@@ -402,7 +518,9 @@ export default function TrainingROIDashboard() {
               Cancelar
             </Button>
             <Button onClick={handleSaveCosts} disabled={upsertCosts.isPending}>
-              {upsertCosts.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {upsertCosts.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Guardar Costos
             </Button>
           </div>
@@ -428,12 +546,18 @@ export default function TrainingROIDashboard() {
               <Card className="bg-gradient-to-r from-green-50 to-blue-50">
                 <CardContent className="pt-6">
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">Retorno de Inversión (ROI)</p>
-                    <p className={`text-5xl font-bold ${selectedROI.roi >= 0 ? "text-green-600" : "text-red-600"}`}>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Retorno de Inversión (ROI)
+                    </p>
+                    <p
+                      className={`text-5xl font-bold ${selectedROI.roi >= 0 ? "text-green-600" : "text-red-600"}`}
+                    >
                       {selectedROI.roi}%
                     </p>
                     <p className="text-sm text-muted-foreground mt-2">
-                      {selectedROI.roi >= 0 ? "Inversión rentable" : "Inversión no rentable"}
+                      {selectedROI.roi >= 0
+                        ? "Inversión rentable"
+                        : "Inversión no rentable"}
                     </p>
                   </div>
                 </CardContent>
@@ -453,7 +577,9 @@ export default function TrainingROIDashboard() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Beneficios Totales</CardTitle>
+                    <CardTitle className="text-sm">
+                      Beneficios Totales
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold text-green-600">
@@ -473,10 +599,12 @@ export default function TrainingROIDashboard() {
                     <div>
                       <p className="font-medium">Reducción de Casos</p>
                       <p className="text-sm text-muted-foreground">
-                        {selectedROI.casesReduction} casos menos ({selectedROI.casesReductionPercent}% reducción)
+                        {selectedROI.casesReduction} casos menos (
+                        {selectedROI.casesReductionPercent}% reducción)
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Antes: {selectedROI.casesBefore} casos | Después: {selectedROI.casesAfter} casos
+                        Antes: {selectedROI.casesBefore} casos | Después:{" "}
+                        {selectedROI.casesAfter} casos
                       </p>
                     </div>
                     <p className="text-lg font-bold text-green-600">
@@ -488,14 +616,16 @@ export default function TrainingROIDashboard() {
                     <div>
                       <p className="font-medium">Mejora en Productividad</p>
                       <p className="text-sm text-muted-foreground">
-                        Basado en evaluaciones ({selectedROI.avgRating}/5 estrellas)
+                        Basado en evaluaciones ({selectedROI.avgRating}/5
+                        estrellas)
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {selectedROI.evaluationImprovement}% de mejora estimada
                       </p>
                     </div>
                     <p className="text-lg font-bold text-green-600">
-                      ${(selectedROI.productivityBenefit || 0).toLocaleString()} MXN
+                      ${(selectedROI.productivityBenefit || 0).toLocaleString()}{" "}
+                      MXN
                     </p>
                   </div>
 
@@ -507,7 +637,11 @@ export default function TrainingROIDashboard() {
                       </p>
                     </div>
                     <p className="text-lg font-bold text-green-600">
-                      ${(selectedROI.certificationsBenefit || 0).toLocaleString()} MXN
+                      $
+                      {(
+                        selectedROI.certificationsBenefit || 0
+                      ).toLocaleString()}{" "}
+                      MXN
                     </p>
                   </div>
                 </CardContent>
@@ -517,23 +651,33 @@ export default function TrainingROIDashboard() {
               <div className="grid grid-cols-3 gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Asignaciones Completadas</CardTitle>
+                    <CardTitle className="text-sm">
+                      Asignaciones Completadas
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold">{selectedROI.completedAssignments}</p>
+                    <p className="text-2xl font-bold">
+                      {selectedROI.completedAssignments}
+                    </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Calificación Promedio</CardTitle>
+                    <CardTitle className="text-sm">
+                      Calificación Promedio
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold">{selectedROI.avgRating}/5</p>
+                    <p className="text-2xl font-bold">
+                      {selectedROI.avgRating}/5
+                    </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Período de Análisis</CardTitle>
+                    <CardTitle className="text-sm">
+                      Período de Análisis
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold">{periodMonths} meses</p>
@@ -544,7 +688,9 @@ export default function TrainingROIDashboard() {
           ) : (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
-                {selectedROI && "error" in selectedROI ? selectedROI.error : "No se pudo calcular el ROI"}
+                {selectedROI && "error" in selectedROI
+                  ? selectedROI.error
+                  : "No se pudo calcular el ROI"}
               </p>
             </div>
           )}

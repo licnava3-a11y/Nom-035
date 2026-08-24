@@ -63,7 +63,8 @@ export const nineBoxGridRouter = router({
         .where(eq(trainingNeeds.employeeId, input.employeeId));
 
       const totalTrainings = trainingData.length;
-      const completedTrainings = trainingData.filter((t: any) => t.status === "completada"
+      const completedTrainings = trainingData.filter(
+        (t: any) => t.status === "completada"
       ).length;
 
       // Calcular tasa de completitud
@@ -83,12 +84,25 @@ export const nineBoxGridRouter = router({
 
       // 3. Determinar cuadrante (9 categorías)
       const quadrantMap: Record<number, Record<number, string>> = {
-        1: { 1: "Bajo Desempeño / Bajo Potencial", 2: "Bajo Desempeño / Medio Potencial", 3: "Bajo Desempeño / Alto Potencial" },
-        2: { 1: "Medio Desempeño / Bajo Potencial", 2: "Medio Desempeño / Medio Potencial", 3: "Medio Desempeño / Alto Potencial" },
-        3: { 1: "Alto Desempeño / Bajo Potencial", 2: "Alto Desempeño / Medio Potencial", 3: "Alto Desempeño / Alto Potencial" },
+        1: {
+          1: "Bajo Desempeño / Bajo Potencial",
+          2: "Bajo Desempeño / Medio Potencial",
+          3: "Bajo Desempeño / Alto Potencial",
+        },
+        2: {
+          1: "Medio Desempeño / Bajo Potencial",
+          2: "Medio Desempeño / Medio Potencial",
+          3: "Medio Desempeño / Alto Potencial",
+        },
+        3: {
+          1: "Alto Desempeño / Bajo Potencial",
+          2: "Alto Desempeño / Medio Potencial",
+          3: "Alto Desempeño / Alto Potencial",
+        },
       };
 
-      const quadrant = quadrantMap[performanceScore]?.[potentialScore] || "Sin clasificar";
+      const quadrant =
+        quadrantMap[performanceScore]?.[potentialScore] || "Sin clasificar";
 
       // 4. Guardar o actualizar evaluación
       const existing = await db
@@ -198,7 +212,8 @@ export const nineBoxGridRouter = router({
           .where(eq(trainingNeeds.employeeId, employee.id));
 
         const totalTrainings = trainingData.length;
-        const completedTrainings = trainingData.filter((t: any) => t.status === "completada"
+        const completedTrainings = trainingData.filter(
+          (t: any) => t.status === "completada"
         ).length;
         const completionRate =
           totalTrainings > 0 ? completedTrainings / totalTrainings : 0;
@@ -209,12 +224,25 @@ export const nineBoxGridRouter = router({
         else potentialScore = 3;
 
         const quadrantMap: Record<number, Record<number, string>> = {
-          1: { 1: "Bajo Desempeño / Bajo Potencial", 2: "Bajo Desempeño / Medio Potencial", 3: "Bajo Desempeño / Alto Potencial" },
-          2: { 1: "Medio Desempeño / Bajo Potencial", 2: "Medio Desempeño / Medio Potencial", 3: "Medio Desempeño / Alto Potencial" },
-          3: { 1: "Alto Desempeño / Bajo Potencial", 2: "Alto Desempeño / Medio Potencial", 3: "Alto Desempeño / Alto Potencial" },
+          1: {
+            1: "Bajo Desempeño / Bajo Potencial",
+            2: "Bajo Desempeño / Medio Potencial",
+            3: "Bajo Desempeño / Alto Potencial",
+          },
+          2: {
+            1: "Medio Desempeño / Bajo Potencial",
+            2: "Medio Desempeño / Medio Potencial",
+            3: "Medio Desempeño / Alto Potencial",
+          },
+          3: {
+            1: "Alto Desempeño / Bajo Potencial",
+            2: "Alto Desempeño / Medio Potencial",
+            3: "Alto Desempeño / Alto Potencial",
+          },
         };
 
-        const quadrant = quadrantMap[performanceScore]?.[potentialScore] || "Sin clasificar";
+        const quadrant =
+          quadrantMap[performanceScore]?.[potentialScore] || "Sin clasificar";
 
         const existing = await db
           .select()

@@ -17,7 +17,11 @@ interface DateRangePickerProps {
   className?: string;
 }
 
-export function DateRangePicker({ value, onChange, className }: DateRangePickerProps) {
+export function DateRangePicker({
+  value,
+  onChange,
+  className,
+}: DateRangePickerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>

@@ -8,7 +8,10 @@ import DashboardLayout from "./components/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { DashboardSkeleton } from "./components/skeletons";
 import SkipLink from "./components/SkipLink";
-import { KeyboardShortcutsHelp, useGlobalShortcutsHelp } from "./components/KeyboardShortcutsHelp";
+import {
+  KeyboardShortcutsHelp,
+  useGlobalShortcutsHelp,
+} from "./components/KeyboardShortcutsHelp";
 import { GlobalSearch, useGlobalSearch } from "./components/GlobalSearch";
 import { TermsAcceptanceModal } from "./components/TermsAcceptanceModal";
 import { PWAUpdateBanner } from "./components/PWAUpdateBanner";
@@ -26,74 +29,156 @@ const CasesMetrics = lazy(() => import("./pages/CasesMetrics"));
 const CasesManagement = lazy(() => import("./pages/CasesManagement"));
 const PredictiveAnalytics = lazy(() => import("./pages/PredictiveAnalytics"));
 const RootCauseAnalysis = lazy(() => import("./pages/RootCauseAnalysis"));
-const CommitteeTrainingsManagement = lazy(() => import("./pages/CommitteeTrainingsManagement"));
+const CommitteeTrainingsManagement = lazy(
+  () => import("./pages/CommitteeTrainingsManagement")
+);
 const MyCommitteeTrainings = lazy(() => import("./pages/MyCommitteeTrainings"));
-const RecommendationsTracking = lazy(() => import("./pages/RecommendationsTracking"));
-const TrainingEvaluationsDashboard = lazy(() => import("./pages/TrainingEvaluationsDashboard"));
-const IntelligentAlertsDashboard = lazy(() => import("./pages/IntelligentAlertsDashboard"));
+const RecommendationsTracking = lazy(
+  () => import("./pages/RecommendationsTracking")
+);
+const TrainingEvaluationsDashboard = lazy(
+  () => import("./pages/TrainingEvaluationsDashboard")
+);
+const IntelligentAlertsDashboard = lazy(
+  () => import("./pages/IntelligentAlertsDashboard")
+);
 const TrainingROIDashboard = lazy(() => import("./pages/TrainingROIDashboard"));
-const BenchmarkingDashboard = lazy(() => import("./pages/BenchmarkingDashboard"));
-const CorrectiveActionPlansManagement = lazy(() => import("./pages/CorrectiveActionPlansManagement"));
-const InterventionImpactDashboard = lazy(() => import("./pages/InterventionImpactDashboard"));
+const BenchmarkingDashboard = lazy(
+  () => import("./pages/BenchmarkingDashboard")
+);
+const CorrectiveActionPlansManagement = lazy(
+  () => import("./pages/CorrectiveActionPlansManagement")
+);
+const InterventionImpactDashboard = lazy(
+  () => import("./pages/InterventionImpactDashboard")
+);
 const SharedReportsHistory = lazy(() => import("./pages/SharedReportsHistory"));
 const EvidencesFolder = lazy(() => import("./pages/EvidencesFolder"));
-const NMX025EvidencesFolder = lazy(() => import("./pages/NMX025EvidencesFolder"));
+const NMX025EvidencesFolder = lazy(
+  () => import("./pages/NMX025EvidencesFolder")
+);
 const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
-const PostCaseSurveysDashboard = lazy(() => import("./pages/PostCaseSurveysDashboard"));
+const PostCaseSurveysDashboard = lazy(
+  () => import("./pages/PostCaseSurveysDashboard")
+);
 const SurveyPublicResponse = lazy(() => import("./pages/SurveyPublicResponse"));
-const SentimentAnalysisDashboard = lazy(() => import("./pages/SentimentAnalysisDashboard"));
-const PsychosocialAIDashboard = lazy(() => import("./pages/PsychosocialAIDashboard"));
+const SentimentAnalysisDashboard = lazy(
+  () => import("./pages/SentimentAnalysisDashboard")
+);
+const PsychosocialAIDashboard = lazy(
+  () => import("./pages/PsychosocialAIDashboard")
+);
 const LegalDocGenerator = lazy(() => import("./pages/LegalDocGenerator"));
-const ExecutiveReportsPanel = lazy(() => import("./pages/ExecutiveReportsPanel"));
+const ExecutiveReportsPanel = lazy(
+  () => import("./pages/ExecutiveReportsPanel")
+);
 const ExecutiveDashboard = lazy(() => import("./pages/ExecutiveDashboard"));
-const ComplianceNOM035Dashboard = lazy(() => import("./pages/ComplianceNOM035Dashboard"));
-const SentimentCasesCorrelationDashboard = lazy(() => import("./pages/SentimentCasesCorrelationDashboard"));
-const PredictiveTurnoverDashboard = lazy(() => import("./pages/PredictiveTurnoverDashboard"));
-const PredictiveCorrelationDashboard = lazy(() => import("./pages/PredictiveCorrelationDashboard"));
-const ModelEvolutionDashboard = lazy(() => import("./pages/ModelEvolutionDashboard"));
-const ModelThresholdsConfig = lazy(() => import("./pages/ModelThresholdsConfig"));
-const ModelPerformanceAlerts = lazy(() => import("./pages/ModelPerformanceAlerts"));
-const ThresholdABTestingDashboard = lazy(() => import("./pages/ThresholdABTestingDashboard"));
-const ModelRetrainingHistory = lazy(() => import("./pages/ModelRetrainingHistory"));
-const RetentionInterventionsDashboard = lazy(() => import("./pages/RetentionInterventionsDashboard"));
-const InterventionPredictionDashboard = lazy(() => import("./pages/InterventionPredictionDashboard"));
-const PayrollCompensationDashboard = lazy(() => import("./pages/PayrollCompensationDashboard"));
-const RetentionConsolidatedDashboard = lazy(() => import("./pages/RetentionConsolidatedDashboard"));
-const SalaryTrendsDashboard = lazy(() => import("./pages/SalaryTrendsDashboard"));
-const CSRFViolationsPage = lazy(() => import("./pages/admin/CSRFViolationsPage"));
+const ComplianceNOM035Dashboard = lazy(
+  () => import("./pages/ComplianceNOM035Dashboard")
+);
+const SentimentCasesCorrelationDashboard = lazy(
+  () => import("./pages/SentimentCasesCorrelationDashboard")
+);
+const PredictiveTurnoverDashboard = lazy(
+  () => import("./pages/PredictiveTurnoverDashboard")
+);
+const PredictiveCorrelationDashboard = lazy(
+  () => import("./pages/PredictiveCorrelationDashboard")
+);
+const ModelEvolutionDashboard = lazy(
+  () => import("./pages/ModelEvolutionDashboard")
+);
+const ModelThresholdsConfig = lazy(
+  () => import("./pages/ModelThresholdsConfig")
+);
+const ModelPerformanceAlerts = lazy(
+  () => import("./pages/ModelPerformanceAlerts")
+);
+const ThresholdABTestingDashboard = lazy(
+  () => import("./pages/ThresholdABTestingDashboard")
+);
+const ModelRetrainingHistory = lazy(
+  () => import("./pages/ModelRetrainingHistory")
+);
+const RetentionInterventionsDashboard = lazy(
+  () => import("./pages/RetentionInterventionsDashboard")
+);
+const InterventionPredictionDashboard = lazy(
+  () => import("./pages/InterventionPredictionDashboard")
+);
+const PayrollCompensationDashboard = lazy(
+  () => import("./pages/PayrollCompensationDashboard")
+);
+const RetentionConsolidatedDashboard = lazy(
+  () => import("./pages/RetentionConsolidatedDashboard")
+);
+const SalaryTrendsDashboard = lazy(
+  () => import("./pages/SalaryTrendsDashboard")
+);
+const CSRFViolationsPage = lazy(
+  () => import("./pages/admin/CSRFViolationsPage")
+);
 const LandingPage = lazy(() => import("./pages/LandingPage"));
-const ExternalOfferAlertsDashboard = lazy(() => import("./pages/ExternalOfferAlertsDashboard"));
-const BudgetPlannerDashboard = lazy(() => import("./pages/BudgetPlannerDashboard"));
-const SalaryEquityDashboard = lazy(() => import("./pages/SalaryEquityDashboard"));
-const ClimateAnalysisDashboard = lazy(() => import("./pages/ClimateAnalysisDashboard"));
-const CareerPlanningDashboard = lazy(() => import("./pages/CareerPlanningDashboard"));
-const TurnoverManagementPanel = lazy(() => import("./pages/TurnoverManagementPanel"));
-const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
+const ExternalOfferAlertsDashboard = lazy(
+  () => import("./pages/ExternalOfferAlertsDashboard")
+);
+const BudgetPlannerDashboard = lazy(
+  () => import("./pages/BudgetPlannerDashboard")
+);
+const SalaryEquityDashboard = lazy(
+  () => import("./pages/SalaryEquityDashboard")
+);
+const ClimateAnalysisDashboard = lazy(
+  () => import("./pages/ClimateAnalysisDashboard")
+);
+const CareerPlanningDashboard = lazy(
+  () => import("./pages/CareerPlanningDashboard")
+);
+const TurnoverManagementPanel = lazy(
+  () => import("./pages/TurnoverManagementPanel")
+);
+const JobMonitoringDashboard = lazy(
+  () => import("./pages/JobMonitoringDashboard")
+);
 const AdminJobs = lazy(() => import("./pages/AdminJobs"));
 const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
-const ConsolidatedDashboard = lazy(() => import("./pages/ConsolidatedDashboard"));
+const ConsolidatedDashboard = lazy(
+  () => import("./pages/ConsolidatedDashboard")
+);
 const Resources = lazy(() => import("./pages/Resources"));
 const Evaluations = lazy(() => import("./pages/Evaluations"));
 const TakeEvaluation = lazy(() => import("./pages/TakeEvaluation"));
 const CaseDetail = lazy(() => import("./pages/CaseDetail"));
 const Committee = lazy(() => import("./pages/Committee"));
-const CommitteeMemberProfile = lazy(() => import("./pages/CommitteeMemberProfile"));
+const CommitteeMemberProfile = lazy(
+  () => import("./pages/CommitteeMemberProfile")
+);
 const CommitteeMemberEdit = lazy(() => import("./pages/CommitteeMemberEdit"));
-const CommitteeMemberNew = lazy(() => import('./pages/CommitteeMemberNew'));
-const PositionAcceptance = lazy(() => import('./pages/committee/PositionAcceptance'));
-const ConstitutiveAct = lazy(() => import('./pages/committee/ConstitutiveAct'));
-const OperatingRules = lazy(() => import('./pages/committee/OperatingRules'));
-const CommitteeTraining = lazy(() => import('./pages/committee/CommitteeTraining'));
-const TrendsCharts = lazy(() => import('./pages/TrendsCharts'));
-const SignatureTest = lazy(() => import('./pages/SignatureTest'));
+const CommitteeMemberNew = lazy(() => import("./pages/CommitteeMemberNew"));
+const PositionAcceptance = lazy(
+  () => import("./pages/committee/PositionAcceptance")
+);
+const ConstitutiveAct = lazy(() => import("./pages/committee/ConstitutiveAct"));
+const OperatingRules = lazy(() => import("./pages/committee/OperatingRules"));
+const CommitteeTraining = lazy(
+  () => import("./pages/committee/CommitteeTraining")
+);
+const TrendsCharts = lazy(() => import("./pages/TrendsCharts"));
+const SignatureTest = lazy(() => import("./pages/SignatureTest"));
 const JobPositions = lazy(() => import("./pages/JobPositions"));
 const Reports = lazy(() => import("./pages/Reports"));
 const AlertHistory = lazy(() => import("./pages/AlertHistory"));
 const AlertReportsConfig = lazy(() => import("./pages/AlertReportsConfig"));
 const AlertAdminDashboard = lazy(() => import("./pages/AlertAdminDashboard"));
-const AlertMetricsDashboard = lazy(() => import("./pages/AlertMetricsDashboard"));
-const AlertThresholdsConfig = lazy(() => import("./pages/AlertThresholdsConfig"));
-const PredictiveDashboard = lazy(() => import("./pages/alerts/PredictiveDashboard"));
+const AlertMetricsDashboard = lazy(
+  () => import("./pages/AlertMetricsDashboard")
+);
+const AlertThresholdsConfig = lazy(
+  () => import("./pages/AlertThresholdsConfig")
+);
+const PredictiveDashboard = lazy(
+  () => import("./pages/alerts/PredictiveDashboard")
+);
 const NotificationHistory = lazy(() => import("./pages/NotificationsHistory"));
 const Users = lazy(() => import("./pages/Users"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -108,33 +193,57 @@ const EmployeeProfile = lazy(() => import("./pages/EmployeeProfile"));
 const DepartmentManagement = lazy(() => import("./pages/DepartmentManagement"));
 const DepartmentMetrics = lazy(() => import("./pages/DepartmentMetrics"));
 const AlgorithmConfig = lazy(() => import("./pages/AlgorithmConfig"));
-const AlgorithmEffectiveness = lazy(() => import("./pages/AlgorithmEffectiveness"));
-const ReportConfigurationPanel = lazy(() => import("./pages/ReportConfigurationPanel"));
+const AlgorithmEffectiveness = lazy(
+  () => import("./pages/AlgorithmEffectiveness")
+);
+const ReportConfigurationPanel = lazy(
+  () => import("./pages/ReportConfigurationPanel")
+);
 const Contact = lazy(() => import("./pages/Contact"));
 const NOM035Landing = lazy(() => import("./pages/NOM035Landing"));
 const NOM037Landing = lazy(() => import("./pages/NOM037Landing"));
 const EmployeeDocuments = lazy(() => import("./pages/EmployeeDocuments"));
-const EmployeeTrainingNeeds = lazy(() => import("./pages/EmployeeTrainingNeeds"));
+const EmployeeTrainingNeeds = lazy(
+  () => import("./pages/EmployeeTrainingNeeds")
+);
 const EmployeeTermination = lazy(() => import("./pages/EmployeeTermination"));
 const TurnoverDashboard = lazy(() => import("./pages/TurnoverDashboard"));
-const CompetenciesDashboard = lazy(() => import("./pages/CompetenciesDashboard"));
+const CompetenciesDashboard = lazy(
+  () => import("./pages/CompetenciesDashboard")
+);
 const SkillsMatrix = lazy(() => import("./pages/SkillsMatrix"));
-const SkillsMatrixSnapshots = lazy(() => import("./pages/talent/SkillsMatrixSnapshots"));
+const SkillsMatrixSnapshots = lazy(
+  () => import("./pages/talent/SkillsMatrixSnapshots")
+);
 const NineBoxGrid = lazy(() => import("./pages/talent/NineBoxGrid"));
 const NineBoxMatrix = lazy(() => import("./pages/NineBoxMatrix"));
 const Recognitions = lazy(() => import("./pages/talent/Recognitions"));
-const EmployeeCompetencyEvaluation = lazy(() => import("./pages/EmployeeCompetencyEvaluation"));
+const EmployeeCompetencyEvaluation = lazy(
+  () => import("./pages/EmployeeCompetencyEvaluation")
+);
 const DNCDashboard = lazy(() => import("./pages/DNCDashboard"));
-const OrganizationalCompetenciesManager = lazy(() => import("./pages/OrganizationalCompetenciesManager"));
+const OrganizationalCompetenciesManager = lazy(
+  () => import("./pages/OrganizationalCompetenciesManager")
+);
 const MeetingMinutes = lazy(() => import("./pages/MeetingMinutes"));
 const MeetingMinuteForm = lazy(() => import("./pages/MeetingMinuteForm"));
 const Documents = lazy(() => import("./pages/Documents"));
 const CaseAssignment = lazy(() => import("./pages/CaseAssignment"));
-const DocumentActaConstitutiva = lazy(() => import("./pages/DocumentActaConstitutiva"));
-const DocumentFuncionesComite = lazy(() => import("./pages/DocumentFuncionesComite"));
-const DocumentAceptacionCargo = lazy(() => import("./pages/DocumentAceptacionCargo"));
-const DocumentActaRecorridoNOM019 = lazy(() => import("./pages/DocumentActaRecorridoNOM019"));
-const DocumentActaFinalResultados = lazy(() => import("./pages/DocumentActaFinalResultados"));
+const DocumentActaConstitutiva = lazy(
+  () => import("./pages/DocumentActaConstitutiva")
+);
+const DocumentFuncionesComite = lazy(
+  () => import("./pages/DocumentFuncionesComite")
+);
+const DocumentAceptacionCargo = lazy(
+  () => import("./pages/DocumentAceptacionCargo")
+);
+const DocumentActaRecorridoNOM019 = lazy(
+  () => import("./pages/DocumentActaRecorridoNOM019")
+);
+const DocumentActaFinalResultados = lazy(
+  () => import("./pages/DocumentActaFinalResultados")
+);
 const DocumentsHistory = lazy(() => import("./pages/DocumentsHistory"));
 const DocumentGallery = lazy(() => import("./pages/DocumentGallery"));
 const GuideI = lazy(() => import("./pages/surveys/GuideI"));
@@ -145,7 +254,9 @@ const GuideII = lazy(() => import("./pages/surveys/GuideII"));
 const GuideIII = lazy(() => import("./pages/surveys/GuideIII"));
 const SurveysDashboard = lazy(() => import("./pages/surveys/Dashboard"));
 const SurveysTracking = lazy(() => import("./pages/surveys/Tracking"));
-const CorrectiveActions = lazy(() => import("./pages/surveys/CorrectiveActions"));
+const CorrectiveActions = lazy(
+  () => import("./pages/surveys/CorrectiveActions")
+);
 const SurveyResults = lazy(() => import("./pages/surveys/SurveyResults"));
 const GuideIIResults = lazy(() => import("./pages/surveys/GuideIIResults"));
 const SurveyAdmin = lazy(() => import("./pages/surveys/SurveyAdmin"));
@@ -155,7 +266,9 @@ const ActionPlan = lazy(() => import("./pages/surveys/ActionPlan"));
 const SampleSize = lazy(() => import("./pages/surveys/SampleSize"));
 const TokensDashboard = lazy(() => import("./pages/surveys/TokensDashboard"));
 const AnonymousTokens = lazy(() => import("./pages/surveys/AnonymousTokens"));
-const AnonymousSurveyAccess = lazy(() => import("./pages/surveys/AnonymousSurveyAccess"));
+const AnonymousSurveyAccess = lazy(
+  () => import("./pages/surveys/AnonymousSurveyAccess")
+);
 const TokenManagement = lazy(() => import("./pages/surveys/TokenManagement"));
 const SurveysAdminPanel = lazy(() => import("./pages/SurveysAdminPanel"));
 const SurveyPeriodsManager = lazy(() => import("./pages/SurveyPeriodsManager"));
@@ -166,7 +279,9 @@ const SurveyApply = lazy(() => import("./pages/SurveyApply"));
 const PublicSurveyResponse = lazy(() => import("./pages/PublicSurveyResponse"));
 const Settings = lazy(() => import("./pages/Settings"));
 const CompanySettings = lazy(() => import("./pages/company/CompanySettings"));
-const NotificationSettings = lazy(() => import("./pages/settings/NotificationSettings"));
+const NotificationSettings = lazy(
+  () => import("./pages/settings/NotificationSettings")
+);
 const EqualityPolicy = lazy(() => import("./pages/equality/Policy"));
 const NOM035Questionnaire = lazy(() => import("./pages/NOM035Questionnaire"));
 const NOM035Results = lazy(() => import("./pages/NOM035Results"));
@@ -174,11 +289,17 @@ const NOM035DetailedReport = lazy(() => import("./pages/NOM035DetailedReport"));
 const KPIDashboard = lazy(() => import("./pages/KPIDashboard"));
 const Departments = lazy(() => import("./pages/Departments"));
 const Positions = lazy(() => import("./pages/Positions"));
-const OrganizationDashboard = lazy(() => import("./pages/OrganizationDashboard"));
+const OrganizationDashboard = lazy(
+  () => import("./pages/OrganizationDashboard")
+);
 const OrganizationChart = lazy(() => import("./pages/OrganizationChart"));
-const OrganizationalChanges = lazy(() => import("./pages/OrganizationalChanges"));
+const OrganizationalChanges = lazy(
+  () => import("./pages/OrganizationalChanges")
+);
 const EqualitySalaryGap = lazy(() => import("./pages/equality/SalaryGap"));
-const EqualityAffirmativeActions = lazy(() => import("./pages/equality/AffirmativeActions"));
+const EqualityAffirmativeActions = lazy(
+  () => import("./pages/equality/AffirmativeActions")
+);
 const MassiveImport = lazy(() => import("./pages/MassiveImport"));
 const HRIntegration = lazy(() => import("./pages/HRIntegration"));
 const ClientCompanies = lazy(() => import("./pages/ClientCompanies"));
@@ -188,11 +309,17 @@ const RegulatoryReports = lazy(() => import("./pages/RegulatoryReports"));
 const MassSurveyEmail = lazy(() => import("./pages/surveys/MassSurveyEmail"));
 const JobApplication = lazy(() => import("./pages/JobApplication"));
 const ApplicationSuccess = lazy(() => import("./pages/ApplicationSuccess"));
-const RecruitmentManagement = lazy(() => import("./pages/RecruitmentManagement"));
-const ContractExpirationDashboard = lazy(() => import("./pages/ContractExpirationDashboard"));
+const RecruitmentManagement = lazy(
+  () => import("./pages/RecruitmentManagement")
+);
+const ContractExpirationDashboard = lazy(
+  () => import("./pages/ContractExpirationDashboard")
+);
 const VacationManagement = lazy(() => import("./pages/VacationManagement"));
 const VacationCalendar = lazy(() => import("./pages/VacationCalendar"));
-const VacationSeniorityManager = lazy(() => import("./pages/VacationSeniorityManager"));
+const VacationSeniorityManager = lazy(
+  () => import("./pages/VacationSeniorityManager")
+);
 const SuperAdminPanel = lazy(() => import("./pages/SuperAdminPanel"));
 const LegalPortada = lazy(() => import("./pages/LegalPortada"));
 const InternalMailbox = lazy(() => import("./pages/InternalMailbox"));
@@ -203,8 +330,12 @@ const FeatureRequests = lazy(() => import("./pages/FeatureRequests"));
 const MyMailbox = lazy(() => import("./pages/MyMailbox"));
 const EarlyWarnings = lazy(() => import("./pages/EarlyWarnings"));
 const Investigations = lazy(() => import("./pages/cases/Investigations"));
-const WorkplaceViolenceProtocol = lazy(() => import("./pages/cases/WorkplaceViolenceProtocol"));
-const QuestionnairePublic = lazy(() => import("./pages/public/QuestionnairePublic"));
+const WorkplaceViolenceProtocol = lazy(
+  () => import("./pages/cases/WorkplaceViolenceProtocol")
+);
+const QuestionnairePublic = lazy(
+  () => import("./pages/public/QuestionnairePublic")
+);
 const VerifyReport = lazy(() => import("./pages/VerifyReport"));
 const DocumentFormats = lazy(() => import("./pages/DocumentFormats"));
 const ReportsHistory = lazy(() => import("./pages/ReportsHistory"));
@@ -212,38 +343,56 @@ const DocumentAudit = lazy(() => import("./pages/DocumentAudit"));
 const SecurityAlerts = lazy(() => import("./pages/SecurityAlerts"));
 const ReportTemplates = lazy(() => import("./pages/ReportTemplates"));
 const RiskAnalysis = lazy(() => import("./pages/RiskAnalysis"));
-const CommitteeMinutesManagement = lazy(() => import("./pages/CommitteeMinutesManagement"));
-const CommitteeAnnualReports = lazy(() => import("./pages/CommitteeAnnualReports"));
+const CommitteeMinutesManagement = lazy(
+  () => import("./pages/CommitteeMinutesManagement")
+);
+const CommitteeAnnualReports = lazy(
+  () => import("./pages/CommitteeAnnualReports")
+);
 const MinuteRecipients = lazy(() => import("./pages/MinuteRecipients"));
-const MinuteRecipientHistory = lazy(() => import("./pages/MinuteRecipientHistory"));
+const MinuteRecipientHistory = lazy(
+  () => import("./pages/MinuteRecipientHistory")
+);
 const DispatchesPanel = lazy(() => import("./pages/DispatchesPanel"));
-const CommitteeOperatingRules = lazy(() => import("./pages/CommitteeOperatingRules"));
+const CommitteeOperatingRules = lazy(
+  () => import("./pages/CommitteeOperatingRules")
+);
 const VerifyOperatingRules = lazy(() => import("./pages/VerifyOperatingRules"));
 const SignatureAudit = lazy(() => import("./pages/SignatureAudit"));
 const ApprovalMetrics = lazy(() => import("./pages/ApprovalMetrics"));
 const ApprovalCalendarPage = lazy(() => import("./pages/ApprovalCalendarPage"));
-const DeadlineComplianceDashboard = lazy(() => import("./pages/DeadlineComplianceDashboard"));
+const DeadlineComplianceDashboard = lazy(
+  () => import("./pages/DeadlineComplianceDashboard")
+);
 const AgreementsDashboard = lazy(() => import("./pages/AgreementsDashboard"));
 const TrainingCertificates = lazy(() => import("./pages/TrainingCertificates"));
 const EfirmaSAT = lazy(() => import("./pages/EfirmaSAT"));
 const TrainingDashboard = lazy(() => import("./pages/TrainingDashboard"));
-const AssessmentsManagement = lazy(() => import("./pages/AssessmentsManagement"));
+const AssessmentsManagement = lazy(
+  () => import("./pages/AssessmentsManagement")
+);
 const QuestionBank = lazy(() => import("./pages/QuestionBank"));
 const TakeExam = lazy(() => import("./pages/TakeExam"));
 const ExamResults = lazy(() => import("./pages/ExamResults"));
-const NotificationsDashboard = lazy(() => import("./pages/NotificationsDashboard"));
+const NotificationsDashboard = lazy(
+  () => import("./pages/NotificationsDashboard")
+);
 const Surveys = lazy(() => import("./pages/Surveys"));
 const Prevention = lazy(() => import("./pages/Prevention"));
 const Compliance = lazy(() => import("./pages/Compliance"));
 const Payments = lazy(() => import("./pages/Payments"));
 const PurchaseOrders = lazy(() => import("./pages/PurchaseOrders"));
 const ExpenseRequests = lazy(() => import("./pages/ExpenseRequests"));
-const DashboardAdministrativo = lazy(() => import("./pages/DashboardAdministrativo"));
+const DashboardAdministrativo = lazy(
+  () => import("./pages/DashboardAdministrativo")
+);
 const RolesPermissions = lazy(() => import("./pages/RolesPermissions"));
 const CustomPermissions = lazy(() => import("./pages/CustomPermissions"));
 const PermissionAudit = lazy(() => import("./pages/PermissionAudit"));
 const SMTPConfig = lazy(() => import("./pages/SMTPConfig"));
-const PerformanceEvaluation360 = lazy(() => import("./pages/PerformanceEvaluation360"));
+const PerformanceEvaluation360 = lazy(
+  () => import("./pages/PerformanceEvaluation360")
+);
 const RetentionAnalytics = lazy(() => import("./pages/RetentionAnalytics"));
 const TalentDashboard = lazy(() => import("./pages/TalentDashboard"));
 const InterventionPlans = lazy(() => import("./pages/InterventionPlans"));
@@ -257,11 +406,17 @@ const ExitInterviews = lazy(() => import("./pages/ExitInterviews"));
 const AnnualTrainingPlan = lazy(() => import("./pages/AnnualTrainingPlan"));
 const WebVitalsDashboard = lazy(() => import("./pages/WebVitalsDashboard"));
 const BranchesManagement = lazy(() => import("./pages/BranchesManagement"));
-const BranchComparativeReport = lazy(() => import("./pages/BranchComparativeReport"));
+const BranchComparativeReport = lazy(
+  () => import("./pages/BranchComparativeReport")
+);
 const Welcome = lazy(() => import("./pages/Welcome"));
 const LoginError = lazy(() => import("./pages/LoginError"));
-const Nom035Matrix = lazy(() => import("./pages/Nom035Matrix").then(m => ({ default: m.Nom035Matrix })));
-const Nom035ComplianceDashboard = lazy(() => import("./pages/Nom035ComplianceDashboard"));
+const Nom035Matrix = lazy(() =>
+  import("./pages/Nom035Matrix").then(m => ({ default: m.Nom035Matrix }))
+);
+const Nom035ComplianceDashboard = lazy(
+  () => import("./pages/Nom035ComplianceDashboard")
+);
 const AuditLogReport = lazy(() => import("./pages/AuditLogReport"));
 const CommitteeModule = lazy(() => import("./pages/CommitteeModule"));
 const EmployeePortal = lazy(() => import("./pages/EmployeePortal"));
@@ -278,8 +433,12 @@ const InternalComms = lazy(() => import("./pages/InternalComms"));
 const BuzonComunicacion = lazy(() => import("./pages/BuzonComunicacion"));
 const BuzonConsulta = lazy(() => import("./pages/BuzonConsulta"));
 const ClinicalRecords = lazy(() => import("./pages/ClinicalRecords"));
-const AlertsCentralDashboard = lazy(() => import("./pages/AlertsCentralDashboard"));
-const RetentionHubDashboard = lazy(() => import("./pages/RetentionHubDashboard"));
+const AlertsCentralDashboard = lazy(
+  () => import("./pages/AlertsCentralDashboard")
+);
+const RetentionHubDashboard = lazy(
+  () => import("./pages/RetentionHubDashboard")
+);
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
@@ -294,7 +453,9 @@ function Router() {
       <Switch>
         {/* Alias de compatibilidad para enlaces internos heredados. */}
         {legacyRedirects.map(({ path, to }) => (
-          <Route key={path} path={path}><Redirect to={to} /></Route>
+          <Route key={path} path={path}>
+            <Redirect to={to} />
+          </Route>
         ))}
         <Route path={"/"}>
           <Suspense fallback={<PageLoader />}>
@@ -1041,11 +1202,11 @@ function Router() {
           </DashboardLayout>
         </Route>
         <Route path={"/legal-doc-generator"}>
-              <Suspense fallback={<PageLoader />}>
-                <LegalDocGenerator />
-              </Suspense>
-            </Route>
-            <Route path={"/psychosocial-ai"}>
+          <Suspense fallback={<PageLoader />}>
+            <LegalDocGenerator />
+          </Suspense>
+        </Route>
+        <Route path={"/psychosocial-ai"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <PsychosocialAIDashboard />
@@ -1065,7 +1226,7 @@ function Router() {
               <ExecutiveDashboard />
             </Suspense>
           </DashboardLayout>
-          </Route>
+        </Route>
         <Route path={"/compliance/nom035"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
@@ -1384,9 +1545,9 @@ function Router() {
           </DashboardLayout>
         </Route>
         <Route path={"/client-companies"}>
-              <DashboardLayout>
-                <ClientCompanies />
-              </DashboardLayout>
+          <DashboardLayout>
+            <ClientCompanies />
+          </DashboardLayout>
         </Route>
         <Route path={"/hr-integration"}>
           <DashboardLayout>
@@ -2094,7 +2255,7 @@ function Router() {
           </Suspense>
         </Route>
         <Route path="/survey/:token">
-          {(params) => (
+          {params => (
             <Suspense fallback={<PageLoader />}>
               <SurveyPublicResponse />
             </Suspense>
@@ -2121,9 +2282,12 @@ function Router() {
 function TermsGuard() {
   const { user } = useAuth();
   const [showTerms, setShowTerms] = useState(false);
-  const { data: termsData, isLoading } = trpc.terms.hasAccepted.useQuery(undefined, {
-    enabled: !!user,
-  });
+  const { data: termsData, isLoading } = trpc.terms.hasAccepted.useQuery(
+    undefined,
+    {
+      enabled: !!user,
+    }
+  );
 
   useEffect(() => {
     if (!isLoading && user && termsData && !termsData.accepted) {

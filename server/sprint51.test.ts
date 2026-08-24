@@ -26,7 +26,7 @@ describe("Sprint 51 — Compresión gzip en Express", () => {
 
   it("index.ts importa el módulo compression", () => {
     const content = readFileSync(indexPath, "utf-8");
-    expect(content).toContain("import compression from \"compression\"");
+    expect(content).toContain('import compression from "compression"');
   });
 
   it("index.ts aplica app.use(compression(...)) antes de los rate limiters", () => {
@@ -59,7 +59,10 @@ describe("Sprint 51 — Heartbeat anti-cold-start /api/scheduled/warmup", () => 
     const warmupIdx = content.indexOf('"/api/scheduled/warmup"');
     // Buscar la segunda ocurrencia de createExpressMiddleware (la del uso, no el import)
     const firstOccurrence = content.indexOf("createExpressMiddleware");
-    const trpcMiddlewareIdx = content.indexOf("createExpressMiddleware", firstOccurrence + 1);
+    const trpcMiddlewareIdx = content.indexOf(
+      "createExpressMiddleware",
+      firstOccurrence + 1
+    );
     expect(warmupIdx).toBeGreaterThan(-1);
     expect(trpcMiddlewareIdx).toBeGreaterThan(-1);
     expect(warmupIdx).toBeLessThan(trpcMiddlewareIdx);

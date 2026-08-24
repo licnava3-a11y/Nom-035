@@ -5,7 +5,11 @@ import { trpc } from "@/lib/trpc";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
 import { useEffect, useRef, useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { toast } from "@/hooks/use-toast";
 
 interface RealtimeAlert {
@@ -28,8 +32,8 @@ export function AlertBadge() {
   useEffect(() => {
     if (lastAlert && lastAlert !== prevAlertRef.current) {
       prevAlertRef.current = lastAlert;
-      setRealtimeAlerts((prev) => {
-        if (prev.some((a) => a.id === lastAlert.id)) return prev;
+      setRealtimeAlerts(prev => {
+        if (prev.some(a => a.id === lastAlert.id)) return prev;
         return [
           ...prev,
           {
@@ -44,7 +48,10 @@ export function AlertBadge() {
     }
   }, [lastAlert]);
 
-  const { data: activeAlertsData } = trpc.alerts.getHistory.useQuery({ status: "active", pageSize: 20 });
+  const { data: activeAlertsData } = trpc.alerts.getHistory.useQuery({
+    status: "active",
+    pageSize: 20,
+  });
   const activeAlerts = activeAlertsData?.alerts;
 
   const markAllReadMutation = trpc.alerts.markAllRead.useMutation({
@@ -70,22 +77,25 @@ export function AlertBadge() {
   const realtimeCount = realtimeAlerts.length;
   const totalCount = dbAlertCount + realtimeCount;
   const hasCriticalAlerts =
-    activeAlerts?.some((a) => a.alertType === "critical_cases") ||
-    realtimeAlerts.some((a) => a.priority === "critical");
+    activeAlerts?.some(a => a.alertType === "critical_cases") ||
+    realtimeAlerts.some(a => a.priority === "critical");
 
   if (totalCount === 0) return null;
 
   // Combinar alertas para el dropdown (máx. 5)
   const rtSlice = realtimeAlerts.slice(-3);
-  const dbSlice = (activeAlerts ?? []).slice(0, Math.max(0, 5 - rtSlice.length));
+  const dbSlice = (activeAlerts ?? []).slice(
+    0,
+    Math.max(0, 5 - rtSlice.length)
+  );
   const previewAlerts = [
-    ...rtSlice.map((a) => ({
+    ...rtSlice.map(a => ({
       id: a.id,
       description: a.description,
       priority: a.priority,
       source: "realtime" as const,
     })),
-    ...dbSlice.map((a) => ({
+    ...dbSlice.map(a => ({
       id: a.id,
       description: a.description ?? "",
       priority: a.priority ?? "info",
@@ -119,9 +129,13 @@ export function AlertBadge() {
           title="Ver alertas"
         >
           {realtimeCount > 0 ? (
-            <Bell className={`h-5 w-5 ${hasCriticalAlerts ? "text-destructive" : "text-orange-500"}`} />
+            <Bell
+              className={`h-5 w-5 ${hasCriticalAlerts ? "text-destructive" : "text-orange-500"}`}
+            />
           ) : (
-            <AlertCircle className={`h-5 w-5 ${hasCriticalAlerts ? "text-destructive" : "text-orange-500"}`} />
+            <AlertCircle
+              className={`h-5 w-5 ${hasCriticalAlerts ? "text-destructive" : "text-orange-500"}`}
+            />
           )}
           <Badge
             variant={hasCriticalAlerts ? "destructive" : "secondary"}
@@ -143,7 +157,9 @@ export function AlertBadge() {
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <div>
             <p className="text-sm font-semibold">Alertas activas</p>
-            <p className="text-xs text-muted-foreground">{totalCount} sin resolver</p>
+            <p className="text-xs text-muted-foreground">
+              {totalCount} sin resolver
+            </p>
           </div>
           <Button
             variant="ghost"
@@ -159,11 +175,18 @@ export function AlertBadge() {
 
         {/* Lista de alertas */}
         <div className="divide-y max-h-64 overflow-y-auto">
-          {previewAlerts.map((alert) => (
-            <div key={`${alert.source}-${alert.id}`} className="flex items-start gap-3 px-4 py-3">
-              <span className={`mt-1.5 flex-shrink-0 h-2 w-2 rounded-full ${priorityDot(alert.priority)}`} />
+          {previewAlerts.map(alert => (
+            <div
+              key={`${alert.source}-${alert.id}`}
+              className="flex items-start gap-3 px-4 py-3"
+            >
+              <span
+                className={`mt-1.5 flex-shrink-0 h-2 w-2 rounded-full ${priorityDot(alert.priority)}`}
+              />
               <div className="min-w-0 flex-1">
-                <p className={`text-xs font-medium ${priorityColor(alert.priority)}`}>
+                <p
+                  className={`text-xs font-medium ${priorityColor(alert.priority)}`}
+                >
                   {priorityLabel(alert.priority)}
                   {alert.source === "realtime" && (
                     <span className="ml-1 text-[10px] bg-orange-100 text-orange-700 px-1 rounded">
@@ -171,7 +194,9 @@ export function AlertBadge() {
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{alert.description}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                  {alert.description}
+                </p>
               </div>
             </div>
           ))}

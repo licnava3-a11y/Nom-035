@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -47,7 +53,11 @@ export default function NOM035Results() {
   const { data: activePeriod } = trpc.nom035.getActivePeriod.useQuery();
 
   // Obtener resultados
-  const { data: results, isLoading, error } = trpc.nom035.getResults.useQuery(
+  const {
+    data: results,
+    isLoading,
+    error,
+  } = trpc.nom035.getResults.useQuery(
     { surveyPeriodId: surveyPeriodId! },
     { enabled: !!surveyPeriodId }
   );
@@ -63,7 +73,9 @@ export default function NOM035Results() {
       <div className="container mx-auto py-8">
         <Card>
           <CardContent className="py-8">
-            <p className="text-center text-muted-foreground">Cargando resultados...</p>
+            <p className="text-center text-muted-foreground">
+              Cargando resultados...
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -76,7 +88,8 @@ export default function NOM035Results() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No se encontraron resultados. Por favor completa el cuestionario primero.
+            No se encontraron resultados. Por favor completa el cuestionario
+            primero.
           </AlertDescription>
         </Alert>
         <div className="mt-4">
@@ -89,25 +102,33 @@ export default function NOM035Results() {
   }
 
   // Preparar datos para gráficos
-  const categoryData = Object.entries(results.categoryScores || {}).map(([category, score]) => ({
-    category: category.length > 30 ? category.substring(0, 30) + "..." : category,
-    puntaje: score,
-  }));
+  const categoryData = Object.entries(results.categoryScores || {}).map(
+    ([category, score]) => ({
+      category:
+        category.length > 30 ? category.substring(0, 30) + "..." : category,
+      puntaje: score,
+    })
+  );
 
-  const domainData = Object.entries(results.domainScores || {}).map(([domain, score]) => ({
-    domain: domain.length > 25 ? domain.substring(0, 25) + "..." : domain,
-    puntaje: score,
-  }));
+  const domainData = Object.entries(results.domainScores || {}).map(
+    ([domain, score]) => ({
+      domain: domain.length > 25 ? domain.substring(0, 25) + "..." : domain,
+      puntaje: score,
+    })
+  );
 
   const dimensionData = Object.entries(results.dimensionScores || {})
     .slice(0, 8) // Mostrar solo las 8 dimensiones principales
     .map(([dimension, score]) => ({
-      dimension: dimension.length > 20 ? dimension.substring(0, 20) + "..." : dimension,
+      dimension:
+        dimension.length > 20 ? dimension.substring(0, 20) + "..." : dimension,
       puntaje: score,
     }));
 
-  const riskColor = RISK_COLORS[results.globalRiskLevel as keyof typeof RISK_COLORS];
-  const riskLabel = RISK_LABELS[results.globalRiskLevel as keyof typeof RISK_LABELS];
+  const riskColor =
+    RISK_COLORS[results.globalRiskLevel as keyof typeof RISK_COLORS];
+  const riskLabel =
+    RISK_LABELS[results.globalRiskLevel as keyof typeof RISK_LABELS];
 
   return (
     <div className="container mx-auto py-8 max-w-7xl">
@@ -123,11 +144,19 @@ export default function NOM035Results() {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setLocation("/")}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLocation("/")}
+                >
                   <Home className="h-4 w-4 mr-2" />
                   Inicio
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => window.print()}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Exportar PDF
                 </Button>
@@ -145,17 +174,26 @@ export default function NOM035Results() {
             <div className="flex items-center gap-6">
               <div
                 className="w-32 h-32 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: riskColor + "20", border: `4px solid ${riskColor}` }}
+                style={{
+                  backgroundColor: riskColor + "20",
+                  border: `4px solid ${riskColor}`,
+                }}
               >
                 <div className="text-center">
-                  <p className="text-3xl font-bold" style={{ color: riskColor }}>
+                  <p
+                    className="text-3xl font-bold"
+                    style={{ color: riskColor }}
+                  >
                     {results.globalScore}
                   </p>
                   <p className="text-xs text-muted-foreground">puntos</p>
                 </div>
               </div>
               <div className="flex-1">
-                <p className="text-2xl font-bold mb-2" style={{ color: riskColor }}>
+                <p
+                  className="text-2xl font-bold mb-2"
+                  style={{ color: riskColor }}
+                >
                   {riskLabel}
                 </p>
                 <p className="text-muted-foreground">
@@ -193,7 +231,10 @@ export default function NOM035Results() {
                 <Legend />
                 <Bar dataKey="puntaje" fill="#8b5cf6" name="Puntaje">
                   {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={`hsl(${250 - index * 20}, 70%, 60%)`} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={`hsl(${250 - index * 20}, 70%, 60%)`}
+                    />
                   ))}
                 </Bar>
               </BarChart>
@@ -240,7 +281,12 @@ export default function NOM035Results() {
             <ResponsiveContainer width="100%" height={350}>
               <BarChart data={dimensionData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="dimension" angle={-45} textAnchor="end" height={120} />
+                <XAxis
+                  dataKey="dimension"
+                  angle={-45}
+                  textAnchor="end"
+                  height={120}
+                />
                 <YAxis />
                 <Tooltip />
                 <Legend />
@@ -261,7 +307,8 @@ export default function NOM035Results() {
           <CardContent>
             <div className="prose max-w-none">
               <div className="whitespace-pre-line text-sm">
-                {results.recommendations || "No hay recomendaciones disponibles."}
+                {results.recommendations ||
+                  "No hay recomendaciones disponibles."}
               </div>
             </div>
           </CardContent>
@@ -278,7 +325,10 @@ export default function NOM035Results() {
                 <div key={key} className="flex items-center gap-2">
                   <div
                     className="w-4 h-4 rounded"
-                    style={{ backgroundColor: RISK_COLORS[key as keyof typeof RISK_COLORS] }}
+                    style={{
+                      backgroundColor:
+                        RISK_COLORS[key as keyof typeof RISK_COLORS],
+                    }}
                   />
                   <span className="text-sm">{label}</span>
                 </div>

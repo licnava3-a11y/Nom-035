@@ -1,11 +1,30 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Download, Filter, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
@@ -20,11 +39,19 @@ export default function NotificationHistory() {
     dateTo: "",
   });
 
-  const { data: logsData, isLoading, refetch } = trpc.notificationLogs.getAll.useQuery({
+  const {
+    data: logsData,
+    isLoading,
+    refetch,
+  } = trpc.notificationLogs.getAll.useQuery({
     page,
     pageSize: 50,
     type: filters.type === "all" ? undefined : filters.type || undefined,
-    status: (filters.status === "all" ? undefined : filters.status) as "failed" | "sent" | "bounced" | undefined,
+    status: (filters.status === "all" ? undefined : filters.status) as
+      | "failed"
+      | "sent"
+      | "bounced"
+      | undefined,
     recipientEmail: filters.recipientEmail || undefined,
     dateFrom: filters.dateFrom || undefined,
     dateTo: filters.dateTo || undefined,
@@ -90,7 +117,9 @@ export default function NotificationHistory() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Historial de Notificaciones</h1>
-          <p className="text-muted-foreground">Auditoría completa de todas las notificaciones enviadas</p>
+          <p className="text-muted-foreground">
+            Auditoría completa de todas las notificaciones enviadas
+          </p>
         </div>
         <Button onClick={handleExport}>
           <Download className="mr-2 h-4 w-4" />
@@ -111,34 +140,50 @@ export default function NotificationHistory() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-green-600">Enviadas</CardTitle>
+              <CardTitle className="text-sm font-medium text-green-600">
+                Enviadas
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.totalSent}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {stats.totalSent}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-red-600">Fallidas</CardTitle>
+              <CardTitle className="text-sm font-medium text-red-600">
+                Fallidas
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.totalFailed}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {stats.totalFailed}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-yellow-600">Rebotadas</CardTitle>
+              <CardTitle className="text-sm font-medium text-yellow-600">
+                Rebotadas
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{stats.totalBounced}</div>
+              <div className="text-2xl font-bold text-yellow-600">
+                {stats.totalBounced}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-blue-600">Tasa de Éxito</CardTitle>
+              <CardTitle className="text-sm font-medium text-blue-600">
+                Tasa de Éxito
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats.successRate}%</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {stats.successRate}%
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -151,13 +196,18 @@ export default function NotificationHistory() {
             <Filter className="h-5 w-5" />
             Filtros de Búsqueda
           </CardTitle>
-          <CardDescription>Filtra el historial por tipo, estado, destinatario y fechas</CardDescription>
+          <CardDescription>
+            Filtra el historial por tipo, estado, destinatario y fechas
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="space-y-2">
               <Label>Tipo de Notificación</Label>
-              <Select value={filters.type} onValueChange={(value) => setFilters({ ...filters, type: value })}>
+              <Select
+                value={filters.type}
+                onValueChange={value => setFilters({ ...filters, type: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los tipos" />
                 </SelectTrigger>
@@ -175,7 +225,12 @@ export default function NotificationHistory() {
 
             <div className="space-y-2">
               <Label>Estado</Label>
-              <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
+              <Select
+                value={filters.status}
+                onValueChange={value =>
+                  setFilters({ ...filters, status: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los estados" />
                 </SelectTrigger>
@@ -193,7 +248,9 @@ export default function NotificationHistory() {
               <Label>Destinatario</Label>
               <Select
                 value={filters.recipientEmail}
-                onValueChange={(value) => setFilters({ ...filters, recipientEmail: value })}
+                onValueChange={value =>
+                  setFilters({ ...filters, recipientEmail: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los destinatarios" />
@@ -214,7 +271,9 @@ export default function NotificationHistory() {
               <Input
                 type="date"
                 value={filters.dateFrom}
-                onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
+                onChange={e =>
+                  setFilters({ ...filters, dateFrom: e.target.value })
+                }
               />
             </div>
 
@@ -223,7 +282,9 @@ export default function NotificationHistory() {
               <Input
                 type="date"
                 value={filters.dateTo}
-                onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
+                onChange={e =>
+                  setFilters({ ...filters, dateTo: e.target.value })
+                }
               />
             </div>
           </div>
@@ -258,14 +319,19 @@ export default function NotificationHistory() {
         <CardHeader>
           <CardTitle>Historial de Notificaciones</CardTitle>
           <CardDescription>
-            Mostrando {logsData?.logs.length || 0} de {logsData?.pagination.total || 0} notificaciones
+            Mostrando {logsData?.logs.length || 0} de{" "}
+            {logsData?.pagination.total || 0} notificaciones
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando historial...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              Cargando historial...
+            </div>
           ) : logsData?.logs.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">No se encontraron notificaciones</div>
+            <div className="text-center py-8 text-muted-foreground">
+              No se encontraron notificaciones
+            </div>
           ) : (
             <>
               <div className="rounded-md border">
@@ -284,20 +350,32 @@ export default function NotificationHistory() {
                   <TableBody>
                     {logsData?.logs.map((log: any) => (
                       <TableRow key={log.id}>
-                        <TableCell className="font-mono text-xs">{log.queueId ? String(log.queueId).slice(0, 8) : 'N/A'}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{log.templateCode || "N/A"}</Badge>
-                        </TableCell>
-                        <TableCell>{getChannelBadge(log.channel || "email")}</TableCell>
-                        <TableCell className="max-w-[200px] truncate">{log.recipientEmail || "N/A"}</TableCell>
-                        <TableCell>{getStatusBadge(log.status || "pending")}</TableCell>
-                        <TableCell>
-                          {log.sentAt ? new Date(log.sentAt).toLocaleString("es-MX") : "Pendiente"}
+                        <TableCell className="font-mono text-xs">
+                          {log.queueId
+                            ? String(log.queueId).slice(0, 8)
+                            : "N/A"}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="secondary">
-                            0
+                          <Badge variant="outline">
+                            {log.templateCode || "N/A"}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {getChannelBadge(log.channel || "email")}
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {log.recipientEmail || "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(log.status || "pending")}
+                        </TableCell>
+                        <TableCell>
+                          {log.sentAt
+                            ? new Date(log.sentAt).toLocaleString("es-MX")
+                            : "Pendiente"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">0</Badge>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -308,15 +386,23 @@ export default function NotificationHistory() {
               {/* Paginación */}
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-muted-foreground">
-                  Página {page} de {Math.ceil((logsData?.pagination.total || 0) / 50)}
+                  Página {page} de{" "}
+                  {Math.ceil((logsData?.pagination.total || 0) / 50)}
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} variant="outline">
+                  <Button
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    variant="outline"
+                  >
                     Anterior
                   </Button>
                   <Button
-                    onClick={() => setPage((p) => p + 1)}
-                    disabled={!logsData || page >= Math.ceil(logsData.pagination.total / 50)}
+                    onClick={() => setPage(p => p + 1)}
+                    disabled={
+                      !logsData ||
+                      page >= Math.ceil(logsData.pagination.total / 50)
+                    }
                     variant="outline"
                   >
                     Siguiente

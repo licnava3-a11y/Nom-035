@@ -8,7 +8,15 @@ import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb, getSentimentTrends } from "../db";
-import { sentimentAnalysis, surveyResponses, users, cases, surveys, departments, employees } from "../../drizzle/schema";
+import {
+  sentimentAnalysis,
+  surveyResponses,
+  users,
+  cases,
+  surveys,
+  departments,
+  employees,
+} from "../../drizzle/schema";
 import { eq, and, sql, desc, like, inArray } from "drizzle-orm";
 import { processPendingResponses } from "../jobs/sentiment-analysis-job";
 import {
@@ -28,24 +36,43 @@ export const sentimentAnalysisRouter = router({
         departmentId: z.number().optional(),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
-        riskLevel: z.enum(["low", "medium", "high", "critical", "all"]).default("all"),
+        riskLevel: z
+          .enum(["low", "medium", "high", "critical", "all"])
+          .default("all"),
       })
     )
     .query(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
 
-        const startDate = input.startDate ? new Date(input.startDate) : undefined;
+        const startDate = input.startDate
+          ? new Date(input.startDate)
+          : undefined;
         const endDate = input.endDate ? new Date(input.endDate) : undefined;
-        const trends = await getSentimentTrends(input.departmentId, startDate, endDate);
+        const trends = await getSentimentTrends(
+          input.departmentId,
+          startDate,
+          endDate
+        );
 
         if (!trends) return [];
-        if (input.riskLevel !== "all") return trends.filter(t => t.riskLevel === input.riskLevel);
+        if (input.riskLevel !== "all")
+          return trends.filter(t => t.riskLevel === input.riskLevel);
         return trends;
       } catch (error) {
         console.error("[SentimentAnalysis] Error getting trends:", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al obtener tendencias" });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al obtener tendencias",
+        });
       }
     }),
 
@@ -63,14 +90,30 @@ export const sentimentAnalysisRouter = router({
     .query(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
 
-        const startDate = input.startDate ? new Date(input.startDate) : undefined;
+        const startDate = input.startDate
+          ? new Date(input.startDate)
+          : undefined;
         const endDate = input.endDate ? new Date(input.endDate) : undefined;
-        const trends = await getSentimentTrends(input.departmentId, startDate, endDate);
+        const trends = await getSentimentTrends(
+          input.departmentId,
+          startDate,
+          endDate
+        );
 
         if (!trends || trends.length === 0) {
-          return { total: 0, byRiskLevel: { low: 0, medium: 0, high: 0, critical: 0 }, bySentiment: { positive: 0, neutral: 0, negative: 0, critical: 0 }, criticalAlerts: 0, avgConfidence: 0 };
+          return {
+            total: 0,
+            byRiskLevel: { low: 0, medium: 0, high: 0, critical: 0 },
+            bySentiment: { positive: 0, neutral: 0, negative: 0, critical: 0 },
+            criticalAlerts: 0,
+            avgConfidence: 0,
+          };
         }
 
         const byRiskLevel = {
@@ -86,12 +129,28 @@ export const sentimentAnalysisRouter = router({
           critical: trends.filter(t => t.sentiment === "critical").length,
         };
         const criticalAlerts = trends.filter(t => t.alertGenerated).length;
-        const avgConfidence = trends.reduce((sum: any, t: any) => sum + Number(t.confidence || 0), 0) / trends.length;
+        const avgConfidence =
+          trends.reduce(
+            (sum: any, t: any) => sum + Number(t.confidence || 0),
+            0
+          ) / trends.length;
 
-        return { total: trends.length, byRiskLevel, bySentiment, criticalAlerts, avgConfidence: Math.round(avgConfidence * 100) / 100 };
+        return {
+          total: trends.length,
+          byRiskLevel,
+          bySentiment,
+          criticalAlerts,
+          avgConfidence: Math.round(avgConfidence * 100) / 100,
+        };
       } catch (error) {
         console.error("[SentimentAnalysis] Error getting stats:", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al obtener estadísticas" });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al obtener estadísticas",
+        });
       }
     }),
 
@@ -99,15 +158,28 @@ export const sentimentAnalysisRouter = router({
    * Obtener comentarios críticos (requieren atención inmediata)
    */
   getCriticalComments: protectedProcedure
-    .input(z.object({ limit: z.number().default(20), reviewed: z.boolean().optional() }))
+    .input(
+      z.object({
+        limit: z.number().default(20),
+        reviewed: z.boolean().optional(),
+      })
+    )
     .query(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
 
         let conditions: any[] = [eq(sentimentAnalysis.riskLevel, "critical")];
         if (input.reviewed !== undefined) {
-          conditions.push(input.reviewed ? sql`${sentimentAnalysis.reviewedBy} IS NOT NULL` : sql`${sentimentAnalysis.reviewedBy} IS NULL`);
+          conditions.push(
+            input.reviewed
+              ? sql`${sentimentAnalysis.reviewedBy} IS NOT NULL`
+              : sql`${sentimentAnalysis.reviewedBy} IS NULL`
+          );
         }
 
         const criticalComments = await db
@@ -131,7 +203,10 @@ export const sentimentAnalysisRouter = router({
             userDepartment: users.departamento,
           })
           .from(sentimentAnalysis)
-          .leftJoin(surveyResponses, eq(sentimentAnalysis.responseId, surveyResponses.id))
+          .leftJoin(
+            surveyResponses,
+            eq(sentimentAnalysis.responseId, surveyResponses.id)
+          )
           .leftJoin(users, eq(surveyResponses.userId, users.id))
           .where(and(...conditions))
           .orderBy(desc(sentimentAnalysis.analyzedAt))
@@ -139,8 +214,17 @@ export const sentimentAnalysisRouter = router({
 
         return criticalComments;
       } catch (error) {
-        console.error("[SentimentAnalysis] Error getting critical comments:", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al obtener comentarios críticos" });
+        console.error(
+          "[SentimentAnalysis] Error getting critical comments:",
+          error
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al obtener comentarios críticos",
+        });
       }
     }),
 
@@ -148,21 +232,37 @@ export const sentimentAnalysisRouter = router({
    * Marcar análisis como revisado
    */
   markAsReviewed: protectedProcedure
-    .input(z.object({ analysisId: z.number(), reviewNotes: z.string().optional() }))
+    .input(
+      z.object({ analysisId: z.number(), reviewNotes: z.string().optional() })
+    )
     .mutation(async ({ input, ctx }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
 
         await db
           .update(sentimentAnalysis)
-          .set({ reviewedBy: ctx.user.id, reviewedAt: new Date(), reviewNotes: input.reviewNotes || null } as any)
+          .set({
+            reviewedBy: ctx.user.id,
+            reviewedAt: new Date(),
+            reviewNotes: input.reviewNotes || null,
+          } as any)
           .where(eq(sentimentAnalysis.id, input.analysisId));
 
         return { success: true };
       } catch (error) {
         console.error("[SentimentAnalysis] Error marking as reviewed:", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al marcar como revisado" });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al marcar como revisado",
+        });
       }
     }),
 
@@ -174,8 +274,15 @@ export const sentimentAnalysisRouter = router({
       await processPendingResponses();
       return { success: true, message: "Análisis ejecutado correctamente" };
     } catch (error) {
-      console.error("[SentimentAnalysis] Error running manual analysis:", error);
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al ejecutar análisis" });
+      console.error(
+        "[SentimentAnalysis] Error running manual analysis:",
+        error
+      );
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message:
+          error instanceof Error ? error.message : "Error al ejecutar análisis",
+      });
     }
   }),
 
@@ -188,22 +295,37 @@ export const sentimentAnalysisRouter = router({
   analyzeText: adminProcedure
     .input(
       z.object({
-        text: z.string().min(10, "El texto debe tener al menos 10 caracteres").max(2000),
+        text: z
+          .string()
+          .min(10, "El texto debe tener al menos 10 caracteres")
+          .max(2000),
         questionContext: z.string().optional(),
-        employeeContext: z.object({
-          department: z.string().optional(),
-          position: z.string().optional(),
-          yearsInCompany: z.number().optional(),
-        }).optional(),
+        employeeContext: z
+          .object({
+            department: z.string().optional(),
+            position: z.string().optional(),
+            yearsInCompany: z.number().optional(),
+          })
+          .optional(),
       })
     )
     .mutation(async ({ input }) => {
       try {
-        const result = await analyzeSurveyResponse(input.text, input.questionContext, input.employeeContext);
+        const result = await analyzeSurveyResponse(
+          input.text,
+          input.questionContext,
+          input.employeeContext
+        );
         return { success: true, analysis: result };
       } catch (error) {
         console.error("[SentimentAnalysis] Error analyzing text:", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al analizar el texto" });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al analizar el texto",
+        });
       }
     }),
 
@@ -222,13 +344,23 @@ export const sentimentAnalysisRouter = router({
     .query(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
 
-        const startDate = input.startDate ? new Date(input.startDate) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+        const startDate = input.startDate
+          ? new Date(input.startDate)
+          : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
         const endDate = input.endDate ? new Date(input.endDate) : new Date();
 
         // Primero intentar con datos de sentiment_analysis
-        const trends = await getSentimentTrends(input.departmentId, startDate, endDate);
+        const trends = await getSentimentTrends(
+          input.departmentId,
+          startDate,
+          endDate
+        );
         let sentimentData = (trends || []).map((t: any) => ({
           sentiment: t.sentiment as string,
           riskLevel: t.riskLevel as string,
@@ -264,39 +396,86 @@ export const sentimentAnalysisRouter = router({
 
               if (g3Survey) {
                 const rawResponses = await db
-                  .select({ results: surveyResponses.results, userId: surveyResponses.userId })
+                  .select({
+                    results: surveyResponses.results,
+                    userId: surveyResponses.userId,
+                  })
                   .from(surveyResponses)
-                  .where(and(
-                    eq(surveyResponses.surveyId, g3Survey.id),
-                    inArray(surveyResponses.userId, userIds)
-                  ));
+                  .where(
+                    and(
+                      eq(surveyResponses.surveyId, g3Survey.id),
+                      inArray(surveyResponses.userId, userIds)
+                    )
+                  );
 
                 // Convertir resultados crudos a formato de sentimentData
                 sentimentData = rawResponses.map((r: any) => {
                   let parsed: any = {};
-                  try { parsed = JSON.parse(r.results || "{}"); } catch {}
+                  try {
+                    parsed = JSON.parse(r.results || "{}");
+                  } catch {}
                   const score = parsed.overallScore || 3;
-                  const riskLevel = score < 2.5 ? "critical" : score < 3.0 ? "high" : score < 3.5 ? "medium" : "low";
-                  const sentiment = score < 2.5 ? "critical" : score < 3.0 ? "negative" : score < 3.5 ? "neutral" : "positive";
+                  const riskLevel =
+                    score < 2.5
+                      ? "critical"
+                      : score < 3.0
+                        ? "high"
+                        : score < 3.5
+                          ? "medium"
+                          : "low";
+                  const sentiment =
+                    score < 2.5
+                      ? "critical"
+                      : score < 3.0
+                        ? "negative"
+                        : score < 3.5
+                          ? "neutral"
+                          : "positive";
                   const domainScores = parsed.domainScores || {};
                   const riskIndicators: string[] = [];
-                  if (domainScores.tiempo_trabajo < 3) riskIndicators.push("Carga de trabajo excesiva");
-                  if (domainScores.liderazgo < 3) riskIndicators.push("Problemas de liderazgo");
-                  if (domainScores.violencia < 3.5) riskIndicators.push("Riesgo de violencia laboral");
-                  if (domainScores.ambiente_trabajo < 3) riskIndicators.push("Condiciones de trabajo deficientes");
-                  if (domainScores.actividad < 3) riskIndicators.push("Factores de actividad laboral");
-                  return { sentiment, riskLevel, riskIndicators, analyzedAt: new Date() };
+                  if (domainScores.tiempo_trabajo < 3)
+                    riskIndicators.push("Carga de trabajo excesiva");
+                  if (domainScores.liderazgo < 3)
+                    riskIndicators.push("Problemas de liderazgo");
+                  if (domainScores.violencia < 3.5)
+                    riskIndicators.push("Riesgo de violencia laboral");
+                  if (domainScores.ambiente_trabajo < 3)
+                    riskIndicators.push("Condiciones de trabajo deficientes");
+                  if (domainScores.actividad < 3)
+                    riskIndicators.push("Factores de actividad laboral");
+                  return {
+                    sentiment,
+                    riskLevel,
+                    riskIndicators,
+                    analyzedAt: new Date(),
+                  };
                 });
               }
             }
           }
         }
 
-        const profile = await analyzeDepartmentRisk(input.departmentName, sentimentData);
-        return { success: true, profile, dataSource: sentimentData.length > 0 ? "survey_responses" : "no_data" };
+        const profile = await analyzeDepartmentRisk(
+          input.departmentName,
+          sentimentData
+        );
+        return {
+          success: true,
+          profile,
+          dataSource: sentimentData.length > 0 ? "survey_responses" : "no_data",
+        };
       } catch (error) {
-        console.error("[SentimentAnalysis] Error generating department risk profile:", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al generar perfil de riesgo" });
+        console.error(
+          "[SentimentAnalysis] Error generating department risk profile:",
+          error
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al generar perfil de riesgo",
+        });
       }
     }),
 
@@ -315,42 +494,66 @@ export const sentimentAnalysisRouter = router({
     .mutation(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
 
-        const startDate = input.startDate ? new Date(input.startDate) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+        const startDate = input.startDate
+          ? new Date(input.startDate)
+          : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
         const endDate = input.endDate ? new Date(input.endDate) : new Date();
 
         const trends = await getSentimentTrends(undefined, startDate, endDate);
         const allTrends = trends || [];
 
         const sentimentStats = {
-          positive: allTrends.filter((t: any) => t.sentiment === "positive").length,
-          neutral: allTrends.filter((t: any) => t.sentiment === "neutral").length,
-          negative: allTrends.filter((t: any) => t.sentiment === "negative").length,
-          critical: allTrends.filter((t: any) => t.sentiment === "critical").length,
+          positive: allTrends.filter((t: any) => t.sentiment === "positive")
+            .length,
+          neutral: allTrends.filter((t: any) => t.sentiment === "neutral")
+            .length,
+          negative: allTrends.filter((t: any) => t.sentiment === "negative")
+            .length,
+          critical: allTrends.filter((t: any) => t.sentiment === "critical")
+            .length,
         };
         const riskStats = {
           low: allTrends.filter((t: any) => t.riskLevel === "low").length,
           medium: allTrends.filter((t: any) => t.riskLevel === "medium").length,
           high: allTrends.filter((t: any) => t.riskLevel === "high").length,
-          critical: allTrends.filter((t: any) => t.riskLevel === "critical").length,
+          critical: allTrends.filter((t: any) => t.riskLevel === "critical")
+            .length,
         };
 
-        const allIndicators = allTrends.flatMap((t: any) => (t.riskIndicators as string[]) || []);
-        const indicatorFreq = allIndicators.reduce((acc: Record<string, number>, ind: string) => {
-          acc[ind] = (acc[ind] || 0) + 1;
-          return acc;
-        }, {});
+        const allIndicators = allTrends.flatMap(
+          (t: any) => (t.riskIndicators as string[]) || []
+        );
+        const indicatorFreq = allIndicators.reduce(
+          (acc: Record<string, number>, ind: string) => {
+            acc[ind] = (acc[ind] || 0) + 1;
+            return acc;
+          },
+          {}
+        );
         const topRiskIndicators = Object.entries(indicatorFreq)
           .sort(([, a], [, b]) => (b as number) - (a as number))
           .slice(0, 8)
           .map(([indicator, count]) => ({ indicator, count: count as number }));
 
-        const [empRow] = await db.select({ total: sql<number>`count(*)` }).from(users);
+        const [empRow] = await db
+          .select({ total: sql<number>`count(*)` })
+          .from(users);
         const totalEmployees = Number(empRow?.total) || 0;
 
-        const [openRow] = await db.select({ open: sql<number>`count(*)` }).from(cases).where(sql`${cases.status} != 'closed'`) as any;
-        const [resolvedRow] = await db.select({ resolved: sql<number>`count(*)` }).from(cases).where(eq(cases.status as any, "closed")) as any;
+        const [openRow] = (await db
+          .select({ open: sql<number>`count(*)` })
+          .from(cases)
+          .where(sql`${cases.status} != 'closed'`)) as any;
+        const [resolvedRow] = (await db
+          .select({ resolved: sql<number>`count(*)` })
+          .from(cases)
+          .where(eq(cases.status as any, "closed"))) as any;
 
         const report = await generateOrganizationalRiskReport({
           companyName: input.companyName,
@@ -367,8 +570,17 @@ export const sentimentAnalysisRouter = router({
 
         return { success: true, report };
       } catch (error) {
-        console.error("[SentimentAnalysis] Error generating org report:", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al generar reporte organizacional" });
+        console.error(
+          "[SentimentAnalysis] Error generating org report:",
+          error
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al generar reporte organizacional",
+        });
       }
     }),
 
@@ -391,8 +603,17 @@ export const sentimentAnalysisRouter = router({
         const plan = await generateInterventionPlan(input);
         return { success: true, plan };
       } catch (error) {
-        console.error("[SentimentAnalysis] Error generating intervention plan:", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al generar plan de intervención" });
+        console.error(
+          "[SentimentAnalysis] Error generating intervention plan:",
+          error
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al generar plan de intervención",
+        });
       }
     }),
 });

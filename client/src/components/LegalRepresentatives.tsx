@@ -1,14 +1,42 @@
-import { useState } from 'react';
-import { trpc } from '@/lib/trpc';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { UserPlus, Trash2, Loader2, FileSignature, CheckCircle2, XCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  UserPlus,
+  Trash2,
+  Loader2,
+  FileSignature,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
+import { toast } from "sonner";
 
 export default function LegalRepresentatives() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -16,65 +44,72 @@ export default function LegalRepresentatives() {
   const [firmaPreview, setFirmaPreview] = useState<string | null>(null);
 
   // Queries
-  const { data: representatives, isLoading, refetch } = trpc.company.legalRepresentative.list.useQuery();
+  const {
+    data: representatives,
+    isLoading,
+    refetch,
+  } = trpc.company.legalRepresentative.list.useQuery();
 
   // Mutations
-  const createRepresentative = trpc.company.legalRepresentative.create.useMutation({
-    onSuccess: () => {
-      toast.success('Representante legal agregado correctamente');
-      setIsDialogOpen(false);
-      resetForm();
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const createRepresentative =
+    trpc.company.legalRepresentative.create.useMutation({
+      onSuccess: () => {
+        toast.success("Representante legal agregado correctamente");
+        setIsDialogOpen(false);
+        resetForm();
+        refetch();
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
-  const updateRepresentative = trpc.company.legalRepresentative.update.useMutation({
-    onSuccess: () => {
-      toast.success('Representante actualizado correctamente');
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const updateRepresentative =
+    trpc.company.legalRepresentative.update.useMutation({
+      onSuccess: () => {
+        toast.success("Representante actualizado correctamente");
+        refetch();
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
-  const deleteRepresentative = trpc.company.legalRepresentative.delete.useMutation({
-    onSuccess: () => {
-      toast.success('Representante eliminado correctamente');
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const deleteRepresentative =
+    trpc.company.legalRepresentative.delete.useMutation({
+      onSuccess: () => {
+        toast.success("Representante eliminado correctamente");
+        refetch();
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
   // Form state
   const [formData, setFormData] = useState({
-    nombre: '',
-    cargo: '',
-    email: '',
-    telefono: '',
-    rfc: '',
-    curp: '',
-    domicilio: '',
-    actaConstitutiva: '',
-    poderNotarial: '',
+    nombre: "",
+    cargo: "",
+    email: "",
+    telefono: "",
+    rfc: "",
+    curp: "",
+    domicilio: "",
+    actaConstitutiva: "",
+    poderNotarial: "",
   });
 
   const resetForm = () => {
     setFormData({
-      nombre: '',
-      cargo: '',
-      email: '',
-      telefono: '',
-      rfc: '',
-      curp: '',
-      domicilio: '',
-      actaConstitutiva: '',
-      poderNotarial: '',
+      nombre: "",
+      cargo: "",
+      email: "",
+      telefono: "",
+      rfc: "",
+      curp: "",
+      domicilio: "",
+      actaConstitutiva: "",
+      poderNotarial: "",
     });
     setFirmaFile(null);
     setFirmaPreview(null);
@@ -89,14 +124,14 @@ export default function LegalRepresentatives() {
     const file = e.target.files?.[0];
     if (file) {
       // Validar tipo de archivo
-      if (!file.type.startsWith('image/')) {
-        toast.error('Por favor selecciona un archivo de imagen');
+      if (!file.type.startsWith("image/")) {
+        toast.error("Por favor selecciona un archivo de imagen");
         return;
       }
 
       // Validar tamaño (máximo 2MB)
       if (file.size > 2 * 1024 * 1024) {
-        toast.error('El archivo no debe exceder 2MB');
+        toast.error("El archivo no debe exceder 2MB");
         return;
       }
 
@@ -131,7 +166,14 @@ export default function LegalRepresentatives() {
     }
   };
 
-  const handleToggleActive = (id: number, nombre: string, cargo: string, email: string | null, telefono: string | null, activo: boolean) => {
+  const handleToggleActive = (
+    id: number,
+    nombre: string,
+    cargo: string,
+    email: string | null,
+    telefono: string | null,
+    activo: boolean
+  ) => {
     updateRepresentative.mutate({
       id,
       nombre,
@@ -143,7 +185,7 @@ export default function LegalRepresentatives() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('¿Estás seguro de eliminar este representante legal?')) {
+    if (confirm("¿Estás seguro de eliminar este representante legal?")) {
       deleteRepresentative.mutate({ id });
     }
   };
@@ -189,7 +231,8 @@ export default function LegalRepresentatives() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="nombre">
-                      Nombre Completo <span className="text-destructive">*</span>
+                      Nombre Completo{" "}
+                      <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="nombre"
@@ -321,9 +364,9 @@ export default function LegalRepresentatives() {
                   <div className="space-y-2">
                     <Label>Vista Previa de Firma</Label>
                     <div className="border rounded-lg p-4 bg-muted/50 flex items-center justify-center">
-                      <img 
-                        src={firmaPreview} 
-                        alt="Preview firma" 
+                      <img
+                        src={firmaPreview}
+                        alt="Preview firma"
                         className="max-h-24 object-contain"
                       />
                     </div>
@@ -381,23 +424,29 @@ export default function LegalRepresentatives() {
                   <TableCell>
                     <div className="text-sm">
                       {rep.email && <div>{rep.email}</div>}
-                      {rep.telefono && <div className="text-muted-foreground">{rep.telefono}</div>}
+                      {rep.telefono && (
+                        <div className="text-muted-foreground">
+                          {rep.telefono}
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>
                     {rep.firmaUrl ? (
-                      <img 
-                        src={rep.firmaUrl} 
-                        alt="Firma" 
+                      <img
+                        src={rep.firmaUrl}
+                        alt="Firma"
                         className="h-8 object-contain"
                       />
                     ) : (
-                      <span className="text-muted-foreground text-sm">Sin firma</span>
+                      <span className="text-muted-foreground text-sm">
+                        Sin firma
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>
                     <Badge variant={rep.activo ? "default" : "secondary"}>
-                      {rep.activo ? 'Activo' : 'Inactivo'}
+                      {rep.activo ? "Activo" : "Inactivo"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -405,17 +454,23 @@ export default function LegalRepresentatives() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleToggleActive(
-                          rep.id,
-                          rep.nombre,
-                          rep.cargo,
-                          rep.email,
-                          rep.telefono,
-                          rep.activo
-                        )}
+                        onClick={() =>
+                          handleToggleActive(
+                            rep.id,
+                            rep.nombre,
+                            rep.cargo,
+                            rep.email,
+                            rep.telefono,
+                            rep.activo
+                          )
+                        }
                         disabled={updateRepresentative.isPending}
                       >
-                        {rep.activo ? <XCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                        {rep.activo ? (
+                          <XCircle className="h-4 w-4" />
+                        ) : (
+                          <CheckCircle2 className="h-4 w-4" />
+                        )}
                       </Button>
                       <Button
                         size="sm"
@@ -435,7 +490,9 @@ export default function LegalRepresentatives() {
           <div className="text-center py-12 text-muted-foreground">
             <FileSignature className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No hay representantes legales registrados</p>
-            <p className="text-sm">Agrega el primer representante legal de tu empresa</p>
+            <p className="text-sm">
+              Agrega el primer representante legal de tu empresa
+            </p>
           </div>
         )}
       </CardContent>

@@ -11,7 +11,7 @@ import { sql } from "drizzle-orm";
 export const salaryTrendsRouter = router({
   getTrendsByDepartment: protectedProcedure.query(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
 
     // Obtener histórico de últimos 12 meses por departamento
     const trends = await db.execute(sql`
@@ -26,12 +26,12 @@ export const salaryTrendsRouter = router({
       ORDER BY department, month
     `);
 
-    return ((trends) as any)[0] as any[];
+    return (trends as any)[0] as any[];
   }),
 
   getTrendsByPosition: protectedProcedure.query(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
 
     // Obtener histórico de últimos 12 meses por puesto
     const trends = await db.execute(sql`
@@ -46,12 +46,12 @@ export const salaryTrendsRouter = router({
       ORDER BY position, month
     `);
 
-    return ((trends) as any)[0] as any[];
+    return (trends as any)[0] as any[];
   }),
 
   getMarketProjections: protectedProcedure.query(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
 
     // Calcular proyecciones basadas en tendencias históricas
     const projections = await db.execute(sql`
@@ -78,7 +78,7 @@ export const salaryTrendsRouter = router({
       ORDER BY avg_gap ASC
     `);
 
-    return ((projections) as any)[0] as any[];
+    return (projections as any)[0] as any[];
   }),
 
   getHistoricalAdjustments: protectedProcedure
@@ -92,7 +92,7 @@ export const salaryTrendsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       let query = sql`
         SELECT 
@@ -131,12 +131,12 @@ export const salaryTrendsRouter = router({
       query = sql`${query} ORDER BY effective_date DESC LIMIT 100`;
 
       const adjustments = await db.execute(query);
-      return ((adjustments) as any)[0] as any[];
+      return (adjustments as any)[0] as any[];
     }),
 
   getDepartmentSummary: protectedProcedure.query(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
 
     const summary = await db.execute(sql`
       SELECT 
@@ -162,6 +162,6 @@ export const salaryTrendsRouter = router({
       ORDER BY avg_gap ASC
     `);
 
-    return ((summary) as any)[0] as any[];
+    return (summary as any)[0] as any[];
   }),
 });

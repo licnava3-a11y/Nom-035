@@ -13,6 +13,7 @@ Fecha: 14 de Febrero de 2026
 El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 
 #### **Gestión de Talento**
+
 - ✅ Catálogo de empleados con expediente digital
 - ✅ Gestión de departamentos y puestos
 - ✅ Matriz de habilidades con snapshots automáticos mensuales
@@ -22,6 +23,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - ✅ Importación masiva desde Excel
 
 #### **Capacitación y Desarrollo**
+
 - ✅ Catálogo de cursos con inscripciones
 - ✅ Gestión de recursos didácticos
 - ✅ Evaluaciones en línea con banco de preguntas
@@ -32,6 +34,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - ✅ Catálogo de competencias organizacionales
 
 #### **NOM-035 STPS 2018**
+
 - ✅ Encuestas Guía I, II, III
 - ✅ Tokens de acceso anónimo con QR
 - ✅ Dashboard de resultados por nivel de riesgo
@@ -42,6 +45,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - ✅ Reportes de cumplimiento
 
 #### **Administración**
+
 - ✅ Gestión financiera (facturas, órdenes de compra, gastos)
 - ✅ Configuración SMTP para correos
 - ✅ Historial de notificaciones
@@ -50,6 +54,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - ✅ Dashboard ejecutivo con KPIs
 
 #### **Internacionalización**
+
 - ✅ Sistema i18n implementado (ES/EN/FR)
 - ✅ Selector de idioma en header
 - ✅ Archivos de traducción creados
@@ -68,6 +73,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Sistema de análisis de factores de riesgo psicosocial para empresas de 16 a 50 trabajadores según NOM-035 numeral 7.
 
 **Requerimientos:**
+
 - [ ] Implementar cálculo de dominios y categorías según Guía II
 - [ ] Clasificación de riesgo por dominio (nulo, bajo, medio, alto, muy alto)
 - [ ] Dashboard de resultados por dominio
@@ -78,6 +84,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - [ ] Exportación de resultados a PDF/Excel
 
 **Dominios a evaluar:**
+
 1. Ambiente de trabajo
 2. Factores propios de la actividad
 3. Organización del tiempo de trabajo
@@ -95,6 +102,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Sistema de análisis profundo de factores de riesgo psicosocial para empresas de 50 o más trabajadores según NOM-035 numeral 8.
 
 **Requerimientos:**
+
 - [ ] Implementar cálculo de 8 categorías y 5 dominios
 - [ ] Clasificación de riesgo por categoría y dominio
 - [ ] Dashboard multinivel (empresa, departamento, puesto)
@@ -107,6 +115,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - [ ] Exportación de resultados a PDF/Excel
 
 **Categorías a evaluar:**
+
 1. Condiciones en el ambiente de trabajo
 2. Carga de trabajo
 3. Falta de control sobre el trabajo
@@ -129,6 +138,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Requerimientos:**
 
 **Nivel 1 - Riesgo Nulo/Bajo:**
+
 - [ ] Catálogo de acciones preventivas
 - [ ] Asignación de responsables
 - [ ] Calendario de actividades de bienestar
@@ -136,6 +146,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - [ ] Indicadores de clima laboral
 
 **Nivel 2 - Riesgo Medio:**
+
 - [ ] Plan de intervención por área
 - [ ] Capacitación específica obligatoria
 - [ ] Evaluación de efectividad
@@ -143,6 +154,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - [ ] Ajustes organizacionales
 
 **Nivel 3 - Riesgo Alto/Muy Alto:**
+
 - [ ] Protocolo de atención inmediata
 - [ ] Evaluación clínica especializada
 - [ ] Reubicación temporal/permanente
@@ -163,6 +175,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Navegación contextual para páginas profundas del sistema.
 
 **Requerimientos:**
+
 - [ ] Componente Breadcrumb reutilizable
 - [ ] Integración en todas las páginas de detalle
 - [ ] Navegación dinámica basada en ruta
@@ -170,6 +183,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - [ ] Responsive design
 
 **Páginas prioritarias:**
+
 - Detalle de empleado
 - Detalle de caso NOM-035
 - Detalle de curso
@@ -187,6 +201,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Ayuda contextual en campos complejos y términos técnicos.
 
 **Requerimientos:**
+
 - [ ] Tooltips en formularios de encuestas NOM-035
 - [ ] Tooltips en matriz de habilidades (niveles 1-5)
 - [ ] Tooltips en Nine Box Grid (cuadrantes)
@@ -205,6 +220,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Validaciones en tiempo real con mensajes descriptivos.
 
 **Requerimientos:**
+
 - [ ] Validación de CURP con algoritmo oficial
 - [ ] Validación de RFC con algoritmo oficial
 - [ ] Validación de correo electrónico con verificación de dominio
@@ -223,11 +239,13 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Estado:** ✅ Implementado en páginas críticas
 
 **Páginas con skeletons:**
+
 - ✅ Employees.tsx
 - ✅ Courses.tsx
 - ✅ Dashboard.tsx
 
 **Páginas pendientes:**
+
 - [ ] CaseDetail.tsx
 - [ ] SkillsMatrix.tsx
 - [ ] NineBoxGrid.tsx
@@ -243,10 +261,12 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Estado:** ✅ Implementado en páginas críticas
 
 **Páginas con optimistic updates:**
+
 - ✅ Employees.tsx (desactivar/reactivar)
 - ✅ CaseDetail.tsx (agregar comentarios)
 
 **Páginas pendientes:**
+
 - [ ] SkillsMatrix.tsx (actualizar niveles)
 - [ ] Courses.tsx (inscribir/desinscribir)
 - [ ] Committee.tsx (agregar miembros)
@@ -263,11 +283,13 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Estado:** ⚠️ Crítico - Build timeout después de 120 segundos
 
 **Problema identificado:**
+
 - 4176 módulos transformados en build
 - Tiempo de build excesivo (>2 minutos)
 - Bundle inicial probablemente >2MB
 
 **Requerimientos:**
+
 - [ ] Análisis de dependencias con `pnpm why`
 - [ ] Identificar duplicados de bibliotecas
 - [ ] Lazy loading de Chart.js (solo cargar cuando se use)
@@ -288,6 +310,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Estado:** ❌ No realizado
 
 **Requerimientos:**
+
 - [ ] Auditoría de componentes duplicados
 - [ ] Refactorización de lógica repetida en routers
 - [ ] Consolidación de funciones de validación
@@ -304,6 +327,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Estado:** ⚠️ Requiere análisis
 
 **Requerimientos:**
+
 - [ ] Análisis de queries lentas (>500ms)
 - [ ] Agregar índices faltantes en tablas grandes
 - [ ] Optimizar joins complejos
@@ -322,6 +346,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Estado:** ⚠️ Parcialmente implementado (60% completado)
 
 **Componentes con traducciones:**
+
 - ✅ common (welcome, dashboard, actions, etc.)
 - ✅ dashboard (KPIs y métricas)
 - ✅ employees (gestión de empleados)
@@ -330,6 +355,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - ✅ language (selector de idioma)
 
 **Componentes pendientes:**
+
 - [ ] courses (gestión de cursos)
 - [ ] competencies (competencias organizacionales)
 - [ ] skillsMatrix (matriz de habilidades)
@@ -350,6 +376,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Estado:** ❌ No implementado
 
 **Requerimientos:**
+
 - [ ] Plantillas de correo en ES/EN/FR
 - [ ] Detección de idioma preferido del usuario
 - [ ] Envío de correos en idioma del destinatario
@@ -365,6 +392,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Estado:** ❌ No implementado
 
 **Requerimientos:**
+
 - [ ] Generación de PDFs en idioma seleccionado
 - [ ] Encabezados y pies de página traducidos
 - [ ] Etiquetas de gráficos traducidos
@@ -384,6 +412,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Validación de afiliación y consulta de datos de trabajadores.
 
 **Requerimientos:**
+
 - [ ] Investigar API pública del IMSS
 - [ ] Implementar autenticación con IMSS
 - [ ] Validación de NSS (Número de Seguridad Social)
@@ -405,6 +434,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Validación de RFC y consulta de situación fiscal.
 
 **Requerimientos:**
+
 - [ ] Investigar API pública del SAT
 - [ ] Validación de RFC con algoritmo oficial
 - [ ] Consulta de situación fiscal de proveedores
@@ -425,6 +455,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Validación de CURP y consulta de datos de identidad.
 
 **Requerimientos:**
+
 - [ ] Investigar API pública de RENAPO
 - [ ] Validación de CURP con algoritmo oficial
 - [ ] Consulta de datos de identidad (nombre, fecha de nacimiento, sexo)
@@ -445,6 +476,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Gestión de certificaciones de competencias laborales.
 
 **Requerimientos:**
+
 - [ ] Investigar API pública de CONOCER
 - [ ] Consulta de estándares de competencia (EC)
 - [ ] Registro de evaluadores certificados
@@ -467,6 +499,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Autocompletado de datos personales al ingresar CURP.
 
 **Requerimientos:**
+
 - [ ] Validación de CURP con algoritmo oficial
 - [ ] Extracción de datos de CURP (fecha de nacimiento, sexo, estado de nacimiento)
 - [ ] Autocompletado de campos relacionados
@@ -485,6 +518,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Autocompletado de datos fiscales al ingresar RFC.
 
 **Requerimientos:**
+
 - [ ] Validación de RFC con algoritmo oficial
 - [ ] Extracción de datos de RFC (fecha de nacimiento, homoclave)
 - [ ] Autocompletado de campos relacionados
@@ -503,6 +537,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Filtrado de puestos disponibles según departamento seleccionado.
 
 **Requerimientos:**
+
 - [ ] Dropdown de puestos filtrado por departamento
 - [ ] Actualización dinámica al cambiar departamento
 - [ ] Validación de coherencia departamento-puesto
@@ -520,6 +555,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Asignación automática de competencias requeridas según puesto.
 
 **Requerimientos:**
+
 - [ ] Perfil de competencias por puesto
 - [ ] Asignación automática al crear empleado
 - [ ] Detección de brechas de competencias
@@ -537,6 +573,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Historial completo de evaluaciones por empleado.
 
 **Requerimientos:**
+
 - [ ] Timeline de evaluaciones
 - [ ] Gráficos de evolución de desempeño
 - [ ] Comparación con promedio del área
@@ -554,6 +591,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Asignación inteligente de instructores a cursos.
 
 **Requerimientos:**
+
 - [ ] Catálogo de instructores con especialidades
 - [ ] Disponibilidad de instructores (calendario)
 - [ ] Sugerencias de instructores por tema
@@ -573,6 +611,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Validación automática de ortografía y gramática en campos de texto libre.
 
 **Opciones de API:**
+
 1. **LanguageTool** (Open Source, gratis)
    - Soporte para español, inglés, francés
    - API REST disponible
@@ -585,6 +624,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
    - Requiere suscripción
 
 **Requerimientos:**
+
 - [ ] Investigar y seleccionar API
 - [ ] Implementar cliente de API
 - [ ] Validación en tiempo real (debounce 500ms)
@@ -594,6 +634,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 - [ ] Diccionario personalizado (términos técnicos NOM-035)
 
 **Campos prioritarios:**
+
 - Comentarios de casos NOM-035
 - Minutas de comité
 - Observaciones de evaluaciones
@@ -611,6 +652,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Sugerencias de mejora de estilo y claridad.
 
 **Requerimientos:**
+
 - [ ] Detección de oraciones muy largas (>30 palabras)
 - [ ] Detección de voz pasiva excesiva
 - [ ] Sugerencias de sinónimos
@@ -631,6 +673,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Formulario público para que candidatos se postulen a vacantes.
 
 **Requerimientos:**
+
 - [ ] Página pública de vacantes activas
 - [ ] Formulario de postulación con campos requeridos
 - [ ] Carga de CV (PDF, máximo 5MB)
@@ -654,6 +697,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Evaluación estructurada de candidatos con puntuación.
 
 **Requerimientos:**
+
 - [ ] Matriz de evaluación por puesto
 - [ ] Criterios de evaluación ponderados
 - [ ] Calificación de CV (automática)
@@ -675,6 +719,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Proceso completo desde candidato hasta empleado.
 
 **Requerimientos:**
+
 - [ ] Estados del proceso (postulado, revisión, entrevista, oferta, contratado, rechazado)
 - [ ] Notificaciones automáticas por cambio de estado
 - [ ] Generación de carta oferta
@@ -697,6 +742,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Cuestionario de 15 preguntas sobre causas de rotación.
 
 **Requerimientos:**
+
 - [ ] Formulario de entrevista de salida
 - [ ] 15 preguntas de opción múltiple sobre causas comunes de rotación:
   1. Salario y prestaciones
@@ -729,6 +775,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Visualización de causas de rotación y tendencias.
 
 **Requerimientos:**
+
 - [ ] Gráfico de barras con causas principales de rotación
 - [ ] Filtros por período (mes, trimestre, año)
 - [ ] Filtros por departamento
@@ -749,6 +796,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Generación automática de plan de acción basado en causas de rotación.
 
 **Requerimientos:**
+
 - [ ] Análisis de causas principales (top 5)
 - [ ] Generación de recomendaciones por causa
 - [ ] Asignación de responsables
@@ -771,6 +819,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 **Descripción:** Priorización de tareas según urgencia e importancia.
 
 **Requerimientos:**
+
 - [ ] Cuadrante 1: Urgente e Importante (hacer ahora)
 - [ ] Cuadrante 2: No urgente pero Importante (planificar)
 - [ ] Cuadrante 3: Urgente pero no Importante (delegar)
@@ -788,25 +837,26 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 
 ## 📈 Estimación de Esfuerzo Total
 
-| Categoría | Prioridad | Horas Estimadas | Semanas (40h) |
-|-----------|-----------|-----------------|---------------|
-| Niveles de Atención NOM-035 | P0 | 180 horas | 4.5 semanas |
-| Mejoras de UX | P1 | 46 horas | 1.2 semanas |
-| Optimización de Código | P1 | 60 horas | 1.5 semanas |
-| Internacionalización Completa | P2 | 34 horas | 0.9 semanas |
-| Integraciones con Otros Software | P2 | 154 horas | 3.9 semanas |
-| Correlación de Campos | P1 | 58 horas | 1.5 semanas |
-| Validación de Redacción | P2 | 44 horas | 1.1 semanas |
-| Funcionalidades de Reclutamiento | P2 | 100 horas | 2.5 semanas |
-| Panel de Salida de Personal | P2 | 48 horas | 1.2 semanas |
-| Matriz de Eisenhower | P3 | 24 horas | 0.6 semanas |
-| **TOTAL** | | **748 horas** | **18.9 semanas** |
+| Categoría                        | Prioridad | Horas Estimadas | Semanas (40h)    |
+| -------------------------------- | --------- | --------------- | ---------------- |
+| Niveles de Atención NOM-035      | P0        | 180 horas       | 4.5 semanas      |
+| Mejoras de UX                    | P1        | 46 horas        | 1.2 semanas      |
+| Optimización de Código           | P1        | 60 horas        | 1.5 semanas      |
+| Internacionalización Completa    | P2        | 34 horas        | 0.9 semanas      |
+| Integraciones con Otros Software | P2        | 154 horas       | 3.9 semanas      |
+| Correlación de Campos            | P1        | 58 horas        | 1.5 semanas      |
+| Validación de Redacción          | P2        | 44 horas        | 1.1 semanas      |
+| Funcionalidades de Reclutamiento | P2        | 100 horas       | 2.5 semanas      |
+| Panel de Salida de Personal      | P2        | 48 horas        | 1.2 semanas      |
+| Matriz de Eisenhower             | P3        | 24 horas        | 0.6 semanas      |
+| **TOTAL**                        |           | **748 horas**   | **18.9 semanas** |
 
 ---
 
 ## 🎯 Roadmap Sugerido
 
 ### **Fase 1: Cumplimiento Crítico NOM-035** (Prioridad P0)
+
 **Duración:** 6 semanas
 
 1. Guía II - Análisis de Factores de Riesgo (2 semanas)
@@ -814,6 +864,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 3. Acciones Correctivas en 3 Niveles (1 semana inicial)
 
 **Entregables:**
+
 - Sistema completo de análisis de riesgos psicosociales
 - Dashboard de resultados por dominio y categoría
 - Reportes de cumplimiento NOM-035
@@ -822,6 +873,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 ---
 
 ### **Fase 2: Optimización y UX** (Prioridad P1)
+
 **Duración:** 4 semanas
 
 1. Optimización de Bundle Size (1 semana)
@@ -830,6 +882,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 4. Correlación de Campos y Autocompletado (1 semana)
 
 **Entregables:**
+
 - Bundle optimizado (<1MB inicial)
 - Código refactorizado y limpio
 - Experiencia de usuario mejorada
@@ -838,6 +891,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 ---
 
 ### **Fase 3: Integraciones Externas** (Prioridad P2)
+
 **Duración:** 5 semanas
 
 1. Integración con RENAPO (CURP) (1 semana)
@@ -846,6 +900,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 4. Integración con CONOCER (certificaciones) (1 semana)
 
 **Entregables:**
+
 - Validación automática de CURP/RFC/NSS
 - Autocompletado de datos de identidad
 - Consulta de situación fiscal
@@ -854,6 +909,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 ---
 
 ### **Fase 4: Funcionalidades Avanzadas** (Prioridad P2)
+
 **Duración:** 4 semanas
 
 1. Portal de Reclutamiento (1.5 semanas)
@@ -862,6 +918,7 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 4. Internacionalización Completa (0.5 semanas)
 
 **Entregables:**
+
 - Sistema completo de reclutamiento
 - Análisis de rotación de personal
 - Corrección ortográfica automática
@@ -898,10 +955,12 @@ El sistema actualmente cuenta con las siguientes funcionalidades operativas:
 Para preguntas sobre este documento o priorización de funcionalidades, contactar a:
 
 **Equipo de Desarrollo**
+
 - Email: desarrollo@empresa.com
 - Slack: #nom035-dev
 
 **Product Owner**
+
 - Email: productowner@empresa.com
 
 ---

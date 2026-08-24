@@ -47,7 +47,9 @@ export function ComparisonMetricCard({
         {!comparisonEnabled ? (
           // Vista normal sin comparación
           <>
-            <div className="text-2xl font-bold">{formatValue(currentValue)}</div>
+            <div className="text-2xl font-bold">
+              {formatValue(currentValue)}
+            </div>
             <p className="text-xs text-muted-foreground">{subtitle}</p>
           </>
         ) : (
@@ -55,12 +57,16 @@ export function ComparisonMetricCard({
           <div className="space-y-3">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Período Actual</span>
+                <span className="text-xs text-muted-foreground">
+                  Período Actual
+                </span>
                 {hasSignificantChange && change && (
                   <Badge
                     variant="outline"
                     className={`flex items-center gap-1 ${
-                      isPositiveChange ? "text-green-600 border-green-600" : "text-red-600 border-red-600"
+                      isPositiveChange
+                        ? "text-green-600 border-green-600"
+                        : "text-red-600 border-red-600"
                     }`}
                   >
                     {isPositiveChange ? (
@@ -73,19 +79,34 @@ export function ComparisonMetricCard({
                   </Badge>
                 )}
               </div>
-              <div className="text-2xl font-bold">{formatValue(currentValue)}</div>
+              <div className="text-2xl font-bold">
+                {formatValue(currentValue)}
+              </div>
               <p className="text-xs text-muted-foreground">{subtitle}</p>
             </div>
 
             {comparisonValue !== undefined && (
               <div className="pt-3 border-t">
-                <span className="text-xs text-muted-foreground">Período de Comparación</span>
-                <div className="text-lg font-semibold text-muted-foreground">{formatValue(comparisonValue)}</div>
-                {comparisonSubtitle && <p className="text-xs text-muted-foreground">{comparisonSubtitle}</p>}
+                <span className="text-xs text-muted-foreground">
+                  Período de Comparación
+                </span>
+                <div className="text-lg font-semibold text-muted-foreground">
+                  {formatValue(comparisonValue)}
+                </div>
+                {comparisonSubtitle && (
+                  <p className="text-xs text-muted-foreground">
+                    {comparisonSubtitle}
+                  </p>
+                )}
                 {change && (
                   <p className="text-xs text-muted-foreground mt-1">
                     {change.absolute > 0 ? "+" : ""}
-                    {format === "percentage" ? change.absolute.toFixed(2) : change.absolute} {format === "percentage" ? "puntos porcentuales" : "eventos"}
+                    {format === "percentage"
+                      ? change.absolute.toFixed(2)
+                      : change.absolute}{" "}
+                    {format === "percentage"
+                      ? "puntos porcentuales"
+                      : "eventos"}
                   </p>
                 )}
               </div>

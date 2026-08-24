@@ -1,16 +1,16 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
-import { getDb } from '../db.js';
+import { getDb } from "../db.js";
 import { digitalCertificates, users } from "../../drizzle/schema.js";
 import { eq, desc, and } from "drizzle-orm";
 import { storagePut } from "../storage.js";
-import crypto from 'crypto';
+import crypto from "crypto";
 
 export const digitalCertificatesRouter = router({
   // Listar certificados digitales del usuario
   list: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) throw new Error("Database not available");
 
     const certificates = await db
       .select({
@@ -46,7 +46,7 @@ export const digitalCertificatesRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Generar nombres únicos para los archivos
       const timestamp = Date.now();
@@ -54,15 +54,23 @@ export const digitalCertificatesRouter = router({
       const keyFileName = `certificates/${ctx.user.id}/key_${timestamp}.key`;
 
       // Decodificar archivos base64
-      const certBuffer = Buffer.from(input.certificateFile, 'base64');
-      const keyBuffer = Buffer.from(input.keyFile, 'base64');
+      const certBuffer = Buffer.from(input.certificateFile, "base64");
+      const keyBuffer = Buffer.from(input.keyFile, "base64");
 
       // Subir archivos a S3
-      const certUpload = await storagePut(certFileName, certBuffer, 'application/x-x509-ca-cert');
-      const keyUpload = await storagePut(keyFileName, keyBuffer, 'application/octet-stream');
+      const certUpload = await storagePut(
+        certFileName,
+        certBuffer,
+        "application/x-x509-ca-cert"
+      );
+      const keyUpload = await storagePut(
+        keyFileName,
+        keyBuffer,
+        "application/octet-stream"
+      );
 
       // Encriptar contraseña (simple encryption - en producción usar mejor método)
-      const passwordEncrypted = Buffer.from(input.password).toString('base64');
+      const passwordEncrypted = Buffer.from(input.password).toString("base64");
 
       // Guardar en base de datos
       const [newCert] = await (db.insert(digitalCertificates) as any).values({
@@ -73,14 +81,14 @@ export const digitalCertificatesRouter = router({
         passwordEncrypted: passwordEncrypted,
         validFrom: new Date(input.validFrom),
         validUntil: new Date(input.validUntil),
-        status: 'active',
+        status: "active",
         issuer: input.issuer || null,
         serialNumber: input.serialNumber || null,
       });
 
       return {
         success: true,
-        message: 'Certificado digital cargado exitosamente',
+        message: "Certificado digital cargado exitosamente",
         certificateId: newCert.insertId,
       };
     }),
@@ -90,7 +98,7 @@ export const digitalCertificatesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Verificar que el certificado pertenece al usuario
       const cert = await db
@@ -105,7 +113,7 @@ export const digitalCertificatesRouter = router({
         .limit(1);
 
       if (!cert || cert.length === 0) {
-        throw new Error('Certificado no encontrado o no autorizado');
+        throw new Error("Certificado no encontrado o no autorizado");
       }
 
       // Eliminar de base de datos
@@ -115,14 +123,14 @@ export const digitalCertificatesRouter = router({
 
       return {
         success: true,
-        message: 'Certificado eliminado exitosamente',
+        message: "Certificado eliminado exitosamente",
       };
     }),
 
   // Obtener certificado activo para firmar
   getActiveCertificate: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) throw new Error("Database not available");
 
     const now = new Date();
     const certificates = await db
@@ -131,7 +139,7 @@ export const digitalCertificatesRouter = router({
       .where(
         and(
           eq(digitalCertificates.userId, ctx.user.id),
-          eq(digitalCertificates.status, 'active')
+          eq(digitalCertificates.status, "active")
         )
       )
       .orderBy(desc(digitalCertificates.createdAt))
@@ -148,7 +156,7 @@ export const digitalCertificatesRouter = router({
       // Marcar como expirado
       await db
         .update(digitalCertificates)
-        .set({ status: 'expired' } as any)
+        .set({ status: "expired" } as any)
         .where(eq(digitalCertificates.id, cert.id));
 
       return null;
@@ -169,7 +177,7 @@ export const digitalCertificatesRouter = router({
     .input(z.object({ certificateId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Obtener certificado
       const cert = await db
@@ -184,17 +192,17 @@ export const digitalCertificatesRouter = router({
         .limit(1);
 
       if (!cert || cert.length === 0) {
-        throw new Error('Certificado no encontrado');
+        throw new Error("Certificado no encontrado");
       }
 
       // SIMULACIÓN: En producción, aquí se haría la llamada real a la API del SAT
       // para validar el certificado digital
-      
+
       // Por ahora, simulamos una validación exitosa
       const isValid = true;
       const validationMessage = isValid
-        ? 'Certificado válido y vigente según el SAT'
-        : 'Certificado no válido o revocado';
+        ? "Certificado válido y vigente según el SAT"
+        : "Certificado no válido o revocado";
 
       return {
         success: isValid,
@@ -216,12 +224,12 @@ export const digitalCertificatesRouter = router({
       z.object({
         certificateId: z.number(),
         documentContent: z.string(), // Contenido del documento en base64
-        documentType: z.enum(['pdf', 'xml', 'text']),
+        documentType: z.enum(["pdf", "xml", "text"]),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Obtener certificado activo
       const cert = await db
@@ -231,13 +239,13 @@ export const digitalCertificatesRouter = router({
           and(
             eq(digitalCertificates.id, input.certificateId),
             eq(digitalCertificates.userId, ctx.user.id),
-            eq(digitalCertificates.status, 'active')
+            eq(digitalCertificates.status, "active")
           )
         )
         .limit(1);
 
       if (!cert || cert.length === 0) {
-        throw new Error('Certificado no encontrado o no activo');
+        throw new Error("Certificado no encontrado o no activo");
       }
 
       const certificate = cert[0];
@@ -248,22 +256,24 @@ export const digitalCertificatesRouter = router({
       const validUntil = new Date(certificate.validUntil);
 
       if (now < validFrom || now > validUntil) {
-        throw new Error('Certificado no vigente');
+        throw new Error("Certificado no vigente");
       }
 
       // Importar módulo de firma digital
-      const { generateDigitalSignature } = await import('../_core/digitalSignature');
+      const { generateDigitalSignature } = await import(
+        "../_core/digitalSignature"
+      );
 
       // Convertir contenido de base64 a Buffer
-      const documentBuffer = Buffer.from(input.documentContent, 'base64');
+      const documentBuffer = Buffer.from(input.documentContent, "base64");
 
       // Generar firma digital
       const signatureResult = await generateDigitalSignature(documentBuffer, {
         certificatePath: certificate.certificatePath,
         keyPath: certificate.keyPath,
         password: certificate.passwordEncrypted, // En producción, descifrar primero
-        serialNumber: certificate.serialNumber || 'N/A',
-        issuer: certificate.issuer || 'SAT',
+        serialNumber: certificate.serialNumber || "N/A",
+        issuer: certificate.issuer || "SAT",
       });
 
       return {

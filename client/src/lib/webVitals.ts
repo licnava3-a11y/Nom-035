@@ -51,7 +51,7 @@ function reportMetric(metric: Metric) {
 
   console.log(
     `%c[Web Vitals] ${report.name}: ${report.value.toFixed(1)} ms — ${report.rating.toUpperCase()}`,
-    `color: ${color}; font-weight: bold;`,
+    `color: ${color}; font-weight: bold;`
   );
 
   // Enviar al backend tRPC para almacenar en BD

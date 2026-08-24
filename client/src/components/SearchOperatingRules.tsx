@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,10 +20,16 @@ interface SearchOperatingRulesProps {
   onSelectResult: (ruleId: number) => void;
 }
 
-export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: SearchOperatingRulesProps) {
+export function SearchOperatingRules({
+  open,
+  onOpenChange,
+  onSelectResult,
+}: SearchOperatingRulesProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "active">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "active">(
+    "all"
+  );
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -31,23 +42,24 @@ export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: Sea
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const { data: searchResults, isLoading } = trpc.committeeOperatingRules.searchOperatingRules.useQuery(
-    {
-      query: debouncedQuery,
-      status: statusFilter,
-      dateFrom: dateFrom || undefined,
-      dateTo: dateTo || undefined,
-      limit: 20,
-      offset: 0,
-    },
-    {
-      enabled: debouncedQuery.length >= 2, // Solo buscar si hay al menos 2 caracteres
-    }
-  );
+  const { data: searchResults, isLoading } =
+    trpc.committeeOperatingRules.searchOperatingRules.useQuery(
+      {
+        query: debouncedQuery,
+        status: statusFilter,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+        limit: 20,
+        offset: 0,
+      },
+      {
+        enabled: debouncedQuery.length >= 2, // Solo buscar si hay al menos 2 caracteres
+      }
+    );
 
   const highlightText = (text: string, query: string) => {
     if (!query || !text) return text;
-    
+
     const parts = text.split(new RegExp(`(${query})`, "gi"));
     return parts.map((part, index) =>
       part.toLowerCase() === query.toLowerCase() ? (
@@ -85,7 +97,7 @@ export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: Sea
               type="text"
               placeholder="Buscar por título, objetivos, estructura, roles o miembros..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="pl-10"
               autoFocus
             />
@@ -97,7 +109,9 @@ export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: Sea
               <label className="text-sm font-medium mb-1 block">Estado</label>
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as "all" | "draft" | "active")}
+                onChange={e =>
+                  setStatusFilter(e.target.value as "all" | "draft" | "active")
+                }
                 className="w-full px-3 py-2 border rounded-md text-sm"
               >
                 <option value="all">Todos</option>
@@ -106,20 +120,24 @@ export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: Sea
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Fecha Desde</label>
+              <label className="text-sm font-medium mb-1 block">
+                Fecha Desde
+              </label>
               <Input
                 type="date"
                 value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
+                onChange={e => setDateFrom(e.target.value)}
                 className="text-sm"
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Fecha Hasta</label>
+              <label className="text-sm font-medium mb-1 block">
+                Fecha Hasta
+              </label>
               <Input
                 type="date"
                 value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
+                onChange={e => setDateTo(e.target.value)}
                 className="text-sm"
               />
             </div>
@@ -157,82 +175,103 @@ export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: Sea
               </div>
             )}
 
-            {!isLoading && debouncedQuery.length >= 2 && searchResults && searchResults.results.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>No se encontraron resultados para "{debouncedQuery}"</p>
-                <p className="text-sm mt-1">Intenta con otros términos de búsqueda</p>
-              </div>
-            )}
-
-            {!isLoading && searchResults && searchResults.results.length > 0 && (
-              <>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-muted-foreground">
-                    {searchResults.total} resultado{searchResults.total !== 1 ? "s" : ""} encontrado{searchResults.total !== 1 ? "s" : ""}
+            {!isLoading &&
+              debouncedQuery.length >= 2 &&
+              searchResults &&
+              searchResults.results.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>No se encontraron resultados para "{debouncedQuery}"</p>
+                  <p className="text-sm mt-1">
+                    Intenta con otros términos de búsqueda
                   </p>
                 </div>
+              )}
 
-                {searchResults.results.map((result: any) => (
-                  <Card
-                    key={result.id}
-                    className="hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => handleSelectResult(result.id)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="space-y-2">
-                        {/* Header con título y badges */}
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg">
-                              {highlightText(result.title || "Sin título", debouncedQuery)}
-                            </h3>
+            {!isLoading &&
+              searchResults &&
+              searchResults.results.length > 0 && (
+                <>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm text-muted-foreground">
+                      {searchResults.total} resultado
+                      {searchResults.total !== 1 ? "s" : ""} encontrado
+                      {searchResults.total !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+
+                  {searchResults.results.map((result: any) => (
+                    <Card
+                      key={result.id}
+                      className="hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => handleSelectResult(result.id)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="space-y-2">
+                          {/* Header con título y badges */}
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-lg">
+                                {highlightText(
+                                  result.title || "Sin título",
+                                  debouncedQuery
+                                )}
+                              </h3>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">V{result.version}</Badge>
+                              <Badge
+                                variant={
+                                  result.status === "active"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
+                                {result.status === "active"
+                                  ? "Activa"
+                                  : "Borrador"}
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">V{result.version}</Badge>
-                            <Badge
-                              variant={result.status === "active" ? "default" : "secondary"}
+
+                          {/* Snippet de contexto */}
+                          {result.snippet && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {highlightText(result.snippet, debouncedQuery)}
+                            </p>
+                          )}
+
+                          {/* Metadata */}
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>
+                              Actualizada:{" "}
+                              {format(new Date(result.updatedAt), "PPP", {
+                                locale: es,
+                              })}
+                            </span>
+                          </div>
+
+                          {/* Botón de acción */}
+                          <div className="pt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleSelectResult(result.id);
+                              }}
                             >
-                              {result.status === "active" ? "Activa" : "Borrador"}
-                            </Badge>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Ver Detalle
+                            </Button>
                           </div>
                         </div>
-
-                        {/* Snippet de contexto */}
-                        {result.snippet && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {highlightText(result.snippet, debouncedQuery)}
-                          </p>
-                        )}
-
-                        {/* Metadata */}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span>
-                            Actualizada: {format(new Date(result.updatedAt), "PPP", { locale: es })}
-                          </span>
-                        </div>
-
-                        {/* Botón de acción */}
-                        <div className="pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectResult(result.id);
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Ver Detalle
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </>
-            )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
+              )}
           </div>
         </div>
       </DialogContent>

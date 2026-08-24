@@ -1,29 +1,30 @@
-import { useState } from 'react';
-import { Breadcrumb } from '@/components/Breadcrumb';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { trpc } from '@/lib/trpc';
-import { toast } from 'sonner';
-import { FileText, Download, Loader2, Eye } from 'lucide-react';
-import { PDFViewer } from '@/components/PDFViewer';
-type AnalysisLevel = 'organizational' | 'group' | 'personal';
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { FileText, Download, Loader2, Eye } from "lucide-react";
+import { PDFViewer } from "@/components/PDFViewer";
+type AnalysisLevel = "organizational" | "group" | "personal";
 
 export default function RegulatoryReports() {
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
-  const [analysisLevel, setAnalysisLevel] = useState<AnalysisLevel>('organizational');
+  const [analysisLevel, setAnalysisLevel] =
+    useState<AnalysisLevel>("organizational");
   const [selectedSigners, setSelectedSigners] = useState<number[]>([]);
-  const [conclusions, setConclusions] = useState('');
-  const [recommendations, setRecommendations] = useState('');
+  const [conclusions, setConclusions] = useState("");
+  const [recommendations, setRecommendations] = useState("");
   const [groupFilters, setGroupFilters] = useState({
     departmentId: null as number | null,
     ageRange: null as string | null,
@@ -40,13 +41,15 @@ export default function RegulatoryReports() {
   } | null>(null);
 
   // Queries
-  const { data: periods, isLoading: loadingPeriods } = trpc.reports.getAvailablePeriods.useQuery();
-  const { data: signers, isLoading: loadingSigners } = trpc.reports.getAvailableSigners.useQuery();
+  const { data: periods, isLoading: loadingPeriods } =
+    trpc.reports.getAvailablePeriods.useQuery();
+  const { data: signers, isLoading: loadingSigners } =
+    trpc.reports.getAvailableSigners.useQuery();
 
   // Mutation — genera PDF y abre el visor
   const generateReport = trpc.reports.generateNom035Report.useMutation({
-    onSuccess: (data) => {
-      toast.success('Informe generado exitosamente');
+    onSuccess: data => {
+      toast.success("Informe generado exitosamente");
       setPdfViewerData({
         base64: data.pdfBase64,
         url: data.pdfUrl,
@@ -54,29 +57,29 @@ export default function RegulatoryReports() {
       });
       setPdfViewerOpen(true);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al generar informe: ${error.message}`);
     },
   });
 
   const handleGenerateReport = () => {
     if (!selectedPeriod) {
-      toast.error('Selecciona un período de aplicación');
+      toast.error("Selecciona un período de aplicación");
       return;
     }
 
     if (selectedSigners.length < 2) {
-      toast.error('Selecciona al menos 2 firmantes');
+      toast.error("Selecciona al menos 2 firmantes");
       return;
     }
 
     if (conclusions.length < 50) {
-      toast.error('Las conclusiones deben tener al menos 50 caracteres');
+      toast.error("Las conclusiones deben tener al menos 50 caracteres");
       return;
     }
 
     if (recommendations.length < 50) {
-      toast.error('Las recomendaciones deben tener al menos 50 caracteres');
+      toast.error("Las recomendaciones deben tener al menos 50 caracteres");
       return;
     }
 
@@ -100,8 +103,8 @@ export default function RegulatoryReports() {
     <div className="container mx-auto py-6 space-y-6">
       <Breadcrumb
         items={[
-          { label: 'Reportes y Análisis', href: '/reports' },
-          { label: 'Reportes Normativos' },
+          { label: "Reportes y Análisis", href: "/reports" },
+          { label: "Reportes Normativos" },
         ]}
       />
 
@@ -119,15 +122,17 @@ export default function RegulatoryReports() {
         {/* Formulario de Configuración */}
         <Card className="p-6 space-y-6">
           <div>
-            <h2 className="text-xl font-semibold mb-4">Configuración del Informe</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Configuración del Informe
+            </h2>
           </div>
 
           {/* Período de Aplicación */}
           <div className="space-y-2">
             <Label htmlFor="period">Período de Aplicación *</Label>
             <Select
-              value={selectedPeriod?.toString() || ''}
-              onValueChange={(value) => setSelectedPeriod(parseInt(value))}
+              value={selectedPeriod?.toString() || ""}
+              onValueChange={value => setSelectedPeriod(parseInt(value))}
             >
               <SelectTrigger id="period">
                 <SelectValue placeholder="Selecciona un período" />
@@ -140,7 +145,7 @@ export default function RegulatoryReports() {
                 ) : periods && periods.length > 0 ? (
                   periods.map((period: any) => (
                     <SelectItem key={period.id} value={period.id.toString()}>
-                      {period.year} - {period.description || 'Sin descripción'}
+                      {period.year} - {period.description || "Sin descripción"}
                     </SelectItem>
                   ))
                 ) : (
@@ -177,16 +182,19 @@ export default function RegulatoryReports() {
           </div>
 
           {/* Filtros Grupales (solo si nivel = group) */}
-          {analysisLevel === 'group' && (
+          {analysisLevel === "group" && (
             <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
               <h3 className="font-medium">Filtros Grupales</h3>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="department">Departamento</Label>
                 <Select
-                  value={groupFilters.departmentId?.toString() || ''}
-                  onValueChange={(value) =>
-                    setGroupFilters(prev => ({ ...prev, departmentId: parseInt(value) }))
+                  value={groupFilters.departmentId?.toString() || ""}
+                  onValueChange={value =>
+                    setGroupFilters(prev => ({
+                      ...prev,
+                      departmentId: parseInt(value),
+                    }))
                   }
                 >
                   <SelectTrigger id="department">
@@ -202,8 +210,8 @@ export default function RegulatoryReports() {
               <div className="space-y-2">
                 <Label htmlFor="age-range">Rango de Edad</Label>
                 <Select
-                  value={groupFilters.ageRange || ''}
-                  onValueChange={(value) =>
+                  value={groupFilters.ageRange || ""}
+                  onValueChange={value =>
                     setGroupFilters(prev => ({ ...prev, ageRange: value }))
                   }
                 >
@@ -224,8 +232,8 @@ export default function RegulatoryReports() {
               <div className="space-y-2">
                 <Label htmlFor="gender">Género</Label>
                 <Select
-                  value={groupFilters.gender || ''}
-                  onValueChange={(value) =>
+                  value={groupFilters.gender || ""}
+                  onValueChange={value =>
                     setGroupFilters(prev => ({ ...prev, gender: value }))
                   }
                 >
@@ -251,7 +259,7 @@ export default function RegulatoryReports() {
             <Textarea
               id="conclusions"
               value={conclusions}
-              onChange={(e) => setConclusions(e.target.value)}
+              onChange={e => setConclusions(e.target.value)}
               placeholder="Redacta las conclusiones del análisis realizado..."
               rows={4}
               className="resize-none"
@@ -269,7 +277,7 @@ export default function RegulatoryReports() {
             <Textarea
               id="recommendations"
               value={recommendations}
-              onChange={(e) => setRecommendations(e.target.value)}
+              onChange={e => setRecommendations(e.target.value)}
               placeholder="Redacta las recomendaciones para mitigar los factores de riesgo identificados..."
               rows={4}
               className="resize-none"
@@ -283,7 +291,9 @@ export default function RegulatoryReports() {
         {/* Selección de Firmantes */}
         <Card className="p-6 space-y-6">
           <div>
-            <h2 className="text-xl font-semibold mb-2">Firmantes Autorizados</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              Firmantes Autorizados
+            </h2>
             <p className="text-sm text-muted-foreground">
               Selecciona al menos 2 firmantes para validar el informe
             </p>
@@ -313,7 +323,7 @@ export default function RegulatoryReports() {
                       {signer.name}
                     </label>
                     <p className="text-sm text-muted-foreground">
-                      {signer.position || 'Sin cargo especificado'}
+                      {signer.position || "Sin cargo especificado"}
                     </p>
                     {!signer.hasSignature && (
                       <p className="text-xs text-amber-600 mt-1">
@@ -400,8 +410,8 @@ export default function RegulatoryReports() {
         onClose={() => setPdfViewerOpen(false)}
         pdfBase64={pdfViewerData?.base64}
         pdfUrl={!pdfViewerData?.base64 ? pdfViewerData?.url : undefined}
-        filename={`Informe-NOM035-${pdfViewerData?.folio ?? 'borrador'}.pdf`}
-        title={`Informe NOM-035 — Folio ${pdfViewerData?.folio ?? ''}`}
+        filename={`Informe-NOM035-${pdfViewerData?.folio ?? "borrador"}.pdf`}
+        title={`Informe NOM-035 — Folio ${pdfViewerData?.folio ?? ""}`}
         loading={generateReport.isPending}
       />
     </div>

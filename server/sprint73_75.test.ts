@@ -28,17 +28,27 @@ function esVencida(plazo: string): boolean {
   return calcularDiasHastaVencimiento(plazo) < 0;
 }
 
-function construirAsuntoAlerta(tipo: "proxima" | "vencida", accionId: string, diasRestantes?: number): string {
+function construirAsuntoAlerta(
+  tipo: "proxima" | "vencida",
+  accionId: string,
+  diasRestantes?: number
+): string {
   if (tipo === "vencida") return `⚠ Acción NOM-035 vencida: ${accionId}`;
   return `⏰ Acción NOM-035 próxima a vencer en ${diasRestantes} día(s): ${accionId}`;
 }
 
 function deduplicarNotificaciones(
-  acciones: Array<{ id: number; notificacion7DiasEnviada: boolean; notificacionVencimientoEnviada: boolean }>,
+  acciones: Array<{
+    id: number;
+    notificacion7DiasEnviada: boolean;
+    notificacionVencimientoEnviada: boolean;
+  }>,
   tipo: "proxima" | "vencida"
 ): Array<{ id: number }> {
   return acciones.filter(a =>
-    tipo === "proxima" ? !a.notificacion7DiasEnviada : !a.notificacionVencimientoEnviada
+    tipo === "proxima"
+      ? !a.notificacion7DiasEnviada
+      : !a.notificacionVencimientoEnviada
   );
 }
 
@@ -52,7 +62,9 @@ function construirBaseUrl(hostname?: string): string {
 // Helpers del Widget KPI (Sprint 74)
 // ─────────────────────────────────────────────────────────────────────────────
 
-function calcularSemaforoWidget(porcentaje: number): "verde" | "amarillo" | "rojo" {
+function calcularSemaforoWidget(
+  porcentaje: number
+): "verde" | "amarillo" | "rojo" {
   if (porcentaje >= 80) return "verde";
   if (porcentaje >= 50) return "amarillo";
   return "rojo";
@@ -63,12 +75,17 @@ function calcularPorcentajeWidget(cumplidas: number, total: number): number {
   return Math.round((cumplidas / total) * 100);
 }
 
-function calcularEtiquetaSemaforo(semaforo: "verde" | "amarillo" | "rojo"): string {
+function calcularEtiquetaSemaforo(
+  semaforo: "verde" | "amarillo" | "rojo"
+): string {
   const labels = { verde: "Óptimo", amarillo: "En riesgo", rojo: "Crítico" };
   return labels[semaforo];
 }
 
-function widgetDebeRenderizarse(matrizStats: any, matrizLoading: boolean): boolean {
+function widgetDebeRenderizarse(
+  matrizStats: any,
+  matrizLoading: boolean
+): boolean {
   return matrizLoading || !!matrizStats;
 }
 
@@ -99,7 +116,11 @@ function truncarTexto(texto: string, maxLen: number): string {
 
 function formatearFechaPdf(fecha: string | null | undefined): string {
   if (!fecha) return "—";
-  return new Date(fecha).toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(fecha).toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function calcularPorcentajeTendencia(cumplidas: number, total: number): number {
@@ -110,10 +131,13 @@ function calcularPorcentajeTendencia(cumplidas: number, total: number): number {
 function validarDatosPdf(data: any): { valido: boolean; errores: string[] } {
   const errores: string[] = [];
   if (!data.kpis) errores.push("kpis es requerido");
-  if (typeof data.kpis?.total !== "number") errores.push("kpis.total debe ser número");
+  if (typeof data.kpis?.total !== "number")
+    errores.push("kpis.total debe ser número");
   if (!Array.isArray(data.planes)) errores.push("planes debe ser array");
-  if (!Array.isArray(data.proximasAVencer)) errores.push("proximasAVencer debe ser array");
-  if (!Array.isArray(data.accionesVencidas)) errores.push("accionesVencidas debe ser array");
+  if (!Array.isArray(data.proximasAVencer))
+    errores.push("proximasAVencer debe ser array");
+  if (!Array.isArray(data.accionesVencidas))
+    errores.push("accionesVencidas debe ser array");
   return { valido: errores.length === 0, errores };
 }
 
@@ -123,11 +147,16 @@ function validarDatosPdf(data: any): { valido: boolean; errores: string[] } {
 
 describe("Sprint 73 — Job de alertas de vencimiento NOM-035", () => {
   const hoy = new Date();
-  const mañana = new Date(hoy); mañana.setDate(hoy.getDate() + 1);
-  const en5Dias = new Date(hoy); en5Dias.setDate(hoy.getDate() + 5);
-  const en8Dias = new Date(hoy); en8Dias.setDate(hoy.getDate() + 8);
-  const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1);
-  const hace10Dias = new Date(hoy); hace10Dias.setDate(hoy.getDate() - 10);
+  const mañana = new Date(hoy);
+  mañana.setDate(hoy.getDate() + 1);
+  const en5Dias = new Date(hoy);
+  en5Dias.setDate(hoy.getDate() + 5);
+  const en8Dias = new Date(hoy);
+  en8Dias.setDate(hoy.getDate() + 8);
+  const ayer = new Date(hoy);
+  ayer.setDate(hoy.getDate() - 1);
+  const hace10Dias = new Date(hoy);
+  hace10Dias.setDate(hoy.getDate() - 10);
 
   const toStr = (d: Date) => d.toISOString().split("T")[0];
 
@@ -165,8 +194,16 @@ describe("Sprint 73 — Job de alertas de vencimiento NOM-035", () => {
 
   it("deduplica notificaciones próximas ya enviadas", () => {
     const acciones = [
-      { id: 1, notificacion7DiasEnviada: true, notificacionVencimientoEnviada: false },
-      { id: 2, notificacion7DiasEnviada: false, notificacionVencimientoEnviada: false },
+      {
+        id: 1,
+        notificacion7DiasEnviada: true,
+        notificacionVencimientoEnviada: false,
+      },
+      {
+        id: 2,
+        notificacion7DiasEnviada: false,
+        notificacionVencimientoEnviada: false,
+      },
     ];
     const pendientes = deduplicarNotificaciones(acciones, "proxima");
     expect(pendientes).toHaveLength(1);
@@ -175,8 +212,16 @@ describe("Sprint 73 — Job de alertas de vencimiento NOM-035", () => {
 
   it("deduplica notificaciones de vencimiento ya enviadas", () => {
     const acciones = [
-      { id: 1, notificacion7DiasEnviada: false, notificacionVencimientoEnviada: true },
-      { id: 2, notificacion7DiasEnviada: false, notificacionVencimientoEnviada: false },
+      {
+        id: 1,
+        notificacion7DiasEnviada: false,
+        notificacionVencimientoEnviada: true,
+      },
+      {
+        id: 2,
+        notificacion7DiasEnviada: false,
+        notificacionVencimientoEnviada: false,
+      },
     ];
     const pendientes = deduplicarNotificaciones(acciones, "vencida");
     expect(pendientes).toHaveLength(1);
@@ -255,7 +300,12 @@ describe("Sprint 74 — Widget KPI de Matriz en Home", () => {
   });
 
   it("widget se renderiza cuando hay datos", () => {
-    const stats = { totalAcciones: 10, cumplidas: 8, vencidas: 1, conEvidencia: 6 };
+    const stats = {
+      totalAcciones: 10,
+      cumplidas: 8,
+      vencidas: 1,
+      conEvidencia: 6,
+    };
     expect(widgetDebeRenderizarse(stats, false)).toBe(true);
   });
 
@@ -313,7 +363,8 @@ describe("Sprint 75 — Generador PDF del Dashboard de Cumplimiento", () => {
   });
 
   it("trunca texto largo a maxLen caracteres con '...'", () => {
-    const texto = "Este es un texto muy largo que supera el límite establecido para la columna";
+    const texto =
+      "Este es un texto muy largo que supera el límite establecido para la columna";
     const truncado = truncarTexto(texto, 30);
     expect(truncado.length).toBeLessThanOrEqual(33); // 30 + "..."
     expect(truncado.endsWith("...")).toBe(true);
@@ -343,7 +394,19 @@ describe("Sprint 75 — Generador PDF del Dashboard de Cumplimiento", () => {
 
   it("valida datos mínimos para generar PDF", () => {
     const datosValidos = {
-      kpis: { total: 10, cumplidas: 8, vencidas: 1, noIniciadas: 1, enProceso: 0, canceladas: 0, conEvidencia: 5, altaPrioridad: 3, altaVencida: 0, porcentajeCumplimiento: 80, semaforoGlobal: "verde" },
+      kpis: {
+        total: 10,
+        cumplidas: 8,
+        vencidas: 1,
+        noIniciadas: 1,
+        enProceso: 0,
+        canceladas: 0,
+        conEvidencia: 5,
+        altaPrioridad: 3,
+        altaVencida: 0,
+        porcentajeCumplimiento: 80,
+        semaforoGlobal: "verde",
+      },
       planes: [],
       proximasAVencer: [],
       accionesVencidas: [],
@@ -365,9 +428,20 @@ describe("Sprint 75 — Generador PDF del Dashboard de Cumplimiento", () => {
   });
 
   it("incluye todas las secciones requeridas en la estructura de datos", () => {
-    const secciones = ["kpis", "planes", "proximasAVencer", "accionesVencidas", "byTipoPlan", "byNivel", "byPrioridad", "tendenciaMeses"];
+    const secciones = [
+      "kpis",
+      "planes",
+      "proximasAVencer",
+      "accionesVencidas",
+      "byTipoPlan",
+      "byNivel",
+      "byPrioridad",
+      "tendenciaMeses",
+    ];
     const datos: any = {};
-    secciones.forEach(s => { datos[s] = s === "kpis" ? { total: 0 } : []; });
+    secciones.forEach(s => {
+      datos[s] = s === "kpis" ? { total: 0 } : [];
+    });
     const { valido } = validarDatosPdf(datos);
     expect(valido).toBe(true);
   });

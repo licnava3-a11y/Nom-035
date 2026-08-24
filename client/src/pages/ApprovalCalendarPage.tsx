@@ -1,15 +1,23 @@
 import { ApprovalCalendar } from "@/components/ApprovalCalendar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ICONS } from "@/lib/iconography";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function ApprovalCalendarPage() {
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <Breadcrumb items={[
-        { label: "Comité", href: "/committee" },
-        { label: "Calendario de Deadlines" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Comité", href: "/committee" },
+          { label: "Calendario de Deadlines" },
+        ]}
+      />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -17,7 +25,8 @@ export default function ApprovalCalendarPage() {
             Calendario de Aprobaciones
           </CardTitle>
           <CardDescription>
-            Visualiza y gestiona las fechas límite de aprobación de las bases de funcionamiento del comité
+            Visualiza y gestiona las fechas límite de aprobación de las bases de
+            funcionamiento del comité
           </CardDescription>
         </CardHeader>
         <CardContent>

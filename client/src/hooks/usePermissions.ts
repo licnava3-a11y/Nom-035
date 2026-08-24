@@ -3,13 +3,13 @@ import { useAuth } from "@/_core/hooks/useAuth";
 /**
  * Tipos de permisos granulares del sistema
  */
-export type Permission = 
-  | 'can_create'      // Crear nuevos registros
-  | 'can_edit'        // Editar registros existentes
-  | 'can_delete'      // Eliminar registros
-  | 'can_view'        // Ver detalles de registros
-  | 'can_export'      // Exportar datos
-  | 'can_approve';    // Aprobar/rechazar solicitudes
+export type Permission =
+  | "can_create" // Crear nuevos registros
+  | "can_edit" // Editar registros existentes
+  | "can_delete" // Eliminar registros
+  | "can_view" // Ver detalles de registros
+  | "can_export" // Exportar datos
+  | "can_approve"; // Aprobar/rechazar solicitudes
 
 /**
  * Matriz de permisos por rol
@@ -17,52 +17,37 @@ export type Permission =
  */
 const PERMISSIONS_MATRIX: Record<string, Permission[]> = {
   admin: [
-    'can_create',
-    'can_edit',
-    'can_delete',
-    'can_view',
-    'can_export',
-    'can_approve',
+    "can_create",
+    "can_edit",
+    "can_delete",
+    "can_view",
+    "can_export",
+    "can_approve",
   ],
-  user: [
-    'can_view',
-    'can_export',
-  ],
-  instructor: [
-    'can_create',
-    'can_edit',
-    'can_view',
-    'can_export',
-  ],
-  committee: [
-    'can_view',
-    'can_approve',
-  ],
-  administrativo: [
-    'can_view',
-    'can_export',
-    'can_approve',
-  ],
+  user: ["can_view", "can_export"],
+  instructor: ["can_create", "can_edit", "can_view", "can_export"],
+  committee: ["can_view", "can_approve"],
+  administrativo: ["can_view", "can_export", "can_approve"],
   gerente: [
-    'can_create',
-    'can_edit',
-    'can_delete',
-    'can_view',
-    'can_export',
-    'can_approve',
+    "can_create",
+    "can_edit",
+    "can_delete",
+    "can_view",
+    "can_export",
+    "can_approve",
   ],
 };
 
 /**
  * Hook para verificar permisos del usuario actual
- * 
+ *
  * @example
  * const { hasPermission, canCreate, canEdit, canDelete } = usePermissions();
- * 
+ *
  * if (canCreate) {
  *   return <Button onClick={handleCreate}>Crear</Button>
  * }
- * 
+ *
  * if (hasPermission('can_approve')) {
  *   return <Button onClick={handleApprove}>Aprobar</Button>
  * }
@@ -75,10 +60,10 @@ export function usePermissions() {
    */
   const hasPermission = (permission: Permission): boolean => {
     if (!user) return false;
-    
-    const userRole = user.role || 'user';
+
+    const userRole = user.role || "user";
     const rolePermissions = PERMISSIONS_MATRIX[userRole] || [];
-    
+
     return rolePermissions.includes(permission);
   };
 
@@ -100,7 +85,7 @@ export function usePermissions() {
    * Verifica si el usuario es administrador
    */
   const isAdmin = (): boolean => {
-    return user?.role === 'admin';
+    return user?.role === "admin";
   };
 
   return {
@@ -109,11 +94,11 @@ export function usePermissions() {
     hasAnyPermission,
     isAdmin,
     // Atajos para permisos comunes
-    canCreate: hasPermission('can_create'),
-    canEdit: hasPermission('can_edit'),
-    canDelete: hasPermission('can_delete'),
-    canView: hasPermission('can_view'),
-    canExport: hasPermission('can_export'),
-    canApprove: hasPermission('can_approve'),
+    canCreate: hasPermission("can_create"),
+    canEdit: hasPermission("can_edit"),
+    canDelete: hasPermission("can_delete"),
+    canView: hasPermission("can_view"),
+    canExport: hasPermission("can_export"),
+    canApprove: hasPermission("can_approve"),
   };
 }

@@ -6,8 +6,20 @@ import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import ProtectedButton from "@/components/ProtectedButton";
@@ -18,17 +30,20 @@ export default function PurchaseOrders() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  
+
   // Form state
   const [folio, setFolio] = useState("");
   const [proveedor, setProveedor] = useState("");
   const [monto, setMonto] = useState("");
   const [fecha, setFecha] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [estado, setEstado] = useState<"borrador" | "enviada" | "recibida" | "cancelada">("borrador");
+  const [estado, setEstado] = useState<
+    "borrador" | "enviada" | "recibida" | "cancelada"
+  >("borrador");
 
   // Queries
-  const { data: orders, refetch } = trpc.financial.getAllPurchaseOrders.useQuery();
+  const { data: orders, refetch } =
+    trpc.financial.getAllPurchaseOrders.useQuery();
 
   // Mutations
   const createMutation = trpc.financial.createPurchaseOrder.useMutation({
@@ -38,7 +53,7 @@ export default function PurchaseOrders() {
       resetForm();
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -50,7 +65,7 @@ export default function PurchaseOrders() {
       setSelectedOrder(null);
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -60,7 +75,7 @@ export default function PurchaseOrders() {
       toast.success("Orden de compra eliminada exitosamente");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -95,7 +110,8 @@ export default function PurchaseOrders() {
     setFolio(order.folio);
     setProveedor(order.proveedor);
     setMonto(order.monto.toString());
-    const orderDate = order.fecha instanceof Date ? order.fecha : new Date(order.fecha);
+    const orderDate =
+      order.fecha instanceof Date ? order.fecha : new Date(order.fecha);
     setFecha(orderDate.toISOString().split("T")[0]);
     setDescripcion(order.descripcion || "");
     setEstado(order.estado);
@@ -143,8 +159,12 @@ export default function PurchaseOrders() {
 
       <div className="flex justify-between items-center mb-6 mt-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestión de Órdenes de Compra</h1>
-          <p className="text-muted-foreground mt-2">Administra las órdenes de compra y proveedores</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestión de Órdenes de Compra
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Administra las órdenes de compra y proveedores
+          </p>
         </div>
         <ProtectedButton
           onClick={() => setCreateDialogOpen(true)}
@@ -179,7 +199,9 @@ export default function PurchaseOrders() {
                     <td className="p-4">{order.folio}</td>
                     <td className="p-4">{order.proveedor}</td>
                     <td className="p-4">${order.monto.toFixed(2)}</td>
-                    <td className="p-4">{new Date(order.fecha).toLocaleDateString()}</td>
+                    <td className="p-4">
+                      {new Date(order.fecha).toLocaleDateString()}
+                    </td>
                     <td className="p-4">{getStatusBadge(order.estado)}</td>
                     <td className="p-4">
                       <div className="flex gap-2">
@@ -205,9 +227,12 @@ export default function PurchaseOrders() {
                 ))}
               </tbody>
             </table>
-            {!orders || orders.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">No hay órdenes de compra registradas</p>
-            )}
+            {!orders ||
+              (orders.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  No hay órdenes de compra registradas
+                </p>
+              ))}
           </div>
         </CardContent>
       </Card>
@@ -221,27 +246,45 @@ export default function PurchaseOrders() {
           <div className="space-y-4">
             <div>
               <Label>Folio</Label>
-              <Input value={folio} onChange={(e) => setFolio(e.target.value)} />
+              <Input value={folio} onChange={e => setFolio(e.target.value)} />
             </div>
             <div>
               <Label>Proveedor</Label>
-              <Input value={proveedor} onChange={(e) => setProveedor(e.target.value)} />
+              <Input
+                value={proveedor}
+                onChange={e => setProveedor(e.target.value)}
+              />
             </div>
             <div>
               <Label>Monto</Label>
-              <Input type="number" step="0.01" value={monto} onChange={(e) => setMonto(e.target.value)} />
+              <Input
+                type="number"
+                step="0.01"
+                value={monto}
+                onChange={e => setMonto(e.target.value)}
+              />
             </div>
             <div>
               <Label>Fecha</Label>
-              <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+              <Input
+                type="date"
+                value={fecha}
+                onChange={e => setFecha(e.target.value)}
+              />
             </div>
             <div>
               <Label>Descripción (opcional)</Label>
-              <Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+              <Input
+                value={descripcion}
+                onChange={e => setDescripcion(e.target.value)}
+              />
             </div>
             <div>
               <Label>Estado</Label>
-              <Select value={estado} onValueChange={(value: any) => setEstado(value)}>
+              <Select
+                value={estado}
+                onValueChange={(value: any) => setEstado(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -255,10 +298,19 @@ export default function PurchaseOrders() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setCreateDialogOpen(false)}
+            >
               Cancelar
             </Button>
-            <LoadingButton onClick={handleCreate} loading={createMutation.isPending} loadingText="Creando...">Crear</LoadingButton>
+            <LoadingButton
+              onClick={handleCreate}
+              loading={createMutation.isPending}
+              loadingText="Creando..."
+            >
+              Crear
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -272,27 +324,45 @@ export default function PurchaseOrders() {
           <div className="space-y-4">
             <div>
               <Label>Folio</Label>
-              <Input value={folio} onChange={(e) => setFolio(e.target.value)} />
+              <Input value={folio} onChange={e => setFolio(e.target.value)} />
             </div>
             <div>
               <Label>Proveedor</Label>
-              <Input value={proveedor} onChange={(e) => setProveedor(e.target.value)} />
+              <Input
+                value={proveedor}
+                onChange={e => setProveedor(e.target.value)}
+              />
             </div>
             <div>
               <Label>Monto</Label>
-              <Input type="number" step="0.01" value={monto} onChange={(e) => setMonto(e.target.value)} />
+              <Input
+                type="number"
+                step="0.01"
+                value={monto}
+                onChange={e => setMonto(e.target.value)}
+              />
             </div>
             <div>
               <Label>Fecha</Label>
-              <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+              <Input
+                type="date"
+                value={fecha}
+                onChange={e => setFecha(e.target.value)}
+              />
             </div>
             <div>
               <Label>Descripción (opcional)</Label>
-              <Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+              <Input
+                value={descripcion}
+                onChange={e => setDescripcion(e.target.value)}
+              />
             </div>
             <div>
               <Label>Estado</Label>
-              <Select value={estado} onValueChange={(value: any) => setEstado(value)}>
+              <Select
+                value={estado}
+                onValueChange={(value: any) => setEstado(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -309,7 +379,13 @@ export default function PurchaseOrders() {
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
               Cancelar
             </Button>
-            <LoadingButton onClick={handleUpdate} loading={updateMutation.isPending} loadingText="Actualizando...">Actualizar</LoadingButton>
+            <LoadingButton
+              onClick={handleUpdate}
+              loading={updateMutation.isPending}
+              loadingText="Actualizando..."
+            >
+              Actualizar
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

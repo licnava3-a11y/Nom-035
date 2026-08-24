@@ -5,8 +5,10 @@
 export const validationMessages = {
   required: (field: string) => `El campo ${field} es obligatorio`,
   email: "Ingrese un correo electrónico válido",
-  minLength: (field: string, min: number) => `${field} debe tener al menos ${min} caracteres`,
-  maxLength: (field: string, max: number) => `${field} no debe exceder ${max} caracteres`,
+  minLength: (field: string, min: number) =>
+    `${field} debe tener al menos ${min} caracteres`,
+  maxLength: (field: string, max: number) =>
+    `${field} no debe exceder ${max} caracteres`,
   pattern: (field: string) => `${field} tiene un formato inválido`,
   number: "Debe ser un número válido",
   positive: "Debe ser un número positivo",
@@ -38,9 +40,7 @@ export function validateRFC(rfc: string): boolean {
 
 export function sanitizeInput(input: string): string {
   // Remover caracteres peligrosos para prevenir XSS
-  return input
-    .replace(/[<>]/g, "")
-    .trim();
+  return input.replace(/[<>]/g, "").trim();
 }
 
 export function formatCurrency(amount: number): string {

@@ -1,11 +1,16 @@
 import { getDb } from "../server/db";
-import { surveyResponses, users, surveyPeriods, surveys } from "../drizzle/schema";
+import {
+  surveyResponses,
+  users,
+  surveyPeriods,
+  surveys,
+} from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 
 /**
  * Script para generar datos de prueba de encuestas NOM-035
- * 
+ *
  * Genera 20+ respuestas de encuestas con diferentes niveles de riesgo
  * y distribuidas entre diferentes departamentos
  */
@@ -20,26 +25,26 @@ const departments = ["RRHH", "IT", "Ventas", "Operaciones", "Finanzas"];
 function generateScoreByRisk(surveyType: string, riskLevel: string): number {
   const ranges: Record<string, Record<string, [number, number]>> = {
     "Guía I": {
-      "Nulo": [0, 5],
-      "Bajo": [6, 9],
-      "Medio": [10, 13],
-      "Alto": [14, 17],
-      "Muy Alto": [18, 20]
+      Nulo: [0, 5],
+      Bajo: [6, 9],
+      Medio: [10, 13],
+      Alto: [14, 17],
+      "Muy Alto": [18, 20],
     },
     "Guía II": {
-      "Nulo": [0, 20],
-      "Bajo": [21, 30],
-      "Medio": [31, 45],
-      "Alto": [46, 60],
-      "Muy Alto": [61, 72]
+      Nulo: [0, 20],
+      Bajo: [21, 30],
+      Medio: [31, 45],
+      Alto: [46, 60],
+      "Muy Alto": [61, 72],
     },
     "Guía III": {
-      "Nulo": [0, 50],
-      "Bajo": [51, 75],
-      "Medio": [76, 99],
-      "Alto": [100, 125],
-      "Muy Alto": [126, 138]
-    }
+      Nulo: [0, 50],
+      Bajo: [51, 75],
+      Medio: [76, 99],
+      Alto: [100, 125],
+      "Muy Alto": [126, 138],
+    },
   };
 
   const range = ranges[surveyType]?.[riskLevel] || [0, 10];
@@ -47,11 +52,14 @@ function generateScoreByRisk(surveyType: string, riskLevel: string): number {
 }
 
 // Función para generar respuestas aleatorias
-function generateAnswers(surveyType: string, totalScore: number): Record<string, any> {
+function generateAnswers(
+  surveyType: string,
+  totalScore: number
+): Record<string, any> {
   const questionCounts: Record<string, number> = {
     "Guía I": 20,
     "Guía II": 72,
-    "Guía III": 138
+    "Guía III": 138,
   };
 
   const questionCount = questionCounts[surveyType] || 20;
@@ -133,10 +141,12 @@ async function generateTestData() {
         const user = allUsers[Math.floor(Math.random() * allUsers.length)];
 
         // Seleccionar nivel de riesgo aleatorio
-        const riskLevel = riskLevels[Math.floor(Math.random() * riskLevels.length)];
+        const riskLevel =
+          riskLevels[Math.floor(Math.random() * riskLevels.length)];
 
         // Seleccionar departamento aleatorio
-        const department = departments[Math.floor(Math.random() * departments.length)];
+        const department =
+          departments[Math.floor(Math.random() * departments.length)];
 
         // Generar puntaje según nivel de riesgo
         const totalScore = generateScoreByRisk(surveyType, riskLevel);
@@ -147,12 +157,14 @@ async function generateTestData() {
         // Obtener surveyId
         const surveyId = surveyMap[surveyType];
         if (!surveyId) {
-          console.warn(`  ⚠️ Encuesta tipo "${surveyType}" no encontrada, omitiendo...`);
+          console.warn(
+            `  ⚠️ Encuesta tipo "${surveyType}" no encontrada, omitiendo...`
+          );
           continue;
         }
 
         // Generar token único
-        const token = crypto.randomBytes(32).toString('hex');
+        const token = crypto.randomBytes(32).toString("hex");
 
         // Crear registro de respuesta
         await db.insert(surveyResponses).values({
@@ -164,26 +176,31 @@ async function generateTestData() {
             totalScore,
             riskLevel,
             department,
-            recommendations: [`Recomendación automática para nivel ${riskLevel}`]
+            recommendations: [
+              `Recomendación automática para nivel ${riskLevel}`,
+            ],
           }),
           completedAt: new Date(),
-          startedAt: new Date()
+          startedAt: new Date(),
         });
 
         totalGenerated++;
-        console.log(`  ✓ Respuesta ${i + 1}/${count}: Usuario ${user.name} - ${riskLevel} (${totalScore} pts) - ${department}`);
+        console.log(
+          `  ✓ Respuesta ${i + 1}/${count}: Usuario ${user.name} - ${riskLevel} (${totalScore} pts) - ${department}`
+        );
       }
 
       console.log("");
     }
 
-    console.log(`\n✅ Generación completada: ${totalGenerated} respuestas creadas exitosamente\n`);
+    console.log(
+      `\n✅ Generación completada: ${totalGenerated} respuestas creadas exitosamente\n`
+    );
     console.log("📊 Distribución:");
     console.log(`   - Guía I: 10 respuestas`);
     console.log(`   - Guía II: 5 respuestas`);
     console.log(`   - Guía III: 5 respuestas`);
     console.log(`   - Total: ${totalGenerated} respuestas\n`);
-
   } catch (error) {
     console.error("❌ Error al generar datos de prueba:", error);
     throw error;
@@ -196,7 +213,7 @@ generateTestData()
     console.log("✅ Script finalizado exitosamente");
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error("❌ Error fatal:", error);
     process.exit(1);
   });

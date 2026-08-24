@@ -68,7 +68,11 @@ export const surveyAnonymousTokensRouter = router({
 
       // Insert all tokens in a single transaction
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       await (db.insert(surveyAnonymousTokens) as any).values(tokens);
 
       return {
@@ -88,8 +92,12 @@ export const surveyAnonymousTokensRouter = router({
       z.object({
         page: z.number().min(1).default(1),
         pageSize: z.number().min(10).max(100).default(50),
-        surveyType: z.enum(["all", "guia_i", "guia_ii", "guia_iii"]).default("all"),
-        status: z.enum(["all", "active", "used", "expired", "revoked"]).default("all"),
+        surveyType: z
+          .enum(["all", "guia_i", "guia_ii", "guia_iii"])
+          .default("all"),
+        status: z
+          .enum(["all", "active", "used", "expired", "revoked"])
+          .default("all"),
         department: z.string().optional(),
       })
     )
@@ -134,11 +142,16 @@ export const surveyAnonymousTokensRouter = router({
         conditions.push(eq(surveyAnonymousTokens.isRevoked, true));
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       // Get total count
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       const [{ count }] = await db
         .select({ count: sql<number>`count(*)` })
         .from(surveyAnonymousTokens)
@@ -174,7 +187,11 @@ export const surveyAnonymousTokensRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       const [tokenRecord] = await db
         .select()
         .from(surveyAnonymousTokens)
@@ -245,7 +262,11 @@ export const surveyAnonymousTokensRouter = router({
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       await db
         .update(surveyAnonymousTokens)
@@ -273,7 +294,11 @@ export const surveyAnonymousTokensRouter = router({
     const now = new Date();
 
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     // Total tokens
     const [{ total }] = await db
@@ -343,8 +368,12 @@ export const surveyAnonymousTokensRouter = router({
   exportTokens: protectedProcedure
     .input(
       z.object({
-        surveyType: z.enum(["all", "guia_i", "guia_ii", "guia_iii"]).default("all"),
-        status: z.enum(["all", "active", "used", "expired", "revoked"]).default("active"),
+        surveyType: z
+          .enum(["all", "guia_i", "guia_ii", "guia_iii"])
+          .default("all"),
+        status: z
+          .enum(["all", "active", "used", "expired", "revoked"])
+          .default("active"),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -381,10 +410,15 @@ export const surveyAnonymousTokensRouter = router({
         conditions.push(eq(surveyAnonymousTokens.isRevoked, true));
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const tokens = await db
         .select()

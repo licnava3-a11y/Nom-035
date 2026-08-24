@@ -1,13 +1,27 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { committeePositionAcceptances, committeeMembers, employees, companyGeneralData, companyLogo, companyDigitalSignature, departments } from "../../drizzle/schema";
+import {
+  committeePositionAcceptances,
+  committeeMembers,
+  employees,
+  companyGeneralData,
+  companyLogo,
+  companyDigitalSignature,
+  departments,
+} from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";
 import { generatePositionAcceptancePDF } from "../pdfGenerators/committeePositionAcceptance";
 
-const positionEnum = z.enum(["president", "secretary", "vocal", "alternate", "advisor"]);
+const positionEnum = z.enum([
+  "president",
+  "secretary",
+  "vocal",
+  "alternate",
+  "advisor",
+]);
 
 export const committeePositionAcceptanceRouter = router({
   /**
@@ -25,20 +39,36 @@ export const committeePositionAcceptanceRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       // Upload INE photo to S3
-      const ineBuffer = Buffer.from(input.inePhotoBase64.split(",")[1], "base64");
+      const ineBuffer = Buffer.from(
+        input.inePhotoBase64.split(",")[1],
+        "base64"
+      );
       const ineKey = `committee/acceptances/ine-${input.committeeMemberId}-${Date.now()}.jpg`;
       const { url: ineUrl } = await storagePut(ineKey, ineBuffer, "image/jpeg");
 
       // Upload signature to S3
-      const signatureBuffer = Buffer.from(input.signatureBase64.split(",")[1], "base64");
+      const signatureBuffer = Buffer.from(
+        input.signatureBase64.split(",")[1],
+        "base64"
+      );
       const signatureKey = `committee/acceptances/signature-${input.committeeMemberId}-${Date.now()}.png`;
-      const { url: signatureUrl } = await storagePut(signatureKey, signatureBuffer, "image/png");
+      const { url: signatureUrl } = await storagePut(
+        signatureKey,
+        signatureBuffer,
+        "image/png"
+      );
 
       // Create acceptance record
-      const [result] = await (db.insert(committeePositionAcceptances) as any).values({
+      const [result] = await (
+        db.insert(committeePositionAcceptances) as any
+      ).values({
         committeeMemberId: input.committeeMemberId,
         positionType: input.positionType,
         inePhotoUrl: ineUrl,
@@ -62,7 +92,11 @@ export const committeePositionAcceptanceRouter = router({
     .input(z.object({ acceptanceId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       // Get acceptance data with member and employee info
       const [acceptance] = await db
@@ -71,7 +105,10 @@ export const committeePositionAcceptanceRouter = router({
         .where(eq(committeePositionAcceptances.id, input.acceptanceId));
 
       if (!acceptance) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Acceptance not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Acceptance not found",
+        });
       }
 
       const [member] = await db
@@ -80,7 +117,10 @@ export const committeePositionAcceptanceRouter = router({
         .where(eq(committeeMembers.id, acceptance.committeeMemberId));
 
       if (!member) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Committee member not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Committee member not found",
+        });
       }
 
       const [employee] = await db
@@ -96,13 +136,19 @@ export const committeePositionAcceptanceRouter = router({
         .where(sql`${employees.id} = ${member.employeeId}`);
 
       if (!employee) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Employee not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Employee not found",
+        });
       }
 
       // Get company info
       const [company] = await db.select().from(companyGeneralData);
       const [logo] = await db.select().from(companyLogo).limit(1);
-      const [legalRep] = await db.select().from(companyDigitalSignature).limit(1);
+      const [legalRep] = await db
+        .select()
+        .from(companyDigitalSignature)
+        .limit(1);
 
       // Generate PDF
       const pdfBuffer = await generatePositionAcceptancePDF(
@@ -126,7 +172,11 @@ export const committeePositionAcceptanceRouter = router({
 
       // Upload PDF to S3
       const pdfKey = `committee/acceptances/acceptance-${acceptance.id}-${Date.now()}.pdf`;
-      const { url: pdfUrl } = await storagePut(pdfKey, pdfBuffer, "application/pdf");
+      const { url: pdfUrl } = await storagePut(
+        pdfKey,
+        pdfBuffer,
+        "application/pdf"
+      );
 
       // Update acceptance record with PDF info
       await db
@@ -142,11 +192,13 @@ export const committeePositionAcceptanceRouter = router({
    */
   list: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database connection failed",
+      });
 
-    const acceptances = await db
-      .select()
-      .from(committeePositionAcceptances);
+    const acceptances = await db.select().from(committeePositionAcceptances);
 
     // Enrich with member data
     const enrichedAcceptances = await Promise.all(
@@ -173,7 +225,9 @@ export const committeePositionAcceptanceRouter = router({
 
         return {
           ...acceptance,
-          memberName: employee ? `${employee.firstName} ${employee.lastName}` : "N/A",
+          memberName: employee
+            ? `${employee.firstName} ${employee.lastName}`
+            : "N/A",
           employeeNumber: employee?.employeeNumber || "N/A",
         };
       })
@@ -189,7 +243,11 @@ export const committeePositionAcceptanceRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       const [acceptance] = await db
         .select()
@@ -197,7 +255,10 @@ export const committeePositionAcceptanceRouter = router({
         .where(eq(committeePositionAcceptances.id, input.id));
 
       if (!acceptance) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Acceptance not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Acceptance not found",
+        });
       }
 
       return acceptance;
@@ -217,9 +278,15 @@ export const committeePositionAcceptanceRouter = router({
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
-      await db.delete(committeePositionAcceptances).where(eq(committeePositionAcceptances.id, input.id));
+      await db
+        .delete(committeePositionAcceptances)
+        .where(eq(committeePositionAcceptances.id, input.id));
 
       return { success: true };
     }),
@@ -229,7 +296,11 @@ export const committeePositionAcceptanceRouter = router({
    */
   listMembers: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database connection failed",
+      });
 
     const members = await db
       .select({
@@ -238,7 +309,10 @@ export const committeePositionAcceptanceRouter = router({
         position: committeeMembers.position,
       })
       .from(committeeMembers)
-      .leftJoin(employees, sql`${committeeMembers.employeeId} = ${employees.id}`);
+      .leftJoin(
+        employees,
+        sql`${committeeMembers.employeeId} = ${employees.id}`
+      );
 
     return members;
   }),

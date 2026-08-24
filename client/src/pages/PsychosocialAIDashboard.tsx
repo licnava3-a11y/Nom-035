@@ -10,14 +10,26 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
@@ -86,9 +98,12 @@ export default function PsychosocialAIDashboard() {
           <Brain className="h-7 w-7" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">IA Psicosocial — Forge LLM</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            IA Psicosocial — Forge LLM
+          </h1>
           <p className="text-slate-500 mt-0.5">
-            Análisis inteligente de riesgos psicosociales basado en NOM-035-STPS-2018
+            Análisis inteligente de riesgos psicosociales basado en
+            NOM-035-STPS-2018
           </p>
         </div>
         <Badge className="ml-auto bg-indigo-100 text-indigo-700 border-indigo-200 font-medium">
@@ -151,11 +166,11 @@ function AnalyzeTextTab() {
   const [result, setResult] = useState<any>(null);
 
   const analyzeText = trpc.sentimentAnalysis.analyzeText.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setResult(data.analysis);
       toast.success("Análisis completado con Forge LLM");
     },
-    onError: (err) => {
+    onError: err => {
       toast.error(`Error: ${err.message}`);
     },
   });
@@ -182,7 +197,8 @@ function AnalyzeTextTab() {
             Texto a Analizar
           </CardTitle>
           <CardDescription>
-            Ingresa una respuesta de encuesta o comentario para detectar factores de riesgo psicosocial
+            Ingresa una respuesta de encuesta o comentario para detectar
+            factores de riesgo psicosocial
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -191,11 +207,13 @@ function AnalyzeTextTab() {
             <Textarea
               placeholder="Ej: Me siento muy presionado por los plazos, mi jefe constantemente me exige más de lo que puedo dar y siento que no tengo apoyo del equipo..."
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={e => setText(e.target.value)}
               rows={5}
               className="resize-none"
             />
-            <p className="text-xs text-slate-400">{text.length}/2000 caracteres</p>
+            <p className="text-xs text-slate-400">
+              {text.length}/2000 caracteres
+            </p>
           </div>
 
           <div className="space-y-1.5">
@@ -203,7 +221,7 @@ function AnalyzeTextTab() {
             <Input
               placeholder="Ej: ¿Cómo describe su ambiente de trabajo?"
               value={questionContext}
-              onChange={(e) => setQuestionContext(e.target.value)}
+              onChange={e => setQuestionContext(e.target.value)}
             />
           </div>
 
@@ -212,7 +230,7 @@ function AnalyzeTextTab() {
             <Input
               placeholder="Ej: Producción, Ventas, Administración..."
               value={department}
-              onChange={(e) => setDepartment(e.target.value)}
+              onChange={e => setDepartment(e.target.value)}
             />
           </div>
 
@@ -243,7 +261,9 @@ function AnalyzeTextTab() {
             <TrendingUp className="h-4 w-4 text-indigo-500" />
             Resultado del Análisis
           </CardTitle>
-          <CardDescription>Evaluación de riesgo psicosocial generada por IA</CardDescription>
+          <CardDescription>
+            Evaluación de riesgo psicosocial generada por IA
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {!result ? (
@@ -255,11 +275,15 @@ function AnalyzeTextTab() {
             <div className="space-y-4">
               {/* Badges principales */}
               <div className="flex flex-wrap gap-2">
-                <Badge className={`${RISK_COLORS[result.riskLevel]} border font-semibold`}>
+                <Badge
+                  className={`${RISK_COLORS[result.riskLevel]} border font-semibold`}
+                >
                   <AlertTriangle className="h-3 w-3 mr-1" />
                   Riesgo {RISK_LABELS[result.riskLevel]}
                 </Badge>
-                <Badge className={`${SENTIMENT_COLORS[result.sentiment]} font-medium`}>
+                <Badge
+                  className={`${SENTIMENT_COLORS[result.sentiment]} font-medium`}
+                >
                   Sentimiento {SENTIMENT_LABELS[result.sentiment]}
                 </Badge>
                 <Badge variant="outline" className="text-slate-600">
@@ -271,7 +295,9 @@ function AnalyzeTextTab() {
 
               {/* Resumen */}
               <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Resumen</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                  Resumen
+                </p>
                 <p className="text-sm text-slate-700">{result.summary}</p>
               </div>
 
@@ -283,7 +309,11 @@ function AnalyzeTextTab() {
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {result.riskIndicators.map((ind: string) => (
-                      <Badge key={ind} variant="outline" className="text-xs text-red-700 border-red-200 bg-red-50">
+                      <Badge
+                        key={ind}
+                        variant="outline"
+                        className="text-xs text-red-700 border-red-200 bg-red-50"
+                      >
                         {ind.replace(/_/g, " ")}
                       </Badge>
                     ))}
@@ -294,7 +324,9 @@ function AnalyzeTextTab() {
               {/* Palabras clave */}
               {result.keywords?.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Palabras clave</p>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                    Palabras clave
+                  </p>
                   <div className="flex flex-wrap gap-1.5">
                     {result.keywords.map((kw: string) => (
                       <Badge key={kw} variant="secondary" className="text-xs">
@@ -311,7 +343,9 @@ function AnalyzeTextTab() {
                   <Lightbulb className="h-3 w-3" />
                   Recomendaciones para el Comité
                 </p>
-                <p className="text-sm text-indigo-800">{result.recommendations}</p>
+                <p className="text-sm text-indigo-800">
+                  {result.recommendations}
+                </p>
               </div>
             </div>
           )}
@@ -327,12 +361,17 @@ function DepartmentRiskTab() {
   const [departmentName, setDepartmentName] = useState("");
   const [dateRange, setDateRange] = useState("90");
   // Estabilizar el input de la query para evitar re-fetches infinitos
-  const [queryInput, setQueryInput] = useState<{ departmentName: string; startDate: string; endDate: string } | null>(null);
+  const [queryInput, setQueryInput] = useState<{
+    departmentName: string;
+    startDate: string;
+    endDate: string;
+  } | null>(null);
 
-  const { data, isLoading } = trpc.sentimentAnalysis.getDepartmentRiskProfile.useQuery(
-    queryInput ?? { departmentName: "", startDate: "", endDate: "" },
-    { enabled: queryInput !== null && queryInput.departmentName.length > 0 }
-  );
+  const { data, isLoading } =
+    trpc.sentimentAnalysis.getDepartmentRiskProfile.useQuery(
+      queryInput ?? { departmentName: "", startDate: "", endDate: "" },
+      { enabled: queryInput !== null && queryInput.departmentName.length > 0 }
+    );
 
   const handleGenerate = () => {
     if (!departmentName.trim()) {
@@ -340,9 +379,15 @@ function DepartmentRiskTab() {
       return;
     }
     const endDate = new Date().toISOString();
-    const startDate = new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString();
+    const startDate = new Date(
+      Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000
+    ).toISOString();
     // Crear un nuevo objeto para forzar la re-ejecución de la query
-    setQueryInput({ departmentName: departmentName.trim(), startDate, endDate });
+    setQueryInput({
+      departmentName: departmentName.trim(),
+      startDate,
+      endDate,
+    });
   };
 
   const profile = data?.profile;
@@ -357,7 +402,8 @@ function DepartmentRiskTab() {
             Perfil de Riesgo Departamental
           </CardTitle>
           <CardDescription>
-            Genera un análisis de riesgo psicosocial para un departamento específico usando IA
+            Genera un análisis de riesgo psicosocial para un departamento
+            específico usando IA
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -367,7 +413,7 @@ function DepartmentRiskTab() {
               <Input
                 placeholder="Ej: Producción, Ventas, RH..."
                 value={departmentName}
-                onChange={(e) => setDepartmentName(e.target.value)}
+                onChange={e => setDepartmentName(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
@@ -414,8 +460,12 @@ function DepartmentRiskTab() {
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{profile.departmentName}</CardTitle>
-                <Badge className={`${RISK_COLORS[profile.overallRiskLevel]} border font-semibold`}>
+                <CardTitle className="text-base">
+                  {profile.departmentName}
+                </CardTitle>
+                <Badge
+                  className={`${RISK_COLORS[profile.overallRiskLevel]} border font-semibold`}
+                >
                   Riesgo {RISK_LABELS[profile.overallRiskLevel]}
                 </Badge>
               </div>
@@ -424,21 +474,31 @@ function DepartmentRiskTab() {
               <div className="flex items-center gap-2 text-sm">
                 <TrendingUp className="h-4 w-4 text-slate-400" />
                 <span className="text-slate-600">Tendencia:</span>
-                <span className={`font-medium ${profile.trendDirection === "worsening" ? "text-red-600" : profile.trendDirection === "improving" ? "text-emerald-600" : "text-amber-600"}`}>
-                  {TREND_LABELS[profile.trendDirection]?.icon} {TREND_LABELS[profile.trendDirection]?.label}
+                <span
+                  className={`font-medium ${profile.trendDirection === "worsening" ? "text-red-600" : profile.trendDirection === "improving" ? "text-emerald-600" : "text-amber-600"}`}
+                >
+                  {TREND_LABELS[profile.trendDirection]?.icon}{" "}
+                  {TREND_LABELS[profile.trendDirection]?.label}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Target className="h-4 w-4 text-slate-400" />
                 <span className="text-slate-600">Prioridad:</span>
-                <span className="font-bold text-slate-900">{profile.priorityScore}/100</span>
+                <span className="font-bold text-slate-900">
+                  {profile.priorityScore}/100
+                </span>
               </div>
               <Separator />
               <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Factores de riesgo principales</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                  Factores de riesgo principales
+                </p>
                 <ul className="space-y-1">
                   {profile.primaryRiskFactors?.map((f: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm text-slate-700"
+                    >
                       <ChevronRight className="h-3.5 w-3.5 mt-0.5 text-red-400 shrink-0" />
                       {f}
                     </li>
@@ -464,8 +524,13 @@ function DepartmentRiskTab() {
                 <CardContent>
                   <ul className="space-y-2">
                     {profile.urgentActions.map((a: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="mt-0.5 h-4 w-4 rounded-full bg-red-100 text-red-700 text-xs flex items-center justify-center shrink-0 font-bold">{i + 1}</span>
+                      <li
+                        key={i}
+                        className="flex items-start gap-2 text-sm text-slate-700"
+                      >
+                        <span className="mt-0.5 h-4 w-4 rounded-full bg-red-100 text-red-700 text-xs flex items-center justify-center shrink-0 font-bold">
+                          {i + 1}
+                        </span>
                         {a}
                       </li>
                     ))}
@@ -485,7 +550,10 @@ function DepartmentRiskTab() {
                 <CardContent>
                   <ul className="space-y-2">
                     {profile.preventiveActions.map((a: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                      <li
+                        key={i}
+                        className="flex items-start gap-2 text-sm text-slate-700"
+                      >
                         <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" />
                         {a}
                       </li>
@@ -509,19 +577,25 @@ function OrgReportTab() {
   const [report, setReport] = useState<any>(null);
 
   const generateReport = trpc.sentimentAnalysis.generateOrgReport.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setReport(data.report);
       toast.success("Reporte ejecutivo generado con Forge LLM");
     },
-    onError: (err) => {
+    onError: err => {
       toast.error(`Error: ${err.message}`);
     },
   });
 
   const handleGenerate = () => {
     const endDate = new Date().toISOString();
-    const startDate = new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString();
-    generateReport.mutate({ companyName: companyName || "La Organización", startDate, endDate });
+    const startDate = new Date(
+      Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000
+    ).toISOString();
+    generateReport.mutate({
+      companyName: companyName || "La Organización",
+      startDate,
+      endDate,
+    });
   };
 
   return (
@@ -534,7 +608,8 @@ function OrgReportTab() {
             Reporte Ejecutivo Organizacional
           </CardTitle>
           <CardDescription>
-            Genera un reporte completo de riesgo psicosocial con estado de cumplimiento NOM-035 y plan de acción
+            Genera un reporte completo de riesgo psicosocial con estado de
+            cumplimiento NOM-035 y plan de acción
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -544,7 +619,7 @@ function OrgReportTab() {
               <Input
                 placeholder="Ej: Empresa S.A. de C.V."
                 value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
+                onChange={e => setCompanyName(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
@@ -592,18 +667,29 @@ function OrgReportTab() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Resumen Ejecutivo</CardTitle>
-                <Badge className={`${RISK_COLORS[report.overallOrganizationRisk]} border font-semibold`}>
-                  Riesgo Organizacional {RISK_LABELS[report.overallOrganizationRisk]}
+                <Badge
+                  className={`${RISK_COLORS[report.overallOrganizationRisk]} border font-semibold`}
+                >
+                  Riesgo Organizacional{" "}
+                  {RISK_LABELS[report.overallOrganizationRisk]}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-700 leading-relaxed">{report.executiveSummary}</p>
+              <p className="text-sm text-slate-700 leading-relaxed">
+                {report.executiveSummary}
+              </p>
               {report.criticalDepartments?.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  <span className="text-xs text-slate-500 font-medium">Departamentos críticos:</span>
+                  <span className="text-xs text-slate-500 font-medium">
+                    Departamentos críticos:
+                  </span>
                   {report.criticalDepartments.map((d: string) => (
-                    <Badge key={d} variant="outline" className="text-xs text-red-700 border-red-200 bg-red-50">
+                    <Badge
+                      key={d}
+                      variant="outline"
+                      className="text-xs text-red-700 border-red-200 bg-red-50"
+                    >
                       {d}
                     </Badge>
                   ))}
@@ -624,11 +710,19 @@ function OrgReportTab() {
               <CardContent>
                 <div className="space-y-2">
                   {report.topRiskFactors.map((f: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between py-1.5 border-b last:border-0">
+                    <div
+                      key={i}
+                      className="flex items-center justify-between py-1.5 border-b last:border-0"
+                    >
                       <span className="text-sm text-slate-700">{f.factor}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-400">×{f.frequency}</span>
-                        <Badge variant="outline" className={`text-xs ${f.severity === "critical" ? "text-red-700 border-red-200" : f.severity === "high" ? "text-orange-700 border-orange-200" : "text-amber-700 border-amber-200"}`}>
+                        <span className="text-xs text-slate-400">
+                          ×{f.frequency}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${f.severity === "critical" ? "text-red-700 border-red-200" : f.severity === "high" ? "text-orange-700 border-orange-200" : "text-amber-700 border-amber-200"}`}
+                        >
                           {f.severity}
                         </Badge>
                       </div>
@@ -641,9 +735,27 @@ function OrgReportTab() {
 
           {/* Plan de acción */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <ActionCard title="Acciones Inmediatas" subtitle="Próximos 7 días" items={report.immediateActions} color="red" icon={<AlertTriangle className="h-4 w-4" />} />
-            <ActionCard title="Corto Plazo" subtitle="30-90 días" items={report.shortTermActions} color="amber" icon={<Clock className="h-4 w-4" />} />
-            <ActionCard title="Largo Plazo" subtitle="6-12 meses" items={report.longTermActions} color="emerald" icon={<TrendingUp className="h-4 w-4" />} />
+            <ActionCard
+              title="Acciones Inmediatas"
+              subtitle="Próximos 7 días"
+              items={report.immediateActions}
+              color="red"
+              icon={<AlertTriangle className="h-4 w-4" />}
+            />
+            <ActionCard
+              title="Corto Plazo"
+              subtitle="30-90 días"
+              items={report.shortTermActions}
+              color="amber"
+              icon={<Clock className="h-4 w-4" />}
+            />
+            <ActionCard
+              title="Largo Plazo"
+              subtitle="6-12 meses"
+              items={report.longTermActions}
+              color="emerald"
+              icon={<TrendingUp className="h-4 w-4" />}
+            />
           </div>
 
           {/* Cumplimiento NOM-035 */}
@@ -655,17 +767,26 @@ function OrgReportTab() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-sm text-slate-700">{report.complianceStatus}</p>
+              <p className="text-sm text-slate-700">
+                {report.complianceStatus}
+              </p>
               {report.nom035Recommendations?.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-2">Recomendaciones normativas</p>
+                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-2">
+                    Recomendaciones normativas
+                  </p>
                   <ul className="space-y-1.5">
-                    {report.nom035Recommendations.map((r: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
-                        <CheckCircle2 className="h-4 w-4 mt-0.5 text-indigo-400 shrink-0" />
-                        {r}
-                      </li>
-                    ))}
+                    {report.nom035Recommendations.map(
+                      (r: string, i: number) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-2 text-sm text-slate-700"
+                        >
+                          <CheckCircle2 className="h-4 w-4 mt-0.5 text-indigo-400 shrink-0" />
+                          {r}
+                        </li>
+                      )
+                    )}
                   </ul>
                 </div>
               )}
@@ -680,30 +801,44 @@ function OrgReportTab() {
 // ─── Tab: Plan de Intervención ────────────────────────────────────────────────
 
 function InterventionPlanTab() {
-  const [targetType, setTargetType] = useState<"individual" | "department" | "organization">("department");
+  const [targetType, setTargetType] = useState<
+    "individual" | "department" | "organization"
+  >("department");
   const [targetName, setTargetName] = useState("");
-  const [riskLevel, setRiskLevel] = useState<"low" | "medium" | "high" | "critical">("high");
+  const [riskLevel, setRiskLevel] = useState<
+    "low" | "medium" | "high" | "critical"
+  >("high");
   const [indicators, setIndicators] = useState("");
   const [concerns, setConcerns] = useState("");
   const [plan, setPlan] = useState<any>(null);
 
-  const generatePlan = trpc.sentimentAnalysis.generateInterventionPlan.useMutation({
-    onSuccess: (data) => {
-      setPlan(data.plan);
-      toast.success("Plan de intervención generado con Forge LLM");
-    },
-    onError: (err) => {
-      toast.error(`Error: ${err.message}`);
-    },
-  });
+  const generatePlan =
+    trpc.sentimentAnalysis.generateInterventionPlan.useMutation({
+      onSuccess: data => {
+        setPlan(data.plan);
+        toast.success("Plan de intervención generado con Forge LLM");
+      },
+      onError: err => {
+        toast.error(`Error: ${err.message}`);
+      },
+    });
 
   const handleGenerate = () => {
     if (!targetName.trim()) {
       toast.error("Ingresa el nombre del objetivo de intervención");
       return;
     }
-    const riskIndicators = indicators.split(",").map((s) => s.trim()).filter(Boolean);
-    generatePlan.mutate({ targetType, targetName, riskLevel, riskIndicators, specificConcerns: concerns || undefined });
+    const riskIndicators = indicators
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+    generatePlan.mutate({
+      targetType,
+      targetName,
+      riskLevel,
+      riskIndicators,
+      specificConcerns: concerns || undefined,
+    });
   };
 
   return (
@@ -716,14 +851,18 @@ function InterventionPlanTab() {
             Generador de Plan de Intervención
           </CardTitle>
           <CardDescription>
-            Crea un plan de intervención personalizado basado en los factores de riesgo detectados
+            Crea un plan de intervención personalizado basado en los factores de
+            riesgo detectados
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <Label>Tipo de intervención</Label>
-              <Select value={targetType} onValueChange={(v) => setTargetType(v as any)}>
+              <Select
+                value={targetType}
+                onValueChange={v => setTargetType(v as any)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -737,14 +876,23 @@ function InterventionPlanTab() {
             <div className="space-y-1.5">
               <Label>Objetivo</Label>
               <Input
-                placeholder={targetType === "individual" ? "Nombre del empleado" : targetType === "department" ? "Nombre del departamento" : "Nombre de la empresa"}
+                placeholder={
+                  targetType === "individual"
+                    ? "Nombre del empleado"
+                    : targetType === "department"
+                      ? "Nombre del departamento"
+                      : "Nombre de la empresa"
+                }
                 value={targetName}
-                onChange={(e) => setTargetName(e.target.value)}
+                onChange={e => setTargetName(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
               <Label>Nivel de riesgo</Label>
-              <Select value={riskLevel} onValueChange={(v) => setRiskLevel(v as any)}>
+              <Select
+                value={riskLevel}
+                onValueChange={v => setRiskLevel(v as any)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -763,7 +911,7 @@ function InterventionPlanTab() {
             <Input
               placeholder="Ej: burnout, estrés_crónico, carga_excesiva, liderazgo_negativo"
               value={indicators}
-              onChange={(e) => setIndicators(e.target.value)}
+              onChange={e => setIndicators(e.target.value)}
             />
           </div>
 
@@ -772,7 +920,7 @@ function InterventionPlanTab() {
             <Textarea
               placeholder="Describe cualquier situación particular que deba considerarse en el plan..."
               value={concerns}
-              onChange={(e) => setConcerns(e.target.value)}
+              onChange={e => setConcerns(e.target.value)}
               rows={3}
               className="resize-none"
             />
@@ -806,7 +954,9 @@ function InterventionPlanTab() {
               <div className="flex items-start justify-between">
                 <div>
                   <CardTitle className="text-base">{plan.title}</CardTitle>
-                  <CardDescription className="mt-1">{plan.objective}</CardDescription>
+                  <CardDescription className="mt-1">
+                    {plan.objective}
+                  </CardDescription>
                 </div>
                 <div className="text-right text-sm text-slate-500">
                   <div className="flex items-center gap-1">
@@ -832,16 +982,28 @@ function InterventionPlanTab() {
                 {plan.activities?.map((act: any, i: number) => (
                   <div key={i} className="border rounded-lg p-3 space-y-2">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-sm text-slate-900">{act.name}</h4>
-                      <Badge variant="outline" className={`text-xs ${act.priority === "high" ? "text-red-700 border-red-200" : act.priority === "medium" ? "text-amber-700 border-amber-200" : "text-slate-600"}`}>
+                      <h4 className="font-medium text-sm text-slate-900">
+                        {act.name}
+                      </h4>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${act.priority === "high" ? "text-red-700 border-red-200" : act.priority === "medium" ? "text-amber-700 border-amber-200" : "text-slate-600"}`}
+                      >
                         {act.priority}
                       </Badge>
                     </div>
                     <p className="text-xs text-slate-600">{act.description}</p>
                     <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-                      <span><strong>Responsable:</strong> {act.responsible}</span>
-                      <span><strong>Plazo:</strong> {act.timeline}</span>
-                      <span><strong>Resultado esperado:</strong> {act.expectedOutcome}</span>
+                      <span>
+                        <strong>Responsable:</strong> {act.responsible}
+                      </span>
+                      <span>
+                        <strong>Plazo:</strong> {act.timeline}
+                      </span>
+                      <span>
+                        <strong>Resultado esperado:</strong>{" "}
+                        {act.expectedOutcome}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -861,7 +1023,10 @@ function InterventionPlanTab() {
               <CardContent>
                 <ul className="space-y-1.5">
                   {plan.successIndicators?.map((ind: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm text-slate-700"
+                    >
                       <ChevronRight className="h-3.5 w-3.5 mt-0.5 text-emerald-500 shrink-0" />
                       {ind}
                     </li>
@@ -881,7 +1046,10 @@ function InterventionPlanTab() {
               <CardContent>
                 <ul className="space-y-1.5">
                   {plan.resources?.map((res: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm text-slate-700"
+                    >
                       <ChevronRight className="h-3.5 w-3.5 mt-0.5 text-indigo-400 shrink-0" />
                       {res}
                     </li>
@@ -898,7 +1066,19 @@ function InterventionPlanTab() {
 
 // ─── Componente auxiliar ──────────────────────────────────────────────────────
 
-function ActionCard({ title, subtitle, items, color, icon }: { title: string; subtitle: string; items: string[]; color: string; icon: React.ReactNode }) {
+function ActionCard({
+  title,
+  subtitle,
+  items,
+  color,
+  icon,
+}: {
+  title: string;
+  subtitle: string;
+  items: string[];
+  color: string;
+  icon: React.ReactNode;
+}) {
   const colorMap: Record<string, string> = {
     red: "border-red-200 bg-red-50",
     amber: "border-amber-200 bg-amber-50",
@@ -913,7 +1093,9 @@ function ActionCard({ title, subtitle, items, color, icon }: { title: string; su
   return (
     <Card className={`border ${colorMap[color]}`}>
       <CardHeader className="pb-2">
-        <CardTitle className={`text-sm flex items-center gap-2 ${textMap[color]}`}>
+        <CardTitle
+          className={`text-sm flex items-center gap-2 ${textMap[color]}`}
+        >
           {icon}
           {title}
         </CardTitle>
@@ -922,8 +1104,15 @@ function ActionCard({ title, subtitle, items, color, icon }: { title: string; su
       <CardContent>
         <ul className="space-y-2">
           {items?.map((item: string, i: number) => (
-            <li key={i} className="flex items-start gap-2 text-xs text-slate-700">
-              <span className={`mt-0.5 h-4 w-4 rounded-full text-white text-xs flex items-center justify-center shrink-0 font-bold ${color === "red" ? "bg-red-500" : color === "amber" ? "bg-amber-500" : "bg-emerald-500"}`}>{i + 1}</span>
+            <li
+              key={i}
+              className="flex items-start gap-2 text-xs text-slate-700"
+            >
+              <span
+                className={`mt-0.5 h-4 w-4 rounded-full text-white text-xs flex items-center justify-center shrink-0 font-bold ${color === "red" ? "bg-red-500" : color === "amber" ? "bg-amber-500" : "bg-emerald-500"}`}
+              >
+                {i + 1}
+              </span>
               {item}
             </li>
           ))}

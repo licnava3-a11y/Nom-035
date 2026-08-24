@@ -26,7 +26,11 @@ describe("committeeModule — generación de folios", () => {
     const year = new Date().getFullYear();
     const generateMeetingFolio = (id: number, type: string) => {
       const typeCode =
-        type === "ordinaria" ? "ORD" : type === "extraordinaria" ? "EXT" : "URG";
+        type === "ordinaria"
+          ? "ORD"
+          : type === "extraordinaria"
+            ? "EXT"
+            : "URG";
       return `NOM035-COM-${typeCode}-${String(id).padStart(4, "0")}/${year}`;
     };
 
@@ -68,21 +72,26 @@ describe("committeeModule — generación de folios", () => {
 describe("committeeModule — validaciones de datos", () => {
   it("tipo de reunión válido: ordinaria, extraordinaria, urgente", () => {
     const validTypes = ["ordinaria", "extraordinaria", "urgente"];
-    validTypes.forEach((type) => {
+    validTypes.forEach(type => {
       expect(validTypes).toContain(type);
     });
   });
 
   it("estado de acuerdo válido: pendiente, en_proceso, completado, cancelado", () => {
-    const validStatuses = ["pendiente", "en_proceso", "completado", "cancelado"];
-    validStatuses.forEach((status) => {
+    const validStatuses = [
+      "pendiente",
+      "en_proceso",
+      "completado",
+      "cancelado",
+    ];
+    validStatuses.forEach(status => {
       expect(validStatuses).toContain(status);
     });
   });
 
   it("estado de reunión válido: programada, realizada, cancelada", () => {
     const validStatuses = ["programada", "realizada", "cancelada"];
-    validStatuses.forEach((status) => {
+    validStatuses.forEach(status => {
       expect(validStatuses).toContain(status);
     });
   });
@@ -123,7 +132,7 @@ describe("committeeModule — lógica de negocio NOM-035", () => {
       { role: "vocal", isActive: true },
     ];
     const hasPresident = members.some(
-      (m) => m.role === "presidente" && m.isActive
+      m => m.role === "presidente" && m.isActive
     );
     expect(hasPresident).toBe(true);
   });

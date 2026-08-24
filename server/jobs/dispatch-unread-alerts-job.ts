@@ -9,7 +9,11 @@
  */
 
 import { getDb, createNotification } from "../db";
-import { minuteDispatches, minuteRecipients, meetingMinutes } from "../../drizzle/schema";
+import {
+  minuteDispatches,
+  minuteRecipients,
+  meetingMinutes,
+} from "../../drizzle/schema";
 import { eq, and, lte, isNull } from "drizzle-orm";
 import { sendDispatchEmail, SingleDispatchEmailData } from "../dispatchEmail";
 import { notifyOwner } from "../_core/notification";
@@ -54,8 +58,14 @@ export async function runDispatchUnreadAlertsJob(): Promise<{
         minuteDate: meetingMinutes.meetingDate,
       })
       .from(minuteDispatches)
-      .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
-      .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
+      .leftJoin(
+        minuteRecipients,
+        eq(minuteDispatches.recipientId, minuteRecipients.id)
+      )
+      .leftJoin(
+        meetingMinutes,
+        eq(minuteDispatches.minuteId, meetingMinutes.id)
+      )
       .where(
         and(
           eq(minuteDispatches.status, "sent"),
@@ -65,7 +75,9 @@ export async function runDispatchUnreadAlertsJob(): Promise<{
       );
 
     result.checked = overdueDispatches.length;
-    console.log(`[${JOB_NAME}] Despachos sin leer (>7 días): ${overdueDispatches.length}`);
+    console.log(
+      `[${JOB_NAME}] Despachos sin leer (>7 días): ${overdueDispatches.length}`
+    );
 
     if (overdueDispatches.length === 0) {
       console.log(`[${JOB_NAME}] Sin despachos pendientes. Finalizando.`);
@@ -76,13 +88,16 @@ export async function runDispatchUnreadAlertsJob(): Promise<{
     for (const dispatch of overdueDispatches) {
       try {
         if (!dispatch.recipientEmail) {
-          result.errors.push(`Despacho #${dispatch.id}: destinatario sin correo`);
+          result.errors.push(
+            `Despacho #${dispatch.id}: destinatario sin correo`
+          );
           continue;
         }
 
         // Calcular días de retraso
         const daysSinceSent = Math.floor(
-          (Date.now() - new Date(dispatch.sentAt).getTime()) / (1000 * 60 * 60 * 24)
+          (Date.now() - new Date(dispatch.sentAt).getTime()) /
+            (1000 * 60 * 60 * 24)
         );
 
         // Generar nuevo token de confirmación
@@ -135,7 +150,9 @@ export async function runDispatchUnreadAlertsJob(): Promise<{
           content: `El sistema detectó ${result.checked} despacho${result.checked !== 1 ? "s" : ""} de minutas que llevan más de ${UNREAD_THRESHOLD_DAYS} días sin confirmación de lectura.\n\n${summary}\n\nRevise el Panel de Despachos para más detalles.`,
         });
       } catch (notifyErr: any) {
-        console.error(`[${JOB_NAME}] Error al notificar al administrador: ${notifyErr.message}`);
+        console.error(
+          `[${JOB_NAME}] Error al notificar al administrador: ${notifyErr.message}`
+        );
       }
     }
 
@@ -153,14 +170,14 @@ export async function runDispatchUnreadAlertsJob(): Promise<{
 export function startDispatchUnreadAlertsJob(): void {
   // Ejecutar inmediatamente al arrancar (con un pequeño delay para no saturar)
   setTimeout(() => {
-    runDispatchUnreadAlertsJob().catch((e) =>
+    runDispatchUnreadAlertsJob().catch(e =>
       console.error(`[${JOB_NAME}] Error en ejecución inicial:`, e)
     );
   }, 5_000);
 
   // Luego ejecutar cada 24 horas
   setInterval(() => {
-    runDispatchUnreadAlertsJob().catch((e) =>
+    runDispatchUnreadAlertsJob().catch(e =>
       console.error(`[${JOB_NAME}] Error en ejecución periódica:`, e)
     );
   }, JOB_INTERVAL_MS);

@@ -19,7 +19,11 @@ export default function SurveyApply() {
   }, []);
 
   // Obtener información del token
-  const { data: tokenInfo, isLoading, error } = trpc.surveyTokensAdvanced.getTokenInfo.useQuery(
+  const {
+    data: tokenInfo,
+    isLoading,
+    error,
+  } = trpc.surveyTokensAdvanced.getTokenInfo.useQuery(
     { token: tokenParam || "" },
     { enabled: !!tokenParam }
   );
@@ -33,7 +37,8 @@ export default function SurveyApply() {
             Token no proporcionado
           </h1>
           <p className="text-gray-600 mb-6">
-            Por favor, accede a la encuesta usando el enlace proporcionado en tu correo electrónico.
+            Por favor, accede a la encuesta usando el enlace proporcionado en tu
+            correo electrónico.
           </p>
         </Card>
       </div>
@@ -60,10 +65,12 @@ export default function SurveyApply() {
             Token inválido o expirado
           </h1>
           <p className="text-gray-600 mb-6">
-            {error.message || "El token proporcionado no es válido o ha expirado."}
+            {error.message ||
+              "El token proporcionado no es válido o ha expirado."}
           </p>
           <p className="text-sm text-gray-500">
-            Por favor, contacta a tu departamento de Recursos Humanos para obtener un nuevo enlace.
+            Por favor, contacta a tu departamento de Recursos Humanos para
+            obtener un nuevo enlace.
           </p>
         </Card>
       </div>
@@ -81,9 +88,7 @@ export default function SurveyApply() {
           <p className="text-gray-600 mb-4">
             Ya has completado todas las encuestas requeridas.
           </p>
-          <p className="text-sm text-gray-500">
-            Gracias por tu participación.
-          </p>
+          <p className="text-sm text-gray-500">Gracias por tu participación.</p>
         </Card>
       </div>
     );
@@ -114,9 +119,7 @@ export default function SurveyApply() {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 Encuesta NOM-035 STPS
               </h1>
-              <p className="text-lg text-gray-700 mb-1">
-                {surveyName}
-              </p>
+              <p className="text-lg text-gray-700 mb-1">{surveyName}</p>
               <p className="text-sm text-gray-600">
                 Periodo: {tokenInfo?.periodName}
               </p>
@@ -125,9 +128,7 @@ export default function SurveyApply() {
               <p className="text-sm font-medium text-gray-700">
                 {tokenInfo?.userName}
               </p>
-              <p className="text-xs text-gray-500">
-                {tokenInfo?.userEmail}
-              </p>
+              <p className="text-xs text-gray-500">{tokenInfo?.userEmail}</p>
             </div>
           </div>
 
@@ -146,18 +147,16 @@ export default function SurveyApply() {
             Instrucciones
           </h2>
           <div className="space-y-3 text-gray-700">
+            <p>• Lee cuidadosamente cada pregunta antes de responder.</p>
             <p>
-              • Lee cuidadosamente cada pregunta antes de responder.
+              • No hay respuestas correctas o incorrectas, responde con
+              sinceridad.
             </p>
             <p>
-              • No hay respuestas correctas o incorrectas, responde con sinceridad.
+              • Tus respuestas son confidenciales y se utilizarán únicamente
+              para fines de prevención de riesgos psicosociales.
             </p>
-            <p>
-              • Tus respuestas son confidenciales y se utilizarán únicamente para fines de prevención de riesgos psicosociales.
-            </p>
-            <p>
-              • La encuesta tomará aproximadamente 15-20 minutos.
-            </p>
+            <p>• La encuesta tomará aproximadamente 15-20 minutos.</p>
             <p>
               • Tus respuestas se guardarán automáticamente mientras avanzas.
             </p>
@@ -174,7 +173,8 @@ export default function SurveyApply() {
             Comenzar Encuesta
           </Button>
           <p className="text-sm text-gray-500 mt-4">
-            Al hacer clic en "Comenzar Encuesta", aceptas participar en esta evaluación.
+            Al hacer clic en "Comenzar Encuesta", aceptas participar en esta
+            evaluación.
           </p>
         </div>
       </div>

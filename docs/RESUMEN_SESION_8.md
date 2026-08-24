@@ -21,6 +21,7 @@
 **Causa raíz identificada**: Las cookies establecidas por `context.request.post()` no persisten después del `page.reload()`.
 
 **Evidencia**:
+
 - Screenshot muestra redirección a página de inicio (Home)
 - Logs del servidor: `[Auth] Missing session cookie` (2 veces)
 - No hay request a `/api/trpc/auth.me` porque no hay sesión
@@ -54,12 +55,13 @@
 **Archivo modificado**: `tests/fixtures/auth.ts`
 
 **Cambio implementado**:
+
 ```typescript
 // Antes:
 await page.reload();
 
 // Después:
-await page.goto('/dashboard');
+await page.goto("/dashboard");
 ```
 
 **Razón**: Navegar a una URL específica en lugar de reload debería preservar las cookies establecidas por `context.request.post()`.
@@ -105,6 +107,7 @@ await page.goto('/dashboard');
 **Total**: 726 errores (sin cambios)
 
 **Distribución**:
+
 - Enum columns de Drizzle: ~600 errores
 - 'db possibly null': 67 errores
 - '@ts-expect-error' innecesarios: 0 (corregido en sesión 3)

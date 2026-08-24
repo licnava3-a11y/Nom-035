@@ -2,7 +2,13 @@ import { z } from "zod";
 import { eq, and, desc, sql, or } from "drizzle-orm";
 import { protectedProcedure, router } from "../_core/trpc";
 import * as db from "../db";
-import { actionEvidences, committeeMembers, correctiveActionPlans, notifications, users } from "../../drizzle/schema";
+import {
+  actionEvidences,
+  committeeMembers,
+  correctiveActionPlans,
+  notifications,
+  users,
+} from "../../drizzle/schema";
 import { storagePut } from "../storage";
 import { randomBytes } from "crypto";
 
@@ -11,9 +17,25 @@ export const correctiveActionPlansRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        status: z.enum(["draft", "assigned", "in_progress", "completed", "verified", "closed"]).optional(),
+        status: z
+          .enum([
+            "draft",
+            "assigned",
+            "in_progress",
+            "completed",
+            "verified",
+            "closed",
+          ])
+          .optional(),
         priority: z.enum(["low", "medium", "high", "critical"]).optional(),
-        originType: z.enum(["root_cause_analysis", "intelligent_alert", "manual_case", "recommendation"]).optional(),
+        originType: z
+          .enum([
+            "root_cause_analysis",
+            "intelligent_alert",
+            "manual_case",
+            "recommendation",
+          ])
+          .optional(),
         assignedTo: z.number().optional(),
         page: z.number().default(1),
         pageSize: z.number().default(20),
@@ -26,12 +48,17 @@ export const correctiveActionPlansRouter = router({
       const offset = (input.page - 1) * input.pageSize;
       const conditions = [];
 
-      if (input.status) conditions.push(eq(correctiveActionPlans.status, input.status));
-      if (input.priority) conditions.push(eq(correctiveActionPlans.priority, input.priority));
-      if (input.originType) conditions.push(eq(correctiveActionPlans.originType, input.originType));
-      if (input.assignedTo) conditions.push(eq(correctiveActionPlans.assignedTo, input.assignedTo));
+      if (input.status)
+        conditions.push(eq(correctiveActionPlans.status, input.status));
+      if (input.priority)
+        conditions.push(eq(correctiveActionPlans.priority, input.priority));
+      if (input.originType)
+        conditions.push(eq(correctiveActionPlans.originType, input.originType));
+      if (input.assignedTo)
+        conditions.push(eq(correctiveActionPlans.assignedTo, input.assignedTo));
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       const [plans, totalResult] = await Promise.all([
         dbInstance
@@ -74,7 +101,9 @@ export const correctiveActionPlansRouter = router({
           page: input.page,
           pageSize: input.pageSize,
           totalCount: Number(totalResult[0]?.count || 0),
-          totalPages: Math.ceil(Number(totalResult[0]?.count || 0) / input.pageSize),
+          totalPages: Math.ceil(
+            Number(totalResult[0]?.count || 0) / input.pageSize
+          ),
         },
       };
     }),
@@ -120,7 +149,12 @@ export const correctiveActionPlansRouter = router({
       z.object({
         title: z.string().min(1),
         description: z.string().min(1),
-        originType: z.enum(["root_cause_analysis", "intelligent_alert", "manual_case", "recommendation"]),
+        originType: z.enum([
+          "root_cause_analysis",
+          "intelligent_alert",
+          "manual_case",
+          "recommendation",
+        ]),
         originId: z.number().optional(),
         priority: z.enum(["low", "medium", "high", "critical"]),
         assignedTo: z.number().optional(),
@@ -182,7 +216,8 @@ export const correctiveActionPlansRouter = router({
       if (input.title) updateData.title = input.title;
       if (input.description) updateData.description = input.description;
       if (input.priority) updateData.priority = input.priority;
-      if (input.assignedTo !== undefined) updateData.assignedTo = input.assignedTo;
+      if (input.assignedTo !== undefined)
+        updateData.assignedTo = input.assignedTo;
       if (input.dueDate) updateData.dueDate = new Date(input.dueDate);
       if (input.notes !== undefined) updateData.notes = input.notes;
 
@@ -199,7 +234,14 @@ export const correctiveActionPlansRouter = router({
     .input(
       z.object({
         id: z.number(),
-        status: z.enum(["draft", "assigned", "in_progress", "completed", "verified", "closed"]),
+        status: z.enum([
+          "draft",
+          "assigned",
+          "in_progress",
+          "completed",
+          "verified",
+          "closed",
+        ]),
       })
     )
     .mutation(async ({ input }) => {
@@ -248,7 +290,11 @@ export const correctiveActionPlansRouter = router({
       if (input.role === "responsible" && plan.assignedTo !== ctx.user.id) {
         throw new Error("Only the assigned user can sign as responsible");
       }
-      if (input.role === "verifier" && plan.verifiedBy !== ctx.user.id && ctx.user.role !== "admin") {
+      if (
+        input.role === "verifier" &&
+        plan.verifiedBy !== ctx.user.id &&
+        ctx.user.role !== "admin"
+      ) {
         throw new Error("Only the verifier or admin can sign");
       }
 
@@ -314,7 +360,9 @@ export const correctiveActionPlansRouter = router({
       const dbInstance = await db.getDb();
       if (!dbInstance) throw new Error("Database not available");
 
-      await dbInstance.delete(actionEvidences).where(eq(actionEvidences.id, input.id));
+      await dbInstance
+        .delete(actionEvidences)
+        .where(eq(actionEvidences.id, input.id));
 
       return { success: true };
     }),
@@ -338,7 +386,7 @@ export const correctiveActionPlansRouter = router({
 
       // Calcular workload actual de cada miembro
       const workloads = await Promise.all(
-        committeeMembers.map(async (member) => {
+        committeeMembers.map(async member => {
           const [result] = await dbInstance
             .select({ count: sql<number>`count(*)` })
             .from(correctiveActionPlans)
@@ -400,8 +448,16 @@ export const correctiveActionPlansRouter = router({
     const dbInstance = await db.getDb();
     if (!dbInstance) throw new Error("Database not available");
 
-    const [totalResult, byStatusResult, byPriorityResult, overdueResult, completionRateResult] = await Promise.all([
-      dbInstance.select({ count: sql<number>`count(*)` }).from(correctiveActionPlans),
+    const [
+      totalResult,
+      byStatusResult,
+      byPriorityResult,
+      overdueResult,
+      completionRateResult,
+    ] = await Promise.all([
+      dbInstance
+        .select({ count: sql<number>`count(*)` })
+        .from(correctiveActionPlans),
       dbInstance
         .select({
           status: correctiveActionPlans.status,
@@ -442,12 +498,19 @@ export const correctiveActionPlansRouter = router({
 
     const total = Number(totalResult[0]?.count || 0);
     const completed = Number(completionRateResult[0]?.count || 0);
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const completionRate =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return {
       total,
-      byStatus: byStatusResult.map((r: any) => ({ status: r.status, count: Number(r.count) })),
-      byPriority: byPriorityResult.map((r: any) => ({ priority: r.priority, count: Number(r.count) })),
+      byStatus: byStatusResult.map((r: any) => ({
+        status: r.status,
+        count: Number(r.count),
+      })),
+      byPriority: byPriorityResult.map((r: any) => ({
+        priority: r.priority,
+        count: Number(r.count),
+      })),
       overdue: Number(overdueResult[0]?.count || 0),
       completionRate,
     };

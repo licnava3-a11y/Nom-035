@@ -1,5 +1,14 @@
 import { getDb } from "../db";
-import { departments, intelligentAlerts, notifications, recommendationsTracking, trainingAssignments, trainingEvaluations, users, workplaceViolenceCases } from "../../drizzle/schema";
+import {
+  departments,
+  intelligentAlerts,
+  notifications,
+  recommendationsTracking,
+  trainingAssignments,
+  trainingEvaluations,
+  users,
+  workplaceViolenceCases,
+} from "../../drizzle/schema";
 import { eq, and, desc, sql, gte, lt, count } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 // import { notifications } from "../../drizzle/schema"; // removed duplicate
@@ -9,7 +18,9 @@ import { invokeLLM } from "../_core/llm";
  * Se ejecuta diariamente a las 2:00 AM
  */
 export async function runIntelligentAlertsJob() {
-  console.log("[Intelligent Alerts Job] Starting automated predictive analysis...");
+  console.log(
+    "[Intelligent Alerts Job] Starting automated predictive analysis..."
+  );
 
   try {
     const db = await getDb();
@@ -24,15 +35,25 @@ export async function runIntelligentAlertsJob() {
     const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
 
     // 1. Detectar aumento anormal de casos por tipo
-    const caseSurgeAlerts = await detectCaseSurge(db, thirtyDaysAgo, sixtyDaysAgo);
+    const caseSurgeAlerts = await detectCaseSurge(
+      db,
+      thirtyDaysAgo,
+      sixtyDaysAgo
+    );
     alerts.push(...caseSurgeAlerts);
 
     // 2. Detectar caída en satisfacción de capacitaciones
-    const satisfactionDropAlerts = await detectSatisfactionDrop(db, thirtyDaysAgo);
+    const satisfactionDropAlerts = await detectSatisfactionDrop(
+      db,
+      thirtyDaysAgo
+    );
     alerts.push(...satisfactionDropAlerts);
 
     // 3. Detectar recomendaciones sin implementar >30 días
-    const pendingRecommendationsAlerts = await detectPendingRecommendations(db, thirtyDaysAgo);
+    const pendingRecommendationsAlerts = await detectPendingRecommendations(
+      db,
+      thirtyDaysAgo
+    );
     alerts.push(...pendingRecommendationsAlerts);
 
     // Insertar alertas en la base de datos
@@ -46,7 +67,9 @@ export async function runIntelligentAlertsJob() {
       await notifyAdmins(db, criticalAlerts);
     }
 
-    console.log(`[Intelligent Alerts Job] Analysis completed: ${alerts.length} alerts generated (${criticalAlerts.length} critical)`);
+    console.log(
+      `[Intelligent Alerts Job] Analysis completed: ${alerts.length} alerts generated (${criticalAlerts.length} critical)`
+    );
 
     return {
       success: true,
@@ -65,7 +88,11 @@ export async function runIntelligentAlertsJob() {
 /**
  * Detectar aumento anormal de casos por tipo
  */
-async function detectCaseSurge(db: any, thirtyDaysAgo: Date, sixtyDaysAgo: Date) {
+async function detectCaseSurge(
+  db: any,
+  thirtyDaysAgo: Date,
+  sixtyDaysAgo: Date
+) {
   const alerts = [];
 
   // Obtener casos por tipo en los últimos 30 días
@@ -85,14 +112,24 @@ async function detectCaseSurge(db: any, thirtyDaysAgo: Date, sixtyDaysAgo: Date)
       count: count(),
     })
     .from(workplaceViolenceCases)
-    .where(and(gte(workplaceViolenceCases.createdAt, sixtyDaysAgo), lt(workplaceViolenceCases.createdAt, thirtyDaysAgo)))
+    .where(
+      and(
+        gte(workplaceViolenceCases.createdAt, sixtyDaysAgo),
+        lt(workplaceViolenceCases.createdAt, thirtyDaysAgo)
+      )
+    )
     .groupBy(workplaceViolenceCases.currentPhase);
 
   // Comparar y detectar aumentos >50%
   for (const recent of recentCases) {
-    const previous = previousCases.find((p: any) => p.caseType === recent.caseType);
+    const previous = previousCases.find(
+      (p: any) => p.caseType === recent.caseType
+    );
     const previousCount = previous?.count || 0;
-    const increase = previousCount > 0 ? ((recent.count - previousCount) / previousCount) * 100 : 100;
+    const increase =
+      previousCount > 0
+        ? ((recent.count - previousCount) / previousCount) * 100
+        : 100;
 
     if (increase > 50 && recent.count >= 3) {
       // Generar sugerencias con IA
@@ -104,7 +141,8 @@ async function detectCaseSurge(db: any, thirtyDaysAgo: Date, sixtyDaysAgo: Date)
         increase: increase.toFixed(2),
       });
 
-      const severity = increase > 100 ? "critical" : increase > 75 ? "high" : "medium";
+      const severity =
+        increase > 100 ? "critical" : increase > 75 ? "high" : "medium";
 
       alerts.push({
         alertType: "case_surge" as const,
@@ -141,7 +179,10 @@ async function detectSatisfactionDrop(db: any, thirtyDaysAgo: Date) {
       count: count(),
     })
     .from(trainingEvaluations)
-    .leftJoin(trainingAssignments, eq(trainingEvaluations.assignmentId, trainingAssignments.id))
+    .leftJoin(
+      trainingAssignments,
+      eq(trainingEvaluations.assignmentId, trainingAssignments.id)
+    )
     .where(gte(trainingEvaluations.createdAt, thirtyDaysAgo))
     .groupBy(trainingAssignments.trainingId);
 
@@ -156,7 +197,12 @@ async function detectSatisfactionDrop(db: any, thirtyDaysAgo: Date) {
         evaluationCount: evaluation.count,
       });
 
-      const severity = evaluation.avgSatisfaction < 2.5 ? "critical" : evaluation.avgSatisfaction < 3 ? "high" : "medium";
+      const severity =
+        evaluation.avgSatisfaction < 2.5
+          ? "critical"
+          : evaluation.avgSatisfaction < 3
+            ? "high"
+            : "medium";
 
       alerts.push({
         alertType: "training_satisfaction_drop" as const,
@@ -188,7 +234,12 @@ async function detectPendingRecommendations(db: any, thirtyDaysAgo: Date) {
   const pendingRecommendations = await db
     .select()
     .from(recommendationsTracking)
-    .where(and(eq(recommendationsTracking.status, "pending"), lt(recommendationsTracking.createdAt, thirtyDaysAgo)));
+    .where(
+      and(
+        eq(recommendationsTracking.status, "pending"),
+        lt(recommendationsTracking.createdAt, thirtyDaysAgo)
+      )
+    );
 
   if (pendingRecommendations.length >= 5) {
     // Generar sugerencias con IA
@@ -232,7 +283,8 @@ async function generateSuggestions(context: any): Promise<any> {
       messages: [
         {
           role: "system",
-          content: "Eres un experto en prevención de riesgos psicosociales y gestión de recursos humanos. Genera sugerencias concretas y accionables para intervenir en situaciones de riesgo laboral.",
+          content:
+            "Eres un experto en prevención de riesgos psicosociales y gestión de recursos humanos. Genera sugerencias concretas y accionables para intervenir en situaciones de riesgo laboral.",
         },
         {
           role: "user",
@@ -252,12 +304,30 @@ async function generateSuggestions(context: any): Promise<any> {
                 items: {
                   type: "object",
                   properties: {
-                    title: { type: "string", description: "Título breve de la sugerencia" },
-                    description: { type: "string", description: "Descripción detallada de la acción" },
-                    priority: { type: "string", enum: ["high", "medium", "low"], description: "Prioridad de implementación" },
-                    estimatedImpact: { type: "string", description: "Impacto esperado de la intervención" },
+                    title: {
+                      type: "string",
+                      description: "Título breve de la sugerencia",
+                    },
+                    description: {
+                      type: "string",
+                      description: "Descripción detallada de la acción",
+                    },
+                    priority: {
+                      type: "string",
+                      enum: ["high", "medium", "low"],
+                      description: "Prioridad de implementación",
+                    },
+                    estimatedImpact: {
+                      type: "string",
+                      description: "Impacto esperado de la intervención",
+                    },
                   },
-                  required: ["title", "description", "priority", "estimatedImpact"],
+                  required: [
+                    "title",
+                    "description",
+                    "priority",
+                    "estimatedImpact",
+                  ],
                   additionalProperties: false,
                 },
               },
@@ -280,7 +350,8 @@ async function generateSuggestions(context: any): Promise<any> {
       suggestions: [
         {
           title: "Revisar situación manualmente",
-          description: "Se recomienda revisar la situación manualmente y tomar acciones apropiadas.",
+          description:
+            "Se recomienda revisar la situación manualmente y tomar acciones apropiadas.",
           priority: "high",
           estimatedImpact: "Depende de las acciones tomadas",
         },
@@ -308,7 +379,9 @@ async function notifyAdmins(db: any, criticalAlerts: any[]) {
       });
     }
 
-    console.log(`[Intelligent Alerts Job] Notified ${admins.length} administrators about ${criticalAlerts.length} critical alerts`);
+    console.log(
+      `[Intelligent Alerts Job] Notified ${admins.length} administrators about ${criticalAlerts.length} critical alerts`
+    );
   } catch (error) {
     console.error("[Intelligent Alerts Job] Error notifying admins:", error);
   }

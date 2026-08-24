@@ -9,18 +9,21 @@ Después de 8 sesiones de depuración del sistema complejo de bypass de autentic
 ## Problemas Identificados con Enfoque Actual
 
 ### 1. Complejidad Excesiva
+
 - Sistema de bypass con `TEST_MODE=true`
 - Endpoints especiales `/api/test/auth/token`
 - Middleware condicional según environment
 - Gestión compleja de cookies entre contexts
 
 ### 2. Problemas Técnicos Persistentes
+
 - Cookies no persisten después de navegación
 - `context.request.post()` no comparte cookies con browser
 - Timeouts en tests (>2 minutos)
 - Dificultad para depurar problemas de autenticación
 
 ### 3. ROI Negativo
+
 - **Tiempo invertido**: 12-14 horas
 - **Tests funcionando**: 0/180
 - **Funcionalidad del sistema**: 100% operacional sin tests
@@ -34,27 +37,30 @@ Después de 8 sesiones de depuración del sistema complejo de bypass de autentic
 **Concepto**: Probar funcionalidades públicas y flujos sin autenticación.
 
 **Implementación**:
+
 ```typescript
 // tests/e2e/public-flows.spec.ts
-test('Landing page loads correctly', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.locator('h1')).toContainText('Plataforma NOM-035');
+test("Landing page loads correctly", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("h1")).toContainText("Plataforma NOM-035");
 });
 
-test('Login page is accessible', async ({ page }) => {
-  await page.goto('/');
-  await page.click('text=Iniciar Sesión');
+test("Login page is accessible", async ({ page }) => {
+  await page.goto("/");
+  await page.click("text=Iniciar Sesión");
   await expect(page).toHaveURL(/.*oauth/);
 });
 ```
 
 **Ventajas**:
+
 - ✅ Simple y mantenible
 - ✅ No requiere autenticación compleja
 - ✅ Tests rápidos (<10 segundos)
 - ✅ Fácil depuración
 
 **Desventajas**:
+
 - ❌ No prueba flujos autenticados
 - ❌ Cobertura limitada (~20% del sistema)
 
@@ -65,46 +71,49 @@ test('Login page is accessible', async ({ page }) => {
 **Concepto**: Inyectar usuario mock directamente en el contexto de React.
 
 **Implementación**:
+
 ```typescript
 // tests/fixtures/mock-auth.ts
 export const mockAuthFixture = test.extend({
   page: async ({ page }, use) => {
     // Interceptar request a /api/trpc/auth.me
-    await page.route('**/api/trpc/auth.me**', async (route) => {
+    await page.route("**/api/trpc/auth.me**", async route => {
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         body: JSON.stringify({
           result: {
             data: {
               id: 1,
-              name: 'Usuario de Prueba E2E',
-              email: 'test@example.com',
-              role: 'admin'
-            }
-          }
-        })
+              name: "Usuario de Prueba E2E",
+              email: "test@example.com",
+              role: "admin",
+            },
+          },
+        }),
       });
     });
-    
+
     await use(page);
   },
 });
 
 // tests/e2e/authenticated-flows.spec.ts
-mockAuthFixture('Dashboard loads with mock user', async ({ page }) => {
-  await page.goto('/dashboard');
-  await expect(page.locator('text=Usuario de Prueba E2E')).toBeVisible();
+mockAuthFixture("Dashboard loads with mock user", async ({ page }) => {
+  await page.goto("/dashboard");
+  await expect(page.locator("text=Usuario de Prueba E2E")).toBeVisible();
 });
 ```
 
 **Ventajas**:
+
 - ✅ No requiere backend de testing
 - ✅ Tests rápidos
 - ✅ Fácil configuración
 - ✅ Cobertura media (~60% del sistema)
 
 **Desventajas**:
+
 - ❌ No prueba autenticación real
 - ❌ Puede divergir del comportamiento real
 
@@ -115,6 +124,7 @@ mockAuthFixture('Dashboard loads with mock user', async ({ page }) => {
 **Concepto**: Crear usuario de prueba en BD y autenticarse manualmente una vez.
 
 **Implementación**:
+
 ```sql
 -- Crear usuario de prueba en BD
 INSERT INTO users (name, email, open_id, role, created_at)
@@ -125,25 +135,27 @@ VALUES ('E2E Test User', 'e2e@test.com', 'test-open-id', 'admin', NOW());
 // playwright.config.ts
 export default defineConfig({
   use: {
-    storageState: 'tests/auth-state.json', // Reusar sesión
+    storageState: "tests/auth-state.json", // Reusar sesión
   },
 });
 
 // tests/setup/auth.setup.ts
-test('authenticate', async ({ page }) => {
+test("authenticate", async ({ page }) => {
   // Login manual una vez, guardar cookies
-  await page.goto('/');
+  await page.goto("/");
   // ... proceso de login manual ...
-  await page.context().storageState({ path: 'tests/auth-state.json' });
+  await page.context().storageState({ path: "tests/auth-state.json" });
 });
 ```
 
 **Ventajas**:
+
 - ✅ Autenticación real
 - ✅ Cobertura completa (100%)
 - ✅ Comportamiento idéntico a producción
 
 **Desventajas**:
+
 - ❌ Requiere login manual inicial
 - ❌ Sesión puede expirar
 - ❌ Más complejo de mantener
@@ -164,6 +176,7 @@ test('authenticate', async ({ page }) => {
 ## Plan de Implementación (2-3 horas)
 
 ### Fase 1: Crear Fixture de Mock (30 min)
+
 ```bash
 # Crear archivo de fixture
 touch tests/fixtures/mock-auth.ts
@@ -173,6 +186,7 @@ touch tests/fixtures/mock-auth.ts
 ```
 
 ### Fase 2: Migrar Tests Existentes (1 hora)
+
 ```bash
 # Reemplazar authenticatedPage con mockAuthFixture
 # Eliminar código de bypass de autenticación
@@ -180,6 +194,7 @@ touch tests/fixtures/mock-auth.ts
 ```
 
 ### Fase 3: Ejecutar y Validar (30 min)
+
 ```bash
 # Ejecutar suite completa
 pnpm test:e2e
@@ -189,6 +204,7 @@ pnpm test:e2e
 ```
 
 ### Fase 4: Limpieza (30 min)
+
 ```bash
 # Eliminar archivos obsoletos:
 # - server/_core/test-auth.ts

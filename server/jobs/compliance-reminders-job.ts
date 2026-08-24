@@ -6,7 +6,12 @@
 
 import cron from "node-cron";
 import { getDb } from "../db";
-import { complianceChecks, complianceChecklist, notifications, users } from "../../drizzle/schema";
+import {
+  complianceChecks,
+  complianceChecklist,
+  notifications,
+  users,
+} from "../../drizzle/schema";
 import { and, lte, gte, eq, isNull, sql } from "drizzle-orm";
 import { emitNotificationToUser } from "../_core/websocket";
 import { notifyOwner } from "../_core/notification";
@@ -16,8 +21,10 @@ import { notifyOwner } from "../_core/notification";
  * Notifica 21 días antes del vencimiento
  */
 async function checkDueDatesAndNotify() {
-  console.log("[Compliance Reminders Job] Checking due dates for compliance items...");
-  
+  console.log(
+    "[Compliance Reminders Job] Checking due dates for compliance items..."
+  );
+
   const db = await getDb();
   if (!db) {
     console.error("[Compliance Reminders Job] Database not available");
@@ -27,7 +34,7 @@ async function checkDueDatesAndNotify() {
   try {
     // Fecha actual
     const today = new Date();
-    
+
     // Fecha límite: 21 días a partir de hoy
     const reminderDate = new Date(today);
     reminderDate.setDate(reminderDate.getDate() + 21);
@@ -45,7 +52,10 @@ async function checkDueDatesAndNotify() {
         requirement: complianceChecklist.requirement,
       })
       .from(complianceChecks)
-      .innerJoin(complianceChecklist, eq(complianceChecks.checklistItemId, complianceChecklist.id))
+      .innerJoin(
+        complianceChecklist,
+        eq(complianceChecks.checklistItemId, complianceChecklist.id)
+      )
       .where(
         and(
           sql`${complianceChecks.dueDate} IS NOT NULL`,
@@ -55,7 +65,9 @@ async function checkDueDatesAndNotify() {
         )
       );
 
-    console.log(`[Compliance Reminders Job] Found ${upcomingDueDates.length} items with upcoming due dates`);
+    console.log(
+      `[Compliance Reminders Job] Found ${upcomingDueDates.length} items with upcoming due dates`
+    );
 
     let notificationsSent = 0;
 
@@ -71,8 +83,11 @@ async function checkDueDatesAndNotify() {
 
     // Enviar notificaciones a cada administrador
     for (const item of upcomingDueDates) {
-      const daysUntilDue = Math.ceil((new Date(item.dueDate!).getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      
+      const daysUntilDue = Math.ceil(
+        (new Date(item.dueDate!).getTime() - today.getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+
       const message = `El requisito "${item.itemCode} - ${item.requirement}" vence en ${daysUntilDue} días (${new Date(item.dueDate!).toLocaleDateString()}). Sección: ${item.section} - ${item.sectionName}`;
 
       for (const admin of admins) {
@@ -103,26 +118,41 @@ async function checkDueDatesAndNotify() {
               title: `⏰ Recordatorio de Cumplimiento NOM-035 - ${item.itemCode}`,
               content: `Hola ${admin.nombre},\n\n${message}\n\nPrioridad: ${daysUntilDue <= 7 ? "ALTA" : "Media"}\n\nPor favor, revisa el dashboard de cumplimiento para más detalles.\n\nSaludos,\nPlataforma NOM-035`,
             });
-            
+
             if (emailSent) {
-              console.log(`[Compliance Reminders Job] Email sent to ${admin.email}`);
+              console.log(
+                `[Compliance Reminders Job] Email sent to ${admin.email}`
+              );
             } else {
-              console.warn(`[Compliance Reminders Job] Failed to send email to ${admin.email}`);
+              console.warn(
+                `[Compliance Reminders Job] Failed to send email to ${admin.email}`
+              );
             }
           } catch (emailError) {
-            console.error(`[Compliance Reminders Job] Error sending email to ${admin.email}:`, emailError);
+            console.error(
+              `[Compliance Reminders Job] Error sending email to ${admin.email}:`,
+              emailError
+            );
           }
 
           notificationsSent++;
         } catch (error) {
-          console.error(`[Compliance Reminders Job] Error sending notification to admin ${admin.id}:`, error);
+          console.error(
+            `[Compliance Reminders Job] Error sending notification to admin ${admin.id}:`,
+            error
+          );
         }
       }
     }
 
-    console.log(`[Compliance Reminders Job] Completed: ${notificationsSent} notifications sent to ${admins.length} admins`);
+    console.log(
+      `[Compliance Reminders Job] Completed: ${notificationsSent} notifications sent to ${admins.length} admins`
+    );
   } catch (error) {
-    console.error("[Compliance Reminders Job] Error in compliance reminders job:", error);
+    console.error(
+      "[Compliance Reminders Job] Error in compliance reminders job:",
+      error
+    );
   }
 }
 

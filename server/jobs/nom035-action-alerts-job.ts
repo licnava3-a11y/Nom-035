@@ -20,9 +20,11 @@ const JOB_NAME = "NOM-035 Action Alerts Job";
 const JOB_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 horas
 
 function getBaseUrl(): string {
-  return process.env.VITE_APP_URL
-    || process.env.APP_URL
-    || "https://nom035mood-32dy4ksx.manus.space";
+  return (
+    process.env.VITE_APP_URL ||
+    process.env.APP_URL ||
+    "https://nom035mood-32dy4ksx.manus.space"
+  );
 }
 
 const PRIORIDAD_LABEL: Record<string, string> = {
@@ -145,7 +147,9 @@ function buildAdminSummaryEmail(params: {
   }>;
   matrizUrl: string;
 }): string {
-  const rows = params.acciones.map(a => `
+  const rows = params.acciones
+    .map(
+      a => `
     <tr style="border-bottom:1px solid #e5e7eb;">
       <td style="padding:8px 12px;font-size:12px;font-weight:600;color:#111827;">${a.accionId}</td>
       <td style="padding:8px 12px;font-size:12px;color:#374151;">${a.objetivo.slice(0, 60)}${a.objetivo.length > 60 ? "..." : ""}</td>
@@ -156,7 +160,9 @@ function buildAdminSummaryEmail(params: {
           ${a.tipo === "vencida" ? "Vencida" : "Próxima"}
         </span>
       </td>
-    </tr>`).join("");
+    </tr>`
+    )
+    .join("");
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -220,7 +226,9 @@ export async function runNom035ActionAlertsJob(): Promise<{
   alertsSent: number;
   errors: string[];
 }> {
-  console.log(`[${JOB_NAME}] Iniciando verificación de acciones próximas a vencer...`);
+  console.log(
+    `[${JOB_NAME}] Iniciando verificación de acciones próximas a vencer...`
+  );
 
   const result = { checked: 0, alertsSent: 0, errors: [] as string[] };
 
@@ -295,25 +303,38 @@ export async function runNom035ActionAlertsJob(): Promise<{
       );
 
     result.checked = proximasAVencer.length + accionesVencidas.length;
-    console.log(`[${JOB_NAME}] Próximas a vencer: ${proximasAVencer.length} | Vencidas: ${accionesVencidas.length}`);
+    console.log(
+      `[${JOB_NAME}] Próximas a vencer: ${proximasAVencer.length} | Vencidas: ${accionesVencidas.length}`
+    );
 
     if (result.checked === 0) {
-      console.log(`[${JOB_NAME}] Sin acciones pendientes de notificar. Finalizando.`);
+      console.log(
+        `[${JOB_NAME}] Sin acciones pendientes de notificar. Finalizando.`
+      );
       return result;
     }
 
     const baseUrl = getBaseUrl();
     const matrizUrl = `${baseUrl}/nom035-matrix`;
     const adminAlertItems: Array<{
-      accionId: string; objetivo: string; responsable: string;
-      plazo: string; prioridad: string; estado: string; tipo: "proxima" | "vencida";
+      accionId: string;
+      objetivo: string;
+      responsable: string;
+      plazo: string;
+      prioridad: string;
+      estado: string;
+      tipo: "proxima" | "vencida";
     }> = [];
 
     // ── Enviar correos a responsables de acciones próximas ────────────────────
     for (const accion of proximasAVencer) {
       try {
         const plazoStr = accion.plazo
-          ? new Date(accion.plazo).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })
+          ? new Date(accion.plazo).toLocaleDateString("es-MX", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
           : "Sin fecha";
 
         adminAlertItems.push({
@@ -336,7 +357,8 @@ export async function runNom035ActionAlertsJob(): Promise<{
             plazo: plazoStr,
             prioridad: accion.prioridad,
             tipoPlan: "",
-            planIdentificador: accion.planIdentificador || `Plan #${accion.planId}`,
+            planIdentificador:
+              accion.planIdentificador || `Plan #${accion.planId}`,
             estado: accion.estado,
             tipo: "proxima",
             matrizUrl,
@@ -367,7 +389,11 @@ export async function runNom035ActionAlertsJob(): Promise<{
     for (const accion of accionesVencidas) {
       try {
         const plazoStr = accion.plazo
-          ? new Date(accion.plazo).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })
+          ? new Date(accion.plazo).toLocaleDateString("es-MX", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
           : "Sin fecha";
 
         adminAlertItems.push({
@@ -396,7 +422,8 @@ export async function runNom035ActionAlertsJob(): Promise<{
             plazo: plazoStr,
             prioridad: accion.prioridad,
             tipoPlan: "",
-            planIdentificador: accion.planIdentificador || `Plan #${accion.planId}`,
+            planIdentificador:
+              accion.planIdentificador || `Plan #${accion.planId}`,
             estado: "vencida",
             tipo: "vencida",
             matrizUrl,
@@ -432,13 +459,17 @@ export async function runNom035ActionAlertsJob(): Promise<{
           content: summaryHtml,
         });
       } catch (err) {
-        console.error(`[${JOB_NAME}] Error enviando resumen al administrador:`, err);
+        console.error(
+          `[${JOB_NAME}] Error enviando resumen al administrador:`,
+          err
+        );
       }
     }
 
-    console.log(`[${JOB_NAME}] Completado: ${result.alertsSent} alertas enviadas, ${result.errors.length} errores.`);
+    console.log(
+      `[${JOB_NAME}] Completado: ${result.alertsSent} alertas enviadas, ${result.errors.length} errores.`
+    );
     return result;
-
   } catch (err) {
     const msg = `Error general en el job: ${String(err)}`;
     console.error(`[${JOB_NAME}] ${msg}`);
@@ -452,14 +483,14 @@ export async function runNom035ActionAlertsJob(): Promise<{
 export function startNom035ActionAlertsJob(): void {
   // Ejecutar con un delay inicial de 10 segundos para no saturar el arranque
   setTimeout(() => {
-    runNom035ActionAlertsJob().catch((e) =>
+    runNom035ActionAlertsJob().catch(e =>
       console.error(`[${JOB_NAME}] Error en ejecución inicial:`, e)
     );
   }, 10_000);
 
   // Luego ejecutar cada 24 horas
   setInterval(() => {
-    runNom035ActionAlertsJob().catch((e) =>
+    runNom035ActionAlertsJob().catch(e =>
       console.error(`[${JOB_NAME}] Error en ejecución periódica:`, e)
     );
   }, JOB_INTERVAL_MS);

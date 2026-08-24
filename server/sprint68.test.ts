@@ -16,7 +16,11 @@ vi.mock("./db", () => ({
 
 vi.mock("./dispatchEmail", () => ({
   sendDispatchEmail: vi.fn().mockResolvedValue(true),
-  generateReadToken: vi.fn().mockReturnValue("test-token-64chars-hex-string-here-padded-to-64chars-0000"),
+  generateReadToken: vi
+    .fn()
+    .mockReturnValue(
+      "test-token-64chars-hex-string-here-padded-to-64chars-0000"
+    ),
 }));
 
 vi.mock("./_core/notification", () => ({
@@ -26,7 +30,11 @@ vi.mock("./_core/notification", () => ({
 vi.mock("crypto", () => ({
   default: {
     randomBytes: vi.fn().mockReturnValue({
-      toString: vi.fn().mockReturnValue("new-test-token-64chars-hex-string-here-padded-to-64chars-00"),
+      toString: vi
+        .fn()
+        .mockReturnValue(
+          "new-test-token-64chars-hex-string-here-padded-to-64chars-00"
+        ),
     }),
   },
 }));
@@ -36,7 +44,11 @@ vi.mock("crypto", () => ({
 function createMockDb(overrides: Record<string, any> = {}) {
   const mockWhere = vi.fn().mockResolvedValue([]);
   const mockLimit = vi.fn().mockReturnValue({ where: mockWhere });
-  const mockFrom = vi.fn().mockReturnValue({ leftJoin: vi.fn().mockReturnThis(), where: mockWhere, limit: mockLimit });
+  const mockFrom = vi.fn().mockReturnValue({
+    leftJoin: vi.fn().mockReturnThis(),
+    where: mockWhere,
+    limit: mockLimit,
+  });
   const mockSelect = vi.fn().mockReturnValue({ from: mockFrom });
   const mockSet = vi.fn().mockReturnThis();
   const mockUpdateWhere = vi.fn().mockResolvedValue({ rowsAffected: 1 });
@@ -225,7 +237,9 @@ describe("dispatch-unread-alerts-job", () => {
 
 describe("sendDispatchEmail - modo recordatorio", () => {
   it("la interfaz SingleDispatchEmailData acepta isReminder y daysSinceSent", async () => {
-    const { sendDispatchEmail: realSendDispatchEmail } = await import("./dispatchEmail");
+    const { sendDispatchEmail: realSendDispatchEmail } = await import(
+      "./dispatchEmail"
+    );
 
     // Verificar que el mock acepta los parámetros correctos
     const emailData = {
@@ -267,7 +281,8 @@ describe("sendDispatchEmail - modo recordatorio", () => {
 
 describe("confirmReadRouter - lógica de firma", () => {
   it("valida que signerName tenga al menos 2 caracteres", () => {
-    const validateSignerName = (name: string): boolean => name.trim().length >= 2;
+    const validateSignerName = (name: string): boolean =>
+      name.trim().length >= 2;
 
     expect(validateSignerName("")).toBe(false);
     expect(validateSignerName("A")).toBe(false);

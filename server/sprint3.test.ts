@@ -12,7 +12,10 @@ import { resolve } from "path";
 // ── 1. getRiskComparison procedure (static check) ─────────────────────────────
 describe("psychometric router", () => {
   it("defines getRiskComparison procedure in source", () => {
-    const src = readFileSync(resolve(__dirname, "routers/psychometric.ts"), "utf8");
+    const src = readFileSync(
+      resolve(__dirname, "routers/psychometric.ts"),
+      "utf8"
+    );
     expect(src).toContain("getRiskComparison:");
     expect(src).toContain("comparison");
     expect(src).toContain("currentMonthLabel");
@@ -23,7 +26,10 @@ describe("psychometric router", () => {
 // ── 2. notifyEmployee procedure (static check) ───────────────────────────────
 describe("internalMailbox router", () => {
   it("defines notifyEmployee procedure in source", () => {
-    const src = readFileSync(resolve(__dirname, "routers/internalMailbox.ts"), "utf8");
+    const src = readFileSync(
+      resolve(__dirname, "routers/internalMailbox.ts"),
+      "utf8"
+    );
     expect(src).toContain("notifyEmployee:");
     expect(src).toContain("emitNotificationToUser");
     expect(src).toContain("isAnonymous");
@@ -34,9 +40,33 @@ describe("internalMailbox router", () => {
 // ── 3. Filter logic (unit) ───────────────────────────────────────────────────
 describe("InternalMailbox filter logic", () => {
   const messages = [
-    { id: 1, category: "queja",      status: "nuevo",      priority: "alta",   createdAt: new Date("2024-03-10"), isAnonymous: false, senderId: 1 },
-    { id: 2, category: "sugerencia", status: "resuelto",   priority: "normal", createdAt: new Date("2024-04-05"), isAnonymous: false, senderId: 2 },
-    { id: 3, category: "queja",      status: "en_proceso", priority: "urgente",createdAt: new Date("2024-04-20"), isAnonymous: true,  senderId: null },
+    {
+      id: 1,
+      category: "queja",
+      status: "nuevo",
+      priority: "alta",
+      createdAt: new Date("2024-03-10"),
+      isAnonymous: false,
+      senderId: 1,
+    },
+    {
+      id: 2,
+      category: "sugerencia",
+      status: "resuelto",
+      priority: "normal",
+      createdAt: new Date("2024-04-05"),
+      isAnonymous: false,
+      senderId: 2,
+    },
+    {
+      id: 3,
+      category: "queja",
+      status: "en_proceso",
+      priority: "urgente",
+      createdAt: new Date("2024-04-20"),
+      isAnonymous: true,
+      senderId: null,
+    },
   ];
 
   const applyFilters = (
@@ -45,21 +75,24 @@ describe("InternalMailbox filter logic", () => {
     filterStatus: string,
     filterPriority: string,
     filterDateFrom: string,
-    filterDateTo: string,
-  ) => msgs.filter(m => {
-    if (filterCategory !== "all" && m.category !== filterCategory) return false;
-    if (filterStatus !== "all" && m.status !== filterStatus) return false;
-    if (filterPriority !== "all" && m.priority !== filterPriority) return false;
-    if (filterDateFrom) {
-      const from = new Date(filterDateFrom + "T00:00:00");
-      if (m.createdAt < from) return false;
-    }
-    if (filterDateTo) {
-      const to = new Date(filterDateTo + "T23:59:59");
-      if (m.createdAt > to) return false;
-    }
-    return true;
-  });
+    filterDateTo: string
+  ) =>
+    msgs.filter(m => {
+      if (filterCategory !== "all" && m.category !== filterCategory)
+        return false;
+      if (filterStatus !== "all" && m.status !== filterStatus) return false;
+      if (filterPriority !== "all" && m.priority !== filterPriority)
+        return false;
+      if (filterDateFrom) {
+        const from = new Date(filterDateFrom + "T00:00:00");
+        if (m.createdAt < from) return false;
+      }
+      if (filterDateTo) {
+        const to = new Date(filterDateTo + "T23:59:59");
+        if (m.createdAt > to) return false;
+      }
+      return true;
+    });
 
   it("returns all messages when no filters applied", () => {
     expect(applyFilters(messages, "all", "all", "all", "", "")).toHaveLength(3);
@@ -78,7 +111,14 @@ describe("InternalMailbox filter logic", () => {
   });
 
   it("filters by date range", () => {
-    const result = applyFilters(messages, "all", "all", "all", "2024-04-01", "2024-04-30");
+    const result = applyFilters(
+      messages,
+      "all",
+      "all",
+      "all",
+      "2024-04-01",
+      "2024-04-30"
+    );
     expect(result).toHaveLength(2);
     expect(result.map(m => m.id)).toEqual([2, 3]);
   });

@@ -99,5 +99,7 @@ export const COMMITTEE_RESPONSIBILITIES: Record<string, string> = {
  * Obtener responsabilidades por tipo de cargo
  */
 export function getResponsibilitiesByPosition(position: string): string {
-  return COMMITTEE_RESPONSIBILITIES[position] || COMMITTEE_RESPONSIBILITIES.vocal;
+  return (
+    COMMITTEE_RESPONSIBILITIES[position] || COMMITTEE_RESPONSIBILITIES.vocal
+  );
 }

@@ -69,11 +69,15 @@ export const documentAuditRouter = router({
       }
 
       if (input.startDate) {
-        conditions.push(gte(documentAuditLog.timestamp, new Date(input.startDate)));
+        conditions.push(
+          gte(documentAuditLog.timestamp, new Date(input.startDate))
+        );
       }
 
       if (input.endDate) {
-        conditions.push(lte(documentAuditLog.timestamp, new Date(input.endDate)));
+        conditions.push(
+          lte(documentAuditLog.timestamp, new Date(input.endDate))
+        );
       }
 
       if (input.search) {
@@ -111,7 +115,10 @@ export const documentAuditRouter = router({
           timestamp: documentAuditLog.timestamp,
         })
         .from(documentAuditLog)
-        .leftJoin(complianceReports, eq(documentAuditLog.reportId, complianceReports.id))
+        .leftJoin(
+          complianceReports,
+          eq(documentAuditLog.reportId, complianceReports.id)
+        )
         .where(where)
         .orderBy(desc(documentAuditLog.timestamp))
         .limit(input.pageSize)
@@ -143,25 +150,32 @@ export const documentAuditRouter = router({
       const conditions = [];
 
       if (input.startDate) {
-        conditions.push(gte(documentAuditLog.timestamp, new Date(input.startDate)));
+        conditions.push(
+          gte(documentAuditLog.timestamp, new Date(input.startDate))
+        );
       }
 
       if (input.endDate) {
-        conditions.push(lte(documentAuditLog.timestamp, new Date(input.endDate)));
+        conditions.push(
+          lte(documentAuditLog.timestamp, new Date(input.endDate))
+        );
       }
 
       const where = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const allLogs = await db
-        .select()
-        .from(documentAuditLog)
-        .where(where);
+      const allLogs = await db.select().from(documentAuditLog).where(where);
 
       const totalAccesses = allLogs.length;
       const views = allLogs.filter((log: any) => log.action === "view").length;
-      const downloads = allLogs.filter((log: any) => log.action === "download").length;
-      const verifications = allLogs.filter((log: any) => log.action === "verify").length;
-      const uniqueUsers = new Set(allLogs.filter((log: any) => log.userId).map((log: any) => log.userId)).size;
+      const downloads = allLogs.filter(
+        (log: any) => log.action === "download"
+      ).length;
+      const verifications = allLogs.filter(
+        (log: any) => log.action === "verify"
+      ).length;
+      const uniqueUsers = new Set(
+        allLogs.filter((log: any) => log.userId).map((log: any) => log.userId)
+      ).size;
 
       return {
         totalAccesses,
@@ -190,10 +204,14 @@ export const documentAuditRouter = router({
       const conditions: any[] = [];
 
       if (input.startDate) {
-        conditions.push(gte(documentAuditLog.timestamp, new Date(input.startDate)));
+        conditions.push(
+          gte(documentAuditLog.timestamp, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
-        conditions.push(lte(documentAuditLog.timestamp, new Date(input.endDate)));
+        conditions.push(
+          lte(documentAuditLog.timestamp, new Date(input.endDate))
+        );
       }
 
       const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -230,7 +248,8 @@ export const documentAuditRouter = router({
         verify: 0,
       };
       allLogs.forEach((log: any) => {
-        actionDistribution[log.action] = (actionDistribution[log.action] || 0) + 1;
+        actionDistribution[log.action] =
+          (actionDistribution[log.action] || 0) + 1;
       });
 
       // Usuarios más activos (top 10)

@@ -21,7 +21,12 @@ describe("1. Validaciones de entrada (Zod)", () => {
   });
 
   it("1.2 tipoPlan solo acepta valores permitidos", () => {
-    const allowed = ["intervencion", "violencia_laboral", "no_discriminacion", "consolidado"];
+    const allowed = [
+      "intervencion",
+      "violencia_laboral",
+      "no_discriminacion",
+      "consolidado",
+    ];
     expect(allowed).toContain("intervencion");
     expect(allowed).toContain("violencia_laboral");
     expect(allowed).not.toContain("otro");
@@ -29,7 +34,13 @@ describe("1. Validaciones de entrada (Zod)", () => {
   });
 
   it("1.3 estado solo acepta valores permitidos", () => {
-    const allowed = ["no_iniciada", "en_proceso", "cumplida", "vencida", "cancelada"];
+    const allowed = [
+      "no_iniciada",
+      "en_proceso",
+      "cumplida",
+      "vencida",
+      "cancelada",
+    ];
     expect(allowed).toContain("cumplida");
     expect(allowed).not.toContain("pendiente");
     expect(allowed).toHaveLength(5);
@@ -44,9 +55,16 @@ describe("1. Validaciones de entrada (Zod)", () => {
 
   it("1.5 tipoEvidencia acepta todos los tipos definidos", () => {
     const allowed = [
-      "acta_capacitacion", "registro_fotografico", "correo_electronico",
-      "lista_asistencia", "comunicado_interno", "captura_pantalla",
-      "acta_reunion", "contrato_servicio", "politica_firmada", "otro",
+      "acta_capacitacion",
+      "registro_fotografico",
+      "correo_electronico",
+      "lista_asistencia",
+      "comunicado_interno",
+      "captura_pantalla",
+      "acta_reunion",
+      "contrato_servicio",
+      "politica_firmada",
+      "otro",
     ];
     expect(allowed).toHaveLength(10);
     expect(allowed).toContain("otro");
@@ -65,23 +83,73 @@ describe("1. Validaciones de entrada (Zod)", () => {
 function getDefaultActions(tipoPlan: string) {
   if (tipoPlan === "violencia_laboral") {
     return [
-      { accionId: "VL-01", tipoPlan: "violencia_laboral", prioridad: "alta", plazoDias: 30 },
-      { accionId: "VL-02", tipoPlan: "violencia_laboral", prioridad: "alta", plazoDias: 45 },
-      { accionId: "VL-03", tipoPlan: "violencia_laboral", prioridad: "media", plazoDias: 60 },
+      {
+        accionId: "VL-01",
+        tipoPlan: "violencia_laboral",
+        prioridad: "alta",
+        plazoDias: 30,
+      },
+      {
+        accionId: "VL-02",
+        tipoPlan: "violencia_laboral",
+        prioridad: "alta",
+        plazoDias: 45,
+      },
+      {
+        accionId: "VL-03",
+        tipoPlan: "violencia_laboral",
+        prioridad: "media",
+        plazoDias: 60,
+      },
     ];
   }
   if (tipoPlan === "no_discriminacion") {
     return [
-      { accionId: "ND-01", tipoPlan: "no_discriminacion", prioridad: "alta", plazoDias: 30 },
-      { accionId: "ND-02", tipoPlan: "no_discriminacion", prioridad: "media", plazoDias: 60 },
-      { accionId: "ND-03", tipoPlan: "no_discriminacion", prioridad: "baja", plazoDias: 90 },
+      {
+        accionId: "ND-01",
+        tipoPlan: "no_discriminacion",
+        prioridad: "alta",
+        plazoDias: 30,
+      },
+      {
+        accionId: "ND-02",
+        tipoPlan: "no_discriminacion",
+        prioridad: "media",
+        plazoDias: 60,
+      },
+      {
+        accionId: "ND-03",
+        tipoPlan: "no_discriminacion",
+        prioridad: "baja",
+        plazoDias: 90,
+      },
     ];
   }
   return [
-    { accionId: "INT-01", tipoPlan: "intervencion", prioridad: "alta", plazoDias: 30 },
-    { accionId: "INT-02", tipoPlan: "intervencion", prioridad: "media", plazoDias: 14 },
-    { accionId: "INT-03", tipoPlan: "intervencion", prioridad: "alta", plazoDias: 45 },
-    { accionId: "INT-04", tipoPlan: "intervencion", prioridad: "media", plazoDias: 60 },
+    {
+      accionId: "INT-01",
+      tipoPlan: "intervencion",
+      prioridad: "alta",
+      plazoDias: 30,
+    },
+    {
+      accionId: "INT-02",
+      tipoPlan: "intervencion",
+      prioridad: "media",
+      plazoDias: 14,
+    },
+    {
+      accionId: "INT-03",
+      tipoPlan: "intervencion",
+      prioridad: "alta",
+      plazoDias: 45,
+    },
+    {
+      accionId: "INT-04",
+      tipoPlan: "intervencion",
+      prioridad: "media",
+      plazoDias: 60,
+    },
   ];
 }
 
@@ -187,7 +255,10 @@ describe("3. Cálculo de estadísticas de cumplimiento", () => {
 describe("4. Validación de archivos de evidencia", () => {
   const MAX_SIZE = 16 * 1024 * 1024;
   const ALLOWED_TYPES = [
-    "application/pdf", "image/jpeg", "image/png", "image/webp",
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "text/plain",
@@ -210,7 +281,11 @@ describe("4. Validación de archivos de evidencia", () => {
   });
 
   it("4.4 Rechaza tipos de archivo no permitidos", () => {
-    const rejected = ["application/x-executable", "text/html", "application/zip"];
+    const rejected = [
+      "application/x-executable",
+      "text/html",
+      "application/zip",
+    ];
     for (const type of rejected) {
       expect(ALLOWED_TYPES).not.toContain(type);
     }
@@ -274,9 +349,20 @@ describe("6. Exportación XLSX", () => {
 
   it("6.3 Las columnas del XLSX cubren todos los campos requeridos", () => {
     const requiredColumns = [
-      "accionId", "tipoPlan", "nivelAplicacion", "objetivo", "accion",
-      "indicador", "responsable", "plazo", "estado", "prioridad",
-      "observaciones", "numEvidencias", "tiposEvidencia", "ultimaEvidencia",
+      "accionId",
+      "tipoPlan",
+      "nivelAplicacion",
+      "objetivo",
+      "accion",
+      "indicador",
+      "responsable",
+      "plazo",
+      "estado",
+      "prioridad",
+      "observaciones",
+      "numEvidencias",
+      "tiposEvidencia",
+      "ultimaEvidencia",
     ];
     expect(requiredColumns).toHaveLength(14);
     expect(requiredColumns).toContain("numEvidencias");
@@ -285,8 +371,14 @@ describe("6. Exportación XLSX", () => {
 
   it("6.4 Hoja de evidencias tiene columnas correctas", () => {
     const evidenceColumns = [
-      "accionId", "nombreArchivo", "tipoEvidencia", "tipoArchivo",
-      "tamanoKb", "descripcion", "fechaSubida", "fileUrl",
+      "accionId",
+      "nombreArchivo",
+      "tipoEvidencia",
+      "tipoArchivo",
+      "tamanoKb",
+      "descripcion",
+      "fechaSubida",
+      "fileUrl",
     ];
     expect(evidenceColumns).toHaveLength(8);
     expect(evidenceColumns).toContain("fileUrl");
@@ -297,7 +389,13 @@ describe("6. Exportación XLSX", () => {
 
 describe("7. Registro de auditoría", () => {
   it("7.1 Las operaciones de auditoría son las correctas", () => {
-    const ops = ["subida", "reemplazo", "eliminacion", "descarga", "vista_previa"];
+    const ops = [
+      "subida",
+      "reemplazo",
+      "eliminacion",
+      "descarga",
+      "vista_previa",
+    ];
     expect(ops).toHaveLength(5);
     expect(ops).toContain("subida");
     expect(ops).toContain("eliminacion");
@@ -323,7 +421,13 @@ describe("7. Registro de auditoría", () => {
   });
 
   it("7.3 Operación de eliminación es registrada", () => {
-    const ops = ["subida", "reemplazo", "eliminacion", "descarga", "vista_previa"];
+    const ops = [
+      "subida",
+      "reemplazo",
+      "eliminacion",
+      "descarga",
+      "vista_previa",
+    ];
     expect(ops).toContain("eliminacion");
   });
 });
@@ -353,14 +457,27 @@ describe("8. Filtros de búsqueda en listActions", () => {
 
   it("8.3 Búsqueda por texto en objetivo", () => {
     const actions = [
-      { id: 1, objetivo: "Reducir carga de trabajo excesiva", accion: "Redistribuir tareas" },
-      { id: 2, objetivo: "Mejorar comunicación organizacional", accion: "Reuniones semanales" },
-      { id: 3, objetivo: "Fortalecer liderazgo positivo", accion: "Capacitar mandos" },
+      {
+        id: 1,
+        objetivo: "Reducir carga de trabajo excesiva",
+        accion: "Redistribuir tareas",
+      },
+      {
+        id: 2,
+        objetivo: "Mejorar comunicación organizacional",
+        accion: "Reuniones semanales",
+      },
+      {
+        id: 3,
+        objetivo: "Fortalecer liderazgo positivo",
+        accion: "Capacitar mandos",
+      },
     ];
     const search = "comunicación";
-    const filtered = actions.filter(a =>
-      a.objetivo.toLowerCase().includes(search.toLowerCase()) ||
-      a.accion.toLowerCase().includes(search.toLowerCase())
+    const filtered = actions.filter(
+      a =>
+        a.objetivo.toLowerCase().includes(search.toLowerCase()) ||
+        a.accion.toLowerCase().includes(search.toLowerCase())
     );
     expect(filtered).toHaveLength(1);
     expect(filtered[0].id).toBe(2);
@@ -423,7 +540,11 @@ describe("10. Formato y transformación de datos", () => {
       if (!d) return "Sin fecha";
       const date = d instanceof Date ? d : new Date(d);
       if (isNaN(date.getTime())) return "Sin fecha";
-      return date.toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
+      return date.toLocaleDateString("es-MX", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      });
     }
     expect(formatDate(null)).toBe("Sin fecha");
     expect(formatDate(undefined)).toBe("Sin fecha");
@@ -433,10 +554,14 @@ describe("10. Formato y transformación de datos", () => {
   it("10.2 truncate corta texto largo correctamente", () => {
     function truncate(text: string, maxLen: number): string {
       if (!text) return "";
-      return text.length > maxLen ? text.substring(0, maxLen - 3) + "..." : text;
+      return text.length > maxLen
+        ? text.substring(0, maxLen - 3) + "..."
+        : text;
     }
     expect(truncate("Texto corto", 20)).toBe("Texto corto");
-    expect(truncate("Este es un texto muy largo que supera el límite", 20)).toBe("Este es un texto ...");
+    expect(
+      truncate("Este es un texto muy largo que supera el límite", 20)
+    ).toBe("Este es un texto ...");
     expect(truncate("", 20)).toBe("");
   });
 
@@ -459,7 +584,13 @@ describe("10. Formato y transformación de datos", () => {
       vencida: "Vencida",
       cancelada: "Cancelada",
     };
-    const estados = ["no_iniciada", "en_proceso", "cumplida", "vencida", "cancelada"];
+    const estados = [
+      "no_iniciada",
+      "en_proceso",
+      "cumplida",
+      "vencida",
+      "cancelada",
+    ];
     for (const e of estados) {
       expect(ESTADO_LABELS[e]).toBeTruthy();
     }

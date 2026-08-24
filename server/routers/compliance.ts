@@ -1,20 +1,44 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
-import { getDb } from '../db.js';
-import { committeeMinuteAgendaItems, committeeMinuteAgreements, committeeMinuteAttendees, committeeMinutes, companyGeneralData, companyLegalRepresentative, companyLogo, complianceChecklist, complianceChecks, complianceEvidence, complianceReports, complianceRequirements, correctiveActions, departments, documentAuditLog, documentFormats, employees, nom035Policies, nom035Results, positions, reportTemplates, signatures, surveyResults } from "../../drizzle/schema";
+import { getDb } from "../db.js";
+import {
+  committeeMinuteAgendaItems,
+  committeeMinuteAgreements,
+  committeeMinuteAttendees,
+  committeeMinutes,
+  companyGeneralData,
+  companyLegalRepresentative,
+  companyLogo,
+  complianceChecklist,
+  complianceChecks,
+  complianceEvidence,
+  complianceReports,
+  complianceRequirements,
+  correctiveActions,
+  departments,
+  documentAuditLog,
+  documentFormats,
+  employees,
+  nom035Policies,
+  nom035Results,
+  positions,
+  reportTemplates,
+  signatures,
+  surveyResults,
+} from "../../drizzle/schema";
 import { eq, sql, desc, and } from "drizzle-orm";
 // Import dinámico — evita cargar html-pdf-node/puppeteer al arrancar el servidor
 // (import estático causaba segfault en Cloud Run)
 async function getPdfUtils() {
-  return import('../utils/pdfGenerator.js');
+  return import("../utils/pdfGenerator.js");
 }
-import { storagePut } from '../storage';
+import { storagePut } from "../storage";
 
 export const complianceRouter = router({
   // Obtener checklist completo con estado de cumplimiento
   getChecklist: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) throw new Error("Database not available");
     const items = await db
       .select({
         id: complianceChecklist.id,
@@ -43,7 +67,7 @@ export const complianceRouter = router({
   // Obtener estadísticas de cumplimiento por sección
   getComplianceStats: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) throw new Error("Database not available");
     const stats = await db
       .select({
         section: complianceChecklist.section,
@@ -60,7 +84,10 @@ export const complianceRouter = router({
       .orderBy(complianceChecklist.section);
 
     const overall = stats.reduce(
-      (acc: { total: number; compliant: number }, curr: { total: number; compliant: number | null }) => ({
+      (
+        acc: { total: number; compliant: number },
+        curr: { total: number; compliant: number | null }
+      ) => ({
         total: acc.total + curr.total,
         compliant: acc.compliant + (curr.compliant || 0),
       }),
@@ -71,15 +98,26 @@ export const complianceRouter = router({
       overall: {
         total: overall.total,
         compliant: overall.compliant,
-        percentage: overall.total > 0 ? Math.round((overall.compliant / overall.total) * 100) : 0,
+        percentage:
+          overall.total > 0
+            ? Math.round((overall.compliant / overall.total) * 100)
+            : 0,
       },
-      sections: stats.map((s: { section: string; sectionName: string; total: number; compliant: number | null }) => ({
-        section: s.section,
-        sectionName: s.sectionName,
-        total: s.total,
-        compliant: s.compliant || 0,
-        percentage: s.total > 0 ? Math.round(((s.compliant || 0) / s.total) * 100) : 0,
-      })),
+      sections: stats.map(
+        (s: {
+          section: string;
+          sectionName: string;
+          total: number;
+          compliant: number | null;
+        }) => ({
+          section: s.section,
+          sectionName: s.sectionName,
+          total: s.total,
+          compliant: s.compliant || 0,
+          percentage:
+            s.total > 0 ? Math.round(((s.compliant || 0) / s.total) * 100) : 0,
+        })
+      ),
     };
   }),
 
@@ -94,7 +132,7 @@ export const complianceRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
       // Verificar si ya existe un registro de verificación
       const existing = await db
         .select()
@@ -132,7 +170,7 @@ export const complianceRouter = router({
   // Obtener matriz de trazabilidad (requisito -> módulo -> evidencia)
   getTraceabilityMatrix: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) throw new Error("Database not available");
     const items = await db
       .select({
         section: complianceChecklist.section,
@@ -156,7 +194,7 @@ export const complianceRouter = router({
   // Obtener items pendientes (no cumplidos o sin verificar)
   getPendingItems: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) throw new Error("Database not available");
     const items = await db
       .select({
         id: complianceChecklist.id,
@@ -184,7 +222,7 @@ export const complianceRouter = router({
   // Obtener todos los requisitos normativos NOM-035
   getRequirements: publicProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) throw new Error("Database not available");
 
     return await db
       .select()
@@ -195,12 +233,14 @@ export const complianceRouter = router({
 
   // Verificar Numeral 7.1 - Política de Prevención
   verifyNumeral71: protectedProcedure
-    .input(z.object({
-      policyId: z.number().optional(),
-    }))
+    .input(
+      z.object({
+        policyId: z.number().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Verificar si existe política de prevención activa
       const policies = await db
@@ -210,16 +250,16 @@ export const complianceRouter = router({
         .limit(1);
 
       const hasPolicy = policies.length > 0;
-      const status = hasPolicy ? 'compliant' : 'non_compliant';
+      const status = hasPolicy ? "compliant" : "non_compliant";
 
       // Obtener requisito
       const [requirement] = await db
         .select()
         .from(complianceRequirements)
-        .where(eq(complianceRequirements.numeral, '7.1'))
+        .where(eq(complianceRequirements.numeral, "7.1"))
         .limit(1);
 
-      if (!requirement) throw new Error('Requirement 7.1 not found');
+      if (!requirement) throw new Error("Requirement 7.1 not found");
 
       // Crear registro de verificación
       await (db.insert(complianceChecks) as any).values({
@@ -228,44 +268,43 @@ export const complianceRouter = router({
         verifiedBy: ctx.user.id,
         verifiedAt: new Date(),
         notes: hasPolicy
-          ? 'Política de prevención de riesgos psicosociales establecida y activa'
-          : 'No se encontró política de prevención activa. Se requiere establecer, implantar y difundir política según numeral 7.1',
+          ? "Política de prevención de riesgos psicosociales establecida y activa"
+          : "No se encontró política de prevención activa. Se requiere establecer, implantar y difundir política según numeral 7.1",
       });
 
       return {
         requirementId: requirement.id,
         status,
         hasPolicy,
-        findings: hasPolicy ? 'Cumple' : 'No cumple - Política no establecida',
+        findings: hasPolicy ? "Cumple" : "No cumple - Política no establecida",
       };
     }),
 
   // Verificar Numeral 7.2 - Análisis de Factores de Riesgo
   verifyNumeral72: protectedProcedure
-    .input(z.object({
-      periodId: z.number().optional(),
-    }))
+    .input(
+      z.object({
+        periodId: z.number().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Verificar si se han aplicado encuestas
-      const results = await db
-        .select()
-        .from(nom035Results)
-        .limit(1);
+      const results = await db.select().from(nom035Results).limit(1);
 
       const hasSurveys = results.length > 0;
-      const status = hasSurveys ? 'compliant' : 'non_compliant';
+      const status = hasSurveys ? "compliant" : "non_compliant";
 
       // Obtener requisito
       const [requirement] = await db
         .select()
         .from(complianceRequirements)
-        .where(eq(complianceRequirements.numeral, '7.2'))
+        .where(eq(complianceRequirements.numeral, "7.2"))
         .limit(1);
 
-      if (!requirement) throw new Error('Requirement 7.2 not found');
+      if (!requirement) throw new Error("Requirement 7.2 not found");
 
       // Crear registro de verificación
       await (db.insert(complianceChecks) as any).values({
@@ -275,7 +314,7 @@ export const complianceRouter = router({
         verifiedAt: new Date(),
         notes: hasSurveys
           ? `Identificación y análisis realizado. Total de evaluaciones: ${results.length}`
-          : 'No se han aplicado las Guías de Referencia I, II o III para identificar factores de riesgo psicosocial',
+          : "No se han aplicado las Guías de Referencia I, II o III para identificar factores de riesgo psicosocial",
       });
 
       return {
@@ -285,48 +324,57 @@ export const complianceRouter = router({
         totalEvaluations: results.length,
         findings: hasSurveys
           ? `Cumple - ${results.length} evaluaciones realizadas`
-          : 'No cumple - No se han aplicado encuestas NOM-035',
+          : "No cumple - No se han aplicado encuestas NOM-035",
       };
     }),
 
   // Verificar Numeral 8.2 - Implementación de Medidas de Control
   verifyNumeral82: protectedProcedure
-    .input(z.object({
-      periodId: z.number().optional(),
-    }))
+    .input(
+      z.object({
+        periodId: z.number().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Verificar si se han implementado acciones correctivas
-      const actions = await db
-        .select()
-        .from(correctiveActions);
+      const actions = await db.select().from(correctiveActions);
 
       const hasActions = actions.length > 0;
-      const completedActions = actions.filter(a => a.status === 'completada').length;
-      const complianceRate = hasActions ? (completedActions / actions.length) * 100 : 0;
+      const completedActions = actions.filter(
+        a => a.status === "completada"
+      ).length;
+      const complianceRate = hasActions
+        ? (completedActions / actions.length) * 100
+        : 0;
 
-      const status = complianceRate >= 80 ? 'compliant' : complianceRate >= 50 ? 'partial' : 'non_compliant';
+      const status =
+        complianceRate >= 80
+          ? "compliant"
+          : complianceRate >= 50
+            ? "partial"
+            : "non_compliant";
 
       // Obtener requisito
       const [requirement] = await db
         .select()
         .from(complianceRequirements)
-        .where(eq(complianceRequirements.numeral, '8.2'))
+        .where(eq(complianceRequirements.numeral, "8.2"))
         .limit(1);
 
-      if (!requirement) throw new Error('Requirement 8.2 not found');
+      if (!requirement) throw new Error("Requirement 8.2 not found");
 
       // Crear registro de verificación
       await (db.insert(complianceChecks) as any).values({
         checklistItemId: requirement.id,
-        isCompliant: status === 'compliant',
+        isCompliant: status === "compliant",
         verifiedBy: ctx.user.id,
         verifiedAt: new Date(),
         notes: hasActions
           ? `Acciones correctivas implementadas. Total: ${actions.length}, Completadas: ${completedActions} (${complianceRate.toFixed(1)}%)`
-          : 'No se han implementado medidas de control de factores de riesgo psicosocial',
+          : "No se han implementado medidas de control de factores de riesgo psicosocial",
       });
 
       return {
@@ -337,15 +385,15 @@ export const complianceRouter = router({
         completedActions,
         complianceRate,
         findings: hasActions
-          ? `${status === 'compliant' ? 'Cumple' : 'Cumplimiento parcial'} - ${completedActions}/${actions.length} acciones completadas (${complianceRate.toFixed(1)}%)`
-          : 'No cumple - No se han implementado acciones de control',
+          ? `${status === "compliant" ? "Cumple" : "Cumplimiento parcial"} - ${completedActions}/${actions.length} acciones completadas (${complianceRate.toFixed(1)}%)`
+          : "No cumple - No se han implementado acciones de control",
       };
     }),
 
   // Obtener dashboard de cumplimiento normativo
   getDashboard: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new Error('Database not available');
+    if (!db) throw new Error("Database not available");
 
     // Obtener todos los requisitos
     const requirements = await db
@@ -361,20 +409,23 @@ export const complianceRouter = router({
       .orderBy(desc(complianceChecks.verifiedAt));
 
     // Calcular cumplimiento por categoría
-    const complianceByCategory = requirements.reduce((acc: any, req: any) => {
-      const category = req.category;
-      if (!acc[category]) {
-        acc[category] = { total: 0, compliant: 0 };
-      }
-      acc[category].total++;
+    const complianceByCategory = requirements.reduce(
+      (acc: any, req: any) => {
+        const category = req.category;
+        if (!acc[category]) {
+          acc[category] = { total: 0, compliant: 0 };
+        }
+        acc[category].total++;
 
-      const latestCheck = checks.find(c => c.checklistItemId === req.id);
-      if (latestCheck?.isCompliant) {
-        acc[category].compliant++;
-      }
+        const latestCheck = checks.find(c => c.checklistItemId === req.id);
+        if (latestCheck?.isCompliant) {
+          acc[category].compliant++;
+        }
 
-      return acc;
-    }, {} as Record<string, { total: number; compliant: number }>);
+        return acc;
+      },
+      {} as Record<string, { total: number; compliant: number }>
+    );
 
     // Calcular cumplimiento general
     const totalRequirements = requirements.length;
@@ -382,9 +433,10 @@ export const complianceRouter = router({
       (sum: number, cat: any) => sum + cat.compliant,
       0
     );
-    const overallCompliance = totalRequirements > 0
-      ? (compliantRequirements / totalRequirements) * 100
-      : 0;
+    const overallCompliance =
+      totalRequirements > 0
+        ? (compliantRequirements / totalRequirements) * 100
+        : 0;
 
     return {
       requirements,
@@ -398,13 +450,15 @@ export const complianceRouter = router({
 
   // Generar reporte de cumplimiento
   generateReport: protectedProcedure
-    .input(z.object({
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Obtener todos los requisitos con últimas verificaciones
       const requirements = await db
@@ -424,9 +478,9 @@ export const complianceRouter = router({
           numeral: req.numeral,
           title: req.title,
           category: req.category,
-          status: latestCheck?.isCompliant ? 'Cumple' : 'No cumple',
+          status: latestCheck?.isCompliant ? "Cumple" : "No cumple",
           lastVerification: latestCheck?.verifiedAt,
-          findings: latestCheck?.notes || 'Sin verificación',
+          findings: latestCheck?.notes || "Sin verificación",
         };
       });
 
@@ -439,12 +493,14 @@ export const complianceRouter = router({
 
   // Verificar autenticidad de reporte por UUID (público para QR)
   verifyReport: publicProcedure
-    .input(z.object({
-      uuid: z.string().uuid(),
-    }))
+    .input(
+      z.object({
+        uuid: z.string().uuid(),
+      })
+    )
     .query(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const report = await db
         .select()
@@ -455,7 +511,8 @@ export const complianceRouter = router({
       if (!report || report.length === 0) {
         return {
           found: false,
-          message: 'Reporte no encontrado. El código QR puede ser inválido o el reporte fue eliminado.',
+          message:
+            "Reporte no encontrado. El código QR puede ser inválido o el reporte fue eliminado.",
         };
       }
 
@@ -486,18 +543,17 @@ export const complianceRouter = router({
 
   // Generar PDF de verificación de numerales
   generateNumeralsPDF: protectedProcedure
-    .input(z.object({
-      includeEvidence: z.boolean().default(true),
-    }))
+    .input(
+      z.object({
+        includeEvidence: z.boolean().default(true),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Obtener datos de la empresa
-      const companyData = await db
-        .select()
-        .from(companyGeneralData)
-        .limit(1);
+      const companyData = await db.select().from(companyGeneralData).limit(1);
 
       // Obtener logo de la empresa
       const logo = await db
@@ -538,7 +594,7 @@ export const complianceRouter = router({
           isCompliant: latestCheck?.isCompliant || false,
           verifiedAt: latestCheck?.verifiedAt,
           verifiedBy: latestCheck?.verifiedBy,
-          findings: latestCheck?.notes || 'Sin verificación realizada',
+          findings: latestCheck?.notes || "Sin verificación realizada",
         };
       });
 
@@ -546,17 +602,19 @@ export const complianceRouter = router({
       const format = await db
         .select()
         .from(documentFormats)
-        .where(eq(documentFormats.codigo, 'VN'))
+        .where(eq(documentFormats.codigo, "VN"))
         .limit(1);
 
       if (!format || format.length === 0) {
-        throw new Error('Formato VN no encontrado. Configure el formato en Catálogo de Formatos.');
+        throw new Error(
+          "Formato VN no encontrado. Configure el formato en Catálogo de Formatos."
+        );
       }
 
       // Incrementar consecutivo
       const newConsecutive = (format[0].consecutivoActual || 0) + 1;
       const currentYear = new Date().getFullYear();
-      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, '0')}/${currentYear}`;
+      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, "0")}/${currentYear}`;
 
       // Actualizar consecutivo en base de datos
       await db
@@ -566,7 +624,7 @@ export const complianceRouter = router({
 
       // Generar UUID único para el reporte (NOM-151)
       const reportUuid = crypto.randomUUID();
-      
+
       // Preparar datos completos del reporte
       const fullReportData = {
         generatedAt: new Date(),
@@ -581,18 +639,19 @@ export const complianceRouter = router({
       // Guardar reporte en base de datos para trazabilidad
       const newReport: typeof complianceReports.$inferInsert = {
         uuid: reportUuid,
-        tipo: 'verificacion_numerales',
-        titulo: 'Reporte de Verificación de Numerales 7 y 8 - NOM-035 STPS 2018',
+        tipo: "verificacion_numerales",
+        titulo:
+          "Reporte de Verificación de Numerales 7 y 8 - NOM-035 STPS 2018",
         formatId: format[0].id,
         folioNumber: newConsecutive,
         folioYear: currentYear,
         folio: folio,
         generatedBy: ctx.user.id,
-        generatedByName: ctx.user.name || 'Usuario',
+        generatedByName: ctx.user.name || "Usuario",
         generatedByEmail: ctx.user.email || undefined,
         data: fullReportData as any,
       };
-      
+
       await (db.insert(complianceReports) as any).values(newReport);
 
       // Obtener ID del reporte insertado
@@ -615,14 +674,13 @@ export const complianceRouter = router({
         });
       }
 
-
       // Cargar plantilla default desde base de datos
       const template = await db
         .select()
         .from(reportTemplates)
         .where(
           and(
-            eq(reportTemplates.tipo, 'verificacion_numerales'),
+            eq(reportTemplates.tipo, "verificacion_numerales"),
             eq(reportTemplates.isDefault, true),
             eq(reportTemplates.activo, true)
           )
@@ -630,63 +688,68 @@ export const complianceRouter = router({
         .limit(1);
 
       if (!template || template.length === 0) {
-        throw new Error('No se encontró una plantilla activa para reportes de verificación de numerales.');
+        throw new Error(
+          "No se encontró una plantilla activa para reportes de verificación de numerales."
+        );
       }
 
       // Generar código QR para verificación
-      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
-      const { generateQRCode: _genQR1, generatePDFFromTemplate: _genPDF1 } = await getPdfUtils();
+      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || "http://localhost:3000"}/verify/${reportUuid}`;
+      const { generateQRCode: _genQR1, generatePDFFromTemplate: _genPDF1 } =
+        await getPdfUtils();
       const qrCodeDataUrl = await _genQR1(verificationUrl);
 
       // Preparar datos para la plantilla
       const templateData = {
-        logo: logo[0]?.logoUrl || '',
-        razonSocial: companyData[0]?.razonSocial || 'Empresa',
-        rfc: companyData[0]?.rfc || '',
+        logo: logo[0]?.logoUrl || "",
+        razonSocial: companyData[0]?.razonSocial || "Empresa",
+        rfc: companyData[0]?.rfc || "",
         folio: folio,
-        fecha: new Date().toLocaleDateString('es-MX', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+        fecha: new Date().toLocaleDateString("es-MX", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
         }),
-        generadoPor: ctx.user.name || 'Usuario',
+        generadoPor: ctx.user.name || "Usuario",
         numerales: reportData.map(req => ({
           numeral: req.numeral,
           descripcion: req.title,
-          estado: req.isCompliant ? 'Cumple' : 'No cumple',
-          estadoClass: req.isCompliant ? 'cumple' : 'nocumple',
-          ultimaVerificacion: req.verifiedAt 
-            ? new Date(req.verifiedAt).toLocaleDateString('es-MX')
-            : 'Sin verificar'
+          estado: req.isCompliant ? "Cumple" : "No cumple",
+          estadoClass: req.isCompliant ? "cumple" : "nocumple",
+          ultimaVerificacion: req.verifiedAt
+            ? new Date(req.verifiedAt).toLocaleDateString("es-MX")
+            : "Sin verificar",
         })),
         hallazgos: reportData
-          .filter(req => req.findings && req.findings !== 'Sin verificación realizada')
+          .filter(
+            req => req.findings && req.findings !== "Sin verificación realizada"
+          )
           .map(req => ({
             numeral: req.numeral,
-            fecha: req.verifiedAt 
-              ? new Date(req.verifiedAt).toLocaleDateString('es-MX')
-              : '',
-            observaciones: req.findings
+            fecha: req.verifiedAt
+              ? new Date(req.verifiedAt).toLocaleDateString("es-MX")
+              : "",
+            observaciones: req.findings,
           })),
         firmas: representatives.map(rep => ({
           nombre: rep.nombre,
           cargo: rep.cargo,
-          firmaUrl: rep.firmaUrl || ''
+          firmaUrl: rep.firmaUrl || "",
         })),
-        qrCode: qrCodeDataUrl
+        qrCode: qrCodeDataUrl,
       };
 
       // Generar PDF desde plantilla
       const pdfBuffer = await _genPDF1(
         template[0].htmlTemplate,
-        template[0].cssStyles || '',
+        template[0].cssStyles || "",
         templateData
       );
 
       // Convertir buffer a base64 para enviar al frontend
-      const pdfBase64 = pdfBuffer.toString('base64');
+      const pdfBase64 = pdfBuffer.toString("base64");
 
       return {
         success: true,
@@ -703,21 +766,22 @@ export const complianceRouter = router({
           representatives: representatives || [],
         },
       };
-
     }),
 
   // Listar reportes generados con filtros
   listReports: protectedProcedure
-    .input(z.object({
-      tipo: z.string().optional(),
-      startDate: z.string().optional(), // YYYY-MM-DD
-      endDate: z.string().optional(), // YYYY-MM-DD
-      limit: z.number().default(50),
-      offset: z.number().default(0),
-    }))
+    .input(
+      z.object({
+        tipo: z.string().optional(),
+        startDate: z.string().optional(), // YYYY-MM-DD
+        endDate: z.string().optional(), // YYYY-MM-DD
+        limit: z.number().default(50),
+        offset: z.number().default(0),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       let query = db
         .select({
@@ -737,17 +801,21 @@ export const complianceRouter = router({
 
       // Aplicar filtros
       const conditions = [];
-      
+
       if (input.tipo) {
         conditions.push(eq(complianceReports.tipo, input.tipo));
       }
-      
+
       if (input.startDate) {
-        conditions.push(sql`${complianceReports.generatedAt} >= ${input.startDate}`);
+        conditions.push(
+          sql`${complianceReports.generatedAt} >= ${input.startDate}`
+        );
       }
-      
+
       if (input.endDate) {
-        conditions.push(sql`${complianceReports.generatedAt} <= ${input.endDate}`);
+        conditions.push(
+          sql`${complianceReports.generatedAt} <= ${input.endDate}`
+        );
       }
 
       if (conditions.length > 0) {
@@ -781,12 +849,14 @@ export const complianceRouter = router({
 
   // Obtener datos completos de un reporte para re-descarga
   getReportData: protectedProcedure
-    .input(z.object({
-      uuid: z.string(),
-    }))
+    .input(
+      z.object({
+        uuid: z.string(),
+      })
+    )
     .query(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const report = await db
         .select()
@@ -795,7 +865,7 @@ export const complianceRouter = router({
         .limit(1);
 
       if (!report || report.length === 0) {
-        throw new Error('Reporte no encontrado');
+        throw new Error("Reporte no encontrado");
       }
 
       // Registrar visualización en auditoría
@@ -823,13 +893,15 @@ export const complianceRouter = router({
 
   // Generar PDF de Análisis de Riesgos Psicosociales
   generateRiskAnalysisPDF: protectedProcedure
-    .input(z.object({
-      workerId: z.number(),
-      surveyResultId: z.number().optional(),
-    }))
+    .input(
+      z.object({
+        workerId: z.number(),
+        surveyResultId: z.number().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Obtener datos del trabajador con departamento y puesto
       const worker = await db
@@ -850,7 +922,7 @@ export const complianceRouter = router({
         .limit(1);
 
       if (!worker || worker.length === 0) {
-        throw new Error('Trabajador no encontrado');
+        throw new Error("Trabajador no encontrado");
       }
 
       // Obtener resultados de encuesta NOM-035
@@ -862,16 +934,15 @@ export const complianceRouter = router({
         .limit(1);
 
       if (!surveyResults || surveyResults.length === 0) {
-        throw new Error('No se encontraron resultados de evaluación para este trabajador');
+        throw new Error(
+          "No se encontraron resultados de evaluación para este trabajador"
+        );
       }
 
       const result = surveyResults[0];
 
       // Obtener datos de la empresa
-      const companyData = await db
-        .select()
-        .from(companyGeneralData)
-        .limit(1);
+      const companyData = await db.select().from(companyGeneralData).limit(1);
 
       // Obtener logo de la empresa
       const logo = await db
@@ -892,17 +963,19 @@ export const complianceRouter = router({
       const format = await db
         .select()
         .from(documentFormats)
-        .where(eq(documentFormats.codigo, 'AR'))
+        .where(eq(documentFormats.codigo, "AR"))
         .limit(1);
 
       if (!format || format.length === 0) {
-        throw new Error('Formato AR no encontrado. Configure el formato en Catálogo de Formatos.');
+        throw new Error(
+          "Formato AR no encontrado. Configure el formato en Catálogo de Formatos."
+        );
       }
 
       // Incrementar consecutivo
       const newConsecutive = (format[0].consecutivoActual || 0) + 1;
       const currentYear = new Date().getFullYear();
-      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, '0')}/${currentYear}`;
+      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, "0")}/${currentYear}`;
 
       // Actualizar consecutivo en base de datos
       await db
@@ -914,39 +987,118 @@ export const complianceRouter = router({
       const reportUuid = crypto.randomUUID();
 
       // Preparar datos del análisis
-      const nivelRiesgo = result.globalRiskLevel || 'medio';
+      const nivelRiesgo = result.globalRiskLevel || "medio";
       const nivelRiesgoMap: Record<string, string> = {
-        'nulo': 'Nulo',
-        'bajo': 'Bajo',
-        'medio': 'Medio',
-        'alto': 'Alto',
-        'muy_alto': 'Muy Alto'
+        nulo: "Nulo",
+        bajo: "Bajo",
+        medio: "Medio",
+        alto: "Alto",
+        muy_alto: "Muy Alto",
       };
 
       // Simular categorías (en producción vendrían de la BD)
       const categorias = [
-        { nombre: 'Ambiente de Trabajo', nivel: 'Bajo', nivelClass: 'bajo', calificacion: 15, maximo: 50, porcentaje: 30 },
-        { nombre: 'Factores Propios de la Actividad', nivel: 'Medio', nivelClass: 'medio', calificacion: 35, maximo: 70, porcentaje: 50 },
-        { nombre: 'Organización del Tiempo', nivel: 'Alto', nivelClass: 'alto', calificacion: 45, maximo: 60, porcentaje: 75 },
-        { nombre: 'Liderazgo y Relaciones', nivel: 'Medio', nivelClass: 'medio', calificacion: 28, maximo: 60, porcentaje: 47 }
+        {
+          nombre: "Ambiente de Trabajo",
+          nivel: "Bajo",
+          nivelClass: "bajo",
+          calificacion: 15,
+          maximo: 50,
+          porcentaje: 30,
+        },
+        {
+          nombre: "Factores Propios de la Actividad",
+          nivel: "Medio",
+          nivelClass: "medio",
+          calificacion: 35,
+          maximo: 70,
+          porcentaje: 50,
+        },
+        {
+          nombre: "Organización del Tiempo",
+          nivel: "Alto",
+          nivelClass: "alto",
+          calificacion: 45,
+          maximo: 60,
+          porcentaje: 75,
+        },
+        {
+          nombre: "Liderazgo y Relaciones",
+          nivel: "Medio",
+          nivelClass: "medio",
+          calificacion: 28,
+          maximo: 60,
+          porcentaje: 47,
+        },
       ];
 
       const dominios = [
-        { nombre: 'Condiciones en el ambiente de trabajo', categoria: 'Ambiente', calificacion: 15, nivel: 'Bajo', nivelClass: 'bajo' },
-        { nombre: 'Carga de trabajo', categoria: 'Actividad', calificacion: 35, nivel: 'Medio', nivelClass: 'medio' },
-        { nombre: 'Falta de control sobre el trabajo', categoria: 'Actividad', calificacion: 28, nivel: 'Medio', nivelClass: 'medio' },
-        { nombre: 'Jornada de trabajo', categoria: 'Tiempo', calificacion: 45, nivel: 'Alto', nivelClass: 'alto' }
+        {
+          nombre: "Condiciones en el ambiente de trabajo",
+          categoria: "Ambiente",
+          calificacion: 15,
+          nivel: "Bajo",
+          nivelClass: "bajo",
+        },
+        {
+          nombre: "Carga de trabajo",
+          categoria: "Actividad",
+          calificacion: 35,
+          nivel: "Medio",
+          nivelClass: "medio",
+        },
+        {
+          nombre: "Falta de control sobre el trabajo",
+          categoria: "Actividad",
+          calificacion: 28,
+          nivel: "Medio",
+          nivelClass: "medio",
+        },
+        {
+          nombre: "Jornada de trabajo",
+          categoria: "Tiempo",
+          calificacion: 45,
+          nivel: "Alto",
+          nivelClass: "alto",
+        },
       ];
 
       const dimensionesCriticas = [
-        { nombre: 'Jornadas de trabajo superiores a 48 horas semanales', nivel: 'Alto', nivelClass: 'alto', descripcion: 'Se detectaron jornadas laborales extensas que pueden afectar la salud del trabajador.' },
-        { nombre: 'Interferencia en la relación trabajo-familia', nivel: 'Medio', nivelClass: 'medio', descripcion: 'El trabajador reporta dificultades para equilibrar vida laboral y personal.' }
+        {
+          nombre: "Jornadas de trabajo superiores a 48 horas semanales",
+          nivel: "Alto",
+          nivelClass: "alto",
+          descripcion:
+            "Se detectaron jornadas laborales extensas que pueden afectar la salud del trabajador.",
+        },
+        {
+          nombre: "Interferencia en la relación trabajo-familia",
+          nivel: "Medio",
+          nivelClass: "medio",
+          descripcion:
+            "El trabajador reporta dificultades para equilibrar vida laboral y personal.",
+        },
       ];
 
       const recomendaciones = [
-        { icono: '⏰', titulo: 'Reducir Jornadas Laborales', descripcion: 'Implementar horarios flexibles y respetar límites de 48 horas semanales según la LFT.' },
-        { icono: '🤝', titulo: 'Fortalecer Comunicación', descripcion: 'Establecer canales de comunicación efectivos entre líderes y colaboradores.' },
-        { icono: '🎯', titulo: 'Capacitación en Manejo de Estrés', descripcion: 'Ofrecer talleres de técnicas de relajación y manejo de presión laboral.' }
+        {
+          icono: "⏰",
+          titulo: "Reducir Jornadas Laborales",
+          descripcion:
+            "Implementar horarios flexibles y respetar límites de 48 horas semanales según la LFT.",
+        },
+        {
+          icono: "🤝",
+          titulo: "Fortalecer Comunicación",
+          descripcion:
+            "Establecer canales de comunicación efectivos entre líderes y colaboradores.",
+        },
+        {
+          icono: "🎯",
+          titulo: "Capacitación en Manejo de Estrés",
+          descripcion:
+            "Ofrecer talleres de técnicas de relajación y manejo de presión laboral.",
+        },
       ];
 
       // Guardar reporte en base de datos
@@ -963,14 +1115,14 @@ export const complianceRouter = router({
 
       const newReport: typeof complianceReports.$inferInsert = {
         uuid: reportUuid,
-        tipo: 'analisis_riesgos',
+        tipo: "analisis_riesgos",
         titulo: `Análisis de Riesgos Psicosociales - ${worker[0].firstName} ${worker[0].lastName}`,
         formatId: format[0].id,
         folioNumber: newConsecutive,
         folioYear: currentYear,
         folio: folio,
         generatedBy: ctx.user.id,
-        generatedByName: ctx.user.name || 'Usuario',
+        generatedByName: ctx.user.name || "Usuario",
         generatedByEmail: ctx.user.email || undefined,
         data: fullReportData as any,
       };
@@ -1003,7 +1155,7 @@ export const complianceRouter = router({
         .from(reportTemplates)
         .where(
           and(
-            eq(reportTemplates.tipo, 'analisis_riesgos'),
+            eq(reportTemplates.tipo, "analisis_riesgos"),
             eq(reportTemplates.isDefault, true),
             eq(reportTemplates.activo, true)
           )
@@ -1011,32 +1163,38 @@ export const complianceRouter = router({
         .limit(1);
 
       if (!template || template.length === 0) {
-        throw new Error('No se encontró una plantilla activa para reportes de análisis de riesgos.');
+        throw new Error(
+          "No se encontró una plantilla activa para reportes de análisis de riesgos."
+        );
       }
 
       // Generar código QR para verificación
-      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
-      const { generateQRCode: _genQR2, generatePDFFromTemplate: _genPDF2 } = await getPdfUtils();
+      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || "http://localhost:3000"}/verify/${reportUuid}`;
+      const { generateQRCode: _genQR2, generatePDFFromTemplate: _genPDF2 } =
+        await getPdfUtils();
       const qrCodeDataUrl = await _genQR2(verificationUrl);
 
       // Preparar datos para la plantilla
       const templateData = {
-        logo: logo[0]?.logoUrl || '',
-        razonSocial: companyData[0]?.razonSocial || 'Empresa',
-        rfc: companyData[0]?.rfc || '',
+        logo: logo[0]?.logoUrl || "",
+        razonSocial: companyData[0]?.razonSocial || "Empresa",
+        rfc: companyData[0]?.rfc || "",
         folio: folio,
         nombreTrabajador: `${worker[0].firstName} ${worker[0].lastName}`,
-        departamento: worker[0].departmentName || 'No especificado',
-        puesto: worker[0].positionName || 'No especificado',
-        fechaEvaluacion: new Date(result.createdAt).toLocaleDateString('es-MX', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
+        departamento: worker[0].departmentName || "No especificado",
+        puesto: worker[0].positionName || "No especificado",
+        fechaEvaluacion: new Date(result.createdAt).toLocaleDateString(
+          "es-MX",
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        ),
         nivelRiesgoGeneral: nivelRiesgo,
-        nivelRiesgoGeneralTexto: nivelRiesgoMap[nivelRiesgo] || 'Medio',
+        nivelRiesgoGeneralTexto: nivelRiesgoMap[nivelRiesgo] || "Medio",
         calificacionGeneral: result.globalScore || 0,
-        resumenEjecutivo: `El análisis de factores de riesgo psicosocial realizado al trabajador ${worker[0].firstName} ${worker[0].lastName} muestra un nivel de riesgo ${nivelRiesgoMap[nivelRiesgo] || 'Medio'}. Se identificaron áreas de oportunidad en la organización del tiempo de trabajo y la carga laboral. Se recomienda implementar acciones preventivas y correctivas para mejorar las condiciones laborales.`,
+        resumenEjecutivo: `El análisis de factores de riesgo psicosocial realizado al trabajador ${worker[0].firstName} ${worker[0].lastName} muestra un nivel de riesgo ${nivelRiesgoMap[nivelRiesgo] || "Medio"}. Se identificaron áreas de oportunidad en la organización del tiempo de trabajo y la carga laboral. Se recomienda implementar acciones preventivas y correctivas para mejorar las condiciones laborales.`,
         categorias: categorias,
         dominios: dominios,
         dimensionesCriticas: dimensionesCriticas,
@@ -1044,20 +1202,20 @@ export const complianceRouter = router({
         firmas: representatives.map(rep => ({
           nombre: rep.nombre,
           cargo: rep.cargo,
-          firmaUrl: rep.firmaUrl || ''
+          firmaUrl: rep.firmaUrl || "",
         })),
-        qrCode: qrCodeDataUrl
+        qrCode: qrCodeDataUrl,
       };
 
       // Generar PDF desde plantilla
       const pdfBuffer = await _genPDF2(
         template[0].htmlTemplate,
-        template[0].cssStyles || '',
+        template[0].cssStyles || "",
         templateData
       );
 
       // Convertir buffer a base64 para enviar al frontend
-      const pdfBase64 = pdfBuffer.toString('base64');
+      const pdfBase64 = pdfBuffer.toString("base64");
 
       return {
         success: true,
@@ -1074,15 +1232,16 @@ export const complianceRouter = router({
       };
     }),
 
-
   // Generar PDF de Minuta de Comité
   generateCommitteeMinutesPDF: protectedProcedure
-    .input(z.object({
-      minuteId: z.number(),
-    }))
+    .input(
+      z.object({
+        minuteId: z.number(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Obtener datos de la minuta desde la base de datos
       const minute = await db
@@ -1092,7 +1251,7 @@ export const complianceRouter = router({
         .limit(1);
 
       if (!minute || minute.length === 0) {
-        throw new Error('Minuta no encontrada');
+        throw new Error("Minuta no encontrada");
       }
 
       const minuteData = minute[0];
@@ -1117,10 +1276,7 @@ export const complianceRouter = router({
         .where(eq(committeeMinuteAgreements.minuteId, input.minuteId));
 
       // Obtener datos de la empresa
-      const companyData = await db
-        .select()
-        .from(companyGeneralData)
-        .limit(1);
+      const companyData = await db.select().from(companyGeneralData).limit(1);
 
       // Obtener logo de la empresa
       const logo = await db
@@ -1141,17 +1297,19 @@ export const complianceRouter = router({
       const format = await db
         .select()
         .from(documentFormats)
-        .where(eq(documentFormats.codigo, 'MC'))
+        .where(eq(documentFormats.codigo, "MC"))
         .limit(1);
 
       if (!format || format.length === 0) {
-        throw new Error('Formato MC no encontrado. Configure el formato en Catálogo de Formatos.');
+        throw new Error(
+          "Formato MC no encontrado. Configure el formato en Catálogo de Formatos."
+        );
       }
 
       // Incrementar consecutivo
       const newConsecutive = (format[0].consecutivoActual || 0) + 1;
       const currentYear = new Date().getFullYear();
-      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, '0')}/${currentYear}`;
+      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, "0")}/${currentYear}`;
 
       // Actualizar consecutivo en base de datos
       await db
@@ -1165,38 +1323,59 @@ export const complianceRouter = router({
       // Preparar datos de asistentes desde la BD
       const asistentes = attendees.map(att => ({
         nombre: att.name,
-        cargo: att.position || 'Sin cargo',
-        rolComite: att.role || 'Participante',
-        asistencia: att.attended ? 'Presente' : 'Ausente',
-        asistenciaClass: att.attended ? 'presente' : 'ausente',
-        firma: att.signatureUrl || '',
-        foto: att.photoUrl || ''
+        cargo: att.position || "Sin cargo",
+        rolComite: att.role || "Participante",
+        asistencia: att.attended ? "Presente" : "Ausente",
+        asistenciaClass: att.attended ? "presente" : "ausente",
+        firma: att.signatureUrl || "",
+        foto: att.photoUrl || "",
       }));
 
       const ordenDia = agendaItems.map(item => ({
         tema: item.topic,
-        descripcion: item.description || '',
-        presentador: item.presenter || '',
-        duracion: item.duration ? `${item.duration} min` : ''
+        descripcion: item.description || "",
+        presentador: item.presenter || "",
+        duracion: item.duration ? `${item.duration} min` : "",
       }));
 
       const acuerdos = agreements.map((agr: any, idx: number) => ({
         numero: idx + 1,
         descripcion: agr.description,
-        responsable: agr.responsibleName || 'Sin asignar',
-        fechaCompromiso: agr.dueDate ? new Date(agr.dueDate).toLocaleDateString('es-MX') : 'Sin fecha',
-        estado: agr.status === 'completado' ? 'Completado' : agr.status === 'en_proceso' ? 'En Proceso' : agr.status === 'cancelado' ? 'Cancelado' : 'Pendiente',
-        estadoClass: agr.status
+        responsable: agr.responsibleName || "Sin asignar",
+        fechaCompromiso: agr.dueDate
+          ? new Date(agr.dueDate).toLocaleDateString("es-MX")
+          : "Sin fecha",
+        estado:
+          agr.status === "completado"
+            ? "Completado"
+            : agr.status === "en_proceso"
+              ? "En Proceso"
+              : agr.status === "cancelado"
+                ? "Cancelado"
+                : "Pendiente",
+        estadoClass: agr.status,
       }));
 
       const seguimientoAcuerdos = [
-        { acuerdo: 'Capacitación en comunicación asertiva para líderes', responsable: 'María López', estatus: 'Completado', estatusClass: 'completado' },
-        { acuerdo: 'Instalación de buzón de quejas anónimo', responsable: 'Carlos Ramírez', estatus: 'Completado', estatusClass: 'completado' }
+        {
+          acuerdo: "Capacitación en comunicación asertiva para líderes",
+          responsable: "María López",
+          estatus: "Completado",
+          estatusClass: "completado",
+        },
+        {
+          acuerdo: "Instalación de buzón de quejas anónimo",
+          responsable: "Carlos Ramírez",
+          estatus: "Completado",
+          estatusClass: "completado",
+        },
       ];
 
-      const desarrollo = 'Se llevó a cabo la reunión ordinaria del Comité de Atención de Factores de Riesgo Psicosocial. Se verificó el quórum reglamentario y se procedió con el orden del día establecido. Se presentaron los casos identificados durante el último mes y se discutieron las acciones preventivas necesarias. Los miembros del comité expresaron su compromiso con la implementación de las medidas acordadas.';
+      const desarrollo =
+        "Se llevó a cabo la reunión ordinaria del Comité de Atención de Factores de Riesgo Psicosocial. Se verificó el quórum reglamentario y se procedió con el orden del día establecido. Se presentaron los casos identificados durante el último mes y se discutieron las acciones preventivas necesarias. Los miembros del comité expresaron su compromiso con la implementación de las medidas acordadas.";
 
-      const observaciones = 'Se solicita mayor participación de los representantes sindicales en las próximas sesiones. Se recomienda programar la siguiente reunión en horario vespertino para facilitar la asistencia de todos los miembros.';
+      const observaciones =
+        "Se solicita mayor participación de los representantes sindicales en las próximas sesiones. Se recomienda programar la siguiente reunión en horario vespertino para facilitar la asistencia de todos los miembros.";
 
       // Guardar reporte en base de datos
       const fullReportData = {
@@ -1211,14 +1390,14 @@ export const complianceRouter = router({
 
       const newReport: typeof complianceReports.$inferInsert = {
         uuid: reportUuid,
-        tipo: 'minuta_comite',
+        tipo: "minuta_comite",
         titulo: `Minuta de Comité - Sesión ${minuteData.sessionNumber}`,
         formatId: format[0].id,
         folioNumber: newConsecutive,
         folioYear: currentYear,
         folio: folio,
         generatedBy: ctx.user.id,
-        generatedByName: ctx.user.name || 'Usuario',
+        generatedByName: ctx.user.name || "Usuario",
         generatedByEmail: ctx.user.email || undefined,
         data: fullReportData as any,
       };
@@ -1251,7 +1430,7 @@ export const complianceRouter = router({
         .from(reportTemplates)
         .where(
           and(
-            eq(reportTemplates.tipo, 'minuta_comite'),
+            eq(reportTemplates.tipo, "minuta_comite"),
             eq(reportTemplates.isDefault, true),
             eq(reportTemplates.activo, true)
           )
@@ -1259,24 +1438,27 @@ export const complianceRouter = router({
         .limit(1);
 
       if (!template || template.length === 0) {
-        throw new Error('No se encontró una plantilla activa para minutas de comité.');
+        throw new Error(
+          "No se encontró una plantilla activa para minutas de comité."
+        );
       }
 
       // Generar código QR para verificación
-      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
-      const { generateQRCode: _genQR3, generatePDFFromTemplate: _genPDF3 } = await getPdfUtils();
+      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || "http://localhost:3000"}/verify/${reportUuid}`;
+      const { generateQRCode: _genQR3, generatePDFFromTemplate: _genPDF3 } =
+        await getPdfUtils();
       const qrCodeDataUrl = await _genQR3(verificationUrl);
 
       // Preparar datos para la plantilla
       const templateData = {
-        logo: logo[0]?.logoUrl || '',
-        razonSocial: companyData[0]?.razonSocial || 'Empresa',
-        rfc: companyData[0]?.rfc || '',
+        logo: logo[0]?.logoUrl || "",
+        razonSocial: companyData[0]?.razonSocial || "Empresa",
+        rfc: companyData[0]?.rfc || "",
         qrCode: qrCodeDataUrl,
         tipoReunion: minuteData.meetingType,
         numeroSesion: minuteData.sessionNumber.toString(),
         folio: folio,
-        fecha: minuteData.meetingDate.toISOString().split('T')[0],
+        fecha: minuteData.meetingDate.toISOString().split("T")[0],
         hora: minuteData.meetingTime,
         lugar: minuteData.meetingPlace,
         asistentes: asistentes,
@@ -1290,22 +1472,26 @@ export const complianceRouter = router({
         firmas: representatives.map(rep => ({
           nombre: rep.nombre,
           cargo: rep.cargo,
-          rolComite: 'Miembro del Comité',
-          firmaUrl: rep.firmaUrl || ''
+          rolComite: "Miembro del Comité",
+          firmaUrl: rep.firmaUrl || "",
         })),
-        versionFormato: format[0].version || 'V1.0',
-        fechaGeneracion: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+        versionFormato: format[0].version || "V1.0",
+        fechaGeneracion: new Date().toLocaleDateString("es-MX", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
       };
 
       // Generar PDF desde plantilla
       const pdfBuffer = await _genPDF3(
         template[0].htmlTemplate,
-        template[0].cssStyles || '',
+        template[0].cssStyles || "",
         templateData
       );
 
       // Convertir buffer a base64 para enviar al frontend
-      const pdfBase64 = pdfBuffer.toString('base64');
+      const pdfBase64 = pdfBuffer.toString("base64");
 
       return {
         success: true,
@@ -1339,7 +1525,7 @@ export const complianceRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Obtener datos del empleado
       const employee = await db
@@ -1349,7 +1535,7 @@ export const complianceRouter = router({
         .limit(1);
 
       if (!employee || employee.length === 0) {
-        throw new Error('Empleado no encontrado');
+        throw new Error("Empleado no encontrado");
       }
 
       const nombreCompleto = `${employee[0].firstName} ${employee[0].lastName}`;
@@ -1363,28 +1549,28 @@ export const complianceRouter = router({
       let format = await db
         .select()
         .from(documentFormats)
-        .where(eq(documentFormats.codigo, 'CERT'))
+        .where(eq(documentFormats.codigo, "CERT"))
         .limit(1);
 
       if (!format || format.length === 0) {
         // Crear formato si no existe
         await (db.insert(documentFormats) as any).values({
-          codigo: 'CERT',
-          nombre: 'Certificado de Capacitación',
-          version: '1.0',
-          fechaVersion: new Date('2024-01-15'),
+          codigo: "CERT",
+          nombre: "Certificado de Capacitación",
+          version: "1.0",
+          fechaVersion: new Date("2024-01-15"),
           consecutivoActual: 0,
         });
         format = await db
           .select()
           .from(documentFormats)
-          .where(eq(documentFormats.codigo, 'CERT'))
+          .where(eq(documentFormats.codigo, "CERT"))
           .limit(1);
       }
 
       // Incrementar consecutivo
       const newConsecutive = (format[0].consecutivoActual || 0) + 1;
-      const folio = `CERT-${String(newConsecutive).padStart(4, '0')}/${currentYear}`;
+      const folio = `CERT-${String(newConsecutive).padStart(4, "0")}/${currentYear}`;
 
       await db
         .update(documentFormats)
@@ -1413,14 +1599,14 @@ export const complianceRouter = router({
 
       const newReport: typeof complianceReports.$inferInsert = {
         uuid: certificateUuid,
-        tipo: 'certificado_capacitacion',
+        tipo: "certificado_capacitacion",
         titulo: `Certificado de Capacitación - ${nombreCompleto}`,
         formatId: format[0].id,
         folioNumber: newConsecutive,
         folioYear: currentYear,
         folio: folio,
         generatedBy: ctx.user.id,
-        generatedByName: ctx.user.name || 'Usuario',
+        generatedByName: ctx.user.name || "Usuario",
         generatedByEmail: ctx.user.email || undefined,
         data: fullCertificateData as any,
       };
@@ -1453,7 +1639,7 @@ export const complianceRouter = router({
         .from(reportTemplates)
         .where(
           and(
-            eq(reportTemplates.tipo, 'certificate'),
+            eq(reportTemplates.tipo, "certificate"),
             eq(reportTemplates.isDefault, true),
             eq(reportTemplates.activo, true)
           )
@@ -1461,26 +1647,29 @@ export const complianceRouter = router({
         .limit(1);
 
       if (!template || template.length === 0) {
-        throw new Error('No se encontró una plantilla activa para certificados de capacitación.');
+        throw new Error(
+          "No se encontró una plantilla activa para certificados de capacitación."
+        );
       }
 
       // Generar código QR para verificación
-      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${certificateUuid}`;
-      const { generateQRCode: _genQR4, generatePDFFromTemplate: _genPDF4 } = await getPdfUtils();
+      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || "http://localhost:3000"}/verify/${certificateUuid}`;
+      const { generateQRCode: _genQR4, generatePDFFromTemplate: _genPDF4 } =
+        await getPdfUtils();
       const qrCodeDataUrl = await _genQR4(verificationUrl);
 
       // Preparar datos para la plantilla
       const templateData = {
-        logo: logo[0]?.logoUrl || '',
+        logo: logo[0]?.logoUrl || "",
         nombreCompleto: nombreCompleto,
         nombreCurso: input.courseName,
         fechaConclusion: input.completionDate,
         duracion: input.durationHours,
         calificacion: input.grade,
         nombreInstructor: input.instructorName,
-        firmaInstructor: input.instructorSignatureUrl || '',
+        firmaInstructor: input.instructorSignatureUrl || "",
         nombreRepresentante: input.representativeName,
-        firmaRepresentante: input.representativeSignatureUrl || '',
+        firmaRepresentante: input.representativeSignatureUrl || "",
         folio: folio,
         qrCode: qrCodeDataUrl,
       };
@@ -1488,12 +1677,12 @@ export const complianceRouter = router({
       // Generar PDF desde plantilla
       const pdfBuffer = await _genPDF4(
         template[0].htmlTemplate,
-        template[0].cssStyles || '',
+        template[0].cssStyles || "",
         templateData
       );
 
       // Convertir buffer a base64 para enviar al frontend
-      const pdfBase64 = pdfBuffer.toString('base64');
+      const pdfBase64 = pdfBuffer.toString("base64");
 
       return {
         success: true,
@@ -1519,23 +1708,25 @@ export const complianceRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Decodificar data URL a buffer
-      const base64Data = input.signatureDataUrl.replace(/^data:image\/\w+;base64,/, '');
-      const buffer = Buffer.from(base64Data, 'base64');
+      const base64Data = input.signatureDataUrl.replace(
+        /^data:image\/\w+;base64,/,
+        ""
+      );
+      const buffer = Buffer.from(base64Data, "base64");
 
       // Generar nombre único para el archivo
       const timestamp = Date.now();
-      const fileName = `signatures/${ctx.user.id}/${input.signerName.replace(/\s+/g, '_')}_${timestamp}.png`;
+      const fileName = `signatures/${ctx.user.id}/${input.signerName.replace(/\s+/g, "_")}_${timestamp}.png`;
 
       // Subir a S3
-      const { url } = await storagePut(fileName, buffer, 'image/png');
+      const { url } = await storagePut(fileName, buffer, "image/png");
 
       return {
         success: true,
         signatureUrl: url,
       };
     }),
-
 });

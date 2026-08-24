@@ -21,59 +21,59 @@ const SHORTCUTS: KeyboardShortcut[] = [
   {
     keys: ["Ctrl", "K"],
     description: "Búsqueda global de documentos",
-    category: "Navegación"
+    category: "Navegación",
   },
   {
     keys: ["Ctrl", "/"],
     description: "Mostrar/ocultar esta ayuda",
-    category: "Navegación"
+    category: "Navegación",
   },
-  
+
   // Acciones
   {
     keys: ["Ctrl", "S"],
     description: "Guardar cambios",
-    category: "Acciones"
+    category: "Acciones",
   },
   {
     keys: ["Ctrl", "N"],
     description: "Crear nuevo documento",
-    category: "Acciones"
+    category: "Acciones",
   },
   {
     keys: ["Ctrl", "E"],
     description: "Editar documento actual",
-    category: "Acciones"
+    category: "Acciones",
   },
   {
     keys: ["Delete"],
     description: "Eliminar elemento seleccionado",
-    category: "Acciones"
+    category: "Acciones",
   },
-  
+
   // Diálogos
   {
     keys: ["Esc"],
     description: "Cerrar diálogo o cancelar edición",
-    category: "Diálogos"
+    category: "Diálogos",
   },
   {
     keys: ["Enter"],
     description: "Confirmar acción en diálogo",
-    category: "Diálogos"
+    category: "Diálogos",
   },
-  
+
   // Formularios
   {
     keys: ["Tab"],
     description: "Navegar al siguiente campo",
-    category: "Formularios"
+    category: "Formularios",
   },
   {
     keys: ["Shift", "Tab"],
     description: "Navegar al campo anterior",
-    category: "Formularios"
-  }
+    category: "Formularios",
+  },
 ];
 
 const CATEGORIES = ["Navegación", "Acciones", "Diálogos", "Formularios"];
@@ -83,7 +83,10 @@ interface KeyboardShortcutsHelpProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function KeyboardShortcutsHelp({ open, onOpenChange }: KeyboardShortcutsHelpProps) {
+export function KeyboardShortcutsHelp({
+  open,
+  onOpenChange,
+}: KeyboardShortcutsHelpProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -99,7 +102,9 @@ export function KeyboardShortcutsHelp({ open, onOpenChange }: KeyboardShortcutsH
 
         <div className="space-y-6 mt-4">
           {CATEGORIES.map((category: any) => {
-            const categoryShortcuts = SHORTCUTS.filter(s => s.category === category);
+            const categoryShortcuts = SHORTCUTS.filter(
+              s => s.category === category
+            );
             if (categoryShortcuts.length === 0) return null;
 
             return (
@@ -114,7 +119,10 @@ export function KeyboardShortcutsHelp({ open, onOpenChange }: KeyboardShortcutsH
                         <span className="text-sm">{shortcut.description}</span>
                         <div className="flex items-center gap-1">
                           {shortcut.keys.map((key, keyIndex) => (
-                            <span key={keyIndex} className="flex items-center gap-1">
+                            <span
+                              key={keyIndex}
+                              className="flex items-center gap-1"
+                            >
                               <Badge
                                 variant="outline"
                                 className="font-mono text-xs px-2 py-1"
@@ -122,7 +130,9 @@ export function KeyboardShortcutsHelp({ open, onOpenChange }: KeyboardShortcutsH
                                 {key}
                               </Badge>
                               {keyIndex < shortcut.keys.length - 1 && (
-                                <span className="text-muted-foreground text-xs">+</span>
+                                <span className="text-muted-foreground text-xs">
+                                  +
+                                </span>
                               )}
                             </span>
                           ))}
@@ -139,8 +149,15 @@ export function KeyboardShortcutsHelp({ open, onOpenChange }: KeyboardShortcutsH
         <div className="mt-6 p-4 bg-muted/50 rounded-lg">
           <p className="text-sm text-muted-foreground">
             <ICONS.status.info className="h-4 w-4 inline mr-2" />
-            <strong>Tip:</strong> Presiona <Badge variant="outline" className="font-mono text-xs mx-1">Ctrl</Badge> + 
-            <Badge variant="outline" className="font-mono text-xs mx-1">/</Badge> en cualquier momento para ver esta ayuda
+            <strong>Tip:</strong> Presiona{" "}
+            <Badge variant="outline" className="font-mono text-xs mx-1">
+              Ctrl
+            </Badge>{" "}
+            +
+            <Badge variant="outline" className="font-mono text-xs mx-1">
+              /
+            </Badge>{" "}
+            en cualquier momento para ver esta ayuda
           </p>
         </div>
       </DialogContent>

@@ -65,14 +65,21 @@ describe("exitInterviewQuestions — default catalog", () => {
   it("should allow inserting and retrieving a question", async () => {
     const db = await getTestDb();
 
-    const [inserted] = await (db.insert(exitInterviewQuestions) as any).values({
-      questionText: "TEST: ¿Cuál fue el motivo principal de su salida?",
-      questionType: "multiple_choice",
-      category: "main_reason",
-      options: JSON.stringify(["Salario", "Clima laboral", "Crecimiento", "Personal"]),
-      isActive: true,
-      order: 999,
-    }).$returningId();
+    const [inserted] = await (db.insert(exitInterviewQuestions) as any)
+      .values({
+        questionText: "TEST: ¿Cuál fue el motivo principal de su salida?",
+        questionType: "multiple_choice",
+        category: "main_reason",
+        options: JSON.stringify([
+          "Salario",
+          "Clima laboral",
+          "Crecimiento",
+          "Personal",
+        ]),
+        isActive: true,
+        order: 999,
+      })
+      .$returningId();
 
     expect(inserted.id).toBeGreaterThan(0);
 
@@ -86,19 +93,23 @@ describe("exitInterviewQuestions — default catalog", () => {
     expect(found.questionType).toBe("multiple_choice");
 
     // Cleanup
-    await db.delete(exitInterviewQuestions).where(eq(exitInterviewQuestions.id, inserted.id));
+    await db
+      .delete(exitInterviewQuestions)
+      .where(eq(exitInterviewQuestions.id, inserted.id));
   });
 
   it("should allow inserting an open-ended question", async () => {
     const db = await getTestDb();
 
-    const [inserted] = await (db.insert(exitInterviewQuestions) as any).values({
-      questionText: "TEST: ¿Qué mejoraría de la organización?",
-      questionType: "text",
-      category: "improvement",
-      isActive: true,
-      order: 998,
-    }).$returningId();
+    const [inserted] = await (db.insert(exitInterviewQuestions) as any)
+      .values({
+        questionText: "TEST: ¿Qué mejoraría de la organización?",
+        questionType: "text",
+        category: "improvement",
+        isActive: true,
+        order: 998,
+      })
+      .$returningId();
 
     expect(inserted.id).toBeGreaterThan(0);
 
@@ -111,7 +122,9 @@ describe("exitInterviewQuestions — default catalog", () => {
     expect(found.options).toBeNull();
 
     // Cleanup
-    await db.delete(exitInterviewQuestions).where(eq(exitInterviewQuestions.id, inserted.id));
+    await db
+      .delete(exitInterviewQuestions)
+      .where(eq(exitInterviewQuestions.id, inserted.id));
   });
 });
 
@@ -122,7 +135,10 @@ describe("employeeTerminations — registration", () => {
   beforeAll(async () => {
     const db = await getTestDb();
     // Get a real employee to use in tests
-    const [emp] = await db.select({ id: employees.id }).from(employees).limit(1);
+    const [emp] = await db
+      .select({ id: employees.id })
+      .from(employees)
+      .limit(1);
     if (emp) {
       testEmployeeId = emp.id;
     }
@@ -144,15 +160,17 @@ describe("employeeTerminations — registration", () => {
 
     if (!adminUser) return;
 
-    const [inserted] = await (db.insert(employeeTerminations) as any).values({
-      employeeId: testEmployeeId,
-      terminationDate: "2026-01-15",
-      terminationReason: "resignation",
-      terminationReasonDetails: "TEST: Búsqueda de mejores oportunidades",
-      noticeGiven: true,
-      noticePeriodDays: 15,
-      processedBy: adminUser.id,
-    }).$returningId();
+    const [inserted] = await (db.insert(employeeTerminations) as any)
+      .values({
+        employeeId: testEmployeeId,
+        terminationDate: "2026-01-15",
+        terminationReason: "resignation",
+        terminationReasonDetails: "TEST: Búsqueda de mejores oportunidades",
+        noticeGiven: true,
+        noticePeriodDays: 15,
+        processedBy: adminUser.id,
+      })
+      .$returningId();
 
     expect(inserted.id).toBeGreaterThan(0);
     testTerminationId = inserted.id;
@@ -166,7 +184,9 @@ describe("employeeTerminations — registration", () => {
     expect(found.noticeGiven).toBeTruthy(); // MySQL/Drizzle may return 1 or true
 
     // Cleanup
-    await db.delete(employeeTerminations).where(eq(employeeTerminations.id, inserted.id));
+    await db
+      .delete(employeeTerminations)
+      .where(eq(employeeTerminations.id, inserted.id));
   });
 });
 
@@ -174,7 +194,10 @@ describe("exitInterviews — interview lifecycle", () => {
   it("should insert an exit interview record with pending status", async () => {
     const db = await getTestDb();
 
-    const [emp] = await db.select({ id: employees.id }).from(employees).limit(1);
+    const [emp] = await db
+      .select({ id: employees.id })
+      .from(employees)
+      .limit(1);
     const [adminUser] = await db
       .select({ id: users.id })
       .from(users)
@@ -184,22 +207,26 @@ describe("exitInterviews — interview lifecycle", () => {
     if (!emp || !adminUser) return;
 
     // Create termination first
-    const [term] = await (db.insert(employeeTerminations) as any).values({
-      employeeId: emp.id,
-      terminationDate: "2026-02-01",
-      terminationReason: "contract_end",
-      noticeGiven: false,
-      processedBy: adminUser.id,
-    }).$returningId();
+    const [term] = await (db.insert(employeeTerminations) as any)
+      .values({
+        employeeId: emp.id,
+        terminationDate: "2026-02-01",
+        terminationReason: "contract_end",
+        noticeGiven: false,
+        processedBy: adminUser.id,
+      })
+      .$returningId();
 
     // Create interview
-    const [interview] = await (db.insert(exitInterviews) as any).values({
-      terminationId: term.id,
-      employeeId: emp.id,
-      isConfidential: true,
-      status: "pending",
-      conductedBy: adminUser.id,
-    }).$returningId();
+    const [interview] = await (db.insert(exitInterviews) as any)
+      .values({
+        terminationId: term.id,
+        employeeId: emp.id,
+        isConfidential: true,
+        status: "pending",
+        conductedBy: adminUser.id,
+      })
+      .$returningId();
 
     expect(interview.id).toBeGreaterThan(0);
 
@@ -213,7 +240,9 @@ describe("exitInterviews — interview lifecycle", () => {
 
     // Cleanup
     await db.delete(exitInterviews).where(eq(exitInterviews.id, interview.id));
-    await db.delete(employeeTerminations).where(eq(employeeTerminations.id, term.id));
+    await db
+      .delete(employeeTerminations)
+      .where(eq(employeeTerminations.id, term.id));
   });
 });
 
@@ -229,16 +258,22 @@ describe("turnoverActionPlans — action plan creation", () => {
 
     if (!adminUser) return;
 
-    const [inserted] = await (db.insert(turnoverActionPlans) as any).values({
-      title: "TEST: Plan de Retención Q1 2026",
-      description: "Plan de acción para reducir rotación en el área de Operaciones",
-      primaryCauses: JSON.stringify(["Salario", "Clima laboral"]),
-      proposedActions: JSON.stringify(["Revisión salarial", "Talleres de bienestar"]),
-      analysisStartDate: "2026-01-01",
-      analysisEndDate: "2026-03-31",
-      status: "draft",
-      createdBy: adminUser.id,
-    }).$returningId();
+    const [inserted] = await (db.insert(turnoverActionPlans) as any)
+      .values({
+        title: "TEST: Plan de Retención Q1 2026",
+        description:
+          "Plan de acción para reducir rotación en el área de Operaciones",
+        primaryCauses: JSON.stringify(["Salario", "Clima laboral"]),
+        proposedActions: JSON.stringify([
+          "Revisión salarial",
+          "Talleres de bienestar",
+        ]),
+        analysisStartDate: "2026-01-01",
+        analysisEndDate: "2026-03-31",
+        status: "draft",
+        createdBy: adminUser.id,
+      })
+      .$returningId();
 
     expect(inserted.id).toBeGreaterThan(0);
 
@@ -251,7 +286,9 @@ describe("turnoverActionPlans — action plan creation", () => {
     expect(found.status).toBe("draft");
 
     // Cleanup
-    await db.delete(turnoverActionPlans).where(eq(turnoverActionPlans.id, inserted.id));
+    await db
+      .delete(turnoverActionPlans)
+      .where(eq(turnoverActionPlans.id, inserted.id));
   });
 
   it("should enforce required fields: title, description, analysisStartDate, analysisEndDate, createdBy", async () => {
@@ -266,7 +303,10 @@ describe("exitInterviewResponses — response recording", () => {
   it("should insert a response linked to an interview and question", async () => {
     const db = await getTestDb();
 
-    const [emp] = await db.select({ id: employees.id }).from(employees).limit(1);
+    const [emp] = await db
+      .select({ id: employees.id })
+      .from(employees)
+      .limit(1);
     const [adminUser] = await db
       .select({ id: users.id })
       .from(users)
@@ -276,39 +316,47 @@ describe("exitInterviewResponses — response recording", () => {
     if (!emp || !adminUser) return;
 
     // Create question
-    const [q] = await (db.insert(exitInterviewQuestions) as any).values({
-      questionText: "TEST RESP: ¿Recomendaría esta empresa?",
-      questionType: "multiple_choice",
-      category: "recommendation",
-      options: JSON.stringify(["Sí", "No", "Tal vez"]),
-      isActive: true,
-      order: 997,
-    }).$returningId();
+    const [q] = await (db.insert(exitInterviewQuestions) as any)
+      .values({
+        questionText: "TEST RESP: ¿Recomendaría esta empresa?",
+        questionType: "multiple_choice",
+        category: "recommendation",
+        options: JSON.stringify(["Sí", "No", "Tal vez"]),
+        isActive: true,
+        order: 997,
+      })
+      .$returningId();
 
     // Create termination
-    const [term] = await (db.insert(employeeTerminations) as any).values({
-      employeeId: emp.id,
-      terminationDate: "2026-03-01",
-      terminationReason: "mutual_agreement",
-      noticeGiven: true,
-      processedBy: adminUser.id,
-    }).$returningId();
+    const [term] = await (db.insert(employeeTerminations) as any)
+      .values({
+        employeeId: emp.id,
+        terminationDate: "2026-03-01",
+        terminationReason: "mutual_agreement",
+        noticeGiven: true,
+        processedBy: adminUser.id,
+      })
+      .$returningId();
 
     // Create interview
-    const [interview] = await (db.insert(exitInterviews) as any).values({
-      terminationId: term.id,
-      employeeId: emp.id,
-      isConfidential: true,
-      status: "pending",
-      conductedBy: adminUser.id,
-    }).$returningId();
+    const [interview] = await (db.insert(exitInterviews) as any)
+      .values({
+        terminationId: term.id,
+        employeeId: emp.id,
+        isConfidential: true,
+        status: "pending",
+        conductedBy: adminUser.id,
+      })
+      .$returningId();
 
     // Create response
-    const [response] = await (db.insert(exitInterviewResponses) as any).values({
-      exitInterviewId: interview.id,
-      questionId: q.id,
-      response: "Sí",
-    }).$returningId();
+    const [response] = await (db.insert(exitInterviewResponses) as any)
+      .values({
+        exitInterviewId: interview.id,
+        questionId: q.id,
+        response: "Sí",
+      })
+      .$returningId();
 
     expect(response.id).toBeGreaterThan(0);
 
@@ -320,9 +368,15 @@ describe("exitInterviewResponses — response recording", () => {
     expect(found.response).toBe("Sí");
 
     // Cleanup in reverse order
-    await db.delete(exitInterviewResponses).where(eq(exitInterviewResponses.id, response.id));
+    await db
+      .delete(exitInterviewResponses)
+      .where(eq(exitInterviewResponses.id, response.id));
     await db.delete(exitInterviews).where(eq(exitInterviews.id, interview.id));
-    await db.delete(employeeTerminations).where(eq(employeeTerminations.id, term.id));
-    await db.delete(exitInterviewQuestions).where(eq(exitInterviewQuestions.id, q.id));
+    await db
+      .delete(employeeTerminations)
+      .where(eq(employeeTerminations.id, term.id));
+    await db
+      .delete(exitInterviewQuestions)
+      .where(eq(exitInterviewQuestions.id, q.id));
   });
 });

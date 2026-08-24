@@ -4,7 +4,12 @@ import { appRouter } from "./routers";
 describe("earlyWarnings.getSurveyCoverageAlerts", () => {
   it("should return coverage alerts for surveys below 80% threshold", async () => {
     const caller = appRouter.createCaller({
-      user: { id: 1, email: "test@example.com", name: "Test User", role: "admin" },
+      user: {
+        id: 1,
+        email: "test@example.com",
+        name: "Test User",
+        role: "admin",
+      },
     });
 
     const result = await caller.earlyWarnings.getSurveyCoverageAlerts();
@@ -18,14 +23,19 @@ describe("earlyWarnings.getSurveyCoverageAlerts", () => {
 
   it("should calculate coverage correctly", async () => {
     const caller = appRouter.createCaller({
-      user: { id: 1, email: "test@example.com", name: "Test User", role: "admin" },
+      user: {
+        id: 1,
+        email: "test@example.com",
+        name: "Test User",
+        role: "admin",
+      },
     });
 
     const result = await caller.earlyWarnings.getSurveyCoverageAlerts();
 
     if (result.alerts.length > 0) {
       const alert = result.alerts[0];
-      
+
       expect(alert).toHaveProperty("surveyId");
       expect(alert).toHaveProperty("surveyType");
       expect(alert).toHaveProperty("surveyTitle");
@@ -39,16 +49,22 @@ describe("earlyWarnings.getSurveyCoverageAlerts", () => {
 
       // Verificar que la cobertura esté por debajo del umbral
       expect(alert.coverage).toBeLessThan(alert.threshold);
-      
+
       // Verificar que la brecha sea correcta
-      const expectedGap = Math.round((alert.threshold - alert.coverage) * 100) / 100;
+      const expectedGap =
+        Math.round((alert.threshold - alert.coverage) * 100) / 100;
       expect(alert.gap).toBe(expectedGap);
     }
   });
 
   it("should assign correct priority based on coverage", async () => {
     const caller = appRouter.createCaller({
-      user: { id: 1, email: "test@example.com", name: "Test User", role: "admin" },
+      user: {
+        id: 1,
+        email: "test@example.com",
+        name: "Test User",
+        role: "admin",
+      },
     });
 
     const result = await caller.earlyWarnings.getSurveyCoverageAlerts();

@@ -1,15 +1,37 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
-import { Loader2, Search, Filter, Eye, FileText, MessageSquare, ThumbsUp, GraduationCap } from "lucide-react";
+import {
+  Loader2,
+  Search,
+  Filter,
+  Eye,
+  FileText,
+  MessageSquare,
+  ThumbsUp,
+  GraduationCap,
+} from "lucide-react";
 import { Link } from "wouter";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import ProtectedButton from "@/components/ProtectedButton";
@@ -19,13 +41,17 @@ export default function Mailbox() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
 
-  const { data: mailboxItems, isLoading, refetch } = trpc.mailbox.list.useQuery();
+  const {
+    data: mailboxItems,
+    isLoading,
+    refetch,
+  } = trpc.mailbox.list.useQuery();
   const updateStatusMutation = trpc.mailbox.updateStatus.useMutation({
     onSuccess: () => {
       toast.success("Estado actualizado correctamente");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al actualizar estado: ${error.message}`);
     },
   });
@@ -36,15 +62,22 @@ export default function Mailbox() {
       item.folio?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.senderName?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
+
+    const matchesStatus =
+      statusFilter === "all" || item.status === statusFilter;
     const matchesType = typeFilter === "all" || item.requestType === typeFilter;
-    
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline", label: string }> = {
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        label: string;
+      }
+    > = {
       recibido: { variant: "outline", label: "Recibido" },
       asignado: { variant: "secondary", label: "Asignado" },
       en_proceso: { variant: "default", label: "En Proceso" },
@@ -76,24 +109,30 @@ export default function Mailbox() {
 
   const stats = {
     total: mailboxItems?.length || 0,
-    received: mailboxItems?.filter((i: any) => i.status === "recibido").length || 0,
-    assigned: mailboxItems?.filter((i: any) => i.status === "asignado").length || 0,
-    in_progress: mailboxItems?.filter((i: any) => i.status === "en_proceso").length || 0,
-    completed: mailboxItems?.filter((i: any) => i.status === "concluido").length || 0,
+    received:
+      mailboxItems?.filter((i: any) => i.status === "recibido").length || 0,
+    assigned:
+      mailboxItems?.filter((i: any) => i.status === "asignado").length || 0,
+    in_progress:
+      mailboxItems?.filter((i: any) => i.status === "en_proceso").length || 0,
+    completed:
+      mailboxItems?.filter((i: any) => i.status === "concluido").length || 0,
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-      <Breadcrumb items={[
-        {
-                label: "Prevención de Riesgos Psicosociales",
-                href: "/"
-        },
-        {
-                label: "Buzón"
-        }
-]} />
+        <Breadcrumb
+          items={[
+            {
+              label: "Prevención de Riesgos Psicosociales",
+              href: "/",
+            },
+            {
+              label: "Buzón",
+            },
+          ]}
+        />
 
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
@@ -105,7 +144,8 @@ export default function Mailbox() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Buzón Electrónico</h1>
         <p className="text-muted-foreground mt-2">
-          Gestión de quejas, sugerencias, felicitaciones y solicitudes de capacitación
+          Gestión de quejas, sugerencias, felicitaciones y solicitudes de
+          capacitación
         </p>
       </div>
 
@@ -155,13 +195,13 @@ export default function Mailbox() {
               <Input
                 placeholder="Buscar por folio, asunto o remitente..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="pl-8"
               />
             </div>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={e => setStatusFilter(e.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="all">Todos los estados</option>
@@ -172,14 +212,16 @@ export default function Mailbox() {
             </select>
             <select
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
+              onChange={e => setTypeFilter(e.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="all">Todos los tipos</option>
               <option value="complaint">Queja</option>
               <option value="suggestion">Sugerencia</option>
               <option value="congratulation">Felicitación</option>
-              <option value="training_request">Solicitud de Capacitación</option>
+              <option value="training_request">
+                Solicitud de Capacitación
+              </option>
             </select>
           </div>
         </CardContent>
@@ -214,7 +256,9 @@ export default function Mailbox() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getTypeIcon(item.requestType)}
-                        <span className="text-sm">{getTypeLabel(item.requestType)}</span>
+                        <span className="text-sm">
+                          {getTypeLabel(item.requestType)}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>{item.subject}</TableCell>
@@ -233,8 +277,8 @@ export default function Mailbox() {
                     <TableCell>{getStatusBadge(item.status)}</TableCell>
                     <TableCell>
                       <Link href={`/mailbox/${item.id}`}>
-                        <ProtectedButton 
-                          variant="ghost" 
+                        <ProtectedButton
+                          variant="ghost"
                           size="sm"
                           requiredPermission="can_view"
                           fallbackMessage="No tienes permisos para ver detalles"
@@ -248,7 +292,10 @@ export default function Mailbox() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell
+                    colSpan={7}
+                    className="text-center py-8 text-muted-foreground"
+                  >
                     No se encontraron solicitudes
                   </TableCell>
                 </TableRow>

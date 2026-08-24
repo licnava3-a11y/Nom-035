@@ -1,8 +1,13 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
 import { commonValidators } from "../validators/common.js";
-import { getDb } from '../db.js';
-import { complianceReports, employees, departments, courses } from "../../drizzle/schema.js";
+import { getDb } from "../db.js";
+import {
+  complianceReports,
+  employees,
+  departments,
+  courses,
+} from "../../drizzle/schema.js";
 import { eq, desc, and, gte, lte, count, sql } from "drizzle-orm";
 
 export const trainingDashboardRouter = router({
@@ -16,16 +21,20 @@ export const trainingDashboardRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const conditions = [];
-      conditions.push(eq(complianceReports.tipo, 'certificate'));
+      conditions.push(eq(complianceReports.tipo, "certificate"));
 
       if (input.startDate) {
-        conditions.push(gte(complianceReports.createdAt, new Date(input.startDate)));
+        conditions.push(
+          gte(complianceReports.createdAt, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
-        conditions.push(lte(complianceReports.createdAt, new Date(input.endDate)));
+        conditions.push(
+          lte(complianceReports.createdAt, new Date(input.endDate))
+        );
       }
 
       // Total de certificados emitidos
@@ -36,15 +45,15 @@ export const trainingDashboardRouter = router({
 
       // Empleados únicos capacitados
       const uniqueEmployees = await db
-        .selectDistinct({ workerId: sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))` })
+        .selectDistinct({
+          workerId: sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))`,
+        })
         .from(complianceReports)
         .where(and(...conditions));
 
       // Cursos activos (esto es un placeholder, ajustar según tu schema real)
       // Cursos activos - contar todos los cursos disponibles
-      const activeCourses = await db
-        .select({ count: count() })
-        .from(courses);
+      const activeCourses = await db.select({ count: count() }).from(courses);
 
       // Promedio de calificaciones (extraer de metadata JSON)
       const certificates = await db
@@ -55,7 +64,7 @@ export const trainingDashboardRouter = router({
       let totalGrade = 0;
       let gradeCount = 0;
       certificates.forEach((cert: any) => {
-        if (cert.metadata && typeof cert.metadata === 'object') {
+        if (cert.metadata && typeof cert.metadata === "object") {
           const meta = cert.metadata as any;
           if (meta.grade) {
             // Intentar extraer número de la calificación
@@ -68,7 +77,8 @@ export const trainingDashboardRouter = router({
         }
       });
 
-      const averageGrade = gradeCount > 0 ? Math.round(totalGrade / gradeCount) : 0;
+      const averageGrade =
+        gradeCount > 0 ? Math.round(totalGrade / gradeCount) : 0;
 
       return {
         totalCertificates: totalCertificates[0]?.count || 0,
@@ -82,145 +92,159 @@ export const trainingDashboardRouter = router({
   getCertificatesByMonth: protectedProcedure
     .input(z.object({}).optional())
     .query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error('Database not available');
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
-    const twelveMonthsAgo = new Date();
-    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+      const twelveMonthsAgo = new Date();
+      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
 
-    const certificates = await db
-      .select({
-        month: sql<string>`DATE_FORMAT(${complianceReports.createdAt}, '%Y-%m')`,
-        count: count(),
-      })
-      .from(complianceReports)
-      .where(
-        and(
-          eq(complianceReports.tipo, 'certificate'),
-          gte(complianceReports.createdAt, twelveMonthsAgo)
+      const certificates = await db
+        .select({
+          month: sql<string>`DATE_FORMAT(${complianceReports.createdAt}, '%Y-%m')`,
+          count: count(),
+        })
+        .from(complianceReports)
+        .where(
+          and(
+            eq(complianceReports.tipo, "certificate"),
+            gte(complianceReports.createdAt, twelveMonthsAgo)
+          )
         )
-      )
-      .groupBy(sql`DATE_FORMAT(${complianceReports.createdAt}, '%Y-%m')`)
-      .orderBy(sql`DATE_FORMAT(${complianceReports.createdAt}, '%Y-%m')`);
+        .groupBy(sql`DATE_FORMAT(${complianceReports.createdAt}, '%Y-%m')`)
+        .orderBy(sql`DATE_FORMAT(${complianceReports.createdAt}, '%Y-%m')`);
 
-    return certificates.map((c: any) => ({
-      month: c.month,
-      count: c.count,
-    }));
-  }),
+      return certificates.map((c: any) => ({
+        month: c.month,
+        count: c.count,
+      }));
+    }),
 
   // Empleados capacitados por departamento
   getEmployeesByDepartment: protectedProcedure
     .input(z.object({}).optional())
     .query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error('Database not available');
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
-    const result = await db
-      .select({
-        departmentId: employees.departmentId,
-        departmentName: departments.name,
-        count: count(),
-      })
-      .from(complianceReports)
-      .innerJoin(employees, eq(sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))`, employees.id))
-      .leftJoin(departments, eq(employees.departmentId, departments.id))
-      .where(eq(complianceReports.tipo, 'certificate'))
-      .groupBy(employees.departmentId, departments.name);
+      const result = await db
+        .select({
+          departmentId: employees.departmentId,
+          departmentName: departments.name,
+          count: count(),
+        })
+        .from(complianceReports)
+        .innerJoin(
+          employees,
+          eq(
+            sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))`,
+            employees.id
+          )
+        )
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .where(eq(complianceReports.tipo, "certificate"))
+        .groupBy(employees.departmentId, departments.name);
 
-    return result.map((r: any) => ({
-      department: r.departmentName || 'Sin departamento',
-      count: r.count,
-    }));
-  }),
+      return result.map((r: any) => ({
+        department: r.departmentName || "Sin departamento",
+        count: r.count,
+      }));
+    }),
 
   // Cursos más populares (basado en certificados emitidos)
   getPopularCourses: protectedProcedure
     .input(z.object({}).optional())
     .query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error('Database not available');
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
-    const certificates = await db
-      .select({ metadata: complianceReports.data })
-      .from(complianceReports)
-      .where(eq(complianceReports.tipo, 'certificate'));
+      const certificates = await db
+        .select({ metadata: complianceReports.data })
+        .from(complianceReports)
+        .where(eq(complianceReports.tipo, "certificate"));
 
-    // Contar cursos desde metadata
-    const courseCounts: Record<string, number> = {};
-    certificates.forEach((cert: any) => {
-      if (cert.metadata && typeof cert.metadata === 'object') {
-        const meta = cert.metadata as any;
-        if (meta.courseName) {
-          const courseName = String(meta.courseName);
-          courseCounts[courseName] = (courseCounts[courseName] || 0) + 1;
+      // Contar cursos desde metadata
+      const courseCounts: Record<string, number> = {};
+      certificates.forEach((cert: any) => {
+        if (cert.metadata && typeof cert.metadata === "object") {
+          const meta = cert.metadata as any;
+          if (meta.courseName) {
+            const courseName = String(meta.courseName);
+            courseCounts[courseName] = (courseCounts[courseName] || 0) + 1;
+          }
         }
-      }
-    });
+      });
 
-    // Convertir a array y ordenar
-    const popularCourses = Object.entries(courseCounts)
-      .map(([courseName, count]: [string, any]) => ({ courseName, count }))
-      .sort((a: any, b: any) => b.count - a.count)
-      .slice(0, 10);
+      // Convertir a array y ordenar
+      const popularCourses = Object.entries(courseCounts)
+        .map(([courseName, count]: [string, any]) => ({ courseName, count }))
+        .sort((a: any, b: any) => b.count - a.count)
+        .slice(0, 10);
 
-    return popularCourses;
-  }),
+      return popularCourses;
+    }),
 
   // Alertas de renovación (certificados próximos a vencer)
   getRenewalAlerts: protectedProcedure
     .input(z.object({}).optional())
     .query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error('Database not available');
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
-    // Obtener certificados de los últimos 2 años
-    const twoYearsAgo = new Date();
-    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+      // Obtener certificados de los últimos 2 años
+      const twoYearsAgo = new Date();
+      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
 
-    const certificates = await db
-      .select({
-        id: complianceReports.id,
-        folio: complianceReports.folio,
-        workerId: sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))`,
-        workerFirstName: employees.firstName,
-        workerLastName: employees.lastName,
-        createdAt: complianceReports.createdAt,
-        metadata: complianceReports.data,
-      })
-      .from(complianceReports)
-      .innerJoin(employees, eq(sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))`, employees.id))
-      .where(
-        and(
-          eq(complianceReports.tipo, 'certificate'),
-          gte(complianceReports.createdAt, twoYearsAgo)
+      const certificates = await db
+        .select({
+          id: complianceReports.id,
+          folio: complianceReports.folio,
+          workerId: sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))`,
+          workerFirstName: employees.firstName,
+          workerLastName: employees.lastName,
+          createdAt: complianceReports.createdAt,
+          metadata: complianceReports.data,
+        })
+        .from(complianceReports)
+        .innerJoin(
+          employees,
+          eq(
+            sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))`,
+            employees.id
+          )
         )
-      )
-      .orderBy(desc(complianceReports.createdAt));
+        .where(
+          and(
+            eq(complianceReports.tipo, "certificate"),
+            gte(complianceReports.createdAt, twoYearsAgo)
+          )
+        )
+        .orderBy(desc(complianceReports.createdAt));
 
-    // Filtrar certificados que necesitan renovación (más de 1 año)
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      // Filtrar certificados que necesitan renovación (más de 1 año)
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    const renewalAlerts = certificates
-      .filter((cert: any) => new Date(cert.createdAt) < oneYearAgo)
-      .map((cert: any) => {
-        const meta = cert.metadata as any;
-        return {
-          id: cert.id,
-          folio: cert.folio,
-          employeeName: `${cert.workerFirstName} ${cert.workerLastName}`,
-          courseName: meta?.courseName || 'Curso no especificado',
-          issueDate: cert.createdAt,
-          daysOverdue: Math.floor(
-            (new Date().getTime() - new Date(cert.createdAt).getTime()) / (1000 * 60 * 60 * 24) - 365
-          ),
-        };
-      })
-      .slice(0, 20); // Limitar a 20 alertas
+      const renewalAlerts = certificates
+        .filter((cert: any) => new Date(cert.createdAt) < oneYearAgo)
+        .map((cert: any) => {
+          const meta = cert.metadata as any;
+          return {
+            id: cert.id,
+            folio: cert.folio,
+            employeeName: `${cert.workerFirstName} ${cert.workerLastName}`,
+            courseName: meta?.courseName || "Curso no especificado",
+            issueDate: cert.createdAt,
+            daysOverdue: Math.floor(
+              (new Date().getTime() - new Date(cert.createdAt).getTime()) /
+                (1000 * 60 * 60 * 24) -
+                365
+            ),
+          };
+        })
+        .slice(0, 20); // Limitar a 20 alertas
 
-    return renewalAlerts;
-  }),
+      return renewalAlerts;
+    }),
 
   // Certificados recientes
   getRecentCertificates: protectedProcedure
@@ -231,7 +255,7 @@ export const trainingDashboardRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const certificates = await db
         .select({
@@ -244,8 +268,14 @@ export const trainingDashboardRouter = router({
           metadata: complianceReports.data,
         })
         .from(complianceReports)
-        .innerJoin(employees, eq(sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))`, employees.id))
-        .where(eq(complianceReports.tipo, 'certificate'))
+        .innerJoin(
+          employees,
+          eq(
+            sql<number>`JSON_UNQUOTE(JSON_EXTRACT(${complianceReports.data}, '$.employeeId'))`,
+            employees.id
+          )
+        )
+        .where(eq(complianceReports.tipo, "certificate"))
         .orderBy(desc(complianceReports.createdAt))
         .limit(input.limit);
 
@@ -256,8 +286,8 @@ export const trainingDashboardRouter = router({
           folio: cert.folio,
           titulo: cert.titulo,
           employeeName: `${cert.workerFirstName} ${cert.workerLastName}`,
-          courseName: meta?.courseName || 'Curso no especificado',
-          grade: meta?.grade || 'N/A',
+          courseName: meta?.courseName || "Curso no especificado",
+          grade: meta?.grade || "N/A",
           createdAt: cert.createdAt,
         };
       });

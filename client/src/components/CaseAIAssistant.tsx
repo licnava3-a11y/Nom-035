@@ -35,11 +35,11 @@ export function CaseAIAssistant({
   const [suggestion, setSuggestion] = useState<string>("");
 
   const suggestMutation = trpc.casesManagement.suggestCaseField.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setSuggestion(data.suggestion);
       setIsOpen(true);
     },
-    onError: (err) => {
+    onError: err => {
       toast.error("Error al generar sugerencia: " + err.message);
     },
   });
@@ -106,7 +106,9 @@ export function CaseAIAssistant({
           </p>
           <div className="relative rounded-md border border-purple-200 bg-white p-3 text-sm">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-gray-700 leading-relaxed text-xs flex-1">{suggestion}</p>
+              <p className="text-gray-700 leading-relaxed text-xs flex-1">
+                {suggestion}
+              </p>
               <Button
                 type="button"
                 size="sm"
@@ -120,7 +122,8 @@ export function CaseAIAssistant({
             </div>
           </div>
           <p className="text-xs text-muted-foreground pt-1">
-            💡 La sugerencia es un punto de partida — edítala según el caso específico.
+            💡 La sugerencia es un punto de partida — edítala según el caso
+            específico.
           </p>
         </div>
       )}

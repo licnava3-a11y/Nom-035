@@ -10,6 +10,7 @@
 ## 📊 Resumen Ejecutivo
 
 ### Métricas Generales
+
 - **Total de líneas en todo.md**: 11,059 (+2,100 desde última auditoría)
 - **Tareas pendientes**: 3,876 (57.3%)
 - **Tareas completadas**: 2,883 (42.7%)
@@ -19,9 +20,11 @@
 - **Errores críticos de runtime**: 1 (SMTP no configurado)
 
 ### Estado General del Sistema
+
 🟢 **FUNCIONAL** - El sistema está operativo y compilando sin errores TypeScript.
 
 ### Progreso desde Última Auditoría (7 días)
+
 - ✅ **+10 fases completadas** (28 → 38)
 - ✅ **+500 tareas completadas** (2,383 → 2,883)
 - ✅ **Sistema de permisos implementado** (frontend 100%, backend 1.7%)
@@ -33,11 +36,13 @@
 ## 🔴 ERRORES CRÍTICOS DETECTADOS
 
 ### 1. Configuración SMTP Incompleta
+
 **Severidad**: MEDIA (no bloquea funcionalidad core)  
 **Ubicación**: Sistema de notificaciones por correo  
 **Error**: `Error: Configuración SMTP incompleta. Verifica las variables de entorno SMTP_*`
 
 **Impacto**:
+
 - Notificaciones de acciones correctivas no se envían
 - Alertas de vencimiento no funcionan
 - Notificaciones del buzón no se envían
@@ -51,8 +56,10 @@
 ## 🟡 PROBLEMAS DE ALTA PRIORIDAD
 
 ### 1. Páginas Financieras Incompletas
+
 **Estado**: 1/3 completadas  
 **Archivos**:
+
 - ✅ `/client/src/pages/Payments.tsx` - COMPLETADO (0 errores TypeScript)
 - ❌ `/client/src/pages/PurchaseOrders.tsx` - NO EXISTE
 - ❌ `/client/src/pages/ExpenseRequests.tsx` - NO EXISTE
@@ -64,6 +71,7 @@
 **Estimación**: 2-3 horas
 
 ### 2. TokenManagement sin Enlace en Menú
+
 **Estado**: Página creada pero no accesible  
 **Archivo**: `/client/src/pages/TokenManagement.tsx` (0 errores TypeScript)
 
@@ -74,8 +82,10 @@
 **Estimación**: 10 minutos
 
 ### 3. Validación de Permisos Backend Incompleta
+
 **Estado**: 1/59 routers implementados (1.7%)  
 **Archivos**:
+
 - ✅ `server/routers/employees.ts` - IMPLEMENTADO
 - ✅ `server/permissions.ts` - MIDDLEWARE COMPLETO
 - ✅ `server/permissions.test.ts` - 24 TESTS PASANDO
@@ -86,6 +96,7 @@
 **Solución**: Aplicar validación gradualmente en routers críticos
 
 **Prioridad de Implementación**:
+
 1. committeeMinutes.ts (create, update, delete, publish)
 2. documentFormats.ts (create, update, delete)
 3. notifications.ts (create, markAsRead, delete)
@@ -100,12 +111,14 @@
 ## 🟢 FORTALEZAS DEL SISTEMA
 
 ### 1. Arquitectura Sólida
+
 - ✅ Separación clara de responsabilidades (client/server)
 - ✅ tRPC para type-safety end-to-end
 - ✅ Drizzle ORM con migraciones controladas (64 migraciones aplicadas)
 - ✅ Sistema de permisos granular (6 permisos × 17 roles)
 
 ### 2. Módulos Funcionales (100%)
+
 - ✅ Dashboard principal
 - ✅ Gestión de casos (173 casos)
 - ✅ Gestión de cursos (5 cursos)
@@ -117,11 +130,13 @@
 - ✅ Acciones correctivas
 
 ### 3. Protección de Botones (Frontend)
+
 - ✅ 75 botones protegidos en 16 páginas
 - ✅ Componente ProtectedButton reutilizable
 - ✅ Matriz de permisos documentada
 
 ### 4. Documentación Completa
+
 - ✅ GUIA_VALIDACION_PERMISOS_DETALLADA.md (75 casos de prueba)
 - ✅ GUIA_IMPLEMENTACION_PERMISOS_BACKEND.md
 - ✅ RESUMEN_VALIDACION_BACKEND.md
@@ -129,12 +144,14 @@
 - ✅ GUIA_PRUEBAS_PERMISOS.md (5 usuarios de prueba)
 
 ### 5. Sistema Financiero (Backend Completo)
+
 - ✅ 3 tablas (invoices, purchase_orders, expense_requests)
 - ✅ Router financial con 10 procedures CRUD
 - ✅ Validación de permisos (can_create, can_edit, can_delete, can_approve)
 - ✅ 12 tests unitarios pasando
 
 ### 6. Sistema de Tokens (Backend Completo)
+
 - ✅ Tabla survey_tokens
 - ✅ 8 procedures (generateToken, generateBulkTokens, getActiveTokens, getTokenInfo, exportTokensToExcel, getTokenStats, submitSurveyResponse, regenerateToken)
 - ✅ Validación de permisos
@@ -145,6 +162,7 @@
 ## 📋 ANÁLISIS DE TODO.MD
 
 ### Distribución de Tareas por Estado
+
 ```
 Total de tareas: 6,759
 ├─ Completadas [x]: 2,883 (42.7%)
@@ -250,17 +268,20 @@ Total de tareas: 6,759
 ### Tareas Duplicadas Detectadas
 
 **Duplicación 1**: Sistema de Tokens
+
 - FASE 74 (línea ~1245)
 - FASE 78 (línea ~1389)
 - FASE 233 (línea ~10900)
 - **Acción**: Consolidar en FASE 233 (más reciente y completa)
 
 **Duplicación 2**: Notificaciones Automáticas
+
 - FASE 70 (línea ~1102)
 - FASE 78 (línea ~1389)
 - **Acción**: Consolidar en FASE 70
 
 **Duplicación 3**: Panel de Administración de Encuestas
+
 - FASE 73 (línea ~1189)
 - FASE 76 (línea ~1324)
 - **Acción**: Consolidar en FASE 76 (más completa)
@@ -274,6 +295,7 @@ Total de tareas: 6,759
 ### PRIORIDAD 1: CRÍTICO (Resolver HOY - 3-4 horas)
 
 #### 1.1 Completar Módulo Financiero
+
 - [ ] Crear PurchaseOrders.tsx (siguiendo patrón de Payments.tsx)
 - [ ] Crear ExpenseRequests.tsx (siguiendo patrón de Payments.tsx)
 - [ ] Agregar rutas en App.tsx (/administrative/payments, /purchase-orders, /expenses)
@@ -285,6 +307,7 @@ Total de tareas: 6,759
 **ROI**: ALTO - Funcionalidad crítica para administración
 
 #### 1.2 Agregar Enlace a TokenManagement
+
 - [ ] Abrir DashboardLayout.tsx
 - [ ] Agregar enlace en sección "Encuestas NOM-035"
 - [ ] Verificar navegación funcional
@@ -294,6 +317,7 @@ Total de tareas: 6,759
 **ROI**: ALTO - Funcionalidad ya implementada, solo falta acceso
 
 #### 1.3 Consolidar TODO.MD (Eliminar Duplicados)
+
 - [ ] Fusionar FASE 74, 78 y 233 (Tokens) → Mantener FASE 233
 - [ ] Fusionar FASE 70 y 78 (Notificaciones) → Mantener FASE 70
 - [ ] Fusionar FASE 73 y 76 (Panel Encuestas) → Mantener FASE 76
@@ -310,6 +334,7 @@ Total de tareas: 6,759
 ### PRIORIDAD 2: ALTA (Resolver MAÑANA - 4-6 horas)
 
 #### 2.1 Validación Backend en 6 Routers Críticos
+
 - [ ] Aplicar validación en committeeMinutes.ts (create, update, delete, publish)
 - [ ] Aplicar validación en documentFormats.ts (create, update, delete)
 - [ ] Aplicar validación en notifications.ts (create, markAsRead, delete)
@@ -323,6 +348,7 @@ Total de tareas: 6,759
 **ROI**: CRÍTICO - Previene bypass de permisos
 
 #### 2.2 Ejecutar Pruebas Manuales de Permisos
+
 - [ ] Probar con usuario gerente (todos los permisos) - 30 minutos
 - [ ] Probar con usuario student (mínimos permisos) - 30 minutos
 - [ ] Probar con usuario instructor (permisos medios) - 30 minutos
@@ -338,6 +364,7 @@ Total de tareas: 6,759
 ### PRIORIDAD 3: MEDIA (Resolver ESTA SEMANA - 6-8 horas)
 
 #### 3.1 Gráficos de Tendencias Financieras
+
 - [ ] Instalar Chart.js en el proyecto
 - [ ] Crear componente FinancialTrendsChart.tsx
 - [ ] Implementar gráfica de evolución mensual de facturas
@@ -351,6 +378,7 @@ Total de tareas: 6,759
 **ROI**: MEDIO - Mejora análisis de datos
 
 #### 3.2 Completar Acciones Correctivas
+
 - [ ] Convertir gráficas de barras HTML a Chart.js
 - [ ] Agregar enlace en menú de Encuestas NOM-035
 - [ ] Probar flujo completo de registro y seguimiento
@@ -361,6 +389,7 @@ Total de tareas: 6,759
 **ROI**: MEDIO - Mejora visualización
 
 #### 3.3 Optimización de Rendimiento
+
 - [ ] Implementar lazy loading de componentes pesados
 - [ ] Optimizar queries tRPC con paginación
 - [ ] Implementar import dinámico de XLSX
@@ -376,6 +405,7 @@ Total de tareas: 6,759
 ### PRIORIDAD 4: BAJA (Resolver PRÓXIMA SEMANA - 12-16 horas)
 
 #### 4.1 Completar Validación Backend (Routers Restantes)
+
 - [ ] Aplicar validación en 53 routers secundarios
 - [ ] Crear tests unitarios para cada router
 - [ ] Documentar patrones de validación
@@ -385,6 +415,7 @@ Total de tareas: 6,759
 **ROI**: MEDIO - Completa seguridad del sistema
 
 #### 4.2 Mejoras de Experiencia de Usuario
+
 - [ ] Agregar skeletons de carga en todas las páginas
 - [ ] Implementar sistema de notificaciones toast consistente
 - [ ] Mejorar mensajes de error (más descriptivos)
@@ -396,6 +427,7 @@ Total de tareas: 6,759
 **ROI**: MEDIO - Mejora satisfacción del usuario
 
 #### 4.3 Documentación Técnica
+
 - [ ] Crear diagrama de arquitectura del sistema
 - [ ] Documentar flujos de datos principales
 - [ ] Crear guía de contribución para desarrolladores
@@ -406,6 +438,7 @@ Total de tareas: 6,759
 **ROI**: BAJO - Beneficio a largo plazo
 
 #### 4.4 Tests Automatizados
+
 - [ ] Aumentar cobertura de tests unitarios (objetivo: 80%)
 - [ ] Crear tests de integración para flujos críticos
 - [ ] Implementar tests E2E con Playwright
@@ -420,29 +453,31 @@ Total de tareas: 6,759
 
 ### Completitud por Módulo
 
-| Módulo | Backend | Frontend | Tests | Documentación | Total |
-|--------|---------|----------|-------|---------------|-------|
-| Dashboard | 100% | 100% | 80% | 100% | **95%** |
-| Casos | 100% | 100% | 60% | 80% | **85%** |
-| Cursos | 100% | 100% | 40% | 60% | **75%** |
-| Empleados | 100% | 100% | 80% | 100% | **95%** |
-| Encuestas NOM-035 | 100% | 100% | 60% | 100% | **90%** |
-| Comité | 100% | 100% | 40% | 80% | **80%** |
-| Documentos | 100% | 100% | 40% | 60% | **75%** |
-| Buzón | 100% | 100% | 60% | 80% | **85%** |
-| Acciones Correctivas | 100% | 90% | 40% | 80% | **78%** |
-| **Financiero** | **100%** | **33%** | **60%** | **40%** | **58%** ⬆️ |
-| **Tokens** | **100%** | **80%** | **0%** | **60%** | **60%** ⬆️ |
-| **Permisos** | **10%** | **100%** | **80%** | **100%** | **73%** ⬆️ |
+| Módulo               | Backend  | Frontend | Tests   | Documentación | Total      |
+| -------------------- | -------- | -------- | ------- | ------------- | ---------- |
+| Dashboard            | 100%     | 100%     | 80%     | 100%          | **95%**    |
+| Casos                | 100%     | 100%     | 60%     | 80%           | **85%**    |
+| Cursos               | 100%     | 100%     | 40%     | 60%           | **75%**    |
+| Empleados            | 100%     | 100%     | 80%     | 100%          | **95%**    |
+| Encuestas NOM-035    | 100%     | 100%     | 60%     | 100%          | **90%**    |
+| Comité               | 100%     | 100%     | 40%     | 80%           | **80%**    |
+| Documentos           | 100%     | 100%     | 40%     | 60%           | **75%**    |
+| Buzón                | 100%     | 100%     | 60%     | 80%           | **85%**    |
+| Acciones Correctivas | 100%     | 90%      | 40%     | 80%           | **78%**    |
+| **Financiero**       | **100%** | **33%**  | **60%** | **40%**       | **58%** ⬆️ |
+| **Tokens**           | **100%** | **80%**  | **0%**  | **60%**       | **60%** ⬆️ |
+| **Permisos**         | **10%**  | **100%** | **80%** | **100%**      | **73%** ⬆️ |
 
 **Leyenda**: ⬆️ = Mejorado desde última auditoría
 
 ### Progreso General del Sistema
+
 ```
 █████████████████████████████████████░░░░░ 87.2% (+1.8% desde última auditoría)
 ```
 
 ### Velocidad de Desarrollo (Últimos 7 días)
+
 - **Tareas completadas**: +500 (71 tareas/día)
 - **Fases completadas**: +10 (1.4 fases/día)
 - **Líneas de código agregadas**: ~5,000 (estimado)
@@ -453,31 +488,37 @@ Total de tareas: 6,759
 ## 🎯 RECOMENDACIONES ESTRATÉGICAS
 
 ### 1. Enfoque en Completitud antes de Nuevas Funcionalidades
+
 **Razón**: 3,876 tareas pendientes indican dispersión de esfuerzos.  
 **Acción**: Completar módulos al 100% antes de iniciar nuevos.  
 **Impacto**: Reduce deuda técnica y mejora mantenibilidad.
 
 ### 2. Consolidar TODO.MD (URGENTE)
+
 **Razón**: 303 fases con 12.5% completitud dificulta seguimiento.  
 **Acción**: Fusionar 6 fases duplicadas, archivar 50 fases obsoletas.  
 **Impacto**: TODO.MD más claro (~200 fases activas).
 
 ### 3. Priorizar Validación Backend (CRÍTICO)
+
 **Razón**: 1/59 routers implementados (1.7%) es un riesgo de seguridad.  
 **Acción**: Implementar en 6 routers críticos primero (10% → 12%).  
 **Impacto**: Previene bypass de permisos en módulos sensibles.
 
 ### 4. Completar Módulo Financiero (HOY)
+
 **Razón**: Backend 100% completo pero frontend 33% bloquea funcionalidad.  
 **Acción**: Crear 2 páginas faltantes (2-3 horas).  
 **Impacto**: Módulo financiero 100% funcional.
 
 ### 5. Mejorar Cobertura de Tests
+
 **Razón**: Cobertura actual ~50%, objetivo 80%.  
 **Acción**: Crear tests para módulos críticos (Casos, Encuestas, Financiero).  
 **Impacto**: Mayor confiabilidad y prevención de regresiones.
 
 ### 6. Optimizar Rendimiento (ESTA SEMANA)
+
 **Razón**: Bundle size grande puede afectar UX.  
 **Acción**: Implementar lazy loading y code splitting.  
 **Impacto**: Mejora velocidad de carga 30-50%.
@@ -487,6 +528,7 @@ Total de tareas: 6,759
 ## 📝 CONCLUSIONES
 
 ### Puntos Fuertes
+
 1. ✅ Arquitectura sólida y escalable
 2. ✅ Módulos core 100% funcionales
 3. ✅ Sistema de permisos frontend completo (75 botones protegidos)
@@ -496,6 +538,7 @@ Total de tareas: 6,759
 7. ✅ +10 fases completadas en 7 días
 
 ### Áreas de Mejora
+
 1. ⚠️ Completar módulo financiero (33% → 100%) - **HOY**
 2. ⚠️ Implementar validación backend (1.7% → 12%) - **MAÑANA**
 3. ⚠️ Consolidar TODO.MD (303 fases → ~200 fases) - **HOY**
@@ -504,15 +547,16 @@ Total de tareas: 6,759
 
 ### Comparación con Auditoría Anterior (7 días)
 
-| Métrica | 2026-02-07 | 2026-02-13 | Cambio |
-|---------|------------|------------|--------|
-| Fases completadas | 28 | 38 | **+10** ✅ |
-| Tareas completadas | 2,383 | 2,883 | **+500** ✅ |
-| Errores críticos | 1 | 1 | **0** 🟡 |
-| Progreso general | 85.4% | 87.2% | **+1.8%** ✅ |
-| Tests unitarios | 0 | 36 | **+36** ✅ |
+| Métrica            | 2026-02-07 | 2026-02-13 | Cambio       |
+| ------------------ | ---------- | ---------- | ------------ |
+| Fases completadas  | 28         | 38         | **+10** ✅   |
+| Tareas completadas | 2,383      | 2,883      | **+500** ✅  |
+| Errores críticos   | 1          | 1          | **0** 🟡     |
+| Progreso general   | 85.4%      | 87.2%      | **+1.8%** ✅ |
+| Tests unitarios    | 0          | 36         | **+36** ✅   |
 
 ### Próximos Pasos Inmediatos (Hoy - 4 horas)
+
 1. **13:00-15:00**: Completar módulo financiero (PurchaseOrders.tsx + ExpenseRequests.tsx)
 2. **15:00-15:10**: Agregar enlace TokenManagement en menú
 3. **15:10-16:00**: Consolidar TODO.MD (fusionar duplicados, archivar obsoletas)

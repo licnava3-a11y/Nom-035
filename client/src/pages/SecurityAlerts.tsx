@@ -1,14 +1,40 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, Shield, Clock, Activity, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertTriangle,
+  Shield,
+  Clock,
+  Activity,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
@@ -24,9 +50,19 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function SecurityAlerts() {
   const [filters, setFilters] = useState({
-    alertType: undefined as "multiple_downloads" | "unknown_ip" | "off_hours" | "suspicious_pattern" | undefined,
+    alertType: undefined as
+      | "multiple_downloads"
+      | "unknown_ip"
+      | "off_hours"
+      | "suspicious_pattern"
+      | undefined,
     severity: undefined as "low" | "medium" | "high" | "critical" | undefined,
-    status: undefined as "pending" | "reviewed" | "resolved" | "false_positive" | undefined,
+    status: undefined as
+      | "pending"
+      | "reviewed"
+      | "resolved"
+      | "false_positive"
+      | undefined,
     startDate: "",
     endDate: "",
     page: 1,
@@ -35,11 +71,17 @@ export default function SecurityAlerts() {
 
   const [selectedAlert, setSelectedAlert] = useState<any>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
-  const [reviewStatus, setReviewStatus] = useState<"pending" | "reviewed" | "resolved" | "false_positive">("reviewed");
+  const [reviewStatus, setReviewStatus] = useState<
+    "pending" | "reviewed" | "resolved" | "false_positive"
+  >("reviewed");
   const [reviewNotes, setReviewNotes] = useState("");
 
   // Obtener alertas
-  const { data: alertsData, isLoading, refetch } = trpc.securityAlerts.getAlerts.useQuery(filters);
+  const {
+    data: alertsData,
+    isLoading,
+    refetch,
+  } = trpc.securityAlerts.getAlerts.useQuery(filters);
 
   // Obtener estadísticas
   const { data: stats } = trpc.securityAlerts.getStatistics.useQuery({
@@ -48,21 +90,22 @@ export default function SecurityAlerts() {
   });
 
   // Mutation para actualizar estado
-  const updateStatusMutation = trpc.securityAlerts.updateAlertStatus.useMutation({
-    onSuccess: () => {
-      toast.success("Estado de alerta actualizado");
-      refetch();
-      setReviewDialogOpen(false);
-      setSelectedAlert(null);
-      setReviewNotes("");
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const updateStatusMutation =
+    trpc.securityAlerts.updateAlertStatus.useMutation({
+      onSuccess: () => {
+        toast.success("Estado de alerta actualizado");
+        refetch();
+        setReviewDialogOpen(false);
+        setSelectedAlert(null);
+        setReviewNotes("");
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
   const handleFilterChange = (key: string, value: any) => {
-    setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
+    setFilters(prev => ({ ...prev, [key]: value, page: 1 }));
   };
 
   const handleReviewAlert = (alert: any) => {
@@ -106,7 +149,9 @@ export default function SecurityAlerts() {
       critical: "Crítica",
     };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[severity] || ""}`}>
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${colors[severity] || ""}`}
+      >
         {labels[severity] || severity}
       </span>
     );
@@ -126,7 +171,9 @@ export default function SecurityAlerts() {
       false_positive: "Falso Positivo",
     };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || ""}`}>
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || ""}`}
+      >
         {labels[status] || status}
       </span>
     );
@@ -136,7 +183,9 @@ export default function SecurityAlerts() {
     <div className="container mx-auto py-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Alertas de Seguridad</h1>
-        <p className="text-muted-foreground">Monitoreo de actividad sospechosa en el sistema</p>
+        <p className="text-muted-foreground">
+          Monitoreo de actividad sospechosa en el sistema
+        </p>
       </div>
 
       {/* Estadísticas */}
@@ -144,7 +193,9 @@ export default function SecurityAlerts() {
         <div className="grid gap-4 md:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Alertas</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total de Alertas
+              </CardTitle>
               <Shield className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -168,7 +219,9 @@ export default function SecurityAlerts() {
               <AlertTriangle className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.criticalAlerts}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {stats.criticalAlerts}
+              </div>
             </CardContent>
           </Card>
 
@@ -178,7 +231,9 @@ export default function SecurityAlerts() {
               <AlertTriangle className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{stats.highAlerts}</div>
+              <div className="text-2xl font-bold text-orange-600">
+                {stats.highAlerts}
+              </div>
             </CardContent>
           </Card>
 
@@ -188,7 +243,9 @@ export default function SecurityAlerts() {
               <CheckCircle2 className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.resolvedAlerts}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {stats.resolvedAlerts}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -198,7 +255,9 @@ export default function SecurityAlerts() {
       <Card>
         <CardHeader>
           <CardTitle>Filtros de Búsqueda</CardTitle>
-          <CardDescription>Filtra las alertas por tipo, severidad, estado o fecha</CardDescription>
+          <CardDescription>
+            Filtra las alertas por tipo, severidad, estado o fecha
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-5">
@@ -206,8 +265,11 @@ export default function SecurityAlerts() {
               <Label>Tipo de Alerta</Label>
               <Select
                 value={filters.alertType || "all"}
-                onValueChange={(value) =>
-                  handleFilterChange("alertType", value === "all" ? undefined : value)
+                onValueChange={value =>
+                  handleFilterChange(
+                    "alertType",
+                    value === "all" ? undefined : value
+                  )
                 }
               >
                 <SelectTrigger>
@@ -215,10 +277,14 @@ export default function SecurityAlerts() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="multiple_downloads">Múltiples Descargas</SelectItem>
+                  <SelectItem value="multiple_downloads">
+                    Múltiples Descargas
+                  </SelectItem>
                   <SelectItem value="unknown_ip">IP Desconocida</SelectItem>
                   <SelectItem value="off_hours">Fuera de Horario</SelectItem>
-                  <SelectItem value="suspicious_pattern">Patrón Sospechoso</SelectItem>
+                  <SelectItem value="suspicious_pattern">
+                    Patrón Sospechoso
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -227,8 +293,11 @@ export default function SecurityAlerts() {
               <Label>Severidad</Label>
               <Select
                 value={filters.severity || "all"}
-                onValueChange={(value) =>
-                  handleFilterChange("severity", value === "all" ? undefined : value)
+                onValueChange={value =>
+                  handleFilterChange(
+                    "severity",
+                    value === "all" ? undefined : value
+                  )
                 }
               >
                 <SelectTrigger>
@@ -248,8 +317,11 @@ export default function SecurityAlerts() {
               <Label>Estado</Label>
               <Select
                 value={filters.status || "all"}
-                onValueChange={(value) =>
-                  handleFilterChange("status", value === "all" ? undefined : value)
+                onValueChange={value =>
+                  handleFilterChange(
+                    "status",
+                    value === "all" ? undefined : value
+                  )
                 }
               >
                 <SelectTrigger>
@@ -270,7 +342,7 @@ export default function SecurityAlerts() {
               <Input
                 type="date"
                 value={filters.startDate}
-                onChange={(e) => handleFilterChange("startDate", e.target.value)}
+                onChange={e => handleFilterChange("startDate", e.target.value)}
               />
             </div>
 
@@ -279,7 +351,7 @@ export default function SecurityAlerts() {
               <Input
                 type="date"
                 value={filters.endDate}
-                onChange={(e) => handleFilterChange("endDate", e.target.value)}
+                onChange={e => handleFilterChange("endDate", e.target.value)}
               />
             </div>
           </div>
@@ -316,13 +388,21 @@ export default function SecurityAlerts() {
                   {alertsData.alerts.map((alert: any) => (
                     <TableRow key={alert.id}>
                       <TableCell>
-                        {format(new Date(alert.createdAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                        {format(new Date(alert.createdAt), "dd/MM/yyyy HH:mm", {
+                          locale: es,
+                        })}
                       </TableCell>
-                      <TableCell>{getAlertTypeLabel(alert.alertType)}</TableCell>
+                      <TableCell>
+                        {getAlertTypeLabel(alert.alertType)}
+                      </TableCell>
                       <TableCell>{getSeverityBadge(alert.severity)}</TableCell>
                       <TableCell>{alert.userName || "N/A"}</TableCell>
-                      <TableCell className="font-mono text-sm">{alert.ipAddress || "N/A"}</TableCell>
-                      <TableCell className="max-w-md truncate">{alert.description}</TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {alert.ipAddress || "N/A"}
+                      </TableCell>
+                      <TableCell className="max-w-md truncate">
+                        {alert.description}
+                      </TableCell>
                       <TableCell>{getStatusBadge(alert.status)}</TableCell>
                       <TableCell>
                         <Button
@@ -342,8 +422,8 @@ export default function SecurityAlerts() {
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-muted-foreground">
                   Mostrando {(filters.page - 1) * filters.pageSize + 1} a{" "}
-                  {Math.min(filters.page * filters.pageSize, alertsData.total)} de {alertsData.total}{" "}
-                  alertas
+                  {Math.min(filters.page * filters.pageSize, alertsData.total)}{" "}
+                  de {alertsData.total} alertas
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -358,7 +438,9 @@ export default function SecurityAlerts() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleFilterChange("page", filters.page + 1)}
-                    disabled={filters.page * filters.pageSize >= alertsData.total}
+                    disabled={
+                      filters.page * filters.pageSize >= alertsData.total
+                    }
                   >
                     Siguiente
                   </Button>
@@ -388,30 +470,46 @@ export default function SecurityAlerts() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm text-muted-foreground">Tipo</Label>
-                  <p className="font-medium">{getAlertTypeLabel(selectedAlert.alertType)}</p>
+                  <p className="font-medium">
+                    {getAlertTypeLabel(selectedAlert.alertType)}
+                  </p>
                 </div>
                 <div>
-                  <Label className="text-sm text-muted-foreground">Severidad</Label>
-                  <div className="mt-1">{getSeverityBadge(selectedAlert.severity)}</div>
+                  <Label className="text-sm text-muted-foreground">
+                    Severidad
+                  </Label>
+                  <div className="mt-1">
+                    {getSeverityBadge(selectedAlert.severity)}
+                  </div>
                 </div>
                 <div>
-                  <Label className="text-sm text-muted-foreground">Usuario</Label>
-                  <p className="font-medium">{selectedAlert.userName || "N/A"}</p>
+                  <Label className="text-sm text-muted-foreground">
+                    Usuario
+                  </Label>
+                  <p className="font-medium">
+                    {selectedAlert.userName || "N/A"}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm text-muted-foreground">IP</Label>
-                  <p className="font-mono text-sm">{selectedAlert.ipAddress || "N/A"}</p>
+                  <p className="font-mono text-sm">
+                    {selectedAlert.ipAddress || "N/A"}
+                  </p>
                 </div>
               </div>
 
               <div>
-                <Label className="text-sm text-muted-foreground">Descripción</Label>
+                <Label className="text-sm text-muted-foreground">
+                  Descripción
+                </Label>
                 <p className="mt-1">{selectedAlert.description}</p>
               </div>
 
               {selectedAlert.metadata && (
                 <div>
-                  <Label className="text-sm text-muted-foreground">Metadatos</Label>
+                  <Label className="text-sm text-muted-foreground">
+                    Metadatos
+                  </Label>
                   <pre className="mt-1 p-2 bg-muted rounded text-xs overflow-auto">
                     {JSON.stringify(selectedAlert.metadata, null, 2)}
                   </pre>
@@ -431,7 +529,9 @@ export default function SecurityAlerts() {
                     <SelectItem value="pending">Pendiente</SelectItem>
                     <SelectItem value="reviewed">Revisada</SelectItem>
                     <SelectItem value="resolved">Resuelta</SelectItem>
-                    <SelectItem value="false_positive">Falso Positivo</SelectItem>
+                    <SelectItem value="false_positive">
+                      Falso Positivo
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -440,7 +540,7 @@ export default function SecurityAlerts() {
                 <Label>Notas de Revisión</Label>
                 <Textarea
                   value={reviewNotes}
-                  onChange={(e) => setReviewNotes(e.target.value)}
+                  onChange={e => setReviewNotes(e.target.value)}
                   placeholder="Agrega comentarios sobre la revisión de esta alerta..."
                   rows={4}
                 />
@@ -449,10 +549,19 @@ export default function SecurityAlerts() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setReviewDialogOpen(false)}
+            >
               Cancelar
             </Button>
-            <LoadingButton onClick={handleSubmitReview} loading={updateStatusMutation.isPending} loadingText="Guardando...">Guardar Revisión</LoadingButton>
+            <LoadingButton
+              onClick={handleSubmitReview}
+              loading={updateStatusMutation.isPending}
+              loadingText="Guardando..."
+            >
+              Guardar Revisión
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

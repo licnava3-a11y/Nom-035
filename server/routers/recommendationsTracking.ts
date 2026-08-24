@@ -1,7 +1,13 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb, createNotification } from "../db";
-import { recommendationsTracking, rootCauseAnalysis, users, departments, workplaceViolenceCases } from "../../drizzle/schema";
+import {
+  recommendationsTracking,
+  rootCauseAnalysis,
+  users,
+  departments,
+  workplaceViolenceCases,
+} from "../../drizzle/schema";
 import { eq, and, desc, sql, gte, lte, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -12,7 +18,9 @@ export const recommendationsTrackingRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
+        status: z
+          .enum(["pending", "in_progress", "completed", "cancelled"])
+          .optional(),
         priority: z.enum(["low", "medium", "high", "critical"]).optional(),
         assignedTo: z.number().optional(),
         category: z.string().optional(),
@@ -20,13 +28,23 @@ export const recommendationsTrackingRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const conditions = [];
-      if (input.status) conditions.push(eq(recommendationsTracking.status, input.status));
-      if (input.priority) conditions.push(eq(recommendationsTracking.priority, input.priority));
-      if (input.assignedTo) conditions.push(eq(recommendationsTracking.assignedTo, input.assignedTo));
-      if (input.category) conditions.push(eq(recommendationsTracking.category, input.category));
+      if (input.status)
+        conditions.push(eq(recommendationsTracking.status, input.status));
+      if (input.priority)
+        conditions.push(eq(recommendationsTracking.priority, input.priority));
+      if (input.assignedTo)
+        conditions.push(
+          eq(recommendationsTracking.assignedTo, input.assignedTo)
+        );
+      if (input.category)
+        conditions.push(eq(recommendationsTracking.category, input.category));
 
       const results = await db
         .select({
@@ -36,9 +54,15 @@ export const recommendationsTrackingRouter = router({
           department: departments,
         })
         .from(recommendationsTracking)
-        .leftJoin(rootCauseAnalysis, eq(recommendationsTracking.analysisId, rootCauseAnalysis.id))
+        .leftJoin(
+          rootCauseAnalysis,
+          eq(recommendationsTracking.analysisId, rootCauseAnalysis.id)
+        )
         .leftJoin(users, eq(recommendationsTracking.assignedTo, users.id))
-        .leftJoin(departments, eq(recommendationsTracking.targetDepartmentId, departments.id))
+        .leftJoin(
+          departments,
+          eq(recommendationsTracking.targetDepartmentId, departments.id)
+        )
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(recommendationsTracking.createdAt));
 
@@ -52,7 +76,11 @@ export const recommendationsTrackingRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [result] = await db
         .select({
@@ -62,13 +90,22 @@ export const recommendationsTrackingRouter = router({
           department: departments,
         })
         .from(recommendationsTracking)
-        .leftJoin(rootCauseAnalysis, eq(recommendationsTracking.analysisId, rootCauseAnalysis.id))
+        .leftJoin(
+          rootCauseAnalysis,
+          eq(recommendationsTracking.analysisId, rootCauseAnalysis.id)
+        )
         .leftJoin(users, eq(recommendationsTracking.assignedTo, users.id))
-        .leftJoin(departments, eq(recommendationsTracking.targetDepartmentId, departments.id))
+        .leftJoin(
+          departments,
+          eq(recommendationsTracking.targetDepartmentId, departments.id)
+        )
         .where(eq(recommendationsTracking.id, input.id));
 
       if (!result) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Recomendación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Recomendación no encontrada",
+        });
       }
 
       return result;
@@ -94,9 +131,15 @@ export const recommendationsTrackingRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
-      const [newRecommendation] = await (db.insert(recommendationsTracking) as any).values({
+      const [newRecommendation] = await (
+        db.insert(recommendationsTracking) as any
+      ).values({
         analysisId: input.analysisId,
         recommendation: input.recommendation,
         priority: input.priority,
@@ -119,7 +162,10 @@ export const recommendationsTrackingRouter = router({
         });
       }
 
-      return { id: newRecommendation.insertId, message: "Recomendación creada exitosamente" };
+      return {
+        id: newRecommendation.insertId,
+        message: "Recomendación creada exitosamente",
+      };
     }),
 
   /**
@@ -132,7 +178,9 @@ export const recommendationsTrackingRouter = router({
         recommendation: z.string().optional(),
         priority: z.enum(["low", "medium", "high", "critical"]).optional(),
         category: z.string().optional(),
-        status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
+        status: z
+          .enum(["pending", "in_progress", "completed", "cancelled"])
+          .optional(),
         assignedTo: z.number().optional(),
         dueDate: z.string().optional(),
         completionDate: z.string().optional(),
@@ -143,7 +191,11 @@ export const recommendationsTrackingRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener recomendación actual
       const [current] = await db
@@ -152,28 +204,40 @@ export const recommendationsTrackingRouter = router({
         .where(eq(recommendationsTracking.id, input.id));
 
       if (!current) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Recomendación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Recomendación no encontrada",
+        });
       }
 
       // Calcular porcentaje de reducción si se actualiza currentCaseCount
       let reductionPercentage = current.reductionPercentage;
       if (input.currentCaseCount !== undefined && current.baselineCaseCount) {
-        const reduction = ((current.baselineCaseCount - input.currentCaseCount) / current.baselineCaseCount) * 100;
+        const reduction =
+          ((current.baselineCaseCount - input.currentCaseCount) /
+            current.baselineCaseCount) *
+          100;
         reductionPercentage = reduction.toFixed(2);
       }
 
       const updateData: any = {};
-      if (input.recommendation !== undefined) updateData.recommendation = input.recommendation;
+      if (input.recommendation !== undefined)
+        updateData.recommendation = input.recommendation;
       if (input.priority !== undefined) updateData.priority = input.priority;
       if (input.category !== undefined) updateData.category = input.category;
       if (input.status !== undefined) updateData.status = input.status;
-      if (input.assignedTo !== undefined) updateData.assignedTo = input.assignedTo;
+      if (input.assignedTo !== undefined)
+        updateData.assignedTo = input.assignedTo;
       if (input.dueDate !== undefined) updateData.dueDate = input.dueDate;
-      if (input.completionDate !== undefined) updateData.completionDate = input.completionDate;
-      if (input.currentCaseCount !== undefined) updateData.currentCaseCount = input.currentCaseCount;
+      if (input.completionDate !== undefined)
+        updateData.completionDate = input.completionDate;
+      if (input.currentCaseCount !== undefined)
+        updateData.currentCaseCount = input.currentCaseCount;
       if (input.notes !== undefined) updateData.notes = input.notes;
-      if (input.evidenceUrls !== undefined) updateData.evidenceUrls = input.evidenceUrls;
-      if (reductionPercentage !== current.reductionPercentage) updateData.reductionPercentage = reductionPercentage;
+      if (input.evidenceUrls !== undefined)
+        updateData.evidenceUrls = input.evidenceUrls;
+      if (reductionPercentage !== current.reductionPercentage)
+        updateData.reductionPercentage = reductionPercentage;
 
       await db
         .update(recommendationsTracking)
@@ -200,9 +264,15 @@ export const recommendationsTrackingRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
-      await db.delete(recommendationsTracking).where(eq(recommendationsTracking.id, input.id));
+      await db
+        .delete(recommendationsTracking)
+        .where(eq(recommendationsTracking.id, input.id));
 
       return { message: "Recomendación eliminada exitosamente" };
     }),
@@ -212,7 +282,11 @@ export const recommendationsTrackingRouter = router({
    */
   getDashboard: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     // Estadísticas generales
     const [stats] = await db
@@ -256,7 +330,10 @@ export const recommendationsTrackingRouter = router({
         department: departments,
       })
       .from(recommendationsTracking)
-      .leftJoin(departments, eq(recommendationsTracking.targetDepartmentId, departments.id))
+      .leftJoin(
+        departments,
+        eq(recommendationsTracking.targetDepartmentId, departments.id)
+      )
       .where(
         and(
           eq(recommendationsTracking.status, "completed"),
@@ -297,7 +374,11 @@ export const recommendationsTrackingRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [current] = await db
         .select()
@@ -305,14 +386,23 @@ export const recommendationsTrackingRouter = router({
         .where(eq(recommendationsTracking.id, input.id));
 
       if (!current) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Recomendación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Recomendación no encontrada",
+        });
       }
 
       if (!current.baselineCaseCount) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "No se ha establecido un baseline de casos" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No se ha establecido un baseline de casos",
+        });
       }
 
-      const reduction = ((current.baselineCaseCount - input.currentCaseCount) / current.baselineCaseCount) * 100;
+      const reduction =
+        ((current.baselineCaseCount - input.currentCaseCount) /
+          current.baselineCaseCount) *
+        100;
       const reductionPercentage = reduction.toFixed(2);
 
       await db
@@ -336,7 +426,11 @@ export const recommendationsTrackingRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [recommendation] = await db
         .select()
@@ -344,11 +438,17 @@ export const recommendationsTrackingRouter = router({
         .where(eq(recommendationsTracking.id, input.id));
 
       if (!recommendation) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Recomendación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Recomendación no encontrada",
+        });
       }
 
       if (!recommendation.targetCaseType) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "No se ha especificado un tipo de caso objetivo" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No se ha especificado un tipo de caso objetivo",
+        });
       }
 
       // Contar casos actuales del tipo objetivo en workplace_violence_cases
@@ -363,7 +463,10 @@ export const recommendationsTrackingRouter = router({
       // Calcular reducción si hay baseline
       let reductionPercentage = null;
       if (recommendation.baselineCaseCount) {
-        const reduction = ((recommendation.baselineCaseCount - currentCount) / recommendation.baselineCaseCount) * 100;
+        const reduction =
+          ((recommendation.baselineCaseCount - currentCount) /
+            recommendation.baselineCaseCount) *
+          100;
         reductionPercentage = reduction.toFixed(2);
       }
 
@@ -378,7 +481,9 @@ export const recommendationsTrackingRouter = router({
       return {
         message: "Efectividad calculada exitosamente",
         currentCaseCount: currentCount,
-        reductionPercentage: reductionPercentage ? parseFloat(reductionPercentage) : null,
+        reductionPercentage: reductionPercentage
+          ? parseFloat(reductionPercentage)
+          : null,
       };
     }),
 });

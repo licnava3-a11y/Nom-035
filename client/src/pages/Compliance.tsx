@@ -1,8 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, FileText, Shield, AlertCircle, TrendingUp, Users } from "lucide-react";
+import {
+  CheckCircle2,
+  FileText,
+  Shield,
+  AlertCircle,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 
@@ -11,22 +24,24 @@ export default function Compliance() {
     {
       id: 1,
       title: "Verificación de Numerales",
-      description: "Checklist de cumplimiento de los numerales de la NOM-035-STPS-2018",
+      description:
+        "Checklist de cumplimiento de los numerales de la NOM-035-STPS-2018",
       icon: CheckCircle2,
       color: "bg-green-500",
       route: "/numerals-verification",
       status: "100%",
-      statusColor: "bg-green-100 text-green-800"
+      statusColor: "bg-green-100 text-green-800",
     },
     {
       id: 2,
       title: "Dashboard de Cumplimiento",
-      description: "Panel de control con métricas y estadísticas de cumplimiento normativo",
+      description:
+        "Panel de control con métricas y estadísticas de cumplimiento normativo",
       icon: TrendingUp,
       color: "bg-blue-500",
       route: "/compliance-dashboard",
       status: "Activo",
-      statusColor: "bg-blue-100 text-blue-800"
+      statusColor: "bg-blue-100 text-blue-800",
     },
     {
       id: 3,
@@ -36,17 +51,18 @@ export default function Compliance() {
       color: "bg-purple-500",
       route: "/compliance/checklist",
       status: "Disponible",
-      statusColor: "bg-purple-100 text-purple-800"
+      statusColor: "bg-purple-100 text-purple-800",
     },
     {
       id: 4,
       title: "Alertas de Cumplimiento",
-      description: "Notificaciones y alertas sobre requisitos pendientes o próximos a vencer",
+      description:
+        "Notificaciones y alertas sobre requisitos pendientes o próximos a vencer",
       icon: AlertCircle,
       color: "bg-orange-500",
       route: "/security-alerts",
       status: "3 Alertas",
-      statusColor: "bg-orange-100 text-orange-800"
+      statusColor: "bg-orange-100 text-orange-800",
     },
     {
       id: 5,
@@ -56,7 +72,7 @@ export default function Compliance() {
       color: "bg-indigo-500",
       route: "/committee",
       status: "Activo",
-      statusColor: "bg-indigo-100 text-indigo-800"
+      statusColor: "bg-indigo-100 text-indigo-800",
     },
     {
       id: 6,
@@ -66,8 +82,8 @@ export default function Compliance() {
       color: "bg-red-500",
       route: "/documents",
       status: "12 Docs",
-      statusColor: "bg-red-100 text-red-800"
-    }
+      statusColor: "bg-red-100 text-red-800",
+    },
   ];
 
   return (
@@ -76,7 +92,8 @@ export default function Compliance() {
         <div>
           <h1 className="text-3xl font-bold">Cumplimiento Normativo</h1>
           <p className="text-muted-foreground mt-2">
-            Gestión integral del cumplimiento de la NOM-035-STPS-2018 y otras normativas laborales
+            Gestión integral del cumplimiento de la NOM-035-STPS-2018 y otras
+            normativas laborales
           </p>
         </div>
 
@@ -138,7 +155,9 @@ export default function Compliance() {
                       <div className={`${module.color} p-3 rounded-lg`}>
                         <Icon className="h-6 w-6 text-white" />
                       </div>
-                      <Badge className={module.statusColor}>{module.status}</Badge>
+                      <Badge className={module.statusColor}>
+                        {module.status}
+                      </Badge>
                     </div>
                     <CardTitle className="mt-4">{module.title}</CardTitle>
                     <CardDescription>{module.description}</CardDescription>
@@ -157,7 +176,9 @@ export default function Compliance() {
         <Card>
           <CardHeader>
             <CardTitle>Acciones Rápidas</CardTitle>
-            <CardDescription>Enlaces directos a funcionalidades de cumplimiento</CardDescription>
+            <CardDescription>
+              Enlaces directos a funcionalidades de cumplimiento
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-2 md:grid-cols-2">

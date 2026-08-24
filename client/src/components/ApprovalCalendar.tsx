@@ -1,10 +1,29 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
 import { useLocation } from "wouter";
 import { CalendarSkeleton } from "@/components/skeletons";
 import { EmptyState, InlineEmptyState } from "@/components/EmptyState";
@@ -17,22 +36,26 @@ interface ApprovalCalendarProps {
 export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
   const [, setLocation] = useLocation();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed" | "overdue">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "pending" | "completed" | "overdue"
+  >("all");
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
 
   // Query para calendario del mes
-  const { data: calendarData, isLoading } = trpc.committeeOperatingRules.getApprovalCalendar.useQuery({
-    year,
-    month,
-    status: statusFilter,
-  });
+  const { data: calendarData, isLoading } =
+    trpc.committeeOperatingRules.getApprovalCalendar.useQuery({
+      year,
+      month,
+      status: statusFilter,
+    });
 
   // Query para deadlines próximos
-  const { data: upcomingData } = trpc.committeeOperatingRules.getUpcomingDeadlines.useQuery({
-    days: 7,
-  });
+  const { data: upcomingData } =
+    trpc.committeeOperatingRules.getUpcomingDeadlines.useQuery({
+      days: 7,
+    });
 
   // Navegación de mes
   const goToPreviousMonth = () => {
@@ -70,7 +93,10 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
   };
 
   const days = getDaysInMonth();
-  const monthName = new Date(year, month - 1, 1).toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+  const monthName = new Date(year, month - 1, 1).toLocaleDateString("es-ES", {
+    month: "long",
+    year: "numeric",
+  });
 
   // Obtener eventos de un día
   const getEventsForDay = (day: number) => {
@@ -106,7 +132,9 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
           <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h2 className="text-2xl font-bold capitalize min-w-[200px] text-center">{monthName}</h2>
+          <h2 className="text-2xl font-bold capitalize min-w-[200px] text-center">
+            {monthName}
+          </h2>
           <Button variant="outline" size="icon" onClick={goToNextMonth}>
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -116,7 +144,10 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+          <Select
+            value={statusFilter}
+            onValueChange={(value: any) => setStatusFilter(value)}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrar por estado" />
             </SelectTrigger>
@@ -146,16 +177,25 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
             {isLoading ? (
               <CalendarSkeleton />
             ) : calendarData?.totalEvents === 0 ? (
-              <InlineEmptyState {...({} as any)} icon={EMPTY_STATES.calendar_no_deadlines.icon} title={EMPTY_STATES.calendar_no_deadlines.title} description={EMPTY_STATES.calendar_no_deadlines.description}
+              <InlineEmptyState
+                {...({} as any)}
+                icon={EMPTY_STATES.calendar_no_deadlines.icon}
+                title={EMPTY_STATES.calendar_no_deadlines.title}
+                description={EMPTY_STATES.calendar_no_deadlines.description}
               />
             ) : (
               <div className="grid grid-cols-7 gap-2">
                 {/* Encabezados de días */}
-                {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map((day: any) => (
-                  <div key={day} className="text-center font-semibold text-sm text-muted-foreground py-2">
-                    {day}
-                  </div>
-                ))}
+                {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map(
+                  (day: any) => (
+                    <div
+                      key={day}
+                      className="text-center font-semibold text-sm text-muted-foreground py-2"
+                    >
+                      {day}
+                    </div>
+                  )
+                )}
 
                 {/* Días del mes */}
                 {days.map((day, index) => {
@@ -176,7 +216,9 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
                     >
                       {day && (
                         <>
-                          <div className={`text-sm font-medium mb-1 ${today ? "text-primary" : ""}`}>
+                          <div
+                            className={`text-sm font-medium mb-1 ${today ? "text-primary" : ""}`}
+                          >
                             {day}
                           </div>
                           {hasEvents && (
@@ -184,7 +226,9 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
                               {events.slice(0, 2).map((event: any) => (
                                 <div
                                   key={event.id}
-                                  onClick={() => handleEventClick(event.operatingRuleId)}
+                                  onClick={() =>
+                                    handleEventClick(event.operatingRuleId)
+                                  }
                                   className={`
                                     text-xs p-1 rounded truncate
                                     ${event.isOverdue ? "bg-destructive/20 text-destructive" : ""}
@@ -234,21 +278,23 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
                     className="p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors"
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="font-medium text-sm">{deadline.ruleVersion}</div>
+                      <div className="font-medium text-sm">
+                        {deadline.ruleVersion}
+                      </div>
                       <Badge
                         variant={
                           deadline.urgency === "critical"
                             ? "destructive"
                             : deadline.urgency === "high"
-                            ? "default"
-                            : "secondary"
+                              ? "default"
+                              : "secondary"
                         }
                       >
                         {deadline.daysLeft === 0
                           ? "Hoy"
                           : deadline.daysLeft === 1
-                          ? "Mañana"
-                          : `${deadline.daysLeft}d`}
+                            ? "Mañana"
+                            : `${deadline.daysLeft}d`}
                       </Badge>
                     </div>
                     <div className="text-sm text-muted-foreground">
@@ -264,7 +310,9 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
                 ))}
               </div>
             ) : (
-              <InlineEmptyState {...({} as any)} icon={CheckCircle2}
+              <InlineEmptyState
+                {...({} as any)}
+                icon={CheckCircle2}
                 title="Sin deadlines próximos"
                 description="No hay aprobaciones pendientes en los próximos 7 días"
               />

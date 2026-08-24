@@ -1,14 +1,43 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter } from "recharts";
-import { Target, TrendingUp, DollarSign, Activity, AlertCircle } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ScatterChart,
+  Scatter,
+} from "recharts";
+import {
+  Target,
+  TrendingUp,
+  DollarSign,
+  Activity,
+  AlertCircle,
+} from "lucide-react";
 
 const interventionTypeLabels: Record<string, string> = {
   training: "Capacitación",
@@ -21,7 +50,14 @@ const interventionTypeLabels: Record<string, string> = {
 
 export default function InterventionPredictionDashboard() {
   // Form state
-  const [interventionType, setInterventionType] = useState<"training" | "salary_adjustment" | "position_change" | "benefits" | "recognition" | "other">("training");
+  const [interventionType, setInterventionType] = useState<
+    | "training"
+    | "salary_adjustment"
+    | "position_change"
+    | "benefits"
+    | "recognition"
+    | "other"
+  >("training");
   const [cost, setCost] = useState("5000");
   const [department, setDepartment] = useState("");
   const [position, setPosition] = useState("");
@@ -29,7 +65,11 @@ export default function InterventionPredictionDashboard() {
   const [turnoverProbability, setTurnoverProbability] = useState([50]);
 
   // Query prediction
-  const { data: prediction, isLoading, refetch } = trpc.interventionPrediction.predictEffectiveness.useQuery({
+  const {
+    data: prediction,
+    isLoading,
+    refetch,
+  } = trpc.interventionPrediction.predictEffectiveness.useQuery({
     interventionType,
     cost: parseFloat(cost) || 0,
     department: department || undefined,
@@ -39,17 +79,24 @@ export default function InterventionPredictionDashboard() {
   });
 
   // Generar datos para gráfico de costo vs probabilidad
-  const costVsProbabilityData = [1000, 3000, 5000, 10000, 15000, 20000, 30000].map((c: any) => ({
+  const costVsProbabilityData = [
+    1000, 3000, 5000, 10000, 15000, 20000, 30000,
+  ].map((c: any) => ({
     cost: c,
-    probability: prediction ? prediction.successProbability * (c / (parseFloat(cost) || 5000)) * 0.95 : 50,
+    probability: prediction
+      ? prediction.successProbability * (c / (parseFloat(cost) || 5000)) * 0.95
+      : 50,
   }));
 
   return (
     <div className="container mx-auto py-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Predicción de Efectividad de Intervenciones</h1>
+        <h1 className="text-3xl font-bold">
+          Predicción de Efectividad de Intervenciones
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Simula intervenciones y predice su probabilidad de éxito antes de aplicarlas
+          Simula intervenciones y predice su probabilidad de éxito antes de
+          aplicarlas
         </p>
       </div>
 
@@ -58,19 +105,28 @@ export default function InterventionPredictionDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Simulador de Intervención</CardTitle>
-            <CardDescription>Configura los parámetros de la intervención a evaluar</CardDescription>
+            <CardDescription>
+              Configura los parámetros de la intervención a evaluar
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="interventionType">Tipo de Intervención</Label>
-              <Select value={interventionType} onValueChange={(value: any) => setInterventionType(value)}>
+              <Select
+                value={interventionType}
+                onValueChange={(value: any) => setInterventionType(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="training">Capacitación</SelectItem>
-                  <SelectItem value="salary_adjustment">Ajuste Salarial</SelectItem>
-                  <SelectItem value="position_change">Cambio de Puesto</SelectItem>
+                  <SelectItem value="salary_adjustment">
+                    Ajuste Salarial
+                  </SelectItem>
+                  <SelectItem value="position_change">
+                    Cambio de Puesto
+                  </SelectItem>
                   <SelectItem value="benefits">Beneficios</SelectItem>
                   <SelectItem value="recognition">Reconocimiento</SelectItem>
                   <SelectItem value="other">Otro</SelectItem>
@@ -84,7 +140,7 @@ export default function InterventionPredictionDashboard() {
                 id="cost"
                 type="number"
                 value={cost}
-                onChange={(e) => setCost(e.target.value)}
+                onChange={e => setCost(e.target.value)}
                 placeholder="5000"
               />
             </div>
@@ -94,7 +150,7 @@ export default function InterventionPredictionDashboard() {
               <Input
                 id="department"
                 value={department}
-                onChange={(e) => setDepartment(e.target.value)}
+                onChange={e => setDepartment(e.target.value)}
                 placeholder="Ej: Ventas"
               />
             </div>
@@ -104,7 +160,7 @@ export default function InterventionPredictionDashboard() {
               <Input
                 id="position"
                 value={position}
-                onChange={(e) => setPosition(e.target.value)}
+                onChange={e => setPosition(e.target.value)}
                 placeholder="Ej: Analista"
               />
             </div>
@@ -149,14 +205,18 @@ export default function InterventionPredictionDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             {isLoading ? (
-              <p className="text-center text-muted-foreground">Calculando predicción...</p>
+              <p className="text-center text-muted-foreground">
+                Calculando predicción...
+              </p>
             ) : prediction ? (
               <>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Target className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium">Probabilidad de Éxito</span>
+                      <span className="text-sm font-medium">
+                        Probabilidad de Éxito
+                      </span>
                     </div>
                     <div className="text-3xl font-bold text-blue-600">
                       {prediction.successProbability}%
@@ -169,14 +229,17 @@ export default function InterventionPredictionDashboard() {
                       <span className="text-sm font-medium">ROI Esperado</span>
                     </div>
                     <div className="text-3xl font-bold text-green-600">
-                      {prediction.expectedROI > 0 ? "+" : ""}{prediction.expectedROI}%
+                      {prediction.expectedROI > 0 ? "+" : ""}
+                      {prediction.expectedROI}%
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <TrendingUp className="h-4 w-4 text-purple-600" />
-                      <span className="text-sm font-medium">Reducción de Riesgo</span>
+                      <span className="text-sm font-medium">
+                        Reducción de Riesgo
+                      </span>
                     </div>
                     <div className="text-3xl font-bold text-purple-600">
                       {prediction.expectedRiskReduction}%
@@ -212,20 +275,28 @@ export default function InterventionPredictionDashboard() {
                     <div className="grid gap-2 text-sm text-muted-foreground">
                       <div className="flex justify-between">
                         <span>Casos totales:</span>
-                        <span className="font-medium">{prediction.historicalData.totalCases}</span>
+                        <span className="font-medium">
+                          {prediction.historicalData.totalCases}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Casos similares:</span>
-                        <span className="font-medium">{prediction.historicalData.similarCases}</span>
+                        <span className="font-medium">
+                          {prediction.historicalData.similarCases}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Tasa de éxito base:</span>
-                        <span className="font-medium">{prediction.historicalData.baseSuccessRate}%</span>
+                        <span className="font-medium">
+                          {prediction.historicalData.baseSuccessRate}%
+                        </span>
                       </div>
                       {prediction.historicalData.similarCases > 0 && (
                         <div className="flex justify-between">
                           <span>Tasa de éxito similar:</span>
-                          <span className="font-medium">{prediction.historicalData.similarSuccessRate}%</span>
+                          <span className="font-medium">
+                            {prediction.historicalData.similarSuccessRate}%
+                          </span>
                         </div>
                       )}
                     </div>
@@ -233,41 +304,58 @@ export default function InterventionPredictionDashboard() {
                 )}
 
                 <div className="pt-4 border-t">
-                  <p className="text-sm font-medium mb-2">Factores de Confianza</p>
+                  <p className="text-sm font-medium mb-2">
+                    Factores de Confianza
+                  </p>
                   <div className="space-y-2">
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span>Calidad de Datos</span>
-                        <span>{prediction.confidenceFactors.dataQuality.toFixed(0)}%</span>
+                        <span>
+                          {prediction.confidenceFactors.dataQuality.toFixed(0)}%
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${prediction.confidenceFactors.dataQuality}%` }}
+                          style={{
+                            width: `${prediction.confidenceFactors.dataQuality}%`,
+                          }}
                         />
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span>Similaridad</span>
-                        <span>{prediction.confidenceFactors.similarity.toFixed(0)}%</span>
+                        <span>
+                          {prediction.confidenceFactors.similarity.toFixed(0)}%
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-green-600 h-2 rounded-full"
-                          style={{ width: `${prediction.confidenceFactors.similarity}%` }}
+                          style={{
+                            width: `${prediction.confidenceFactors.similarity}%`,
+                          }}
                         />
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span>Alineación de Riesgo</span>
-                        <span>{prediction.confidenceFactors.riskAlignment.toFixed(0)}%</span>
+                        <span>
+                          {prediction.confidenceFactors.riskAlignment.toFixed(
+                            0
+                          )}
+                          %
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-purple-600 h-2 rounded-full"
-                          style={{ width: `${prediction.confidenceFactors.riskAlignment}%` }}
+                          style={{
+                            width: `${prediction.confidenceFactors.riskAlignment}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -275,7 +363,9 @@ export default function InterventionPredictionDashboard() {
                 </div>
               </>
             ) : (
-              <p className="text-center text-muted-foreground">Configura los parámetros y calcula la predicción</p>
+              <p className="text-center text-muted-foreground">
+                Configura los parámetros y calcula la predicción
+              </p>
             )}
           </CardContent>
         </Card>
@@ -286,7 +376,9 @@ export default function InterventionPredictionDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Análisis de Costo vs Probabilidad de Éxito</CardTitle>
-            <CardDescription>Relación entre inversión y efectividad esperada</CardDescription>
+            <CardDescription>
+              Relación entre inversión y efectividad esperada
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -294,15 +386,28 @@ export default function InterventionPredictionDashboard() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="cost"
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                  label={{ value: "Costo (MXN)", position: "insideBottom", offset: -5 }}
+                  tickFormatter={value => `$${(value / 1000).toFixed(0)}k`}
+                  label={{
+                    value: "Costo (MXN)",
+                    position: "insideBottom",
+                    offset: -5,
+                  }}
                 />
                 <YAxis
-                  label={{ value: "Probabilidad de Éxito (%)", angle: -90, position: "insideLeft" }}
+                  label={{
+                    value: "Probabilidad de Éxito (%)",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
                 />
                 <Tooltip
-                  formatter={(value: any) => [`${value.toFixed(1)}%`, "Probabilidad"]}
-                  labelFormatter={(label) => `Costo: $${label.toLocaleString()} MXN`}
+                  formatter={(value: any) => [
+                    `${value.toFixed(1)}%`,
+                    "Probabilidad",
+                  ]}
+                  labelFormatter={label =>
+                    `Costo: $${label.toLocaleString()} MXN`
+                  }
                 />
                 <Legend />
                 <Line

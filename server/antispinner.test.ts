@@ -53,7 +53,9 @@ describe("Anti-Spinner — LandingPage timeout de 3s", () => {
   it("main.tsx oculta la página de bienvenida en máximo 500ms", () => {
     const content = readFileSync(mainPath, "utf-8");
     // Verificar que el timeout de hideAppWelcome es <= 500ms
-    const match = content.match(/setTimeout\s*\(\s*hideAppWelcome\s*,\s*(\d+)\s*\)/);
+    const match = content.match(
+      /setTimeout\s*\(\s*hideAppWelcome\s*,\s*(\d+)\s*\)/
+    );
     expect(match).not.toBeNull();
     const timeoutMs = parseInt(match![1]);
     expect(timeoutMs).toBeLessThanOrEqual(500);

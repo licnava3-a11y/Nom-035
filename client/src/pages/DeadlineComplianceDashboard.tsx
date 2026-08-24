@@ -1,7 +1,19 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ICONS } from "@/lib/iconography";
 import {
@@ -37,17 +49,20 @@ ChartJS.register(
 export default function DeadlineComplianceDashboard() {
   const [period, setPeriod] = useState<number>(90);
 
-  const { data: metrics, isLoading } = trpc.committeeOperatingRules.getDeadlineComplianceMetrics.useQuery({
-    days: period,
-  });
+  const { data: metrics, isLoading } =
+    trpc.committeeOperatingRules.getDeadlineComplianceMetrics.useQuery({
+      days: period,
+    });
 
   if (isLoading) {
     return (
       <div className="container mx-auto py-6 space-y-6">
-        <Breadcrumb items={[
-          { label: "Comité", href: "/committee" },
-          { label: "Cumplimiento de Plazos" }
-        ]} />
+        <Breadcrumb
+          items={[
+            { label: "Comité", href: "/committee" },
+            { label: "Cumplimiento de Plazos" },
+          ]}
+        />
         <DashboardSkeleton />
       </div>
     );
@@ -56,17 +71,20 @@ export default function DeadlineComplianceDashboard() {
   if (!metrics || metrics.summary.totalWithDeadline === 0) {
     return (
       <div className="container mx-auto py-6 space-y-6">
-        <Breadcrumb items={[
-          { label: "Comité", href: "/committee" },
-          { label: "Cumplimiento de Plazos" }
-        ]} />
+        <Breadcrumb
+          items={[
+            { label: "Comité", href: "/committee" },
+            { label: "Cumplimiento de Plazos" },
+          ]}
+        />
         <EmptyState
           {...EMPTY_STATES.reports}
           title="Sin datos históricos de cumplimiento"
           description="No hay aprobaciones con deadlines registradas en el período seleccionado. Crea bases de funcionamiento y solicita aprobaciones con fechas límite para comenzar a visualizar métricas de cumplimiento."
           action={{
             label: "Ir a Bases de Funcionamiento",
-            onClick: () => window.location.href = "/committee-operating-rules"
+            onClick: () =>
+              (window.location.href = "/committee-operating-rules"),
           }}
         />
       </div>
@@ -169,7 +187,9 @@ export default function DeadlineComplianceDashboard() {
         label: "Tiempo Promedio (horas)",
         data: metrics.approverRanking.map((a: any) => a.avgResponseTime),
         backgroundColor: metrics.approverRanking.map((a: any) =>
-          a.avgResponseTime > 168 ? "rgba(239, 68, 68, 0.8)" : "rgba(59, 130, 246, 0.8)"
+          a.avgResponseTime > 168
+            ? "rgba(239, 68, 68, 0.8)"
+            : "rgba(59, 130, 246, 0.8)"
         ),
       },
     ],
@@ -206,19 +226,26 @@ export default function DeadlineComplianceDashboard() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <Breadcrumb items={[
-        { label: "Comité", href: "/committee" },
-        { label: "Cumplimiento de Plazos" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Comité", href: "/committee" },
+          { label: "Cumplimiento de Plazos" },
+        ]}
+      />
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard de Cumplimiento de Plazos</h1>
+          <h1 className="text-3xl font-bold">
+            Dashboard de Cumplimiento de Plazos
+          </h1>
           <p className="text-muted-foreground mt-1">
             Análisis de eficiencia y cuellos de botella en aprobaciones
           </p>
         </div>
-        <Select value={period.toString()} onValueChange={(value) => setPeriod(parseInt(value))}>
+        <Select
+          value={period.toString()}
+          onValueChange={value => setPeriod(parseInt(value))}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue />
           </SelectTrigger>
@@ -235,7 +262,9 @@ export default function DeadlineComplianceDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Cumplimiento</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Cumplimiento
+            </CardTitle>
             <ICONS.status.success className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -243,14 +272,17 @@ export default function DeadlineComplianceDashboard() {
               {metrics.summary.complianceRate}%
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {metrics.summary.completedOnTime} de {metrics.summary.totalWithDeadline} a tiempo
+              {metrics.summary.completedOnTime} de{" "}
+              {metrics.summary.totalWithDeadline} a tiempo
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiempo Promedio de Respuesta</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tiempo Promedio de Respuesta
+            </CardTitle>
             <ICONS.datetime.clock className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -265,7 +297,9 @@ export default function DeadlineComplianceDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aprobaciones Vencidas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Aprobaciones Vencidas
+            </CardTitle>
             <ICONS.status.warning className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -280,11 +314,15 @@ export default function DeadlineComplianceDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total con Deadline</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total con Deadline
+            </CardTitle>
             <ICONS.documents.generic className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.summary.totalWithDeadline}</div>
+            <div className="text-2xl font-bold">
+              {metrics.summary.totalWithDeadline}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               {metrics.summary.completed} completadas
             </p>
@@ -293,11 +331,15 @@ export default function DeadlineComplianceDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aprobadores Activos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Aprobadores Activos
+            </CardTitle>
             <ICONS.users.multiple className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.approverRanking.length}</div>
+            <div className="text-2xl font-bold">
+              {metrics.approverRanking.length}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               {metrics.bottlenecks.length} con retrasos
             </p>
@@ -312,7 +354,9 @@ export default function DeadlineComplianceDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">
               {metrics.monthlyTrends.length > 0
-                ? metrics.monthlyTrends[metrics.monthlyTrends.length - 1].rate.toFixed(1)
+                ? metrics.monthlyTrends[
+                    metrics.monthlyTrends.length - 1
+                  ].rate.toFixed(1)
                 : "0"}
               %
             </div>
@@ -330,7 +374,8 @@ export default function DeadlineComplianceDashboard() {
               Cuellos de Botella Detectados
             </CardTitle>
             <CardDescription>
-              Los siguientes aprobadores tienen un tiempo promedio de respuesta mayor a 7 días
+              Los siguientes aprobadores tienen un tiempo promedio de respuesta
+              mayor a 7 días
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -364,7 +409,9 @@ export default function DeadlineComplianceDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución de Tiempos de Respuesta</CardTitle>
-            <CardDescription>Aprobaciones completadas por rango de tiempo</CardDescription>
+            <CardDescription>
+              Aprobaciones completadas por rango de tiempo
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div style={{ height: "300px" }}>
@@ -393,12 +440,17 @@ export default function DeadlineComplianceDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Análisis por Rol</CardTitle>
-          <CardDescription>Comparativa de desempeño por rol en el comité</CardDescription>
+          <CardDescription>
+            Comparativa de desempeño por rol en el comité
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {metrics.roleAnalysis.map((role: any) => (
-              <div key={role.role} className="flex items-center justify-between p-4 border rounded-lg">
+              <div
+                key={role.role}
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
                 <div className="flex-1">
                   <div className="font-medium">{role.label}</div>
                   <div className="text-sm text-muted-foreground mt-1">
@@ -407,15 +459,23 @@ export default function DeadlineComplianceDashboard() {
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Tiempo Promedio</div>
+                    <div className="text-sm text-muted-foreground">
+                      Tiempo Promedio
+                    </div>
                     <div className="font-medium">
-                      {role.avgResponseTime > 0 ? `${role.avgResponseTime.toFixed(1)}h` : "N/A"}
+                      {role.avgResponseTime > 0
+                        ? `${role.avgResponseTime.toFixed(1)}h`
+                        : "N/A"}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Tasa a Tiempo</div>
+                    <div className="text-sm text-muted-foreground">
+                      Tasa a Tiempo
+                    </div>
                     <div className="font-medium">
-                      {role.onTimeRate > 0 ? `${role.onTimeRate.toFixed(1)}%` : "N/A"}
+                      {role.onTimeRate > 0
+                        ? `${role.onTimeRate.toFixed(1)}%`
+                        : "N/A"}
                     </div>
                   </div>
                   <Badge
@@ -423,15 +483,15 @@ export default function DeadlineComplianceDashboard() {
                       role.avgResponseTime > 168
                         ? "destructive"
                         : role.avgResponseTime > 72
-                        ? "default"
-                        : "secondary"
+                          ? "default"
+                          : "secondary"
                     }
                   >
                     {role.avgResponseTime > 168
                       ? "Lento"
                       : role.avgResponseTime > 72
-                      ? "Normal"
-                      : "Rápido"}
+                        ? "Normal"
+                        : "Rápido"}
                   </Badge>
                 </div>
               </div>
@@ -444,16 +504,23 @@ export default function DeadlineComplianceDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Documentos con Mayor Tiempo de Aprobación</CardTitle>
-          <CardDescription>Top 10 aprobaciones que tomaron más tiempo</CardDescription>
+          <CardDescription>
+            Top 10 aprobaciones que tomaron más tiempo
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {metrics.slowestDocuments.length > 0 ? (
               metrics.slowestDocuments.map((doc, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="flex-1">
                     <div className="font-medium">{doc.version}</div>
-                    <div className="text-sm text-muted-foreground">{doc.approverName}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {doc.approverName}
+                    </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
@@ -465,7 +532,9 @@ export default function DeadlineComplianceDashboard() {
                       </div>
                     </div>
                     {doc.wasOnTime !== null && (
-                      <Badge variant={doc.wasOnTime ? "secondary" : "destructive"}>
+                      <Badge
+                        variant={doc.wasOnTime ? "secondary" : "destructive"}
+                      >
                         {doc.wasOnTime ? "A tiempo" : "Vencido"}
                       </Badge>
                     )}

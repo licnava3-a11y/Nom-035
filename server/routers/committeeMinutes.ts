@@ -2,23 +2,35 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { requirePermission, requireDelete } from "../permissions";
-import { committeeMinuteAgendaItems, committeeMinuteAgreements, committeeMinuteAttendees, committeeMinuteHistory, committeeMinutes, signatures } from "../../drizzle/schema";
+import {
+  committeeMinuteAgendaItems,
+  committeeMinuteAgreements,
+  committeeMinuteAttendees,
+  committeeMinuteHistory,
+  committeeMinutes,
+  signatures,
+} from "../../drizzle/schema";
 import { eq, desc, and, like } from "drizzle-orm";
 
 export const committeeMinutesRouter = router({
   // Listar todas las minutas
   list: protectedProcedure
-    .input(z.object({
-      status: z.enum(['borrador', 'finalizada', 'archivada', 'all']).optional().default('all'),
-      limit: z.number().optional().default(50),
-      offset: z.number().optional().default(0),
-    }))
+    .input(
+      z.object({
+        status: z
+          .enum(["borrador", "finalizada", "archivada", "all"])
+          .optional()
+          .default("all"),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      })
+    )
     .query(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const conditions = [];
-      if (input.status !== 'all') {
+      if (input.status !== "all") {
         conditions.push(eq(committeeMinutes.status, input.status));
       }
 
@@ -41,7 +53,7 @@ export const committeeMinutesRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const [minute] = await db
         .select()
@@ -50,7 +62,7 @@ export const committeeMinutesRouter = router({
         .limit(1);
 
       if (!minute) {
-        throw new Error('Minuta no encontrada');
+        throw new Error("Minuta no encontrada");
       }
 
       // Obtener asistentes
@@ -91,49 +103,75 @@ export const committeeMinutesRouter = router({
 
   // Crear nueva minuta
   create: protectedProcedure
-    .use(requirePermission('can_create'))
-    .input(z.object({
-      numeroSesion: z.string(),
-      tipoReunion: z.string(),
-      fecha: z.string(),
-      hora: z.string(),
-      lugar: z.string(),
-      desarrollo: z.string().optional(),
-      observaciones: z.string().optional(),
-      status: z.enum(['borrador', 'finalizada', 'archivada']).default('borrador'),
-      attendees: z.array(z.object({
-        nombre: z.string(),
-        cargo: z.string(),
-        rolComite: z.string(),
-        asistencia: z.enum(['presente', 'ausente', 'justificado']),
-      })).optional().default([]),
-      agendaItems: z.array(z.object({
-        orden: z.number(),
-        tema: z.string(),
-        descripcion: z.string().optional(),
-      })).optional().default([]),
-      agreements: z.array(z.object({
-        numero: z.number(),
-        descripcion: z.string(),
-        responsable: z.string(),
-        fechaCompromiso: z.string(),
-        estado: z.enum(['pendiente', 'en_proceso', 'completado', 'cancelado']).default('pendiente'),
-      })).optional().default([]),
-    }))
+    .use(requirePermission("can_create"))
+    .input(
+      z.object({
+        numeroSesion: z.string(),
+        tipoReunion: z.string(),
+        fecha: z.string(),
+        hora: z.string(),
+        lugar: z.string(),
+        desarrollo: z.string().optional(),
+        observaciones: z.string().optional(),
+        status: z
+          .enum(["borrador", "finalizada", "archivada"])
+          .default("borrador"),
+        attendees: z
+          .array(
+            z.object({
+              nombre: z.string(),
+              cargo: z.string(),
+              rolComite: z.string(),
+              asistencia: z.enum(["presente", "ausente", "justificado"]),
+            })
+          )
+          .optional()
+          .default([]),
+        agendaItems: z
+          .array(
+            z.object({
+              orden: z.number(),
+              tema: z.string(),
+              descripcion: z.string().optional(),
+            })
+          )
+          .optional()
+          .default([]),
+        agreements: z
+          .array(
+            z.object({
+              numero: z.number(),
+              descripcion: z.string(),
+              responsable: z.string(),
+              fechaCompromiso: z.string(),
+              estado: z
+                .enum(["pendiente", "en_proceso", "completado", "cancelado"])
+                .default("pendiente"),
+            })
+          )
+          .optional()
+          .default([]),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Crear minuta principal
       const [newMinute] = await db
         .insert(committeeMinutes)
         .values({
-          folio: `MC-${String(input.numeroSesion).padStart(3, '0')}/${new Date().getFullYear()}`,
+          folio: `MC-${String(input.numeroSesion).padStart(3, "0")}/${new Date().getFullYear()}`,
           sessionNumber: parseInt(input.numeroSesion),
           meetingDate: new Date(input.fecha),
           meetingTime: input.hora,
           meetingPlace: input.lugar,
-          meetingType: (input.tipoReunion as 'ordinaria' | 'extraordinaria' | 'urgente' | 'seguimiento') || 'ordinaria',
+          meetingType:
+            (input.tipoReunion as
+              | "ordinaria"
+              | "extraordinaria"
+              | "urgente"
+              | "seguimiento") || "ordinaria",
           status: input.status,
           createdBy: ctx.user!.id,
         })
@@ -184,7 +222,7 @@ export const committeeMinutesRouter = router({
       await (db.insert(committeeMinuteHistory) as any).values({
         minuteId,
         version: 1,
-        changeDescription: 'Creación inicial de la minuta',
+        changeDescription: "Creación inicial de la minuta",
         changedBy: ctx.user!.id,
         snapshot: {},
       });
@@ -192,46 +230,65 @@ export const committeeMinutesRouter = router({
       return {
         success: true,
         minuteId,
-        message: 'Minuta creada exitosamente',
+        message: "Minuta creada exitosamente",
       };
     }),
 
   // Actualizar minuta existente
   update: protectedProcedure
-    .use(requirePermission('can_edit'))
-    .input(z.object({
-      id: z.number(),
-      numeroSesion: z.string().optional(),
-      tipoReunion: z.string().optional(),
-      fecha: z.string().optional(),
-      hora: z.string().optional(),
-      lugar: z.string().optional(),
-      desarrollo: z.string().optional(),
-      observaciones: z.string().optional(),
-      status: z.enum(['borrador', 'finalizada', 'archivada']).optional(),
-      attendees: z.array(z.object({
-        nombre: z.string(),
-        cargo: z.string(),
-        rolComite: z.string(),
-        asistencia: z.enum(['presente', 'ausente', 'justificado']),
-      })).optional(),
-      agendaItems: z.array(z.object({
-        orden: z.number(),
-        tema: z.string(),
-        descripcion: z.string().optional(),
-      })).optional(),
-      agreements: z.array(z.object({
-        numero: z.number(),
-        descripcion: z.string(),
-        responsable: z.string(),
-        fechaCompromiso: z.string(),
-        estado: z.enum(['pendiente', 'en_proceso', 'completado', 'cancelado']),
-      })).optional(),
-      cambios: z.string().optional(),
-    }))
+    .use(requirePermission("can_edit"))
+    .input(
+      z.object({
+        id: z.number(),
+        numeroSesion: z.string().optional(),
+        tipoReunion: z.string().optional(),
+        fecha: z.string().optional(),
+        hora: z.string().optional(),
+        lugar: z.string().optional(),
+        desarrollo: z.string().optional(),
+        observaciones: z.string().optional(),
+        status: z.enum(["borrador", "finalizada", "archivada"]).optional(),
+        attendees: z
+          .array(
+            z.object({
+              nombre: z.string(),
+              cargo: z.string(),
+              rolComite: z.string(),
+              asistencia: z.enum(["presente", "ausente", "justificado"]),
+            })
+          )
+          .optional(),
+        agendaItems: z
+          .array(
+            z.object({
+              orden: z.number(),
+              tema: z.string(),
+              descripcion: z.string().optional(),
+            })
+          )
+          .optional(),
+        agreements: z
+          .array(
+            z.object({
+              numero: z.number(),
+              descripcion: z.string(),
+              responsable: z.string(),
+              fechaCompromiso: z.string(),
+              estado: z.enum([
+                "pendiente",
+                "en_proceso",
+                "completado",
+                "cancelado",
+              ]),
+            })
+          )
+          .optional(),
+        cambios: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Verificar que la minuta existe
       const [existing] = await db
@@ -241,7 +298,7 @@ export const committeeMinutesRouter = router({
         .limit(1);
 
       if (!existing) {
-        throw new Error('Minuta no encontrada');
+        throw new Error("Minuta no encontrada");
       }
 
       // Calcular nueva versión
@@ -249,7 +306,7 @@ export const committeeMinutesRouter = router({
         .select()
         .from(committeeMinuteHistory)
         .where(eq(committeeMinuteHistory.minuteId, input.id));
-      
+
       const newVersion = historyRecords.length + 1;
 
       // Actualizar minuta principal
@@ -259,8 +316,10 @@ export const committeeMinutesRouter = router({
       if (input.fecha) updateData.fecha = input.fecha;
       if (input.hora) updateData.hora = input.hora;
       if (input.lugar) updateData.lugar = input.lugar;
-      if (input.desarrollo !== undefined) updateData.desarrollo = input.desarrollo;
-      if (input.observaciones !== undefined) updateData.observaciones = input.observaciones;
+      if (input.desarrollo !== undefined)
+        updateData.desarrollo = input.desarrollo;
+      if (input.observaciones !== undefined)
+        updateData.observaciones = input.observaciones;
       if (input.status) updateData.status = input.status;
 
       if (Object.keys(updateData).length > 0) {
@@ -333,14 +392,14 @@ export const committeeMinutesRouter = router({
       await (db.insert(committeeMinuteHistory) as any).values({
         minuteId: input.id,
         version: newVersion,
-        changeDescription: input.cambios || 'Actualización de la minuta',
+        changeDescription: input.cambios || "Actualización de la minuta",
         changedBy: ctx.user!.id,
         snapshot: {},
       });
 
       return {
         success: true,
-        message: 'Minuta actualizada exitosamente',
+        message: "Minuta actualizada exitosamente",
         version: newVersion,
       };
     }),
@@ -351,7 +410,7 @@ export const committeeMinutesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Eliminar asistentes
       await db
@@ -380,21 +439,21 @@ export const committeeMinutesRouter = router({
 
       return {
         success: true,
-        message: 'Minuta eliminada exitosamente',
+        message: "Minuta eliminada exitosamente",
       };
     }),
 
   // Publicar borrador
   publish: protectedProcedure
-    .use(requirePermission('can_approve'))
+    .use(requirePermission("can_approve"))
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       await db
         .update(committeeMinutes)
-        .set({ status: 'finalizada' } as any)
+        .set({ status: "finalizada" } as any)
         .where(eq(committeeMinutes.id, input.id));
 
       // Registrar en historial
@@ -402,99 +461,115 @@ export const committeeMinutesRouter = router({
         .select()
         .from(committeeMinuteHistory)
         .where(eq(committeeMinuteHistory.minuteId, input.id));
-      
+
       const newVersion = historyRecords.length + 1;
 
       await (db.insert(committeeMinuteHistory) as any).values({
         minuteId: input.id,
         version: newVersion,
-        changeDescription: 'Minuta publicada',
+        changeDescription: "Minuta publicada",
         changedBy: ctx.user!.id,
         snapshot: {},
       });
 
       return {
         success: true,
-        message: 'Minuta publicada exitosamente',
+        message: "Minuta publicada exitosamente",
       };
     }),
 
   // Subir firma digital a S3
   uploadSignature: protectedProcedure
-    .input(z.object({
-      signatureDataUrl: z.string(), // base64 data URL
-      attendeeName: z.string(),
-    }))
+    .input(
+      z.object({
+        signatureDataUrl: z.string(), // base64 data URL
+        attendeeName: z.string(),
+      })
+    )
     .mutation(async ({ input }) => {
       // Convertir data URL a buffer
-      const base64Data = input.signatureDataUrl.replace(/^data:image\/\w+;base64,/, '');
-      const buffer = Buffer.from(base64Data, 'base64');
+      const base64Data = input.signatureDataUrl.replace(
+        /^data:image\/\w+;base64,/,
+        ""
+      );
+      const buffer = Buffer.from(base64Data, "base64");
 
       // Generar nombre único para la firma
       const timestamp = Date.now();
-      const sanitizedName = input.attendeeName.replace(/[^a-zA-Z0-9]/g, '_');
+      const sanitizedName = input.attendeeName.replace(/[^a-zA-Z0-9]/g, "_");
       const fileName = `signatures/${sanitizedName}_${timestamp}.png`;
 
       // Subir a S3 usando storagePut
-      const { storagePut } = await import('../storage.js');
-      const result = await storagePut(fileName, buffer, 'image/png');
+      const { storagePut } = await import("../storage.js");
+      const result = await storagePut(fileName, buffer, "image/png");
 
       return {
         success: true,
         signatureUrl: result.url,
-        message: 'Firma subida exitosamente',
+        message: "Firma subida exitosamente",
       };
     }),
 
   // Subir archivo (foto grupal, lista de asistencia, PDFs) a S3
   uploadFile: protectedProcedure
-    .input(z.object({
-      fileDataUrl: z.string(), // base64 data URL
-      fileName: z.string(),
-      fileType: z.string(), // mime type
-    }))
+    .input(
+      z.object({
+        fileDataUrl: z.string(), // base64 data URL
+        fileName: z.string(),
+        fileType: z.string(), // mime type
+      })
+    )
     .mutation(async ({ input }) => {
       // Convertir data URL a buffer
-      const base64Data = input.fileDataUrl.replace(/^data:[^;]+;base64,/, '');
-      const buffer = Buffer.from(base64Data, 'base64');
+      const base64Data = input.fileDataUrl.replace(/^data:[^;]+;base64,/, "");
+      const buffer = Buffer.from(base64Data, "base64");
 
       // Generar nombre único para el archivo
       const timestamp = Date.now();
-      const extension = input.fileName.split('.').pop() || 'bin';
-      const sanitizedName = input.fileName.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
+      const extension = input.fileName.split(".").pop() || "bin";
+      const sanitizedName = input.fileName
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[^a-zA-Z0-9]/g, "_");
       const fileName = `committee-minutes/${sanitizedName}_${timestamp}.${extension}`;
 
       // Subir a S3 usando storagePut
-      const { storagePut } = await import('../storage.js');
+      const { storagePut } = await import("../storage.js");
       const result = await storagePut(fileName, buffer, input.fileType);
 
       return {
         success: true,
         fileUrl: result.url,
         fileKey: result.key,
-        message: 'Archivo subido exitosamente',
+        message: "Archivo subido exitosamente",
       };
     }),
 
   // Obtener acuerdos con filtros
   getAgreements: protectedProcedure
-    .input(z.object({
-      responsible: z.string().optional(),
-      priority: z.enum(["baja", "media", "alta", "urgente"]).optional(),
-      status: z.enum(["pendiente", "en_proceso", "completado", "cancelado"]).optional(),
-    }))
+    .input(
+      z.object({
+        responsible: z.string().optional(),
+        priority: z.enum(["baja", "media", "alta", "urgente"]).optional(),
+        status: z
+          .enum(["pendiente", "en_proceso", "completado", "cancelado"])
+          .optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
-      let query = db
-        .select()
-        .from(committeeMinuteAgreements);
+      let query = db.select().from(committeeMinuteAgreements);
 
       // Aplicar filtros
       const conditions = [];
       if (input.responsible) {
-        conditions.push(like(committeeMinuteAgreements.responsibleName, `%${input.responsible}%`));
+        conditions.push(
+          like(
+            committeeMinuteAgreements.responsibleName,
+            `%${input.responsible}%`
+          )
+        );
       }
       if (input.priority) {
         conditions.push(eq(committeeMinuteAgreements.priority, input.priority));
@@ -513,13 +588,15 @@ export const committeeMinutesRouter = router({
 
   // Actualizar estado de acuerdo
   updateAgreementStatus: protectedProcedure
-    .input(z.object({
-      agreementId: z.number(),
-      status: z.enum(["pendiente", "en_proceso", "completado", "cancelado"]),
-    }))
+    .input(
+      z.object({
+        agreementId: z.number(),
+        status: z.enum(["pendiente", "en_proceso", "completado", "cancelado"]),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       await db
         .update(committeeMinuteAgreements)
@@ -528,7 +605,7 @@ export const committeeMinutesRouter = router({
 
       return {
         success: true,
-        message: 'Estado actualizado exitosamente',
+        message: "Estado actualizado exitosamente",
       };
     }),
 });

@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-const DISMISSED_KEY = 'pwa-install-dismissed';
+const DISMISSED_KEY = "pwa-install-dismissed";
 
 export function PWAInstallBanner() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -22,15 +23,15 @@ export function PWAInstallBanner() {
       setTimeout(() => setVisible(true), 3000);
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
+    if (outcome === "accepted") {
       setVisible(false);
     }
     setDeferredPrompt(null);
@@ -38,7 +39,7 @@ export function PWAInstallBanner() {
 
   const handleDismiss = () => {
     setVisible(false);
-    localStorage.setItem(DISMISSED_KEY, '1');
+    localStorage.setItem(DISMISSED_KEY, "1");
   };
 
   if (!visible) return null;
@@ -48,15 +49,26 @@ export function PWAInstallBanner() {
       <div className="bg-card border border-border rounded-2xl shadow-xl p-4 flex items-start gap-3">
         {/* Ícono */}
         <div className="w-10 h-10 rounded-xl bg-primary flex-shrink-0 flex items-center justify-center">
-          <svg className="w-5 h-5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          <svg
+            className="w-5 h-5 text-primary-foreground"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+            />
           </svg>
         </div>
 
         {/* Texto */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-card-foreground">¿Instalar como app?</p>
+          <p className="text-sm font-semibold text-card-foreground">
+            ¿Instalar como app?
+          </p>
           <p className="text-xs text-muted-foreground mt-0.5">
             Accede a NOM-035 desde tu pantalla de inicio sin abrir el navegador.
           </p>
@@ -82,8 +94,18 @@ export function PWAInstallBanner() {
           className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Cerrar"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>

@@ -8,7 +8,11 @@
 
 import { Router } from "express";
 import { getDb } from "./db";
-import { minuteDispatches, minuteRecipients, meetingMinutes } from "../drizzle/schema";
+import {
+  minuteDispatches,
+  minuteRecipients,
+  meetingMinutes,
+} from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { emitCriticalAlertToAdmins } from "./_core/websocket";
 
@@ -19,13 +23,29 @@ confirmReadRouter.get("/confirm-read/:token", async (req, res) => {
   const { token } = req.params;
 
   if (!token || token.length < 10) {
-    return res.status(400).send(buildResultHtml("Token inválido", "El enlace de confirmación no es válido.", false));
+    return res
+      .status(400)
+      .send(
+        buildResultHtml(
+          "Token inválido",
+          "El enlace de confirmación no es válido.",
+          false
+        )
+      );
   }
 
   try {
     const db = await getDb();
     if (!db) {
-      return res.status(500).send(buildResultHtml("Error del servidor", "No se pudo conectar a la base de datos.", false));
+      return res
+        .status(500)
+        .send(
+          buildResultHtml(
+            "Error del servidor",
+            "No se pudo conectar a la base de datos.",
+            false
+          )
+        );
     }
 
     const dispatches = await db
@@ -43,13 +63,27 @@ confirmReadRouter.get("/confirm-read/:token", async (req, res) => {
         meetingType: meetingMinutes.meetingType,
       })
       .from(minuteDispatches)
-      .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
-      .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
+      .leftJoin(
+        minuteRecipients,
+        eq(minuteDispatches.recipientId, minuteRecipients.id)
+      )
+      .leftJoin(
+        meetingMinutes,
+        eq(minuteDispatches.minuteId, meetingMinutes.id)
+      )
       .where(eq(minuteDispatches.readToken, token))
       .limit(1);
 
     if (dispatches.length === 0) {
-      return res.status(404).send(buildResultHtml("Enlace no encontrado", "El enlace de confirmación no existe o ya expiró.", false));
+      return res
+        .status(404)
+        .send(
+          buildResultHtml(
+            "Enlace no encontrado",
+            "El enlace de confirmación no existe o ya expiró.",
+            false
+          )
+        );
     }
 
     const dispatch = dispatches[0];
@@ -75,22 +109,34 @@ confirmReadRouter.get("/confirm-read/:token", async (req, res) => {
 
     // Mostrar formulario de firma
     const meetingDateStr = dispatch.meetingDate
-      ? new Date(dispatch.meetingDate).toLocaleDateString("es-MX", { dateStyle: "long" })
+      ? new Date(dispatch.meetingDate).toLocaleDateString("es-MX", {
+          dateStyle: "long",
+        })
       : "—";
 
-    return res.send(buildSignatureFormHtml({
-      token,
-      recipientName: dispatch.recipientName ?? "",
-      recipientEmail: dispatch.recipientEmail ?? "",
-      recipientPosition: dispatch.recipientPosition ?? "",
-      minuteFolio: dispatch.minuteFolio ?? "",
-      minuteTitle: dispatch.minuteTitle ?? "",
-      meetingDate: meetingDateStr,
-      meetingType: dispatch.meetingType ?? "",
-    }));
+    return res.send(
+      buildSignatureFormHtml({
+        token,
+        recipientName: dispatch.recipientName ?? "",
+        recipientEmail: dispatch.recipientEmail ?? "",
+        recipientPosition: dispatch.recipientPosition ?? "",
+        minuteFolio: dispatch.minuteFolio ?? "",
+        minuteTitle: dispatch.minuteTitle ?? "",
+        meetingDate: meetingDateStr,
+        meetingType: dispatch.meetingType ?? "",
+      })
+    );
   } catch (error) {
     console.error("[ConfirmRead GET] Error:", error);
-    return res.status(500).send(buildResultHtml("Error", "Ocurrió un error al procesar su solicitud. Por favor intente de nuevo.", false));
+    return res
+      .status(500)
+      .send(
+        buildResultHtml(
+          "Error",
+          "Ocurrió un error al procesar su solicitud. Por favor intente de nuevo.",
+          false
+        )
+      );
   }
 });
 
@@ -100,17 +146,41 @@ confirmReadRouter.post("/confirm-read/:token", async (req, res) => {
   const signerName = (req.body?.signerName ?? "").toString().trim();
 
   if (!token || token.length < 10) {
-    return res.status(400).send(buildResultHtml("Token inválido", "El enlace de confirmación no es válido.", false));
+    return res
+      .status(400)
+      .send(
+        buildResultHtml(
+          "Token inválido",
+          "El enlace de confirmación no es válido.",
+          false
+        )
+      );
   }
 
   if (!signerName || signerName.length < 2) {
-    return res.status(400).send(buildResultHtml("Nombre requerido", "Debe ingresar su nombre completo para confirmar la recepción.", false));
+    return res
+      .status(400)
+      .send(
+        buildResultHtml(
+          "Nombre requerido",
+          "Debe ingresar su nombre completo para confirmar la recepción.",
+          false
+        )
+      );
   }
 
   try {
     const db = await getDb();
     if (!db) {
-      return res.status(500).send(buildResultHtml("Error del servidor", "No se pudo conectar a la base de datos.", false));
+      return res
+        .status(500)
+        .send(
+          buildResultHtml(
+            "Error del servidor",
+            "No se pudo conectar a la base de datos.",
+            false
+          )
+        );
     }
 
     const dispatches = await db
@@ -123,19 +193,39 @@ confirmReadRouter.post("/confirm-read/:token", async (req, res) => {
         minuteFolio: meetingMinutes.folio,
       })
       .from(minuteDispatches)
-      .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
-      .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
+      .leftJoin(
+        minuteRecipients,
+        eq(minuteDispatches.recipientId, minuteRecipients.id)
+      )
+      .leftJoin(
+        meetingMinutes,
+        eq(minuteDispatches.minuteId, meetingMinutes.id)
+      )
       .where(eq(minuteDispatches.readToken, token))
       .limit(1);
 
     if (dispatches.length === 0) {
-      return res.status(404).send(buildResultHtml("Enlace no encontrado", "El enlace de confirmación no existe o ya expiró.", false));
+      return res
+        .status(404)
+        .send(
+          buildResultHtml(
+            "Enlace no encontrado",
+            "El enlace de confirmación no existe o ya expiró.",
+            false
+          )
+        );
     }
 
     const dispatch = dispatches[0];
 
     if (dispatch.status === "read" && dispatch.readAt) {
-      return res.send(buildResultHtml("Ya confirmado", "Esta minuta ya fue confirmada previamente. No es necesario confirmar de nuevo.", true));
+      return res.send(
+        buildResultHtml(
+          "Ya confirmado",
+          "Esta minuta ya fue confirmada previamente. No es necesario confirmar de nuevo.",
+          true
+        )
+      );
     }
 
     const now = new Date();
@@ -166,7 +256,10 @@ confirmReadRouter.post("/confirm-read/:token", async (req, res) => {
         message: `${signerName} confirmó la recepción de "${dispatch.minuteTitle || "minuta"}" el ${nowStr}.`,
       });
     } catch (wsErr) {
-      console.warn("[ConfirmRead] No se pudo emitir notificación WebSocket:", wsErr);
+      console.warn(
+        "[ConfirmRead] No se pudo emitir notificación WebSocket:",
+        wsErr
+      );
     }
 
     return res.send(
@@ -178,7 +271,15 @@ confirmReadRouter.post("/confirm-read/:token", async (req, res) => {
     );
   } catch (error) {
     console.error("[ConfirmRead POST] Error:", error);
-    return res.status(500).send(buildResultHtml("Error", "Ocurrió un error al registrar su confirmación. Por favor intente de nuevo.", false));
+    return res
+      .status(500)
+      .send(
+        buildResultHtml(
+          "Error",
+          "Ocurrió un error al registrar su confirmación. Por favor intente de nuevo.",
+          false
+        )
+      );
   }
 });
 
@@ -415,7 +516,11 @@ function buildSignatureFormHtml(data: SignatureFormData): string {
 </html>`;
 }
 
-function buildResultHtml(title: string, message: string, success: boolean): string {
+function buildResultHtml(
+  title: string,
+  message: string,
+  success: boolean
+): string {
   const color = success ? "#16a34a" : "#dc2626";
   const icon = success ? "✓" : "✗";
   const bgColor = success ? "#f0fdf4" : "#fef2f2";

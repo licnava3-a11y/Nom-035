@@ -8,14 +8,14 @@ Esta guía cubre tres métodos de instalación: automático (recomendado), con D
 
 ## Requisitos del Servidor
 
-| Componente | Mínimo | Recomendado |
-|---|---|---|
-| CPU | 2 núcleos | 4 núcleos |
-| RAM | 2 GB | 4 GB |
-| Disco | 20 GB SSD | 50 GB SSD |
-| OS | Ubuntu 20.04+ / Debian 11+ | Ubuntu 22.04 LTS |
-| Node.js | 22.x | 22.x LTS |
-| MySQL | 8.0 | 8.0 |
+| Componente | Mínimo                     | Recomendado      |
+| ---------- | -------------------------- | ---------------- |
+| CPU        | 2 núcleos                  | 4 núcleos        |
+| RAM        | 2 GB                       | 4 GB             |
+| Disco      | 20 GB SSD                  | 50 GB SSD        |
+| OS         | Ubuntu 20.04+ / Debian 11+ | Ubuntu 22.04 LTS |
+| Node.js    | 22.x                       | 22.x LTS         |
+| MySQL      | 8.0                        | 8.0              |
 
 ---
 
@@ -276,16 +276,16 @@ BUILT_IN_FORGE_API_KEY=sk-...
 
 ## Comandos Útiles
 
-| Comando | Descripción |
-|---|---|
-| `pm2 status` | Ver estado de la aplicación |
-| `pm2 logs nom035` | Ver logs en tiempo real |
-| `pm2 restart nom035` | Reiniciar la aplicación |
-| `pnpm drizzle-kit migrate` | Aplicar migraciones de BD |
+| Comando                        | Descripción                 |
+| ------------------------------ | --------------------------- |
+| `pm2 status`                   | Ver estado de la aplicación |
+| `pm2 logs nom035`              | Ver logs en tiempo real     |
+| `pm2 restart nom035`           | Reiniciar la aplicación     |
+| `pnpm drizzle-kit migrate`     | Aplicar migraciones de BD   |
 | `node scripts/setup-admin.mjs` | Crear usuario administrador |
-| `docker compose logs -f app` | Logs con Docker |
-| `docker compose restart app` | Reiniciar con Docker |
-| `pnpm test` | Ejecutar tests (386 tests) |
+| `docker compose logs -f app`   | Logs con Docker             |
+| `docker compose restart app`   | Reiniciar con Docker        |
+| `pnpm test`                    | Ejecutar tests (386 tests)  |
 
 ---
 
@@ -351,30 +351,35 @@ nom035_platform/
 ## Solución de Problemas
 
 **La aplicación no inicia:**
+
 ```bash
 pm2 logs nom035 --lines 50
 # Verificar que DATABASE_URL y JWT_SECRET estén en .env
 ```
 
 **Error de conexión a MySQL:**
+
 ```bash
 mysql -u nom035_user -p nom035_db -h localhost
 # Si falla, verificar permisos del usuario
 ```
 
 **Puerto 3000 ocupado:**
+
 ```bash
 sudo lsof -i :3000
 # Cambiar PORT en .env si es necesario
 ```
 
 **Nginx muestra 502 Bad Gateway:**
+
 ```bash
 pm2 status  # Verificar que la app esté corriendo
 sudo nginx -t  # Verificar configuración de Nginx
 ```
 
 **Error en migraciones:**
+
 ```bash
 pnpm drizzle-kit generate
 pnpm drizzle-kit migrate
@@ -386,14 +391,14 @@ pnpm drizzle-kit migrate
 
 Los siguientes jobs se ejecutan automáticamente al iniciar el servidor:
 
-| Job | Horario | Descripción |
-|---|---|---|
-| `post-case-surveys-job` | Diario 2:00 AM | Crea y envía encuestas post-caso (30/60/90 días) |
-| `security-alerts-job` | Cada hora | Monitorea alertas de seguridad |
-| `survey-alerts-job` | Diario 8:00 AM | Verifica cobertura de encuestas NOM-035 |
-| `compliance-reminders-job` | Semanal | Recordatorios de cumplimiento normativo |
-| `executive-reports-job` | Mensual | Genera reportes ejecutivos automáticos |
+| Job                        | Horario        | Descripción                                      |
+| -------------------------- | -------------- | ------------------------------------------------ |
+| `post-case-surveys-job`    | Diario 2:00 AM | Crea y envía encuestas post-caso (30/60/90 días) |
+| `security-alerts-job`      | Cada hora      | Monitorea alertas de seguridad                   |
+| `survey-alerts-job`        | Diario 8:00 AM | Verifica cobertura de encuestas NOM-035          |
+| `compliance-reminders-job` | Semanal        | Recordatorios de cumplimiento normativo          |
+| `executive-reports-job`    | Mensual        | Genera reportes ejecutivos automáticos           |
 
 ---
 
-*Plataforma NOM-035 STPS 2018 — Todos los derechos reservados*
+_Plataforma NOM-035 STPS 2018 — Todos los derechos reservados_

@@ -2,7 +2,12 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { salaryEquityValidators } from "../validators/common";
 import { getDb } from "../db";
-import { salaryEquityAnalysis, equityReportsHistory, payrollData, users } from "../../drizzle/schema";
+import {
+  salaryEquityAnalysis,
+  equityReportsHistory,
+  payrollData,
+  users,
+} from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
 import PDFDocument from "pdfkit";
 import { storagePut } from "../storage";
@@ -11,8 +16,8 @@ export const salaryEquityRouter = router({
   // Generar nuevo análisis de equidad salarial
   generateAnalysis: protectedProcedure.mutation(async ({ ctx }) => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
-    
+    if (!db) throw new Error("Database not initialized");
+
     // Obtener datos de nómina con información de empleados
     const payrollRecords = await db
       .select({
@@ -33,21 +38,36 @@ export const salaryEquityRouter = router({
     }
 
     // Análisis por Género
-    const maleRecords = payrollRecords.filter(r => (r.gender as string) === "Masculino" || (r.gender as string) === "male");
-    const femaleRecords = payrollRecords.filter(r => (r.gender as string) === "Femenino" || (r.gender as string) === "female");
-    
-    const maleAvgSalary = maleRecords.length > 0
-      ? maleRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / maleRecords.length
-      : 0;
-    
-    const femaleAvgSalary = femaleRecords.length > 0
-      ? femaleRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / femaleRecords.length
-      : 0;
-    
-    const genderPayGap = maleAvgSalary > 0
-      ? ((maleAvgSalary - femaleAvgSalary) / maleAvgSalary) * 100
-      : 0;
-    
+    const maleRecords = payrollRecords.filter(
+      r =>
+        (r.gender as string) === "Masculino" || (r.gender as string) === "male"
+    );
+    const femaleRecords = payrollRecords.filter(
+      r =>
+        (r.gender as string) === "Femenino" || (r.gender as string) === "female"
+    );
+
+    const maleAvgSalary =
+      maleRecords.length > 0
+        ? maleRecords.reduce(
+            (sum: any, r: any) => sum + parseFloat(r.salary || "0"),
+            0
+          ) / maleRecords.length
+        : 0;
+
+    const femaleAvgSalary =
+      femaleRecords.length > 0
+        ? femaleRecords.reduce(
+            (sum: any, r: any) => sum + parseFloat(r.salary || "0"),
+            0
+          ) / femaleRecords.length
+        : 0;
+
+    const genderPayGap =
+      maleAvgSalary > 0
+        ? ((maleAvgSalary - femaleAvgSalary) / maleAvgSalary) * 100
+        : 0;
+
     const genderEquityScore = Math.max(0, 100 - Math.abs(genderPayGap));
 
     // Análisis por Edad
@@ -64,11 +84,15 @@ export const salaryEquityRouter = router({
         const age = today.getFullYear() - new Date(r.dateOfBirth).getFullYear();
         return age >= group.min && age <= group.max;
       });
-      
-      const avgSalary = groupRecords.length > 0
-        ? groupRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / groupRecords.length
-        : 0;
-      
+
+      const avgSalary =
+        groupRecords.length > 0
+          ? groupRecords.reduce(
+              (sum: any, r: any) => sum + parseFloat(r.salary || "0"),
+              0
+            ) / groupRecords.length
+          : 0;
+
       return {
         ageRange: group.ageRange,
         averageSalary: avgSalary,
@@ -77,14 +101,22 @@ export const salaryEquityRouter = router({
       };
     });
 
-    const overallAvgSalary = payrollRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / payrollRecords.length;
+    const overallAvgSalary =
+      payrollRecords.reduce(
+        (sum: any, r: any) => sum + parseFloat(r.salary || "0"),
+        0
+      ) / payrollRecords.length;
     ageGroupAnalysis.forEach(group => {
-      group.gapPercentage = overallAvgSalary > 0
-        ? ((group.averageSalary - overallAvgSalary) / overallAvgSalary) * 100
-        : 0;
+      group.gapPercentage =
+        overallAvgSalary > 0
+          ? ((group.averageSalary - overallAvgSalary) / overallAvgSalary) * 100
+          : 0;
     });
 
-    const ageEquityScore = Math.max(0, 100 - Math.max(...ageGroupAnalysis.map(g => Math.abs(g.gapPercentage))));
+    const ageEquityScore = Math.max(
+      0,
+      100 - Math.max(...ageGroupAnalysis.map(g => Math.abs(g.gapPercentage)))
+    );
 
     // Análisis por Antigüedad
     const tenureGroupAnalysis = [
@@ -96,14 +128,20 @@ export const salaryEquityRouter = router({
     ].map(group => {
       const groupRecords = payrollRecords.filter(r => {
         if (!r.hireDate) return false;
-        const tenureYears = (today.getTime() - new Date(r.hireDate).getTime()) / (1000 * 60 * 60 * 24 * 365);
+        const tenureYears =
+          (today.getTime() - new Date(r.hireDate).getTime()) /
+          (1000 * 60 * 60 * 24 * 365);
         return tenureYears >= group.min && tenureYears < group.max;
       });
-      
-      const avgSalary = groupRecords.length > 0
-        ? groupRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / groupRecords.length
-        : 0;
-      
+
+      const avgSalary =
+        groupRecords.length > 0
+          ? groupRecords.reduce(
+              (sum: any, r: any) => sum + parseFloat(r.salary || "0"),
+              0
+            ) / groupRecords.length
+          : 0;
+
       return {
         tenureRange: group.tenureRange,
         averageSalary: avgSalary,
@@ -113,24 +151,36 @@ export const salaryEquityRouter = router({
     });
 
     tenureGroupAnalysis.forEach(group => {
-      group.gapPercentage = overallAvgSalary > 0
-        ? ((group.averageSalary - overallAvgSalary) / overallAvgSalary) * 100
-        : 0;
+      group.gapPercentage =
+        overallAvgSalary > 0
+          ? ((group.averageSalary - overallAvgSalary) / overallAvgSalary) * 100
+          : 0;
     });
 
-    const tenureEquityScore = Math.max(0, 100 - Math.max(...tenureGroupAnalysis.map(g => Math.abs(g.gapPercentage))));
+    const tenureEquityScore = Math.max(
+      0,
+      100 - Math.max(...tenureGroupAnalysis.map(g => Math.abs(g.gapPercentage)))
+    );
 
     // Detectar casos críticos de inequidad (brecha > 20%)
     const criticalCases = payrollRecords
       .map(r => {
-        const age = r.dateOfBirth ? today.getFullYear() - new Date(r.dateOfBirth).getFullYear() : 0;
-        const tenure = r.hireDate ? (today.getTime() - new Date(r.hireDate).getTime()) / (1000 * 60 * 60 * 24 * 365) : 0;
+        const age = r.dateOfBirth
+          ? today.getFullYear() - new Date(r.dateOfBirth).getFullYear()
+          : 0;
+        const tenure = r.hireDate
+          ? (today.getTime() - new Date(r.hireDate).getTime()) /
+            (1000 * 60 * 60 * 24 * 365)
+          : 0;
         const currentSalary = parseFloat(r.salary || "0");
-        
+
         // Salario esperado basado en promedio general
         const expectedSalary = overallAvgSalary;
-        const gapPercentage = expectedSalary > 0 ? ((currentSalary - expectedSalary) / expectedSalary) * 100 : 0;
-        
+        const gapPercentage =
+          expectedSalary > 0
+            ? ((currentSalary - expectedSalary) / expectedSalary) * 100
+            : 0;
+
         return {
           employeeId: r.employeeId,
           employeeName: r.employeeName || "N/A",
@@ -142,19 +192,32 @@ export const salaryEquityRouter = router({
           currentSalary,
           expectedSalary,
           gapPercentage,
-          inequityType: Math.abs(gapPercentage) > 20 ? ("multiple" as const) : ("gender" as const),
+          inequityType:
+            Math.abs(gapPercentage) > 20
+              ? ("multiple" as const)
+              : ("gender" as const),
         };
       })
       .filter(c => Math.abs(c.gapPercentage) > 20)
-      .sort((a: any, b: any) => Math.abs(b.gapPercentage) - Math.abs(a.gapPercentage))
+      .sort(
+        (a: any, b: any) =>
+          Math.abs(b.gapPercentage) - Math.abs(a.gapPercentage)
+      )
       .slice(0, 20);
 
     // Calcular índice de equidad global
-    const globalEquityIndex = Math.round((genderEquityScore + ageEquityScore + tenureEquityScore) / 3);
+    const globalEquityIndex = Math.round(
+      (genderEquityScore + ageEquityScore + tenureEquityScore) / 3
+    );
 
     // Determinar cumplimiento NMX-R-025-SCFI-2015
     const complianceScore = globalEquityIndex;
-    const nmxComplianceStatus = complianceScore >= 80 ? "compliant" : complianceScore >= 60 ? "partial" : "non_compliant";
+    const nmxComplianceStatus =
+      complianceScore >= 80
+        ? "compliant"
+        : complianceScore >= 60
+          ? "partial"
+          : "non_compliant";
 
     // Generar recomendaciones
     const recommendations = [];
@@ -163,7 +226,10 @@ export const salaryEquityRouter = router({
         priority: "high" as const,
         category: "Equidad de Género",
         description: `Brecha salarial de género del ${genderPayGap.toFixed(1)}%. Implementar revisión salarial para reducir inequidad.`,
-        estimatedCost: Math.abs(maleAvgSalary - femaleAvgSalary) * femaleRecords.length * 0.5,
+        estimatedCost:
+          Math.abs(maleAvgSalary - femaleAvgSalary) *
+          femaleRecords.length *
+          0.5,
         expectedImpact: "Reducción de brecha al 5% en 12 meses",
       });
     }
@@ -173,14 +239,19 @@ export const salaryEquityRouter = router({
         priority: "high" as const,
         category: "Casos Críticos",
         description: `${criticalCases.length} empleados con brechas salariales críticas (>20%). Requiere atención inmediata.`,
-        estimatedCost: criticalCases.reduce((sum: any, c: any) => sum + Math.abs(c.currentSalary - c.expectedSalary), 0),
+        estimatedCost: criticalCases.reduce(
+          (sum: any, c: any) =>
+            sum + Math.abs(c.currentSalary - c.expectedSalary),
+          0
+        ),
         expectedImpact: "Mejora del índice de equidad en 15 puntos",
       });
     }
 
     // Insertar análisis en BD
     const [analysis] = await (db.insert(salaryEquityAnalysis) as any).values({
-      analyzedBy: typeof ctx.user.id === 'string' ? parseInt(ctx.user.id) : ctx.user.id,
+      analyzedBy:
+        typeof ctx.user.id === "string" ? parseInt(ctx.user.id) : ctx.user.id,
       maleAverageSalary: maleAvgSalary.toString(),
       femaleAverageSalary: femaleAvgSalary.toString(),
       genderPayGapPercentage: genderPayGap.toString(),
@@ -209,7 +280,7 @@ export const salaryEquityRouter = router({
   // Obtener último análisis
   getLatestAnalysis: protectedProcedure.query(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
     const [analysis] = await db
       .select()
       .from(salaryEquityAnalysis)
@@ -220,17 +291,23 @@ export const salaryEquityRouter = router({
 
     return {
       ...analysis,
-      ageGroupAnalysis: JSON.parse(analysis.ageGroupAnalysis as unknown as string),
-      tenureGroupAnalysis: JSON.parse(analysis.tenureGroupAnalysis as unknown as string),
+      ageGroupAnalysis: JSON.parse(
+        analysis.ageGroupAnalysis as unknown as string
+      ),
+      tenureGroupAnalysis: JSON.parse(
+        analysis.tenureGroupAnalysis as unknown as string
+      ),
       criticalCases: JSON.parse(analysis.criticalCases as unknown as string),
-      recommendations: JSON.parse(analysis.recommendations as unknown as string),
+      recommendations: JSON.parse(
+        analysis.recommendations as unknown as string
+      ),
     };
   }),
 
   // Obtener historial de análisis
   getAnalysisHistory: protectedProcedure.query(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
     const analyses = await db
       .select()
       .from(salaryEquityAnalysis)
@@ -244,7 +321,9 @@ export const salaryEquityRouter = router({
       nmxComplianceStatus: a.nmxComplianceStatus,
       complianceScore: a.complianceScore,
       genderPayGapPercentage: parseFloat(a.genderPayGapPercentage || "0"),
-      criticalCasesCount: (JSON.parse(a.criticalCases as unknown as string) as any[]).length,
+      criticalCasesCount: (
+        JSON.parse(a.criticalCases as unknown as string) as any[]
+      ).length,
     }));
   }),
 
@@ -253,8 +332,8 @@ export const salaryEquityRouter = router({
     .input(salaryEquityValidators.generateEquityReport)
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
-      
+      if (!db) throw new Error("Database not initialized");
+
       const [analysis] = await db
         .select()
         .from(salaryEquityAnalysis)
@@ -267,48 +346,75 @@ export const salaryEquityRouter = router({
       const doc = new PDFDocument({ margin: 50 });
       const chunks: Buffer[] = [];
 
-      doc.on("data", (chunk) => chunks.push(chunk));
+      doc.on("data", chunk => chunks.push(chunk));
 
       await new Promise<void>((resolve, reject) => {
         doc.on("end", () => resolve());
         doc.on("error", reject);
 
         // Portada
-        doc.fontSize(24).text("Reporte de Equidad Salarial", { align: "center" });
+        doc
+          .fontSize(24)
+          .text("Reporte de Equidad Salarial", { align: "center" });
         doc.moveDown();
         doc.fontSize(16).text("NMX-R-025-SCFI-2015", { align: "center" });
         doc.moveDown(2);
-        doc.fontSize(12).text(`Fecha de Análisis: ${new Date(analysis.analysisDate).toLocaleDateString("es-MX")}`, { align: "center" });
+        doc
+          .fontSize(12)
+          .text(
+            `Fecha de Análisis: ${new Date(analysis.analysisDate).toLocaleDateString("es-MX")}`,
+            { align: "center" }
+          );
         doc.moveDown(3);
 
         // Resumen Ejecutivo
         doc.fontSize(18).text("Resumen Ejecutivo");
         doc.moveDown();
-        doc.fontSize(12).text(`Índice de Equidad Global: ${analysis.globalEquityIndex}/100`);
-        doc.text(`Estado de Cumplimiento NMX: ${(analysis.nmxComplianceStatus ?? 'non_compliant').toUpperCase()}`);
+        doc
+          .fontSize(12)
+          .text(`Índice de Equidad Global: ${analysis.globalEquityIndex}/100`);
+        doc.text(
+          `Estado de Cumplimiento NMX: ${(analysis.nmxComplianceStatus ?? "non_compliant").toUpperCase()}`
+        );
         doc.text(`Puntuación de Cumplimiento: ${analysis.complianceScore}/100`);
-        doc.text(`Brecha Salarial de Género: ${parseFloat(analysis.genderPayGapPercentage || "0").toFixed(1)}%`);
+        doc.text(
+          `Brecha Salarial de Género: ${parseFloat(analysis.genderPayGapPercentage || "0").toFixed(1)}%`
+        );
         doc.moveDown(2);
 
         // Análisis por Género
         doc.fontSize(16).text("Análisis por Género");
         doc.moveDown();
-        doc.fontSize(12).text(`Salario Promedio Hombres: $${parseFloat(analysis.maleAverageSalary || "0").toLocaleString()}`);
-        doc.text(`Salario Promedio Mujeres: $${parseFloat(analysis.femaleAverageSalary || "0").toLocaleString()}`);
-        doc.text(`Puntuación de Equidad de Género: ${analysis.genderEquityScore}/100`);
+        doc
+          .fontSize(12)
+          .text(
+            `Salario Promedio Hombres: $${parseFloat(analysis.maleAverageSalary || "0").toLocaleString()}`
+          );
+        doc.text(
+          `Salario Promedio Mujeres: $${parseFloat(analysis.femaleAverageSalary || "0").toLocaleString()}`
+        );
+        doc.text(
+          `Puntuación de Equidad de Género: ${analysis.genderEquityScore}/100`
+        );
         doc.moveDown(2);
 
         // Casos Críticos
-        const criticalCases = JSON.parse(analysis.criticalCases as unknown as string);
+        const criticalCases = JSON.parse(
+          analysis.criticalCases as unknown as string
+        );
         doc.fontSize(16).text("Casos Críticos de Inequidad");
         doc.moveDown();
-        doc.fontSize(12).text(`Total de Casos Críticos: ${criticalCases.length}`);
+        doc
+          .fontSize(12)
+          .text(`Total de Casos Críticos: ${criticalCases.length}`);
         doc.moveDown();
 
         if (criticalCases.length > 0) {
           criticalCases.slice(0, 10).forEach((c: any, i: number) => {
             doc.text(`${i + 1}. ${c.employeeName} - ${c.position}`);
-            doc.text(`   Brecha: ${c.gapPercentage.toFixed(1)}% | Salario: $${c.currentSalary.toLocaleString()}`);
+            doc.text(
+              `   Brecha: ${c.gapPercentage.toFixed(1)}% | Salario: $${c.currentSalary.toLocaleString()}`
+            );
             doc.moveDown(0.5);
           });
         }
@@ -316,11 +422,17 @@ export const salaryEquityRouter = router({
         doc.moveDown(2);
 
         // Recomendaciones
-        const recommendations = JSON.parse(analysis.recommendations as unknown as string);
+        const recommendations = JSON.parse(
+          analysis.recommendations as unknown as string
+        );
         doc.fontSize(16).text("Recomendaciones");
         doc.moveDown();
         recommendations.forEach((r: any, i: number) => {
-          doc.fontSize(12).text(`${i + 1}. ${r.category} (Prioridad: ${r.priority.toUpperCase()})`);
+          doc
+            .fontSize(12)
+            .text(
+              `${i + 1}. ${r.category} (Prioridad: ${r.priority.toUpperCase()})`
+            );
           doc.text(`   ${r.description}`);
           doc.text(`   Costo Estimado: $${r.estimatedCost.toLocaleString()}`);
           doc.text(`   Impacto Esperado: ${r.expectedImpact}`);

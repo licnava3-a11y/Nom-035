@@ -11,15 +11,21 @@ export const reportTemplatesRouter = router({
    */
   list: protectedProcedure
     .input(
-      z.object({
-        tipo: z.string().optional(),
-        activo: z.boolean().optional(),
-      }).optional()
+      z
+        .object({
+          tipo: z.string().optional(),
+          activo: z.boolean().optional(),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
       const conditions = [];
       if (input?.tipo) {
         conditions.push(eq(reportTemplates.tipo, input.tipo));
@@ -44,8 +50,12 @@ export const reportTemplatesRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
       const template = await db
         .select()
         .from(reportTemplates)
@@ -69,8 +79,12 @@ export const reportTemplatesRouter = router({
     .input(z.object({ tipo: z.string() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
       const template = await db
         .select()
         .from(reportTemplates)
@@ -108,7 +122,11 @@ export const reportTemplatesRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       // Si se marca como default, desmarcar otras plantillas del mismo tipo
       if (input.isDefault) {
@@ -154,7 +172,11 @@ export const reportTemplatesRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       // Verificar que la plantilla existe
       const existing = await db
@@ -180,7 +202,8 @@ export const reportTemplatesRouter = router({
 
       const updateData: any = {};
       if (input.nombre) updateData.nombre = input.nombre;
-      if (input.descripcion !== undefined) updateData.descripcion = input.descripcion;
+      if (input.descripcion !== undefined)
+        updateData.descripcion = input.descripcion;
       if (input.tipo) updateData.tipo = input.tipo;
       if (input.htmlTemplate) updateData.htmlTemplate = input.htmlTemplate;
       if (input.cssStyles !== undefined) updateData.cssStyles = input.cssStyles;
@@ -203,7 +226,11 @@ export const reportTemplatesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       // Verificar que la plantilla existe
       const existing = await db
@@ -223,7 +250,8 @@ export const reportTemplatesRouter = router({
       if (existing[0].isDefault) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "No se puede eliminar una plantilla por defecto. Primero establece otra como default.",
+          message:
+            "No se puede eliminar una plantilla por defecto. Primero establece otra como default.",
         });
       }
 
@@ -239,7 +267,11 @@ export const reportTemplatesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       // Obtener la plantilla
       const template = await db

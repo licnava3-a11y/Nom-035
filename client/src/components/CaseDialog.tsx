@@ -1,12 +1,30 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
 import { WorkerSelector } from "@/components/WorkerSelector";
 import { trpc } from "@/lib/trpc";
@@ -30,7 +48,12 @@ interface CaseDialogProps {
   onSuccess?: () => void;
 }
 
-export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDialogProps) {
+export function CaseDialog({
+  open,
+  onOpenChange,
+  caseData,
+  onSuccess,
+}: CaseDialogProps) {
   const [selectedWorkerId, setSelectedWorkerId] = useState<number | null>(null);
   const [reporterName, setReporterName] = useState("");
   const [reporterEmail, setReporterEmail] = useState("");
@@ -75,14 +98,17 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
     setPriority("medium");
   };
 
-  const handleWorkerSelect = (workerId: number | null, workerData?: {
-    fullName: string;
-    email: string;
-    department: string | null;
-    curp: string | null;
-    employeeNumber: string | null;
-    position: string | null;
-  }) => {
+  const handleWorkerSelect = (
+    workerId: number | null,
+    workerData?: {
+      fullName: string;
+      email: string;
+      department: string | null;
+      curp: string | null;
+      employeeNumber: string | null;
+      position: string | null;
+    }
+  ) => {
     setSelectedWorkerId(workerId);
     if (workerData) {
       setReporterName(workerData.fullName);
@@ -124,7 +150,12 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
           reporterEmail: isAnonymous ? undefined : reporterEmail,
           reporterPhone: isAnonymous ? undefined : reporterPhone,
           isAnonymous,
-          caseType: caseType as "mobbing" | "burnout" | "violence" | "stress" | "other",
+          caseType: caseType as
+            | "mobbing"
+            | "burnout"
+            | "violence"
+            | "stress"
+            | "other",
           description,
         });
         toast.success("Caso creado exitosamente");
@@ -144,7 +175,9 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{caseData ? "Editar Caso" : "Registrar Nuevo Caso"}</DialogTitle>
+          <DialogTitle>
+            {caseData ? "Editar Caso" : "Registrar Nuevo Caso"}
+          </DialogTitle>
           <DialogDescription>
             {caseData
               ? "Actualiza la información del caso de riesgo psicosocial"
@@ -166,7 +199,9 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
                 <Checkbox
                   id="anonymous"
                   checked={isAnonymous}
-                  onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
+                  onCheckedChange={checked =>
+                    setIsAnonymous(checked as boolean)
+                  }
                 />
                 <Label htmlFor="anonymous" className="cursor-pointer">
                   Reporte anónimo
@@ -183,7 +218,8 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
                       placeholder="Seleccionar trabajador..."
                     />
                     <p className="text-sm text-muted-foreground">
-                      Selecciona un trabajador para prellenar automáticamente nombre y correo
+                      Selecciona un trabajador para prellenar automáticamente
+                      nombre y correo
                     </p>
                   </div>
 
@@ -192,7 +228,7 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
                     <Input
                       id="reporterName"
                       value={reporterName}
-                      onChange={(e) => setReporterName(e.target.value)}
+                      onChange={e => setReporterName(e.target.value)}
                       placeholder="Nombre completo"
                     />
                   </div>
@@ -204,7 +240,7 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
                         id="reporterEmail"
                         type="email"
                         value={reporterEmail}
-                        onChange={(e) => setReporterEmail(e.target.value)}
+                        onChange={e => setReporterEmail(e.target.value)}
                         placeholder="correo@ejemplo.com"
                       />
                     </div>
@@ -214,7 +250,7 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
                       <Input
                         id="reporterPhone"
                         value={reporterPhone}
-                        onChange={(e) => setReporterPhone(e.target.value)}
+                        onChange={e => setReporterPhone(e.target.value)}
                         placeholder="+52 614 123 4567"
                       />
                     </div>
@@ -234,12 +270,25 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
                       <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
-                      <p className="font-semibold mb-1">Tipos de Riesgo Psicosocial</p>
+                      <p className="font-semibold mb-1">
+                        Tipos de Riesgo Psicosocial
+                      </p>
                       <ul className="text-xs space-y-1">
-                        <li>• <strong>Mobbing:</strong> Acoso laboral sistemático</li>
-                        <li>• <strong>Burnout:</strong> Síndrome de desgaste profesional</li>
-                        <li>• <strong>Violencia Laboral:</strong> Agresión física o verbal</li>
-                        <li>• <strong>Estrés Laboral:</strong> Presión excesiva en el trabajo</li>
+                        <li>
+                          • <strong>Mobbing:</strong> Acoso laboral sistemático
+                        </li>
+                        <li>
+                          • <strong>Burnout:</strong> Síndrome de desgaste
+                          profesional
+                        </li>
+                        <li>
+                          • <strong>Violencia Laboral:</strong> Agresión física
+                          o verbal
+                        </li>
+                        <li>
+                          • <strong>Estrés Laboral:</strong> Presión excesiva en
+                          el trabajo
+                        </li>
                       </ul>
                     </TooltipContent>
                   </Tooltip>
@@ -247,7 +296,7 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
               </div>
               <Select
                 value={caseType}
-                onValueChange={(value) => setCaseType(value)}
+                onValueChange={value => setCaseType(value)}
                 disabled={!!caseData}
               >
                 <SelectTrigger>
@@ -270,7 +319,7 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
                   <select
                     id="status"
                     value={status}
-                    onChange={(e) => setStatus(e.target.value)}
+                    onChange={e => setStatus(e.target.value)}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <option value="open">Abierto</option>
@@ -288,7 +337,7 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
             <Textarea
               id="description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={e => setDescription(e.target.value)}
               placeholder="Describe detalladamente el caso..."
               rows={6}
               disabled={!!caseData}
@@ -297,12 +346,18 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button
               type="submit"
-              disabled={createMutation.isPending || updateStatusMutation.isPending}
+              disabled={
+                createMutation.isPending || updateStatusMutation.isPending
+              }
             >
               {caseData ? "Actualizar" : "Registrar Caso"}
             </Button>

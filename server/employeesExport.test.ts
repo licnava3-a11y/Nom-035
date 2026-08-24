@@ -8,41 +8,45 @@ import { describe, it, expect } from "vitest";
 
 function mapToContpaqiFormat(rows: any[]) {
   return rows.map((r: any) => ({
-    "Código": r.employeeNumber ?? "",
-    "Nombre": r.firstName ?? "",
+    Código: r.employeeNumber ?? "",
+    Nombre: r.firstName ?? "",
     "Apellido Paterno": r.lastName?.split(" ")[0] ?? "",
     "Apellido Materno": r.lastName?.split(" ").slice(1).join(" ") ?? "",
-    "RFC": r.rfc ?? "",
-    "CURP": r.curp ?? "",
-    "NSS": r.nss ?? "",
-    "Puesto": r.positionTitle ?? "",
-    "Departamento": r.departmentName ?? "",
-    "Fecha Alta": r.hireDate ? new Date(r.hireDate).toLocaleDateString("es-MX") : "",
-    "Sexo": r.gender === "male" ? "M" : r.gender === "female" ? "F" : "",
-    "Correo": r.email ?? "",
-    "Teléfono": r.phone ?? "",
-    "Activo": r.isActive ? "Sí" : "No",
+    RFC: r.rfc ?? "",
+    CURP: r.curp ?? "",
+    NSS: r.nss ?? "",
+    Puesto: r.positionTitle ?? "",
+    Departamento: r.departmentName ?? "",
+    "Fecha Alta": r.hireDate
+      ? new Date(r.hireDate).toLocaleDateString("es-MX")
+      : "",
+    Sexo: r.gender === "male" ? "M" : r.gender === "female" ? "F" : "",
+    Correo: r.email ?? "",
+    Teléfono: r.phone ?? "",
+    Activo: r.isActive ? "Sí" : "No",
   }));
 }
 
 function mapToGenericFormat(rows: any[]) {
   return rows.map((r: any) => ({
-    "ID": r.id,
-    "Nombre": r.firstName ?? "",
-    "Apellidos": r.lastName ?? "",
-    "Correo": r.email ?? "",
-    "Teléfono": r.phone ?? "",
-    "CURP": r.curp ?? "",
-    "RFC": r.rfc ?? "",
-    "NSS": r.nss ?? "",
+    ID: r.id,
+    Nombre: r.firstName ?? "",
+    Apellidos: r.lastName ?? "",
+    Correo: r.email ?? "",
+    Teléfono: r.phone ?? "",
+    CURP: r.curp ?? "",
+    RFC: r.rfc ?? "",
+    NSS: r.nss ?? "",
     "Núm. Empleado": r.employeeNumber ?? "",
-    "Departamento": r.departmentName ?? "",
-    "Puesto": r.positionTitle ?? "",
-    "Fecha Ingreso": r.hireDate ? new Date(r.hireDate).toLocaleDateString("es-MX") : "",
-    "Género": r.gender ?? "",
-    "Escolaridad": r.educationLevel ?? "",
+    Departamento: r.departmentName ?? "",
+    Puesto: r.positionTitle ?? "",
+    "Fecha Ingreso": r.hireDate
+      ? new Date(r.hireDate).toLocaleDateString("es-MX")
+      : "",
+    Género: r.gender ?? "",
+    Escolaridad: r.educationLevel ?? "",
     "Tipo Contrato": r.contractType ?? "",
-    "Activo": r.isActive ? "Sí" : "No",
+    Activo: r.isActive ? "Sí" : "No",
   }));
 }
 
@@ -119,7 +123,22 @@ describe("employees.exportToExcel — formato CONTPAQi/NOI", () => {
 
   it("incluye todos los campos requeridos por CONTPAQi", () => {
     const result = mapToContpaqiFormat([sampleEmployees[0]]);
-    const requiredFields = ["Código", "Nombre", "Apellido Paterno", "Apellido Materno", "RFC", "CURP", "NSS", "Puesto", "Departamento", "Fecha Alta", "Sexo", "Correo", "Teléfono", "Activo"];
+    const requiredFields = [
+      "Código",
+      "Nombre",
+      "Apellido Paterno",
+      "Apellido Materno",
+      "RFC",
+      "CURP",
+      "NSS",
+      "Puesto",
+      "Departamento",
+      "Fecha Alta",
+      "Sexo",
+      "Correo",
+      "Teléfono",
+      "Activo",
+    ];
     requiredFields.forEach(field => {
       expect(result[0]).toHaveProperty(field);
     });
@@ -197,13 +216,28 @@ describe("massiveImport.importEmployees — validación de campos extendidos", (
   });
 
   it("valida los valores de educationLevel", () => {
-    const validLevels = ["primary", "secondary", "high_school", "technical", "bachelor", "master", "doctorate", "other"];
+    const validLevels = [
+      "primary",
+      "secondary",
+      "high_school",
+      "technical",
+      "bachelor",
+      "master",
+      "doctorate",
+      "other",
+    ];
     expect(validLevels).toContain("bachelor");
     expect(validLevels).not.toContain("licenciatura"); // El enum usa inglés
   });
 
   it("valida los valores de contractType", () => {
-    const validTypes = ["permanent", "temporary", "project", "internship", "outsourcing"];
+    const validTypes = [
+      "permanent",
+      "temporary",
+      "project",
+      "internship",
+      "outsourcing",
+    ];
     expect(validTypes).toContain("permanent");
     expect(validTypes).not.toContain("indefinido"); // El enum usa inglés
   });

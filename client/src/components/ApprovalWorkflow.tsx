@@ -1,13 +1,31 @@
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { UserPlus, CheckCircle2, Clock, FileSignature, X } from "lucide-react";
 import { format } from "date-fns";
@@ -19,72 +37,97 @@ interface ApprovalWorkflowProps {
   operatingRuleVersion: string;
 }
 
-export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion }: ApprovalWorkflowProps) {
+export default function ApprovalWorkflow({
+  operatingRuleId,
+  operatingRuleVersion,
+}: ApprovalWorkflowProps) {
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [showSignDialog, setShowSignDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-  const [selectedApprovalId, setSelectedApprovalId] = useState<number | null>(null);
+  const [selectedApprovalId, setSelectedApprovalId] = useState<number | null>(
+    null
+  );
   const [signComments, setSignComments] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [deadline, setDeadline] = useState("");
-  
-  const [approvers, setApprovers] = useState<Array<{
-    approverId: string;
-    approverRole: "president" | "secretary" | "vocal" | "other";
-    approverRoleDescription: string;
-    approvalOrder: number;
-  }>>([{ approverId: "", approverRole: "president", approverRoleDescription: "", approvalOrder: 1 }]);
+
+  const [approvers, setApprovers] = useState<
+    Array<{
+      approverId: string;
+      approverRole: "president" | "secretary" | "vocal" | "other";
+      approverRoleDescription: string;
+      approvalOrder: number;
+    }>
+  >([
+    {
+      approverId: "",
+      approverRole: "president",
+      approverRoleDescription: "",
+      approvalOrder: 1,
+    },
+  ]);
 
   // Queries
-  const { data: approvalStatus, refetch: refetchApprovalStatus } = trpc.committeeOperatingRules.getApprovalStatus.useQuery(
-    { operatingRuleId },
-    { enabled: !!operatingRuleId }
-  );
+  const { data: approvalStatus, refetch: refetchApprovalStatus } =
+    trpc.committeeOperatingRules.getApprovalStatus.useQuery(
+      { operatingRuleId },
+      { enabled: !!operatingRuleId }
+    );
 
   const { data: committeeMembers } = trpc.committee.list.useQuery();
 
   // Mutations
-  const requestApprovalsMutation = trpc.committeeOperatingRules.requestApprovals.useMutation({
-    onSuccess: () => {
-      toast.success("Solicitudes enviadas");
-      setShowRequestDialog(false);
-      setApprovers([{ approverId: "", approverRole: "president", approverRoleDescription: "", approvalOrder: 1 }]);
-      refetchApprovalStatus();
-    },
-    onError: (error) => {
-      toast.error("Error al solicitar aprobaciones");
-    },
-  });
+  const requestApprovalsMutation =
+    trpc.committeeOperatingRules.requestApprovals.useMutation({
+      onSuccess: () => {
+        toast.success("Solicitudes enviadas");
+        setShowRequestDialog(false);
+        setApprovers([
+          {
+            approverId: "",
+            approverRole: "president",
+            approverRoleDescription: "",
+            approvalOrder: 1,
+          },
+        ]);
+        refetchApprovalStatus();
+      },
+      onError: error => {
+        toast.error("Error al solicitar aprobaciones");
+      },
+    });
 
-  const signApprovalMutation = trpc.committeeOperatingRules.signApproval.useMutation({
-    onSuccess: (data) => {
-      if (data.allApproved) {
-        toast.success("¡Todas las aprobaciones completadas!");
-      } else {
-        toast.success("Firma registrada");
-      }
-      setShowSignDialog(false);
-      setSelectedApprovalId(null);
-      setSignComments("");
-      refetchApprovalStatus();
-    },
-    onError: (error) => {
-      toast.error("Error al firmar");
-    },
-  });
+  const signApprovalMutation =
+    trpc.committeeOperatingRules.signApproval.useMutation({
+      onSuccess: data => {
+        if (data.allApproved) {
+          toast.success("¡Todas las aprobaciones completadas!");
+        } else {
+          toast.success("Firma registrada");
+        }
+        setShowSignDialog(false);
+        setSelectedApprovalId(null);
+        setSignComments("");
+        refetchApprovalStatus();
+      },
+      onError: error => {
+        toast.error("Error al firmar");
+      },
+    });
 
-  const rejectApprovalMutation = trpc.committeeOperatingRules.rejectApproval.useMutation({
-    onSuccess: () => {
-      toast.success("Aprobación rechazada");
-      setShowRejectDialog(false);
-      setSelectedApprovalId(null);
-      setRejectionReason("");
-      refetchApprovalStatus();
-    },
-    onError: (error) => {
-      toast.error("Error al rechazar");
-    },
-  });
+  const rejectApprovalMutation =
+    trpc.committeeOperatingRules.rejectApproval.useMutation({
+      onSuccess: () => {
+        toast.success("Aprobación rechazada");
+        setShowRejectDialog(false);
+        setSelectedApprovalId(null);
+        setRejectionReason("");
+        refetchApprovalStatus();
+      },
+      onError: error => {
+        toast.error("Error al rechazar");
+      },
+    });
 
   const handleAddApprover = () => {
     setApprovers([
@@ -102,7 +145,11 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
     setApprovers(approvers.filter((_, i) => i !== index));
   };
 
-  const handleApproverChange = (index: number, field: string, value: string) => {
+  const handleApproverChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
     const updated = [...approvers];
     updated[index] = { ...updated[index], [field]: value };
     setApprovers(updated);
@@ -154,12 +201,21 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        label: string;
+      }
+    > = {
       pending: { variant: "outline", label: "Pendiente" },
       signed: { variant: "default", label: "Firmado" },
       rejected: { variant: "destructive", label: "Rechazado" },
     };
-    const config = variants[status] || { variant: "outline" as const, label: status };
+    const config = variants[status] || {
+      variant: "outline" as const,
+      label: status,
+    };
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
@@ -171,11 +227,12 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Estado de Aprobaciones</CardTitle>
-              <CardDescription>
-                Versión: {operatingRuleVersion}
-              </CardDescription>
+              <CardDescription>Versión: {operatingRuleVersion}</CardDescription>
             </div>
-            <Button onClick={() => setShowRequestDialog(true)} disabled={!!approvalStatus?.approvals.length}>
+            <Button
+              onClick={() => setShowRequestDialog(true)}
+              disabled={!!approvalStatus?.approvals.length}
+            >
               <UserPlus className="h-4 w-4 mr-2" />
               Solicitar Aprobaciones
             </Button>
@@ -188,9 +245,12 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
               <div className="flex items-center gap-4">
                 <div className="flex-1">
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">Progreso de Aprobación</span>
+                    <span className="text-muted-foreground">
+                      Progreso de Aprobación
+                    </span>
                     <span className="font-medium">
-                      {approvalStatus.summary.signed} de {approvalStatus.summary.total} firmas
+                      {approvalStatus.summary.signed} de{" "}
+                      {approvalStatus.summary.total} firmas
                     </span>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">
@@ -226,14 +286,22 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                         )}
                       </div>
                       <div>
-                        <div className="font-medium">{approval.approverName}</div>
+                        <div className="font-medium">
+                          {approval.approverName}
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           {getRoleLabel(approval.approverRole)}
-                          {approval.approverRoleDescription && ` - ${approval.approverRoleDescription}`}
+                          {approval.approverRoleDescription &&
+                            ` - ${approval.approverRoleDescription}`}
                         </div>
                         {approval.signedAt && (
                           <div className="text-xs text-muted-foreground mt-1">
-                            Firmado el {format(new Date(approval.signedAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                            Firmado el{" "}
+                            {format(
+                              new Date(approval.signedAt),
+                              "dd/MM/yyyy HH:mm",
+                              { locale: es }
+                            )}
                           </div>
                         )}
                         {approval.comments && (
@@ -247,12 +315,15 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                       {getStatusBadge(approval.status)}
                       {approval.status === "pending" && (
                         <>
-                          <Button size="sm" onClick={() => handleSignApproval(approval.id)}>
+                          <Button
+                            size="sm"
+                            onClick={() => handleSignApproval(approval.id)}
+                          >
                             <FileSignature className="h-4 w-4 mr-2" />
                             Firmar
                           </Button>
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="destructive"
                             onClick={() => {
                               setSelectedApprovalId(approval.id);
@@ -264,13 +335,14 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                           </Button>
                         </>
                       )}
-                      {approval.status === "signed" && approval.signatureData && (
-                        <img
-                          src={approval.signatureData}
-                          alt="Firma"
-                          className="h-12 w-24 object-contain border rounded"
-                        />
-                      )}
+                      {approval.status === "signed" &&
+                        approval.signatureData && (
+                          <img
+                            src={approval.signatureData}
+                            alt="Firma"
+                            className="h-12 w-24 object-contain border rounded"
+                          />
+                        )}
                     </div>
                   </div>
                 ))}
@@ -279,8 +351,13 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <FileSignature className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No se han solicitado aprobaciones para esta base de funcionamiento.</p>
-              <p className="text-sm mt-2">Haga clic en "Solicitar Aprobaciones" para comenzar el proceso.</p>
+              <p>
+                No se han solicitado aprobaciones para esta base de
+                funcionamiento.
+              </p>
+              <p className="text-sm mt-2">
+                Haga clic en "Solicitar Aprobaciones" para comenzar el proceso.
+              </p>
             </div>
           )}
         </CardContent>
@@ -292,7 +369,8 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
           <DialogHeader>
             <DialogTitle>Solicitar Aprobaciones</DialogTitle>
             <DialogDescription>
-              Seleccione los miembros del comité que deben aprobar esta base de funcionamiento.
+              Seleccione los miembros del comité que deben aprobar esta base de
+              funcionamiento.
             </DialogDescription>
           </DialogHeader>
 
@@ -305,14 +383,19 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                       <Label>Aprobador *</Label>
                       <Select
                         value={approver.approverId}
-                        onValueChange={(value) => handleApproverChange(index, "approverId", value)}
+                        onValueChange={value =>
+                          handleApproverChange(index, "approverId", value)
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccionar usuario" />
                         </SelectTrigger>
                         <SelectContent>
                           {committeeMembers?.map((member: any) => (
-                            <SelectItem key={member.id} value={member.id.toString()}>
+                            <SelectItem
+                              key={member.id}
+                              value={member.id.toString()}
+                            >
                               {member.name}
                             </SelectItem>
                           ))}
@@ -324,7 +407,9 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                       <Label>Rol *</Label>
                       <Select
                         value={approver.approverRole}
-                        onValueChange={(value) => handleApproverChange(index, "approverRole", value)}
+                        onValueChange={value =>
+                          handleApproverChange(index, "approverRole", value)
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -343,7 +428,13 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                         <Label>Descripción del Rol</Label>
                         <Input
                           value={approver.approverRoleDescription}
-                          onChange={(e) => handleApproverChange(index, "approverRoleDescription", e.target.value)}
+                          onChange={e =>
+                            handleApproverChange(
+                              index,
+                              "approverRoleDescription",
+                              e.target.value
+                            )
+                          }
                           placeholder="Ej: Representante de los trabajadores"
                         />
                       </div>
@@ -366,7 +457,11 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
               </Card>
             ))}
 
-            <Button variant="outline" onClick={handleAddApprover} className="w-full">
+            <Button
+              variant="outline"
+              onClick={handleAddApprover}
+              className="w-full"
+            >
               <UserPlus className="h-4 w-4 mr-2" />
               Agregar Aprobador
             </Button>
@@ -378,22 +473,31 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                 id="deadline"
                 type="date"
                 value={deadline}
-                onChange={(e) => setDeadline(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
+                onChange={e => setDeadline(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
                 className="mt-1"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Si se especifica, se enviarán recordatorios automáticos cuando se acerque la fecha límite.
+                Si se especifica, se enviarán recordatorios automáticos cuando
+                se acerque la fecha límite.
               </p>
             </div>
           </div>
 
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setShowRequestDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowRequestDialog(false)}
+            >
               Cancelar
             </Button>
-            <Button onClick={handleRequestApprovals} disabled={requestApprovalsMutation.isPending}>
-              {requestApprovalsMutation.isPending ? "Enviando..." : "Enviar Solicitudes"}
+            <Button
+              onClick={handleRequestApprovals}
+              disabled={requestApprovalsMutation.isPending}
+            >
+              {requestApprovalsMutation.isPending
+                ? "Enviando..."
+                : "Enviar Solicitudes"}
             </Button>
           </div>
         </DialogContent>
@@ -405,7 +509,8 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
           <DialogHeader>
             <DialogTitle>Firmar Aprobación</DialogTitle>
             <DialogDescription>
-              Dibuje su firma en el recuadro para aprobar esta base de funcionamiento.
+              Dibuje su firma en el recuadro para aprobar esta base de
+              funcionamiento.
             </DialogDescription>
           </DialogHeader>
 
@@ -421,7 +526,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
               <Label>Comentarios (opcional)</Label>
               <Textarea
                 value={signComments}
-                onChange={(e) => setSignComments(e.target.value)}
+                onChange={e => setSignComments(e.target.value)}
                 placeholder="Agregue comentarios adicionales sobre su aprobación..."
                 rows={3}
               />
@@ -434,9 +539,13 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
       <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-destructive">Rechazar Aprobación</DialogTitle>
+            <DialogTitle className="text-destructive">
+              Rechazar Aprobación
+            </DialogTitle>
             <DialogDescription>
-              Al rechazar esta aprobación, la base de funcionamiento regresará a estado borrador y se cancelarán todas las demás aprobaciones pendientes. Debe proporcionar un motivo detallado.
+              Al rechazar esta aprobación, la base de funcionamiento regresará a
+              estado borrador y se cancelarán todas las demás aprobaciones
+              pendientes. Debe proporcionar un motivo detallado.
             </DialogDescription>
           </DialogHeader>
 
@@ -445,7 +554,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
               <Label>Motivo del Rechazo *</Label>
               <Textarea
                 value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
+                onChange={e => setRejectionReason(e.target.value)}
                 placeholder="Explique detalladamente por qué rechaza esta base de funcionamiento (mínimo 10 caracteres)..."
                 rows={5}
                 className="mt-2"
@@ -457,17 +566,22 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
           </div>
 
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => {
-              setShowRejectDialog(false);
-              setRejectionReason("");
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRejectDialog(false);
+                setRejectionReason("");
+              }}
+            >
               Cancelar
             </Button>
-            <Button 
+            <Button
               variant="destructive"
               onClick={() => {
                 if (rejectionReason.length < 10) {
-                  toast.error("El motivo de rechazo debe tener al menos 10 caracteres");
+                  toast.error(
+                    "El motivo de rechazo debe tener al menos 10 caracteres"
+                  );
                   return;
                 }
                 if (selectedApprovalId) {
@@ -477,9 +591,13 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                   });
                 }
               }}
-              disabled={rejectApprovalMutation.isPending || rejectionReason.length < 10}
+              disabled={
+                rejectApprovalMutation.isPending || rejectionReason.length < 10
+              }
             >
-              {rejectApprovalMutation.isPending ? "Rechazando..." : "Confirmar Rechazo"}
+              {rejectApprovalMutation.isPending
+                ? "Rechazando..."
+                : "Confirmar Rechazo"}
             </Button>
           </div>
         </DialogContent>

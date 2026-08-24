@@ -1,16 +1,26 @@
-import { z } from 'zod';
-import { TRPCError } from '@trpc/server';
-import { router, protectedProcedure } from '../_core/trpc';
-import { getDb } from '../db';
-import { assessments, courses, employees, examAnswers, examAttempts, examQuestionOptions, examQuestions, questions, users } from '../../drizzle/schema';
-import { eq, and, desc, sql, inArray } from 'drizzle-orm';
+import { z } from "zod";
+import { TRPCError } from "@trpc/server";
+import { router, protectedProcedure } from "../_core/trpc";
+import { getDb } from "../db";
+import {
+  assessments,
+  courses,
+  employees,
+  examAnswers,
+  examAttempts,
+  examQuestionOptions,
+  examQuestions,
+  questions,
+  users,
+} from "../../drizzle/schema";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 
 const ASSESSMENT_MANAGER_ROLES = new Set([
-  'super_admin',
-  'admin',
-  'instructor',
-  'rh',
-  'recursos_humanos',
+  "super_admin",
+  "admin",
+  "instructor",
+  "rh",
+  "recursos_humanos",
 ]);
 
 type Database = NonNullable<Awaited<ReturnType<typeof getDb>>>;
@@ -28,8 +38,8 @@ async function getAuthenticatedEmployeeId(db: Database, userId: number) {
 
   if (employee.length === 0) {
     throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: 'No existe un perfil de colaborador vinculado a esta cuenta.',
+      code: "FORBIDDEN",
+      message: "No existe un perfil de colaborador vinculado a esta cuenta.",
     });
   }
 
@@ -54,12 +64,12 @@ export const assessmentsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const [result] = await (db.insert(assessments) as any).values({
         ...input,
         createdBy: ctx.user.id,
-        status: 'draft',
+        status: "draft",
       });
 
       return {
@@ -72,13 +82,13 @@ export const assessmentsRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        status: z.enum(['draft', 'active', 'archived']).optional(),
+        status: z.enum(["draft", "active", "archived"]).optional(),
         courseId: z.number().optional(),
       })
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       let query = db
         .select({
@@ -118,7 +128,7 @@ export const assessmentsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const assessment = await db
         .select()
@@ -127,7 +137,7 @@ export const assessmentsRouter = router({
         .limit(1);
 
       if (!assessment || assessment.length === 0) {
-        throw new Error('Evaluación no encontrada');
+        throw new Error("Evaluación no encontrada");
       }
 
       // Obtener preguntas con opciones
@@ -139,11 +149,14 @@ export const assessmentsRouter = router({
 
       // Cargar todas las opciones en 1 query (evita N+1)
       const questionIds = questions.map(q => q.id);
-      const allOptions = questionIds.length > 0
-        ? await db.select().from(examQuestionOptions)
-            .where(inArray(examQuestionOptions.questionId, questionIds))
-            .orderBy(examQuestionOptions.orderIndex)
-        : [];
+      const allOptions =
+        questionIds.length > 0
+          ? await db
+              .select()
+              .from(examQuestionOptions)
+              .where(inArray(examQuestionOptions.questionId, questionIds))
+              .orderBy(examQuestionOptions.orderIndex)
+          : [];
       const optionsByQuestion = new Map<number, typeof allOptions>();
       allOptions.forEach(opt => {
         const arr = optionsByQuestion.get(opt.questionId) ?? [];
@@ -174,12 +187,12 @@ export const assessmentsRouter = router({
         shuffleQuestions: z.boolean().optional(),
         shuffleOptions: z.boolean().optional(),
         showResults: z.boolean().optional(),
-        status: z.enum(['draft', 'active', 'archived']).optional(),
+        status: z.enum(["draft", "active", "archived"]).optional(),
       })
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const { id, ...updateData } = input;
 
@@ -196,7 +209,7 @@ export const assessmentsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Eliminar preguntas y opciones asociadas (1 query en lugar de N)
       const questions = await db
@@ -205,18 +218,19 @@ export const assessmentsRouter = router({
         .where(eq(examQuestions.assessmentId, input.id));
 
       if (questions.length > 0) {
-        await db
-          .delete(examQuestionOptions)
-          .where(inArray(examQuestionOptions.questionId, questions.map(q => q.id)));
+        await db.delete(examQuestionOptions).where(
+          inArray(
+            examQuestionOptions.questionId,
+            questions.map(q => q.id)
+          )
+        );
       }
 
       await db
         .delete(examQuestions)
         .where(eq(examQuestions.assessmentId, input.id));
 
-      await db
-        .delete(assessments)
-        .where(eq(assessments.id, input.id));
+      await db.delete(assessments).where(eq(assessments.id, input.id));
 
       return { success: true };
     }),
@@ -227,7 +241,7 @@ export const assessmentsRouter = router({
       z.object({
         assessmentId: z.number(),
         questionText: z.string().min(1),
-        questionType: z.enum(['multiple_choice', 'true_false', 'short_answer']),
+        questionType: z.enum(["multiple_choice", "true_false", "short_answer"]),
         points: z.number().default(1),
         orderIndex: z.number(),
         explanation: z.string().optional(),
@@ -242,12 +256,14 @@ export const assessmentsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const { options, ...questionData } = input;
 
       // Insertar pregunta
-      const [questionResult] = await (db.insert(examQuestions) as any).values(questionData);
+      const [questionResult] = await (db.insert(examQuestions) as any).values(
+        questionData
+      );
 
       // Insertar opciones
       if (options && options.length > 0) {
@@ -273,19 +289,21 @@ export const assessmentsRouter = router({
         questionText: z.string().min(1).optional(),
         points: z.number().optional(),
         explanation: z.string().optional(),
-        options: z.array(
-          z.object({
-            id: z.number().optional(),
-            optionText: z.string(),
-            isCorrect: z.boolean(),
-            orderIndex: z.number(),
-          })
-        ).optional(),
+        options: z
+          .array(
+            z.object({
+              id: z.number().optional(),
+              optionText: z.string(),
+              isCorrect: z.boolean(),
+              orderIndex: z.number(),
+            })
+          )
+          .optional(),
       })
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const { questionId, options, ...questionData } = input;
 
@@ -323,7 +341,7 @@ export const assessmentsRouter = router({
     .input(z.object({ questionId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Eliminar opciones
       await db
@@ -347,7 +365,7 @@ export const assessmentsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
 
@@ -358,13 +376,13 @@ export const assessmentsRouter = router({
         .where(
           and(
             eq(assessments.id, input.assessmentId),
-            eq(assessments.status, 'active')
+            eq(assessments.status, "active")
           )
         )
         .limit(1);
 
       if (!assessment || assessment.length === 0) {
-        throw new Error('Evaluación no disponible');
+        throw new Error("Evaluación no disponible");
       }
 
       // Verificar intentos previos
@@ -384,7 +402,7 @@ export const assessmentsRouter = router({
         assessment[0].maxAttempts &&
         attemptNumber > assessment[0].maxAttempts
       ) {
-        throw new Error('Se ha alcanzado el número máximo de intentos');
+        throw new Error("Se ha alcanzado el número máximo de intentos");
       }
 
       // Crear nuevo intento
@@ -393,7 +411,7 @@ export const assessmentsRouter = router({
         employeeId,
         attemptNumber,
         startedAt: new Date(),
-        status: 'in_progress',
+        status: "in_progress",
       });
 
       return {
@@ -419,7 +437,7 @@ export const assessmentsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       // Obtener intento
       const attempt = await db
@@ -429,18 +447,21 @@ export const assessmentsRouter = router({
         .limit(1);
 
       if (!attempt || attempt.length === 0) {
-        throw new Error('Intento no encontrado');
+        throw new Error("Intento no encontrado");
       }
 
       if (!canManageAssessments(ctx.user.role)) {
         const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
         if (attempt[0].employeeId !== employeeId) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para enviar este intento.' });
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "No tiene permiso para enviar este intento.",
+          });
         }
       }
 
-      if (attempt[0].status !== 'in_progress') {
-        throw new Error('El examen ya fue completado');
+      if (attempt[0].status !== "in_progress") {
+        throw new Error("El examen ya fue completado");
       }
 
       // Obtener evaluación y preguntas
@@ -473,7 +494,10 @@ export const assessmentsRouter = router({
         let isCorrect = false;
         let pointsEarned = 0;
 
-        if (question.questionType === 'multiple_choice' || question.questionType === 'true_false') {
+        if (
+          question.questionType === "multiple_choice" ||
+          question.questionType === "true_false"
+        ) {
           // Verificar respuesta de opción múltiple
           if (answer.selectedOptionId) {
             const option = await db
@@ -488,7 +512,7 @@ export const assessmentsRouter = router({
               earnedPoints += pointsEarned;
             }
           }
-        } else if (question.questionType === 'short_answer') {
+        } else if (question.questionType === "short_answer") {
           // Para respuestas cortas, se debe calificar manualmente
           // Por ahora, no se asignan puntos automáticamente
           isCorrect = false;
@@ -507,7 +531,8 @@ export const assessmentsRouter = router({
       }
 
       // Calcular calificación (porcentaje)
-      const score = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
+      const score =
+        totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
       const passed = score >= (assessment[0].passingScore || 70);
 
       // Actualizar intento
@@ -517,7 +542,7 @@ export const assessmentsRouter = router({
           submittedAt: new Date(),
           score,
           passed,
-          status: 'completed',
+          status: "completed",
           timeSpent,
         } as any)
         .where(eq(examAttempts.id, input.attemptId));
@@ -537,7 +562,7 @@ export const assessmentsRouter = router({
     .input(z.object({ attemptId: z.number() }))
     .query(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       const attempt = await db
         .select()
@@ -546,13 +571,16 @@ export const assessmentsRouter = router({
         .limit(1);
 
       if (!attempt || attempt.length === 0) {
-        throw new Error('Intento no encontrado');
+        throw new Error("Intento no encontrado");
       }
 
       if (!canManageAssessments(ctx.user.role)) {
         const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
         if (attempt[0].employeeId !== employeeId) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para consultar este intento.' });
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "No tiene permiso para consultar este intento.",
+          });
         }
       }
 
@@ -583,12 +611,15 @@ export const assessmentsRouter = router({
     .input(z.object({ employeeId: z.number() }))
     .query(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) throw new Error("Database not available");
 
       if (!canManageAssessments(ctx.user.role)) {
         const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
         if (input.employeeId !== employeeId) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para consultar estos intentos.' });
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "No tiene permiso para consultar estos intentos.",
+          });
         }
       }
 

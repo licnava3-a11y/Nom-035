@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,157 +55,198 @@ export default function ReportsHistory() {
   const handleRedownload = async (uuid: string, folio: string) => {
     try {
       // Obtener datos del reporte
-      const reportData = await trpc.compliance.getReportData.useQuery({ uuid }).refetch();
-      
+      const reportData = await trpc.compliance.getReportData
+        .useQuery({ uuid })
+        .refetch();
+
       if (!reportData.data) {
         toast.error("No se pudieron obtener los datos del reporte");
         return;
       }
 
       // Regenerar PDF usando los datos guardados
-      const { jsPDF } = await import('jspdf');
-      await import('jspdf-autotable');
-      
+      const { jsPDF } = await import("jspdf");
+      await import("jspdf-autotable");
+
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      
+
       let yPosition = 20;
-      
+
       // Código QR
       if (reportData.data.uuid) {
         try {
-          const QRCode = (await import('qrcode')).default;
+          const QRCode = (await import("qrcode")).default;
           const verificationUrl = `${window.location.origin}/verify/${reportData.data.uuid}`;
           const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
             width: 200,
             margin: 1,
           });
-          
+
           const qrSize = 25;
-          doc.addImage(qrDataUrl, 'PNG', pageWidth - qrSize - 14, yPosition, qrSize, qrSize);
-          
+          doc.addImage(
+            qrDataUrl,
+            "PNG",
+            pageWidth - qrSize - 14,
+            yPosition,
+            qrSize,
+            qrSize
+          );
+
           doc.setFontSize(6);
-          doc.setFont('helvetica', 'normal');
-          doc.text('Verificar', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 3, { align: 'center' });
-          doc.text('autenticidad', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 6, { align: 'center' });
-        } catch (error) {
-        }
+          doc.setFont("helvetica", "normal");
+          doc.text(
+            "Verificar",
+            pageWidth - qrSize / 2 - 14,
+            yPosition + qrSize + 3,
+            { align: "center" }
+          );
+          doc.text(
+            "autenticidad",
+            pageWidth - qrSize / 2 - 14,
+            yPosition + qrSize + 6,
+            { align: "center" }
+          );
+        } catch (error) {}
       }
-      
+
       // Logo (si existe en los datos)
       const data = reportData.data.data as any;
       if (data?.logo?.logoUrl) {
         try {
           const logoImg = new Image();
-          logoImg.crossOrigin = 'anonymous';
+          logoImg.crossOrigin = "anonymous";
           await new Promise((resolve, reject) => {
             logoImg.onload = resolve;
             logoImg.onerror = reject;
             logoImg.src = data.logo.logoUrl;
           });
-          
+
           const logoWidth = 30;
           const logoHeight = 15;
-          doc.addImage(logoImg, 'PNG', 14, yPosition, logoWidth, logoHeight);
-        } catch (error) {
-        }
+          doc.addImage(logoImg, "PNG", 14, yPosition, logoWidth, logoHeight);
+        } catch (error) {}
       }
-      
+
       // Encabezado
       doc.setFontSize(18);
-      doc.setFont('helvetica', 'bold');
-      doc.text(reportData.data.titulo, pageWidth / 2, yPosition, { align: 'center' });
+      doc.setFont("helvetica", "bold");
+      doc.text(reportData.data.titulo, pageWidth / 2, yPosition, {
+        align: "center",
+      });
       yPosition += 10;
-      
+
       // Datos de empresa
       if (data?.company) {
         doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.text(data.company.razonSocial, pageWidth / 2, yPosition, { align: 'center' });
+        doc.setFont("helvetica", "bold");
+        doc.text(data.company.razonSocial, pageWidth / 2, yPosition, {
+          align: "center",
+        });
         yPosition += 5;
-        
-        doc.setFont('helvetica', 'normal');
-        doc.text(`RFC: ${data.company.rfc}`, pageWidth / 2, yPosition, { align: 'center' });
+
+        doc.setFont("helvetica", "normal");
+        doc.text(`RFC: ${data.company.rfc}`, pageWidth / 2, yPosition, {
+          align: "center",
+        });
         yPosition += 8;
       }
-      
+
       // Información del reporte
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      
+      doc.setFont("helvetica", "normal");
+
       // Folio
       if (reportData.data.folio) {
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.text(`Folio: ${reportData.data.folio}`, 14, yPosition);
         yPosition += 6;
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
       }
-      
-      const generatedDate = new Date(reportData.data.generatedAt).toLocaleString('es-MX');
+
+      const generatedDate = new Date(
+        reportData.data.generatedAt
+      ).toLocaleString("es-MX");
       doc.text(`Fecha de generación: ${generatedDate}`, 14, yPosition);
       yPosition += 6;
-      doc.text(`Generado por: ${reportData.data.generatedByName}`, 14, yPosition);
+      doc.text(
+        `Generado por: ${reportData.data.generatedByName}`,
+        14,
+        yPosition
+      );
       yPosition += 4;
-      
+
       // Línea separadora
       doc.setLineWidth(0.5);
       doc.line(14, yPosition, pageWidth - 14, yPosition);
       yPosition += 5;
-      
+
       // Nota de re-descarga
       doc.setFontSize(8);
-      doc.setFont('helvetica', 'italic');
+      doc.setFont("helvetica", "italic");
       doc.setTextColor(100, 100, 100);
-      doc.text(`Re-descargado el: ${new Date().toLocaleString('es-MX')}`, 14, yPosition);
+      doc.text(
+        `Re-descargado el: ${new Date().toLocaleString("es-MX")}`,
+        14,
+        yPosition
+      );
       doc.setTextColor(0, 0, 0);
       yPosition += 8;
-      
+
       // Contenido del reporte (simplificado)
       doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Resumen del Reporte', 14, yPosition);
+      doc.setFont("helvetica", "bold");
+      doc.text("Resumen del Reporte", 14, yPosition);
       yPosition += 8;
-      
+
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Este es un reporte re-descargado desde el historial.', 14, yPosition);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        "Este es un reporte re-descargado desde el historial.",
+        14,
+        yPosition
+      );
       yPosition += 6;
-      doc.text('Los datos originales se conservan tal como fueron generados.', 14, yPosition);
-      
+      doc.text(
+        "Los datos originales se conservan tal como fueron generados.",
+        14,
+        yPosition
+      );
+
       // Pie de página
       const totalPages = doc.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
         doc.setFontSize(8);
-        doc.setFont('helvetica', 'italic');
-        
+        doc.setFont("helvetica", "italic");
+
         // Folio en esquina inferior izquierda
         if (reportData.data.folio) {
-          doc.setFont('helvetica', 'bold');
+          doc.setFont("helvetica", "bold");
           doc.text(reportData.data.folio, 14, pageHeight - 10);
-          doc.setFont('helvetica', 'italic');
+          doc.setFont("helvetica", "italic");
         }
-        
+
         doc.text(
           `Página ${i} de ${totalPages}`,
           pageWidth / 2,
           pageHeight - 10,
-          { align: 'center' }
+          { align: "center" }
         );
-        
+
         doc.text(
-          'Documento generado automáticamente por el Sistema de Gestión NOM-035',
+          "Documento generado automáticamente por el Sistema de Gestión NOM-035",
           pageWidth / 2,
           pageHeight - 6,
-          { align: 'center' }
+          { align: "center" }
         );
       }
-      
+
       // Descargar
-      const fileName = `${folio || 'Reporte'}_${new Date().toISOString().split('T')[0]}.pdf`;
+      const fileName = `${folio || "Reporte"}_${new Date().toISOString().split("T")[0]}.pdf`;
       doc.save(fileName);
-      
+
       toast.success("Reporte descargado exitosamente");
     } catch (error: any) {
       toast.error(error.message || "Error al re-descargar el reporte");
@@ -243,7 +290,7 @@ export default function ReportsHistory() {
               <Label htmlFor="tipo">Tipo de Reporte</Label>
               <Select
                 value={filters.tipo}
-                onValueChange={(value) => {
+                onValueChange={value => {
                   setFilters({ ...filters, tipo: value });
                   setPage(0);
                 }}
@@ -253,7 +300,9 @@ export default function ReportsHistory() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="verificacion_numerales">Verificación de Numerales</SelectItem>
+                  <SelectItem value="verificacion_numerales">
+                    Verificación de Numerales
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -264,7 +313,7 @@ export default function ReportsHistory() {
                 id="startDate"
                 type="date"
                 value={filters.startDate}
-                onChange={(e) => {
+                onChange={e => {
                   setFilters({ ...filters, startDate: e.target.value });
                   setPage(0);
                 }}
@@ -277,7 +326,7 @@ export default function ReportsHistory() {
                 id="endDate"
                 type="date"
                 value={filters.endDate}
-                onChange={(e) => {
+                onChange={e => {
                   setFilters({ ...filters, endDate: e.target.value });
                   setPage(0);
                 }}
@@ -285,7 +334,11 @@ export default function ReportsHistory() {
             </div>
 
             <div className="flex items-end">
-              <Button variant="outline" onClick={handleClearFilters} className="w-full">
+              <Button
+                variant="outline"
+                onClick={handleClearFilters}
+                className="w-full"
+              >
                 <X className="h-4 w-4 mr-2" />
                 Limpiar Filtros
               </Button>
@@ -307,7 +360,9 @@ export default function ReportsHistory() {
             <div className="text-center py-12 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No se encontraron reportes</p>
-              <p className="text-sm mt-2">Genera un nuevo reporte o ajusta los filtros</p>
+              <p className="text-sm mt-2">
+                Genera un nuevo reporte o ajusta los filtros
+              </p>
             </div>
           ) : (
             <>
@@ -325,21 +380,27 @@ export default function ReportsHistory() {
                   {data.reports.map((report: any) => (
                     <TableRow key={report.id}>
                       <TableCell className="font-mono font-semibold">
-                        {report.folio || '-'}
+                        {report.folio || "-"}
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">
-                          {report.tipo === 'verificacion_numerales' ? 'Verificación de Numerales' : report.tipo}
+                          {report.tipo === "verificacion_numerales"
+                            ? "Verificación de Numerales"
+                            : report.tipo}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {new Date(report.generatedAt).toLocaleString('es-MX')}
+                        {new Date(report.generatedAt).toLocaleString("es-MX")}
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{report.generatedByName}</p>
+                          <p className="font-medium">
+                            {report.generatedByName}
+                          </p>
                           {report.generatedByEmail && (
-                            <p className="text-sm text-muted-foreground">{report.generatedByEmail}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {report.generatedByEmail}
+                            </p>
                           )}
                         </div>
                       </TableCell>
@@ -348,14 +409,21 @@ export default function ReportsHistory() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(`/verify/${report.uuid}`, '_blank')}
+                            onClick={() =>
+                              window.open(`/verify/${report.uuid}`, "_blank")
+                            }
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleRedownload(report.uuid, report.folio || 'Reporte')}
+                            onClick={() =>
+                              handleRedownload(
+                                report.uuid,
+                                report.folio || "Reporte"
+                              )
+                            }
                           >
                             <Download className="h-4 w-4" />
                           </Button>
@@ -369,7 +437,8 @@ export default function ReportsHistory() {
               {/* Paginación */}
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-muted-foreground">
-                  Mostrando {page * pageSize + 1} - {Math.min((page + 1) * pageSize, data.total)} de {data.total}
+                  Mostrando {page * pageSize + 1} -{" "}
+                  {Math.min((page + 1) * pageSize, data.total)} de {data.total}
                 </div>
                 <div className="flex gap-2">
                   <Button

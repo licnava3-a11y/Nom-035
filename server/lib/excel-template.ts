@@ -14,7 +14,9 @@ export function generateWorkersTemplate(): Buffer {
     ["Plataforma de Capacitación NOM-035 STPS 2018"],
     [""],
     ["INSTRUCCIONES DE USO:"],
-    ["1. Complete todos los campos obligatorios marcados con (*) en la hoja 'Trabajadores'"],
+    [
+      "1. Complete todos los campos obligatorios marcados con (*) en la hoja 'Trabajadores'",
+    ],
     ["2. Respete el formato de cada columna según se indica"],
     ["3. No modifique los encabezados de las columnas"],
     ["4. Puede agregar tantas filas como trabajadores necesite"],
@@ -30,10 +32,14 @@ export function generateWorkersTemplate(): Buffer {
     [""],
     ["CATÁLOGOS:"],
     ["- Sexo: Masculino, Femenino, Otro"],
-    ["- Estado civil: Soltero(a), Casado(a), Divorciado(a), Viudo(a), Unión libre"],
+    [
+      "- Estado civil: Soltero(a), Casado(a), Divorciado(a), Viudo(a), Unión libre",
+    ],
     ["- Tipo de contrato: Planta, Temporal, Por obra, Honorarios, Otro"],
     ["- Jornada laboral: Diurna, Nocturna, Mixta, Por turnos"],
-    ["- Grado de estudios: Primaria, Secundaria, Preparatoria, Licenciatura, Posgrado, Otro"],
+    [
+      "- Grado de estudios: Primaria, Secundaria, Preparatoria, Licenciatura, Posgrado, Otro",
+    ],
     [""],
     ["NOTAS IMPORTANTES:"],
     ["- El sistema validará que CURP y RFC no estén duplicados"],
@@ -42,14 +48,14 @@ export function generateWorkersTemplate(): Buffer {
   ];
 
   const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
-  
+
   // Ajustar ancho de columnas
   wsInstructions["!cols"] = [{ wch: 80 }];
-  
+
   // Agregar estilos a la primera fila (título)
   if (!wsInstructions["!rows"]) wsInstructions["!rows"] = [];
   wsInstructions["!rows"][0] = { hpt: 20 };
-  
+
   XLSX.utils.book_append_sheet(workbook, wsInstructions, "Instrucciones");
 
   // Hoja 2: Trabajadores (plantilla)
@@ -132,7 +138,13 @@ export function generateWorkersTemplate(): Buffer {
 
   // Hoja 3: Catálogos
   const catalogData = [
-    ["CATÁLOGO DE SEXO", "", "CATÁLOGO DE ESTADO CIVIL", "", "CATÁLOGO DE TIPO DE CONTRATO"],
+    [
+      "CATÁLOGO DE SEXO",
+      "",
+      "CATÁLOGO DE ESTADO CIVIL",
+      "",
+      "CATÁLOGO DE TIPO DE CONTRATO",
+    ],
     ["Masculino", "", "Soltero(a)", "", "Planta"],
     ["Femenino", "", "Casado(a)", "", "Temporal"],
     ["Otro", "", "Divorciado(a)", "", "Por obra"],
@@ -149,8 +161,14 @@ export function generateWorkersTemplate(): Buffer {
   ];
 
   const wsCatalogs = XLSX.utils.aoa_to_sheet(catalogData);
-  wsCatalogs["!cols"] = [{ wch: 30 }, { wch: 5 }, { wch: 30 }, { wch: 5 }, { wch: 30 }];
-  
+  wsCatalogs["!cols"] = [
+    { wch: 30 },
+    { wch: 5 },
+    { wch: 30 },
+    { wch: 5 },
+    { wch: 30 },
+  ];
+
   XLSX.utils.book_append_sheet(workbook, wsCatalogs, "Catálogos");
 
   // Convertir a buffer
@@ -220,11 +238,16 @@ export function parseWorkersFromExcel(buffer: Buffer): {
 
     try {
       const worker: WorkerFromExcel = {
-        curp: String(row["CURP (*)"] || "").trim().toUpperCase(),
-        rfc: String(row["RFC (*)"] || "").trim().toUpperCase(),
+        curp: String(row["CURP (*)"] || "")
+          .trim()
+          .toUpperCase(),
+        rfc: String(row["RFC (*)"] || "")
+          .trim()
+          .toUpperCase(),
         nombre: String(row["Nombre (*)"] || "").trim(),
         apellidoPaterno: String(row["Apellido Paterno (*)"] || "").trim(),
-        apellidoMaterno: String(row["Apellido Materno"] || "").trim() || undefined,
+        apellidoMaterno:
+          String(row["Apellido Materno"] || "").trim() || undefined,
         fechaNacimiento: String(row["Fecha de Nacimiento (*)"] || "").trim(),
         sexo: String(row["Sexo (*)"] || "").trim(),
         estadoCivil: String(row["Estado Civil"] || "").trim() || undefined,
@@ -233,13 +256,19 @@ export function parseWorkersFromExcel(buffer: Buffer): {
         fechaIngreso: String(row["Fecha de Ingreso (*)"] || "").trim(),
         tipoContrato: String(row["Tipo de Contrato (*)"] || "").trim(),
         jornadaLaboral: String(row["Jornada Laboral (*)"] || "").trim(),
-        correoElectronico: String(row["Correo Electrónico (*)"] || "").trim().toLowerCase(),
+        correoElectronico: String(row["Correo Electrónico (*)"] || "")
+          .trim()
+          .toLowerCase(),
         telefono: String(row["Teléfono"] || "").trim() || undefined,
         direccion: String(row["Dirección"] || "").trim() || undefined,
-        ultimoGradoEstudios: String(row["Último Grado de Estudios"] || "").trim() || undefined,
-        nombreCarrera: String(row["Nombre de Carrera"] || "").trim() || undefined,
-        habilidadesTransversales: String(row["Habilidades Transversales"] || "").trim() || undefined,
-        habilidadesLongitudinales: String(row["Habilidades Longitudinales"] || "").trim() || undefined,
+        ultimoGradoEstudios:
+          String(row["Último Grado de Estudios"] || "").trim() || undefined,
+        nombreCarrera:
+          String(row["Nombre de Carrera"] || "").trim() || undefined,
+        habilidadesTransversales:
+          String(row["Habilidades Transversales"] || "").trim() || undefined,
+        habilidadesLongitudinales:
+          String(row["Habilidades Longitudinales"] || "").trim() || undefined,
       };
 
       // Validaciones básicas

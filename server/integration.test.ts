@@ -30,7 +30,10 @@ describe("Server fallback: Vite cuando dist/public no existe", () => {
 
     try {
       fs.mkdirSync(tmpDir, { recursive: true });
-      fs.writeFileSync(indexHtml, "<html><body><div id='root'></div></body></html>");
+      fs.writeFileSync(
+        indexHtml,
+        "<html><body><div id='root'></div></body></html>"
+      );
 
       const distPublicExists =
         fs.existsSync(tmpDir) && fs.existsSync(indexHtml);
@@ -50,30 +53,23 @@ describe("Server fallback: Vite cuando dist/public no existe", () => {
 // El import está comentado pero el plugin no está activo en el build.
 describe("Service Worker PWA: VitePWA deshabilitado (Sprint 42)", () => {
   it("vite.config.ts no importa VitePWA y documenta su deshabilitación", async () => {
-    const configPath = path.resolve(
-      import.meta.dirname,
-      "../vite.config.ts"
-    );
+    const configPath = path.resolve(import.meta.dirname, "../vite.config.ts");
     const configContent = fs.readFileSync(configPath, "utf-8");
     expect(configContent).not.toContain("vite-plugin-pwa");
-    expect(configContent).toContain("Service Worker se mantiene fuera del build");
+    expect(configContent).toContain(
+      "Service Worker se mantiene fuera del build"
+    );
   });
 
   it("index.html tiene script inline para desregistrar Service Workers", async () => {
-    const htmlPath = path.resolve(
-      import.meta.dirname,
-      "../client/index.html"
-    );
+    const htmlPath = path.resolve(import.meta.dirname, "../client/index.html");
     const htmlContent = fs.readFileSync(htmlPath, "utf-8");
     expect(htmlContent).toContain("serviceWorker");
     expect(htmlContent).toContain("unregister");
   });
 
   it("vite.config.ts tiene configuración básica de React y Tailwind", async () => {
-    const configPath = path.resolve(
-      import.meta.dirname,
-      "../vite.config.ts"
-    );
+    const configPath = path.resolve(import.meta.dirname, "../vite.config.ts");
     const configContent = fs.readFileSync(configPath, "utf-8");
     expect(configContent).toContain("react");
     expect(configContent).toContain("tailwindcss");
@@ -83,34 +79,27 @@ describe("Service Worker PWA: VitePWA deshabilitado (Sprint 42)", () => {
 // ─── Test 3: Estructura del servidor Express ──────────────────────────────────
 describe("Servidor Express: estructura y rutas críticas", () => {
   it("index.ts debe importar fs y path para el fallback", () => {
-    const indexPath = path.resolve(
-      import.meta.dirname,
-      "./_core/index.ts"
-    );
+    const indexPath = path.resolve(import.meta.dirname, "./_core/index.ts");
     const indexContent = fs.readFileSync(indexPath, "utf-8");
 
-    expect(indexContent).toContain("import fs from \"fs\"");
-    expect(indexContent).toContain("import path from \"path\"");
+    expect(indexContent).toContain('import fs from "fs"');
+    expect(indexContent).toContain('import path from "path"');
   });
 
   it("index.ts debe usar Vite en desarrollo y servidor estático centralizado en producción", () => {
-    const indexPath = path.resolve(
-      import.meta.dirname,
-      "./_core/index.ts"
-    );
+    const indexPath = path.resolve(import.meta.dirname, "./_core/index.ts");
     const indexContent = fs.readFileSync(indexPath, "utf-8");
 
-    expect(indexContent).toContain('import { serveStatic, setupVite } from "./vite"');
+    expect(indexContent).toContain(
+      'import { serveStatic, setupVite } from "./vite"'
+    );
     expect(indexContent).toContain('process.env.NODE_ENV === "development"');
     expect(indexContent).toContain("await setupVite(app, server)");
     expect(indexContent).toContain("serveStatic(app)");
   });
 
   it("index.ts debe registrar todas las rutas críticas de la API", () => {
-    const indexPath = path.resolve(
-      import.meta.dirname,
-      "./_core/index.ts"
-    );
+    const indexPath = path.resolve(import.meta.dirname, "./_core/index.ts");
     const indexContent = fs.readFileSync(indexPath, "utf-8");
 
     expect(indexContent).toContain("/api/trpc");

@@ -17,14 +17,35 @@ describe("NOM035 Excel Export — lógica de datos", () => {
       riskLevel: "Medio",
     },
     categories: [
-      { name: "Ambiente de Trabajo", score: 72, riskLevel: "Bajo", employeeCount: 40 },
-      { name: "Factores propios de la actividad", score: 58, riskLevel: "Medio", employeeCount: 40 },
+      {
+        name: "Ambiente de Trabajo",
+        score: 72,
+        riskLevel: "Bajo",
+        employeeCount: 40,
+      },
+      {
+        name: "Factores propios de la actividad",
+        score: 58,
+        riskLevel: "Medio",
+        employeeCount: 40,
+      },
     ],
     domains: [
-      { name: "Condiciones en el ambiente de trabajo", category: "Ambiente de Trabajo", score: 72, riskLevel: "Bajo" },
+      {
+        name: "Condiciones en el ambiente de trabajo",
+        category: "Ambiente de Trabajo",
+        score: 72,
+        riskLevel: "Bajo",
+      },
     ],
     dimensions: [
-      { name: "Condiciones peligrosas e inseguras", domain: "Condiciones en el ambiente de trabajo", score: 72, riskLevel: "Bajo", requiresAction: false },
+      {
+        name: "Condiciones peligrosas e inseguras",
+        domain: "Condiciones en el ambiente de trabajo",
+        score: 72,
+        riskLevel: "Bajo",
+        requiresAction: false,
+      },
     ],
     actionPlan: [],
   };
@@ -37,7 +58,9 @@ describe("NOM035 Excel Export — lógica de datos", () => {
   });
 
   it("debe calcular la cobertura correctamente", () => {
-    const coverage = Math.round((mockData.summary.surveyed / mockData.summary.totalEmployees) * 100);
+    const coverage = Math.round(
+      (mockData.summary.surveyed / mockData.summary.totalEmployees) * 100
+    );
     expect(coverage).toBe(80);
   });
 
@@ -64,7 +87,12 @@ describe("NOM035 Excel Export — lógica de datos", () => {
 describe("KPIs ejecutivos — estructura de respuesta", () => {
   const mockKPIs = {
     employees: { total: 100, active: 90, inactive: 10, turnoverRate: 8 },
-    training: { totalCourses: 15, totalAssignments: 200, completedAssignments: 160, completionRate: 80 },
+    training: {
+      totalCourses: 15,
+      totalAssignments: 200,
+      completedAssignments: 160,
+      completionRate: 80,
+    },
     vacations: { pending: 5, approved: 20, total: 25 },
     cases: { total: 12, open: 3, highRisk: 1 },
     mailbox: { pending: 8, total: 45 },
@@ -117,8 +145,10 @@ describe("Autocompletado CURP — decodificación local", () => {
     const day = c.substring(8, 10);
     const sexCode = c.substring(10, 11);
     const stateCode = c.substring(11, 13);
-    const year = parseInt(yearStr) >= 0 && parseInt(yearStr) <= 25
-      ? `20${yearStr}` : `19${yearStr}`;
+    const year =
+      parseInt(yearStr) >= 0 && parseInt(yearStr) <= 25
+        ? `20${yearStr}`
+        : `19${yearStr}`;
     return {
       fechaNacimiento: `${year}-${month}-${day}`,
       sexo: sexCode as "H" | "M",
@@ -181,7 +211,9 @@ describe("Tendencias históricas — generación de etiquetas de meses", () => {
     const labels: string[] = [];
     for (let i = months - 1; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      labels.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+      labels.push(
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+      );
     }
     return labels;
   }

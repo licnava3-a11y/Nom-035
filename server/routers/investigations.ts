@@ -2,7 +2,11 @@ import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { requirePermission } from "../permissions";
 import { getDb } from "../db";
-import { investigationQuestionnaires, nom035Cases, employees } from "../../drizzle/schema";
+import {
+  investigationQuestionnaires,
+  nom035Cases,
+  employees,
+} from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { sendQuestionnaireEmail } from "../services/questionnaireEmailService";
@@ -10,7 +14,7 @@ import { sendQuestionnaireEmail } from "../services/questionnaireEmailService";
 export const investigationsRouter = router({
   // Crear y enviar cuestionario de investigación
   sendQuestionnaire: protectedProcedure
-    .use(requirePermission('can_create'))
+    .use(requirePermission("can_create"))
     .input(
       z.object({
         caseId: z.number(),
@@ -21,7 +25,7 @@ export const investigationsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Generar token único para acceso en línea
       const accessToken = randomBytes(32).toString("hex");
@@ -30,8 +34,10 @@ export const investigationsRouter = router({
 
       // Crear cuestionario
       if (!db) throw new Error("Database connection failed");
-      
-      const [questionnaire] = await (db.insert(investigationQuestionnaires) as any).values({
+
+      const [questionnaire] = await (
+        db.insert(investigationQuestionnaires) as any
+      ).values({
         caseId: input.caseId,
         questionnaireType: input.questionnaireType,
         employeeId: input.employeeId,
@@ -101,7 +107,10 @@ export const investigationsRouter = router({
           employeeLastName: employees.lastName,
         })
         .from(investigationQuestionnaires)
-        .leftJoin(employees, eq(investigationQuestionnaires.employeeId, employees.id))
+        .leftJoin(
+          employees,
+          eq(investigationQuestionnaires.employeeId, employees.id)
+        )
         .where(eq(investigationQuestionnaires.accessToken, input.token))
         .limit(1);
 
@@ -130,7 +139,7 @@ export const investigationsRouter = router({
       if (!db) throw new Error("Database connection failed");
 
       // Verificar que el cuestionario existe y no ha expirado
-      
+
       const [questionnaire] = await db
         .select()
         .from(investigationQuestionnaires)
@@ -157,7 +166,7 @@ export const investigationsRouter = router({
 
       // Actualizar cuestionario
       if (!db) throw new Error("Database connection failed");
-      
+
       await db
         .update(investigationQuestionnaires)
         .set({
@@ -198,7 +207,10 @@ export const investigationsRouter = router({
           employeeEmail: employees.email,
         })
         .from(investigationQuestionnaires)
-        .leftJoin(employees, eq(investigationQuestionnaires.employeeId, employees.id))
+        .leftJoin(
+          employees,
+          eq(investigationQuestionnaires.employeeId, employees.id)
+        )
         .where(eq(investigationQuestionnaires.caseId, input.caseId))
         .orderBy(desc(investigationQuestionnaires.createdAt));
 
@@ -365,8 +377,14 @@ export const investigationsRouter = router({
           caseFolio: nom035Cases.folio,
         })
         .from(investigationQuestionnaires)
-        .leftJoin(employees, eq(investigationQuestionnaires.employeeId, employees.id))
-        .leftJoin(nom035Cases, eq(investigationQuestionnaires.caseId, nom035Cases.id))
+        .leftJoin(
+          employees,
+          eq(investigationQuestionnaires.employeeId, employees.id)
+        )
+        .leftJoin(
+          nom035Cases,
+          eq(investigationQuestionnaires.caseId, nom035Cases.id)
+        )
         .where(eq(investigationQuestionnaires.id, input.id))
         .limit(1);
 
@@ -384,8 +402,13 @@ function calculateScoreAndRisk(
   questionnaireType: "mobbing" | "burnout"
 ): { score: number; riskLevel: "bajo" | "medio" | "alto" | "muy_alto" } {
   // Calcular puntaje total sumando todas las respuestas numéricas
-  const scores = Object.values(responses).filter((v: any) => typeof v === "number");
-  const totalScore = scores.reduce((sum: number, score) => sum + (score as number), 0);
+  const scores = Object.values(responses).filter(
+    (v: any) => typeof v === "number"
+  );
+  const totalScore = scores.reduce(
+    (sum: number, score) => sum + (score as number),
+    0
+  );
   const averageScore = scores.length > 0 ? totalScore / scores.length : 0;
 
   // Determinar nivel de riesgo según tipo de cuestionario y literatura especializada

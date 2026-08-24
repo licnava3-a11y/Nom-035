@@ -1,18 +1,31 @@
-import { trpc } from '@/lib/trpc';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, XCircle, AlertCircle, Download, Home } from 'lucide-react';
-import { useRoute, useLocation } from 'wouter';
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Download,
+  Home,
+} from "lucide-react";
+import { useRoute, useLocation } from "wouter";
 
 export default function ExamResults() {
-  const [, params] = useRoute('/exams/:assessmentId/results/:attemptId');
+  const [, params] = useRoute("/exams/:assessmentId/results/:attemptId");
   const [, setLocation] = useLocation();
   const attemptId = params?.attemptId ? parseInt(params.attemptId) : 0;
 
   // Queries
-  const { data: results, isLoading } = trpc.assessments.getAttemptResults.useQuery({ attemptId });
+  const { data: results, isLoading } =
+    trpc.assessments.getAttemptResults.useQuery({ attemptId });
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -40,13 +53,16 @@ export default function ExamResults() {
   }
 
   const isPassed = results.passed;
-  const correctAnswers = results.answers?.filter((a: any) => a.isCorrect).length || 0;
+  const correctAnswers =
+    results.answers?.filter((a: any) => a.isCorrect).length || 0;
   const totalQuestions = results.answers?.length || 0;
 
   return (
     <div className="container max-w-4xl py-8">
       {/* Resumen de resultados */}
-      <Card className={`mb-6 ${isPassed ? 'border-green-500' : 'border-red-500'}`}>
+      <Card
+        className={`mb-6 ${isPassed ? "border-green-500" : "border-red-500"}`}
+      >
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             {isPassed ? (
@@ -56,7 +72,7 @@ export default function ExamResults() {
             )}
           </div>
           <CardTitle className="text-3xl">
-            {isPassed ? '¡Felicidades! Has aprobado' : 'No has aprobado'}
+            {isPassed ? "¡Felicidades! Has aprobado" : "No has aprobado"}
           </CardTitle>
           <CardDescription className="text-lg">
             Calificación: {results.score}%
@@ -69,21 +85,27 @@ export default function ExamResults() {
               <p className="text-sm text-muted-foreground">Calificación</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-green-600">{correctAnswers}</p>
+              <p className="text-2xl font-bold text-green-600">
+                {correctAnswers}
+              </p>
               <p className="text-sm text-muted-foreground">Correctas</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-red-600">{totalQuestions - correctAnswers}</p>
+              <p className="text-2xl font-bold text-red-600">
+                {totalQuestions - correctAnswers}
+              </p>
               <p className="text-sm text-muted-foreground">Incorrectas</p>
             </div>
             <div>
-              <p className="text-2xl font-bold">{results.timeSpent ? formatTime(results.timeSpent) : 'N/A'}</p>
+              <p className="text-2xl font-bold">
+                {results.timeSpent ? formatTime(results.timeSpent) : "N/A"}
+              </p>
               <p className="text-sm text-muted-foreground">Tiempo</p>
             </div>
           </div>
 
           <div className="flex gap-4 mt-6 justify-center">
-            <Button variant="outline" onClick={() => setLocation('/dashboard')}>
+            <Button variant="outline" onClick={() => setLocation("/dashboard")}>
               <Home className="mr-2 h-4 w-4" />
               Ir al inicio
             </Button>
@@ -100,7 +122,10 @@ export default function ExamResults() {
         <h2 className="text-2xl font-bold">Detalle de respuestas</h2>
 
         {results.answers?.map((answer: any, index: number) => (
-          <Card key={index} className={answer.isCorrect ? 'border-green-200' : 'border-red-200'}>
+          <Card
+            key={index}
+            className={answer.isCorrect ? "border-green-200" : "border-red-200"}
+          >
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -119,10 +144,14 @@ export default function ExamResults() {
                       </Badge>
                     )}
                   </div>
-                  <CardTitle className="text-lg">{answer.questionText}</CardTitle>
+                  <CardTitle className="text-lg">
+                    {answer.questionText}
+                  </CardTitle>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Puntos obtenidos</p>
+                  <p className="text-sm text-muted-foreground">
+                    Puntos obtenidos
+                  </p>
                   <p className="text-lg font-bold">
                     {answer.pointsEarned || 0} / {answer.points}
                   </p>
@@ -130,20 +159,28 @@ export default function ExamResults() {
               </div>
             </CardHeader>
             <CardContent>
-              {answer.questionType === 'short_answer' ? (
+              {answer.questionType === "short_answer" ? (
                 <div className="space-y-2">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Tu respuesta:</p>
-                    <p className="mt-1 p-3 bg-muted rounded-lg">{answer.textAnswer || 'Sin respuesta'}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Tu respuesta:
+                    </p>
+                    <p className="mt-1 p-3 bg-muted rounded-lg">
+                      {answer.textAnswer || "Sin respuesta"}
+                    </p>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">Tu respuesta:</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Tu respuesta:
+                  </p>
                   <div className="space-y-1">
                     {/* Aquí se mostrarían las opciones con indicadores de correcta/incorrecta */}
                     <p className="p-2 rounded-lg bg-muted">
-                      {answer.selectedOptionId ? `Opción seleccionada: ${answer.selectedOptionId}` : 'Sin respuesta'}
+                      {answer.selectedOptionId
+                        ? `Opción seleccionada: ${answer.selectedOptionId}`
+                        : "Sin respuesta"}
                     </p>
                   </div>
                 </div>
@@ -168,18 +205,21 @@ export default function ExamResults() {
           {isPassed ? (
             <div>
               <p className="text-lg mb-4">
-                Has completado exitosamente esta evaluación. Tu certificado estará disponible próximamente.
+                Has completado exitosamente esta evaluación. Tu certificado
+                estará disponible próximamente.
               </p>
-              <Button onClick={() => setLocation('/dashboard')}>
+              <Button onClick={() => setLocation("/dashboard")}>
                 Volver al inicio
               </Button>
             </div>
           ) : (
             <div>
               <p className="text-lg mb-4">
-                No has alcanzado la calificación mínima requerida. Te recomendamos revisar el material del curso y volver a intentarlo.
+                No has alcanzado la calificación mínima requerida. Te
+                recomendamos revisar el material del curso y volver a
+                intentarlo.
               </p>
-              <Button onClick={() => setLocation('/dashboard')}>
+              <Button onClick={() => setLocation("/dashboard")}>
                 Volver al inicio
               </Button>
             </div>

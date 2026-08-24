@@ -5,18 +5,24 @@
 
 import { useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Badge } from "@/components/ui/badge";
-import { 
-  FileText, 
-  Users, 
-  AlertTriangle, 
-  CheckCircle2, 
-  TrendingUp, 
+import {
+  FileText,
+  Users,
+  AlertTriangle,
+  CheckCircle2,
+  TrendingUp,
   Award,
   BookOpen,
-  BarChart3
+  BarChart3,
 } from "lucide-react";
 import { Chart, registerables } from "chart.js";
 
@@ -27,9 +33,12 @@ export default function ConsolidatedDashboard() {
   const trendsChartInstance = useRef<Chart | null>(null);
 
   // Queries
-  const { data: kpis, isLoading: kpisLoading } = trpc.executiveDashboard.getConsolidatedKPIs.useQuery();
-  const { data: trends, isLoading: trendsLoading } = trpc.executiveDashboard.getComplianceTrends.useQuery();
-  const { data: alerts, isLoading: alertsLoading } = trpc.executiveDashboard.getConsolidatedAlerts.useQuery();
+  const { data: kpis, isLoading: kpisLoading } =
+    trpc.executiveDashboard.getConsolidatedKPIs.useQuery();
+  const { data: trends, isLoading: trendsLoading } =
+    trpc.executiveDashboard.getComplianceTrends.useQuery();
+  const { data: alerts, isLoading: alertsLoading } =
+    trpc.executiveDashboard.getConsolidatedAlerts.useQuery();
 
   // Renderizar gráfico de tendencias
   useEffect(() => {
@@ -44,9 +53,12 @@ export default function ConsolidatedDashboard() {
 
     // Convertir meses a formato legible
     const monthLabels = trends.months.map(m => {
-      const [year, month] = m.split('-');
+      const [year, month] = m.split("-");
       const date = new Date(parseInt(year), parseInt(month) - 1);
-      return date.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' });
+      return date.toLocaleDateString("es-MX", {
+        month: "short",
+        year: "numeric",
+      });
     });
 
     trendsChartInstance.current = new Chart(ctx, {
@@ -113,8 +125,11 @@ export default function ConsolidatedDashboard() {
     };
   }, [trends]);
 
-  const getAlertBadge = (type: 'critical' | 'warning' | 'info') => {
-    const config: Record<typeof type, { variant: "default" | "secondary" | "destructive"; className: string }> = {
+  const getAlertBadge = (type: "critical" | "warning" | "info") => {
+    const config: Record<
+      typeof type,
+      { variant: "default" | "secondary" | "destructive"; className: string }
+    > = {
       critical: { variant: "destructive", className: "bg-red-600 text-white" },
       warning: { variant: "default", className: "bg-yellow-500 text-white" },
       info: { variant: "secondary", className: "bg-blue-500 text-white" },
@@ -127,7 +142,9 @@ export default function ConsolidatedDashboard() {
     return (
       <div className="container mx-auto py-8">
         <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Cargando dashboard ejecutivo...</p>
+          <p className="text-muted-foreground">
+            Cargando dashboard ejecutivo...
+          </p>
         </div>
       </div>
     );
@@ -139,7 +156,9 @@ export default function ConsolidatedDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Error</CardTitle>
-            <CardDescription>No se pudieron cargar las métricas consolidadas</CardDescription>
+            <CardDescription>
+              No se pudieron cargar las métricas consolidadas
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -150,9 +169,12 @@ export default function ConsolidatedDashboard() {
     <div className="container mx-auto py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard Ejecutivo</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Dashboard Ejecutivo
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Vista consolidada de cumplimiento normativo y gestión de riesgos psicosociales
+          Vista consolidada de cumplimiento normativo y gestión de riesgos
+          psicosociales
         </p>
       </div>
 
@@ -169,8 +191,12 @@ export default function ConsolidatedDashboard() {
           <CardContent>
             <div className="text-3xl font-bold">{kpis.nom035.totalCases}</div>
             <div className="flex items-center gap-2 mt-2 text-xs">
-              <Badge variant="destructive" className="text-xs">{kpis.nom035.openCases} abiertos</Badge>
-              <Badge variant="outline" className="text-xs">{kpis.nom035.criticalCases} críticos</Badge>
+              <Badge variant="destructive" className="text-xs">
+                {kpis.nom035.openCases} abiertos
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {kpis.nom035.criticalCases} críticos
+              </Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               {kpis.nom035.evidences} evidencias documentadas
@@ -187,11 +213,17 @@ export default function ConsolidatedDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{kpis.nmx025.genderParityScore.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground mt-1">Paridad de género</p>
+            <div className="text-3xl font-bold">
+              {kpis.nmx025.genderParityScore.toFixed(1)}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Paridad de género
+            </p>
             <div className="flex items-center gap-2 mt-2 text-xs">
               <span>{kpis.nmx025.femaleEmployees} mujeres</span>
-              <span className="text-muted-foreground">de {kpis.nmx025.totalEmployees} empleados</span>
+              <span className="text-muted-foreground">
+                de {kpis.nmx025.totalEmployees} empleados
+              </span>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               {kpis.nmx025.evidences} evidencias NMX-025
@@ -208,16 +240,26 @@ export default function ConsolidatedDashboard() {
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{kpis.surveys.completionRate.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground mt-1">Tasa de completitud</p>
+            <div className="text-3xl font-bold">
+              {kpis.surveys.completionRate.toFixed(1)}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Tasa de completitud
+            </p>
             <div className="flex items-center gap-2 mt-2 text-xs">
               <span>{kpis.surveys.completed} completadas</span>
-              <span className="text-muted-foreground">de {kpis.surveys.total} enviadas</span>
+              <span className="text-muted-foreground">
+                de {kpis.surveys.total} enviadas
+              </span>
             </div>
             <div className="flex items-center gap-1 mt-2">
               <Award className="h-3 w-3 text-yellow-500" />
-              <span className="text-xs font-semibold">{kpis.surveys.avgScore.toFixed(2)}</span>
-              <span className="text-xs text-muted-foreground">/ 5.0 score promedio</span>
+              <span className="text-xs font-semibold">
+                {kpis.surveys.avgScore.toFixed(2)}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                / 5.0 score promedio
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -231,8 +273,12 @@ export default function ConsolidatedDashboard() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{kpis.training.totalCourses}</div>
-            <p className="text-xs text-muted-foreground mt-1">Cursos disponibles</p>
+            <div className="text-3xl font-bold">
+              {kpis.training.totalCourses}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Cursos disponibles
+            </p>
             <div className="mt-4">
               <Badge variant="outline" className="text-xs">
                 <TrendingUp className="h-3 w-3 mr-1" />
@@ -264,7 +310,9 @@ export default function ConsolidatedDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Alertas Consolidadas</CardTitle>
-              <CardDescription>Situaciones que requieren atención prioritaria</CardDescription>
+              <CardDescription>
+                Situaciones que requieren atención prioritaria
+              </CardDescription>
             </div>
             <Badge variant="outline" className="text-sm">
               {alerts.length} alertas activas
@@ -282,9 +330,15 @@ export default function ConsolidatedDashboard() {
                     className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="mt-0.5">
-                      {alert.type === 'critical' && <AlertTriangle className="h-5 w-5 text-red-600" />}
-                      {alert.type === 'warning' && <AlertTriangle className="h-5 w-5 text-yellow-600" />}
-                      {alert.type === 'info' && <BarChart3 className="h-5 w-5 text-blue-600" />}
+                      {alert.type === "critical" && (
+                        <AlertTriangle className="h-5 w-5 text-red-600" />
+                      )}
+                      {alert.type === "warning" && (
+                        <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                      )}
+                      {alert.type === "info" && (
+                        <BarChart3 className="h-5 w-5 text-blue-600" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -293,7 +347,9 @@ export default function ConsolidatedDashboard() {
                           {alert.category}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">{alert.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {alert.description}
+                      </p>
                     </div>
                     {alert.count && (
                       <div className="text-right">
@@ -309,7 +365,9 @@ export default function ConsolidatedDashboard() {
             <div className="text-center py-8 text-muted-foreground">
               <CheckCircle2 className="h-12 w-12 mx-auto mb-2 opacity-50 text-green-600" />
               <p>No hay alertas activas</p>
-              <p className="text-xs mt-1">Todos los indicadores dentro de parámetros normales</p>
+              <p className="text-xs mt-1">
+                Todos los indicadores dentro de parámetros normales
+              </p>
             </div>
           )}
         </CardContent>
@@ -322,20 +380,26 @@ export default function ConsolidatedDashboard() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
-            • <strong>Casos Críticos:</strong> Revisar y asignar responsables a los {kpis.nom035.criticalCases} casos críticos abiertos
+            • <strong>Casos Críticos:</strong> Revisar y asignar responsables a
+            los {kpis.nom035.criticalCases} casos críticos abiertos
           </p>
           <p>
-            • <strong>Paridad de Género:</strong> {kpis.nmx025.genderParityScore < 40 || kpis.nmx025.genderParityScore > 60 
+            • <strong>Paridad de Género:</strong>{" "}
+            {kpis.nmx025.genderParityScore < 40 ||
+            kpis.nmx025.genderParityScore > 60
               ? `Implementar acciones afirmativas para mejorar paridad (actual: ${kpis.nmx025.genderParityScore.toFixed(1)}%)`
               : `Mantener políticas actuales de igualdad (paridad: ${kpis.nmx025.genderParityScore.toFixed(1)}%)`}
           </p>
           <p>
-            • <strong>Encuestas:</strong> {kpis.surveys.completionRate < 70 
+            • <strong>Encuestas:</strong>{" "}
+            {kpis.surveys.completionRate < 70
               ? `Enviar recordatorios para mejorar tasa de completitud (actual: ${kpis.surveys.completionRate.toFixed(1)}%)`
               : `Mantener estrategia actual de seguimiento (completitud: ${kpis.surveys.completionRate.toFixed(1)}%)`}
           </p>
           <p>
-            • <strong>Evidencias:</strong> Continuar documentando acciones de cumplimiento normativo (NOM-035: {kpis.nom035.evidences}, NMX-025: {kpis.nmx025.evidences})
+            • <strong>Evidencias:</strong> Continuar documentando acciones de
+            cumplimiento normativo (NOM-035: {kpis.nom035.evidences}, NMX-025:{" "}
+            {kpis.nmx025.evidences})
           </p>
         </CardContent>
       </Card>

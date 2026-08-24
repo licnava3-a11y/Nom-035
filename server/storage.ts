@@ -1,7 +1,7 @@
 // Preconfigured storage helpers for Manus WebDev templates
 // Uses the Biz-provided storage proxy (Authorization: Bearer <token>)
 
-import { ENV } from './_core/env';
+import { ENV } from "./_core/env";
 
 type StorageConfig = { baseUrl: string; apiKey: string };
 
@@ -92,7 +92,9 @@ export async function storagePut(
   return { key, url };
 }
 
-export async function storageGet(relKey: string): Promise<{ key: string; url: string; }> {
+export async function storageGet(
+  relKey: string
+): Promise<{ key: string; url: string }> {
   const { baseUrl, apiKey } = getStorageConfig();
   const key = normalizeKey(relKey);
   return {
@@ -101,12 +103,14 @@ export async function storageGet(relKey: string): Promise<{ key: string; url: st
   };
 }
 
-export async function storageDelete(relKey: string): Promise<{ success: boolean }> {
+export async function storageDelete(
+  relKey: string
+): Promise<{ success: boolean }> {
   const { baseUrl, apiKey } = getStorageConfig();
   const key = normalizeKey(relKey);
   const deleteUrl = new URL("v1/storage/delete", ensureTrailingSlash(baseUrl));
   deleteUrl.searchParams.set("path", key);
-  
+
   const response = await fetch(deleteUrl, {
     method: "DELETE",
     headers: buildAuthHeaders(apiKey),

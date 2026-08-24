@@ -27,14 +27,19 @@ export const notificationHistoryRouter = router({
       }
 
       if (input.startDate) {
-        conditions.push(gte(notificationHistory.sentAt, new Date(input.startDate)));
+        conditions.push(
+          gte(notificationHistory.sentAt, new Date(input.startDate))
+        );
       }
 
       if (input.endDate) {
-        conditions.push(lte(notificationHistory.sentAt, new Date(input.endDate)));
+        conditions.push(
+          lte(notificationHistory.sentAt, new Date(input.endDate))
+        );
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       const notifications = await db
         .select()
@@ -67,14 +72,19 @@ export const notificationHistoryRouter = router({
       }
 
       if (input.startDate) {
-        conditions.push(gte(notificationHistory.sentAt, new Date(input.startDate)));
+        conditions.push(
+          gte(notificationHistory.sentAt, new Date(input.startDate))
+        );
       }
 
       if (input.endDate) {
-        conditions.push(lte(notificationHistory.sentAt, new Date(input.endDate)));
+        conditions.push(
+          lte(notificationHistory.sentAt, new Date(input.endDate))
+        );
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       const result = await db
         .select({ count: count(notificationHistory.id) })

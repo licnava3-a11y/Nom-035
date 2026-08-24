@@ -16,7 +16,11 @@ export const predictiveAlertsRouter = router({
   getPrediction: protectedProcedure
     .input(
       z.object({
-        alertType: z.enum(["critical_cases", "low_coverage", "excellent_compliance"]),
+        alertType: z.enum([
+          "critical_cases",
+          "low_coverage",
+          "excellent_compliance",
+        ]),
         daysAhead: z.number().min(1).max(90).default(30), // Predict up to 90 days ahead
       })
     )
@@ -44,7 +48,8 @@ export const predictiveAlertsRouter = router({
       if (historicalAlerts.length < 3) {
         return {
           hasSufficientData: false,
-          message: "Datos insuficientes para análisis predictivo (mínimo 3 alertas históricas)",
+          message:
+            "Datos insuficientes para análisis predictivo (mínimo 3 alertas históricas)",
           alertType,
           historicalCount: historicalAlerts.length,
         };
@@ -60,10 +65,16 @@ export const predictiveAlertsRouter = router({
       }
 
       // Calculate average interval
-      const avgInterval = intervals.reduce((sum: any, val: any) => sum + val, 0) / intervals.length;
+      const avgInterval =
+        intervals.reduce((sum: any, val: any) => sum + val, 0) /
+        intervals.length;
 
       // Calculate standard deviation for confidence level
-      const variance = intervals.reduce((sum: any, val: any) => sum + Math.pow(val - avgInterval, 2), 0) / intervals.length;
+      const variance =
+        intervals.reduce(
+          (sum: any, val: any) => sum + Math.pow(val - avgInterval, 2),
+          0
+        ) / intervals.length;
       const stdDev = Math.sqrt(variance);
 
       // Predict next occurrence
@@ -74,7 +85,9 @@ export const predictiveAlertsRouter = router({
 
       // Calculate days until predicted occurrence
       const today = new Date();
-      const daysUntilPredicted = Math.round((predictedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const daysUntilPredicted = Math.round(
+        (predictedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
       // Determine confidence level based on standard deviation
       const coefficientOfVariation = (stdDev / avgInterval) * 100;
@@ -90,9 +103,17 @@ export const predictiveAlertsRouter = router({
       // Calculate trend (increasing or decreasing frequency)
       let trend: "increasing" | "stable" | "decreasing" = "stable";
       if (intervals.length >= 3) {
-        const recentAvg = intervals.slice(0, Math.floor(intervals.length / 2)).reduce((sum: any, val: any) => sum + val, 0) / Math.floor(intervals.length / 2);
-        const olderAvg = intervals.slice(Math.floor(intervals.length / 2)).reduce((sum: any, val: any) => sum + val, 0) / (intervals.length - Math.floor(intervals.length / 2));
-        
+        const recentAvg =
+          intervals
+            .slice(0, Math.floor(intervals.length / 2))
+            .reduce((sum: any, val: any) => sum + val, 0) /
+          Math.floor(intervals.length / 2);
+        const olderAvg =
+          intervals
+            .slice(Math.floor(intervals.length / 2))
+            .reduce((sum: any, val: any) => sum + val, 0) /
+          (intervals.length - Math.floor(intervals.length / 2));
+
         if (recentAvg < olderAvg * 0.8) {
           trend = "increasing"; // Alerts happening more frequently
         } else if (recentAvg > olderAvg * 1.2) {
@@ -101,7 +122,10 @@ export const predictiveAlertsRouter = router({
       }
 
       // Determine if proactive notification should be sent
-      const shouldNotify = daysUntilPredicted <= 7 && daysUntilPredicted > 0 && confidenceLevel !== "low";
+      const shouldNotify =
+        daysUntilPredicted <= 7 &&
+        daysUntilPredicted > 0 &&
+        confidenceLevel !== "low";
 
       return {
         hasSufficientData: true,
@@ -141,11 +165,9 @@ export const predictiveAlertsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const alertTypes: Array<"critical_cases" | "low_coverage" | "excellent_compliance"> = [
-        "critical_cases",
-        "low_coverage",
-        "excellent_compliance",
-      ];
+      const alertTypes: Array<
+        "critical_cases" | "low_coverage" | "excellent_compliance"
+      > = ["critical_cases", "low_coverage", "excellent_compliance"];
 
       const predictions = [];
 
@@ -172,21 +194,33 @@ export const predictiveAlertsRouter = router({
           const intervals: number[] = [];
           for (let i = 0; i < historicalAlerts.length - 1; i++) {
             const current = new Date(historicalAlerts[i].triggeredAt).getTime();
-            const next = new Date(historicalAlerts[i + 1].triggeredAt).getTime();
+            const next = new Date(
+              historicalAlerts[i + 1].triggeredAt
+            ).getTime();
             const daysDiff = Math.abs((current - next) / (1000 * 60 * 60 * 24));
             intervals.push(daysDiff);
           }
 
-          const avgInterval = intervals.reduce((sum: any, val: any) => sum + val, 0) / intervals.length;
+          const avgInterval =
+            intervals.reduce((sum: any, val: any) => sum + val, 0) /
+            intervals.length;
           const lastAlert = historicalAlerts[0];
           const lastAlertDate = new Date(lastAlert.triggeredAt);
           const predictedDate = new Date(lastAlertDate);
-          predictedDate.setDate(predictedDate.getDate() + Math.round(avgInterval));
+          predictedDate.setDate(
+            predictedDate.getDate() + Math.round(avgInterval)
+          );
 
           const today = new Date();
-          const daysUntilPredicted = Math.round((predictedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          const daysUntilPredicted = Math.round(
+            (predictedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+          );
 
-          const variance = intervals.reduce((sum: any, val: any) => sum + Math.pow(val - avgInterval, 2), 0) / intervals.length;
+          const variance =
+            intervals.reduce(
+              (sum: any, val: any) => sum + Math.pow(val - avgInterval, 2),
+              0
+            ) / intervals.length;
           const stdDev = Math.sqrt(variance);
           const coefficientOfVariation = (stdDev / avgInterval) * 100;
 
@@ -204,7 +238,10 @@ export const predictiveAlertsRouter = router({
             predictedDate: predictedDate.toISOString(),
             daysUntilPredicted,
             confidenceLevel,
-            shouldNotify: daysUntilPredicted <= 7 && daysUntilPredicted > 0 && confidenceLevel !== "low",
+            shouldNotify:
+              daysUntilPredicted <= 7 &&
+              daysUntilPredicted > 0 &&
+              confidenceLevel !== "low",
           });
         }
       }
@@ -218,7 +255,9 @@ export const predictiveAlertsRouter = router({
   getFrequencyStats: protectedProcedure
     .input(
       z.object({
-        alertType: z.enum(["critical_cases", "low_coverage", "excellent_compliance"]).optional(),
+        alertType: z
+          .enum(["critical_cases", "low_coverage", "excellent_compliance"])
+          .optional(),
         period: z.enum(["week", "month", "quarter"]).default("month"),
       })
     )
@@ -252,28 +291,35 @@ export const predictiveAlertsRouter = router({
 
       // Group alerts by time period
       const groupedData: Record<string, number> = {};
-      
+
       alerts.forEach((alert: any) => {
         const date = new Date(alert.triggeredAt);
         let key: string;
-        
+
         if (period === "week") {
-          const weekNumber = Math.floor((date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+          const weekNumber = Math.floor(
+            (date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)
+          );
           key = `Semana ${weekNumber + 1}`;
         } else if (period === "month") {
-          key = date.toLocaleDateString("es-MX", { year: "numeric", month: "short" });
+          key = date.toLocaleDateString("es-MX", {
+            year: "numeric",
+            month: "short",
+          });
         } else {
           const quarter = Math.floor(date.getMonth() / 3) + 1;
           key = `Q${quarter} ${date.getFullYear()}`;
         }
-        
+
         groupedData[key] = (groupedData[key] || 0) + 1;
       });
 
       return {
         period,
         alertType: alertType || "all",
-        data: Object.entries(groupedData).map(([label, count]: [string, any]) => ({ label, count })),
+        data: Object.entries(groupedData).map(
+          ([label, count]: [string, any]) => ({ label, count })
+        ),
         totalAlerts: alerts.length,
       };
     }),

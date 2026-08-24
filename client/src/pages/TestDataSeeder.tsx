@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, AlertCircle, Database } from "lucide-react";
 
@@ -10,14 +16,14 @@ export default function TestDataSeeder() {
   const [error, setError] = useState<string | null>(null);
 
   const seedMutation = trpc.testData.seedSession29.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setResult(data);
       setError(null);
     },
-    onError: (err) => {
+    onError: err => {
       setError(err.message);
       setResult(null);
-    }
+    },
   });
 
   const handleSeed = () => {
@@ -31,7 +37,8 @@ export default function TestDataSeeder() {
       <div>
         <h1 className="text-3xl font-bold">Generador de Datos de Prueba</h1>
         <p className="text-muted-foreground mt-2">
-          Herramienta para insertar datos de prueba de Sesión 29 (Evaluación 360°, Alertas Tempranas, Reportes Automáticos)
+          Herramienta para insertar datos de prueba de Sesión 29 (Evaluación
+          360°, Alertas Tempranas, Reportes Automáticos)
         </p>
       </div>
 
@@ -49,17 +56,22 @@ export default function TestDataSeeder() {
           <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
             <li>2 ciclos de evaluación 360° (1 activo, 1 completado)</li>
             <li>10 asignaciones de empleados a ciclos</li>
-            <li>3 configuraciones de umbrales de alertas tempranas (30% riesgo alto)</li>
+            <li>
+              3 configuraciones de umbrales de alertas tempranas (30% riesgo
+              alto)
+            </li>
             <li>2 reportes programados (mensual y trimestral)</li>
             <li>3 registros de historial de reportes enviados</li>
           </ul>
 
-          <Button 
-            onClick={handleSeed} 
+          <Button
+            onClick={handleSeed}
             disabled={seedMutation.isPending}
             className="w-full"
           >
-            {seedMutation.isPending ? "Insertando datos..." : "Generar Datos de Prueba"}
+            {seedMutation.isPending
+              ? "Insertando datos..."
+              : "Generar Datos de Prueba"}
           </Button>
 
           {result && (
@@ -100,7 +112,10 @@ export default function TestDataSeeder() {
           <ul className="space-y-2">
             <li className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-              <a href="/performance-evaluation-360" className="text-primary hover:underline">
+              <a
+                href="/performance-evaluation-360"
+                className="text-primary hover:underline"
+              >
                 Evaluación 360° - Verificar ciclos y asignaciones
               </a>
             </li>
@@ -112,7 +127,10 @@ export default function TestDataSeeder() {
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-              <a href="/scheduled-reports" className="text-primary hover:underline">
+              <a
+                href="/scheduled-reports"
+                className="text-primary hover:underline"
+              >
                 Reportes Automáticos - Verificar reportes programados
               </a>
             </li>

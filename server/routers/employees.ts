@@ -1,22 +1,51 @@
 import { z } from "zod";
-import { emailValidator, phoneValidatorMXOptional } from "../validators/contact";
+import {
+  emailValidator,
+  phoneValidatorMXOptional,
+} from "../validators/contact";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as employeesDb from "../db-employees";
 import { TRPCError } from "@trpc/server";
-import { requirePermission, requireDelete, requireAnyPermission } from "../permissions";
-import { validateCURP, validateRFC, validateNSS, validateEmail, validateHireDate, validateAge } from "../../shared/validators";
+import {
+  requirePermission,
+  requireDelete,
+  requireAnyPermission,
+} from "../permissions";
+import {
+  validateCURP,
+  validateRFC,
+  validateNSS,
+  validateEmail,
+  validateHireDate,
+  validateAge,
+} from "../../shared/validators";
 import { getAddressByPostalCode } from "../lib/postal-code-api";
 import { getDb } from "../db";
-import { employees, employeePortalTokens, departments, positions } from "../../drizzle/schema";
+import {
+  employees,
+  employeePortalTokens,
+  departments,
+  positions,
+} from "../../drizzle/schema";
 import { eq, and, isNotNull } from "drizzle-orm";
 import * as XLSX from "xlsx";
 import { logStructured } from "../_core/logger";
 
 type ImportedCell = string | number | boolean | Date | null | undefined;
 type ImportedEmployeeRow = Record<string, ImportedCell>;
-type EducationLevel = "primaria" | "secundaria" | "preparatoria" | "tecnico" | "licenciatura" | "especialidad" | "maestria" | "doctorado" | "otro";
+type EducationLevel =
+  | "primaria"
+  | "secundaria"
+  | "preparatoria"
+  | "tecnico"
+  | "licenciatura"
+  | "especialidad"
+  | "maestria"
+  | "doctorado"
+  | "otro";
 
-const importText = (value: ImportedCell) => value === null || value === undefined ? "" : String(value).trim();
+const importText = (value: ImportedCell) =>
+  value === null || value === undefined ? "" : String(value).trim();
 const importOptionalId = (value: ImportedCell) => {
   const candidate = Number(importText(value));
   return Number.isInteger(candidate) && candidate > 0 ? candidate : null;
@@ -69,9 +98,10 @@ export const employeesRouter = router({
       // Convert Date to string for frontend compatibility
       return (history || []).map(event => ({
         ...event,
-        eventDate: event.eventDate instanceof Date 
-          ? event.eventDate.toISOString().split('T')[0] 
-          : event.eventDate
+        eventDate:
+          event.eventDate instanceof Date
+            ? event.eventDate.toISOString().split("T")[0]
+            : event.eventDate,
       }));
     }),
 
@@ -95,7 +125,7 @@ export const employeesRouter = router({
    * Create new employee
    */
   create: protectedProcedure
-    .use(requirePermission('can_create'))
+    .use(requirePermission("can_create"))
     .input(
       z.object({
         firstName: z.string().min(1, "Nombre es requerido"),
@@ -106,144 +136,179 @@ export const employeesRouter = router({
         cedulaProfesional: z.string().max(20).optional().nullable(),
         rfc: z.string().optional(),
         nss: z.string().optional(),
-        educationLevel: z.enum(["primaria","secundaria","preparatoria","tecnico","licenciatura","especialidad","maestria","doctorado","otro"]).optional().nullable(),
+        educationLevel: z
+          .enum([
+            "primaria",
+            "secundaria",
+            "preparatoria",
+            "tecnico",
+            "licenciatura",
+            "especialidad",
+            "maestria",
+            "doctorado",
+            "otro",
+          ])
+          .optional()
+          .nullable(),
         birthDate: z.string().optional(),
         sexo: z.enum(["Masculino", "Femenino", "Otro"]).optional(),
         employeeNumber: z.string().optional(),
         department: z.string().optional(),
         position: z.string().optional(),
         hireDate: z.string().optional(), // ISO date string
-        contractType: z.enum(["permanent", "temporary", "contract"]).default("permanent"),
+        contractType: z
+          .enum(["permanent", "temporary", "contract"])
+          .default("permanent"),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        if (!ctx.user) throw new Error('User not authenticated');
+        if (!ctx.user) throw new Error("User not authenticated");
 
         // Solo administradores pueden crear empleados
-        if (ctx.user.role !== 'admin') {
+        if (ctx.user.role !== "admin") {
           throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Solo los administradores pueden crear empleados',
+            code: "FORBIDDEN",
+            message: "Solo los administradores pueden crear empleados",
           });
         }
-        
+
         // Validar CURP si se proporciona
-      if (input.curp) {
-        const curpValidation = validateCURP(input.curp);
-        if (!curpValidation.valid) {
+        if (input.curp) {
+          const curpValidation = validateCURP(input.curp);
+          if (!curpValidation.valid) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: curpValidation.error || "CURP inválido",
+            });
+          }
+        }
+
+        // Validar RFC si se proporciona
+        if (input.rfc) {
+          const rfcValidation = validateRFC(input.rfc, "fisica");
+          if (!rfcValidation.valid) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: rfcValidation.error || "RFC inválido",
+            });
+          }
+        }
+
+        // Validar NSS si se proporciona
+        if (input.nss) {
+          const nssValidation = validateNSS(input.nss);
+          if (!nssValidation.valid) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: nssValidation.error || "NSS inválido",
+            });
+          }
+        }
+
+        // Validar edad si se proporciona fecha de nacimiento
+        if (input.birthDate) {
+          const ageValidation = validateAge(input.birthDate);
+          if (!ageValidation.valid) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: ageValidation.error || "Edad inválida",
+            });
+          }
+        }
+
+        // Validar fecha de ingreso si se proporciona
+        if (input.hireDate) {
+          const hireDateValidation = validateHireDate(input.hireDate);
+          if (!hireDateValidation.valid) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: hireDateValidation.error || "Fecha de ingreso inválida",
+            });
+          }
+        }
+
+        // Validar que el correo no exista
+        const existingEmployee = await employeesDb.getEmployeeByEmail(
+          input.email
+        );
+        if (existingEmployee) {
           throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: curpValidation.error || "CURP inválido",
+            code: "CONFLICT",
+            message: "Ya existe un empleado con este correo electrónico",
           });
         }
-      }
 
-      // Validar RFC si se proporciona
-      if (input.rfc) {
-        const rfcValidation = validateRFC(input.rfc, 'fisica');
-        if (!rfcValidation.valid) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: rfcValidation.error || "RFC inválido",
-          });
+        // Detectar reingresos por CURP
+        let isReentry = false;
+        let reentryCount = 0;
+        let previousHireDates: Date[] = [];
+
+        if (input.curp) {
+          const existingByCURP = await employeesDb.getEmployeeByCURP(
+            input.curp
+          );
+          if (existingByCURP) {
+            isReentry = true;
+            reentryCount = (existingByCURP.reentryCount || 0) + 1;
+
+            // Obtener fechas previas de contratación
+            const history = await employeesDb.getEmployeeHistoryByCURP(
+              input.curp
+            );
+            previousHireDates = history
+              .filter(
+                (h: any) => h.eventType === "hire" || h.eventType === "reentry"
+              )
+              .map((h: any) => new Date(h.eventDate));
+          }
         }
-      }
 
-      // Validar NSS si se proporciona
-      if (input.nss) {
-        const nssValidation = validateNSS(input.nss);
-        if (!nssValidation.valid) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: nssValidation.error || "NSS inválido",
-          });
-        }
-      }
-
-      // Validar edad si se proporciona fecha de nacimiento
-      if (input.birthDate) {
-        const ageValidation = validateAge(input.birthDate);
-        if (!ageValidation.valid) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: ageValidation.error || "Edad inválida",
-          });
-        }
-      }
-
-      // Validar fecha de ingreso si se proporciona
-      if (input.hireDate) {
-        const hireDateValidation = validateHireDate(input.hireDate);
-        if (!hireDateValidation.valid) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: hireDateValidation.error || "Fecha de ingreso inválida",
-          });
-        }
-      }
-
-      // Validar que el correo no exista
-      const existingEmployee = await employeesDb.getEmployeeByEmail(input.email);
-      if (existingEmployee) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "Ya existe un empleado con este correo electrónico",
-        });
-      }
-
-      // Detectar reingresos por CURP
-      let isReentry = false;
-      let reentryCount = 0;
-      let previousHireDates: Date[] = [];
-      
-      if (input.curp) {
-        const existingByCURP = await employeesDb.getEmployeeByCURP(input.curp);
-        if (existingByCURP) {
-          isReentry = true;
-          reentryCount = (existingByCURP.reentryCount || 0) + 1;
-          
-          // Obtener fechas previas de contratación
-          const history = await employeesDb.getEmployeeHistoryByCURP(input.curp);
-          previousHireDates = history
-            .filter((h: any) => h.eventType === 'hire' || h.eventType === 'reentry')
-            .map((h: any) => new Date(h.eventDate));
-        }
-      }
-
-      // Use transaction to ensure atomicity
-      const employeeId = input.curp
-        ? await employeesDb.createEmployeeWithHistory(
-            {
+        // Use transaction to ensure atomicity
+        const employeeId = input.curp
+          ? await employeesDb.createEmployeeWithHistory(
+              {
+                ...input,
+                hireDate: input.hireDate ? new Date(input.hireDate) : undefined,
+                reentryCount,
+                previousHireDates:
+                  previousHireDates.length > 0
+                    ? previousHireDates.map(d => d.toISOString())
+                    : null,
+              },
+              {
+                curp: input.curp,
+                eventType: isReentry ? "reentry" : "hire",
+                eventDate: input.hireDate
+                  ? new Date(input.hireDate)
+                  : new Date(),
+                processedBy: ctx.user.id,
+                departmentId: input.department
+                  ? parseInt(input.department)
+                  : undefined,
+                positionId: input.position
+                  ? parseInt(input.position)
+                  : undefined,
+              }
+            )
+          : await employeesDb.createEmployee({
               ...input,
               hireDate: input.hireDate ? new Date(input.hireDate) : undefined,
               reentryCount,
-              previousHireDates: previousHireDates.length > 0 ? previousHireDates.map(d => d.toISOString()) : null,
-            },
-            {
-              curp: input.curp,
-              eventType: isReentry ? 'reentry' : 'hire',
-              eventDate: input.hireDate ? new Date(input.hireDate) : new Date(),
-              processedBy: ctx.user.id,
-              departmentId: input.department ? parseInt(input.department) : undefined,
-              positionId: input.position ? parseInt(input.position) : undefined,
-            }
-          )
-        : await employeesDb.createEmployee({
-            ...input,
-            hireDate: input.hireDate ? new Date(input.hireDate) : undefined,
-            reentryCount,
-            previousHireDates: previousHireDates.length > 0 ? previousHireDates.map(d => d.toISOString()) : null,
-          });
+              previousHireDates:
+                previousHireDates.length > 0
+                  ? previousHireDates.map(d => d.toISOString())
+                  : null,
+            });
 
-      return {
-        success: true,
-        employeeId,
-        isReentry,
-        reentryCount,
-      };
+        return {
+          success: true,
+          employeeId,
+          isReentry,
+          reentryCount,
+        };
       } catch (error) {
-        console.error('[Employees] Error creating employee:', error);
+        console.error("[Employees] Error creating employee:", error);
         if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -256,7 +321,7 @@ export const employeesRouter = router({
    * Update employee
    */
   update: protectedProcedure
-    .use(requirePermission('can_edit'))
+    .use(requirePermission("can_edit"))
     .input(
       z.object({
         id: z.number(),
@@ -274,7 +339,20 @@ export const employeesRouter = router({
         cedulaProfesional: z.string().max(20).optional().nullable(),
         rfc: z.string().max(13).optional().nullable(),
         nss: z.string().max(11).optional().nullable(),
-        educationLevel: z.enum(["primaria","secundaria","preparatoria","tecnico","licenciatura","especialidad","maestria","doctorado","otro"]).optional().nullable(),
+        educationLevel: z
+          .enum([
+            "primaria",
+            "secundaria",
+            "preparatoria",
+            "tecnico",
+            "licenciatura",
+            "especialidad",
+            "maestria",
+            "doctorado",
+            "otro",
+          ])
+          .optional()
+          .nullable(),
         contract1ExpirationDate: z.string().optional().nullable(),
         contract2ExpirationDate: z.string().optional().nullable(),
         contract3ExpirationDate: z.string().optional().nullable(),
@@ -285,39 +363,55 @@ export const employeesRouter = router({
         const { id, ...updateData } = input;
 
         // Check if employee exists
-      const existing = await employeesDb.getEmployeeById(id);
-      if (!existing) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Empleado no encontrado",
-        });
-      }
-
-      // If email is being updated, check for conflicts
-      if (updateData.email && updateData.email !== existing.email) {
-        const emailExists = await employeesDb.getEmployeeByEmail(updateData.email);
-        if (emailExists) {
+        const existing = await employeesDb.getEmployeeById(id);
+        if (!existing) {
           throw new TRPCError({
-            code: "CONFLICT",
-            message: "Ya existe un empleado con este correo electrónico",
+            code: "NOT_FOUND",
+            message: "Empleado no encontrado",
           });
         }
-      }
 
-      const updated = await employeesDb.updateEmployee(id, {
-        ...updateData,
-        hireDate: updateData.hireDate ? new Date(updateData.hireDate) : undefined,
-        contract1ExpirationDate: updateData.contract1ExpirationDate ? new Date(updateData.contract1ExpirationDate) : (updateData.contract1ExpirationDate === null ? null : undefined),
-        contract2ExpirationDate: updateData.contract2ExpirationDate ? new Date(updateData.contract2ExpirationDate) : (updateData.contract2ExpirationDate === null ? null : undefined),
-        contract3ExpirationDate: updateData.contract3ExpirationDate ? new Date(updateData.contract3ExpirationDate) : (updateData.contract3ExpirationDate === null ? null : undefined),
-      });
+        // If email is being updated, check for conflicts
+        if (updateData.email && updateData.email !== existing.email) {
+          const emailExists = await employeesDb.getEmployeeByEmail(
+            updateData.email
+          );
+          if (emailExists) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Ya existe un empleado con este correo electrónico",
+            });
+          }
+        }
 
-      return {
-        success: true,
-        employee: updated,
-      };
+        const updated = await employeesDb.updateEmployee(id, {
+          ...updateData,
+          hireDate: updateData.hireDate
+            ? new Date(updateData.hireDate)
+            : undefined,
+          contract1ExpirationDate: updateData.contract1ExpirationDate
+            ? new Date(updateData.contract1ExpirationDate)
+            : updateData.contract1ExpirationDate === null
+              ? null
+              : undefined,
+          contract2ExpirationDate: updateData.contract2ExpirationDate
+            ? new Date(updateData.contract2ExpirationDate)
+            : updateData.contract2ExpirationDate === null
+              ? null
+              : undefined,
+          contract3ExpirationDate: updateData.contract3ExpirationDate
+            ? new Date(updateData.contract3ExpirationDate)
+            : updateData.contract3ExpirationDate === null
+              ? null
+              : undefined,
+        });
+
+        return {
+          success: true,
+          employee: updated,
+        };
       } catch (error) {
-        console.error('[Employees] Error updating employee:', error);
+        console.error("[Employees] Error updating employee:", error);
         if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -335,21 +429,21 @@ export const employeesRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         const employee = await employeesDb.getEmployeeById(input.id);
-      if (!employee) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Empleado no encontrado",
-        });
-      }
+        if (!employee) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Empleado no encontrado",
+          });
+        }
 
-      await employeesDb.deactivateEmployee(input.id);
+        await employeesDb.deactivateEmployee(input.id);
 
-      return {
-        success: true,
-        message: "Empleado desactivado exitosamente",
-      };
+        return {
+          success: true,
+          message: "Empleado desactivado exitosamente",
+        };
       } catch (error) {
-        console.error('[Employees] Error deactivating employee:', error);
+        console.error("[Employees] Error deactivating employee:", error);
         if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -407,11 +501,15 @@ export const employeesRouter = router({
    * Returns state, municipality and colonies for Mexican postal codes
    */
   getAddressByPostalCode: protectedProcedure
-    .input(z.object({ postalCode: z.string().length(5, "Código postal debe tener 5 dígitos") }))
+    .input(
+      z.object({
+        postalCode: z.string().length(5, "Código postal debe tener 5 dígitos"),
+      })
+    )
     .query(async ({ input }) => {
       try {
         const addressData = await getAddressByPostalCode(input.postalCode);
-        
+
         if (!addressData) {
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -423,7 +521,10 @@ export const employeesRouter = router({
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : "Error al consultar código postal",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al consultar código postal",
         });
       }
     }),
@@ -458,7 +559,7 @@ export const employeesRouter = router({
   validateCURP: protectedProcedure
     .input(z.object({ curp: z.string() }))
     .query(async ({ input }) => {
-      const { validateCURP } = await import('../lib/curp-validator');
+      const { validateCURP } = await import("../lib/curp-validator");
       return validateCURP(input.curp);
     }),
 
@@ -469,7 +570,9 @@ export const employeesRouter = router({
     .input(
       z.object({
         employeeId: z.number(),
-        terminationReason: z.string().min(1, "Motivo de terminación es requerido"),
+        terminationReason: z
+          .string()
+          .min(1, "Motivo de terminación es requerido"),
         terminationDate: z.string(),
         notes: z.string().optional(),
         documentUrls: z.array(z.string()).optional(),
@@ -576,7 +679,9 @@ export const employeesRouter = router({
     .input(
       z.object({
         fileData: z.string(), // Base64 encoded file
-        fileName: z.string().regex(/\.(xlsx|csv)$/i, "Solo se permiten archivos XLSX o CSV"),
+        fileName: z
+          .string()
+          .regex(/\.(xlsx|csv)$/i, "Solo se permiten archivos XLSX o CSV"),
       })
     )
     .mutation(async ({ input }) => {
@@ -609,24 +714,34 @@ export const employeesRouter = router({
         }
 
         const db = await getDb();
-      if (!db) throw new Error("Database not available");
+        if (!db) throw new Error("Database not available");
         const results = {
           total: data.length,
           successful: 0,
           failed: 0,
-          errors: [] as Array<{ row: number; error: string; data: ImportedEmployeeRow }>,
+          errors: [] as Array<{
+            row: number;
+            error: string;
+            data: ImportedEmployeeRow;
+          }>,
         };
 
         // Obtener todos los departamentos para mapeo
         const allDepartments = await db.select().from(departments);
         const departmentMap = new Map(
-          allDepartments.map((department) => [department.name.toLowerCase(), department.id])
+          allDepartments.map(department => [
+            department.name.toLowerCase(),
+            department.id,
+          ])
         );
 
         // Obtener posiciones para mapeo por nombre
         const allPositions = await db.select().from(positions);
         const positionMap = new Map(
-          allPositions.map((position) => [position.title.toLowerCase(), position.id])
+          allPositions.map(position => [
+            position.title.toLowerCase(),
+            position.id,
+          ])
         );
 
         for (let i = 0; i < data.length; i++) {
@@ -659,58 +774,95 @@ export const employeesRouter = router({
                 lastName = "";
               }
             }
-            const email = importText(row.email || row.correo || row.correoElectronico);
+            const email = importText(
+              row.email || row.correo || row.correoElectronico
+            );
             const phone = importText(row.phone || row.telefono || row.celular);
             const curp = importText(row.curp || row.CURP).toUpperCase();
             const rfc = importText(row.rfc || row.RFC).toUpperCase();
-            const nss = importText(row.nss || row.NSS || row.numeroSeguroSocial);
-            const employeeNumber = importText(row.numeroEmpleado || row.employeeNumber || row.claveEmpleado || row.clave);
-            const hireDateRaw = importText(row.hireDate || row.fechaIngreso || row.fechaAlta);
+            const nss = importText(
+              row.nss || row.NSS || row.numeroSeguroSocial
+            );
+            const employeeNumber = importText(
+              row.numeroEmpleado ||
+                row.employeeNumber ||
+                row.claveEmpleado ||
+                row.clave
+            );
+            const hireDateRaw = importText(
+              row.hireDate || row.fechaIngreso || row.fechaAlta
+            );
             // Mapear género (español/inglés/CONTPAQi)
-            let gender: "male" | "female" | "other" | "prefer_not_to_say" | null = null;
-            const sexoRaw = importText(row.gender || row.sexo || row.genero).toLowerCase();
-            if (["m", "masculino", "male", "hombre", "h"].includes(sexoRaw)) gender = "male";
-            else if (["f", "femenino", "female", "mujer"].includes(sexoRaw)) gender = "female";
+            let gender:
+              | "male"
+              | "female"
+              | "other"
+              | "prefer_not_to_say"
+              | null = null;
+            const sexoRaw = importText(
+              row.gender || row.sexo || row.genero
+            ).toLowerCase();
+            if (["m", "masculino", "male", "hombre", "h"].includes(sexoRaw))
+              gender = "male";
+            else if (["f", "femenino", "female", "mujer"].includes(sexoRaw))
+              gender = "female";
             // Mapear nivel educativo
             const edLevelMap: Record<string, EducationLevel> = {
-              primaria: "primaria", secundaria: "secundaria",
-              preparatoria: "preparatoria", bachillerato: "preparatoria",
-              tecnico: "tecnico", técnico: "tecnico",
-              licenciatura: "licenciatura", ingenieria: "licenciatura", ingeniería: "licenciatura",
-              especialidad: "especialidad", maestria: "maestria", maestría: "maestria",
-              doctorado: "doctorado", otro: "otro",
+              primaria: "primaria",
+              secundaria: "secundaria",
+              preparatoria: "preparatoria",
+              bachillerato: "preparatoria",
+              tecnico: "tecnico",
+              técnico: "tecnico",
+              licenciatura: "licenciatura",
+              ingenieria: "licenciatura",
+              ingeniería: "licenciatura",
+              especialidad: "especialidad",
+              maestria: "maestria",
+              maestría: "maestria",
+              doctorado: "doctorado",
+              otro: "otro",
             };
-            const edRaw = importText(row.educationLevel || row.nivelEducativo || row.nivelEstudios).toLowerCase();
+            const edRaw = importText(
+              row.educationLevel || row.nivelEducativo || row.nivelEstudios
+            ).toLowerCase();
             const educationLevel = edLevelMap[edRaw] ?? null;
 
             // Validar campos obligatorios
             if (!firstName || !email) {
               throw new Error(
-                `Campos obligatorios faltantes: ${!firstName ? 'nombre' : ''} ${!email ? 'email' : ''}`.trim()
+                `Campos obligatorios faltantes: ${!firstName ? "nombre" : ""} ${!email ? "email" : ""}`.trim()
               );
             }
 
             // Validar email único
-            const existingEmployee = await employeesDb.getEmployeeByEmail(email);
+            const existingEmployee =
+              await employeesDb.getEmployeeByEmail(email);
             if (existingEmployee) {
               throw new Error(`Email duplicado: ${email}`);
             }
 
             // Asignar departamento automáticamente por nombre
             let departmentId = null;
-            const deptRaw = importText(row.department || row.departamento || row.area);
+            const deptRaw = importText(
+              row.department || row.departamento || row.area
+            );
             if (deptRaw) {
               const deptId = departmentMap.get(deptRaw.toLowerCase());
               if (deptId) {
                 departmentId = deptId;
               } else {
-                logStructured("warn", "employee_import.department_not_found", { row: rowNumber });
+                logStructured("warn", "employee_import.department_not_found", {
+                  row: rowNumber,
+                });
               }
             }
 
             // Asignar puesto automáticamente por nombre
             let positionId = importOptionalId(row.positionId);
-            const puestoRaw = importText(row.puesto || row.position || row.cargo);
+            const puestoRaw = importText(
+              row.puesto || row.position || row.cargo
+            );
             if (!positionId && puestoRaw) {
               const posId = positionMap.get(puestoRaw.toLowerCase());
               if (posId) positionId = posId;
@@ -815,7 +967,9 @@ export const employeesRouter = router({
     };
 
     // Crear hoja de trabajo con headers y ejemplo
-    const worksheet = XLSX.utils.json_to_sheet([exampleRow], { header: headers });
+    const worksheet = XLSX.utils.json_to_sheet([exampleRow], {
+      header: headers,
+    });
 
     // Agregar nota informativa en la primera fila
     XLSX.utils.sheet_add_aoa(
@@ -852,88 +1006,100 @@ export const employeesRouter = router({
    * Obtener empleados con título clínico (médico, psicólogo, psiquiatra)
    * Usado para el selector de responsable clínico en acciones correctivas Nivel 3
    */
-  getClinicalEmployees: protectedProcedure
-    .query(async () => {
-      const dbInstance = await (await import('../db')).getDb();
-      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-      const { employees, positions } = await import('../../drizzle/schema');
-      const { eq, or, like, and, isNotNull, ne } = await import('drizzle-orm');
-      // Buscar empleados activos que sean responsables técnicos potenciales:
-      // (1) Tienen cédula profesional registrada, o
-      // (2) Su puesto tiene perfil técnico/clínico/directivo
-      const results = await dbInstance
-        .select({
-          id: employees.id,
-          firstName: employees.firstName,
-          lastName: employees.lastName,
-          email: employees.email,
-          positionTitle: positions.title,
-          cedulaProfesional: employees.cedulaProfesional,
-        })
-        .from(employees)
-        .leftJoin(positions, eq(employees.positionId, positions.id))
-        .where(
-          and(
-            eq(employees.isActive, true),
-            or(
-              // Prioridad 1: empleados con cédula profesional (responsables técnicos NOM-035)
-              and(isNotNull(employees.cedulaProfesional), ne(employees.cedulaProfesional, '')),
-              // Prioridad 2: puestos clínicos
-              like(positions.title, '%médico%'),
-              like(positions.title, '%medico%'),
-              like(positions.title, '%psicólogo%'),
-              like(positions.title, '%psicologo%'),
-              like(positions.title, '%psiquiatra%'),
-              like(positions.title, '%psicóloga%'),
-              like(positions.title, '%psicologa%'),
-              like(positions.title, '%terapeuta%'),
-              like(positions.title, '%enfermero%'),
-              like(positions.title, '%enfermera%'),
-              // Prioridad 3: puestos de responsabilidad técnica/directiva
-              like(positions.title, '%responsable%'),
-              like(positions.title, '%coordinador%'),
-              like(positions.title, '%supervisor%'),
-              like(positions.title, '%jefe%'),
-              like(positions.title, '%director%'),
-              like(positions.title, '%gerente%'),
-            )
-          )
-        );
-      // Deduplicar por id
-      const seen = new Set<number>();
-      const unique = results.filter(emp => {
-        if (seen.has(emp.id)) return false;
-        seen.add(emp.id);
-        return true;
+  getClinicalEmployees: protectedProcedure.query(async () => {
+    const dbInstance = await (await import("../db")).getDb();
+    if (!dbInstance)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
       });
-      return unique.map(emp => ({
-        id: emp.id,
-        fullName: `${emp.firstName} ${emp.lastName}`,
-        email: emp.email,
-        positionTitle: emp.positionTitle || 'Sin puesto',
-        cedulaProfesional: emp.cedulaProfesional || null,
-        // Inferir el clinicalTitle desde el puesto
-        clinicalTitle: emp.positionTitle
-          ? emp.positionTitle.toLowerCase().includes('psiquiatra')
-            ? 'Psiq.'
-            : emp.positionTitle.toLowerCase().includes('psicologo') || emp.positionTitle.toLowerCase().includes('psicólogo') || emp.positionTitle.toLowerCase().includes('psicologa') || emp.positionTitle.toLowerCase().includes('psicóloga')
-              ? 'Psic.'
-              : emp.positionTitle.toLowerCase().includes('medico') || emp.positionTitle.toLowerCase().includes('médico')
-                ? 'Dr.'
-                : null
-          : null,
-      }));
-    }),
-    /**
+    const { employees, positions } = await import("../../drizzle/schema");
+    const { eq, or, like, and, isNotNull, ne } = await import("drizzle-orm");
+    // Buscar empleados activos que sean responsables técnicos potenciales:
+    // (1) Tienen cédula profesional registrada, o
+    // (2) Su puesto tiene perfil técnico/clínico/directivo
+    const results = await dbInstance
+      .select({
+        id: employees.id,
+        firstName: employees.firstName,
+        lastName: employees.lastName,
+        email: employees.email,
+        positionTitle: positions.title,
+        cedulaProfesional: employees.cedulaProfesional,
+      })
+      .from(employees)
+      .leftJoin(positions, eq(employees.positionId, positions.id))
+      .where(
+        and(
+          eq(employees.isActive, true),
+          or(
+            // Prioridad 1: empleados con cédula profesional (responsables técnicos NOM-035)
+            and(
+              isNotNull(employees.cedulaProfesional),
+              ne(employees.cedulaProfesional, "")
+            ),
+            // Prioridad 2: puestos clínicos
+            like(positions.title, "%médico%"),
+            like(positions.title, "%medico%"),
+            like(positions.title, "%psicólogo%"),
+            like(positions.title, "%psicologo%"),
+            like(positions.title, "%psiquiatra%"),
+            like(positions.title, "%psicóloga%"),
+            like(positions.title, "%psicologa%"),
+            like(positions.title, "%terapeuta%"),
+            like(positions.title, "%enfermero%"),
+            like(positions.title, "%enfermera%"),
+            // Prioridad 3: puestos de responsabilidad técnica/directiva
+            like(positions.title, "%responsable%"),
+            like(positions.title, "%coordinador%"),
+            like(positions.title, "%supervisor%"),
+            like(positions.title, "%jefe%"),
+            like(positions.title, "%director%"),
+            like(positions.title, "%gerente%")
+          )
+        )
+      );
+    // Deduplicar por id
+    const seen = new Set<number>();
+    const unique = results.filter(emp => {
+      if (seen.has(emp.id)) return false;
+      seen.add(emp.id);
+      return true;
+    });
+    return unique.map(emp => ({
+      id: emp.id,
+      fullName: `${emp.firstName} ${emp.lastName}`,
+      email: emp.email,
+      positionTitle: emp.positionTitle || "Sin puesto",
+      cedulaProfesional: emp.cedulaProfesional || null,
+      // Inferir el clinicalTitle desde el puesto
+      clinicalTitle: emp.positionTitle
+        ? emp.positionTitle.toLowerCase().includes("psiquiatra")
+          ? "Psiq."
+          : emp.positionTitle.toLowerCase().includes("psicologo") ||
+              emp.positionTitle.toLowerCase().includes("psicólogo") ||
+              emp.positionTitle.toLowerCase().includes("psicologa") ||
+              emp.positionTitle.toLowerCase().includes("psicóloga")
+            ? "Psic."
+            : emp.positionTitle.toLowerCase().includes("medico") ||
+                emp.positionTitle.toLowerCase().includes("médico")
+              ? "Dr."
+              : null
+        : null,
+    }));
+  }),
+  /**
    * Get completed courses history for an employee (for PDF export)
    */
   getCoursesHistory: protectedProcedure
     .input(z.object({ employeeId: z.number() }))
     .query(async ({ input }) => {
-      const dbInstance = await (await import('../db')).getDb();
+      const dbInstance = await (await import("../db")).getDb();
       if (!dbInstance) return [];
-      const { employees, studentProgress, courses } = await import('../../drizzle/schema');
-      const { eq, and } = await import('drizzle-orm');
+      const { employees, studentProgress, courses } = await import(
+        "../../drizzle/schema"
+      );
+      const { eq, and } = await import("drizzle-orm");
 
       // Find the userId linked to this employee
       const empRow = await dbInstance
@@ -958,7 +1124,7 @@ export const employeesRouter = router({
         .where(
           and(
             eq(studentProgress.userId, userId),
-            eq(studentProgress.status, 'completed')
+            eq(studentProgress.status, "completed")
           )
         )
         .orderBy(studentProgress.completedAt);
@@ -967,8 +1133,12 @@ export const employeesRouter = router({
         courseId: c.courseId,
         courseName: c.courseName,
         completedAt: c.completedAt
-          ? new Date(c.completedAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
-          : 'Sin fecha',
+          ? new Date(c.completedAt).toLocaleDateString("es-MX", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          : "Sin fecha",
         progressPercentage: c.progressPercentage,
       }));
     }),
@@ -984,7 +1154,12 @@ export const employeesRouter = router({
 
       // Verificar que el empleado existe
       const employee = await db
-        .select({ id: employees.id, email: employees.email, firstName: employees.firstName, lastName: employees.lastName })
+        .select({
+          id: employees.id,
+          email: employees.email,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+        })
         .from(employees)
         .where(eq(employees.id, input.employeeId))
         .limit(1);
@@ -1057,12 +1232,20 @@ export const employeesRouter = router({
    * Exportar catálogo de empleados en formato CONTPAQi, NOI, SAP o genérico
    */
   exportToExcel: protectedProcedure
-    .input(z.object({
-      format: z.enum(["contpaqui", "noi", "sap", "generic"]).default("generic"),
-    }))
+    .input(
+      z.object({
+        format: z
+          .enum(["contpaqui", "noi", "sap", "generic"])
+          .default("generic"),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "BD no disponible",
+        });
 
       const rows = await db
         .select({
@@ -1095,42 +1278,46 @@ export const employeesRouter = router({
       if (input.format === "contpaqui" || input.format === "noi") {
         // Formato CONTPAQi NOI
         data = rows.map((r: any) => ({
-          "Código": r.employeeNumber ?? "",
-          "Nombre": r.firstName ?? "",
+          Código: r.employeeNumber ?? "",
+          Nombre: r.firstName ?? "",
           "Apellido Paterno": r.lastName?.split(" ")[0] ?? "",
           "Apellido Materno": r.lastName?.split(" ").slice(1).join(" ") ?? "",
-          "RFC": r.rfc ?? "",
-          "CURP": r.curp ?? "",
-          "NSS": r.nss ?? "",
-          "Puesto": r.positionTitle ?? "",
-          "Departamento": r.departmentName ?? "",
-          "Fecha Alta": r.hireDate ? new Date(r.hireDate).toLocaleDateString("es-MX") : "",
-          "Sexo": r.gender === "male" ? "M" : r.gender === "female" ? "F" : "",
-          "Correo": r.email ?? "",
-          "Teléfono": r.phone ?? "",
-          "Activo": r.isActive ? "Sí" : "No",
+          RFC: r.rfc ?? "",
+          CURP: r.curp ?? "",
+          NSS: r.nss ?? "",
+          Puesto: r.positionTitle ?? "",
+          Departamento: r.departmentName ?? "",
+          "Fecha Alta": r.hireDate
+            ? new Date(r.hireDate).toLocaleDateString("es-MX")
+            : "",
+          Sexo: r.gender === "male" ? "M" : r.gender === "female" ? "F" : "",
+          Correo: r.email ?? "",
+          Teléfono: r.phone ?? "",
+          Activo: r.isActive ? "Sí" : "No",
         }));
         sheetName = "Empleados CONTPAQi";
         filename = `empleados_contpaqui_${new Date().toISOString().split("T")[0]}.xlsx`;
       } else {
         // Formato genérico
         data = rows.map((r: any) => ({
-          "ID": r.id,
-          "Nombre": r.firstName ?? "",
-          "Apellidos": r.lastName ?? "",
-          "Correo": r.email ?? "",
-          "Teléfono": r.phone ?? "",
-          "CURP": r.curp ?? "",
-          "RFC": r.rfc ?? "",
-          "NSS": r.nss ?? "",
+          ID: r.id,
+          Nombre: r.firstName ?? "",
+          Apellidos: r.lastName ?? "",
+          Correo: r.email ?? "",
+          Teléfono: r.phone ?? "",
+          CURP: r.curp ?? "",
+          RFC: r.rfc ?? "",
+          NSS: r.nss ?? "",
           "Núm. Empleado": r.employeeNumber ?? "",
-          "Departamento": r.departmentName ?? "",
-          "Puesto": r.positionTitle ?? "",
-          "Fecha Ingreso": r.hireDate ? new Date(r.hireDate).toLocaleDateString("es-MX") : "",
-          "Género": r.gender ?? "",
-          "Escolaridad": r.educationLevel ?? "",
+          Departamento: r.departmentName ?? "",
+          Puesto: r.positionTitle ?? "",
+          "Fecha Ingreso": r.hireDate
+            ? new Date(r.hireDate).toLocaleDateString("es-MX")
+            : "",
+          Género: r.gender ?? "",
+          Escolaridad: r.educationLevel ?? "",
           "Tipo Contrato": r.contractType ?? "",
-          "Activo": r.isActive ? "Sí" : "No",
+          Activo: r.isActive ? "Sí" : "No",
         }));
         sheetName = "Empleados";
         filename = `empleados_${new Date().toISOString().split("T")[0]}.xlsx`;

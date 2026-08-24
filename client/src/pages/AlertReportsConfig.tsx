@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -16,37 +22,41 @@ import { toast } from "sonner";
 import { Calendar, Mail, Send, Settings } from "lucide-react";
 
 export default function AlertReportsConfig() {
-  const [frequency, setFrequency] = useState<"weekly" | "monthly" | "disabled">("disabled");
+  const [frequency, setFrequency] = useState<"weekly" | "monthly" | "disabled">(
+    "disabled"
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const utils = trpc.useUtils();
 
   // Query para obtener configuración actual
-  const { data: currentSetting, isLoading: loadingSetting } = trpc.systemSettings.getSetting.useQuery({
-    key: "alert_summary_frequency",
-  });
+  const { data: currentSetting, isLoading: loadingSetting } =
+    trpc.systemSettings.getSetting.useQuery({
+      key: "alert_summary_frequency",
+    });
 
   // Mutation para actualizar frecuencia
-  const updateFrequencyMutation = trpc.systemSettings.updateAlertSummaryFrequency.useMutation({
-    onSuccess: (data) => {
-      toast.success(data.message || "Configuración actualizada exitosamente");
-      utils.systemSettings.getSetting.invalidate();
-    },
-    onError: (error) => {
-      toast.error(`Error al actualizar configuración: ${error.message}`);
-    },
-  });
+  const updateFrequencyMutation =
+    trpc.systemSettings.updateAlertSummaryFrequency.useMutation({
+      onSuccess: data => {
+        toast.success(data.message || "Configuración actualizada exitosamente");
+        utils.systemSettings.getSetting.invalidate();
+      },
+      onError: error => {
+        toast.error(`Error al actualizar configuración: ${error.message}`);
+      },
+    });
 
   // Mutation para enviar resumen manual
   const sendManualSummaryMutation = trpc.alerts.sendSummary.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       if (data.success) {
         toast.success(data.message);
       } else {
         toast.error(data.message);
       }
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al enviar resumen: ${error.message}`);
     },
   });
@@ -54,7 +64,9 @@ export default function AlertReportsConfig() {
   // Cargar configuración actual
   useEffect(() => {
     if (currentSetting?.settingValue) {
-      setFrequency(currentSetting.settingValue as "weekly" | "monthly" | "disabled");
+      setFrequency(
+        currentSetting.settingValue as "weekly" | "monthly" | "disabled"
+      );
     }
   }, [currentSetting]);
 
@@ -82,9 +94,12 @@ export default function AlertReportsConfig() {
       />
 
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Configuración de Reportes de Alertas</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Configuración de Reportes de Alertas
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Configura la frecuencia de envío automático de resúmenes de alertas para auditoría NOM-035
+          Configura la frecuencia de envío automático de resúmenes de alertas
+          para auditoría NOM-035
         </p>
       </div>
 
@@ -96,7 +111,8 @@ export default function AlertReportsConfig() {
             <CardTitle>Frecuencia de Envío Automático</CardTitle>
           </div>
           <CardDescription>
-            Selecciona la frecuencia con la que deseas recibir el resumen de alertas por correo electrónico
+            Selecciona la frecuencia con la que deseas recibir el resumen de
+            alertas por correo electrónico
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -104,7 +120,9 @@ export default function AlertReportsConfig() {
             <label className="text-sm font-medium">Frecuencia de Envío</label>
             <Select
               value={frequency}
-              onValueChange={(v) => setFrequency(v as "weekly" | "monthly" | "disabled")}
+              onValueChange={v =>
+                setFrequency(v as "weekly" | "monthly" | "disabled")
+              }
               disabled={loadingSetting}
             >
               <SelectTrigger>
@@ -113,7 +131,9 @@ export default function AlertReportsConfig() {
               <SelectContent>
                 <SelectItem value="disabled">Deshabilitado</SelectItem>
                 <SelectItem value="weekly">Semanal (Lunes 9:00 AM)</SelectItem>
-                <SelectItem value="monthly">Mensual (Día 1 a las 9:00 AM)</SelectItem>
+                <SelectItem value="monthly">
+                  Mensual (Día 1 a las 9:00 AM)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -125,8 +145,14 @@ export default function AlertReportsConfig() {
                 <p className="font-medium text-sm">Detalles del Resumen</p>
                 <ul className="text-sm text-muted-foreground mt-1 space-y-1">
                   <li>• Total de alertas generadas en el período</li>
-                  <li>• Distribución por prioridad (Crítica, Advertencia, Informativa)</li>
-                  <li>• Distribución por tipo (Casos Críticos, Cobertura Baja, Cumplimiento)</li>
+                  <li>
+                    • Distribución por prioridad (Crítica, Advertencia,
+                    Informativa)
+                  </li>
+                  <li>
+                    • Distribución por tipo (Casos Críticos, Cobertura Baja,
+                    Cumplimiento)
+                  </li>
                   <li>• Alertas activas vs resueltas</li>
                   <li>• Enlace directo al histórico completo</li>
                 </ul>
@@ -197,7 +223,9 @@ export default function AlertReportsConfig() {
 
           <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
             <p className="text-sm text-blue-900 dark:text-blue-100">
-              <strong>Nota:</strong> El resumen se enviará al correo electrónico del administrador configurado en las variables de entorno del sistema.
+              <strong>Nota:</strong> El resumen se enviará al correo electrónico
+              del administrador configurado en las variables de entorno del
+              sistema.
             </p>
           </div>
         </CardContent>

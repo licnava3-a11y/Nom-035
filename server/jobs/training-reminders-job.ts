@@ -1,16 +1,26 @@
 import { getDb, createNotification } from "../db";
-import { trainingAssignments, trainingCertificates, committeeTrainings, users } from "../../drizzle/schema";
+import {
+  trainingAssignments,
+  trainingCertificates,
+  committeeTrainings,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, sql, inArray } from "drizzle-orm";
-import { sendEmail, getTrainingReminderTemplate } from "../services/emailService";
+import {
+  sendEmail,
+  getTrainingReminderTemplate,
+} from "../services/emailService";
 
 /**
  * Job automático para enviar recordatorios de capacitaciones pendientes
  * y alertas de certificados próximos a vencer
- * 
+ *
  * Ejecuta diariamente a las 8:00 AM
  */
 export async function runTrainingRemindersJob() {
-  console.log("[Training Reminders Job] Iniciando verificación de recordatorios...");
+  console.log(
+    "[Training Reminders Job] Iniciando verificación de recordatorios..."
+  );
 
   try {
     const db = await getDb();
@@ -35,7 +45,10 @@ export async function runTrainingRemindersJob() {
           member: users,
         })
         .from(trainingAssignments)
-        .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
         .leftJoin(users, eq(trainingAssignments.committeeMemberId, users.id))
         .where(
           and(
@@ -49,7 +62,10 @@ export async function runTrainingRemindersJob() {
 
         // Calcular días de retraso
         const assignedDate = new Date(item.assignment.assignedDate);
-        const daysOverdue = Math.ceil((new Date().getTime() - assignedDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysOverdue = Math.ceil(
+          (new Date().getTime() - assignedDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
 
         // Enviar notificación interna
         await createNotification({
@@ -76,9 +92,14 @@ export async function runTrainingRemindersJob() {
               template: "training_reminder",
             });
 
-            console.log(`[Training Reminders Job] Email enviado a ${item.member.email} para capacitación pendiente`);
+            console.log(
+              `[Training Reminders Job] Email enviado a ${item.member.email} para capacitación pendiente`
+            );
           } catch (emailError) {
-            console.error(`[Training Reminders Job] Error al enviar email a ${item.member.email}:`, emailError);
+            console.error(
+              `[Training Reminders Job] Error al enviar email a ${item.member.email}:`,
+              emailError
+            );
             // No detener el proceso si falla el envío de un email
           }
         }
@@ -86,7 +107,9 @@ export async function runTrainingRemindersJob() {
         pendingReminders++;
       }
 
-      console.log(`[Training Reminders Job] Recordatorios de pendientes enviados: ${pendingReminders}`);
+      console.log(
+        `[Training Reminders Job] Recordatorios de pendientes enviados: ${pendingReminders}`
+      );
     } catch (error) {
       const errorMsg = `Error al procesar capacitaciones pendientes: ${error}`;
       console.error(`[Training Reminders Job] ${errorMsg}`);
@@ -106,8 +129,14 @@ export async function runTrainingRemindersJob() {
           member: users,
         })
         .from(trainingCertificates)
-        .leftJoin(trainingAssignments, eq(trainingCertificates.assignmentId, trainingAssignments.id))
-        .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+        .leftJoin(
+          trainingAssignments,
+          eq(trainingCertificates.assignmentId, trainingAssignments.id)
+        )
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
         .leftJoin(users, eq(trainingAssignments.committeeMemberId, users.id))
         .where(
           and(
@@ -118,10 +147,13 @@ export async function runTrainingRemindersJob() {
         );
 
       for (const item of expiringCerts) {
-        if (!item.member || !item.training || !item.certificate.expiryDate) continue;
+        if (!item.member || !item.training || !item.certificate.expiryDate)
+          continue;
 
         const daysUntilExpiry = Math.ceil(
-          (new Date(item.certificate.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+          (new Date(item.certificate.expiryDate).getTime() -
+            new Date().getTime()) /
+            (1000 * 60 * 60 * 24)
         );
 
         // Enviar notificación interna
@@ -149,9 +181,14 @@ export async function runTrainingRemindersJob() {
               template: "training_reminder",
             });
 
-            console.log(`[Training Reminders Job] Email enviado a ${item.member.email} para certificado próximo a vencer`);
+            console.log(
+              `[Training Reminders Job] Email enviado a ${item.member.email} para certificado próximo a vencer`
+            );
           } catch (emailError) {
-            console.error(`[Training Reminders Job] Error al enviar email a ${item.member.email}:`, emailError);
+            console.error(
+              `[Training Reminders Job] Error al enviar email a ${item.member.email}:`,
+              emailError
+            );
             // No detener el proceso si falla el envío de un email
           }
         }
@@ -159,7 +196,9 @@ export async function runTrainingRemindersJob() {
         expiringCertificates++;
       }
 
-      console.log(`[Training Reminders Job] Alertas de certificados enviadas: ${expiringCertificates}`);
+      console.log(
+        `[Training Reminders Job] Alertas de certificados enviadas: ${expiringCertificates}`
+      );
     } catch (error) {
       const errorMsg = `Error al procesar certificados próximos a vencer: ${error}`;
       console.error(`[Training Reminders Job] ${errorMsg}`);
@@ -169,8 +208,9 @@ export async function runTrainingRemindersJob() {
     // 3. Enviar resumen semanal a administradores (solo lunes)
     try {
       const today = new Date().getDay(); // 0 = domingo, 1 = lunes, ...
-      
-      if (today === 1) { // Solo lunes
+
+      if (today === 1) {
+        // Solo lunes
         // Obtener estadísticas generales
         const [stats] = await db
           .select({
@@ -196,7 +236,9 @@ export async function runTrainingRemindersJob() {
           });
         }
 
-        console.log(`[Training Reminders Job] Resumen semanal enviado a ${admins.length} administradores`);
+        console.log(
+          `[Training Reminders Job] Resumen semanal enviado a ${admins.length} administradores`
+        );
       }
     } catch (error) {
       const errorMsg = `Error al enviar resumen semanal: ${error}`;
@@ -220,18 +262,23 @@ export async function runTrainingRemindersJob() {
           )
         );
 
-      console.log(`[Training Reminders Job] Asignaciones marcadas como vencidas: ${expiredCount}`);
+      console.log(
+        `[Training Reminders Job] Asignaciones marcadas como vencidas: ${expiredCount}`
+      );
     } catch (error) {
       const errorMsg = `Error al marcar asignaciones vencidas: ${error}`;
       console.error(`[Training Reminders Job] ${errorMsg}`);
       errors.push(errorMsg);
     }
 
-    console.log("[Training Reminders Job] Verificación completada exitosamente", {
-      pendingReminders,
-      expiringCertificates,
-      errors: errors.length,
-    });
+    console.log(
+      "[Training Reminders Job] Verificación completada exitosamente",
+      {
+        pendingReminders,
+        expiringCertificates,
+        errors: errors.length,
+      }
+    );
 
     return {
       success: true,
@@ -250,7 +297,9 @@ export async function runTrainingRemindersJob() {
 
 // Configurar ejecución diaria a las 8:00 AM
 export function startTrainingRemindersJob() {
-  console.log("[Training Reminders Job] Job programado para ejecutar diariamente a las 8:00 AM");
+  console.log(
+    "[Training Reminders Job] Job programado para ejecutar diariamente a las 8:00 AM"
+  );
 
   // Calcular tiempo hasta las 8:00 AM del siguiente día
   const now = new Date();
@@ -268,10 +317,15 @@ export function startTrainingRemindersJob() {
     runTrainingRemindersJob();
 
     // Luego ejecutar cada 24 horas
-    setInterval(() => {
-      runTrainingRemindersJob();
-    }, 24 * 60 * 60 * 1000); // 24 horas
+    setInterval(
+      () => {
+        runTrainingRemindersJob();
+      },
+      24 * 60 * 60 * 1000
+    ); // 24 horas
   }, timeUntilNext);
 
-  console.log(`[Training Reminders Job] Primera ejecución programada en ${Math.round(timeUntilNext / 1000 / 60)} minutos`);
+  console.log(
+    `[Training Reminders Job] Primera ejecución programada en ${Math.round(timeUntilNext / 1000 / 60)} minutos`
+  );
 }

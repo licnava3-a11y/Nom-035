@@ -1,14 +1,17 @@
-import { z } from 'zod';
-import { router, protectedProcedure } from '../_core/trpc';
-import { getDb } from '../db';
-import { signatures, documents } from '../../drizzle/schema';
-import { uploadSignatureToS3, isValidSignatureDataUrl } from '../lib/signature-upload';
-import { eq, and } from 'drizzle-orm';
-import { TRPCError } from '@trpc/server';
+import { z } from "zod";
+import { router, protectedProcedure } from "../_core/trpc";
+import { getDb } from "../db";
+import { signatures, documents } from "../../drizzle/schema";
+import {
+  uploadSignatureToS3,
+  isValidSignatureDataUrl,
+} from "../lib/signature-upload";
+import { eq, and } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 /**
  * Router de firmas digitales
- * 
+ *
  * Procedimientos:
  * - saveSignature: Guarda una firma digitalizada (sube a S3 y registra en BD)
  * - getSignaturesByDocument: Obtiene todas las firmas de un documento
@@ -17,7 +20,7 @@ import { TRPCError } from '@trpc/server';
 export const signaturesRouter = router({
   /**
    * Guardar una firma digitalizada
-   * 
+   *
    * Flujo:
    * 1. Validar data URL de la firma
    * 2. Subir imagen a S3
@@ -40,8 +43,8 @@ export const signaturesRouter = router({
       const db = await getDb();
       if (!db) {
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Database not available',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
         });
       }
 
@@ -53,16 +56,16 @@ export const signaturesRouter = router({
 
       if (document.length === 0) {
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Document not found',
+          code: "NOT_FOUND",
+          message: "Document not found",
         });
       }
 
       // Validar data URL de la firma
       if (!isValidSignatureDataUrl(input.signatureDataUrl)) {
         throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Invalid signature data URL',
+          code: "BAD_REQUEST",
+          message: "Invalid signature data URL",
         });
       }
 
@@ -74,8 +77,8 @@ export const signaturesRouter = router({
       );
 
       // Capturar metadata disponible de la solicitud para trazabilidad de la firma.
-      const ipAddress = ctx.req?.ip || 'unknown';
-      const userAgent = ctx.req?.headers['user-agent'] || 'unknown';
+      const ipAddress = ctx.req?.ip || "unknown";
+      const userAgent = ctx.req?.headers["user-agent"] || "unknown";
       const deviceInfo = `${userAgent.substring(0, 200)}`;
 
       // Guardar en base de datos
@@ -92,7 +95,7 @@ export const signaturesRouter = router({
       return {
         id: signature.insertId,
         signatureUrl,
-        message: 'Signature saved successfully',
+        message: "Signature saved successfully",
       };
     }),
 
@@ -105,8 +108,8 @@ export const signaturesRouter = router({
       const db = await getDb();
       if (!db) {
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Database not available',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
         });
       }
 
@@ -130,8 +133,8 @@ export const signaturesRouter = router({
       const db = await getDb();
       if (!db) {
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Database not available',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
         });
       }
 
@@ -143,8 +146,8 @@ export const signaturesRouter = router({
 
       if (!signature) {
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Signature not found',
+          code: "NOT_FOUND",
+          message: "Signature not found",
         });
       }
 
@@ -157,16 +160,16 @@ export const signaturesRouter = router({
 
       if (!document) {
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Document not found',
+          code: "NOT_FOUND",
+          message: "Document not found",
         });
       }
 
       // Verificar permisos (solo admin o creador del documento)
-      if (ctx.user.role !== 'admin' && document.createdBy !== ctx.user.id) {
+      if (ctx.user.role !== "admin" && document.createdBy !== ctx.user.id) {
         throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to delete this signature',
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this signature",
         });
       }
 
@@ -175,7 +178,7 @@ export const signaturesRouter = router({
 
       return {
         success: true,
-        message: 'Signature deleted successfully',
+        message: "Signature deleted successfully",
       };
     }),
 });

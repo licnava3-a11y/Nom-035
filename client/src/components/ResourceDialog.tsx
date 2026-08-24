@@ -29,12 +29,16 @@ interface ResourceDialogProps {
   };
 }
 
-export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogProps) {
+export function ResourceDialog({
+  open,
+  onOpenChange,
+  resource,
+}: ResourceDialogProps) {
   const [title, setTitle] = useState(resource?.title || "");
   const [description, setDescription] = useState(resource?.description || "");
-  const [category, setCategory] = useState<"manual" | "protocol" | "form" | "pdf" | "presentation" | "other">(
-    (resource?.category as any) || "manual"
-  );
+  const [category, setCategory] = useState<
+    "manual" | "protocol" | "form" | "pdf" | "presentation" | "other"
+  >((resource?.category as any) || "manual");
   const [fileUrl, setFileUrl] = useState(resource?.fileUrl || "");
   const [fileType, setFileType] = useState(resource?.fileType || "");
 
@@ -46,7 +50,7 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
       onOpenChange(false);
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al crear el recurso: ${error.message}`);
     },
   });
@@ -57,7 +61,7 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
       utils.resources.list.invalidate();
       onOpenChange(false);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al actualizar el recurso: ${error.message}`);
     },
   });
@@ -70,7 +74,12 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
     setFileType("");
   };
 
-  const handleUploadComplete = (fileData: { fileName: string; fileUrl: string; fileType: string; fileSize: number }) => {
+  const handleUploadComplete = (fileData: {
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+    fileSize: number;
+  }) => {
     setFileUrl(fileData.fileUrl);
     setFileType(fileData.fileType);
     if (!title) {
@@ -112,7 +121,9 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{resource ? "Editar Recurso" : "Crear Nuevo Recurso"}</DialogTitle>
+            <DialogTitle>
+              {resource ? "Editar Recurso" : "Crear Nuevo Recurso"}
+            </DialogTitle>
             <DialogDescription>
               {resource
                 ? "Modifica la información del recurso existente"
@@ -134,7 +145,7 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
               <Input
                 id="title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={e => setTitle(e.target.value)}
                 placeholder="Ej: Manual del Implementador NOM-035"
               />
             </div>
@@ -144,7 +155,7 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
               <Textarea
                 id="description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 placeholder="Describe el contenido del recurso"
                 rows={3}
               />
@@ -155,7 +166,7 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
               <select
                 id="category"
                 value={category}
-                onChange={(e) => setCategory(e.target.value as any)}
+                onChange={e => setCategory(e.target.value as any)}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="manual">Manual</option>
@@ -170,7 +181,10 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
             {fileUrl && (
               <div className="p-3 bg-muted rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  Archivo: <span className="font-medium text-foreground">{title || "Archivo cargado"}</span>
+                  Archivo:{" "}
+                  <span className="font-medium text-foreground">
+                    {title || "Archivo cargado"}
+                  </span>
                 </p>
               </div>
             )}
@@ -194,8 +208,8 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
               {createMutation.isPending || updateMutation.isPending
                 ? "Guardando..."
                 : resource
-                ? "Actualizar"
-                : "Crear Recurso"}
+                  ? "Actualizar"
+                  : "Crear Recurso"}
             </Button>
           </DialogFooter>
         </form>

@@ -7,12 +7,21 @@ import { Upload, File, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface ResourceUploadProps {
-  onUploadComplete: (fileData: { fileName: string; fileUrl: string; fileType: string; fileSize: number }) => void;
+  onUploadComplete: (fileData: {
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+    fileSize: number;
+  }) => void;
   acceptedTypes?: string;
   maxSize?: number; // in MB
 }
 
-export function ResourceUpload({ onUploadComplete, acceptedTypes = ".pdf,.doc,.docx,.ppt,.pptx,.xlsx,.xls", maxSize = 10 }: ResourceUploadProps) {
+export function ResourceUpload({
+  onUploadComplete,
+  acceptedTypes = ".pdf,.doc,.docx,.ppt,.pptx,.xlsx,.xls",
+  maxSize = 10,
+}: ResourceUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -44,7 +53,7 @@ export function ResourceUpload({ onUploadComplete, acceptedTypes = ".pdf,.doc,.d
     try {
       // Simulate progress
       const progressInterval = setInterval(() => {
-        setProgress((prev) => {
+        setProgress(prev => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return 90;
@@ -106,7 +115,7 @@ export function ResourceUpload({ onUploadComplete, acceptedTypes = ".pdf,.doc,.d
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   return (

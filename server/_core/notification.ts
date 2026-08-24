@@ -18,9 +18,7 @@ const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
 
 const buildEndpointUrl = (baseUrl: string): string => {
-  const normalizedBase = baseUrl.endsWith("/")
-    ? baseUrl
-    : `${baseUrl}/`;
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
   return new URL(
     "webdevtoken.v1.WebDevService/SendNotification",
     normalizedBase
@@ -68,7 +66,10 @@ const NOTIF_CACHE_TTL_MS = 30_000;
 
 export async function isNotificationsEnabled(): Promise<boolean> {
   const now = Date.now();
-  if (_notifEnabledCache !== null && now - _notifEnabledCacheAt < NOTIF_CACHE_TTL_MS) {
+  if (
+    _notifEnabledCache !== null &&
+    now - _notifEnabledCacheAt < NOTIF_CACHE_TTL_MS
+  ) {
     return _notifEnabledCache;
   }
   // Por defecto TRUE (notificaciones activas) a menos que se configure lo contrario
@@ -116,7 +117,10 @@ export async function notifyOwner(
   // Guard: verificar si las notificaciones internas están habilitadas
   const notifEnabled = await isNotificationsEnabled();
   if (!notifEnabled) {
-    logStructured("info", "notification.owner_skipped_disabled", { titleLength: title.length, contentLength: content.length });
+    logStructured("info", "notification.owner_skipped_disabled", {
+      titleLength: title.length,
+      contentLength: content.length,
+    });
     return false;
   }
 

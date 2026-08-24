@@ -36,8 +36,8 @@ function generateSuggestionFolio(seq: number): string {
 }
 
 function computeComplianceRate(items: { status: string }[]): number {
-  const na = items.filter((i) => i.status === "na").length;
-  const cumple = items.filter((i) => i.status === "cumple").length;
+  const na = items.filter(i => i.status === "na").length;
+  const cumple = items.filter(i => i.status === "cumple").length;
   const evaluated = items.length - na;
   return evaluated > 0 ? Math.round((cumple / evaluated) * 100) : 0;
 }
@@ -56,7 +56,12 @@ function daysUntil(dateStr: string): number {
   return Math.ceil(diff / 86_400_000);
 }
 
-function buildGoogleCalendarUrl(title: string, startDate: string, endDate: string, description: string): string {
+function buildGoogleCalendarUrl(
+  title: string,
+  startDate: string,
+  endDate: string,
+  description: string
+): string {
   const fmt = (d: string) => d.replace(/[-:T]/g, "").replace(/\.\d{3}Z/, "Z");
   const params = new URLSearchParams({
     action: "TEMPLATE",
@@ -68,9 +73,21 @@ function buildGoogleCalendarUrl(title: string, startDate: string, endDate: strin
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-function generateICalEvent(id: string, title: string, startDate: string, endDate: string, description: string): string {
-  const dtStart = startDate.replace(/[-:]/g, "").replace(/\.\d{3}/, "").replace("Z", "Z");
-  const dtEnd = endDate.replace(/[-:]/g, "").replace(/\.\d{3}/, "").replace("Z", "Z");
+function generateICalEvent(
+  id: string,
+  title: string,
+  startDate: string,
+  endDate: string,
+  description: string
+): string {
+  const dtStart = startDate
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "")
+    .replace("Z", "Z");
+  const dtEnd = endDate
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "")
+    .replace("Z", "Z");
   return [
     "BEGIN:VEVENT",
     `UID:${id}@nom035.stps.gob.mx`,
@@ -179,7 +196,12 @@ describe("Sprint 83 — Módulo de Visitas de Verificación STPS", () => {
   });
 
   describe("Estados válidos de inspección", () => {
-    const validStatuses = ["programada", "en_proceso", "concluida", "con_observaciones"];
+    const validStatuses = [
+      "programada",
+      "en_proceso",
+      "concluida",
+      "con_observaciones",
+    ];
 
     it("acepta todos los estados válidos", () => {
       for (const status of validStatuses) {
@@ -265,7 +287,13 @@ describe("Sprint 84 — Integración con Google Calendar", () => {
     });
 
     it("el UID incluye el dominio nom035.stps.gob.mx", () => {
-      const ical = generateICalEvent("ev-42", "Test", "2026-06-15T10:00:00.000Z", "2026-06-15T11:00:00.000Z", "desc");
+      const ical = generateICalEvent(
+        "ev-42",
+        "Test",
+        "2026-06-15T10:00:00.000Z",
+        "2026-06-15T11:00:00.000Z",
+        "desc"
+      );
       expect(ical).toContain("@nom035.stps.gob.mx");
     });
   });
@@ -305,7 +333,12 @@ describe("Sprint 84 — Integración con Google Calendar", () => {
   });
 
   describe("Tipos de eventos del calendario", () => {
-    const validTypes = ["meeting", "contract_expiry", "action_deadline", "agreement_deadline"];
+    const validTypes = [
+      "meeting",
+      "contract_expiry",
+      "action_deadline",
+      "agreement_deadline",
+    ];
 
     it("tiene exactamente 4 tipos de eventos", () => {
       expect(validTypes).toHaveLength(4);
@@ -323,19 +356,22 @@ describe("Sprint 84 — Integración con Google Calendar", () => {
   describe("Prioridad de eventos", () => {
     it("asigna prioridad alta cuando quedan 7 días o menos", () => {
       const daysLeft = 5;
-      const priority = daysLeft <= 7 ? "high" : daysLeft <= 30 ? "medium" : "low";
+      const priority =
+        daysLeft <= 7 ? "high" : daysLeft <= 30 ? "medium" : "low";
       expect(priority).toBe("high");
     });
 
     it("asigna prioridad media cuando quedan entre 8 y 30 días", () => {
       const daysLeft = 20;
-      const priority = daysLeft <= 7 ? "high" : daysLeft <= 30 ? "medium" : "low";
+      const priority =
+        daysLeft <= 7 ? "high" : daysLeft <= 30 ? "medium" : "low";
       expect(priority).toBe("medium");
     });
 
     it("asigna prioridad baja cuando quedan más de 30 días", () => {
       const daysLeft = 60;
-      const priority = daysLeft <= 7 ? "high" : daysLeft <= 30 ? "medium" : "low";
+      const priority =
+        daysLeft <= 7 ? "high" : daysLeft <= 30 ? "medium" : "low";
       expect(priority).toBe("low");
     });
   });
@@ -469,7 +505,12 @@ describe("Sprint 85 — Módulo de Comunicación Interna", () => {
   });
 
   describe("Audiencias objetivo de avisos", () => {
-    const validAudiences = ["todos", "directivos", "supervisores", "operativos"];
+    const validAudiences = [
+      "todos",
+      "directivos",
+      "supervisores",
+      "operativos",
+    ];
 
     it("tiene exactamente 4 audiencias", () => {
       expect(validAudiences).toHaveLength(4);

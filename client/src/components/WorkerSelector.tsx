@@ -1,21 +1,35 @@
-import { useWorkerSearch } from '@/hooks/useWorkerSearch';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useWorkerSearch } from "@/hooks/useWorkerSearch";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface WorkerSelectorProps {
   value?: number | null;
-  onChange: (workerId: number | null, workerData?: {
-    fullName: string;
-    email: string;
-    department: string | null;
-    curp: string | null;
-    employeeNumber: string | null;
-    position: string | null;
-  }) => void;
+  onChange: (
+    workerId: number | null,
+    workerData?: {
+      fullName: string;
+      email: string;
+      department: string | null;
+      curp: string | null;
+      employeeNumber: string | null;
+      position: string | null;
+    }
+  ) => void;
   placeholder?: string;
   disabled?: boolean;
 }
@@ -24,7 +38,12 @@ interface WorkerSelectorProps {
  * Componente selector de trabajadores con búsqueda y autocompletado
  * Permite seleccionar un trabajador y devuelve sus datos completos para prellenado
  */
-export function WorkerSelector({ value, onChange, placeholder = "Seleccionar trabajador...", disabled = false }: WorkerSelectorProps) {
+export function WorkerSelector({
+  value,
+  onChange,
+  placeholder = "Seleccionar trabajador...",
+  disabled = false,
+}: WorkerSelectorProps) {
   const [open, setOpen] = useState(false);
   const { filteredWorkers, isLoading, setSearchTerm } = useWorkerSearch();
 
@@ -62,8 +81,12 @@ export function WorkerSelector({ value, onChange, placeholder = "Seleccionar tra
         >
           {selectedWorker ? (
             <span className="flex items-center gap-2 truncate">
-              <span className="font-medium">{selectedWorker.firstName} {selectedWorker.lastName}</span>
-              <span className="text-muted-foreground text-sm">({selectedWorker.employeeNumber})</span>
+              <span className="font-medium">
+                {selectedWorker.firstName} {selectedWorker.lastName}
+              </span>
+              <span className="text-muted-foreground text-sm">
+                ({selectedWorker.employeeNumber})
+              </span>
             </span>
           ) : (
             <span className="text-muted-foreground">{placeholder}</span>
@@ -107,7 +130,8 @@ export function WorkerSelector({ value, onChange, placeholder = "Seleccionar tra
                       {worker.firstName} {worker.lastName}
                     </span>
                     <span className="text-sm text-muted-foreground">
-                      {worker.employeeNumber} • {worker.department} • {worker.email}
+                      {worker.employeeNumber} • {worker.department} •{" "}
+                      {worker.email}
                     </span>
                   </div>
                 </CommandItem>

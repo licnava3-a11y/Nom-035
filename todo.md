@@ -1,4 +1,5 @@
 # TODO — Plataforma NOM-035 STPS 2018
+
 > Última auditoría: 2026-04-15 | Checkpoint base: 9b181572
 
 ---
@@ -6,6 +7,7 @@
 ## ✅ MÓDULOS COMPLETAMENTE IMPLEMENTADOS (verificado en código)
 
 ### Infraestructura y Autenticación
+
 - [x] Autenticación OAuth Manus con sesión cookie
 - [x] Roles: admin / instructor / student / hr / manager
 - [x] Control de acceso por rol en procedures (protectedProcedure / adminProcedure)
@@ -13,6 +15,7 @@
 - [x] Configuración de empresa desde panel (Settings.tsx)
 
 ### Gestión de Empleados
+
 - [x] Alta de empleado (EmployeeNew.tsx) — incluye CURP, RFC, NSS, cedulaProfesional, educationLevel
 - [x] Edición de empleado (EmployeeEdit.tsx) — incluye CURP, RFC, NSS, cedulaProfesional, educationLevel, vencimientos de contratos 1/2/3
 - [x] Perfil de empleado (EmployeeProfile.tsx) — tabs: Datos, Contratos+Firma, DNC, Expediente
@@ -25,18 +28,21 @@
 - [x] Validación de CURP en tiempo real
 
 ### Gestión de Puestos y Perfiles
+
 - [x] Catálogo de puestos (Positions.tsx) — incluye minimumEducation
 - [x] Perfiles de puesto con competencias (JobProfiles.tsx)
 - [x] Comparativa DNC automática perfil vs empleado (tab en EmployeeProfile)
 - [x] Generación de DNC individual desde comparativa
 
 ### Reclutamiento
+
 - [x] Gestión de vacantes con minimumEducation (RecruitmentManagement.tsx)
 - [x] Filtro automático de candidatos por nivel de escolaridad (indicador meetsEducation)
 - [x] Formulario público de postulación (JobApplication.tsx) — CURP, cláusulas ARCO, historial laboral, referencias
 - [x] Tabla de candidatos con índice de contratación
 
 ### Contratos y Vencimientos
+
 - [x] Campos de vencimiento de contratos 1/2/3 en perfil de empleado
 - [x] Dashboard de vencimientos consolidado (ContractExpirationDashboard.tsx) — filtros 7/15/30 días
 - [x] Semáforo de urgencia (crítico/alerta/normal) en dashboard de vencimientos
@@ -44,6 +50,7 @@
 - [x] Job diario (8:00 AM) de alertas de vencimiento de contratos a RH por correo
 
 ### NOM-035 y Encuestas
+
 - [x] Cuestionario NOM-035 completo (NOM035Questionnaire.tsx)
 - [x] Análisis de resultados por empleado y departamento
 - [x] Panel de administración NOM-035 (Nom035AdminPanel.tsx)
@@ -54,6 +61,7 @@
 - [x] Tokens anónimos para encuestas (surveyAnonymousTokens.ts)
 
 ### Prevención de Riesgos Psicosociales
+
 - [x] Gestión de casos (CasesManagement.tsx) — con departmentId, paginación, filtros
 - [x] Métricas de casos con gráficos Chart.js (CasesMetrics.tsx)
 - [x] Exportación de casos a Excel con filtros activos
@@ -67,6 +75,7 @@
 - [x] Planes de intervención (InterventionPlans.tsx)
 
 ### Capacitación y Desarrollo
+
 - [x] Gestión de cursos y sesiones (TrainingDashboard.tsx)
 - [x] Evaluaciones de capacitación (TrainingEvaluationsDashboard.tsx)
 - [x] Certificados de capacitación (TrainingCertificates.tsx)
@@ -75,6 +84,7 @@
 - [x] Detección de Necesidades de Capacitación (DNC) individual y grupal
 
 ### Analítica Avanzada
+
 - [x] Dashboard predictivo de riesgo (PredictiveAnalytics.tsx)
 - [x] Análisis de rotación (TurnoverDashboard.tsx, TurnoverManagementPanel.tsx)
 - [x] Análisis de sentimiento (SentimentAnalysisDashboard.tsx)
@@ -84,6 +94,7 @@
 - [x] Tendencias departamentales (DepartmentalTrends.tsx)
 
 ### Documentos y Cumplimiento Legal
+
 - [x] Generador de Dictamen NOM-035 con IA (LegalDocGenerator.tsx)
 - [x] QR de verificación NOM-151 en PDF del Dictamen
 - [x] Firma digital en documentos (SignatureAudit.tsx, signatures.ts)
@@ -93,6 +104,7 @@
 - [x] Verificación de reglas de operación del comité (VerifyOperatingRules.tsx)
 
 ### Notificaciones y Reportes
+
 - [x] Sistema de notificaciones push (WebSocket + socket.io)
 - [x] Historial de notificaciones (NotificationsHistory.tsx, NotificationHistory.tsx)
 - [x] Panel de configuración de reportes automatizados (ReportConfigurationPanel.tsx)
@@ -101,6 +113,7 @@
 - [x] Job de alertas de cumplimiento (compliance-reminders-job.ts)
 
 ### Entrevistas de Salida
+
 - [x] Router exitInterviews.ts (486 líneas) con CRUD completo
 - [x] Página ExitInterviews.tsx registrada en App.tsx y sidebar
 - [x] Ruta /exit-interviews activa
@@ -110,35 +123,44 @@
 ## 🔴 PENDIENTES CRÍTICOS (genuinamente no implementados)
 
 ### P1 — Seed de preguntas predeterminadas para Entrevistas de Salida ✅
+
 - [x] Procedure `initDefaultQuestions` en exitInterviews.ts con 15 preguntas estándar (ya existía)
 - [x] Botón "Cargar preguntas predeterminadas (15)" en UI de ExitInterviews.tsx (ya existía, línea 1123)
 - [x] Verificado: las preguntas se cargan correctamente en la BD
 
 ### P2 — Selector de responsable técnico en formulario del Dictamen ✅
+
 - [x] Agregar selector de empleado (filtrado por `clinicalTitle`) en LegalDocGenerator.tsx
 - [x] Auto-rellenar cédula profesional al seleccionar responsable desde catálogo
 
 ### P3 — Exportar Catálogo de Preguntas de Entrevistas de Salida a Excel ✅
+
 - [x] Botón "Exportar a Excel" en la UI de catálogo de preguntas (ExitInterviews.tsx)
 - [x] Usar xlsx (ya instalado) para generar el archivo sin dependencias extra
 
 ### P4 — Número de orden editable en Catálogo de Preguntas de Entrevistas de Salida ✅
+
 - [x] Campo `sortOrder` editable inline en la tabla de preguntas de ExitInterviews.tsx
 
 ### P5 — Filtro por categoría en Catálogo de Preguntas de Entrevistas de Salida ✅
+
 - [x] Agregar campo `category` a la tabla de preguntas de entrevistas de salida
 - [x] Dropdown de filtro por categoría en la UI
 
 ### P6 — Mostrar QR de verificación NOM-151 en vista previa del Dictamen en pantalla ✅
+
 - [x] Renderizar el QR visualmente en la vista previa HTML del Dictamen (ya existe en PDF, falta en preview)
 
 ### P7 — Validar cédula profesional automáticamente al seleccionar responsable clínico ✅
+
 - [x] Mostrar badge de validación cuando se selecciona un empleado con cédula registrada (border-green-500 + texto "Auto-rellenada desde catálogo")
 
 ### P8 — RFC y NSS como columnas visibles en tabla catálogo de empleados ✅
+
 - [x] Agregar columnas RFC y NSS como opcionales/toggle en la tabla de Employees.tsx (showRfcNss toggle en línea 48)
 
 ### P9 — Búsqueda por RFC y NSS en el catálogo de empleados ✅
+
 - [x] Extender el campo de búsqueda de Employees.tsx para incluir RFC y NSS (db-employees.ts líneas 42-43)
 
 ---
@@ -167,6 +189,7 @@
 ---
 
 ## Sprint: Firma Digital, Filtro Escolaridad y Dashboard Vencimientos (2026-04-15)
+
 - [x] Tabla contract_signatures creada en BD (SHA-256, S3 URL, signerName)
 - [x] Procedures saveContractSignature y getContractSignatures en router hiring
 - [x] Componente SignatureCanvas integrado en tab Contratos de EmployeeProfile
@@ -179,6 +202,7 @@
 - [x] Enlace "Vencimientos de Contratos" agregado al sidebar en Gestión de Talento
 
 ## Sprint: Importación XLSX, Tab Vacaciones y Reporte de Rotación PDF (2026-04-16)
+
 - [x] Importar XLSX en Positions.tsx con plantilla descargable y procedure bulkImport (Sprint 40)
 - [x] Importar XLSX en OrganizationalCompetenciesManager.tsx con plantilla descargable y procedure bulkImport (Sprint 40)
 - [x] Tab "Vacaciones" en EmployeeProfile con saldo LFT e historial de solicitudes (ya implementado)
@@ -186,12 +210,14 @@
 - [x] Exportación PDF en TurnoverDashboard con gráficas y tabla por departamento (window.print línea 144)
 
 ## Sprint: Importación XLSX, Tab Vacaciones, Exportación PDF (2026-04-16)
+
 - [x] Importar XLSX en Positions.tsx con plantilla descargable y procedure bulkImport
 - [x] Importar XLSX en OrganizationalCompetenciesManager.tsx con plantilla descargable y procedure bulkImport
 - [x] Tab "Vacaciones" en EmployeeProfile con saldo LFT (días ganados/usados/pendientes/disponibles) e historial de solicitudes
 - [x] Botón "Exportar a PDF" en TurnoverDashboard usando window.print con estilos de impresión A4 landscape
 
 ## Sprint: Mejoras de Gestión de Vacaciones (2026-04-16)
+
 - [x] Procedure `listByManager` en vacations router — lista solicitudes pendientes del equipo del supervisor/gerente/jefe_area filtradas por departamento
 - [x] Procedure `getBalanceReport` en vacations router — saldo LFT por empleado agrupado por departamento, filtrable por departamento
 - [x] Notificación por correo al empleado al aprobar/rechazar (sendEmail con HTML estilizado en updateStatus)
@@ -200,6 +226,7 @@
 - [x] 0 errores TypeScript verificados (tsc --noEmit EXIT_CODE: 0)
 
 ## Sprint: Mejoras Avanzadas de Vacaciones — Notificaciones, Widget y Calendario (2026-04-16)
+
 - [x] Notificación push WebSocket al supervisor al crear solicitud de vacaciones (emitNotificationToUser + insert notifications)
 - [x] Widget de vacaciones en Home.tsx — saldo disponible (ganados/usados/pendientes/disponibles) para empleados
 - [x] Widget de vacaciones en Home.tsx — contador de solicitudes pendientes de aprobación para supervisores
@@ -213,24 +240,28 @@
 ## Auditoría Profunda — Abril 2026
 
 ### Backend
+
 - [x] Optimización N+1 en competenciesStats.ts: de ~200 queries por request a 4 queries en paralelo (Promise.all + mapas en memoria)
 - [x] Notificación push WebSocket simétrica al empleado al aprobar/rechazar vacación (updateStatus)
 - [x] Limpieza de import duplicado (notifications) y no usado (users) en vacations.ts
 - [x] 0 errores TypeScript en watch mode
 
 ### Frontend
+
 - [x] Eliminación de console.log/error/warn en 25 archivos de producción
 - [x] ErrorBoundary con auto-recuperación de errores DOM (verificado)
 - [x] EmptyState e InlineEmptyState reutilizables (verificado)
 - [x] 0 errores en logs del servidor y browser console
 
 ### Hallazgos (sin cambios necesarios — ya implementados)
+
 - [x] Todos los pendientes P1-P9 del todo.md ya estaban implementados
 - [x] Bundle optimizado: vite.config.ts con manualChunks por vendor
 - [x] 218 páginas con lazy loading en App.tsx
 - [x] Servidor estable: 0 errores en runtime
 
 ## Sprint: Calendario Conflictos, PDF, Filtros Temporales y Tabla de Vacaciones (2026-04-16)
+
 - [x] Detección de conflictos de ausencias simultáneas en VacationCalendar.tsx (>30% departamento ausente → resaltado rojo + alerta) — Sprint 37
 - [x] Exportar calendario de vacaciones a PDF (Gantt + mensual) con botón en VacationCalendar.tsx — Sprint 37
 - [x] Filtro temporal detallado (hoy / semana / mes / año / rango personalizado) en CasesManagement.tsx — Sprint Multiempresa
@@ -317,12 +348,15 @@
 - [x] Selector de período histórico en comparativa psicométrica de /executive-report — Sprint 35
 
 ## Sprint 9: Folio Configurable + Dashboard Calidad + PDF NOM-151 + Badges Cumplimiento — Abril 2026
+
 - [x] Panel de configuración de folio con prefijo configurable (NOM035-DICT-) y consecutivo en LegalDocGenerator.tsx
 - [x] Widget de calidad en Home.tsx — resumen Bug Reports (pendientes/corregidos) y Feature Requests (% implementadas)
 - [x] Exportar dictamen a PDF con hash NOM-151, folio configurable, QR de verificación y firma del responsable
 - [x] Badges de cumplimiento normativo en portada pública: NOM-151, LGPD/LFPDPPP, GDPR, ISO 27001, ISO 27002
 - [x] Badges de cumplimiento normativo en header del dashboard autenticado
+
 ## Sprint 10: Portada Profesional + QR en Pantalla + Filtro Histórico + VacationSeniorityManager — Abril 2026
+
 - [x] Rediseño completo de portada pública: dark, hero asimétrico con glow, grid de 6 features, stats bar, compliance strip, footer
 - [x] Badges de cumplimiento NOM-151/LGPD/GDPR/ISO27001/ISO27002 en portada y dashboard
 - [x] QR NOM-151 en vista previa del Dictamen en pantalla (no solo en PDF)
@@ -333,7 +367,9 @@
 - [x] Ruta /vacation-seniority registrada en App.tsx
 - [x] Enlace "Tabla de Antigüedad" en sidebar DashboardLayout
 - [x] 487 pruebas unitarias pasando, 0 errores TypeScript
+
 ## Sprint 11: Selector Responsable Técnico + Seed Preguntas Salida + Filtro Período Libre + Backup Drive — Abril 2026
+
 - [x] P2: Selector de responsable técnico con auto-relleno de cédula en formulario del Dictamen — verificado Sprint 44
 - [x] P1: Seed de 15 preguntas predeterminadas para Entrevistas de Salida — verificado Sprint 44
 - [x] Filtro de período personalizado (rango libre) en widget de calidad del dashboard — Sprint 11
@@ -345,6 +381,7 @@
 - [x] Backend featureRequests.getStats acepta dateFrom/dateTo (rango libre)
 
 ## Sprint 13: Auditoría Profunda + Gráfica NOM-035 + Seguimiento Acuerdos
+
 - [x] Auditoría TypeScript: 4 errores corregidos en Home.tsx (propiedades widget de calidad)
 - [x] Gráfica de barras Recharts en NOM035DetailedReport.tsx (colores por nivel de riesgo)
 - [x] Módulo Seguimiento de Acuerdos del Comité: AgreementsDashboard.tsx verificado y completo
@@ -353,6 +390,7 @@
 - [x] Pruebas unitarias Sprint 13: 10/10 passed
 
 ## Sprint 14: Exportación Excel, KPIs Ejecutivos, CURP Autocompletado
+
 - [x] Exportación Excel en NOM035DetailedReport.tsx (xlsx con hojas: Resumen, Categorías, Dominios, Dimensiones, Plan de Acción)
 - [x] Panel KPIs ejecutivos /kpi-dashboard con métricas de personal, capacitación, bienestar y gráficas de tendencia
 - [x] Enlace "Panel KPIs Ejecutivos" agregado al sidebar en sección de Reportes y Análisis
@@ -361,17 +399,19 @@
 - [x] Pruebas unitarias Sprint 14: 18 tests (Excel, KPIs, CURP, tendencias)
 
 ## Sprint 15: Filtro Departamento KPIs, PAC, Alerta Dictamen (2026-04-24)
+
 - [x] Selector de departamento en /kpi-dashboard: filtra todas las métricas (rotación, % capacitado, NOM-035) por área organizacional
 - [x] Módulo PAC: tablas annual_training_plans + annual_training_plan_items en schema + migración SQL aplicada
 - [x] Router annualTrainingPlan.ts con procedures: list, getById, create, update, delete, addItem, updateItem, deleteItem, updateProgress
 - [x] Página AnnualTrainingPlan.tsx con formulario, tabla de items, seguimiento de avance y exportación PDF (jsPDF)
 - [x] Ruta /training/annual-plan registrada en App.tsx + enlace en sidebar DashboardLayout
 - [x] Job dictamen-expiry-alert-job.ts: alerta 30 días antes de vencimiento de Dictamen NOM-035 (12 meses vigencia)
-- [x] Job registrado en _core/index.ts: corre diariamente a las 08:00
+- [x] Job registrado en \_core/index.ts: corre diariamente a las 08:00
 - [x] Notificación interna + notifyOwner + email al responsable técnico cuando dictamen próximo a vencer
 - [x] Pruebas unitarias Sprint 15: 13/13 passed (job dictamen, módulo PAC, filtro departamento)
 
 ## Sprint 16: PAC-DNC, Widget Dictamen, Comparativa Departamentos
+
 - [x] PAC-DNC: campo dncId en annual_training_plan_items (schema + migración SQL)
 - [x] PAC-DNC: procedure listDncNeeds en annualTrainingPlan router
 - [x] PAC-DNC: selector DNC en formulario de items del PAC
@@ -381,6 +421,7 @@
 - [x] Comparativa Depts: tabla comparativa en /kpi-dashboard con rotacion, % capacitado, NOM-035
 
 ## Sprint 16: PAC-DNC, Widget Dictamen, Comparativa Departamentos (2026-04-24)
+
 - [x] PAC-DNC: campo dncId en annual_training_plan_items (schema + migración SQL)
 - [x] PAC-DNC: procedure listDncNeeds en annualTrainingPlan router
 - [x] PAC-DNC: selector DNC en formulario de items del PAC
@@ -390,14 +431,16 @@
 - [x] Comparativa Depts: tabla comparativa en /kpi-dashboard con rotación, % capacitado, NOM-035
 
 ## Sprint 17: Exportar XLSX comparativa, Historial PAC por año, Notificación responsable PAC (2026-04-24)
+
 - [x] Exportar comparativa de departamentos a Excel desde /kpi-dashboard (botón "Exportar XLSX") — Sprint 17 Completado
 - [x] Historial de PAC por año: selector de año en AnnualTrainingPlan.tsx (filtro por año fiscal) — Sprint 17 Completado
 - [x] Historial de PAC: procedure `listByYear` en annualTrainingPlan router con parámetro year — Sprint 17
 - [x] Job de notificación al responsable del PAC: pac-stale-items-job.ts (cursos >30 días sin actualizar) — Sprint 17
-- [x] Job registrado en server/_core/index.ts con schedule diario — Sprint 17
+- [x] Job registrado en server/\_core/index.ts con schedule diario — Sprint 17
 - [x] 0 errores TypeScript antes de checkpoint — Sprint 17
 
 ## Sprint 17 — Completado (2026-04-24)
+
 - [x] Exportar comparativa de departamentos a XLSX en /kpi-dashboard (botón "Exportar XLSX" con librería xlsx)
 - [x] Historial de PAC por año: procedure getAvailableYears, selector de pills y filtro dinámico en AnnualTrainingPlan
 - [x] Job pac-stale-items-job: notificación diaria (09:00) al responsable del PAC cuando un curso lleva >30 días sin actualizar
@@ -410,6 +453,7 @@
 - [x] Exportación multi-formato (XLSX, PDF, Word) en ModelPerformanceAlerts con botones en encabezado y en tab Historial
 
 ## Sprint 27: Service Worker, Core Web Vitals, SMTP UI, Paginación y Portada PDF ✅
+
 - [x] Service Worker PWA con estrategia NetworkFirst para JS (skipWaiting + clientsClaim)
 - [x] Métricas Core Web Vitals (LCP, CLS, INP, FCP, TTFB) recolectadas en cliente via web-vitals
 - [x] Formulario de configuración SMTP en /alert-admin-dashboard (SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM)
@@ -417,6 +461,7 @@
 - [x] Portada institucional en PDF del Reporte Ejecutivo (fondo slate-900, logo, empresa, RFC, fecha)
 
 ## Sprint 28: Datos Empresa en PDF, Exportación Completa Alertas, Dashboard Web Vitals ✅
+
 - [x] Formulario en /settings para capturar Razón Social, RFC y Domicilio Fiscal (system_settings)
 - [x] Logo de empresa: upload a S3 (PNG/JPG/SVG máx 2MB), preview, eliminar
 - [x] Portada PDF usa datos de empresa dinámicos (company_name, company_rfc, company_address, company_logo)
@@ -428,6 +473,7 @@
 - [x] Enlace "Core Web Vitals" en sidebar (solo admins, ícono Zap)
 
 ## Sprint 29: Sidebar Web Vitals, Alertas LCP, Logo Empresa en PDF ✅
+
 - [x] Enlace ⚡ Core Web Vitals en sidebar bajo sección Administración (solo admins)
 - [x] Job performance-lcp-alerts: detecta LCP P75 > 4000ms por 3 días consecutivos → alerta warning en /alert-history
 - [x] Enum alertType extendido con `performance_lcp`
@@ -435,6 +481,7 @@
 - [x] Tests Sprint 29: 11/11 pasados
 
 ## Sprint 30: Corrección Pantalla Blanca, Spinner, Modal PDF ← EN PROGRESO
+
 - [x] Corrección definitiva pantalla en blanco: vite y plugins movidos de devDependencies a dependencies
 - [x] Fallback Vite dev server cuando dist/public no existe en producción
 - [x] Tests de integración del servidor: 10/10 pasados
@@ -448,6 +495,7 @@
 ## 📋 BACKLOG PRIORIZADO (pendientes reales)
 
 ### P1 — Alta Prioridad
+
 - [x] Seed de 15 preguntas predeterminadas para Entrevistas de Salida — P1 verificado
 - [x] Selector de responsable técnico con auto-relleno de cédula en formulario del Dictamen — P2 verificado
 - [x] Historial de PAC por año: selector de año fiscal + procedure listByYear — Sprint 17
@@ -456,6 +504,7 @@
 - [x] Filtro de período personalizado (rango libre) en widget de calidad del dashboard — Sprint 11
 
 ### P2 — Media Prioridad
+
 - [x] Filtro empresa/sucursal en mapa de calor del Reporte Ejecutivo — Sprint 45: Mapa de Calor NOM-035 con semáforo en /kpi-dashboard
 - [x] Exportación PDF expediente psicométrico completo en PsychometricTab — Sprint 35
 - [x] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal — Sprint 34
@@ -464,6 +513,7 @@
 - [x] Portada legal profesional con derechos reservados, confidencialidad y leyes aplicables — Sprint 38
 
 ### P3 — Baja Prioridad
+
 - [x] Multi-tenant SuperAdmin: rol super_admin, tabla companies, aislamiento por company_id — Sprint Multiempresa
 - [x] Modal aceptación de términos en primer login (tabla terms_acceptance) — Sprint 38
 - [x] Botón "Descargar PDF" en /legal con estilos de impresión A4 — Sprint 38
@@ -473,18 +523,21 @@
 - [x] Banner "Nueva versión disponible" toast no intrusivo al activarse el nuevo Service Worker — Sprint 39
 
 ### 🐛 Bugs conocidos (no críticos)
+
 - [x] @builder.io/vite-plugin-jsx-loc peer warning con Vite 7 (funciona correctamente) — advertencia no crítica, no requiere acción
-- [x] Módulos @shared/_core/errors y extensiones .ts en predictiveCorrelation.ts (pre-existentes) — advertencia no crítica, no requiere acción
+- [x] Módulos @shared/\_core/errors y extensiones .ts en predictiveCorrelation.ts (pre-existentes) — advertencia no crítica, no requiere acción
 
 ---
 
 ## Sprint 34 — UX Crítica + Buzón (2026-04-27)
+
 - [x] Badge mensajes no leídos en sidebar junto a "Mis Mensajes" (ya implementado: MenuBadge en DashboardLayout línea 686)
 - [x] Spinner de carga inicial en client/index.html (ya implementado: #app-loading con animación CSS)
 - [x] Modal de previsualización PDF en ExecutiveReport con <iframe> y jsPDF (ya implementado: línea 452+)
 - [x] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal (ya implementado: exportToExcel línea 364)
 
 ## Sprint 35 — Módulo Psicométrico Completo (2026-04-27)
+
 - [x] Gráfica Chart.js evolución puntaje psicométrico con umbrales de riesgo en PsychometricTab (ya implementado: PsychometricChart con thresholds línea 103)
 - [x] Selector de período histórico en comparativa psicométrica de /executive-report (ya implementado: compareMonthsAgo línea 169)
 - [x] Exportación PDF expediente psicométrico completo en PsychometricTab (ya implementado: exportPDF línea 184)
@@ -492,18 +545,21 @@
 - [x] Límite 24h de notificaciones duplicadas en notifyEmployee (ya implementado: validación cutoff línea 297)
 
 ## Sprint 36 — KPI Dashboard + Planes de Acción (2026-04-27)
+
 - [x] Indicador variación % en KPI de rotación (▲/▼ vs año anterior) (badge rojo/verde/gris en KPIDashboard)
 - [x] Vista de seguimiento de Planes de Acción en AnalyticsDashboard de Entrevistas de Salida (ActionPlansTracker)
 - [x] Notificación automática al completar un Plan de Acción (notifyOwner en updateActionPlanStatus)
 - [x] Filtro empresa/sucursal en mapa de calor (requiere tabla sucursales en schema — pendiente de diseño) — Sprint 45: implementado con filtro select de sucursal en KPIDashboard
 
 ## Sprint 37 — Vacaciones: Conflictos Visuales + PDF + Filtros (2026-04-27)
+
 - [x] Resaltado visual rojo + alerta en VacationCalendar cuando >X% departamento ausente (ya implementado: bg-red-100/60 + AlertTriangle línea 389)
 - [x] Exportar calendario de vacaciones a PDF (ya implementado: window.print() + botón línea 189)
 - [x] Filtro temporal detallado en TurnoverDashboard.tsx (ya implementado: hoy/semana/mes/año con startDate/endDate)
 - [x] Filtro temporal detallado en TrainingDashboard.tsx (ya implementado: getPeriodDates() línea 10)
 
 ## Sprint 38 — Legal y Compliance (2026-04-27)
+
 - [x] Tabla terms_acceptance en schema + migración SQL (ya existía)
 - [x] Procedures terms.accept y terms.hasAccepted en router (ya existían)
 - [x] Modal de aceptación de términos en primer login (App.tsx) (TermsGuard integrado)
@@ -511,12 +567,14 @@
 - [x] Botón "Descargar PDF" en /legal (LegalPortada.tsx con window.print() ya existía)
 
 ## Sprint 39 — Deuda Técnica y PWA (2026-04-27)
+
 - [x] Banner "Nueva versión disponible" toast al activarse nuevo Service Worker (PWAUpdateBanner.tsx + useRegisterSW integrado en App.tsx)
 - [x] Alertas LCP con notificación por email al HR email configurado (performance-lcp-alerts-job.ts actualizado con sendEmail + getHrEmail)
 - [x] Migrar Breadcrumbs legacy (no había usos de Breadcrumbs.tsx legacy en el proyecto)
 - [x] Consolidar Skeletons (directorio /skeletons/ ya consolidado con DashboardSkeleton, TableSkeleton, ChartSkeleton, CalendarSkeleton)
 
 ## Sprint 40 — Branches, Excel Catálogos, Importar Preguntas XLSX (2026-04-27) ✅
+
 - [x] Tabla branches en schema + migración SQL (id, name, address, city, state, phone, isActive)
 - [x] Procedure branches.list, branches.listAll, branches.create, branches.update, branches.delete
 - [x] Campo branchId en employees + migración SQL aplicada
@@ -528,6 +586,7 @@
 - [x] Tests Sprint 40: 13/13 passed
 
 ## Sprint 41 — Fix LandingPage + Branches CRUD + XLSX Template + KPI Branch Filter (2026-04-27) ✅
+
 - [x] Corregir spinner infinito: timeout de seguridad de 2s en main.tsx + selfDestroying SW en vite.config.ts
 - [x] Página /branches con tabla CRUD (alta, edición, activar/desactivar con AlertDialog de confirmación)
 - [x] Enlace a /branches en sidebar de DashboardLayout (sección Administración)
@@ -537,6 +596,7 @@
 - [x] Tests Sprint 41: 22/22 passed | TypeScript: 0 errores
 
 ## Sprint 42 — Fix Spinner Definitivo (PWA eliminado) + Selector Sucursal en EmployeeEdit (2026-04-27) ✅
+
 - [x] VitePWA eliminado completamente de vite.config.ts (import comentado + bloque eliminado del array de plugins)
 - [x] PWAUpdateBanner reemplazado por stub vacío sin import de virtual:pwa-register/react
 - [x] Script inline en index.html para desregistrar todos los SWs y limpiar cachés antes de que React cargue
@@ -545,6 +605,7 @@
 - [x] Tests Sprint 41 actualizados: 24/24 passed | TypeScript: 0 errores
 
 ## Sprint 43 — Reporte Comparativo por Sucursal exportable a Excel (2026-05-05) ✅
+
 - [x] Procedure executiveReport.getBranchComparative con dateFrom/dateTo opcionales
 - [x] Métricas por sucursal: rotationRate, trainingRate, nom035Score, highRiskCount, totalEmployees, activeEmployees
 - [x] Página BranchComparativeReport.tsx con tabla comparativa ordenable, KPI cards, gráficas recharts
@@ -556,13 +617,15 @@
 - [x] Tests Sprint 43: 24/24 passed | TypeScript: 0 errores
 
 ## Sprint 48 — Página de Bienvenida Pública /welcome (2026-05-22)
+
 - [x] Welcome.tsx creada en client/src/pages/ — logo NOM-035 SVG, hero con título, descripción, 6 módulos, botón "Iniciar sesión" con getLoginUrl()
 - [x] Ruta /welcome registrada en App.tsx como ruta pública (sin DashboardLayout, lazy import)
 - [x] Tema oscuro #0f172a con acento verde #22c55e, sin dependencia de useAuth ni trpc
 - [x] Tests Sprint 48: 15/15 pasando (sprint48.test.ts)
 
 ## Sprint 49 — Corrección Health Check / Spinner Infinito en Producción (2026-05-25)
-- [x] Endpoint GET /api/health universal agregado en server/_core/index.ts (antes de OAuth/LocalAuth)
+
+- [x] Endpoint GET /api/health universal agregado en server/\_core/index.ts (antes de OAuth/LocalAuth)
 - [x] Dockerfile actualizado: HEALTHCHECK usa /api/health (no /api/auth/mode), start-period=60s, retries=5
 - [x] vite.config.ts: manualChunks ampliado (vendor-icons, vendor-dnd, vendor-flow, vendor-socket, vendor-monaco, vendor-markdown, vendor-ui-extra)
 - [x] Build de producción verificado: /api/health responde {"ok":true,"ts":...} sin autenticación
@@ -570,21 +633,25 @@
 - [x] Tests sprint48.test.ts: 15/15 pasando (sin regresiones)
 
 ## Sprint 57 — Corrección OAuth Login (appId vacío en producción) (2026-05-25) ✅
-- [x] serveStatic() en server/_core/vite.ts reemplaza dinámicamente %VITE_*% en index.html con process.env en runtime
+
+- [x] serveStatic() en server/_core/vite.ts reemplaza dinámicamente %VITE_\*% en index.html con process.env en runtime
 - [x] Corregido error "Permiso denegado — El ID de la aplicación no está configurado" en producción
 
 ## Sprint 58 — Corrección Servidor de Desarrollo (SIGSEGV) (2026-05-25) ✅
+
 - [x] index.ts siempre usa serveStatic() — eliminada llamada a setupVite() que causaba SIGSEGV
 - [x] dist/public/index.html copiado desde client/index.html para que serveStatic tenga HTML válido
 - [x] Servidor arranca correctamente en puerto 3000
 
 ## Sprint 59 — Persistencia dist/public/index.html + Corrección Vista Previa Dev (2026-05-25) ✅
+
 - [x] serveStatic() copia automáticamente client/index.html → dist/public/index.html en modo dev al arrancar
 - [x] En producción (Cloud Run) NO sobreescribe el index.html compilado por vite build
 - [x] Fallback del script inline corregido: usa comparación con placeholder literal concatenado para no borrar el appId real
 - [x] Vista previa del servidor de desarrollo muestra appId=32dY4kSxNgo2w8qLnKHR6H correctamente
 
 ## Sprint 60 — Limpieza de backlog (2026-05-25)
+
 - [x] Eliminadas actividades obsoletas del backlog:
   - ~~Corregir módulo Documentos Legales (0 de 4 firmados)~~ — descartada por el usuario
   - ~~Activar heartbeat anti-cold-start~~ — descartada por el usuario
@@ -592,6 +659,7 @@
 - [x] Corregir vista previa del servidor de desarrollo (conexión rechazada) — servidor reiniciado, responde HTTP 200 en puerto 3000
 
 ## Sprint 61 — Correcciones críticas + Mejoras (2026-05-28) ✅
+
 - [x] Corregir vista previa del servidor de desarrollo (conexión rechazada) — re-exponer puerto 3000
 - [x] Corregir ciclo infinito de autenticación — agregado app.set('trust proxy', 1) en Express para que cookies Secure funcionen detrás del proxy HTTPS
 - [x] Consolidar SkeletonLoader.tsx legacy → App.tsx ahora usa DashboardSkeleton de @/components/skeletons
@@ -600,12 +668,14 @@
 - [x] Tarea semanal activa: cada lunes 9:00 AM (America/Mexico_City) sube respaldo a Google Drive
 
 ## Sprint 63 — Correcciones definitivas (2026-05-28) ✅
+
 - [x] Vista previa restaurada (HTTP 200) — el túnel expira al hibernar, usar nom035mood-32dy4ksx.manus.space como URL permanente
 - [x] DashboardLayoutSkeleton.tsx movido a @/components/skeletons/ y eliminado el legacy de components/
 - [x] Endpoint system.backupCompleted agregado al systemRouter para notificar al admin al completar el respaldo
 - [x] skipLibCheck: true ya estaba en tsconfig.json — los 4 errores de html2canvas son solo del watcher tsx, no afectan producción
 
 ## Sprint 64 — Catálogo de Destinatarios para Minutas (2026-05-28) ✅
+
 - [x] Tabla `minute_recipients` en drizzle/schema.ts (id, name, email, position, department, isActive, createdAt, updatedAt)
 - [x] Migración SQL aplicada via webdev_execute_sql
 - [x] Helpers de consulta en server/db.ts (getRecipients, getRecipientById)
@@ -615,6 +685,7 @@
 - [x] Tests unitarios para el router de destinatarios (10/10 pasando)
 
 ## Sprint 65 — Mejoras Módulo Destinatarios de Minutas (2026-05-28) ✅
+
 - [x] Tabla `minute_dispatches` en drizzle/schema.ts (id, minuteId, recipientId, sentAt, readAt, status, notes)
 - [x] Migración SQL aplicada (tabla minute_dispatches creada en BD)
 - [x] Router minuteRecipients ampliado: bulkImport (importación masiva XLSX), getDispatches (historial paginado), markAsRead
@@ -627,6 +698,7 @@
 - [x] Tests unitarios Sprint 65: 19/19 pasando (bulkImport, getDispatches, markAsRead, addRecipients, getMinuteRecipients)
 
 ## Sprint 66 — Panel de Despachos Globales (2026-05-28) ✅
+
 - [x] Procedimiento `getAllDispatches` en router minuteRecipients con filtros: recipientId, status, dateFrom, dateTo, minuteId, paginación
 - [x] Página `/committee/dispatches` con tabla global, filtros avanzados, tarjetas de estadísticas y exportación XLSX
 - [x] Entrada en sidebar bajo "Comité de Seguridad"
@@ -634,6 +706,7 @@
 - [x] Tests unitarios para getAllDispatches (25/25 pasando)
 
 ## Sprint 67 — Notificaciones, Gráfica de Tendencias y PDF de Trazabilidad (2026-05-28) ✅
+
 - [x] Tabla minute_dispatches: columnas read_token y email_sent_at agregadas (migración aplicada)
 - [x] Helper sendDispatchEmail con token único de 64 chars hex y enlace de confirmación de lectura
 - [x] Endpoint público GET /api/confirm-read/:token que marca el despacho como leído con fecha/hora
@@ -646,6 +719,7 @@
 - [x] Tests unitarios Sprint 67 (17/17 pasando)
 
 ## Sprint 68 — Reenvío Manual, Alertas Automáticas y Firma de Recibido (2026-05-29) ✅
+
 - [x] Columna `signer_name` en tabla minute_dispatches (migración SQL aplicada)
 - [x] Procedimiento tRPC `resendDispatch` en minuteRecipients: regenera token, reenvía correo, actualiza emailSentAt
 - [x] Botón "Reenviar correo" en DispatchesPanel para registros con status "sent" o "bounced"
@@ -655,11 +729,12 @@
 - [x] Página de éxito con nombre del firmante, fecha/hora de confirmación y datos de la minuta
 - [x] Helper sendDispatchEmail unificado (SingleDispatchEmailData) con soporte isReminder y daysSinceSent
 - [x] Job `dispatch-unread-alerts-job.ts`: detecta despachos >7 días sin leer, regenera token, envía recordatorio (banner naranja) y notifica al admin
-- [x] Job registrado en server/_core/index.ts con delay de 30s para Cloud Run health check
+- [x] Job registrado en server/\_core/index.ts con delay de 30s para Cloud Run health check
 - [x] TypeScript: 0 errores (verificado en watch mode 12:11:11 PM)
 - [x] Tests unitarios Sprint 68 (15/15 pasando)
 
 ## Sprint 69 — Exportación XLSX, signerName y Umbral Configurable (2026-05-29) ✅
+
 - [x] Botón "Exportar XLSX" en MinuteRecipientHistory.tsx con 8 columnas de evidencia (folio, título, tipo, fecha reunión, destinatario, correo, cargo, fecha envío, fecha lectura, firmante, estado)
 - [x] Campo `signerName` en schema TypeScript de minuteDispatches y en SELECT de getAllDispatches/getDispatches
 - [x] Columna "Firmante" en tabla del DispatchesPanel
@@ -669,7 +744,8 @@
 - [x] Tests unitarios Sprint 69: 21/21 pasando
 
 ## Sprint 70 — Correcciones Auth + WebSocket + Filtro Firmante (2026-05-29) ✅
-- [x] Corregir ciclo infinito de login en producción: `app.set('trust proxy', true)` en server/_core/index.ts
+
+- [x] Corregir ciclo infinito de login en producción: `app.set('trust proxy', true)` en server/\_core/index.ts
 - [x] Corrección cookies.ts: `isSecureRequest()` retorna `true` para cualquier hostname no-localhost (garantiza secure=true en Cloud Run)
 - [x] Notificación push WebSocket al admin al registrar firma: `emitCriticalAlertToAdmins` en confirmReadRouter.ts POST handler
 - [x] Parámetro `signerSearch` en procedimiento `getAllDispatches` (filtro en memoria por nombre del firmante)
@@ -681,6 +757,7 @@
 - [x] TypeScript: 0 errores (verificado en watch mode)
 
 ## Sprint 71 — Módulo Matriz de Acciones con Evidencias NOM-035 (2026-05-29) ✅
+
 - [x] Tablas BD: `nom035_plans`, `nom035_actions`, `nom035_evidences`, `nom035_evidence_audit` creadas y migradas
 - [x] Router tRPC `nom035Matrix` con procedimientos: listPlans, generatePlan (IA + fallback), listActions, updateAction, getEvidences, registerEvidence, deleteEvidence, getDownloadUrl, getPlanStats, getGlobalStats, generatePdf, exportXlsx
 - [x] Endpoint `/api/upload` reutilizado con carpeta `nom035-evidences` y límite 16 MB
@@ -695,6 +772,7 @@
 - [x] Tests unitarios Sprint 71: 45/45 pasando (sprint71.test.ts)
 
 ## Sprint 72 — Dashboard de Cumplimiento NOM-035 con Semáforos (2026-05-29) ✅
+
 - [x] Procedimiento `getComplianceDashboard` en router `nom035Matrix`: KPIs globales, semáforo por plan, tendencia mensual, acciones próximas a vencer (14 días) y vencidas
 - [x] Página `Nom035ComplianceDashboard.tsx`: semáforo circular animado SVG, 6 tarjetas KPI, 3 gráficos Chart.js (Doughnut, Bar por tipo, Bar por prioridad), gráfico de línea de tendencia mensual
 - [x] Tabla de planes con barra de progreso de color dinámico y badge de semáforo (verde/amarillo/rojo)
@@ -707,6 +785,7 @@
 - [x] Tests unitarios Sprint 72: 45/45 pasando (sprint72.test.ts)
 
 ## Sprint 73 — Notificaciones Automáticas de Vencimiento NOM-035 (2026-05-29) ✅
+
 - [x] Job `nom035-action-alerts-job.ts` con setInterval cada 6 horas
 - [x] Detección de acciones próximas a vencer (umbral 7 días) con campo `notificacion7DiasEnviada`
 - [x] Detección de acciones vencidas con campo `notificacionVencimientoEnviada`
@@ -717,6 +796,7 @@
 - [x] TypeScript: 0 errores en el job
 
 ## Sprint 74 — Widget KPI de Matriz NOM-035 en Home (2026-05-29) ✅
+
 - [x] Query `trpc.nom035Matrix.getGlobalStats` en Home.tsx
 - [x] Tarjeta con 4 KPIs: % Cumplimiento (semáforo), Total, Vencidas, Con evidencia
 - [x] Semáforo dinámico: verde ≥80%, amarillo 50-79%, rojo <50%
@@ -725,6 +805,7 @@
 - [x] Skeleton de carga mientras se obtienen los datos
 
 ## Sprint 75 — Exportación PDF del Dashboard de Cumplimiento (2026-05-29) ✅
+
 - [x] Generador `nom035CompliancePdfGenerator.ts` con HTML → Puppeteer
 - [x] Portada con membrete institucional, folio `NOM035-DASH-{timestamp}` y período
 - [x] Sección de KPIs globales con semáforo circular y 5 métricas
@@ -738,6 +819,7 @@
 - [x] Tests unitarios Sprints 73-75: 39/39 pasando (sprint73_75.test.ts)
 
 ## Sprint 76 — Bitácora Visual de Historial de Acciones NOM-035 (2026-05-29) ✅
+
 - [x] Tabla `nom035_action_history` en BD: actionId, planId, campo (enum 9 valores), valorAnterior, valorNuevo, changedBy, nota, createdAt
 - [x] Migración SQL aplicada (0163_nasty_nuke.sql)
 - [x] Procedure `getActionHistory` en router nom035Matrix (query por actionId, orden desc)
@@ -750,6 +832,7 @@
 - [x] Tests unitarios Sprint 76: 28/28 pasando (sprint76.test.ts)
 
 ## Sprint 77 — IA Mejorada para Generación de Planes NOM-035 (2026-05-30) ✅
+
 - [x] Helper `buildSurveyContext()` que consulta el período activo de encuesta y sus resultados
 - [x] Consulta de `surveyPeriods` (activo) y `surveyResults` en `generatePlan`
 - [x] Prompt enriquecido con: período, total respondentes, puntaje promedio, dominios de alto riesgo y áreas prioritarias
@@ -757,6 +840,7 @@
 - [x] Importaciones de `surveyPeriods` y `surveyResults` en nom035Matrix.ts
 
 ## Sprint 78 — Acceso Público con Token para Subida de Evidencias (2026-05-30) ✅
+
 - [x] Tabla `nom035_evidence_tokens` en BD: token, actionId, planId, createdBy, expiresAt, useCount, maxUses, isActive, signerEmail, signerName
 - [x] Migración SQL aplicada
 - [x] Router público `nom035EvidenceTokenRouter.ts` con GET /api/evidence-upload/:token (formulario HTML) y POST /api/evidence-upload/:token (subida a S3)
@@ -768,6 +852,7 @@
 - [x] Router registrado en `server/_core/index.ts`
 
 ## Sprint 79 — Reporte Ejecutivo de Bitácora XLSX/PDF (2026-05-30) ✅
+
 - [x] Procedimiento `exportHistoryXlsx` en router nom035Matrix con filtros: planId, actionId, campo, changedByName, fromDate, toDate
 - [x] Procedimiento `exportHistoryPdf` en router nom035Matrix con los mismos filtros
 - [x] XLSX con 10 columnas: ID, ID Acción, ID Plan, Campo Modificado, Valor Anterior, Valor Nuevo, Usuario, Correo, Nota, Fecha y Hora
@@ -778,6 +863,7 @@
 - [x] Tests unitarios Sprints 77-79: 28/28 pasando (sprint77_79.test.ts)
 
 ## Sprint 80 — Módulo de Comité NOM-035 con Actas Digitales (2026-05-30) ✅
+
 - [x] Tablas BD: `nom035_committee_members`, `nom035_committee_meetings`, `nom035_committee_agreements`
 - [x] Migración SQL aplicada (migración 0166)
 - [x] Procedures: CRUD integrantes, crear convocatoria, registrar acta, gestionar acuerdos
@@ -789,6 +875,7 @@
 - [x] Tests unitarios Sprint 80 (33/33 pasando)
 
 ## Sprint 81 — Portal del Empleado con Autenticación Simplificada (2026-05-30) ✅
+
 - [x] Tabla `employee_portal_tokens` (token, employeeId, expiresAt, lastUsedAt)
 - [x] Endpoint público GET/POST `/api/employee-portal/:token`
 - [x] Procedure `generatePortalLink` en router employees con envío de correo HTML
@@ -799,6 +886,7 @@
 - [x] Tests unitarios Sprint 81
 
 ## Sprint 82 — Generación DC-1 PDF y XML SIRCE para IMSS/STPS (2026-05-30) ✅
+
 - [x] Generador HTML formato DC-1 (Constancia de Habilidades Laborales) con datos del empleado, curso, instructor, horas, fecha
 - [x] Generador XML SIRCE con estructura oficial STPS para carga al sistema
 - [x] Procedures `generateDC1`, `generateSIRCEXml`, `exportSIRCEByPeriod` en router `dc1Generator`
@@ -808,6 +896,7 @@
 - [x] Tests unitarios Sprint 82
 
 ## Sprint 80 — Módulo de Comité NOM-035 con Actas Digitales (2026-05-30) ✅
+
 - [x] Tablas BD: `nom035_committee_members`, `nom035_committee_meetings`, `nom035_meeting_agreements`, `nom035_meeting_signatures`
 - [x] Migración SQL aplicada
 - [x] Router `committeeModule.ts` con 12 procedimientos tRPC: getMembers, addMember, updateMember, removeMember, getMeetings, createMeeting, getMeetingDetail, generateActaPdf, getAgreements, updateAgreement, registerSignature, getMeetingStats
@@ -820,6 +909,7 @@
 - [x] Router registrado en `server/routers.ts`
 
 ## Sprint 81 — Portal del Empleado con Token de Acceso (2026-05-30) ✅
+
 - [x] Tabla `employee_portal_tokens` en BD: token UUID, employeeId, expiresAt (7 días), isActive, lastAccessAt
 - [x] Migración SQL aplicada
 - [x] Router `employeePortal.ts` con procedimientos: generatePortalToken, revokePortalToken, listPortalTokens, getEmployeePortalData
@@ -829,6 +919,7 @@
 - [x] Router registrado en `server/routers.ts`
 
 ## Sprint 82 — Formatos STPS/IMSS (DC-1 y XML SIRCE) (2026-05-30) ✅
+
 - [x] Router `stpsFormats.ts` con procedimientos: generateDC1, generateSirceXml, listCompletedTrainings
 - [x] DC-1 PDF: portada con membrete, datos del trabajador, descripción del curso, folio `DC1-{id}-{ts}`, campos de firma
 - [x] XML SIRCE: estructura estándar v2.0, escapa caracteres XML, máximo 500 registros por archivo
@@ -841,6 +932,7 @@
 - [x] Tests unitarios Sprints 80-82: 33/33 pasando (sprint80_82.test.ts)
 
 ## Sprint 83 — Módulo de Visitas de Verificación STPS (2026-05-30)
+
 - [x] Tablas BD: `stps_inspections`, `stps_inspection_checklist_items` (migración 0167)
 - [x] Router `stpsInspections.ts` con procedimientos CRUD de visitas, checklist NOM-035 y generación de expediente PDF
 - [x] Checklist de 35 numerales NOM-035 con estado (cumple/no cumple/parcial/N/A) y observaciones
@@ -849,12 +941,14 @@
 - [x] Ruta `/stps-inspections` en App.tsx y ítem en DashboardLayout
 
 ## Sprint 84 — Integración con Google Calendar (2026-05-30)
+
 - [x] Router `googleCalendarSync.ts` con getUpcomingEvents, generateEventIcal, exportAllEventsIcal y getCalendarStats
 - [x] Página `GoogleCalendarSync.tsx` con KPIs, lista de eventos, filtros y exportación iCal
 - [x] Generación de URL directa a Google Calendar y descarga de archivo .ics individual o masivo
 - [x] Ruta `/google-calendar-sync` en App.tsx y ítem en DashboardLayout
 
 ## Sprint 85 — Módulo de Comunicación Interna (2026-05-30)
+
 - [x] Tablas BD: `internal_notices`, `notice_acknowledgments`, `anonymous_suggestions` (migración 0167)
 - [x] Router `internalComms.ts` con procedimientos de avisos, acuses y sugerencias anónimas
 - [x] Página `InternalComms.tsx` con tabs: Tablero de Avisos y Sugerencias Anónimas
@@ -864,10 +958,11 @@
 - [x] Ruta `/internal-comms` en App.tsx y ítem en DashboardLayout
 
 ## Sprint 83-85 — Tests unitarios (2026-05-30)
+
 - [x] 57 tests unitarios en `server/sprint83_85.test.ts` — todos pasando
 
-
 ## Auditoría de Pendientes — Sprints 80-85 (2026-05-30)
+
 - [x] Sprint 80 — Módulo del Comité NOM-035 (33/33 tests pasando)
 - [x] Sprint 81 — Portal Público del Empleado (generatePortalLink + correo HTML)
 - [x] Sprint 82 — Generadores DC-1 y SIRCE XML (11/11 tests pasando)
@@ -893,12 +988,14 @@
 - [x] Checkpoint final de auditoría
 
 ## Correcciones de Producción (2026-06-03)
+
 - [x] Ciclo infinito en login: agregar ruta /manus-oauth/callback en oauth.ts
 - [x] Refactorizar handleOAuthCallback como función compartida (evita duplicación)
 - [x] Ambas rutas (/api/oauth/callback y /manus-oauth/callback) usan el mismo handler
 - [x] Redirección post-login extrae pathname del state para preservar ruta destino
 
 ## Correcciones TypeScript — Auditoría Profunda (2026-06-03)
+
 - [x] DC1Generator.tsx: trpc.training.listCourses → trpc.courses.list (procedure correcto)
 - [x] DC1Generator.tsx: getHistoryFile.useMutation → trpc.useUtils().dc1Generator.getHistoryFile.fetch (es query, no mutation)
 - [x] DC1Generator.tsx: result.fileContent → result.content (campo correcto del servidor)
@@ -913,12 +1010,14 @@
 - [x] 0 errores TypeScript verificados (tsc watch: Found 0 errors)
 
 ## Limpieza y Respaldo — 2026-06-04
+
 - [x] Eliminados archivos skeleton legacy sin importadores: DashboardSkeleton.tsx y SkeletonLoader.tsx de /components/ (la fuente canónica es /components/skeletons/)
 - [x] Respaldo ZIP creado: nom035_backup_20260604.zip (7.9 MB, excluye node_modules/dist/.git)
 - [x] Respaldo subido a Google Drive: carpeta NOM035-Backups (https://drive.google.com/open?id=1t-p3T1wXRDl9LIDRJu1rzfzHqsJtgp5i)
 - [x] todo.md: 0 ítems pendientes — todos marcados como completados o descartados con justificación
 
 ## Corrección Definitiva OAuth — Missing OAuth Parameters (2026-06-04)
+
 - [x] CAUSA RAÍZ IDENTIFICADA: sdk.ts usaba atob(state) como redirectUri en el token exchange. state contiene el returnTo del usuario, NO el redirectUri de autorización. El mismatch causaba que el OAuth server rechazara el exchange.
 - [x] sdk.ts: exchangeCodeForToken(code, state) → exchangeCodeForToken(code, redirectUri). El redirectUri ahora se pasa explícitamente desde el handler del callback.
 - [x] oauth.ts: nueva función deriveRedirectUri(req) que construye el redirectUri real desde req.protocol + host + req.path (respeta x-forwarded-host de Cloud Run/Manus proxy).
@@ -928,13 +1027,15 @@
 - [x] Verificado: 0 errores TypeScript, servidor responde HTTP 200 en /api/health, callback construye redirectUri correcto (http://localhost:3000/api/oauth/callback en dev, URL pública en producción).
 
 ## Corrección Ciclo Infinito OAuth — 2026-06-04
+
 - [x] CAUSA RAÍZ 1 — sdk.ts verifySession rechazaba sesiones válidas cuando name="" (usuarios sin nombre en OAuth). Corregido: solo openId y appId son obligatorios; name puede ser string vacío.
-- [x] CAUSA RAÍZ 2 — cookies.ts establecía domain=.nom035mood-32dy4ksx.manus.space. Los dominios *.manus.space están en la Public Suffix List; el navegador rechaza cookies con domain en subdominios PSL. Corregido: domain=undefined (cookie scoped al hostname exacto).
+- [x] CAUSA RAÍZ 2 — cookies.ts establecía domain=.nom035mood-32dy4ksx.manus.space. Los dominios \*.manus.space están en la Public Suffix List; el navegador rechaza cookies con domain en subdominios PSL. Corregido: domain=undefined (cookie scoped al hostname exacto).
 - [x] CAUSA RAÍZ 3 — ProtectedRoute.tsx redirigía a <Redirect to="/login"> (ruta interna inexistente). Corregido: usa window.location.href = getLoginUrl(currentPath) para ir al portal OAuth real.
-- [x] CAUSA RAÍZ 4 — main.tsx y useAuth.ts no tenían throttle anti-ciclo. Si auth.me devolvía 401 repetidamente, se producía un bucle de redirecciones. Corregido: sessionStorage._last_login_redirect con ventana de 3s + guards de ruta (isInAuthFlow).
+- [x] CAUSA RAÍZ 4 — main.tsx y useAuth.ts no tenían throttle anti-ciclo. Si auth.me devolvía 401 repetidamente, se producía un bucle de redirecciones. Corregido: sessionStorage.\_last_login_redirect con ventana de 3s + guards de ruta (isInAuthFlow).
 - [x] Verificado: 0 errores TypeScript, servidor activo, cookies sin domain attribute, redirects a OAuth portal correcto.
 
 ## Diagnóstico Definitivo — Error "You don't have permission" (2026-06-04)
+
 - [x] DIAGNÓSTICO: La pantalla "You don't have permission to view this page. To continue, please switch to an account with access." con botón "Switch account" es generada EXCLUSIVAMENTE por Manus Platform — NO por el código del proyecto.
 - [x] EVIDENCIA: curl a nom035mood-32dy4ksx.manus.space devuelve HTML de Next.js de Manus Platform (chunks de manus.im). El código del proyecto no contiene el texto "You don't have permission" ni "Switch account".
 - [x] CAUSA: El sitio está en modo PRIVADO en Manus Platform. Solo el owner puede acceder. Usuarios externos ven esta pantalla antes de que el código del proyecto se ejecute.
@@ -958,32 +1059,38 @@
 ## Auditoría Profunda — 2026-06-05 (Reporte por Criticidad)
 
 ### CRÍTICO — Bloqueante para producción
+
 - [x] Error de conexión rechazada en servidor de desarrollo — causa: proceso anterior colgado; solución: reinicio del servidor con webdev_restart_server
 - [x] oauth.ts sin manejo de código de autorización expirado — causa: código OAuth expira en ~60s durante cold start de Cloud Run; solución: auto-restart del flujo con /api/oauth/login + classifyOAuthError()
 - [x] App.tsx import de Nom035Matrix con .default inexistente — causa: módulo usa named export (export const Nom035Matrix); solución: m.Nom035Matrix directo sin .default
 
 ### ALTO — Afecta funcionalidad
+
 - [x] OAuth ciclo infinito post-login — corregido en sprints anteriores: throttle anti-ciclo en useAuth.ts y main.tsx
 - [x] Cookie de sesión rechazada por PSL — corregido: domain=undefined en cookies.ts
 - [x] ProtectedRoute.tsx redirigía a /login (ruta inexistente) — corregido: getLoginUrl()
 
 ### MEDIO — Degradación de experiencia
+
 - [x] Página de error OAuth mostraba texto plano — corregido: página /login-error con UI amigable y botón de reintentar
 - [x] Rate limiter OAuth max:5 bloqueaba usuarios legítimos — corregido: max:30 con skipSuccessfulRequests
 - [x] Archivos DC1-DC5 huérfanos aumentaban el bundle — corregido: 14 archivos eliminados
 
 ### BAJO — Mejoras de calidad (pendientes)
+
 - [x] Tests faltantes para módulos: committeeModule (13 tests) y nom035EvidenceToken (17 tests) — 30 tests pasando
 - [x] DC-3 Excel exportable — COMPLETADO: módulo DC3Manager.tsx con importar/exportar Excel, plantilla oficial, catálogos CNO y áreas temáticas
 - [x] Bundle size: code splitting ya implementado en vite.config.ts con manualChunks por vendor; chunks grandes son dependencias de terceros (xlsx, chart.js) sin impacto en tiempo de carga inicial
 
 ### Estado del sistema post-auditoría
+
 - TypeScript: Found 0 errors
 - Runtime: 0 errores en logs del servidor
 - Cron jobs activos: Realtime Alerts (15min), Sentiment Analysis (1h), Survey Alerts (diario)
 - Servidor: http://localhost:3000 respondiendo correctamente
 
 ## Módulo DC-3 — Constancia de Competencias o Habilidades Laborales (2026-06-05)
+
 - [x] Tabla dc3_records en BD con todos los campos del formato oficial
 - [x] Router dc3.ts con procedures: list, create, update, delete, importFromExcel, exportToExcel, downloadTemplate
 - [x] Página DC3Manager.tsx en panel admin: tabla de registros, importar Excel, exportar Excel, descargar plantilla
@@ -1016,6 +1123,7 @@
 ## ✅ COMPLETADO — Firma Remota, Correo al Emitir y Catálogo de Formatos (2026-06-09)
 
 ### Firma remota por enlace único
+
 - [x] Tabla dc3_remote_sign_tokens: id, dc3RecordId, role, token (UUID), expiresAt, usedAt, signerEmail, signerName, createdBy
 - [x] Endpoint protectedProcedure dc3.createRemoteSignToken (genera token + URL)
 - [x] Endpoint publicProcedure dc3.getRemoteSignToken (valida token, devuelve datos del registro)
@@ -1024,10 +1132,12 @@
 - [x] Botón "Solicitar firma remota" en DC3SignaturePanel con modal de configuración (email, nombre, rol, expiración)
 
 ### Notificación por correo al emitir DC-3
+
 - [x] Endpoint dc3.update actualizado: al cambiar status a issued envía correo HTML con folio, datos del trabajador y enlace de verificación QR
 - [x] Correo HTML con datos del trabajador, curso, folio y enlace de verificación QR
 
 ### Catálogo de formatos con versiones
+
 - [x] Tabla format_catalog: id, code, name, version, versionDate, reference, isActive, createdAt, updatedAt
 - [x] Datos de demostración: 5 versiones del DC-3 (v1.0 a v2.0) insertados en BD
 - [x] Router formatCatalog: list, create, update, setActive, delete, getActive
@@ -1038,11 +1148,13 @@
 ## ✅ COMPLETADO — Reenvío Firma Remota, Dashboard DC-3 e Importación XLSX (2026-06-09)
 
 ### Reenvío de enlace de firma remota
+
 - [x] Endpoint dc3RemoteSign.renewToken — invalida el token anterior y genera uno nuevo para el mismo rol/registro
 - [x] Botón "Reenviar enlace" en DC3SignaturePanel (visible cuando el token existe pero está expirado o usado)
 - [x] Modal de confirmación con campo de correo editable antes de reenviar
 
 ### Dashboard de constancias DC-3 por período
+
 - [x] Endpoint dc3.getDashboardStats — totales por estado (draft/issued/cancelled), por mes, por empresa y por área temática
 - [x] Página DC3Dashboard.tsx con 4 gráficas Chart.js: barras por mes, dona por estado, barras por empresa, barras por área temática
 - [x] Filtros de período (mes actual / trimestre / año / rango personalizado)
@@ -1050,6 +1162,7 @@
 - [x] Enlace en sidebar y acceso directo en dashboard principal
 
 ### Importación masiva DC-3 desde Excel
+
 - [x] Endpoint dc3.importFromExcel — ya existía implementado con validación por fila y auto-folio
 - [x] Plantilla XLSX descargable con columnas requeridas y datos de ejemplo (dc3.downloadTemplate)
 - [x] Botones Descargar Plantilla e Importar Excel en DC3Manager
@@ -1058,21 +1171,25 @@
 ## ✅ COMPLETADO — Exportación Dashboard DC-3, Alertas Vencimiento y SIRCE-STPS (2026-06-12)
 
 ### Exportación Dashboard DC-3 a PDF/Excel
+
 - [x] Botón "Exportar PDF" en DC3Dashboard usando window.print con estilos @media print (oculta filtros, muestra gráficas y KPIs)
 - [x] Botón "Exportar Excel" en DC3Dashboard usando xlsx: 4 hojas (resumen KPIs, por mes, por empresa, por área temática)
 
 ### Alertas automáticas de constancias DC-3 próximas a vencer
+
 - [x] Job diario dc3-expiry-alerts-job.ts — detecta constancias issued con más de 2 años desde emisión
 - [x] Correo HTML al responsable de capacitación con lista de trabajadores que requieren renovación
-- [x] Registrado en el scheduler del proyecto (server/_core/index.ts)
+- [x] Registrado en el scheduler del proyecto (server/\_core/index.ts)
 
 ### Integración SIRCE-STPS (exportación XML)
+
 - [x] Endpoint dc3.exportSirceXml — genera XML en formato SIRCE-STPS con los registros emitidos
 - [x] Botón "Exportar SIRCE" en DC3Manager con spinner de carga
 - [x] Descarga del archivo XML con nombre SIRCE-DC3-YYYYMMDD.xml
 - [x] 23 tests para generación XML, detección de vencimiento y estructura de datos del dashboard (dc3-sirce-export.test.ts)
 
 ## ✅ COMPLETADO — Checkboxes de selección múltiple para exportar SIRCE (2026-06-14)
+
 - [x] Estado selectedIds (Set<number>) en DC3Manager
 - [x] Columna checkbox en encabezado de tabla (seleccionar/deseleccionar todo, estado indeterminado)
 - [x] Checkbox por fila (solo registros issued; registros draft/cancelled muestran espacio vacío)
@@ -1084,32 +1201,38 @@
 ## ✅ COMPLETADO — Historial de Exportaciones SIRCE (2026-06-22)
 
 ### Tabla y migración
+
 - [x] Tabla sirce_export_history: id, exportedAt, exportedBy (userId), exportedByName, recordCount, fileKey (S3), fileHash (SHA-256), filename, companyRfc, createdAt
 - [x] Migración SQL aplicada en BD
 
 ### Backend
+
 - [x] Actualizar exportSirceXml: guardar XML en S3 y registrar en sirce_export_history automáticamente
 - [x] Endpoint dc3.listSirceExports — lista historial paginado con datos del usuario y total de páginas
 - [x] Endpoint dc3.redownloadSirceExport — genera URL presignada de S3 para re-descarga (1 hora de vigencia)
 
 ### Frontend
+
 - [x] Página SirceExportHistory.tsx — tabla con fecha, usuario, cantidad de registros, hash truncado, badge de estado y botón Re-descargar
 - [x] Ruta /sirce-history registrada en App.tsx
 - [x] Enlace "Historial SIRCE" en sidebar (sección DC-3)
 
 ### Tests y calidad
+
 - [x] 20 tests en dc3-sirce-history.test.ts (hash SHA-256, paginación, re-descarga, registro automático)
 - [x] 1554/1554 tests pasando · 0 errores TypeScript
 
 ## ✅ COMPLETADO — Filtros de búsqueda en Historial SIRCE (2026-06-24)
 
 ### Endpoint backend
+
 - [x] Actualizar input schema de `listSirceExports` con 4 filtros opcionales: dateFrom, dateTo, exportedByName, companyRfc
 - [x] Construir condiciones Drizzle con gte/lte/like y and() dinámico
 - [x] Aplicar whereClause tanto a la query de datos como a la query de count (paginación correcta)
 - [x] Convertir timestamps numéricos a Date para gte/lte (campo exportedAt es MySqlTimestamp)
 
 ### Frontend SirceExportHistory.tsx
+
 - [x] Panel de filtros expandible con botón "Filtros" + badge contador de filtros activos
 - [x] Accesos rápidos a períodos: Hoy, Esta semana, Este mes, Este año, Semana anterior, Mes anterior, Año anterior
 - [x] Inputs de fecha (dateFrom, dateTo) con conversión a timestamp ms
@@ -1121,6 +1244,7 @@
 - [x] Tarjeta de stats actualiza etiqueta según si hay filtros activos
 
 ### Tests y calidad
+
 - [x] 23 tests nuevos en dc3-sirce-history.test.ts (conversión timestamps, construcción condiciones, períodos rápidos, filtrado en memoria, validación schema Zod)
 - [x] 1577/1577 tests pasando · 0 errores TypeScript
 
@@ -1334,12 +1458,14 @@
 ## Sprint: Perfiles incompletos, Catálogo Empresas Clientes y SCIAN en Dictamen (2026-07-27)
 
 ### Filtro perfiles incompletos en tabla de empleados
+
 - [x] Agregar botón toggle "Perfiles incompletos" en la barra de acciones de Employees.tsx
 - [x] Backend: procedure `list` acepta parámetro `incompleteOnly: boolean` en employees router y getAllEmployees
 - [x] Lógica: perfil incompleto = falta cualquiera de {curp, rfc, nss, phone, departmentId, positionId, hireDate, educationLevel, gender} (OR en WHERE)
 - [x] Badge rojo con número de campos faltantes en cada tarjeta de empleado cuando incompleteOnly está activo
 
 ### Catálogo de empresas clientes en DC-3 (multi-empresa)
+
 - [x] Tabla `dc3_client_companies` creada en schema BD y migrada a la BD (drizzle-kit generate + webdev_execute_sql)
 - [x] Router `dc3ClientCompanies.ts` con CRUD completo (list, create, update, delete, setDefault) + exportar plantilla Excel
 - [x] Página `ClientCompanies.tsx` con tabla, búsqueda, modal de alta/edición, logo S3, botón empresa predeterminada
@@ -1347,6 +1473,7 @@
 - [x] Selector de empresa en DC3Manager: dropdown que prellenar nombre+RFC+domicilio desde el catálogo
 
 ### SCIAN y centro de trabajo en Dictamen NOM-035 y reportes STPS
+
 - [x] Leer company_scian, company_work_center, company_num_workers, company_stps_registration en getPrefilledData de dictamenDocs.ts (desde systemSettings)
 - [x] Prellenar campos SCIAN, Centro de Trabajo y Registro STPS en el formulario de LegalDocGenerator.tsx
 - [x] Campos SCIAN, Centro de Trabajo y Registro STPS incluidos en el prompt del LLM para el Dictamen NOM-035
@@ -1358,15 +1485,18 @@
 ## Sprint: SCIAN en STPS, Tooltip perfiles incompletos y Modal empresa DC-3 (2026-07-27)
 
 ### SCIAN y centro de trabajo en reportes STPS
+
 - [x] Leer company_scian, company_work_center, company_stps_registration en el router de STPSReports
 - [x] Prellenar estos campos en el formulario de STPSReports.tsx
 - [x] Incluir SCIAN y centro de trabajo en el PDF/HTML generado por los reportes STPS
 
 ### Tooltip con lista de campos faltantes en badge de perfiles incompletos
+
 - [x] Calcular lista de campos faltantes por empleado en el backend (devolver array de strings)
 - [x] Mostrar tooltip en el badge rojo de Employees.tsx con la lista exacta de campos faltantes
 
 ### Modal de registro rápido de empresa cliente en formulario DC-3
+
 - [x] Agregar botón "+" junto al selector de empresa en DC3Manager
 - [x] Modal inline con formulario mínimo: razón social, RFC, representante legal, domicilio
 - [x] Al guardar, refrescar el selector y seleccionar la nueva empresa automáticamente
@@ -1383,6 +1513,7 @@
 ## Sprint: Visor PDF Integrado (Fase 3) — Julio 2026
 
 ### Componente PDFViewer reutilizable
+
 - [x] Reescribir `PDFViewer.tsx` con soporte dual: `pdfBase64` (base64) y `pdfUrl` (URL pública)
 - [x] Soporte para ambas APIs de cierre: `onClose` (nuevo) y `onOpenChange` (compatibilidad con Policies.tsx)
 - [x] Controles de zoom (ZoomIn, ZoomOut, Restablecer) con estado local
@@ -1392,6 +1523,7 @@
 - [x] Compatibilidad retroactiva: Policies.tsx sigue funcionando sin cambios
 
 ### Integración en DC3Manager
+
 - [x] Import `PDFViewer` y `Eye` en DC3Manager.tsx
 - [x] Estado `pdfViewerOpen`, `pdfViewerData`, `previewingPdfId`
 - [x] Mutation `previewPdfMutation` (reutiliza `trpc.dc3.exportToPdf`)
@@ -1399,6 +1531,7 @@
 - [x] Modal PDFViewer montado al final del JSX con base64 y folio
 
 ### Integración en RegulatoryReports
+
 - [x] Import `PDFViewer` en RegulatoryReports.tsx
 - [x] Estado `pdfViewerOpen`, `pdfViewerData` (base64 + url + folio)
 - [x] Mutation `generateReport` ahora abre el visor en lugar de `window.open`
@@ -1406,12 +1539,14 @@
 - [x] Modal PDFViewer montado con base64 y fallback URL
 
 ### Backend
+
 - [x] `generateNom035Report` retorna `{ url, key, base64 }` (antes solo `{ url, key }`)
 - [x] Router `reports.generateNom035Report` expone `pdfBase64` al frontend
 - [x] Corrección TS: `requirePermission(ctx.user, "employees", "read")` → guard de usuario
 - [x] Corrección TS: `null` → `undefined` en campos opcionales de `createCompanyMutation`
 
 ### Tests
+
 - [x] 8 tests unitarios en `server/pdfViewer.test.ts` — todos pasando
 - [x] Tests de auth, dc3-rfc-pdf y pdfViewer: 34/34 pasando
 
@@ -1420,6 +1555,7 @@
 ## Sprint: Buzón de Comunicación Interna
 
 ### Schema y Backend
+
 - [x] Crear tablas: `buzon_requests`, `buzon_attachments`, `buzon_audit_trail` en drizzle/schema.ts
 - [x] Aplicar migración SQL con webdev_execute_sql
 - [x] Crear router `server/routers/buzon.ts` con procedures: `submitRequest`, `listRequests`, `getRequestDetail`, `updateStatus`, `addAuditNote`
@@ -1428,6 +1564,7 @@
 - [x] Notificación al owner al recibir nueva solicitud (notifyOwner)
 
 ### Frontend
+
 - [x] Crear `client/src/pages/BuzonComunicacion.tsx` con 4 tabs: Queja/Denuncia, Felicitación, Solicitud de Capacitación (DNC), Sugerencia
 - [x] Formulario Queja/Denuncia: fecha incidente, lugar, nombres involucrados, narrativa (mín 300 chars con contador), descripción impacto, toggle anonimato, adjuntos
 - [x] Formulario Felicitación: nombre reconocido, código de motivo, narrativa (mín 150 chars)
@@ -1441,12 +1578,14 @@
 ## Sprint: Expediente Clínico Psicométrico
 
 ### Schema y Backend
+
 - [x] Crear tablas: `clinical_records`, `clinical_evaluations`, `clinical_session_notes`, `clinical_consent_docs` en drizzle/schema.ts
 - [x] Aplicar migración SQL con webdev_execute_sql
 - [x] Crear router `server/routers/clinicalRecords.ts` con procedures: `createRecord`, `getRecord`, `updateRecord`, `addEvaluation`, `addSessionNote`, `uploadConsentDoc`
 - [x] Restringir todos los procedures a rol `admin` o `psychologist` (adminProcedure)
 
 ### Frontend
+
 - [x] Crear `client/src/pages/ClinicalRecords.tsx` con acceso restringido a Admin
 - [x] Sección Datos del Paciente: empleado vinculado, edad, contacto
 - [x] Sección Datos del Profesional: nombre, cédula profesional, especialidad
@@ -1471,7 +1610,9 @@
 - [x] Actualizar endpoint `getTokenStats` para devolver datos de sexo, edad y jefe directo
 
 ---
+
 ## Sprint: Notificaciones, Buzón Público y PDF Expediente Clínico (2026-07-31)
+
 - [x] Tabla `notification_preferences` en BD (realtimeEnabled, dailyEmailEnabled, dailyEmailHour, weeklyEmailEnabled, weeklyEmailDay)
 - [x] Router `notificationPreferences` con procedures `getPreferences` y `updatePreferences`
 - [x] Sección de preferencias de notificaciones en Profile.tsx (tiempo real, resumen diario, resumen semanal)
@@ -1484,6 +1625,7 @@
 - [x] Botón "Exportar PDF" en ClinicalRecords.tsx (RecordDetailPanel) con estado de carga
 
 ## Sprint: Banner Buzón, Historial PDFs y Vista Previa (Jul 2026)
+
 - [x] Banner del Buzón en pantalla de inicio (no autenticado) con enlace a /buzon/consulta
 - [x] Banner del Buzón en dashboard autenticado (Home.tsx)
 - [x] Tabla clinical_exported_pdfs en BD para historial de PDFs exportados
@@ -1494,6 +1636,7 @@
 - [x] Vista previa se abre automáticamente al exportar y desde el historial
 
 ## Sprint: Firma Electrónica, Buzón en Sidebar y Notificación PDF (Jul 2026)
+
 - [x] Campo professional_signature (TEXT base64) en tabla clinical_records
 - [x] Procedure saveProfessionalSignature en router clinicalRecords.ts
 - [x] Componente SignaturePad.tsx (canvas HTML5) para capturar firma
@@ -1503,6 +1646,7 @@
 - [x] Notificación interna al profesional al exportar PDF (procedure exportPdf)
 
 ## Sprint: Firma Electrónica, Enlace Buzón en Sidebar y Notificación PDF
+
 - [x] Migración BD: columna professional_signature (mediumtext) en clinical_records
 - [x] Procedure saveProfessionalSignature en clinicalRecords router
 - [x] Notificación interna al profesional al exportar PDF (en exportPdf procedure)
@@ -1511,11 +1655,13 @@
 - [x] Enlace "Consultar Folio (Buzón)" agregado en sidebar de DashboardLayout.tsx
 
 ## Sprint: Descarga ZIP de PDFs e Indicador de Firma en Lista (Ago 2026)
+
 - [x] Procedure `downloadAllPdfsZip` en router clinicalRecords.ts
 - [x] Botón "Descargar todo (ZIP)" en pestaña PDFs de ClinicalRecords.tsx
 - [x] Badge/ícono de firma registrada en la tabla principal de expedientes clínicos
 
 ## Sprint: Optimizaciones de Auditoría
+
 - [x] Eliminar 6 rutas duplicadas en App.tsx
 - [x] Eliminar console.log en producción (9 archivos)
 - [x] Eliminar páginas huérfanas (ComponentShowcase.tsx, SignatureCanvas.tsx)
@@ -1526,6 +1672,7 @@
 - [x] Corregir N+1 en executiveReport.ts
 
 ## Sprint: Auditoría y Optimización de Código (2026-08-01)
+
 - [x] Eliminar 3 rutas duplicadas en App.tsx (/regulatory-reports, /executive-report, /reports/executive)
 - [x] Eliminar console.log de 9 archivos de producción
 - [x] Eliminar páginas huérfanas ComponentShowcase.tsx y SignatureCanvas.tsx (pages/)
@@ -1537,6 +1684,7 @@
 - [x] Corregir N+1 en executiveReport.ts: getBranchComparative (3N → 3 queries paralelas)
 
 ## Sprint: IA en Expediente Clínico, Fusión Dashboards y Progreso ZIP
+
 - [x] Procedure `suggestFieldContent` (IA) en clinicalRecords.ts
 - [x] Componente AIFieldAssistant.tsx con botón "Sugerir con IA" y panel de sugerencias
 - [x] Integrar AIFieldAssistant en NewRecordForm (historia clínica) y formulario de sesiones
@@ -1559,12 +1707,13 @@
 - [x] Corrección executiveReport.ts: TS2345 departmentId/employeeId nullable
 
 ## Sprint: Cron Email Digest, IA en Casos, Prellenado Automático (2026-08-02)
+
 - [x] .dockerignore creado para excluir drizzle/meta/ (178 snapshots = 72 MB) — fix error de publicación
 - [x] Corrección TS en AlertsCentralDashboard.tsx y RetentionHubDashboard.tsx
 - [x] Patches de cron en sdk.ts (CRON_OPEN_ID_PREFIX, buildCronUser, short-circuit en authenticateRequest)
 - [x] Patches de cron en manusTypes.ts (campo taskUid)
 - [x] emailDigestHandler.ts creado en server/scheduledHandlers/ — handler del cron job de resúmenes por correo
-- [x] Endpoint /api/scheduled/email-digest registrado en server/_core/index.ts
+- [x] Endpoint /api/scheduled/email-digest registrado en server/\_core/index.ts
 - [x] Procedure suggestCaseField (IA) en casesManagement.ts con invokeLLM
 - [x] Componente CaseAIAssistant.tsx — asistente IA para campos de texto libre en gestión de casos
 - [x] CaseAIAssistant integrado en campo descripción de CasesManagement.tsx
@@ -1574,6 +1723,7 @@
 - [x] 0 errores TypeScript confirmados (tsc --noEmit)
 
 ## Sprint: Performance y Bundle Infinito (2026-08-02)
+
 - [x] Diagnosticar causa raíz del bundle infinito en login
 - [x] Corregir useAuth: solo guardar en localStorage cuando hay datos válidos (no undefined/loading)
 - [x] Corregir Dockerfile: PUPPETEER_SKIP_DOWNLOAD para evitar descarga de Chromium (~170MB)
@@ -1582,6 +1732,7 @@
 - [x] Mejorar manualChunks en vite.config.ts: dividir vendor-misc (2.8MB) en chunks más pequeños
 
 ## Sprint: IA en 3 Campos de Casos, Autofill Buzón, Modal Detalle (2026-08-02)
+
 - [x] Agregar columnas rootCause, actionPlan, resolution a la tabla cases (migración SQL aplicada)
 - [x] Actualizar procedure updateCase para aceptar rootCause, actionPlan y resolution
 - [x] Ampliar fieldType en suggestCaseField: incluye rootCause y actionPlan
@@ -1592,11 +1743,13 @@
 - [x] Cron job email-digest: endpoint listo, activar en Manus Schedules después de publicar
 
 ## Sprint: Autofill Quejas, UX Modal Casos, PDF Detalle Caso (2026-08-03)
+
 - [x] EmployeeAutofillSelector en QuejaForm para registrar empleado afectado (sección naranja con 4 campos prellenados)
 - [x] Notificaciones de éxito granulares por campo en CaseDetailModal (indicadores amber/green, contador de cambios pendientes)
 - [x] Exportación a PDF del detalle del caso: procedure generateCasePdf + botón Exportar PDF en modal + toast con enlace directo
 
 ## Sprint: Fix Raíz Ciclo Infinito Login y Preview (2026-08-03)
+
 - [x] Diagnóstico: URL de preview expirada (temporal por diseño de sandbox — no es un bug del servidor)
 - [x] Causa raíz ciclo infinito login: ENV LOCAL_AUTH=true hardcodeado en Dockerfile línea 57 → servidor en producción usaba auth local en lugar de Manus OAuth → callback /api/oauth/callback no registrado → 404 → loop
 - [x] Fix: eliminar ENV LOCAL_AUTH=true del Dockerfile (producción usa Manus OAuth; LOCAL_AUTH solo para dev local)
@@ -1605,7 +1758,7 @@
 ## Sprint: Fix Definitivo Ciclo Infinito Login + OOM (2026-08-03)
 
 - [x] Diagnosticar causa raíz: 34 imports estáticos de jobs causaban OOM en Cloud Run (512 MB), reiniciando el servidor y destruyendo la cookie OAuth → ciclo infinito de login
-- [x] Reescribir server/_core/index.ts: convertir todos los imports de jobs a dinámicos (import()) dentro de startJobs() async
+- [x] Reescribir server/\_core/index.ts: convertir todos los imports de jobs a dinámicos (import()) dentro de startJobs() async
 - [x] Consolidar 14 setInterval(fn, 60_000) en un único timer compartido (startConsolidatedMinuteTick)
 - [x] Verificar que todos los jobs se inician en 230ms sin errores con imports dinámicos
 - [x] Confirmar HTTP 200 en /api/health y [Auth] Modo: Manus OAuth en logs
@@ -1614,75 +1767,91 @@
 ## Sprint: Resolución de TODOs Críticos en Código — Ago 2026
 
 ### 🔴 CRÍTICO — TODOs en jobs de alertas (emails hardcodeados)
+
 - [x] agreementsAlerts.ts: reemplazar `admin@empresa.com` con email dinámico del responsable del acuerdo (JOIN con users.email via responsibleUserId) y fallback a hrEmail de systemSettings
 - [x] corrective-actions-reminders-job.ts: reemplazar `coordinador@empresa.com` con hrEmail de systemSettings (patrón idéntico a contract-expiration-alerts-job.ts)
 
 ### 🔴 CRÍTICO — DashboardGerente: casos abiertos sin datos
+
 - [x] Agregar procedure `casesManagement.getOpenCases` (input: limit) que devuelva casos con status != 'cerrado' ordenados por prioridad
 - [x] Activar la query en DashboardGerente.tsx (descomentar y usar el procedure real, con prioridad visual critical/high/medium)
 
 ### 🟡 MEDIO — ComplianceNOM035Dashboard: botón PDF sin implementar
+
 - [x] Implementar exportación PDF en ComplianceNOM035Dashboard.tsx (window.print con estilos A4, id compliance-dashboard-content, botón no-print)
 
 ### 🟡 MEDIO — NMX025EvidencesFolder: companyName hardcodeado
+
 - [x] Reemplazar `"Mi Empresa"` con `trpc.company.getGeneralData.useQuery()` en NMX025EvidencesFolder.tsx (usa razonSocial con fallback)
 
 ### 🟡 MEDIO — surveys.ts: organizationName hardcodeado
+
 - [x] Reemplazar `'Organización'` con query dinámica a companyGeneralData.razonSocial en surveys.ts (línea 928)
 
 ### 🟢 BAJO — JobPositions: contador de empleados por puesto
+
 - [x] Calcular empleados por puesto en JobPositions.tsx: procedure jobPositions.list ahora incluye `employeeCount` via JOIN positions.title = jobPositions.positionName + COUNT de employees. Frontend usa `(pos as any).employeeCount ?? 0`
 
 ## Sprint: Preview Fix, Panel Notificaciones y Filtro Puestos (2026-08-04)
+
 - [x] URL de preview: es temporal por diseño del sandbox (expira entre sesiones). Servidor dev HTTP 200. Usar botón View en panel de gestión para URL fresca. Sitio publicado: nom035mood-32dy4ksx.manus.space
 - [x] Panel de notificaciones mejorado en /settings/notifications: tipos de alerta por categoría (casos, encuestas, contratos, capacitación, etc.), canales (email/in-app), resumen diario/semanal con hora y día configurable, badges de estado activo
 - [x] Filtro interactivo en JobPositions.tsx: búsqueda por nombre/departamento, filtro por nivel de riesgo (bajo/medio/alto/todos), ordenamiento por más/menos empleados, mayor riesgo o nombre A-Z, contador de resultados filtrados
 
 ## Sprint: Fix Definitivo Ciclo Infinito Login (Raíz Real) — 2026-08-04
+
 - [x] Causa raíz identificada: `drizzle(URL)` crea pool MySQL sin `connectionLimit` → ETIMEDOUT en 40+ jobs simultáneos → OOM → servidor reinicia → cookie OAuth destruida → ciclo infinito
 - [x] Corrección 1: `server/db.ts` — reemplazar `drizzle(URL)` con pool explícito `mysql.createPool({ connectionLimit: 5, waitForConnections: true, queueLimit: 50, connectTimeout: 10000 })`
 - [x] Corrección 2: `server/_core/index.ts` — agregar staggering de 500ms entre cada job start para evitar picos de conexiones BD simultáneas
 - [x] Verificado: `[Database] Pool initialized (connectionLimit: 5)` en logs, servidor HTTP 200, 0 errores TypeScript
 
 ## Sprint: Filtro interactivo mejorado en JobPositions (2026-08-04)
+
 - [x] Botones de orden rápido (▲ ▼) en la cabecera de la columna "Empleados" para cambiar entre mayor→menor y menor→mayor con un solo clic
 - [x] Badge prominente con número de empleados en cada tarjeta de puesto (chip azul destacado)
 - [x] Indicador visual del criterio de ordenamiento activo (chip con ícono + texto debajo de los controles)
 - [x] Contador de resultados con criterio activo siempre visible
 
 ## Sprint: Vista tabla + gráfica + exportación Excel en JobPositions (2026-08-04)
+
 - [x] Toggle tarjetas/tabla con columnas ordenables (Puesto, Departamento, Empleados, Riesgo, Índice)
 - [x] Gráfica de barras horizontales Chart.js con distribución de empleados por puesto
 - [x] Botón "Exportar Excel" que descarga los datos filtrados actualmente visibles
 
 ## Sprint: Filtro departamento + PNG + fix conexión (2026-08-04)
+
 - [x] Filtro desplegable por departamento en JobPositions
 - [x] Botón descarga PNG de la gráfica de barras
 - [x] Fix error conexión rechazada (reinicio servidor)
 - [x] Mejorar robustez del ciclo de login en Home.tsx (agregar loading guard)
 
 ## Sprint: Fix definitivo ciclo login (2026-08-04)
+
 - [x] Causa raíz identificada: APP_PUBLIC_URL (manus.space) vs preview URL (manus.computer) → mismatch de host → cookie inválida → 401 → loop
-- [x] Fix en server/_core/oauth.ts: buildRegisteredRedirectUri ahora usa SIEMPRE x-forwarded-host de la request real, nunca APP_PUBLIC_URL
+- [x] Fix en server/\_core/oauth.ts: buildRegisteredRedirectUri ahora usa SIEMPRE x-forwarded-host de la request real, nunca APP_PUBLIC_URL
 - [x] Verificado: servidor recargó oauth.ts, HTTP 200 en / y /api/trpc/auth.me
 
 ## Sprint: Optimización arranque servidor (2026-08-04)
+
 - [x] Deshabilitar jobs no críticos para NOM-035 (model-auto-retraining, sentiment-analysis, predictive-turnover, external-offer-risk, payroll-compensation, performance-lcp, psychometric-reminder, model-performance-monitor, competency-regression, root-cause-analysis, intelligent-alerts, auto-snapshots, predictive-alerts, monthly-reports, executive-reports)
 - [x] Reducir gap entre jobs al mínimo (200ms) — ya no hay saturación con pool de 15 conexiones
 - [x] Mejorar delay inicial de jobs: reducir a 15s (el health check de Cloud Run pasa en ~5s)
 - [x] Implementar ping periódico de warmup cada 4 minutos en el servidor para evitar hibernación
 
 ## Sprint: Verificación login + jobs ejecutivos + Ver Detalles (2026-08-04)
+
 - [x] Verificar login en producción (navegador) — OK, sin ciclo, redirectUri correcto
 - [x] Reactivar executive-reports-job (weekly + monthly) en minute-tick — lunes 8AM + día 1 de cada mes
 - [x] Conectar botones "Ver Detalles" en JobPositions al modal de detalles (Dialog con factores, empleados, índice, riesgo + botón Actualizar Análisis)
 
 ## Sprint: Sliders factores + employeeCount + PDF en modal (2026-08-04)
+
 - [x] Agregar 5 sliders de factores psicosociales en JobAnalysisDialog (workload, control, leadership, relationships, workEnvironment)
 - [x] Agregar campo numérico editable de employeeCount en el formulario de creación/edición de puestos
 - [x] Agregar botón "Reporte PDF" dentro del modal de detalles del puesto (Dialog)
 
 ## Sprint: Edición puesto + riesgo automático + historial (2026-08-04)
+
 - [x] Crear tabla job_position_history en DB para guardar historial de análisis
 - [x] Crear JobEditDialog con datos precargados (positionName, department, description, riskLevel, employeeCount, factors)
 - [x] Lógica de nivel de riesgo automático: índice < 2.5 → Bajo, 2.5-3.5 → Medio, 3.5-4.5 → Alto, > 4.5 → Muy Alto
@@ -1691,6 +1860,7 @@
 - [x] Sección de historial en modal de detalles: tabla con fecha, índice, nivel de riesgo, empleados
 
 ## Sprint: Tendencia + Observaciones + Export Excel historial (2026-08-04)
+
 - [x] Agregar campo "notes" (observaciones) en JobEditDialog y pasarlo al procedimiento update
 - [x] Actualizar tRPC jobPositions.update para guardar notes en jobPositionHistory
 - [x] Mostrar columna "Observaciones" en la tabla de historial del modal de detalles
@@ -1698,17 +1868,20 @@
 - [x] Agregar botón "Exportar Excel" del historial completo en el modal de detalles
 
 ## Sprint: Tendencia + Observaciones + Excel Historial (2026-08-04)
+
 - [x] Componente HistoryTrendChart (gráfica de línea Chart.js) para visualizar evolución del índice
 - [x] Botón "Excel" en el historial del modal de detalles para exportar todos los análisis anteriores
 - [x] Campo de texto "Observaciones del Análisis" en JobEditDialog (se guarda en historial)
 - [x] Columna "Observaciones" en la tabla del historial dentro del modal de detalles
 
 ## Sprint: Filtro fechas + Comparativa factores + Alerta dashboard (2026-08-04)
+
 - [x] Filtro de rango de fechas (desde/hasta) en el historial del modal de detalles de JobPositions
 - [x] Tabla comparativa de factores: análisis actual vs anterior con indicadores triangulo arriba/abajo
 - [x] Alerta visual en dashboard principal para puestos cuyo riesgo haya aumentado en el último análisis
 
 ## Sprint: PDF comparativo + umbral alerta + notificaciones
+
 - [x] Botón "Exportar PDF comparativo" en la tabla comparativa de factores del modal de detalles
 - [x] PDF con barras de colores para cada factor (actual vs anterior), índice global y delta
 - [x] Campo de umbral configurable en el dashboard (slider/input) para filtrar alertas de riesgo escalado (default 0.5)
@@ -1726,11 +1899,13 @@
 - [x] Botón "Reporte General PDF" en JobPositions que genere PDF con todos los puestos filtrados
 
 ## Sprint: Filtro fechas + Excel historial notificaciones (2026-08-04)
+
 - [x] Actualizar tRPC getNotificationLog para aceptar dateFrom y dateTo como filtros opcionales
 - [x] Agregar controles de fecha (Desde/Hasta) y accesos rápidos (Hoy/Semana/Mes/Mes anterior) en panel historial de notificaciones
 - [x] Botón "Exportar Excel" en el panel de historial que descargue las alertas filtradas
 
 ## Sprint: Gráfica PDF + Encuestas-Puestos + ZIP Expedientes (2026-08-04)
+
 - [x] Gráfica de distribución de riesgo (barras horizontales coloreadas por nivel) en Reporte General PDF de JobPositions
 - [x] Backend tRPC: jobPositions.syncFromSurveys — calcula factores psicosociales promedio desde encuestas NOM-035 del departamento y actualiza el puesto con historial
 - [x] Backend tRPC: jobPositions.getSurveySummaryForPosition — devuelve conteo y fecha de última encuesta disponible para el departamento del puesto
@@ -1739,6 +1914,7 @@
 - [x] Frontend ClinicalRecords: botón "Exportar ZIP (N)" en barra de filtros que respeta búsqueda y filtro activo/cerrado
 
 ## Sprint: Animación ZIP + Filtro Departamento Expedientes (2026-08-04)
+
 - [x] Backend: agregar filtro departmentId al procedimiento clinicalRecords.list (join con employees por departmentId)
 - [x] Backend: agregar filtro departmentId al procedimiento clinicalRecords.bulkExportZip
 - [x] Frontend: selector de departamento en barra de filtros de ClinicalRecords (usa departments.list)
@@ -1746,6 +1922,7 @@
 - [x] Frontend: toast de éxito enriquecido con conteo de expedientes y nombre del departamento filtrado
 
 ## Sprint: Corrección de errores TS raíz (2026-08-04)
+
 - [x] Corregir error TS en JobEditDialog.tsx: campo notes no existe en input de jobPositions.update → renombrado a analysisNotes
 - [x] Agregar analysisNotes al input del procedimiento jobPositions.update en routers.ts
 - [x] Corregir error TS en ClinicalRecords.tsx: eliminar propiedad duration del toast (no existe en tipo Toast de shadcn/ui)
@@ -1755,6 +1932,7 @@
 - [x] Ejecutar prueba unitaria aislada del contrato jobPositions.update (2 pruebas aprobadas)
 
 ## Auditoría integral y experiencia JobPositions (2026-08-14)
+
 - [x] Implementar estados de carga, vacío y error recuperable en JobPositions para consultas y acciones críticas
 - [x] Cubrir transiciones de carga, error, vacío y listo de JobPositions con 3 pruebas unitarias aisladas
 - [x] Auditar compilación, TypeScript, pruebas, rutas, respuestas 404, contratos tRPC y dependencias
@@ -1763,6 +1941,7 @@
 - [x] Consolidar todos los hallazgos y plan priorizado de crítico a fácil en todo.md
 
 ### Plan de remediación — P0 Crítico
+
 - [x] Dependencias críticas: eliminar las 5 vulnerabilidades críticas identificadas por `pnpm audit --prod` y reducir las altas de 97 a 54 mediante actualización controlada y pruebas de regresión.
 - [x] Compilación: dividir el chequeo TypeScript en proyectos o referencias para evitar el OOM actual de `tsc --noEmit` (agotó un heap de 1.5 GB) y recuperar validación obligatoria en CI.
 - [x] Rutas: eliminar la colisión de `/cases/assignment` y registrar o redirigir los enlaces sin ruta: `/administrative/expenses`, `/compliance/checklist`, `/documents/history`, `/nom035-admin-panel`, `/survey-send`, `/training/calendar`, `/training/my-courses` y `/trends-charts`.
@@ -1771,6 +1950,7 @@
 - [x] Exactitud de reportes: corregir la gráfica PDF de distribución de riesgo, que compara niveles en inglés mientras la UI normaliza a valores en español, y validar Muy Alto/Alto/Medio/Bajo con datos reales.
 
 ### Plan de remediación — P1 Alto
+
 - [x] Vista previa: restaurar automáticamente el índice de desarrollo si un build interrumpido elimina `dist/public/index.html`.
 - [x] Vista previa: diagnosticar y corregir la hidratación del frontend cuando el spinner “Cargando aplicación...” no se oculta pese a que el servidor responde.
 - [x] Dependencias altas: reducir las 54 vulnerabilidades altas restantes a 24 mediante actualizaciones compatibles, retirar herramientas de build del runtime y documentar mitigaciones para `xlsx` y cadenas sin parche disponible.
@@ -1785,6 +1965,7 @@
 - [x] Calidad de tipos: tipar la conexión y persistencia principal de respuestas NOM-035, eliminando conversiones inseguras de tokens y resultados.
 
 ### Plan de remediación — P2 Medio
+
 - [x] Modularizar archivos de alto acoplamiento: `App.tsx`, `server/routers.ts`, `surveys.ts`, `JobPositions.tsx`, `Home.tsx` y `EmployeeProfile.tsx`, todos superiores a 1,500 líneas o cercanos a ese umbral. — Fase priorizada: aliases de App y visualizaciones reutilizables de JobPositions extraídos; los demás dominios conservan contratos estables y el desglose adicional está documentado para iteraciones funcionales.
 - [x] Modularización: extraer la gráfica de distribución de empleados de `JobPositions.tsx` a un componente reutilizable y tipado.
 - [x] Modularización: extraer la gráfica de tendencia histórica de `JobPositions.tsx` a un componente reutilizable y tipado.
@@ -1798,16 +1979,19 @@
 > Registro duplicado de auditoría consolidado en este bloque el 2026-08-15; no requiere ejecución adicional.
 
 ## Optimización de carga de gráficos (2026-08-17)
+
 - [x] Crear cargador reutilizable con esqueleto accesible para gráficos diferidos.
 - [x] Aplicar importación diferida a las visualizaciones Chart.js prioritarias de JobPositions y dashboard.
 - [x] Validar reducción de carga inicial y cobertura de regresión de los esqueletos. La prueba focalizada y la comprobación sintáctica con esbuild aprobaron; el build completo del sandbox se limita por memoria durante el renderizado de chunks.
 
 ## Optimización de entrega y CI (2026-08-17)
+
 - [x] Separar el motor ELK de layout en un chunk diferido independiente.
 - [x] Aislar XLSX mediante importación dinámica en exportaciones de alto uso.
 - [x] Conservar reportes de bundle y auditoría de dependencias como artefactos de CI.
 
 ## Optimización de exportación y revisión PR (2026-08-17)
+
 - [x] Migrar exportaciones XLSX restantes de prioridad alta a un cargador dinámico reutilizable. Los módulos de exportación menos frecuentes quedan aislados en `vendor-xlsx` y no bloquean la carga inicial.
 - [x] Migrar historial de alertas (exportación de página y completa) al cargador `loadXlsx` bajo demanda.
 - [x] Migrar reporte ejecutivo y comparativa psicométrica al cargador `loadXlsx` bajo demanda.
@@ -1818,16 +2002,19 @@
 - [x] Agregar comentario automático del presupuesto de bundle en pull requests.
 
 ## Mejoras de aseguramiento continuo (2026-08-16)
+
 - [x] Configurar CI para ejecutar check:server, check:client, check:type-safety y la suite de pruebas.
 - [x] Revisar las 24 vulnerabilidades altas residuales y documentar mitigaciones, alcance y condición de actualización. Resultado vigente: 0 críticas y 22 altas con controles compensatorios registrados.
 - [x] Generar y conservar un reporte de presupuesto de bundle por publicación. Primer reporte: 24,535.2 KB sin comprimir / 3,665.1 KB gzip; 5 assets exceden 900 KB.
 
 ## Mejoras de aseguramiento continuo (2026-08-16)
+
 - [x] Configurar CI para ejecutar check:server, check:client, check:type-safety y la suite de pruebas.
 - [x] Revisar las 24 vulnerabilidades altas residuales y documentar mitigaciones, alcance y condición de actualización. Resultado vigente: 0 críticas y 22 altas con controles compensatorios registrados.
 - [x] Generar y conservar un reporte de presupuesto de bundle por publicación. Primer reporte: 24,535.2 KB sin comprimir / 3,665.1 KB gzip; 5 assets exceden 900 KB.
 
 ## Endurecimiento de exportación y Quality Gate (2026-08-17)
+
 - [x] Migrar las exportaciones e importaciones XLSX menos frecuentes al cargador dinámico `loadXlsx`.
 - [x] Medir y publicar el tamaño de `vendor-xlsx` en el reporte de presupuesto de CI.
 - [ ] Exigir el estado `quality / Types and tests` mediante protección de la rama `main` en GitHub. **Bloqueado:** el repositorio objetivo ya está identificado, pero el remoto local continúa en `s3://` y `licnava3-a11y/Nom-035` no tiene rama principal, workflow ni ejecuciones de CI que puedan protegerse.
@@ -1838,9 +2025,11 @@
 - [x] Validar regresiones de carga diferida y del reporte de bundle antes del checkpoint. Pruebas focalizadas: 3 archivos / 4 pruebas aprobadas.
 
 ## Incidente crítico — Vista previa temporal rechaza la conexión (2026-08-19)
+
 - [x] Diagnosticar y corregir la causa raíz por la que una URL temporal de vista previa en el puerto 3000 rechaza la conexión. Se eliminó el desvío silencioso a puertos alternos: la pasarela solo enruta el puerto configurado y un fallback podía dejar el servidor local saludable pero la URL temporal en 502.
 - [x] Verificar el servidor, `/api/health` y una URL de vista previa renovada después de la corrección. El puerto 3000 respondió HTTP 200 en local y desde la nueva URL temporal; la ruta raíz se hidrató sin errores de consola.
 - [x] Añadir o actualizar pruebas de regresión para la disponibilidad de vista previa y guardar checkpoint validado. `previewAvailability.test.ts` y `check:server` aprobados.
 
 ## Rendimiento e integridad — Auditoría histórica priorizada (2026-08-23)
+
 - [x] Auditar y, si faltan, declarar y aplicar índices para las relaciones de alta consulta. La auditoría confirmó índices existentes —incluidos los FK— para empleados, casos y respuestas de encuesta; se declararon y aplicaron cinco índices faltantes para `correctiveActions` (`status,dueDate`, responsable, respuesta, periodo y ámbito), verificados en la base de datos.

@@ -10,10 +10,11 @@ import { describe, it, expect } from "vitest";
 
 function computeStats(allForCount: { status: string; readAt: Date | null }[]) {
   const totalCount = allForCount.length;
-  const readCount = allForCount.filter((d) => d.readAt !== null).length;
-  const sentCount = allForCount.filter((d) => d.status === "sent").length;
-  const bouncedCount = allForCount.filter((d) => d.status === "bounced").length;
-  const readRate = totalCount > 0 ? Math.round((readCount / totalCount) * 100) : 0;
+  const readCount = allForCount.filter(d => d.readAt !== null).length;
+  const sentCount = allForCount.filter(d => d.status === "sent").length;
+  const bouncedCount = allForCount.filter(d => d.status === "bounced").length;
+  const readRate =
+    totalCount > 0 ? Math.round((readCount / totalCount) * 100) : 0;
   return {
     total: totalCount,
     read: readCount,
@@ -25,13 +26,18 @@ function computeStats(allForCount: { status: string; readAt: Date | null }[]) {
 }
 
 function filterDispatches(
-  dispatches: { recipientName?: string | null; minuteTitle?: string | null; minuteFolio?: string | null; recipientEmail?: string | null }[],
+  dispatches: {
+    recipientName?: string | null;
+    minuteTitle?: string | null;
+    minuteFolio?: string | null;
+    recipientEmail?: string | null;
+  }[],
   search: string
 ) {
   if (!search || search.trim() === "") return dispatches;
   const term = search.toLowerCase().trim();
   return dispatches.filter(
-    (d) =>
+    d =>
       (d.recipientName ?? "").toLowerCase().includes(term) ||
       (d.minuteTitle ?? "").toLowerCase().includes(term) ||
       (d.minuteFolio ?? "").toLowerCase().includes(term) ||
@@ -49,7 +55,10 @@ function computePagination(total: number, page: number, pageSize: number) {
   };
 }
 
-function getPeriodDates(period: string, now: Date): { dateFrom: string | null; dateTo: string | null } {
+function getPeriodDates(
+  period: string,
+  now: Date
+): { dateFrom: string | null; dateTo: string | null } {
   const fmt = (d: Date) => d.toISOString().split("T")[0];
   switch (period) {
     case "today":
@@ -60,14 +69,20 @@ function getPeriodDates(period: string, now: Date): { dateFrom: string | null; d
       return { dateFrom: fmt(start), dateTo: fmt(now) };
     }
     case "month":
-      return { dateFrom: fmt(new Date(now.getFullYear(), now.getMonth(), 1)), dateTo: fmt(now) };
+      return {
+        dateFrom: fmt(new Date(now.getFullYear(), now.getMonth(), 1)),
+        dateTo: fmt(now),
+      };
     case "prev_month": {
       const first = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       const last = new Date(now.getFullYear(), now.getMonth(), 0);
       return { dateFrom: fmt(first), dateTo: fmt(last) };
     }
     case "year":
-      return { dateFrom: fmt(new Date(now.getFullYear(), 0, 1)), dateTo: fmt(now) };
+      return {
+        dateFrom: fmt(new Date(now.getFullYear(), 0, 1)),
+        dateTo: fmt(now),
+      };
     default:
       return { dateFrom: null, dateTo: null };
   }
@@ -145,9 +160,24 @@ describe("Panel de Despachos Globales — computeStats", () => {
 
 describe("Panel de Despachos Globales — filterDispatches", () => {
   const dispatches = [
-    { recipientName: "Juan Pérez", minuteTitle: "Reunión Mensual", minuteFolio: "MIN-001/2026", recipientEmail: "juan@empresa.com" },
-    { recipientName: "María García", minuteTitle: "Junta de Trabajo", minuteFolio: "MIN-002/2026", recipientEmail: "maria@empresa.com" },
-    { recipientName: "Carlos López", minuteTitle: "Reunión Mensual", minuteFolio: "MIN-001/2026", recipientEmail: "carlos@empresa.com" },
+    {
+      recipientName: "Juan Pérez",
+      minuteTitle: "Reunión Mensual",
+      minuteFolio: "MIN-001/2026",
+      recipientEmail: "juan@empresa.com",
+    },
+    {
+      recipientName: "María García",
+      minuteTitle: "Junta de Trabajo",
+      minuteFolio: "MIN-002/2026",
+      recipientEmail: "maria@empresa.com",
+    },
+    {
+      recipientName: "Carlos López",
+      minuteTitle: "Reunión Mensual",
+      minuteFolio: "MIN-001/2026",
+      recipientEmail: "carlos@empresa.com",
+    },
   ];
 
   it("debería retornar todos los resultados con búsqueda vacía", () => {

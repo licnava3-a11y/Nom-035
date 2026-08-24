@@ -1,5 +1,11 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +19,7 @@ import ProtectedButton from "@/components/ProtectedButton";
 export default function Committee() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  
+
   const { data: committeeMembers, isLoading } = trpc.committee.list.useQuery();
 
   const getInitials = (name: string) => {
@@ -28,19 +34,23 @@ export default function Committee() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-      <Breadcrumb items={[
-        {
-                label: "Prevención de Riesgos Psicosociales",
-                href: "/"
-        },
-        {
-                label: "Comité"
-        }
-]} />
+        <Breadcrumb
+          items={[
+            {
+              label: "Prevención de Riesgos Psicosociales",
+              href: "/",
+            },
+            {
+              label: "Comité",
+            },
+          ]}
+        />
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Comité de Atención</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Comité de Atención
+            </h1>
             <p className="text-muted-foreground mt-2">Cargando...</p>
           </div>
         </div>
@@ -49,14 +59,19 @@ export default function Committee() {
   }
 
   const activeMembers = committeeMembers?.filter((m: any) => m.isActive) || [];
-  const coordinators = committeeMembers?.filter((m: any) => m.position?.toLowerCase().includes("coordinador")) || [];
+  const coordinators =
+    committeeMembers?.filter((m: any) =>
+      m.position?.toLowerCase().includes("coordinador")
+    ) || [];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Comité de Atención</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Comité de Atención
+          </h1>
           <p className="text-muted-foreground mt-2">
             Gestión de miembros del comité de atención de casos psicosociales
           </p>
@@ -76,7 +91,9 @@ export default function Committee() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Miembros Activos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Miembros Activos
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -84,8 +101,6 @@ export default function Committee() {
             <p className="text-xs text-muted-foreground">Total de miembros</p>
           </CardContent>
         </Card>
-
-
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -97,8 +112,6 @@ export default function Committee() {
             <p className="text-xs text-muted-foreground">Líderes del comité</p>
           </CardContent>
         </Card>
-
-
       </div>
 
       {/* Committee Members */}
@@ -107,7 +120,10 @@ export default function Committee() {
         {committeeMembers && committeeMembers.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {committeeMembers.map((member: any) => (
-              <Card key={member.id} className="hover:shadow-md transition-shadow">
+              <Card
+                key={member.id}
+                className="hover:shadow-md transition-shadow"
+              >
                 <CardHeader>
                   <div className="flex items-start gap-4">
                     <Avatar className="h-12 w-12">
@@ -117,12 +133,18 @@ export default function Committee() {
                     </Avatar>
                     <div className="flex-1 space-y-1">
                       <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg">{member.userName || "Sin nombre"}</CardTitle>
-                        <Badge variant={member.isActive ? "default" : "secondary"}>
+                        <CardTitle className="text-lg">
+                          {member.userName || "Sin nombre"}
+                        </CardTitle>
+                        <Badge
+                          variant={member.isActive ? "default" : "secondary"}
+                        >
                           {member.isActive ? "Activo" : "Inactivo"}
                         </Badge>
                       </div>
-                      <CardDescription>{member.position || "Sin posición asignada"}</CardDescription>
+                      <CardDescription>
+                        {member.position || "Sin posición asignada"}
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -130,15 +152,18 @@ export default function Committee() {
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Mail className="h-4 w-4" />
-                      <span className="truncate">{member.userEmail || "Sin email"}</span>
+                      <span className="truncate">
+                        {member.userEmail || "Sin email"}
+                      </span>
                     </div>
                     {member.responsibilities && (
                       <div className="flex items-start gap-2 text-muted-foreground">
                         <Shield className="h-4 w-4 mt-0.5" />
-                        <span className="text-xs">{member.responsibilities}</span>
+                        <span className="text-xs">
+                          {member.responsibilities}
+                        </span>
                       </div>
                     )}
-
                   </div>
                   <div className="flex gap-2 pt-2">
                     <ProtectedButton
@@ -147,7 +172,9 @@ export default function Committee() {
                       requiredPermission="can_edit"
                       fallbackMessage="Solo los administradores pueden editar miembros"
                       hideIfNoPermission
-                      onClick={() => setLocation(`/committee/edit/${member.id}`)}
+                      onClick={() =>
+                        setLocation(`/committee/edit/${member.id}`)
+                      }
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Editar
@@ -155,7 +182,9 @@ export default function Committee() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setLocation(`/committee/profile/${member.id}`)}
+                      onClick={() =>
+                        setLocation(`/committee/profile/${member.id}`)
+                      }
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       Ver Perfil
@@ -188,29 +217,47 @@ export default function Committee() {
       <Card>
         <CardHeader>
           <CardTitle>Funciones del Comité de Atención</CardTitle>
-          <CardDescription>Responsabilidades según la NOM-035-STPS-2018</CardDescription>
+          <CardDescription>
+            Responsabilidades según la NOM-035-STPS-2018
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">•</span>
-              <span>Recibir, registrar y dar seguimiento a las quejas de los trabajadores sobre factores de riesgo psicosocial y violencia laboral</span>
+              <span>
+                Recibir, registrar y dar seguimiento a las quejas de los
+                trabajadores sobre factores de riesgo psicosocial y violencia
+                laboral
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">•</span>
-              <span>Realizar entrevistas con las personas involucradas en los casos reportados</span>
+              <span>
+                Realizar entrevistas con las personas involucradas en los casos
+                reportados
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">•</span>
-              <span>Formular un plan de trabajo para la atención de los factores de riesgo psicosocial identificados</span>
+              <span>
+                Formular un plan de trabajo para la atención de los factores de
+                riesgo psicosocial identificados
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">•</span>
-              <span>Dar seguimiento a las acciones propuestas y evaluar su efectividad</span>
+              <span>
+                Dar seguimiento a las acciones propuestas y evaluar su
+                efectividad
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">•</span>
-              <span>Mantener la confidencialidad de la información y garantizar la protección de los datos personales</span>
+              <span>
+                Mantener la confidencialidad de la información y garantizar la
+                protección de los datos personales
+              </span>
             </li>
           </ul>
         </CardContent>

@@ -4,7 +4,13 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -26,10 +32,12 @@ export default function NOM035Questionnaire() {
   const [surveyPeriodId, setSurveyPeriodId] = useState<number | null>(null);
 
   // Obtener período activo
-  const { data: activePeriod, isLoading: loadingPeriod } = trpc.nom035.getActivePeriod.useQuery();
+  const { data: activePeriod, isLoading: loadingPeriod } =
+    trpc.nom035.getActivePeriod.useQuery();
 
   // Obtener todas las preguntas
-  const { data: questions, isLoading: loadingQuestions } = trpc.nom035.getQuestions.useQuery();
+  const { data: questions, isLoading: loadingQuestions } =
+    trpc.nom035.getQuestions.useQuery();
 
   // Obtener progreso guardado
   const { data: progress } = trpc.nom035.getProgress.useQuery(
@@ -91,7 +99,9 @@ export default function NOM035Questionnaire() {
       <div className="container mx-auto py-8">
         <Card>
           <CardContent className="py-8">
-            <p className="text-center text-muted-foreground">Cargando cuestionario...</p>
+            <p className="text-center text-muted-foreground">
+              Cargando cuestionario...
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -104,7 +114,8 @@ export default function NOM035Questionnaire() {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No hay un período de evaluación activo. Por favor contacte al administrador.
+            No hay un período de evaluación activo. Por favor contacte al
+            administrador.
           </AlertDescription>
         </Alert>
       </div>
@@ -134,11 +145,13 @@ export default function NOM035Questionnaire() {
   );
 
   const answeredCount = Object.keys(responses).length;
-  const progressPercentage = Math.round((answeredCount / questions.length) * 100);
+  const progressPercentage = Math.round(
+    (answeredCount / questions.length) * 100
+  );
 
   const handleResponseChange = async (questionId: number, value: string) => {
     const numValue = parseInt(value);
-    setResponses((prev) => ({ ...prev, [questionId]: numValue }));
+    setResponses(prev => ({ ...prev, [questionId]: numValue }));
 
     // Guardar automáticamente en el servidor
     if (surveyPeriodId) {
@@ -148,8 +161,7 @@ export default function NOM035Questionnaire() {
           questionId,
           response: numValue,
         });
-      } catch (error) {
-      }
+      } catch (error) {}
     }
   };
 
@@ -213,7 +225,10 @@ export default function NOM035Questionnaire() {
               variant="outline"
               size="sm"
               onClick={() => {
-                localStorage.setItem("nom035_responses", JSON.stringify(responses));
+                localStorage.setItem(
+                  "nom035_responses",
+                  JSON.stringify(responses)
+                );
                 alert("Progreso guardado localmente");
               }}
             >
@@ -225,7 +240,10 @@ export default function NOM035Questionnaire() {
           {/* Preguntas */}
           <div className="space-y-8">
             {currentQuestions.map((question: any) => (
-              <div key={question.id} className="space-y-4 p-4 border rounded-lg">
+              <div
+                key={question.id}
+                className="space-y-4 p-4 border rounded-lg"
+              >
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">
                     Pregunta {question.questionNumber}
@@ -240,12 +258,20 @@ export default function NOM035Questionnaire() {
 
                 <RadioGroup
                   value={responses[question.id]?.toString() || ""}
-                  onValueChange={(value) => handleResponseChange(question.id, value)}
+                  onValueChange={value =>
+                    handleResponseChange(question.id, value)
+                  }
                 >
                   <div className="space-y-2">
                     {LIKERT_OPTIONS.map((option: any) => (
-                      <div key={option.value} className="flex items-center space-x-2">
-                        <RadioGroupItem value={option.value} id={`q${question.id}-${option.value}`} />
+                      <div
+                        key={option.value}
+                        className="flex items-center space-x-2"
+                      >
+                        <RadioGroupItem
+                          value={option.value}
+                          id={`q${question.id}-${option.value}`}
+                        />
                         <Label
                           htmlFor={`q${question.id}-${option.value}`}
                           className="cursor-pointer flex-1"
@@ -279,23 +305,30 @@ export default function NOM035Questionnaire() {
             ) : (
               <Button
                 onClick={handleFinish}
-                disabled={answeredCount < questions.length || calculateResultsMutation.isPending}
+                disabled={
+                  answeredCount < questions.length ||
+                  calculateResultsMutation.isPending
+                }
               >
-                {calculateResultsMutation.isPending ? "Calculando..." : "Finalizar y ver resultados"}
+                {calculateResultsMutation.isPending
+                  ? "Calculando..."
+                  : "Finalizar y ver resultados"}
               </Button>
             )}
           </div>
 
           {/* Advertencia si faltan respuestas */}
-          {currentStep === totalSteps - 1 && answeredCount < questions.length && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Faltan {questions.length - answeredCount} preguntas por responder. 
-                Por favor completa todas las preguntas antes de finalizar.
-              </AlertDescription>
-            </Alert>
-          )}
+          {currentStep === totalSteps - 1 &&
+            answeredCount < questions.length && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Faltan {questions.length - answeredCount} preguntas por
+                  responder. Por favor completa todas las preguntas antes de
+                  finalizar.
+                </AlertDescription>
+              </Alert>
+            )}
         </CardContent>
       </Card>
     </div>

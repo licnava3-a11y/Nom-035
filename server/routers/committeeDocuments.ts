@@ -1,13 +1,24 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { committeeMembers, committeeOperatingRules, companyGeneralData, companyLogo, departments, documents, employees } from "../../drizzle/schema";
+import {
+  committeeMembers,
+  committeeOperatingRules,
+  companyGeneralData,
+  companyLogo,
+  departments,
+  documents,
+  employees,
+} from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";
 import { generateConstitutiveActPDF } from "../pdfGenerators/committeeConstitutiveAct";
 import { generateOperatingRulesPDF } from "../pdfGenerators/committeeOperatingRules";
-import { logConstitutiveActEvidence, logOperatingRulesEvidence } from "../helpers/evidenceLogger";
+import {
+  logConstitutiveActEvidence,
+  logOperatingRulesEvidence,
+} from "../helpers/evidenceLogger";
 
 export const committeeDocumentsRouter = router({
   /**
@@ -29,14 +40,19 @@ export const committeeDocumentsRouter = router({
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       // Get company data
       const companyData = await db.select().from(companyGeneralData).limit(1);
       if (!companyData || companyData.length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Datos de la empresa no encontrados. Configure los datos generales primero.",
+          message:
+            "Datos de la empresa no encontrados. Configure los datos generales primero.",
         });
       }
 
@@ -44,7 +60,8 @@ export const committeeDocumentsRouter = router({
 
       // Get company logo
       const logoData = await db.select().from(companyLogo).limit(1);
-      const logoUrl = logoData && logoData.length > 0 ? logoData[0].logoUrl : undefined;
+      const logoUrl =
+        logoData && logoData.length > 0 ? logoData[0].logoUrl : undefined;
 
       // Get committee members
       const members = await db
@@ -54,13 +71,20 @@ export const committeeDocumentsRouter = router({
           department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
         })
         .from(committeeMembers)
-        .leftJoin(employees, sql`${committeeMembers.employeeId} = ${employees.id}`)
-        .leftJoin(departments, sql`${employees.departmentId} = ${departments.id}`);
+        .leftJoin(
+          employees,
+          sql`${committeeMembers.employeeId} = ${employees.id}`
+        )
+        .leftJoin(
+          departments,
+          sql`${employees.departmentId} = ${departments.id}`
+        );
 
       if (!members || members.length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "No hay miembros del comité registrados. Agregue miembros primero.",
+          message:
+            "No hay miembros del comité registrados. Agregue miembros primero.",
         });
       }
 
@@ -115,19 +139,25 @@ export const committeeDocumentsRouter = router({
       if (ctx.user.role !== "admin") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Solo administradores pueden generar las bases de funcionamiento",
+          message:
+            "Solo administradores pueden generar las bases de funcionamiento",
         });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       // Get company data
       const companyData = await db.select().from(companyGeneralData).limit(1);
       if (!companyData || companyData.length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Datos de la empresa no encontrados. Configure los datos generales primero.",
+          message:
+            "Datos de la empresa no encontrados. Configure los datos generales primero.",
         });
       }
 
@@ -135,7 +165,8 @@ export const committeeDocumentsRouter = router({
 
       // Get company logo
       const logoData = await db.select().from(companyLogo).limit(1);
-      const logoUrl = logoData && logoData.length > 0 ? logoData[0].logoUrl : undefined;
+      const logoUrl =
+        logoData && logoData.length > 0 ? logoData[0].logoUrl : undefined;
 
       // Get committee members
       const members = await db
@@ -145,13 +176,20 @@ export const committeeDocumentsRouter = router({
           department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
         })
         .from(committeeMembers)
-        .leftJoin(employees, sql`${committeeMembers.employeeId} = ${employees.id}`)
-        .leftJoin(departments, sql`${employees.departmentId} = ${departments.id}`);
+        .leftJoin(
+          employees,
+          sql`${committeeMembers.employeeId} = ${employees.id}`
+        )
+        .leftJoin(
+          departments,
+          sql`${employees.departmentId} = ${departments.id}`
+        );
 
       if (!members || members.length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "No hay miembros del comité registrados. Agregue miembros primero.",
+          message:
+            "No hay miembros del comité registrados. Agregue miembros primero.",
         });
       }
 

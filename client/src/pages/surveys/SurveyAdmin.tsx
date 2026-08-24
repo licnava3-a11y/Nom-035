@@ -1,15 +1,41 @@
-import { useState, useMemo } from 'react';
-import { trpc } from '@/lib/trpc';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Download, Filter, TrendingUp, Users, BarChart3, PieChart } from 'lucide-react';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import { useState, useMemo } from "react";
+import { trpc } from "@/lib/trpc";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Download,
+  Filter,
+  TrendingUp,
+  Users,
+  BarChart3,
+  PieChart,
+} from "lucide-react";
+import { Bar, Doughnut, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,7 +47,7 @@ import {
   ArcElement,
   PointElement,
   LineElement,
-} from 'chart.js';
+} from "chart.js";
 
 ChartJS.register(
   CategoryScale,
@@ -36,33 +62,33 @@ ChartJS.register(
 );
 
 const RISK_LEVEL_COLORS = {
-  nulo: '#10b981',
-  bajo: '#3b82f6',
-  medio: '#f59e0b',
-  alto: '#ef4444',
-  muy_alto: '#7f1d1d',
+  nulo: "#10b981",
+  bajo: "#3b82f6",
+  medio: "#f59e0b",
+  alto: "#ef4444",
+  muy_alto: "#7f1d1d",
 };
 
 const RISK_LEVEL_LABELS = {
-  nulo: 'Nulo',
-  bajo: 'Bajo',
-  medio: 'Medio',
-  alto: 'Alto',
-  muy_alto: 'Muy Alto',
+  nulo: "Nulo",
+  bajo: "Bajo",
+  medio: "Medio",
+  alto: "Alto",
+  muy_alto: "Muy Alto",
 };
 
 export default function SurveyAdmin() {
   const utils = trpc.useContext();
   const [selectedSurvey, setSelectedSurvey] = useState<number>(1);
-  const [department, setDepartment] = useState<string>('all');
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
-  
+  const [department, setDepartment] = useState<string>("all");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+
   // Comparación de periodos
-  const [period1Start, setPeriod1Start] = useState<string>('');
-  const [period1End, setPeriod1End] = useState<string>('');
-  const [period2Start, setPeriod2Start] = useState<string>('');
-  const [period2End, setPeriod2End] = useState<string>('');
+  const [period1Start, setPeriod1Start] = useState<string>("");
+  const [period1End, setPeriod1End] = useState<string>("");
+  const [period2Start, setPeriod2Start] = useState<string>("");
+  const [period2End, setPeriod2End] = useState<string>("");
 
   // Obtener encuestas disponibles
   const { data: surveys } = trpc.surveys.getAll.useQuery();
@@ -71,47 +97,54 @@ export default function SurveyAdmin() {
   const { data: departments } = trpc.surveys.getDepartments.useQuery();
 
   // Obtener respuestas agregadas
-  const { data: responses, isLoading: loadingResponses } = trpc.surveys.getAggregatedResponses.useQuery({
-    surveyId: selectedSurvey,
-    department: department === 'all' ? undefined : department || undefined,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
-  });
+  const { data: responses, isLoading: loadingResponses } =
+    trpc.surveys.getAggregatedResponses.useQuery({
+      surveyId: selectedSurvey,
+      department: department === "all" ? undefined : department || undefined,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+    });
 
   // Obtener estadísticas
-  const { data: statistics, isLoading: loadingStats } = trpc.surveys.getSurveyStatistics.useQuery({
-    surveyId: selectedSurvey,
-    department: department === 'all' ? undefined : department || undefined,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
-  });
+  const { data: statistics, isLoading: loadingStats } =
+    trpc.surveys.getSurveyStatistics.useQuery({
+      surveyId: selectedSurvey,
+      department: department === "all" ? undefined : department || undefined,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+    });
 
   // Obtener comparación de periodos
-  const { data: comparison, isLoading: loadingComparison } = trpc.surveys.comparePeriods.useQuery(
-    {
-      surveyId: selectedSurvey,
-      period1Start,
-      period1End,
-      period2Start,
-      period2End,
-      department: department || undefined,
-    },
-    {
-      enabled: !!(period1Start && period1End && period2Start && period2End),
-    }
-  );
+  const { data: comparison, isLoading: loadingComparison } =
+    trpc.surveys.comparePeriods.useQuery(
+      {
+        surveyId: selectedSurvey,
+        period1Start,
+        period1End,
+        period2Start,
+        period2End,
+        department: department || undefined,
+      },
+      {
+        enabled: !!(period1Start && period1End && period2Start && period2End),
+      }
+    );
 
   // Preparar datos para gráfica de distribución de riesgo
   const distributionChartData = useMemo(() => {
     if (!statistics) return null;
 
     return {
-      labels: statistics.distribution.map(d => RISK_LEVEL_LABELS[d.level as keyof typeof RISK_LEVEL_LABELS]),
+      labels: statistics.distribution.map(
+        d => RISK_LEVEL_LABELS[d.level as keyof typeof RISK_LEVEL_LABELS]
+      ),
       datasets: [
         {
-          label: 'Número de Respuestas',
+          label: "Número de Respuestas",
           data: statistics.distribution.map(d => d.count),
-          backgroundColor: statistics.distribution.map(d => RISK_LEVEL_COLORS[d.level as keyof typeof RISK_LEVEL_COLORS]),
+          backgroundColor: statistics.distribution.map(
+            d => RISK_LEVEL_COLORS[d.level as keyof typeof RISK_LEVEL_COLORS]
+          ),
         },
       ],
     };
@@ -122,11 +155,15 @@ export default function SurveyAdmin() {
     if (!statistics) return null;
 
     return {
-      labels: statistics.distribution.map(d => RISK_LEVEL_LABELS[d.level as keyof typeof RISK_LEVEL_LABELS]),
+      labels: statistics.distribution.map(
+        d => RISK_LEVEL_LABELS[d.level as keyof typeof RISK_LEVEL_LABELS]
+      ),
       datasets: [
         {
           data: statistics.distribution.map(d => d.count),
-          backgroundColor: statistics.distribution.map(d => RISK_LEVEL_COLORS[d.level as keyof typeof RISK_LEVEL_COLORS]),
+          backgroundColor: statistics.distribution.map(
+            d => RISK_LEVEL_COLORS[d.level as keyof typeof RISK_LEVEL_COLORS]
+          ),
         },
       ],
     };
@@ -136,20 +173,22 @@ export default function SurveyAdmin() {
   const comparisonChartData = useMemo(() => {
     if (!comparison) return null;
 
-    const labels = Object.keys(comparison.period1.riskLevels).map(level => RISK_LEVEL_LABELS[level as keyof typeof RISK_LEVEL_LABELS]);
+    const labels = Object.keys(comparison.period1.riskLevels).map(
+      level => RISK_LEVEL_LABELS[level as keyof typeof RISK_LEVEL_LABELS]
+    );
 
     return {
       labels,
       datasets: [
         {
-          label: 'Periodo 1',
+          label: "Periodo 1",
           data: Object.values(comparison.period1.riskLevels),
-          backgroundColor: '#3b82f6',
+          backgroundColor: "#3b82f6",
         },
         {
-          label: 'Periodo 2',
+          label: "Periodo 2",
           data: Object.values(comparison.period2.riskLevels),
-          backgroundColor: '#10b981',
+          backgroundColor: "#10b981",
         },
       ],
     };
@@ -157,7 +196,7 @@ export default function SurveyAdmin() {
 
   const handleExportExcel = async () => {
     if (!selectedSurvey) {
-      alert('Por favor selecciona una encuesta primero');
+      alert("Por favor selecciona una encuesta primero");
       return;
     }
 
@@ -170,38 +209,45 @@ export default function SurveyAdmin() {
       });
 
       if (!data || data.length === 0) {
-        alert('No hay datos para exportar con los filtros seleccionados');
+        alert("No hay datos para exportar con los filtros seleccionados");
         return;
       }
 
       // Importar xlsx dinámicamente
-      const XLSX = await import('xlsx');
-      
+      const XLSX = await import("xlsx");
+
       // Crear libro de Excel
       const worksheet = XLSX.utils.json_to_sheet(data);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Resultados');
-      
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
+
       // Generar archivo y descargar
-      const surveyName = selectedSurvey === 1 ? 'GuiaI' : selectedSurvey === 2 ? 'GuiaII' : 'GuiaIII';
-      const fileName = `Encuesta_${surveyName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const surveyName =
+        selectedSurvey === 1
+          ? "GuiaI"
+          : selectedSurvey === 2
+            ? "GuiaII"
+            : "GuiaIII";
+      const fileName = `Encuesta_${surveyName}_${new Date().toISOString().split("T")[0]}.xlsx`;
       XLSX.writeFile(workbook, fileName);
     } catch (error) {
-      alert('Error al exportar los datos a Excel');
+      alert("Error al exportar los datos a Excel");
     }
   };
 
   const handleClearFilters = () => {
-    setDepartment('all');
-    setStartDate('');
-    setEndDate('');
+    setDepartment("all");
+    setStartDate("");
+    setEndDate("");
   };
 
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Panel de Administración de Encuestas</h1>
+          <h1 className="text-3xl font-bold">
+            Panel de Administración de Encuestas
+          </h1>
           <p className="text-muted-foreground">
             Análisis y estadísticas de encuestas NOM-035
           </p>
@@ -227,7 +273,10 @@ export default function SurveyAdmin() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="survey">Encuesta</Label>
-              <Select value={selectedSurvey.toString()} onValueChange={(v) => setSelectedSurvey(parseInt(v))}>
+              <Select
+                value={selectedSurvey.toString()}
+                onValueChange={v => setSelectedSurvey(parseInt(v))}
+              >
                 <SelectTrigger id="survey">
                   <SelectValue />
                 </SelectTrigger>
@@ -243,7 +292,7 @@ export default function SurveyAdmin() {
 
             <div className="space-y-2">
               <Label htmlFor="department">Departamento</Label>
-              <Select value={department} onValueChange={(v) => setDepartment(v)}>
+              <Select value={department} onValueChange={v => setDepartment(v)}>
                 <SelectTrigger id="department">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
@@ -264,7 +313,7 @@ export default function SurveyAdmin() {
                 id="startDate"
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={e => setStartDate(e.target.value)}
               />
             </div>
 
@@ -274,7 +323,7 @@ export default function SurveyAdmin() {
                 id="endDate"
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={e => setEndDate(e.target.value)}
               />
             </div>
           </div>
@@ -309,7 +358,9 @@ export default function SurveyAdmin() {
           {loadingStats ? (
             <Card>
               <CardContent className="py-10">
-                <p className="text-center text-muted-foreground">Cargando estadísticas...</p>
+                <p className="text-center text-muted-foreground">
+                  Cargando estadísticas...
+                </p>
               </CardContent>
             </Card>
           ) : statistics ? (
@@ -323,7 +374,9 @@ export default function SurveyAdmin() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-3xl font-bold">{statistics.totalResponses}</p>
+                    <p className="text-3xl font-bold">
+                      {statistics.totalResponses}
+                    </p>
                   </CardContent>
                 </Card>
 
@@ -334,7 +387,9 @@ export default function SurveyAdmin() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-3xl font-bold">{statistics.averageScore.toFixed(2)}</p>
+                    <p className="text-3xl font-bold">
+                      {statistics.averageScore.toFixed(2)}
+                    </p>
                   </CardContent>
                 </Card>
 
@@ -349,8 +404,9 @@ export default function SurveyAdmin() {
                       style={{
                         backgroundColor:
                           RISK_LEVEL_COLORS[
-                            statistics.distribution.reduce((prev: any, current: any) =>
-                              current.count > prev.count ? current : prev
+                            statistics.distribution.reduce(
+                              (prev: any, current: any) =>
+                                current.count > prev.count ? current : prev
                             ).level as keyof typeof RISK_LEVEL_COLORS
                           ],
                       }}
@@ -358,8 +414,9 @@ export default function SurveyAdmin() {
                     >
                       {
                         RISK_LEVEL_LABELS[
-                          statistics.distribution.reduce((prev: any, current: any) =>
-                            current.count > prev.count ? current : prev
+                          statistics.distribution.reduce(
+                            (prev: any, current: any) =>
+                              current.count > prev.count ? current : prev
                           ).level as keyof typeof RISK_LEVEL_LABELS
                         ]
                       }
@@ -373,7 +430,9 @@ export default function SurveyAdmin() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Distribución de Niveles de Riesgo</CardTitle>
-                    <CardDescription>Número de respuestas por nivel</CardDescription>
+                    <CardDescription>
+                      Número de respuestas por nivel
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     {distributionChartData && (
@@ -405,7 +464,7 @@ export default function SurveyAdmin() {
                           responsive: true,
                           plugins: {
                             legend: {
-                              position: 'bottom',
+                              position: "bottom",
                             },
                           },
                         }}
@@ -435,15 +494,26 @@ export default function SurveyAdmin() {
                           <TableCell>
                             <Badge
                               style={{
-                                backgroundColor: RISK_LEVEL_COLORS[item.level as keyof typeof RISK_LEVEL_COLORS],
+                                backgroundColor:
+                                  RISK_LEVEL_COLORS[
+                                    item.level as keyof typeof RISK_LEVEL_COLORS
+                                  ],
                               }}
                               className="text-white"
                             >
-                              {RISK_LEVEL_LABELS[item.level as keyof typeof RISK_LEVEL_LABELS]}
+                              {
+                                RISK_LEVEL_LABELS[
+                                  item.level as keyof typeof RISK_LEVEL_LABELS
+                                ]
+                              }
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-right">{item.count}</TableCell>
-                          <TableCell className="text-right">{item.percentage.toFixed(2)}%</TableCell>
+                          <TableCell className="text-right">
+                            {item.count}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {item.percentage.toFixed(2)}%
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -454,7 +524,9 @@ export default function SurveyAdmin() {
           ) : (
             <Card>
               <CardContent className="py-10">
-                <p className="text-center text-muted-foreground">No hay datos disponibles</p>
+                <p className="text-center text-muted-foreground">
+                  No hay datos disponibles
+                </p>
               </CardContent>
             </Card>
           )}
@@ -467,13 +539,15 @@ export default function SurveyAdmin() {
               <CardTitle>Respuestas Agregadas</CardTitle>
               <CardDescription>
                 {loadingResponses
-                  ? 'Cargando...'
+                  ? "Cargando..."
                   : `${responses?.length || 0} respuestas encontradas`}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loadingResponses ? (
-                <p className="text-center text-muted-foreground py-10">Cargando respuestas...</p>
+                <p className="text-center text-muted-foreground py-10">
+                  Cargando respuestas...
+                </p>
               ) : responses && responses.length > 0 ? (
                 <div className="overflow-x-auto">
                   <Table>
@@ -489,42 +563,52 @@ export default function SurveyAdmin() {
                     </TableHeader>
                     <TableBody>
                       {responses.map((response: any) => {
-                        let riskLevel = 'N/A';
+                        let riskLevel = "N/A";
                         if (response.results) {
                           try {
                             const results = JSON.parse(response.results);
-                            riskLevel = results.overallRiskLevel || 'N/A';
-                          } catch (e) {
-                          }
+                            riskLevel = results.overallRiskLevel || "N/A";
+                          } catch (e) {}
                         }
 
                         return (
                           <TableRow key={response.id}>
                             <TableCell>{response.id}</TableCell>
-                            <TableCell>{response.userId || '-'}</TableCell>
-                            <TableCell>{response.curp || '-'}</TableCell>
+                            <TableCell>{response.userId || "-"}</TableCell>
+                            <TableCell>{response.curp || "-"}</TableCell>
                             <TableCell>
                               {response.startedAt
-                                ? new Date(response.startedAt).toLocaleDateString('es-MX')
-                                : '-'}
+                                ? new Date(
+                                    response.startedAt
+                                  ).toLocaleDateString("es-MX")
+                                : "-"}
                             </TableCell>
                             <TableCell>
                               {response.completedAt
-                                ? new Date(response.completedAt).toLocaleDateString('es-MX')
-                                : 'En progreso'}
+                                ? new Date(
+                                    response.completedAt
+                                  ).toLocaleDateString("es-MX")
+                                : "En progreso"}
                             </TableCell>
                             <TableCell>
-                              {riskLevel !== 'N/A' ? (
+                              {riskLevel !== "N/A" ? (
                                 <Badge
                                   style={{
-                                    backgroundColor: RISK_LEVEL_COLORS[riskLevel as keyof typeof RISK_LEVEL_COLORS],
+                                    backgroundColor:
+                                      RISK_LEVEL_COLORS[
+                                        riskLevel as keyof typeof RISK_LEVEL_COLORS
+                                      ],
                                   }}
                                   className="text-white"
                                 >
-                                  {RISK_LEVEL_LABELS[riskLevel as keyof typeof RISK_LEVEL_LABELS]}
+                                  {
+                                    RISK_LEVEL_LABELS[
+                                      riskLevel as keyof typeof RISK_LEVEL_LABELS
+                                    ]
+                                  }
                                 </Badge>
                               ) : (
-                                'N/A'
+                                "N/A"
                               )}
                             </TableCell>
                           </TableRow>
@@ -561,7 +645,7 @@ export default function SurveyAdmin() {
                       id="period1Start"
                       type="date"
                       value={period1Start}
-                      onChange={(e) => setPeriod1Start(e.target.value)}
+                      onChange={e => setPeriod1Start(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
@@ -570,7 +654,7 @@ export default function SurveyAdmin() {
                       id="period1End"
                       type="date"
                       value={period1End}
-                      onChange={(e) => setPeriod1End(e.target.value)}
+                      onChange={e => setPeriod1End(e.target.value)}
                     />
                   </div>
                 </div>
@@ -583,7 +667,7 @@ export default function SurveyAdmin() {
                       id="period2Start"
                       type="date"
                       value={period2Start}
-                      onChange={(e) => setPeriod2Start(e.target.value)}
+                      onChange={e => setPeriod2Start(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
@@ -592,7 +676,7 @@ export default function SurveyAdmin() {
                       id="period2End"
                       type="date"
                       value={period2End}
-                      onChange={(e) => setPeriod2End(e.target.value)}
+                      onChange={e => setPeriod2End(e.target.value)}
                     />
                   </div>
                 </div>
@@ -603,7 +687,9 @@ export default function SurveyAdmin() {
           {loadingComparison ? (
             <Card>
               <CardContent className="py-10">
-                <p className="text-center text-muted-foreground">Cargando comparación...</p>
+                <p className="text-center text-muted-foreground">
+                  Cargando comparación...
+                </p>
               </CardContent>
             </Card>
           ) : comparison ? (
@@ -617,8 +703,10 @@ export default function SurveyAdmin() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className={`text-3xl font-bold ${comparison.comparison.responseDiff >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {comparison.comparison.responseDiff >= 0 ? '+' : ''}
+                    <p
+                      className={`text-3xl font-bold ${comparison.comparison.responseDiff >= 0 ? "text-green-600" : "text-red-600"}`}
+                    >
+                      {comparison.comparison.responseDiff >= 0 ? "+" : ""}
                       {comparison.comparison.responseDiff}
                     </p>
                   </CardContent>
@@ -631,8 +719,10 @@ export default function SurveyAdmin() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className={`text-3xl font-bold ${comparison.comparison.scoreDiff >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {comparison.comparison.scoreDiff >= 0 ? '+' : ''}
+                    <p
+                      className={`text-3xl font-bold ${comparison.comparison.scoreDiff >= 0 ? "text-green-600" : "text-red-600"}`}
+                    >
+                      {comparison.comparison.scoreDiff >= 0 ? "+" : ""}
                       {comparison.comparison.scoreDiff.toFixed(2)}
                     </p>
                   </CardContent>
@@ -645,8 +735,16 @@ export default function SurveyAdmin() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <Badge variant={comparison.comparison.scoreDiff >= 0 ? 'default' : 'destructive'}>
-                      {comparison.comparison.scoreDiff >= 0 ? 'Mejora' : 'Deterioro'}
+                    <Badge
+                      variant={
+                        comparison.comparison.scoreDiff >= 0
+                          ? "default"
+                          : "destructive"
+                      }
+                    >
+                      {comparison.comparison.scoreDiff >= 0
+                        ? "Mejora"
+                        : "Deterioro"}
                     </Badge>
                   </CardContent>
                 </Card>
@@ -665,7 +763,7 @@ export default function SurveyAdmin() {
                         responsive: true,
                         plugins: {
                           legend: {
-                            position: 'top',
+                            position: "top",
                           },
                         },
                       }}
@@ -690,26 +788,41 @@ export default function SurveyAdmin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {comparison.comparison.riskLevelChanges.map((change: any) => (
-                        <TableRow key={change.level}>
-                          <TableCell>
-                            <Badge
-                              style={{
-                                backgroundColor: RISK_LEVEL_COLORS[change.level as keyof typeof RISK_LEVEL_COLORS],
-                              }}
-                              className="text-white"
+                      {comparison.comparison.riskLevelChanges.map(
+                        (change: any) => (
+                          <TableRow key={change.level}>
+                            <TableCell>
+                              <Badge
+                                style={{
+                                  backgroundColor:
+                                    RISK_LEVEL_COLORS[
+                                      change.level as keyof typeof RISK_LEVEL_COLORS
+                                    ],
+                                }}
+                                className="text-white"
+                              >
+                                {
+                                  RISK_LEVEL_LABELS[
+                                    change.level as keyof typeof RISK_LEVEL_LABELS
+                                  ]
+                                }
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {change.period1Count}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {change.period2Count}
+                            </TableCell>
+                            <TableCell
+                              className={`text-right font-semibold ${change.diff >= 0 ? "text-green-600" : "text-red-600"}`}
                             >
-                              {RISK_LEVEL_LABELS[change.level as keyof typeof RISK_LEVEL_LABELS]}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">{change.period1Count}</TableCell>
-                          <TableCell className="text-right">{change.period2Count}</TableCell>
-                          <TableCell className={`text-right font-semibold ${change.diff >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {change.diff >= 0 ? '+' : ''}
-                            {change.diff}
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                              {change.diff >= 0 ? "+" : ""}
+                              {change.diff}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )}
                     </TableBody>
                   </Table>
                 </CardContent>

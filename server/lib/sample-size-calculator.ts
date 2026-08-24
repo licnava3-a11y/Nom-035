@@ -1,14 +1,14 @@
 /**
  * Calculadora de Tamaño de Muestra para Guía III NOM-035
- * 
+ *
  * Según la NOM-035-STPS-2018, para la aplicación de la Guía III
  * (Cuestionario para identificar a los trabajadores que fueron sujetos
  * a acontecimientos traumáticos severos), se debe aplicar a una muestra
  * representativa de la población trabajadora.
- * 
+ *
  * Fórmula para población finita:
  * n = (N * Z² * p * q) / (d² * (N-1) + Z² * p * q)
- * 
+ *
  * Donde:
  * - N = Tamaño de la población (total de trabajadores)
  * - Z = Nivel de confianza (1.96 para 95% de confianza)
@@ -40,7 +40,7 @@ export function calculateSampleSize(
 ): SampleSizeResult {
   // Validar entrada
   if (totalWorkers <= 0) {
-    throw new Error('El total de trabajadores debe ser mayor a 0');
+    throw new Error("El total de trabajadores debe ser mayor a 0");
   }
 
   // Si la población es muy pequeña (< 50), aplicar a todos
@@ -71,7 +71,8 @@ export function calculateSampleSize(
 
   // Calcular tamaño de muestra
   const numerator = totalWorkers * Math.pow(Z, 2) * p * q;
-  const denominator = Math.pow(d, 2) * (totalWorkers - 1) + Math.pow(Z, 2) * p * q;
+  const denominator =
+    Math.pow(d, 2) * (totalWorkers - 1) + Math.pow(Z, 2) * p * q;
   const sampleSize = Math.ceil(numerator / denominator);
 
   return {
@@ -88,18 +89,18 @@ export function calculateSampleSize(
  * Basada en nivel de confianza 95% y margen de error 5%
  */
 export const SAMPLE_SIZE_REFERENCE: Record<string, number> = {
-  '15-50': 50,      // Población pequeña: aplicar a todos
-  '51-100': 80,
-  '101-200': 132,
-  '201-300': 169,
-  '301-400': 196,
-  '401-500': 217,
-  '501-750': 254,
-  '751-1000': 278,
-  '1001-2000': 322,
-  '2001-5000': 357,
-  '5001-10000': 370,
-  '10001+': 384,    // Población muy grande
+  "15-50": 50, // Población pequeña: aplicar a todos
+  "51-100": 80,
+  "101-200": 132,
+  "201-300": 169,
+  "301-400": 196,
+  "401-500": 217,
+  "501-750": 254,
+  "751-1000": 278,
+  "1001-2000": 322,
+  "2001-5000": 357,
+  "5001-10000": 370,
+  "10001+": 384, // Población muy grande
 };
 
 /**

@@ -26,10 +26,10 @@ export function useAuth(options?: UseAuthOptions) {
   const [retryCount, setRetryCount] = useState(0);
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: 3,                     // 3 reintentos automáticos en caso de fallo de red
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000), // backoff: 1s, 2s, 4s
+    retry: 3, // 3 reintentos automáticos en caso de fallo de red
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 8000), // backoff: 1s, 2s, 4s
     refetchOnWindowFocus: false,
-    staleTime: 60_000,            // fresco por 60s
+    staleTime: 60_000, // fresco por 60s
     // Forzar re-fetch cuando el usuario hace clic en "Reintentar"
     // eslint-disable-next-line react-hooks/exhaustive-deps
   });
@@ -72,7 +72,10 @@ export function useAuth(options?: UseAuthOptions) {
     if (!meQuery.isLoading) {
       if (meQuery.data) {
         // Sesión activa: guardar datos del usuario
-        localStorage.setItem("manus-runtime-user-info", JSON.stringify(meQuery.data));
+        localStorage.setItem(
+          "manus-runtime-user-info",
+          JSON.stringify(meQuery.data)
+        );
       } else if (meQuery.data === null) {
         // Sesión expirada: limpiar caché para evitar redirección instantánea en LandingPage
         localStorage.removeItem("manus-runtime-user-info");
@@ -92,7 +95,8 @@ export function useAuth(options?: UseAuthOptions) {
     // NO consideramos timeout como "no autenticado"
     const isLoading = meQuery.isLoading || logoutMutation.isPending;
     const isAuthenticated = Boolean(meQuery.data);
-    const isUnauthenticated = !isLoading && (isAuthError || meQuery.data === null);
+    const isUnauthenticated =
+      !isLoading && (isAuthError || meQuery.data === null);
 
     return {
       user: meQuery.data ?? null,
@@ -136,7 +140,9 @@ export function useAuth(options?: UseAuthOptions) {
     const lastRedirect = sessionStorage.getItem("_last_login_redirect");
     const now = Date.now();
     if (lastRedirect && now - parseInt(lastRedirect, 10) < 3000) {
-      console.warn("[useAuth] Redirect throttled — too soon after last redirect");
+      console.warn(
+        "[useAuth] Redirect throttled — too soon after last redirect"
+      );
       return;
     }
     sessionStorage.setItem("_last_login_redirect", String(now));
@@ -153,7 +159,7 @@ export function useAuth(options?: UseAuthOptions) {
   return {
     ...state,
     refresh: () => {
-      setRetryCount((c) => c + 1);
+      setRetryCount(c => c + 1);
     },
     logout,
   };

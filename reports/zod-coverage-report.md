@@ -9,7 +9,7 @@
 
 ## 🎯 Routers Prioritarios (Cobertura <50%)
 
-*No hay routers con cobertura crítica (<50%).*
+_No hay routers con cobertura crítica (<50%)._
 
 ## 📋 Detalle por Router
 
@@ -1221,4 +1221,3 @@
 3. Usar esquemas reutilizables de `server/validators/common.ts`
 4. Validar todos los inputs de usuario, incluso en queries
 5. Agregar mensajes de error descriptivos en español
-

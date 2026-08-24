@@ -21,7 +21,10 @@ const CACHE_TTL_MS = 30_000; // 30 segundos
 
 export async function isEmailEnabled(): Promise<boolean> {
   const now = Date.now();
-  if (_emailEnabledCache !== null && now - _emailEnabledCacheAt < CACHE_TTL_MS) {
+  if (
+    _emailEnabledCache !== null &&
+    now - _emailEnabledCacheAt < CACHE_TTL_MS
+  ) {
     return _emailEnabledCache;
   }
   try {
@@ -59,7 +62,9 @@ async function enqueueEmail(options: EmailOptions): Promise<void> {
   try {
     const db = await getDb();
     if (!db) return;
-    const toAddress = Array.isArray(options.to) ? options.to.join(", ") : options.to;
+    const toAddress = Array.isArray(options.to)
+      ? options.to.join(", ")
+      : options.to;
     await (db.insert(emailQueue) as any).values({
       toAddress,
       subject: options.subject,
@@ -70,7 +75,9 @@ async function enqueueEmail(options: EmailOptions): Promise<void> {
       status: "pending",
     });
   } catch (error) {
-    logNonBlockingFailure("email.queue_enqueue_failed", error, { sourceModule: options.sourceModule ?? "unknown" });
+    logNonBlockingFailure("email.queue_enqueue_failed", error, {
+      sourceModule: options.sourceModule ?? "unknown",
+    });
   }
 }
 
@@ -82,27 +89,34 @@ async function sendViaSmtp(options: EmailOptions): Promise<boolean> {
     let smtpPort = parseInt(process.env.SMTP_PORT || "587");
     let smtpUser = process.env.SMTP_USER;
     let smtpPass = process.env.SMTP_PASS;
-    let smtpFrom = options.from || process.env.SMTP_FROM || "noreply@example.com";
+    let smtpFrom =
+      options.from || process.env.SMTP_FROM || "noreply@example.com";
 
     // Intentar leer config desde BD
     if (db) {
       const configs = await db
         .select()
         .from(smtpConfig)
-        .where(and(eq(smtpConfig.isActive, true), eq(smtpConfig.emailEnabled, true)))
+        .where(
+          and(eq(smtpConfig.isActive, true), eq(smtpConfig.emailEnabled, true))
+        )
         .limit(1);
       if (configs.length > 0) {
         const cfg = configs[0];
         smtpHost = cfg.host || smtpHost;
         smtpPort = cfg.port || smtpPort;
         smtpUser = cfg.user || smtpUser;
-        smtpPass = cfg.password ? Buffer.from(cfg.password, "base64").toString("utf-8") : smtpPass;
+        smtpPass = cfg.password
+          ? Buffer.from(cfg.password, "base64").toString("utf-8")
+          : smtpPass;
         smtpFrom = cfg.fromEmail || smtpFrom;
       }
     }
 
     if (!smtpHost || !smtpUser || !smtpPass) {
-      logStructured("warn", "email.smtp_not_configured", { sourceModule: options.sourceModule ?? "unknown" });
+      logStructured("warn", "email.smtp_not_configured", {
+        sourceModule: options.sourceModule ?? "unknown",
+      });
       return false;
     }
 
@@ -130,7 +144,9 @@ async function sendViaSmtp(options: EmailOptions): Promise<boolean> {
     });
     return true;
   } catch (error) {
-    logNonBlockingFailure("email.send_failed", error, { sourceModule: options.sourceModule ?? "unknown" });
+    logNonBlockingFailure("email.send_failed", error, {
+      sourceModule: options.sourceModule ?? "unknown",
+    });
     return false;
   }
 }
@@ -153,7 +169,10 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 }
 
 // ── Reenvío de correos pendientes en la cola ──────────────────────────────────
-export async function flushEmailQueue(): Promise<{ sent: number; failed: number }> {
+export async function flushEmailQueue(): Promise<{
+  sent: number;
+  failed: number;
+}> {
   const db = await getDb();
   if (!db) return { sent: 0, failed: 0 };
 
@@ -180,7 +199,11 @@ export async function flushEmailQueue(): Promise<{ sent: number; failed: number 
       if (success) {
         await db
           .update(emailQueue)
-          .set({ status: "sent", sentAt: new Date(), attempts: (item.attempts || 0) + 1 })
+          .set({
+            status: "sent",
+            sentAt: new Date(),
+            attempts: (item.attempts || 0) + 1,
+          })
           .where(eq(emailQueue.id, item.id));
         sent++;
       } else {

@@ -1,5 +1,10 @@
 import { getDb } from "./db";
-import { nom035Questions, nom035Responses, nom035Results, nom035SurveyPeriods } from "../drizzle/schema";
+import {
+  nom035Questions,
+  nom035Responses,
+  nom035Results,
+  nom035SurveyPeriods,
+} from "../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 /**
@@ -8,7 +13,10 @@ import { eq, and, desc } from "drizzle-orm";
 export async function getNOM035Questions() {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.select().from(nom035Questions).orderBy(nom035Questions.questionNumber);
+  return await db
+    .select()
+    .from(nom035Questions)
+    .orderBy(nom035Questions.questionNumber);
 }
 
 /**
@@ -52,7 +60,10 @@ export async function saveNOM035Response(data: {
 /**
  * Obtener progreso del cuestionario para un empleado
  */
-export async function getNOM035Progress(employeeId: number, surveyPeriodId: number) {
+export async function getNOM035Progress(
+  employeeId: number,
+  surveyPeriodId: number
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const totalQuestions = await db.select().from(nom035Questions);
@@ -69,14 +80,19 @@ export async function getNOM035Progress(employeeId: number, surveyPeriodId: numb
   return {
     total: totalQuestions.length,
     answered: answeredQuestions.length,
-    percentage: Math.round((answeredQuestions.length / totalQuestions.length) * 100),
+    percentage: Math.round(
+      (answeredQuestions.length / totalQuestions.length) * 100
+    ),
   };
 }
 
 /**
  * Obtener respuestas de un empleado para un período
  */
-export async function getNOM035Responses(employeeId: number, surveyPeriodId: number) {
+export async function getNOM035Responses(
+  employeeId: number,
+  surveyPeriodId: number
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   return await db
@@ -94,7 +110,10 @@ export async function getNOM035Responses(employeeId: number, surveyPeriodId: num
  * Calcular resultados del cuestionario NOM-035
  * Implementa la lógica de calificación según la normativa oficial
  */
-export async function calculateNOM035Results(employeeId: number, surveyPeriodId: number) {
+export async function calculateNOM035Results(
+  employeeId: number,
+  surveyPeriodId: number
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   // Obtener todas las respuestas del empleado
@@ -106,7 +125,10 @@ export async function calculateNOM035Results(employeeId: number, surveyPeriodId:
       dimension: nom035Questions.dimension,
     })
     .from(nom035Responses)
-    .innerJoin(nom035Questions, eq(nom035Responses.questionId, nom035Questions.id))
+    .innerJoin(
+      nom035Questions,
+      eq(nom035Responses.questionId, nom035Questions.id)
+    )
     .where(
       and(
         eq(nom035Responses.employeeId, employeeId),
@@ -119,7 +141,10 @@ export async function calculateNOM035Results(employeeId: number, surveyPeriodId:
   }
 
   // Calcular puntaje global
-  const globalScore = responses.reduce((sum: number, r: any) => sum + r.response, 0);
+  const globalScore = responses.reduce(
+    (sum: number, r: any) => sum + r.response,
+    0
+  );
 
   // Calcular puntajes por categoría
   const categoryScores: Record<string, number> = {};
@@ -168,7 +193,10 @@ export async function calculateNOM035Results(employeeId: number, surveyPeriodId:
   }
 
   // Generar recomendaciones automáticas
-  const recommendations = generateRecommendations(globalRiskLevel, categoryScores);
+  const recommendations = generateRecommendations(
+    globalRiskLevel,
+    categoryScores
+  );
 
   // Guardar resultados en la base de datos
   const result = await (db.insert(nom035Results) as any).values({
@@ -223,7 +251,9 @@ function generateRecommendations(
       recommendations.push(
         "Se recomienda implementar medidas preventivas para evitar el incremento del riesgo."
       );
-      recommendations.push("Realizar seguimiento periódico y evaluaciones de control.");
+      recommendations.push(
+        "Realizar seguimiento periódico y evaluaciones de control."
+      );
       break;
     case "bajo":
       recommendations.push(
@@ -287,7 +317,10 @@ function generateRecommendations(
 /**
  * Obtener resultados de un empleado
  */
-export async function getNOM035Results(employeeId: number, surveyPeriodId: number) {
+export async function getNOM035Results(
+  employeeId: number,
+  surveyPeriodId: number
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const results = await db

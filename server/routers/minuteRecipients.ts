@@ -2,15 +2,36 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { minuteRecipients, minuteDispatches, meetingMinutes } from "../../drizzle/schema";
-import { eq, asc, like, or, and, desc, gte, lte, inArray, sql } from "drizzle-orm";
+import {
+  minuteRecipients,
+  minuteDispatches,
+  meetingMinutes,
+} from "../../drizzle/schema";
+import {
+  eq,
+  asc,
+  like,
+  or,
+  and,
+  desc,
+  gte,
+  lte,
+  inArray,
+  sql,
+} from "drizzle-orm";
 import { sendDispatchEmail } from "../dispatchEmail";
 import crypto from "crypto";
 
 const recipientInput = z.object({
-  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(255),
+  name: z
+    .string()
+    .min(2, "El nombre debe tener al menos 2 caracteres")
+    .max(255),
   email: z.string().email("Correo electrónico inválido").max(255),
-  position: z.string().min(2, "El cargo debe tener al menos 2 caracteres").max(255),
+  position: z
+    .string()
+    .min(2, "El cargo debe tener al menos 2 caracteres")
+    .max(255),
   department: z.string().max(255).optional().nullable(),
 });
 
@@ -25,7 +46,11 @@ export const minuteRecipientsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
       const conditions = [];
       if (input.onlyActive) {
         conditions.push(eq(minuteRecipients.isActive, true));
@@ -54,14 +79,21 @@ export const minuteRecipientsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
       const [recipient] = await db
         .select()
         .from(minuteRecipients)
         .where(eq(minuteRecipients.id, input.id))
         .limit(1);
       if (!recipient) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Destinatario no encontrado" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Destinatario no encontrado",
+        });
       }
       return recipient;
     }),
@@ -71,7 +103,11 @@ export const minuteRecipientsRouter = router({
     .input(recipientInput)
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
       const result = await db.insert(minuteRecipients).values({
         name: input.name,
         email: input.email.toLowerCase().trim(),
@@ -87,7 +123,11 @@ export const minuteRecipientsRouter = router({
     .input(z.object({ id: z.number(), data: recipientInput }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
       await db
         .update(minuteRecipients)
         .set({
@@ -105,8 +145,14 @@ export const minuteRecipientsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
-      await db.delete(minuteRecipients).where(eq(minuteRecipients.id, input.id));
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
+      await db
+        .delete(minuteRecipients)
+        .where(eq(minuteRecipients.id, input.id));
       return { success: true };
     }),
 
@@ -115,7 +161,11 @@ export const minuteRecipientsRouter = router({
     .input(z.object({ id: z.number(), isActive: z.boolean() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
       await db
         .update(minuteRecipients)
         .set({ isActive: input.isActive })
@@ -127,19 +177,26 @@ export const minuteRecipientsRouter = router({
   bulkImport: protectedProcedure
     .input(
       z.object({
-        rows: z.array(
-          z.object({
-            name: z.string().min(1),
-            email: z.string().email(),
-            position: z.string().min(1),
-            department: z.string().nullable().optional(),
-          })
-        ).min(1).max(500),
+        rows: z
+          .array(
+            z.object({
+              name: z.string().min(1),
+              email: z.string().email(),
+              position: z.string().min(1),
+              department: z.string().nullable().optional(),
+            })
+          )
+          .min(1)
+          .max(500),
       })
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
 
       let created = 0;
       let updated = 0;
@@ -179,7 +236,13 @@ export const minuteRecipientsRouter = router({
         }
       }
 
-      return { success: true, created, updated, errors, total: input.rows.length };
+      return {
+        success: true,
+        created,
+        updated,
+        errors,
+        total: input.rows.length,
+      };
     }),
 
   // ── Historial de envíos por destinatario ───────────────────────────────────
@@ -193,7 +256,11 @@ export const minuteRecipientsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
 
       const [recipient] = await db
         .select()
@@ -202,7 +269,10 @@ export const minuteRecipientsRouter = router({
         .limit(1);
 
       if (!recipient) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Destinatario no encontrado" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Destinatario no encontrado",
+        });
       }
 
       const offset = (input.page - 1) * input.pageSize;
@@ -221,7 +291,10 @@ export const minuteRecipientsRouter = router({
           minuteType: meetingMinutes.meetingType,
         })
         .from(minuteDispatches)
-        .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
+        .leftJoin(
+          meetingMinutes,
+          eq(minuteDispatches.minuteId, meetingMinutes.id)
+        )
         .where(eq(minuteDispatches.recipientId, input.recipientId))
         .orderBy(desc(minuteDispatches.sentAt))
         .limit(input.pageSize)
@@ -233,7 +306,7 @@ export const minuteRecipientsRouter = router({
         .where(eq(minuteDispatches.recipientId, input.recipientId));
 
       const total = allDispatches.length;
-      const readCount = allDispatches.filter((d) => d.readAt !== null).length;
+      const readCount = allDispatches.filter(d => d.readAt !== null).length;
 
       return {
         recipient,
@@ -252,7 +325,11 @@ export const minuteRecipientsRouter = router({
     .input(z.object({ dispatchId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
       await db
         .update(minuteDispatches)
         .set({ readAt: new Date(), status: "read" })
@@ -267,9 +344,12 @@ export const minuteRecipientsRouter = router({
         page: z.number().optional().default(1),
         pageSize: z.number().optional().default(50),
         recipientId: z.number().nullable().optional(),
-        status: z.enum(["sent", "read", "bounced", "all"]).optional().default("all"),
+        status: z
+          .enum(["sent", "read", "bounced", "all"])
+          .optional()
+          .default("all"),
         dateFrom: z.string().nullable().optional(), // ISO date string YYYY-MM-DD
-        dateTo: z.string().nullable().optional(),   // ISO date string YYYY-MM-DD
+        dateTo: z.string().nullable().optional(), // ISO date string YYYY-MM-DD
         minuteId: z.number().nullable().optional(),
         search: z.string().optional(), // busca en nombre del destinatario o título de minuta
         signerSearch: z.string().optional(), // busca específicamente por nombre del firmante
@@ -277,7 +357,11 @@ export const minuteRecipientsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
 
       const conditions: any[] = [];
 
@@ -306,7 +390,8 @@ export const minuteRecipientsRouter = router({
         conditions.push(eq(minuteDispatches.minuteId, input.minuteId));
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
       const offset = (input.page - 1) * input.pageSize;
 
       // Obtener despachos con joins
@@ -333,8 +418,14 @@ export const minuteRecipientsRouter = router({
           signerName: minuteDispatches.signerName,
         })
         .from(minuteDispatches)
-        .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
-        .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
+        .leftJoin(
+          meetingMinutes,
+          eq(minuteDispatches.minuteId, meetingMinutes.id)
+        )
+        .leftJoin(
+          minuteRecipients,
+          eq(minuteDispatches.recipientId, minuteRecipients.id)
+        )
         .where(whereClause)
         .orderBy(desc(minuteDispatches.sentAt))
         .limit(input.pageSize)
@@ -345,7 +436,7 @@ export const minuteRecipientsRouter = router({
       if (input.search && input.search.trim() !== "") {
         const term = input.search.toLowerCase().trim();
         filtered = dispatches.filter(
-          (d) =>
+          d =>
             (d.recipientName ?? "").toLowerCase().includes(term) ||
             (d.minuteTitle ?? "").toLowerCase().includes(term) ||
             (d.minuteFolio ?? "").toLowerCase().includes(term) ||
@@ -355,8 +446,8 @@ export const minuteRecipientsRouter = router({
       // Filtro por nombre del firmante (solo registros leídos con firma registrada)
       if (input.signerSearch && input.signerSearch.trim() !== "") {
         const signerTerm = input.signerSearch.toLowerCase().trim();
-        filtered = filtered.filter(
-          (d) => (d.signerName ?? "").toLowerCase().includes(signerTerm)
+        filtered = filtered.filter(d =>
+          (d.signerName ?? "").toLowerCase().includes(signerTerm)
         );
       }
 
@@ -371,13 +462,19 @@ export const minuteRecipientsRouter = router({
         .where(whereClause);
 
       const totalCount = allForCount.length;
-      const readCount = allForCount.filter((d) => d.readAt !== null).length;
-      const sentCount = allForCount.filter((d) => d.status === "sent").length;
-      const bouncedCount = allForCount.filter((d) => d.status === "bounced").length;
+      const readCount = allForCount.filter(d => d.readAt !== null).length;
+      const sentCount = allForCount.filter(d => d.status === "sent").length;
+      const bouncedCount = allForCount.filter(
+        d => d.status === "bounced"
+      ).length;
 
       // Obtener lista de destinatarios únicos para el filtro del panel
       const allRecipients = await db
-        .select({ id: minuteRecipients.id, name: minuteRecipients.name, email: minuteRecipients.email })
+        .select({
+          id: minuteRecipients.id,
+          name: minuteRecipients.name,
+          email: minuteRecipients.email,
+        })
         .from(minuteRecipients)
         .where(eq(minuteRecipients.isActive, true))
         .orderBy(asc(minuteRecipients.name));
@@ -396,7 +493,8 @@ export const minuteRecipientsRouter = router({
           unread: totalCount - readCount - bouncedCount,
           bounced: bouncedCount,
           sent: sentCount,
-          readRate: totalCount > 0 ? Math.round((readCount / totalCount) * 100) : 0,
+          readRate:
+            totalCount > 0 ? Math.round((readCount / totalCount) * 100) : 0,
         },
         recipients: allRecipients,
       };
@@ -407,7 +505,11 @@ export const minuteRecipientsRouter = router({
     .input(z.object({ dispatchId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
 
       // Obtener el despacho con datos de la minuta y el destinatario
       const [dispatch] = await db
@@ -423,17 +525,29 @@ export const minuteRecipientsRouter = router({
           recipientEmail: minuteRecipients.email,
         })
         .from(minuteDispatches)
-        .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
-        .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
+        .leftJoin(
+          meetingMinutes,
+          eq(minuteDispatches.minuteId, meetingMinutes.id)
+        )
+        .leftJoin(
+          minuteRecipients,
+          eq(minuteDispatches.recipientId, minuteRecipients.id)
+        )
         .where(eq(minuteDispatches.id, input.dispatchId))
         .limit(1);
 
       if (!dispatch) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Despacho no encontrado" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Despacho no encontrado",
+        });
       }
 
       if (!dispatch.recipientEmail) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "El destinatario no tiene correo registrado" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "El destinatario no tiene correo registrado",
+        });
       }
 
       // Generar nuevo token único
@@ -466,7 +580,10 @@ export const minuteRecipientsRouter = router({
           .update(minuteDispatches)
           .set({ status: "bounced" })
           .where(eq(minuteDispatches.id, input.dispatchId));
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Error al reenviar correo: ${e.message}` });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Error al reenviar correo: ${e.message}`,
+        });
       }
 
       return { success: true, message: "Correo reenviado exitosamente" };

@@ -11,10 +11,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "../db";
 import { sdk } from "../_core/sdk";
 import { sendEmail } from "../_core/email";
-import {
-  notificationPreferences,
-  users,
-} from "../../drizzle/schema";
+import { notificationPreferences, users } from "../../drizzle/schema";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -27,7 +24,10 @@ function getCurrentDayOfWeekUTC(): number {
   return new Date().getUTCDay();
 }
 
-async function buildDailySummaryHtml(userId: number, userName: string): Promise<string> {
+async function buildDailySummaryHtml(
+  userId: number,
+  userName: string
+): Promise<string> {
   const now = new Date();
   return `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
@@ -54,7 +54,10 @@ async function buildDailySummaryHtml(userId: number, userName: string): Promise<
   `;
 }
 
-async function buildWeeklySummaryHtml(userId: number, userName: string): Promise<string> {
+async function buildWeeklySummaryHtml(
+  userId: number,
+  userName: string
+): Promise<string> {
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
@@ -123,7 +126,10 @@ export async function emailDigestHandler(req: Request, res: Response) {
       try {
         // Resumen diario: enviar si la hora UTC coincide
         if (pref.dailyEmailEnabled && pref.dailyEmailHour === currentHour) {
-          const html = await buildDailySummaryHtml(pref.userId, pref.userName ?? "Usuario");
+          const html = await buildDailySummaryHtml(
+            pref.userId,
+            pref.userName ?? "Usuario"
+          );
           if (html) {
             await sendEmail({
               to: pref.userEmail,
@@ -136,8 +142,15 @@ export async function emailDigestHandler(req: Request, res: Response) {
         }
 
         // Resumen semanal: enviar si el día y hora coinciden (hora fija 08:00 UTC)
-        if (pref.weeklyEmailEnabled && pref.weeklyEmailDay === currentDay && currentHour === 8) {
-          const html = await buildWeeklySummaryHtml(pref.userId, pref.userName ?? "Usuario");
+        if (
+          pref.weeklyEmailEnabled &&
+          pref.weeklyEmailDay === currentDay &&
+          currentHour === 8
+        ) {
+          const html = await buildWeeklySummaryHtml(
+            pref.userId,
+            pref.userName ?? "Usuario"
+          );
           if (html) {
             await sendEmail({
               to: pref.userEmail,
@@ -149,14 +162,24 @@ export async function emailDigestHandler(req: Request, res: Response) {
           }
         }
       } catch (err) {
-        console.error(`[Email Digest] Error procesando userId=${pref.userId}:`, err);
+        console.error(
+          `[Email Digest] Error procesando userId=${pref.userId}:`,
+          err
+        );
         errors++;
       }
     }
 
-    console.log(`[Email Digest] Completado: ${dailySent} diarios, ${weeklySent} semanales, ${errors} errores`);
-    return res.json({ ok: true, dailySent, weeklySent, errors, processedAt: new Date().toISOString() });
-
+    console.log(
+      `[Email Digest] Completado: ${dailySent} diarios, ${weeklySent} semanales, ${errors} errores`
+    );
+    return res.json({
+      ok: true,
+      dailySent,
+      weeklySent,
+      errors,
+      processedAt: new Date().toISOString(),
+    });
   } catch (err) {
     console.error("[Email Digest] Error fatal:", err);
     return res.status(500).json({

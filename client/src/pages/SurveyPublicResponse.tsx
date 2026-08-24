@@ -35,7 +35,7 @@ function StarRating({ value, onChange, labels }: StarRatingProps) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
+        {[1, 2, 3, 4, 5].map(star => (
           <button
             key={star}
             type="button"
@@ -108,7 +108,8 @@ const QUESTIONS = [
   },
   {
     key: "recommendationRating" as const,
-    title: "¿Recomendaría este proceso a un compañero/a en una situación similar?",
+    title:
+      "¿Recomendaría este proceso a un compañero/a en una situación similar?",
     description:
       "Su respuesta nos ayuda a entender la confianza que genera el sistema de atención.",
     labels: [
@@ -139,10 +140,12 @@ function NotFoundState() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
         <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-800 mb-2">Encuesta no encontrada</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">
+          Encuesta no encontrada
+        </h2>
         <p className="text-gray-500 text-sm leading-relaxed">
-          El enlace que utilizó no es válido o ya no está disponible. Si cree que esto es un
-          error, contacte al área de Recursos Humanos.
+          El enlace que utilizó no es válido o ya no está disponible. Si cree
+          que esto es un error, contacte al área de Recursos Humanos.
         </p>
       </div>
     </div>
@@ -154,9 +157,12 @@ function ExpiredState({ caseNumber }: { caseNumber?: string }) {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
         <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-800 mb-2">Encuesta expirada</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">
+          Encuesta expirada
+        </h2>
         <p className="text-gray-500 text-sm leading-relaxed">
-          El período de respuesta para{caseNumber ? ` el caso ${caseNumber}` : " esta encuesta"} ha
+          El período de respuesta para
+          {caseNumber ? ` el caso ${caseNumber}` : " esta encuesta"} ha
           concluido. Las encuestas tienen una vigencia de 7 días desde su envío.
         </p>
       </div>
@@ -169,11 +175,14 @@ function CompletedState({ caseNumber }: { caseNumber?: string }) {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
         <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-800 mb-2">¡Gracias por su respuesta!</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">
+          ¡Gracias por su respuesta!
+        </h2>
         <p className="text-gray-500 text-sm leading-relaxed">
-          Su opinión sobre{caseNumber ? ` el caso ${caseNumber}` : " el caso"} ha sido registrada
-          exitosamente. Sus respuestas contribuyen a mejorar continuamente nuestros procesos de
-          atención y cumplimiento con la NOM-035 STPS 2018.
+          Su opinión sobre{caseNumber ? ` el caso ${caseNumber}` : " el caso"}{" "}
+          ha sido registrada exitosamente. Sus respuestas contribuyen a mejorar
+          continuamente nuestros procesos de atención y cumplimiento con la
+          NOM-035 STPS 2018.
         </p>
       </div>
     </div>
@@ -203,27 +212,34 @@ export default function SurveyPublicResponse() {
 
   const submitMutation = trpc.postCaseSurveys.submitSurveyResponse.useMutation({
     onSuccess: () => setSubmitted(true),
-    onError: (err) => setValidationError(err.message),
+    onError: err => setValidationError(err.message),
   });
 
   // ── Estados de carga y error ──
   if (!token) return <NotFoundState />;
   if (isLoading) return <LoadingState />;
   if (!data || !data.found) return <NotFoundState />;
-  if (data.status === "expired") return <ExpiredState caseNumber={data.survey?.caseNumber} />;
+  if (data.status === "expired")
+    return <ExpiredState caseNumber={data.survey?.caseNumber} />;
   if (data.status === "completed" || submitted)
     return <CompletedState caseNumber={data.survey?.caseNumber} />;
 
   const survey = data.survey!;
-  const allRated = Object.values(ratings).every((v) => v > 0);
+  const allRated = Object.values(ratings).every(v => v > 0);
 
   const handleSubmit = () => {
     if (!allRated) {
-      setValidationError("Por favor responda todas las preguntas antes de enviar.");
+      setValidationError(
+        "Por favor responda todas las preguntas antes de enviar."
+      );
       return;
     }
     setValidationError("");
-    submitMutation.mutate({ token, ...ratings, comments: comments || undefined });
+    submitMutation.mutate({
+      token,
+      ...ratings,
+      comments: comments || undefined,
+    });
   };
 
   return (
@@ -234,7 +250,9 @@ export default function SurveyPublicResponse() {
           <p className="text-xs font-medium text-blue-200 uppercase tracking-wider mb-1">
             Sistema NOM-035 STPS 2018
           </p>
-          <h1 className="text-xl font-bold">Encuesta de Seguimiento Post-Caso</h1>
+          <h1 className="text-xl font-bold">
+            Encuesta de Seguimiento Post-Caso
+          </h1>
         </div>
       </header>
 
@@ -243,11 +261,15 @@ export default function SurveyPublicResponse() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
           <div className="flex flex-wrap gap-4 text-sm">
             <div>
-              <span className="text-gray-400 text-xs uppercase tracking-wide">Caso</span>
+              <span className="text-gray-400 text-xs uppercase tracking-wide">
+                Caso
+              </span>
               <p className="font-semibold text-gray-800">{survey.caseNumber}</p>
             </div>
             <div>
-              <span className="text-gray-400 text-xs uppercase tracking-wide">Tipo</span>
+              <span className="text-gray-400 text-xs uppercase tracking-wide">
+                Tipo
+              </span>
               <p className="font-semibold text-gray-800">
                 {CASE_TYPE_LABELS[survey.caseType] ?? survey.caseType}
               </p>
@@ -283,9 +305,9 @@ export default function SurveyPublicResponse() {
             {survey.reporterName
               ? `Estimado/a ${survey.reporterName}, su`
               : "Su"}{" "}
-            opinión es fundamental para mejorar nuestros procesos. Por favor califique cada
-            aspecto del{" "}
-            <strong>1 (peor) a 5 (mejor)</strong> según su experiencia.
+            opinión es fundamental para mejorar nuestros procesos. Por favor
+            califique cada aspecto del <strong>1 (peor) a 5 (mejor)</strong>{" "}
+            según su experiencia.
           </p>
         </div>
 
@@ -301,14 +323,18 @@ export default function SurveyPublicResponse() {
                   {idx + 1}
                 </span>
                 <div>
-                  <h3 className="font-semibold text-gray-800 text-sm leading-snug">{q.title}</h3>
-                  <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{q.description}</p>
+                  <h3 className="font-semibold text-gray-800 text-sm leading-snug">
+                    {q.title}
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">
+                    {q.description}
+                  </p>
                 </div>
               </div>
               <div className="pl-10">
                 <StarRating
                   value={ratings[q.key]}
-                  onChange={(v) => setRatings((prev) => ({ ...prev, [q.key]: v }))}
+                  onChange={v => setRatings(prev => ({ ...prev, [q.key]: v }))}
                   labels={q.labels}
                 />
               </div>
@@ -322,17 +348,20 @@ export default function SurveyPublicResponse() {
               <span className="text-gray-400 font-normal">(opcional)</span>
             </h3>
             <p className="text-xs text-gray-400 mb-3">
-              Comparta cualquier observación, sugerencia o comentario que considere relevante.
+              Comparta cualquier observación, sugerencia o comentario que
+              considere relevante.
             </p>
             <Textarea
               value={comments}
-              onChange={(e) => setComments(e.target.value)}
+              onChange={e => setComments(e.target.value)}
               placeholder="Escriba aquí sus comentarios..."
               className="resize-none text-sm"
               rows={4}
               maxLength={1000}
             />
-            <p className="text-xs text-gray-400 text-right mt-1">{comments.length}/1000</p>
+            <p className="text-xs text-gray-400 text-right mt-1">
+              {comments.length}/1000
+            </p>
           </div>
         </div>
 
@@ -369,8 +398,8 @@ export default function SurveyPublicResponse() {
 
         {/* Footer */}
         <p className="text-center text-xs text-gray-400 mt-8 pb-4">
-          Sus respuestas son confidenciales y se utilizarán únicamente para mejorar los
-          procesos de atención NOM-035 STPS 2018.
+          Sus respuestas son confidenciales y se utilizarán únicamente para
+          mejorar los procesos de atención NOM-035 STPS 2018.
         </p>
       </main>
     </div>

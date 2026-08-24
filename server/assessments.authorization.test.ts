@@ -15,7 +15,10 @@ vi.mock("./db", () => ({
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
-function createContext(userId: number, role: AuthenticatedUser["role"] = "empleado"): TrpcContext {
+function createContext(
+  userId: number,
+  role: AuthenticatedUser["role"] = "empleado"
+): TrpcContext {
   return {
     user: {
       id: userId,
@@ -72,7 +75,7 @@ describe("assessmentsRouter — autorización de intentos", () => {
     await caller.startAttempt({ assessmentId: 7 });
 
     expect(values).toHaveBeenCalledWith(
-      expect.objectContaining({ assessmentId: 7, employeeId: 42 }),
+      expect.objectContaining({ assessmentId: 7, employeeId: 42 })
     );
   });
 
@@ -85,7 +88,7 @@ describe("assessmentsRouter — autorización de intentos", () => {
     const caller = assessmentsRouter.createCaller(createContext(501));
 
     await expect(caller.getAttemptResults({ attemptId: 100 })).rejects.toThrow(
-      "No tiene permiso para consultar este intento.",
+      "No tiene permiso para consultar este intento."
     );
   });
 
@@ -94,8 +97,8 @@ describe("assessmentsRouter — autorización de intentos", () => {
 
     const caller = assessmentsRouter.createCaller(createContext(501));
 
-    await expect(caller.listEmployeeAttempts({ employeeId: 99 })).rejects.toThrow(
-      "No tiene permiso para consultar estos intentos.",
-    );
+    await expect(
+      caller.listEmployeeAttempts({ employeeId: 99 })
+    ).rejects.toThrow("No tiene permiso para consultar estos intentos.");
   });
 });

@@ -33,7 +33,19 @@ export default function EmployeeSearchDialog({
       enabled: open,
     }
   );
-  const employees = (employeesData as any) as Array<{ id: number; firstName: string; lastName: string; email: string; phone: string | null; employeeNumber: string | null; department: string; position: string; curp: string | null }> | undefined;
+  const employees = employeesData as any as
+    | Array<{
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string | null;
+        employeeNumber: string | null;
+        department: string;
+        position: string;
+        curp: string | null;
+      }>
+    | undefined;
 
   const handleSelect = (employee: any) => {
     const fullName = `${employee.firstName} ${employee.lastName}`;
@@ -59,7 +71,7 @@ export default function EmployeeSearchDialog({
             <Input
               placeholder="Buscar trabajador..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>

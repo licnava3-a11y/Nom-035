@@ -25,22 +25,25 @@ function calcRisks(dept: {
   const rotRisk = dept.turnoverRate >= 20 ? 2 : dept.turnoverRate >= 10 ? 1 : 0;
   const capRisk = dept.trainingRate < 50 ? 2 : dept.trainingRate < 80 ? 1 : 0;
   const nomRisk = dept.nom035Score < 60 ? 2 : dept.nom035Score < 80 ? 1 : 0;
-  const vacRisk = dept.pendingVacations >= 5 ? 2 : dept.pendingVacations >= 2 ? 1 : 0;
-  const psyRisk = dept.highRiskPsycho >= 3 ? 2 : dept.highRiskPsycho >= 1 ? 1 : 0;
-  const globalRisk = Math.round((rotRisk + capRisk + nomRisk + vacRisk + psyRisk) / 5);
+  const vacRisk =
+    dept.pendingVacations >= 5 ? 2 : dept.pendingVacations >= 2 ? 1 : 0;
+  const psyRisk =
+    dept.highRiskPsycho >= 3 ? 2 : dept.highRiskPsycho >= 1 ? 1 : 0;
+  const globalRisk = Math.round(
+    (rotRisk + capRisk + nomRisk + vacRisk + psyRisk) / 5
+  );
   return { rotRisk, capRisk, nomRisk, vacRisk, psyRisk, globalRisk };
 }
 
 describe("Sprint 45 — Mapa de Calor NOM-035", () => {
-
   // ── 1. Departamento de bajo riesgo ────────────────────────────────────────
   it("departamento con todos los indicadores en verde → globalRisk = 0 (Bajo)", () => {
     const risks = calcRisks({
-      turnoverRate: 5,       // < 10 → 0
-      trainingRate: 90,      // >= 80 → 0
-      nom035Score: 85,       // >= 80 → 0
-      pendingVacations: 1,   // < 2 → 0
-      highRiskPsycho: 0,     // 0 → 0
+      turnoverRate: 5, // < 10 → 0
+      trainingRate: 90, // >= 80 → 0
+      nom035Score: 85, // >= 80 → 0
+      pendingVacations: 1, // < 2 → 0
+      highRiskPsycho: 0, // 0 → 0
     });
     expect(risks.rotRisk).toBe(0);
     expect(risks.capRisk).toBe(0);
@@ -53,11 +56,11 @@ describe("Sprint 45 — Mapa de Calor NOM-035", () => {
   // ── 2. Departamento de riesgo medio ──────────────────────────────────────
   it("departamento con indicadores en amarillo → globalRisk = 1 (Medio)", () => {
     const risks = calcRisks({
-      turnoverRate: 12,      // 10-19 → 1
-      trainingRate: 65,      // 50-79 → 1
-      nom035Score: 70,       // 60-79 → 1
-      pendingVacations: 3,   // 2-4 → 1
-      highRiskPsycho: 1,     // 1-2 → 1
+      turnoverRate: 12, // 10-19 → 1
+      trainingRate: 65, // 50-79 → 1
+      nom035Score: 70, // 60-79 → 1
+      pendingVacations: 3, // 2-4 → 1
+      highRiskPsycho: 1, // 1-2 → 1
     });
     expect(risks.rotRisk).toBe(1);
     expect(risks.capRisk).toBe(1);
@@ -70,11 +73,11 @@ describe("Sprint 45 — Mapa de Calor NOM-035", () => {
   // ── 3. Departamento de alto riesgo ────────────────────────────────────────
   it("departamento con todos los indicadores en rojo → globalRisk = 2 (Alto)", () => {
     const risks = calcRisks({
-      turnoverRate: 25,      // >= 20 → 2
-      trainingRate: 30,      // < 50 → 2
-      nom035Score: 45,       // < 60 → 2
-      pendingVacations: 7,   // >= 5 → 2
-      highRiskPsycho: 4,     // >= 3 → 2
+      turnoverRate: 25, // >= 20 → 2
+      trainingRate: 30, // < 50 → 2
+      nom035Score: 45, // < 60 → 2
+      pendingVacations: 7, // >= 5 → 2
+      highRiskPsycho: 4, // >= 3 → 2
     });
     expect(risks.rotRisk).toBe(2);
     expect(risks.capRisk).toBe(2);
@@ -87,11 +90,11 @@ describe("Sprint 45 — Mapa de Calor NOM-035", () => {
   // ── 4. Departamento mixto (promedio redondeado) ───────────────────────────
   it("departamento con mezcla de riesgos → globalRisk redondeado correctamente", () => {
     const risks = calcRisks({
-      turnoverRate: 25,      // 2
-      trainingRate: 90,      // 0
-      nom035Score: 85,       // 0
-      pendingVacations: 1,   // 0
-      highRiskPsycho: 0,     // 0
+      turnoverRate: 25, // 2
+      trainingRate: 90, // 0
+      nom035Score: 85, // 0
+      pendingVacations: 1, // 0
+      highRiskPsycho: 0, // 0
     });
     // promedio = (2+0+0+0+0)/5 = 0.4 → redondeado = 0
     expect(risks.globalRisk).toBe(0);
@@ -99,39 +102,66 @@ describe("Sprint 45 — Mapa de Calor NOM-035", () => {
 
   // ── 5. Umbral exacto de rotación ─────────────────────────────────────────
   it("rotación exactamente en 20% → riesgo alto (2)", () => {
-    const risks = calcRisks({ turnoverRate: 20, trainingRate: 80, nom035Score: 80, pendingVacations: 0, highRiskPsycho: 0 });
+    const risks = calcRisks({
+      turnoverRate: 20,
+      trainingRate: 80,
+      nom035Score: 80,
+      pendingVacations: 0,
+      highRiskPsycho: 0,
+    });
     expect(risks.rotRisk).toBe(2);
   });
 
   it("rotación exactamente en 10% → riesgo medio (1)", () => {
-    const risks = calcRisks({ turnoverRate: 10, trainingRate: 80, nom035Score: 80, pendingVacations: 0, highRiskPsycho: 0 });
+    const risks = calcRisks({
+      turnoverRate: 10,
+      trainingRate: 80,
+      nom035Score: 80,
+      pendingVacations: 0,
+      highRiskPsycho: 0,
+    });
     expect(risks.rotRisk).toBe(1);
   });
 
   // ── 6. Umbral exacto de capacitación ─────────────────────────────────────
   it("capacitación exactamente en 80% → riesgo bajo (0)", () => {
-    const risks = calcRisks({ turnoverRate: 5, trainingRate: 80, nom035Score: 80, pendingVacations: 0, highRiskPsycho: 0 });
+    const risks = calcRisks({
+      turnoverRate: 5,
+      trainingRate: 80,
+      nom035Score: 80,
+      pendingVacations: 0,
+      highRiskPsycho: 0,
+    });
     expect(risks.capRisk).toBe(0);
   });
 
   it("capacitación exactamente en 50% → riesgo medio (1)", () => {
-    const risks = calcRisks({ turnoverRate: 5, trainingRate: 50, nom035Score: 80, pendingVacations: 0, highRiskPsycho: 0 });
+    const risks = calcRisks({
+      turnoverRate: 5,
+      trainingRate: 50,
+      nom035Score: 80,
+      pendingVacations: 0,
+      highRiskPsycho: 0,
+    });
     expect(risks.capRisk).toBe(1);
   });
 
   // ── 7. Etiquetas de nivel global ─────────────────────────────────────────
   it("globalRisk 0 → etiqueta 'Bajo'", () => {
-    const label = (r: number) => r === 2 ? "Alto" : r === 1 ? "Medio" : "Bajo";
+    const label = (r: number) =>
+      r === 2 ? "Alto" : r === 1 ? "Medio" : "Bajo";
     expect(label(0)).toBe("Bajo");
   });
 
   it("globalRisk 1 → etiqueta 'Medio'", () => {
-    const label = (r: number) => r === 2 ? "Alto" : r === 1 ? "Medio" : "Bajo";
+    const label = (r: number) =>
+      r === 2 ? "Alto" : r === 1 ? "Medio" : "Bajo";
     expect(label(1)).toBe("Medio");
   });
 
   it("globalRisk 2 → etiqueta 'Alto'", () => {
-    const label = (r: number) => r === 2 ? "Alto" : r === 1 ? "Medio" : "Bajo";
+    const label = (r: number) =>
+      r === 2 ? "Alto" : r === 1 ? "Medio" : "Bajo";
     expect(label(2)).toBe("Alto");
   });
 });
@@ -158,7 +188,10 @@ describe("Sprint 45 — Procedures executiveReport", () => {
 
 // ─── Verificar que KPIDashboard tiene el mapa de calor ───────────────────────
 describe("Sprint 45 — KPIDashboard: Mapa de Calor", () => {
-  const dashPath = path.resolve(__dirname, "../client/src/pages/KPIDashboard.tsx");
+  const dashPath = path.resolve(
+    __dirname,
+    "../client/src/pages/KPIDashboard.tsx"
+  );
 
   it("KPIDashboard tiene estado heatmapBranchId", () => {
     const content = readFileSync(dashPath, "utf-8");

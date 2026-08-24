@@ -1,14 +1,46 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { DollarSign, TrendingDown, AlertTriangle, Users, Plus, Pencil, Trash2 } from "lucide-react";
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
+import {
+  DollarSign,
+  TrendingDown,
+  AlertTriangle,
+  Users,
+  Plus,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import {
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
 
 export default function PayrollCompensationDashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -30,9 +62,12 @@ export default function PayrollCompensationDashboard() {
   const utils = trpc.useUtils();
 
   // Queries
-  const { data: payrollData = [], isLoading: payrollLoading } = trpc.payrollIntegration.getAllPayrollData.useQuery();
-  const { data: criticalGaps = [], isLoading: criticalLoading } = trpc.payrollIntegration.getCriticalSalaryGaps.useQuery();
-  const { data: correlation, isLoading: correlationLoading } = trpc.payrollIntegration.getCompensationRiskCorrelation.useQuery();
+  const { data: payrollData = [], isLoading: payrollLoading } =
+    trpc.payrollIntegration.getAllPayrollData.useQuery();
+  const { data: criticalGaps = [], isLoading: criticalLoading } =
+    trpc.payrollIntegration.getCriticalSalaryGaps.useQuery();
+  const { data: correlation, isLoading: correlationLoading } =
+    trpc.payrollIntegration.getCompensationRiskCorrelation.useQuery();
 
   // Mutations
   const upsertMutation = trpc.payrollIntegration.upsertPayrollData.useMutation({
@@ -42,7 +77,7 @@ export default function PayrollCompensationDashboard() {
       setIsDialogOpen(false);
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || "Error al guardar datos de nómina");
     },
   });
@@ -52,7 +87,7 @@ export default function PayrollCompensationDashboard() {
       toast.success("Datos de nómina eliminados");
       utils.payrollIntegration.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || "Error al eliminar datos de nómina");
     },
   });
@@ -90,7 +125,7 @@ export default function PayrollCompensationDashboard() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.employeeId || !formData.employeeName || !formData.salary) {
       toast.error("Por favor complete los campos requeridos");
       return;
@@ -104,8 +139,12 @@ export default function PayrollCompensationDashboard() {
       salary: parseFloat(formData.salary),
       benefits: formData.benefits ? parseFloat(formData.benefits) : undefined,
       lastRaiseDate: formData.lastRaiseDate || undefined,
-      lastRaisePercentage: formData.lastRaisePercentage ? parseFloat(formData.lastRaisePercentage) : undefined,
-      marketRate: formData.marketRate ? parseFloat(formData.marketRate) : undefined,
+      lastRaisePercentage: formData.lastRaisePercentage
+        ? parseFloat(formData.lastRaisePercentage)
+        : undefined,
+      marketRate: formData.marketRate
+        ? parseFloat(formData.marketRate)
+        : undefined,
     });
   };
 
@@ -126,7 +165,11 @@ export default function PayrollCompensationDashboard() {
 
   // Preparar datos para gráfico de barras (distribución por nivel de riesgo)
   const riskDistribution = [
-    { level: "Crítico", count: correlation?.criticalCount || 0, fill: "#dc2626" },
+    {
+      level: "Crítico",
+      count: correlation?.criticalCount || 0,
+      fill: "#dc2626",
+    },
     { level: "Alto", count: correlation?.highCount || 0, fill: "#f97316" },
     { level: "Medio", count: correlation?.mediumCount || 0, fill: "#eab308" },
     { level: "Bajo", count: correlation?.lowCount || 0, fill: "#22c55e" },
@@ -136,7 +179,9 @@ export default function PayrollCompensationDashboard() {
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Compensación y Análisis Salarial</h1>
+          <h1 className="text-3xl font-bold">
+            Compensación y Análisis Salarial
+          </h1>
           <p className="text-muted-foreground mt-2">
             Correlación entre compensación y riesgo de rotación
           </p>
@@ -150,7 +195,9 @@ export default function PayrollCompensationDashboard() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>{editingEmployee ? "Editar" : "Agregar"} Datos de Nómina</DialogTitle>
+              <DialogTitle>
+                {editingEmployee ? "Editar" : "Agregar"} Datos de Nómina
+              </DialogTitle>
               <DialogDescription>
                 Complete la información de compensación del empleado
               </DialogDescription>
@@ -163,7 +210,9 @@ export default function PayrollCompensationDashboard() {
                     id="employeeId"
                     type="number"
                     value={formData.employeeId}
-                    onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, employeeId: e.target.value })
+                    }
                     disabled={!!editingEmployee}
                     required
                   />
@@ -173,7 +222,9 @@ export default function PayrollCompensationDashboard() {
                   <Input
                     id="employeeName"
                     value={formData.employeeName}
-                    onChange={(e) => setFormData({ ...formData, employeeName: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, employeeName: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -185,7 +236,9 @@ export default function PayrollCompensationDashboard() {
                   <Input
                     id="department"
                     value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, department: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -193,7 +246,9 @@ export default function PayrollCompensationDashboard() {
                   <Input
                     id="position"
                     value={formData.position}
-                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, position: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -206,7 +261,9 @@ export default function PayrollCompensationDashboard() {
                     type="number"
                     step="0.01"
                     value={formData.salary}
-                    onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, salary: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -217,7 +274,9 @@ export default function PayrollCompensationDashboard() {
                     type="number"
                     step="0.01"
                     value={formData.benefits}
-                    onChange={(e) => setFormData({ ...formData, benefits: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, benefits: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -229,7 +288,12 @@ export default function PayrollCompensationDashboard() {
                     id="lastRaiseDate"
                     type="date"
                     value={formData.lastRaiseDate}
-                    onChange={(e) => setFormData({ ...formData, lastRaiseDate: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        lastRaiseDate: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -239,7 +303,12 @@ export default function PayrollCompensationDashboard() {
                     type="number"
                     step="0.01"
                     value={formData.lastRaisePercentage}
-                    onChange={(e) => setFormData({ ...formData, lastRaisePercentage: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        lastRaisePercentage: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -251,12 +320,18 @@ export default function PayrollCompensationDashboard() {
                   type="number"
                   step="0.01"
                   value={formData.marketRate}
-                  onChange={(e) => setFormData({ ...formData, marketRate: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, marketRate: e.target.value })
+                  }
                 />
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={upsertMutation.isPending}>
@@ -272,23 +347,35 @@ export default function PayrollCompensationDashboard() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Empleados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Empleados
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{correlation?.totalEmployees || 0}</div>
-            <p className="text-xs text-muted-foreground">Con datos de compensación</p>
+            <div className="text-2xl font-bold">
+              {correlation?.totalEmployees || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Con datos de compensación
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Brecha Crítica</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Brecha Crítica
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{correlation?.criticalCount || 0}</div>
-            <p className="text-xs text-muted-foreground">Requieren revisión urgente</p>
+            <div className="text-2xl font-bold text-red-600">
+              {correlation?.criticalCount || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Requieren revisión urgente
+            </p>
           </CardContent>
         </Card>
 
@@ -298,18 +385,26 @@ export default function PayrollCompensationDashboard() {
             <TrendingDown className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{correlation?.highCount || 0}</div>
-            <p className="text-xs text-muted-foreground">Compensación por debajo del mercado</p>
+            <div className="text-2xl font-bold text-orange-600">
+              {correlation?.highCount || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Compensación por debajo del mercado
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Compensación Adecuada</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Compensación Adecuada
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{(correlation?.lowCount || 0) + (correlation?.mediumCount || 0)}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {(correlation?.lowCount || 0) + (correlation?.mediumCount || 0)}
+            </div>
             <p className="text-xs text-muted-foreground">En rango de mercado</p>
           </CardContent>
         </Card>
@@ -320,7 +415,9 @@ export default function PayrollCompensationDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución por Nivel de Riesgo</CardTitle>
-            <CardDescription>Empleados agrupados por nivel de riesgo de compensación</CardDescription>
+            <CardDescription>
+              Empleados agrupados por nivel de riesgo de compensación
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -339,7 +436,9 @@ export default function PayrollCompensationDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Salario vs Brecha Salarial</CardTitle>
-            <CardDescription>Correlación entre salario actual y brecha con el mercado</CardDescription>
+            <CardDescription>
+              Correlación entre salario actual y brecha con el mercado
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -349,18 +448,27 @@ export default function PayrollCompensationDashboard() {
                   type="number"
                   dataKey="salary"
                   name="Salario"
-                  label={{ value: "Salario (MXN)", position: "insideBottom", offset: -5 }}
+                  label={{
+                    value: "Salario (MXN)",
+                    position: "insideBottom",
+                    offset: -5,
+                  }}
                 />
                 <YAxis
                   type="number"
                   dataKey="gap"
                   name="Brecha"
-                  label={{ value: "Brecha Salarial (%)", angle: -90, position: "insideLeft" }}
+                  label={{
+                    value: "Brecha Salarial (%)",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
                 />
                 <Tooltip
                   cursor={{ strokeDasharray: "3 3" }}
                   formatter={(value: any, name: string) => {
-                    if (name === "Salario") return [`$${value.toLocaleString()} MXN`, name];
+                    if (name === "Salario")
+                      return [`$${value.toLocaleString()} MXN`, name];
                     return [`${value.toFixed(1)}%`, "Brecha"];
                   }}
                 />
@@ -383,7 +491,9 @@ export default function PayrollCompensationDashboard() {
           {criticalLoading ? (
             <p className="text-center text-muted-foreground">Cargando...</p>
           ) : criticalGaps.length === 0 ? (
-            <p className="text-center text-muted-foreground">No hay empleados con brecha salarial crítica</p>
+            <p className="text-center text-muted-foreground">
+              No hay empleados con brecha salarial crítica
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -391,21 +501,34 @@ export default function PayrollCompensationDashboard() {
                   <tr className="border-b">
                     <th className="text-left p-3 font-medium">Nombre</th>
                     <th className="text-left p-3 font-medium">Departamento</th>
-                    <th className="text-center p-3 font-medium">Salario Actual</th>
-                    <th className="text-center p-3 font-medium">Tasa de Mercado</th>
+                    <th className="text-center p-3 font-medium">
+                      Salario Actual
+                    </th>
+                    <th className="text-center p-3 font-medium">
+                      Tasa de Mercado
+                    </th>
                     <th className="text-center p-3 font-medium">Brecha</th>
-                    <th className="text-center p-3 font-medium">Nivel de Riesgo</th>
+                    <th className="text-center p-3 font-medium">
+                      Nivel de Riesgo
+                    </th>
                     <th className="text-center p-3 font-medium">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {criticalGaps.map((employee: any) => (
-                    <tr key={employee.id} className="border-b hover:bg-muted/50">
+                    <tr
+                      key={employee.id}
+                      className="border-b hover:bg-muted/50"
+                    >
                       <td className="p-3">{employee.employeeName}</td>
                       <td className="p-3">{employee.department}</td>
-                      <td className="p-3 text-center">${parseFloat(employee.salary).toLocaleString()}</td>
                       <td className="p-3 text-center">
-                        {employee.marketRate ? `$${parseFloat(employee.marketRate).toLocaleString()}` : "N/A"}
+                        ${parseFloat(employee.salary).toLocaleString()}
+                      </td>
+                      <td className="p-3 text-center">
+                        {employee.marketRate
+                          ? `$${parseFloat(employee.marketRate).toLocaleString()}`
+                          : "N/A"}
                       </td>
                       <td className="p-3 text-center">
                         <Badge variant="destructive">
@@ -420,7 +543,9 @@ export default function PayrollCompensationDashboard() {
                               : "bg-orange-100 text-orange-800"
                           }
                         >
-                          {employee.compensationRiskLevel === "critical" ? "Crítico" : "Alto"}
+                          {employee.compensationRiskLevel === "critical"
+                            ? "Crítico"
+                            : "Alto"}
                         </Badge>
                       </td>
                       <td className="p-3 text-center">

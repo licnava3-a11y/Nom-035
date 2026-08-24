@@ -1,13 +1,33 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, FileText } from "lucide-react";
+import {
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  FileText,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -80,7 +100,10 @@ const REQUIRED_DOCUMENTS = {
   ],
 };
 
-export function TerminationWizard({ onComplete, onCancel }: TerminationWizardProps) {
+export function TerminationWizard({
+  onComplete,
+  onCancel,
+}: TerminationWizardProps) {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<TerminationData>({
     employeeId: 0,
@@ -91,7 +114,9 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
     documentChecklist: {},
   });
 
-  const { data: employeesData } = trpc.employees.list.useQuery({ pageSize: 1000 });
+  const { data: employeesData } = trpc.employees.list.useQuery({
+    pageSize: 1000,
+  });
   const employees = employeesData?.employees;
   const terminateMutation = trpc.employees.terminate.useMutation({
     onSuccess: () => {
@@ -100,7 +125,7 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
       });
       onComplete();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error("Error al procesar la baja", {
         description: error.message,
       });
@@ -110,7 +135,8 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
   const handleNext = () => {
     if (step === 1 && (!data.employeeId || !data.terminationReason)) {
       toast.error("Campos requeridos", {
-        description: "Por favor selecciona un empleado y un motivo de terminación.",
+        description:
+          "Por favor selecciona un empleado y un motivo de terminación.",
       });
       return;
     }
@@ -123,7 +149,7 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
     try {
       // Upload documents to S3 first
       const documentUrls: string[] = [];
-      
+
       if (data.documents.length > 0) {
         toast.info("Subiendo documentos...", {
           description: `Cargando ${data.documents.length} archivo(s) a S3`,
@@ -132,11 +158,11 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
         for (const file of data.documents) {
           try {
             const formData = new FormData();
-            formData.append('file', file);
-            formData.append('folder', 'terminations');
+            formData.append("file", file);
+            formData.append("folder", "terminations");
 
-            const response = await fetch('/api/upload', {
-              method: 'POST',
+            const response = await fetch("/api/upload", {
+              method: "POST",
               body: formData,
             });
 
@@ -168,10 +194,14 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
   };
 
   const requiredDocs = data.terminationReason
-    ? REQUIRED_DOCUMENTS[data.terminationReason as keyof typeof REQUIRED_DOCUMENTS] || []
+    ? REQUIRED_DOCUMENTS[
+        data.terminationReason as keyof typeof REQUIRED_DOCUMENTS
+      ] || []
     : [];
 
-  const allDocsChecked = requiredDocs.every((doc: any) => data.documentChecklist[doc]);
+  const allDocsChecked = requiredDocs.every(
+    (doc: any) => data.documentChecklist[doc]
+  );
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -187,7 +217,9 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
               <Label htmlFor="employee">Empleado *</Label>
               <Select
                 value={data.employeeId.toString()}
-                onValueChange={(value) => setData({ ...data, employeeId: parseInt(value) })}
+                onValueChange={value =>
+                  setData({ ...data, employeeId: parseInt(value) })
+                }
               >
                 <SelectTrigger id="employee">
                   <SelectValue placeholder="Selecciona un empleado" />
@@ -206,8 +238,12 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
               <Label htmlFor="reason">Motivo de Terminación *</Label>
               <Select
                 value={data.terminationReason}
-                onValueChange={(value) =>
-                  setData({ ...data, terminationReason: value, documentChecklist: {} })
+                onValueChange={value =>
+                  setData({
+                    ...data,
+                    terminationReason: value,
+                    documentChecklist: {},
+                  })
                 }
               >
                 <SelectTrigger id="reason">
@@ -229,7 +265,9 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
                 id="date"
                 type="date"
                 value={data.terminationDate}
-                onChange={(e) => setData({ ...data, terminationDate: e.target.value })}
+                onChange={e =>
+                  setData({ ...data, terminationDate: e.target.value })
+                }
               />
             </div>
 
@@ -239,7 +277,7 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
                 id="notes"
                 placeholder="Detalles adicionales sobre la terminación..."
                 value={data.notes}
-                onChange={(e) => setData({ ...data, notes: e.target.value })}
+                onChange={e => setData({ ...data, notes: e.target.value })}
                 rows={4}
               />
             </div>
@@ -252,7 +290,8 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
             <Alert>
               <FileText className="h-4 w-4" />
               <AlertDescription>
-                Verifica que cuentas con la siguiente documentación requerida para procesar la baja.
+                Verifica que cuentas con la siguiente documentación requerida
+                para procesar la baja.
               </AlertDescription>
             </Alert>
 
@@ -262,7 +301,7 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
                   <Checkbox
                     id={doc}
                     checked={data.documentChecklist[doc] || false}
-                    onCheckedChange={(checked) =>
+                    onCheckedChange={checked =>
                       setData({
                         ...data,
                         documentChecklist: {
@@ -272,7 +311,10 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
                       })
                     }
                   />
-                  <Label htmlFor={doc} className="text-sm font-normal cursor-pointer">
+                  <Label
+                    htmlFor={doc}
+                    className="text-sm font-normal cursor-pointer"
+                  >
                     {doc}
                   </Label>
                 </div>
@@ -283,7 +325,8 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Debes confirmar que cuentas con toda la documentación requerida antes de continuar.
+                  Debes confirmar que cuentas con toda la documentación
+                  requerida antes de continuar.
                 </AlertDescription>
               </Alert>
             )}
@@ -296,8 +339,8 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
             <Alert>
               <Upload className="h-4 w-4" />
               <AlertDescription>
-                Carga los documentos de evidencia. Los archivos se almacenarán de forma segura en el
-                sistema.
+                Carga los documentos de evidencia. Los archivos se almacenarán
+                de forma segura en el sistema.
               </AlertDescription>
             </Alert>
 
@@ -310,9 +353,12 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
                 type="file"
                 multiple
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                onChange={(e) => {
+                onChange={e => {
                   const files = Array.from(e.target.files || []);
-                  setData({ ...data, documents: [...data.documents, ...files] });
+                  setData({
+                    ...data,
+                    documents: [...data.documents, ...files],
+                  });
                 }}
                 className="hidden"
                 id="file-upload"
@@ -329,7 +375,10 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
                 <p className="text-sm font-medium">Archivos seleccionados:</p>
                 <ul className="space-y-1">
                   {data.documents.map((file, index) => (
-                    <li key={index} className="text-sm text-gray-600 flex items-center">
+                    <li
+                      key={index}
+                      className="text-sm text-gray-600 flex items-center"
+                    >
                       <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
                       {file.name}
                     </li>
@@ -346,7 +395,8 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Revisa cuidadosamente la información antes de confirmar. Esta acción no se puede deshacer.
+                Revisa cuidadosamente la información antes de confirmar. Esta
+                acción no se puede deshacer.
               </AlertDescription>
             </Alert>
 
@@ -354,21 +404,37 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
               <div>
                 <p className="text-sm font-medium text-gray-600">Empleado</p>
                 <p className="text-base">
-                  {employees?.find((e: any) => e.id === data.employeeId)?.firstName}{" "}
-                  {employees?.find((e: any) => e.id === data.employeeId)?.lastName}
+                  {
+                    employees?.find((e: any) => e.id === data.employeeId)
+                      ?.firstName
+                  }{" "}
+                  {
+                    employees?.find((e: any) => e.id === data.employeeId)
+                      ?.lastName
+                  }
                 </p>
               </div>
 
               <div>
-                <p className="text-sm font-medium text-gray-600">Motivo de Terminación</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Motivo de Terminación
+                </p>
                 <p className="text-base">
-                  {TERMINATION_REASONS.find((r: any) => r.value === data.terminationReason)?.label}
+                  {
+                    TERMINATION_REASONS.find(
+                      (r: any) => r.value === data.terminationReason
+                    )?.label
+                  }
                 </p>
               </div>
 
               <div>
-                <p className="text-sm font-medium text-gray-600">Fecha de Terminación</p>
-                <p className="text-base">{new Date(data.terminationDate).toLocaleDateString("es-MX")}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Fecha de Terminación
+                </p>
+                <p className="text-base">
+                  {new Date(data.terminationDate).toLocaleDateString("es-MX")}
+                </p>
               </div>
 
               {data.notes && (
@@ -379,7 +445,9 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
               )}
 
               <div>
-                <p className="text-sm font-medium text-gray-600">Documentos Cargados</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Documentos Cargados
+                </p>
                 <p className="text-base">{data.documents.length} archivo(s)</p>
               </div>
             </div>
@@ -387,7 +455,11 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
         )}
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={step === 1 ? onCancel : handleBack} disabled={terminateMutation.isPending}>
+        <Button
+          variant="outline"
+          onClick={step === 1 ? onCancel : handleBack}
+          disabled={terminateMutation.isPending}
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           {step === 1 ? "Cancelar" : "Anterior"}
         </Button>

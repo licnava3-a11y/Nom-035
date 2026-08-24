@@ -3,9 +3,9 @@
  * Guía al usuario sobre qué hacer cuando no hay datos
  */
 
-import { LucideIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -28,7 +28,7 @@ export function EmptyState({
   description,
   action,
   secondaryAction,
-  className
+  className,
 }: EmptyStateProps) {
   return (
     <Card className={className}>
@@ -36,20 +36,16 @@ export function EmptyState({
         <div className="rounded-full bg-muted p-6 mb-4">
           <Icon className="h-12 w-12 text-muted-foreground" />
         </div>
-        
+
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        
+
         <p className="text-sm text-muted-foreground max-w-md mb-6">
           {description}
         </p>
 
         {(action || secondaryAction) && (
           <div className="flex flex-col sm:flex-row gap-3">
-            {action && (
-              <Button onClick={action.onClick}>
-                {action.label}
-              </Button>
-            )}
+            {action && <Button onClick={action.onClick}>{action.label}</Button>}
             {secondaryAction && (
               <Button variant="outline" onClick={secondaryAction.onClick}>
                 {secondaryAction.label}
@@ -77,7 +73,7 @@ interface InlineEmptyStateProps {
 export function InlineEmptyState({
   icon: Icon,
   message,
-  action
+  action,
 }: InlineEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4 text-center">

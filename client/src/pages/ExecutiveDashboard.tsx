@@ -1,9 +1,43 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Users, FileText, Download } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  CheckCircle,
+  Users,
+  FileText,
+  Download,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,28 +50,31 @@ const COLORS = {
 };
 
 export default function ExecutiveDashboard() {
-  const [period, setPeriod] = useState<"day" | "week" | "month" | "quarter" | "year">("month");
+  const [period, setPeriod] = useState<
+    "day" | "week" | "month" | "quarter" | "year"
+  >("month");
 
   const { toast } = useToast();
 
   // Obtener métricas del dashboard
-  const { data: metrics, isLoading } = trpc.executiveDashboard.getMetrics.useQuery({});
-  
+  const { data: metrics, isLoading } =
+    trpc.executiveDashboard.getMetrics.useQuery({});
+
   // Mutation para exportar a Excel
   const exportMutation = trpc.executiveDashboard.exportToExcel.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Descargar archivo Excel
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
       link.download = data.filename;
       link.click();
-      
+
       toast({
         title: "Exportación exitosa",
         description: "El dashboard se ha exportado a Excel correctamente.",
       });
     },
-    onError: (error) => {
+    onError: error => {
       toast({
         title: "Error al exportar",
         description: error.message,
@@ -45,11 +82,11 @@ export default function ExecutiveDashboard() {
       });
     },
   });
-  
+
   const handleExport = () => {
     exportMutation.mutate({});
   };
-  
+
   // Obtener datos de tendencias
   const { data: trends } = trpc.executiveDashboard.getTrendsData.useQuery({
     period: "this_month",
@@ -60,7 +97,9 @@ export default function ExecutiveDashboard() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Cargando dashboard ejecutivo...</p>
+          <p className="mt-4 text-muted-foreground">
+            Cargando dashboard ejecutivo...
+          </p>
         </div>
       </div>
     );
@@ -71,21 +110,31 @@ export default function ExecutiveDashboard() {
   const structure = metrics?.employeesAndStructure;
 
   // Preparar datos para gráficas
-  const riskDistributionData = trends?.riskDistribution?.map((item: any) => ({
-    name: item.level === "low" ? "Bajo" : item.level === "medium" ? "Medio" : item.level === "high" ? "Alto" : "Crítico",
-    value: item.count,
-  })) || [];
+  const riskDistributionData =
+    trends?.riskDistribution?.map((item: any) => ({
+      name:
+        item.level === "low"
+          ? "Bajo"
+          : item.level === "medium"
+            ? "Medio"
+            : item.level === "high"
+              ? "Alto"
+              : "Crítico",
+      value: item.count,
+    })) || [];
 
-  const genderDistributionData = nmx025?.genderDistribution?.map((item: any) => ({
-    name: item.sexo,
-    value: item.count,
-  })) || [];
+  const genderDistributionData =
+    nmx025?.genderDistribution?.map((item: any) => ({
+      name: item.sexo,
+      value: item.count,
+    })) || [];
 
-  const casesTrendData = trends?.casesTrend?.created?.map((item, index) => ({
-    date: item.date,
-    created: item.count,
-    closed: trends.casesTrend.closed[index]?.count || 0,
-  })) || [];
+  const casesTrendData =
+    trends?.casesTrend?.created?.map((item, index) => ({
+      date: item.date,
+      created: item.count,
+      closed: trends.casesTrend.closed[index]?.count || 0,
+    })) || [];
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -93,11 +142,16 @@ export default function ExecutiveDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Dashboard Ejecutivo NOM-035</h1>
-          <p className="text-muted-foreground">Métricas clave de cumplimiento y riesgo psicosocial</p>
+          <p className="text-muted-foreground">
+            Métricas clave de cumplimiento y riesgo psicosocial
+          </p>
         </div>
-        
+
         <div className="flex gap-2">
-          <Select value={period} onValueChange={(value: any) => setPeriod(value)}>
+          <Select
+            value={period}
+            onValueChange={(value: any) => setPeriod(value)}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Seleccionar período" />
             </SelectTrigger>
@@ -109,9 +163,9 @@ export default function ExecutiveDashboard() {
               <SelectItem value="year">Este año</SelectItem>
             </SelectContent>
           </Select>
-          
-          <Button 
-            onClick={handleExport} 
+
+          <Button
+            onClick={handleExport}
             disabled={exportMutation.isPending}
             variant="outline"
           >
@@ -126,25 +180,37 @@ export default function ExecutiveDashboard() {
         {/* KPI 1: Tasa de Cumplimiento */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Cumplimiento</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Cumplimiento
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" style={{ color: COLORS.success }}>
+            <div
+              className="text-2xl font-bold"
+              style={{ color: COLORS.success }}
+            >
               {nom035?.surveyCoverage?.toFixed(1)}%
             </div>
-            <p className="text-xs text-muted-foreground">Cobertura de encuestas</p>
+            <p className="text-xs text-muted-foreground">
+              Cobertura de encuestas
+            </p>
           </CardContent>
         </Card>
 
         {/* KPI 2: Casos Críticos */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Casos Críticos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Casos Críticos
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" style={{ color: COLORS.danger }}>
+            <div
+              className="text-2xl font-bold"
+              style={{ color: COLORS.danger }}
+            >
               {nom035?.casesOpen || 0}
             </div>
             <p className="text-xs text-muted-foreground">Casos abiertos</p>
@@ -154,11 +220,16 @@ export default function ExecutiveDashboard() {
         {/* KPI 3: Total de Empleados */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Empleados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Empleados
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" style={{ color: COLORS.primary }}>
+            <div
+              className="text-2xl font-bold"
+              style={{ color: COLORS.primary }}
+            >
               {structure?.totalEmployees || 0}
             </div>
             <p className="text-xs text-muted-foreground">Plantilla activa</p>
@@ -168,14 +239,21 @@ export default function ExecutiveDashboard() {
         {/* KPI 4: Casos Cerrados */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Casos Cerrados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Casos Cerrados
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" style={{ color: COLORS.success }}>
+            <div
+              className="text-2xl font-bold"
+              style={{ color: COLORS.success }}
+            >
               {nom035?.casesClosed || 0}
             </div>
-            <p className="text-xs text-muted-foreground">Resueltos exitosamente</p>
+            <p className="text-xs text-muted-foreground">
+              Resueltos exitosamente
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -186,7 +264,9 @@ export default function ExecutiveDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Tendencia de Casos</CardTitle>
-            <CardDescription>Casos creados vs cerrados en el período</CardDescription>
+            <CardDescription>
+              Casos creados vs cerrados en el período
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -196,8 +276,18 @@ export default function ExecutiveDashboard() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="created" stroke={COLORS.danger} name="Creados" />
-                <Line type="monotone" dataKey="closed" stroke={COLORS.success} name="Cerrados" />
+                <Line
+                  type="monotone"
+                  dataKey="created"
+                  stroke={COLORS.danger}
+                  name="Creados"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="closed"
+                  stroke={COLORS.success}
+                  name="Cerrados"
+                />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -217,13 +307,20 @@ export default function ExecutiveDashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={(entry) => `${entry.name}: ${entry.value}`}
+                  label={entry => `${entry.name}: ${entry.value}`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
                   {riskDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={Object.values(COLORS)[index % Object.values(COLORS).length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={
+                        Object.values(COLORS)[
+                          index % Object.values(COLORS).length
+                        ]
+                      }
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -255,7 +352,9 @@ export default function ExecutiveDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución de Género</CardTitle>
-            <CardDescription>Equidad de género en la organización</CardDescription>
+            <CardDescription>
+              Equidad de género en la organización
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -265,13 +364,16 @@ export default function ExecutiveDashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={(entry) => `${entry.name}: ${entry.value}`}
+                  label={entry => `${entry.name}: ${entry.value}`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
                   {genderDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === 0 ? COLORS.primary : COLORS.success} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={index === 0 ? COLORS.primary : COLORS.success}
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -290,20 +392,33 @@ export default function ExecutiveDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-4 border rounded-lg">
-              <p className="text-sm text-muted-foreground">Mujeres en Puestos Directivos</p>
-              <p className="text-2xl font-bold" style={{ color: COLORS.primary }}>
+              <p className="text-sm text-muted-foreground">
+                Mujeres en Puestos Directivos
+              </p>
+              <p
+                className="text-2xl font-bold"
+                style={{ color: COLORS.primary }}
+              >
                 {nmx025?.femaleDirectivesPercentage?.toFixed(1)}%
               </p>
             </div>
             <div className="text-center p-4 border rounded-lg">
               <p className="text-sm text-muted-foreground">Total de Quejas</p>
-              <p className="text-2xl font-bold" style={{ color: COLORS.warning }}>
+              <p
+                className="text-2xl font-bold"
+                style={{ color: COLORS.warning }}
+              >
                 {nmx025?.totalComplaints || 0}
               </p>
             </div>
             <div className="text-center p-4 border rounded-lg">
-              <p className="text-sm text-muted-foreground">Representantes Legales</p>
-              <p className="text-2xl font-bold" style={{ color: COLORS.success }}>
+              <p className="text-sm text-muted-foreground">
+                Representantes Legales
+              </p>
+              <p
+                className="text-2xl font-bold"
+                style={{ color: COLORS.success }}
+              >
                 {structure?.activeLegalReps || 0}
               </p>
             </div>

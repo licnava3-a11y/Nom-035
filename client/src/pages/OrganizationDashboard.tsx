@@ -1,17 +1,54 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DateRangePicker } from "@/components/DateRangePicker";
 import { trpc } from "@/lib/trpc";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Building2, Briefcase, Users, FileSpreadsheet, Calendar } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import {
+  Building2,
+  Briefcase,
+  Users,
+  FileSpreadsheet,
+  Calendar,
+} from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { subWeeks, subMonths, subYears, format } from "date-fns";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 // Paleta de colores profesional: negro, verde, azul marino, rojo
-const COLORS = ["#1e3a8a", "#16a34a", "#dc2626", "#0f172a", "#22c55e", "#ef4444"];
+const COLORS = [
+  "#1e3a8a",
+  "#16a34a",
+  "#dc2626",
+  "#0f172a",
+  "#22c55e",
+  "#ef4444",
+];
 
 export default function OrganizationDashboard() {
   // Estado de filtros temporales
@@ -21,7 +58,7 @@ export default function OrganizationDashboard() {
   // Calcular rango de fechas según periodo seleccionado
   const getDateRange = () => {
     const today = new Date();
-    
+
     switch (period) {
       case "week":
         return {
@@ -55,17 +92,19 @@ export default function OrganizationDashboard() {
 
   // Persistir filtro en localStorage
   useEffect(() => {
-    localStorage.setItem('org-dashboard-period', period);
+    localStorage.setItem("org-dashboard-period", period);
   }, [period]);
 
   // Restaurar filtro al cargar
   useEffect(() => {
-    const savedPeriod = localStorage.getItem('org-dashboard-period');
+    const savedPeriod = localStorage.getItem("org-dashboard-period");
     if (savedPeriod) setPeriod(savedPeriod);
   }, []);
 
-  const { data: deptStats, isLoading: loadingDepts } = trpc.departments.getStats.useQuery(dateRange);
-  const { data: posStats, isLoading: loadingPos } = trpc.positions.getStats.useQuery(dateRange);
+  const { data: deptStats, isLoading: loadingDepts } =
+    trpc.departments.getStats.useQuery(dateRange);
+  const { data: posStats, isLoading: loadingPos } =
+    trpc.positions.getStats.useQuery(dateRange);
 
   if (loadingDepts || loadingPos) {
     return (
@@ -92,7 +131,10 @@ export default function OrganizationDashboard() {
       name: dept.departmentName,
       empleados: dept.employeeCount,
     }))
-    .sort((a: { empleados: number }, b: { empleados: number }) => b.empleados - a.empleados);
+    .sort(
+      (a: { empleados: number }, b: { empleados: number }) =>
+        b.empleados - a.empleados
+    );
 
   // Preparar datos para gráfico de puestos (top 10)
   const posChartData = (posStats?.positions || [])
@@ -100,15 +142,20 @@ export default function OrganizationDashboard() {
       name: pos.positionTitle,
       empleados: pos.employeeCount,
     }))
-    .sort((a: { empleados: number }, b: { empleados: number }) => b.empleados - a.empleados)
+    .sort(
+      (a: { empleados: number }, b: { empleados: number }) =>
+        b.empleados - a.empleados
+    )
     .slice(0, 10);
 
   // Preparar datos para gráfico de pie (distribución porcentual)
-  const pieData = deptChartData.map((dept: { name: string; empleados: number }, index: number) => ({
-    name: dept.name,
-    value: dept.empleados,
-    fill: COLORS[index % COLORS.length],
-  }));
+  const pieData = deptChartData.map(
+    (dept: { name: string; empleados: number }, index: number) => ({
+      name: dept.name,
+      value: dept.empleados,
+      fill: COLORS[index % COLORS.length],
+    })
+  );
 
   // Exportar a Excel
   const handleExportExcel = () => {
@@ -116,23 +163,32 @@ export default function OrganizationDashboard() {
 
     // Hoja 1: KPIs
     const kpisData = [
-      ['Indicador', 'Valor'],
-      ['Total Departamentos', totalDepartments],
-      ['Total Puestos', totalPositions],
-      ['Total Empleados', totalEmployees],
-      ['Promedio Empleados por Departamento', (totalEmployees / (totalDepartments || 1)).toFixed(2)],
+      ["Indicador", "Valor"],
+      ["Total Departamentos", totalDepartments],
+      ["Total Puestos", totalPositions],
+      ["Total Empleados", totalEmployees],
+      [
+        "Promedio Empleados por Departamento",
+        (totalEmployees / (totalDepartments || 1)).toFixed(2),
+      ],
     ];
 
     // Hoja 2: Empleados por Departamento
     const deptData = [
-      ['Departamento', 'Empleados'],
-      ...deptChartData.map((d: { name: string; empleados: number }) => [d.name, d.empleados]),
+      ["Departamento", "Empleados"],
+      ...deptChartData.map((d: { name: string; empleados: number }) => [
+        d.name,
+        d.empleados,
+      ]),
     ];
 
     // Hoja 3: Empleados por Puesto (Top 10)
     const posData = [
-      ['Puesto', 'Empleados'],
-      ...posChartData.map((p: { name: string; empleados: number }) => [p.name, p.empleados]),
+      ["Puesto", "Empleados"],
+      ...posChartData.map((p: { name: string; empleados: number }) => [
+        p.name,
+        p.empleados,
+      ]),
     ];
 
     // Crear libro de Excel
@@ -141,12 +197,15 @@ export default function OrganizationDashboard() {
     const ws2 = XLSX.utils.aoa_to_sheet(deptData);
     const ws3 = XLSX.utils.aoa_to_sheet(posData);
 
-    XLSX.utils.book_append_sheet(wb, ws1, 'KPIs');
-    XLSX.utils.book_append_sheet(wb, ws2, 'Por Departamento');
-    XLSX.utils.book_append_sheet(wb, ws3, 'Por Puesto');
+    XLSX.utils.book_append_sheet(wb, ws1, "KPIs");
+    XLSX.utils.book_append_sheet(wb, ws2, "Por Departamento");
+    XLSX.utils.book_append_sheet(wb, ws3, "Por Puesto");
 
     // Descargar archivo
-    XLSX.writeFile(wb, `dashboard-organizacional-${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(
+      wb,
+      `dashboard-organizacional-${new Date().toISOString().split("T")[0]}.xlsx`
+    );
   };
 
   return (
@@ -154,7 +213,9 @@ export default function OrganizationDashboard() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard Organizacional</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Dashboard Organizacional
+          </h1>
           <p className="text-muted-foreground mt-2">
             Estadísticas visuales de empleados por departamento y puesto
           </p>
@@ -164,9 +225,10 @@ export default function OrganizationDashboard() {
               Periodo: {period === "week" && "Semana anterior"}
               {period === "month" && "Mes anterior"}
               {period === "year" && "Año anterior"}
-              {period === "custom" && customRange?.from && customRange?.to && (
-                `${format(customRange.from, "dd/MM/yyyy")} - ${format(customRange.to, "dd/MM/yyyy")}`
-              )}
+              {period === "custom" &&
+                customRange?.from &&
+                customRange?.to &&
+                `${format(customRange.from, "dd/MM/yyyy")} - ${format(customRange.to, "dd/MM/yyyy")}`}
             </p>
           )}
         </div>
@@ -183,11 +245,11 @@ export default function OrganizationDashboard() {
               <SelectItem value="custom">Personalizado</SelectItem>
             </SelectContent>
           </Select>
-          
+
           {period === "custom" && (
             <DateRangePicker value={customRange} onChange={setCustomRange} />
           )}
-          
+
           <Button
             onClick={handleExportExcel}
             className="bg-[#16a34a] hover:bg-[#15803d]"
@@ -202,7 +264,9 @@ export default function OrganizationDashboard() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="border-l-4 border-l-[#1e3a8a]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Departamentos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Departamentos
+            </CardTitle>
             <Building2 className="h-4 w-4 text-[#1e3a8a]" />
           </CardHeader>
           <CardContent>
@@ -228,7 +292,9 @@ export default function OrganizationDashboard() {
 
         <Card className="border-l-4 border-l-[#dc2626]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Empleados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Empleados
+            </CardTitle>
             <Users className="h-4 w-4 text-[#dc2626]" />
           </CardHeader>
           <CardContent>
@@ -246,25 +312,27 @@ export default function OrganizationDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Empleados por Departamento</CardTitle>
-            <CardDescription>Distribución de la plantilla laboral por área</CardDescription>
+            <CardDescription>
+              Distribución de la plantilla laboral por área
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={deptChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis 
-                  dataKey="name" 
-                  angle={-45} 
-                  textAnchor="end" 
+                <XAxis
+                  dataKey="name"
+                  angle={-45}
+                  textAnchor="end"
                   height={100}
                   tick={{ fontSize: 12 }}
                 />
                 <YAxis />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#ffffff', 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px'
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "6px",
                   }}
                 />
                 <Legend />
@@ -278,7 +346,9 @@ export default function OrganizationDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución Porcentual</CardTitle>
-            <CardDescription>Proporción de empleados por departamento</CardDescription>
+            <CardDescription>
+              Proporción de empleados por departamento
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -288,7 +358,7 @@ export default function OrganizationDashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={(entry: { name: string; percent: number }) => 
+                  label={(entry: { name: string; percent: number }) =>
                     `${entry.name}: ${(entry.percent * 100).toFixed(0)}%`
                   }
                   outerRadius={80}
@@ -296,14 +366,17 @@ export default function OrganizationDashboard() {
                   dataKey="value"
                 >
                   {pieData.map((_entry: unknown, index: number) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#ffffff', 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px'
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "6px",
                   }}
                 />
               </PieChart>
@@ -316,24 +389,26 @@ export default function OrganizationDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Top 10 Puestos con Más Empleados</CardTitle>
-          <CardDescription>Posiciones con mayor número de trabajadores asignados</CardDescription>
+          <CardDescription>
+            Posiciones con mayor número de trabajadores asignados
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={posChartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis type="number" />
-              <YAxis 
-                dataKey="name" 
-                type="category" 
+              <YAxis
+                dataKey="name"
+                type="category"
                 width={150}
                 tick={{ fontSize: 12 }}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#ffffff', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px'
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "6px",
                 }}
               />
               <Legend />

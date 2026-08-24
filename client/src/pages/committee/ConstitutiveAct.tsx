@@ -3,15 +3,24 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { FileText, Download, Calendar, MapPin } from "lucide-react";
 
 export default function ConstitutiveAct() {
-  const [constitutionDate, setConstitutionDate] = useState(new Date().toISOString().split("T")[0]);
+  const [constitutionDate, setConstitutionDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [constitutionPlace, setConstitutionPlace] = useState("");
   const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
 
-  const generateMutation = trpc.committeeDocuments.generateConstitutiveAct.useMutation();
+  const generateMutation =
+    trpc.committeeDocuments.generateConstitutiveAct.useMutation();
 
   const handleGenerate = async () => {
     if (!constitutionPlace.trim()) {
@@ -37,7 +46,8 @@ export default function ConstitutiveAct() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Acta Constitutiva del Comité</h1>
         <p className="text-muted-foreground mt-2">
-          Genere el documento formal de constitución del Comité de Seguridad y Salud en el Trabajo
+          Genere el documento formal de constitución del Comité de Seguridad y
+          Salud en el Trabajo
         </p>
       </div>
 
@@ -54,7 +64,10 @@ export default function ConstitutiveAct() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="constitutionDate" className="flex items-center gap-2">
+              <Label
+                htmlFor="constitutionDate"
+                className="flex items-center gap-2"
+              >
                 <Calendar className="h-4 w-4" />
                 Fecha de Constitución
               </Label>
@@ -62,12 +75,15 @@ export default function ConstitutiveAct() {
                 id="constitutionDate"
                 type="date"
                 value={constitutionDate}
-                onChange={(e) => setConstitutionDate(e.target.value)}
+                onChange={e => setConstitutionDate(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="constitutionPlace" className="flex items-center gap-2">
+              <Label
+                htmlFor="constitutionPlace"
+                className="flex items-center gap-2"
+              >
                 <MapPin className="h-4 w-4" />
                 Lugar de Constitución
               </Label>
@@ -76,7 +92,7 @@ export default function ConstitutiveAct() {
                 type="text"
                 placeholder="Ej: Ciudad de México, CDMX"
                 value={constitutionPlace}
-                onChange={(e) => setConstitutionPlace(e.target.value)}
+                onChange={e => setConstitutionPlace(e.target.value)}
               />
             </div>
 
@@ -85,7 +101,9 @@ export default function ConstitutiveAct() {
               disabled={generateMutation.isPending}
               className="w-full"
             >
-              {generateMutation.isPending ? "Generando..." : "Generar Acta Constitutiva"}
+              {generateMutation.isPending
+                ? "Generando..."
+                : "Generar Acta Constitutiva"}
             </Button>
           </CardContent>
         </Card>

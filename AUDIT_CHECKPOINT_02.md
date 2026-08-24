@@ -12,24 +12,24 @@ El defecto podía provocar atribución incorrecta de intentos y permitir que una
 
 ## Corrección aplicada
 
-| Área | Cambio |
-|---|---|
-| Inicio de examen | Se eliminó `employeeId` de la entrada pública. El servidor deriva el colaborador desde `employees.userId = ctx.user.id`. |
-| Interfaz `TakeExam` | Se eliminó el valor fijo del colaborador; el cliente solo envía el identificador de evaluación. |
-| Envío de respuestas | Se valida la propiedad del intento para roles no gestores antes de persistir respuestas. |
-| Consulta de resultados | Se valida la propiedad del intento para roles no gestores antes de devolver respuestas y calificación. |
-| Historial de intentos | Se bloquea la consulta de un `employeeId` ajeno para roles no gestores. |
-| Roles gestores | Se definieron roles autorizados para administrar evaluaciones: `super_admin`, `admin`, `instructor`, `rh` y `recursos_humanos`. |
-| Cobertura | Se añadieron tres pruebas unitarias: derivación segura de colaborador, bloqueo de resultados ajenos y bloqueo de historial ajeno. |
+| Área                   | Cambio                                                                                                                            |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Inicio de examen       | Se eliminó `employeeId` de la entrada pública. El servidor deriva el colaborador desde `employees.userId = ctx.user.id`.          |
+| Interfaz `TakeExam`    | Se eliminó el valor fijo del colaborador; el cliente solo envía el identificador de evaluación.                                   |
+| Envío de respuestas    | Se valida la propiedad del intento para roles no gestores antes de persistir respuestas.                                          |
+| Consulta de resultados | Se valida la propiedad del intento para roles no gestores antes de devolver respuestas y calificación.                            |
+| Historial de intentos  | Se bloquea la consulta de un `employeeId` ajeno para roles no gestores.                                                           |
+| Roles gestores         | Se definieron roles autorizados para administrar evaluaciones: `super_admin`, `admin`, `instructor`, `rh` y `recursos_humanos`.   |
+| Cobertura              | Se añadieron tres pruebas unitarias: derivación segura de colaborador, bloqueo de resultados ajenos y bloqueo de historial ajeno. |
 
 ## Validación
 
-| Verificación | Resultado |
-|---|---|
-| TypeScript — servidor | Aprobado con `tsc --noEmit -p tsconfig.server.json` y límite de memoria controlado. |
-| TypeScript — cliente | Aprobado con `tsc --noEmit -p tsconfig.client.json` y límite de memoria controlado. |
-| Pruebas de autorización | 3 pruebas aprobadas. |
-| Suite unitaria de CI | **93 archivos aprobados; 1,463 pruebas aprobadas.** |
+| Verificación            | Resultado                                                                           |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| TypeScript — servidor   | Aprobado con `tsc --noEmit -p tsconfig.server.json` y límite de memoria controlado. |
+| TypeScript — cliente    | Aprobado con `tsc --noEmit -p tsconfig.client.json` y límite de memoria controlado. |
+| Pruebas de autorización | 3 pruebas aprobadas.                                                                |
+| Suite unitaria de CI    | **93 archivos aprobados; 1,463 pruebas aprobadas.**                                 |
 
 ## Próximo bloque
 

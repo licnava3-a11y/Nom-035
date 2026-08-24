@@ -14,7 +14,9 @@ async function seedSurveyResponses() {
     process.exit(1);
   }
 
-  console.log("🌱 Iniciando generación de respuestas de encuestas NOM-035...\n");
+  console.log(
+    "🌱 Iniciando generación de respuestas de encuestas NOM-035...\n"
+  );
 
   try {
     // 1. Obtener o crear periodo activo
@@ -38,7 +40,7 @@ async function seedSurveyResponses() {
           createdBy: 1,
         })
         .$returningId();
-      
+
       [activePeriod] = await db
         .select()
         .from(surveyPeriods)
@@ -46,7 +48,9 @@ async function seedSurveyResponses() {
         .limit(1);
     }
 
-    console.log(`  ✅ Periodo activo: ${activePeriod.name} (ID: ${activePeriod.id})`);
+    console.log(
+      `  ✅ Periodo activo: ${activePeriod.name} (ID: ${activePeriod.id})`
+    );
 
     // 2. Obtener usuarios con departamentos
     console.log("\n👥 Obteniendo usuarios...");
@@ -88,12 +92,12 @@ async function seedSurveyResponses() {
     // 5. Generar respuestas de Guía I (10 respuestas)
     console.log("\n📝 Generando respuestas de Guía I...");
     const guiaIResponses = [];
-    
+
     for (let i = 0; i < Math.min(10, allUsers.length); i++) {
       const user = allUsers[i];
       const riskLevel = ["nulo", "bajo", "medio", "alto", "muy_alto"][i % 5];
       const score = [0, 25, 50, 75, 95][i % 5];
-      
+
       const results = {
         surveyType: "guia_i",
         riskLevel: riskLevel,
@@ -101,7 +105,7 @@ async function seedSurveyResponses() {
         department: user.departamento,
         completedDate: new Date().toISOString(),
         categories: {
-          "acontecimientos_traumaticos": {
+          acontecimientos_traumaticos: {
             score: score,
             level: riskLevel,
           },
@@ -109,7 +113,7 @@ async function seedSurveyResponses() {
       };
 
       const token = `test-token-guia-i-${i}-${Date.now()}`;
-      
+
       guiaIResponses.push({
         surveyId: 1, // Guía I
         userId: user.id,
@@ -129,12 +133,12 @@ async function seedSurveyResponses() {
     // 6. Generar respuestas de Guía II (5 respuestas)
     console.log("\n📝 Generando respuestas de Guía II...");
     const guiaIIResponses = [];
-    
+
     for (let i = 10; i < Math.min(15, allUsers.length); i++) {
       const user = allUsers[i];
       const riskLevel = ["bajo", "medio", "alto"][i % 3];
       const score = [30, 60, 85][i % 3];
-      
+
       const results = {
         surveyType: "guia_ii",
         riskLevel: riskLevel,
@@ -142,14 +146,14 @@ async function seedSurveyResponses() {
         department: user.departamento,
         completedDate: new Date().toISOString(),
         domains: {
-          "ambiente_trabajo": { score: score * 0.3, level: riskLevel },
-          "factores_organizacion": { score: score * 0.4, level: riskLevel },
-          "liderazgo": { score: score * 0.3, level: riskLevel },
+          ambiente_trabajo: { score: score * 0.3, level: riskLevel },
+          factores_organizacion: { score: score * 0.4, level: riskLevel },
+          liderazgo: { score: score * 0.3, level: riskLevel },
         },
       };
 
       const token = `test-token-guia-ii-${i}-${Date.now()}`;
-      
+
       guiaIIResponses.push({
         surveyId: 2, // Guía II
         userId: user.id,
@@ -164,17 +168,19 @@ async function seedSurveyResponses() {
     for (const response of guiaIIResponses) {
       await db.insert(surveyResponses).values(response);
     }
-    console.log(`  ✅ ${guiaIIResponses.length} respuestas de Guía II generadas`);
+    console.log(
+      `  ✅ ${guiaIIResponses.length} respuestas de Guía II generadas`
+    );
 
     // 7. Generar respuestas de Guía III (5 respuestas)
     console.log("\n📝 Generando respuestas de Guía III...");
     const guiaIIIResponses = [];
-    
+
     for (let i = 15; i < Math.min(20, allUsers.length); i++) {
       const user = allUsers[i];
       const riskLevel = ["medio", "alto", "muy_alto"][i % 3];
       const score = [55, 75, 90][i % 3];
-      
+
       const results = {
         surveyType: "guia_iii",
         riskLevel: riskLevel,
@@ -182,15 +188,15 @@ async function seedSurveyResponses() {
         department: user.departamento,
         completedDate: new Date().toISOString(),
         domains: {
-          "ambiente_trabajo": { score: score * 0.25, level: riskLevel },
-          "factores_organizacion": { score: score * 0.35, level: riskLevel },
-          "liderazgo": { score: score * 0.25, level: riskLevel },
-          "entorno_organizacional": { score: score * 0.15, level: riskLevel },
+          ambiente_trabajo: { score: score * 0.25, level: riskLevel },
+          factores_organizacion: { score: score * 0.35, level: riskLevel },
+          liderazgo: { score: score * 0.25, level: riskLevel },
+          entorno_organizacional: { score: score * 0.15, level: riskLevel },
         },
       };
 
       const token = `test-token-guia-iii-${i}-${Date.now()}`;
-      
+
       guiaIIIResponses.push({
         surveyId: 3, // Guía III
         userId: user.id,
@@ -205,7 +211,9 @@ async function seedSurveyResponses() {
     for (const response of guiaIIIResponses) {
       await db.insert(surveyResponses).values(response);
     }
-    console.log(`  ✅ ${guiaIIIResponses.length} respuestas de Guía III generadas`);
+    console.log(
+      `  ✅ ${guiaIIIResponses.length} respuestas de Guía III generadas`
+    );
 
     console.log("\n✨ Respuestas de encuestas generadas exitosamente!\n");
     console.log("📊 Resumen:");
@@ -213,21 +221,26 @@ async function seedSurveyResponses() {
     console.log(`  - Respuestas Guía I: ${guiaIResponses.length}`);
     console.log(`  - Respuestas Guía II: ${guiaIIResponses.length}`);
     console.log(`  - Respuestas Guía III: ${guiaIIIResponses.length}`);
-    console.log(`  - Total de respuestas: ${guiaIResponses.length + guiaIIResponses.length + guiaIIIResponses.length}`);
+    console.log(
+      `  - Total de respuestas: ${guiaIResponses.length + guiaIIResponses.length + guiaIIIResponses.length}`
+    );
     console.log("\n📈 Distribución por departamento:");
-    
+
     const deptCounts: Record<string, number> = {};
     for (const user of allUsers.slice(0, 20)) {
       if (user.departamento) {
-        deptCounts[user.departamento] = (deptCounts[user.departamento] || 0) + 1;
+        deptCounts[user.departamento] =
+          (deptCounts[user.departamento] || 0) + 1;
       }
     }
-    
+
     for (const [dept, count] of Object.entries(deptCounts)) {
       console.log(`  - ${dept}: ${count} respuestas`);
     }
 
-    console.log("\n✅ Ahora puedes visualizar los datos en el Panel de Administración NOM-035");
+    console.log(
+      "\n✅ Ahora puedes visualizar los datos en el Panel de Administración NOM-035"
+    );
 
     process.exit(0);
   } catch (error) {

@@ -83,7 +83,9 @@ describe("interventionImpact router", () => {
       measurementPeriodMonths: 3,
     });
 
-    const result = await caller.interventionImpact.calculateMetrics({ id: created.id });
+    const result = await caller.interventionImpact.calculateMetrics({
+      id: created.id,
+    });
 
     expect(result).toBeDefined();
     expect(result.metrics).toBeDefined();
@@ -103,7 +105,9 @@ describe("interventionImpact router", () => {
       measurementPeriodMonths: 3,
     });
 
-    const result = await caller.interventionImpact.generateInsights({ id: created.id });
+    const result = await caller.interventionImpact.generateInsights({
+      id: created.id,
+    });
 
     expect(result).toBeDefined();
     expect(result.insights).toBeDefined();

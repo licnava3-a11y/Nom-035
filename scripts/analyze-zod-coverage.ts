@@ -47,20 +47,21 @@ function analyzeRouterFile(filePath: string): RouterAnalysis {
   const procedures: ProcedureInfo[] = [];
 
   // Regex para detectar procedures (query o mutation)
-  const procedureRegex = /(\w+):\s*(protectedProcedure|publicProcedure|adminProcedure)/g;
-  
+  const procedureRegex =
+    /(\w+):\s*(protectedProcedure|publicProcedure|adminProcedure)/g;
+
   let match;
   while ((match = procedureRegex.exec(content)) !== null) {
     const procedureName = match[1];
     const startIndex = match.index;
-    
+
     // Encontrar la línea del procedure
     const lineNumber = content.substring(0, startIndex).split("\n").length;
-    
+
     // Buscar si tiene .input() en las siguientes líneas
     const procedureBlock = content.substring(startIndex, startIndex + 500); // Buscar en los próximos 500 caracteres
     const hasInput = /\.input\s*\(/.test(procedureBlock);
-    
+
     // Determinar tipo (query o mutation)
     let type: "query" | "mutation" | "unknown" = "unknown";
     if (/\.query\s*\(/.test(procedureBlock)) {
@@ -68,7 +69,7 @@ function analyzeRouterFile(filePath: string): RouterAnalysis {
     } else if (/\.mutation\s*\(/.test(procedureBlock)) {
       type = "mutation";
     }
-    
+
     procedures.push({
       router: path.basename(filePath, ".ts"),
       procedureName,
@@ -78,11 +79,13 @@ function analyzeRouterFile(filePath: string): RouterAnalysis {
     });
   }
 
-  const proceduresWithValidation = procedures.filter((p) => p.hasInput).length;
-  const proceduresWithoutValidation = procedures.length - proceduresWithValidation;
-  const coveragePercentage = procedures.length > 0 
-    ? Math.round((proceduresWithValidation / procedures.length) * 100) 
-    : 0;
+  const proceduresWithValidation = procedures.filter(p => p.hasInput).length;
+  const proceduresWithoutValidation =
+    procedures.length - proceduresWithValidation;
+  const coveragePercentage =
+    procedures.length > 0
+      ? Math.round((proceduresWithValidation / procedures.length) * 100)
+      : 0;
 
   return {
     routerFile: path.basename(filePath),
@@ -98,8 +101,10 @@ function analyzeRouterFile(filePath: string): RouterAnalysis {
  * Analiza todos los routers en el directorio server/routers
  */
 function analyzeAllRouters(routersDir: string): GlobalAnalysis {
-  const files = fs.readdirSync(routersDir).filter((f) => f.endsWith(".ts") && f !== "index.ts");
-  
+  const files = fs
+    .readdirSync(routersDir)
+    .filter(f => f.endsWith(".ts") && f !== "index.ts");
+
   const routers: RouterAnalysis[] = [];
   let totalProcedures = 0;
   let proceduresWithValidation = 0;
@@ -112,18 +117,20 @@ function analyzeAllRouters(routersDir: string): GlobalAnalysis {
     proceduresWithValidation += analysis.proceduresWithValidation;
   }
 
-  const proceduresWithoutValidation = totalProcedures - proceduresWithValidation;
-  const globalCoveragePercentage = totalProcedures > 0
-    ? Math.round((proceduresWithValidation / totalProcedures) * 100)
-    : 0;
+  const proceduresWithoutValidation =
+    totalProcedures - proceduresWithValidation;
+  const globalCoveragePercentage =
+    totalProcedures > 0
+      ? Math.round((proceduresWithValidation / totalProcedures) * 100)
+      : 0;
 
   // Identificar routers críticos (con <50% de cobertura y >5 procedures)
   const priorityRouters = routers
-    .filter((r) => r.coveragePercentage < 50 && r.totalProcedures > 5)
-    .map((r) => r.routerFile)
+    .filter(r => r.coveragePercentage < 50 && r.totalProcedures > 5)
+    .map(r => r.routerFile)
     .sort((a, b) => {
-      const aRouter = routers.find((r) => r.routerFile === a)!;
-      const bRouter = routers.find((r) => r.routerFile === b)!;
+      const aRouter = routers.find(r => r.routerFile === a)!;
+      const bRouter = routers.find(r => r.routerFile === b)!;
       return aRouter.coveragePercentage - bRouter.coveragePercentage;
     });
 
@@ -143,55 +150,63 @@ function analyzeAllRouters(routersDir: string): GlobalAnalysis {
  */
 function generateMarkdownReport(analysis: GlobalAnalysis): string {
   let report = "# 📊 Reporte de Cobertura de Validaciones Zod\n\n";
-  
+
   report += "## 📈 Resumen Global\n\n";
   report += `- **Total de Routers Analizados**: ${analysis.totalRouters}\n`;
   report += `- **Total de Procedures**: ${analysis.totalProcedures}\n`;
   report += `- **Procedures con Validación**: ${analysis.proceduresWithValidation} (${analysis.globalCoveragePercentage}%)\n`;
   report += `- **Procedures sin Validación**: ${analysis.proceduresWithoutValidation} (${100 - analysis.globalCoveragePercentage}%)\n\n`;
-  
+
   report += "## 🎯 Routers Prioritarios (Cobertura <50%)\n\n";
   if (analysis.priorityRouters.length === 0) {
     report += "*No hay routers con cobertura crítica (<50%).*\n\n";
   } else {
-    analysis.priorityRouters.forEach((routerFile) => {
-      const router = analysis.routers.find((r) => r.routerFile === routerFile)!;
+    analysis.priorityRouters.forEach(routerFile => {
+      const router = analysis.routers.find(r => r.routerFile === routerFile)!;
       report += `- **${routerFile}**: ${router.coveragePercentage}% (${router.proceduresWithoutValidation}/${router.totalProcedures} sin validación)\n`;
     });
     report += "\n";
   }
-  
+
   report += "## 📋 Detalle por Router\n\n";
-  
+
   // Ordenar routers por cobertura ascendente
-  const sortedRouters = [...analysis.routers].sort((a, b) => a.coveragePercentage - b.coveragePercentage);
-  
-  sortedRouters.forEach((router) => {
-    const emoji = router.coveragePercentage >= 80 ? "✅" : router.coveragePercentage >= 50 ? "⚠️" : "❌";
+  const sortedRouters = [...analysis.routers].sort(
+    (a, b) => a.coveragePercentage - b.coveragePercentage
+  );
+
+  sortedRouters.forEach(router => {
+    const emoji =
+      router.coveragePercentage >= 80
+        ? "✅"
+        : router.coveragePercentage >= 50
+          ? "⚠️"
+          : "❌";
     report += `### ${emoji} ${router.routerFile}\n\n`;
     report += `- **Cobertura**: ${router.coveragePercentage}%\n`;
     report += `- **Procedures Totales**: ${router.totalProcedures}\n`;
     report += `- **Con Validación**: ${router.proceduresWithValidation}\n`;
     report += `- **Sin Validación**: ${router.proceduresWithoutValidation}\n\n`;
-    
+
     if (router.proceduresWithoutValidation > 0) {
       report += "**Procedures sin validación:**\n\n";
       router.procedures
-        .filter((p) => !p.hasInput)
-        .forEach((p) => {
+        .filter(p => !p.hasInput)
+        .forEach(p => {
           report += `- \`${p.procedureName}\` (${p.type}, línea ${p.lineNumber})\n`;
         });
       report += "\n";
     }
   });
-  
+
   report += "## 🔧 Recomendaciones\n\n";
   report += "1. Priorizar validaciones en routers con cobertura <50%\n";
-  report += "2. Enfocarse en mutations críticas (auth, payments, data modifications)\n";
+  report +=
+    "2. Enfocarse en mutations críticas (auth, payments, data modifications)\n";
   report += "3. Usar esquemas reutilizables de `server/validators/common.ts`\n";
   report += "4. Validar todos los inputs de usuario, incluso en queries\n";
   report += "5. Agregar mensajes de error descriptivos en español\n\n";
-  
+
   return report;
 }
 
@@ -216,19 +231,26 @@ if (!fs.existsSync(reportsDir)) {
   fs.mkdirSync(reportsDir, { recursive: true });
 }
 
-fs.writeFileSync(path.join(reportsDir, "zod-coverage-report.md"), markdownReport);
+fs.writeFileSync(
+  path.join(reportsDir, "zod-coverage-report.md"),
+  markdownReport
+);
 fs.writeFileSync(path.join(reportsDir, "zod-coverage-report.json"), jsonReport);
 
 // Mostrar resumen en consola
 console.log("📊 Análisis de Cobertura de Validaciones Zod\n");
 console.log(`✅ Total de Procedures: ${analysis.totalProcedures}`);
-console.log(`✅ Con Validación: ${analysis.proceduresWithValidation} (${analysis.globalCoveragePercentage}%)`);
-console.log(`❌ Sin Validación: ${analysis.proceduresWithoutValidation} (${100 - analysis.globalCoveragePercentage}%)\n`);
+console.log(
+  `✅ Con Validación: ${analysis.proceduresWithValidation} (${analysis.globalCoveragePercentage}%)`
+);
+console.log(
+  `❌ Sin Validación: ${analysis.proceduresWithoutValidation} (${100 - analysis.globalCoveragePercentage}%)\n`
+);
 
 if (analysis.priorityRouters.length > 0) {
   console.log(`⚠️  Routers Prioritarios (${analysis.priorityRouters.length}):`);
-  analysis.priorityRouters.slice(0, 5).forEach((router) => {
-    const r = analysis.routers.find((x) => x.routerFile === router)!;
+  analysis.priorityRouters.slice(0, 5).forEach(router => {
+    const r = analysis.routers.find(x => x.routerFile === router)!;
     console.log(`   - ${router}: ${r.coveragePercentage}%`);
   });
   console.log("");

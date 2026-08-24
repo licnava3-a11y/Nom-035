@@ -49,17 +49,31 @@ export async function generatePositionAcceptancePDF(
       }
 
       doc.fontSize(10).text(company.name, 140, 50, { width: 400 });
-      doc.fontSize(8).fillColor("#666666").text("Comité de Seguridad y Salud en el Trabajo", 140, 65);
+      doc
+        .fontSize(8)
+        .fillColor("#666666")
+        .text("Comité de Seguridad y Salud en el Trabajo", 140, 65);
       doc.fillColor("#000000");
 
       // Título del documento
       doc.moveDown(3);
-      doc.fontSize(16).font("Helvetica-Bold").text("CARTA DE ACEPTACIÓN DE CARGO", { align: "center" });
-      doc.fontSize(12).font("Helvetica").text("Comité de Prevención de Riesgos Psicosociales", { align: "center" });
+      doc
+        .fontSize(16)
+        .font("Helvetica-Bold")
+        .text("CARTA DE ACEPTACIÓN DE CARGO", { align: "center" });
+      doc
+        .fontSize(12)
+        .font("Helvetica")
+        .text("Comité de Prevención de Riesgos Psicosociales", {
+          align: "center",
+        });
       doc.moveDown(2);
 
       // Información del miembro
-      doc.fontSize(11).font("Helvetica-Bold").text("DATOS DEL MIEMBRO DEL COMITÉ", { underline: true });
+      doc
+        .fontSize(11)
+        .font("Helvetica-Bold")
+        .text("DATOS DEL MIEMBRO DEL COMITÉ", { underline: true });
       doc.moveDown(0.5);
 
       doc.font("Helvetica");
@@ -68,23 +82,34 @@ export async function generatePositionAcceptancePDF(
       doc.text(`Número de empleado: ${member.employeeNumber}`);
       doc.text(`Departamento: ${member.department}`);
       doc.text(`Cargo en el comité: ${getPositionLabel(member.position)}`);
-      doc.text(`Fecha de aceptación: ${member.acceptanceDate.toLocaleDateString("es-MX", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })}`);
+      doc.text(
+        `Fecha de aceptación: ${member.acceptanceDate.toLocaleDateString(
+          "es-MX",
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        )}`
+      );
       doc.moveDown(1.5);
 
       // Foto de INE
       if (member.inePhotoUrl) {
-        doc.fontSize(11).font("Helvetica-Bold").text("IDENTIFICACIÓN OFICIAL (INE/IFE)", { underline: true });
+        doc
+          .fontSize(11)
+          .font("Helvetica-Bold")
+          .text("IDENTIFICACIÓN OFICIAL (INE/IFE)", { underline: true });
         doc.moveDown(0.5);
         try {
           doc.image(member.inePhotoUrl, { width: 300, align: "center" });
           doc.moveDown(1);
         } catch (err) {
           console.error("Error loading INE photo:", err);
-          doc.fontSize(9).fillColor("#999999").text("(Imagen de INE no disponible)", { align: "center" });
+          doc
+            .fontSize(9)
+            .fillColor("#999999")
+            .text("(Imagen de INE no disponible)", { align: "center" });
           doc.fillColor("#000000");
           doc.moveDown(1);
         }
@@ -92,7 +117,10 @@ export async function generatePositionAcceptancePDF(
 
       // Responsabilidades del cargo
       doc.addPage();
-      doc.fontSize(11).font("Helvetica-Bold").text("RESPONSABILIDADES DEL CARGO", { underline: true });
+      doc
+        .fontSize(11)
+        .font("Helvetica-Bold")
+        .text("RESPONSABILIDADES DEL CARGO", { underline: true });
       doc.moveDown(0.5);
 
       const responsibilities = getResponsibilitiesByPosition(member.position);
@@ -115,7 +143,10 @@ export async function generatePositionAcceptancePDF(
       doc.moveDown(3);
 
       // Firma del miembro
-      doc.fontSize(10).font("Helvetica-Bold").text("FIRMA DEL MIEMBRO DEL COMITÉ", { align: "center" });
+      doc
+        .fontSize(10)
+        .font("Helvetica-Bold")
+        .text("FIRMA DEL MIEMBRO DEL COMITÉ", { align: "center" });
       doc.moveDown(0.5);
 
       if (member.signatureUrl) {
@@ -127,7 +158,10 @@ export async function generatePositionAcceptancePDF(
       }
 
       doc.moveDown(0.5);
-      doc.fontSize(9).font("Helvetica").text("_".repeat(50), { align: "center" });
+      doc
+        .fontSize(9)
+        .font("Helvetica")
+        .text("_".repeat(50), { align: "center" });
       doc.text(member.fullName, { align: "center" });
       doc.text(getPositionLabel(member.position), { align: "center" });
 
@@ -135,17 +169,26 @@ export async function generatePositionAcceptancePDF(
 
       // Firma del representante legal (opcional)
       if (company.legalRepName && company.legalRepSignatureUrl) {
-        doc.fontSize(10).font("Helvetica-Bold").text("REPRESENTANTE LEGAL DE LA EMPRESA", { align: "center" });
+        doc
+          .fontSize(10)
+          .font("Helvetica-Bold")
+          .text("REPRESENTANTE LEGAL DE LA EMPRESA", { align: "center" });
         doc.moveDown(0.5);
 
         try {
-          doc.image(company.legalRepSignatureUrl, { width: 200, align: "center" });
+          doc.image(company.legalRepSignatureUrl, {
+            width: 200,
+            align: "center",
+          });
         } catch (err) {
           console.error("Error loading legal rep signature:", err);
         }
 
         doc.moveDown(0.5);
-        doc.fontSize(9).font("Helvetica").text("_".repeat(50), { align: "center" });
+        doc
+          .fontSize(9)
+          .font("Helvetica")
+          .text("_".repeat(50), { align: "center" });
         doc.text(company.legalRepName, { align: "center" });
         doc.text("Representante Legal", { align: "center" });
       }
@@ -155,18 +198,31 @@ export async function generatePositionAcceptancePDF(
       const qrCodeDataURL = await QRCode.toDataURL(qrData, { width: 100 });
 
       doc.moveDown(2);
-      doc.image(qrCodeDataURL, doc.page.width - 150, doc.page.height - 150, { width: 100 });
-      doc.fontSize(7).fillColor("#666666").text("Código de validación NOM-151", doc.page.width - 150, doc.page.height - 45, {
+      doc.image(qrCodeDataURL, doc.page.width - 150, doc.page.height - 150, {
         width: 100,
-        align: "center",
       });
+      doc
+        .fontSize(7)
+        .fillColor("#666666")
+        .text(
+          "Código de validación NOM-151",
+          doc.page.width - 150,
+          doc.page.height - 45,
+          {
+            width: 100,
+            align: "center",
+          }
+        );
 
       // Footer con folio
       const folio = `AC-${String(acceptanceId).padStart(6, "0")}/${new Date().getFullYear()}`;
-      doc.fontSize(8).fillColor("#666666").text(folio, 50, doc.page.height - 30, {
-        width: doc.page.width - 100,
-        align: "center",
-      });
+      doc
+        .fontSize(8)
+        .fillColor("#666666")
+        .text(folio, 50, doc.page.height - 30, {
+          width: doc.page.width - 100,
+          align: "center",
+        });
 
       doc.end();
     } catch (error) {

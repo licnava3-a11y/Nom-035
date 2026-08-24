@@ -1,55 +1,103 @@
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, AlertCircle, DollarSign } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertCircle,
+  DollarSign,
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
 export default function SalaryTrendsDashboard() {
-  const { data: departmentTrends, isLoading: loadingDeptTrends } = trpc.salaryTrends.getTrendsByDepartment.useQuery();
-  const { data: positionTrends, isLoading: loadingPosTrends } = trpc.salaryTrends.getTrendsByPosition.useQuery();
-  const { data: marketProjections, isLoading: loadingProjections } = trpc.salaryTrends.getMarketProjections.useQuery();
-  const { data: departmentSummary, isLoading: loadingSummary } = trpc.salaryTrends.getDepartmentSummary.useQuery();
+  const { data: departmentTrends, isLoading: loadingDeptTrends } =
+    trpc.salaryTrends.getTrendsByDepartment.useQuery();
+  const { data: positionTrends, isLoading: loadingPosTrends } =
+    trpc.salaryTrends.getTrendsByPosition.useQuery();
+  const { data: marketProjections, isLoading: loadingProjections } =
+    trpc.salaryTrends.getMarketProjections.useQuery();
+  const { data: departmentSummary, isLoading: loadingSummary } =
+    trpc.salaryTrends.getDepartmentSummary.useQuery();
 
   // Procesar datos para gráficos
-  const processedDeptTrends = departmentTrends?.reduce((acc: any[], row: any) => {
-    const existing = acc.find((item: any) => item.month === row.month);
-    if (existing) {
-      existing[row.department] = parseFloat(row.avg_salary);
-    } else {
-      acc.push({
-        month: row.month,
-        [row.department]: parseFloat(row.avg_salary),
-      });
-    }
-    return acc;
-  }, []) || [];
+  const processedDeptTrends =
+    departmentTrends?.reduce((acc: any[], row: any) => {
+      const existing = acc.find((item: any) => item.month === row.month);
+      if (existing) {
+        existing[row.department] = parseFloat(row.avg_salary);
+      } else {
+        acc.push({
+          month: row.month,
+          [row.department]: parseFloat(row.avg_salary),
+        });
+      }
+      return acc;
+    }, []) || [];
 
-  const processedPosTrends = positionTrends?.reduce((acc: any[], row: any) => {
-    const existing = acc.find((item: any) => item.month === row.month);
-    if (existing) {
-      existing[row.position] = parseFloat(row.avg_salary);
-    } else {
-      acc.push({
-        month: row.month,
-        [row.position]: parseFloat(row.avg_salary),
-      });
-    }
-    return acc;
-  }, []) || [];
+  const processedPosTrends =
+    positionTrends?.reduce((acc: any[], row: any) => {
+      const existing = acc.find((item: any) => item.month === row.month);
+      if (existing) {
+        existing[row.position] = parseFloat(row.avg_salary);
+      } else {
+        acc.push({
+          month: row.month,
+          [row.position]: parseFloat(row.avg_salary),
+        });
+      }
+      return acc;
+    }, []) || [];
 
   // Extraer departamentos únicos para líneas del gráfico
-  const departments = Array.from(new Set(departmentTrends?.map((row: any) => row.department)));
-  const positions = Array.from(new Set(positionTrends?.map((row: any) => row.position)));
+  const departments = Array.from(
+    new Set(departmentTrends?.map((row: any) => row.department))
+  );
+  const positions = Array.from(
+    new Set(positionTrends?.map((row: any) => row.position))
+  );
 
-  const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
+  const colors = [
+    "#3b82f6",
+    "#10b981",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#ec4899",
+  ];
 
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Tendencias Salariales</h1>
-        <p className="text-muted-foreground">Análisis histórico y proyecciones de mercado</p>
+        <p className="text-muted-foreground">
+          Análisis histórico y proyecciones de mercado
+        </p>
       </div>
 
       {/* Resumen por Departamento */}
@@ -57,14 +105,18 @@ export default function SalaryTrendsDashboard() {
         {loadingSummary ? (
           <Card>
             <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Cargando resumen...</p>
+              <p className="text-sm text-muted-foreground">
+                Cargando resumen...
+              </p>
             </CardContent>
           </Card>
         ) : (
           departmentSummary?.slice(0, 4).map((dept: any, index: number) => (
             <Card key={index}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">{dept.department}</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  {dept.department}
+                </CardTitle>
                 <CardDescription>
                   {dept.total_employees} empleados
                 </CardDescription>
@@ -102,16 +154,24 @@ export default function SalaryTrendsDashboard() {
             </CardHeader>
             <CardContent>
               {loadingDeptTrends ? (
-                <p className="text-sm text-muted-foreground">Cargando datos...</p>
+                <p className="text-sm text-muted-foreground">
+                  Cargando datos...
+                </p>
               ) : processedDeptTrends.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No hay datos históricos disponibles</p>
+                <p className="text-sm text-muted-foreground">
+                  No hay datos históricos disponibles
+                </p>
               ) : (
                 <ResponsiveContainer width="100%" height={400}>
                   <LineChart data={processedDeptTrends}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
-                    <Tooltip formatter={(value: any) => `$${parseFloat(value).toLocaleString()}`} />
+                    <Tooltip
+                      formatter={(value: any) =>
+                        `$${parseFloat(value).toLocaleString()}`
+                      }
+                    />
                     <Legend />
                     {departments.map((dept: any, index: number) => (
                       <Line
@@ -137,16 +197,24 @@ export default function SalaryTrendsDashboard() {
             </CardHeader>
             <CardContent>
               {loadingPosTrends ? (
-                <p className="text-sm text-muted-foreground">Cargando datos...</p>
+                <p className="text-sm text-muted-foreground">
+                  Cargando datos...
+                </p>
               ) : processedPosTrends.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No hay datos históricos disponibles</p>
+                <p className="text-sm text-muted-foreground">
+                  No hay datos históricos disponibles
+                </p>
               ) : (
                 <ResponsiveContainer width="100%" height={400}>
                   <LineChart data={processedPosTrends}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
-                    <Tooltip formatter={(value: any) => `$${parseFloat(value).toLocaleString()}`} />
+                    <Tooltip
+                      formatter={(value: any) =>
+                        `$${parseFloat(value).toLocaleString()}`
+                      }
+                    />
                     <Legend />
                     {positions.slice(0, 5).map((pos: any, index: number) => (
                       <Line
@@ -168,13 +236,19 @@ export default function SalaryTrendsDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Proyecciones de Mercado</CardTitle>
-              <CardDescription>Próximos 6 meses y ajustes recomendados</CardDescription>
+              <CardDescription>
+                Próximos 6 meses y ajustes recomendados
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {loadingProjections ? (
-                <p className="text-sm text-muted-foreground">Cargando proyecciones...</p>
+                <p className="text-sm text-muted-foreground">
+                  Cargando proyecciones...
+                </p>
               ) : marketProjections?.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No hay datos de mercado disponibles</p>
+                <p className="text-sm text-muted-foreground">
+                  No hay datos de mercado disponibles
+                </p>
               ) : (
                 <Table>
                   <TableHeader>
@@ -189,48 +263,73 @@ export default function SalaryTrendsDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {marketProjections?.slice(0, 20).map((proj: any, index: number) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{proj.department}</TableCell>
-                        <TableCell>{proj.position}</TableCell>
-                        <TableCell>${parseFloat(proj.current_avg_salary).toLocaleString()}</TableCell>
-                        <TableCell>${parseFloat(proj.current_market_rate).toLocaleString()}</TableCell>
-                        <TableCell className="font-semibold text-blue-600">
-                          ${parseFloat(proj.projected_market_rate_6m).toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={parseFloat(proj.avg_gap) < -20 ? "destructive" : parseFloat(proj.avg_gap) < -10 ? "default" : "secondary"}>
-                            {parseFloat(proj.avg_gap).toFixed(1)}%
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {proj.recommendation.includes("CRÍTICO") && (
-                            <div className="flex items-center gap-1 text-red-600">
-                              <AlertCircle className="h-4 w-4" />
-                              <span className="font-semibold">CRÍTICO</span>
-                            </div>
-                          )}
-                          {proj.recommendation.includes("ALTO") && (
-                            <div className="flex items-center gap-1 text-orange-600">
-                              <TrendingUp className="h-4 w-4" />
-                              <span className="font-semibold">ALTO</span>
-                            </div>
-                          )}
-                          {proj.recommendation.includes("MEDIO") && (
-                            <div className="flex items-center gap-1 text-yellow-600">
-                              <TrendingDown className="h-4 w-4" />
-                              <span>MEDIO</span>
-                            </div>
-                          )}
-                          {proj.recommendation.includes("BAJO") && (
-                            <div className="flex items-center gap-1 text-green-600">
-                              <DollarSign className="h-4 w-4" />
-                              <span>BAJO</span>
-                            </div>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {marketProjections
+                      ?.slice(0, 20)
+                      .map((proj: any, index: number) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">
+                            {proj.department}
+                          </TableCell>
+                          <TableCell>{proj.position}</TableCell>
+                          <TableCell>
+                            $
+                            {parseFloat(
+                              proj.current_avg_salary
+                            ).toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            $
+                            {parseFloat(
+                              proj.current_market_rate
+                            ).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="font-semibold text-blue-600">
+                            $
+                            {parseFloat(
+                              proj.projected_market_rate_6m
+                            ).toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                parseFloat(proj.avg_gap) < -20
+                                  ? "destructive"
+                                  : parseFloat(proj.avg_gap) < -10
+                                    ? "default"
+                                    : "secondary"
+                              }
+                            >
+                              {parseFloat(proj.avg_gap).toFixed(1)}%
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {proj.recommendation.includes("CRÍTICO") && (
+                              <div className="flex items-center gap-1 text-red-600">
+                                <AlertCircle className="h-4 w-4" />
+                                <span className="font-semibold">CRÍTICO</span>
+                              </div>
+                            )}
+                            {proj.recommendation.includes("ALTO") && (
+                              <div className="flex items-center gap-1 text-orange-600">
+                                <TrendingUp className="h-4 w-4" />
+                                <span className="font-semibold">ALTO</span>
+                              </div>
+                            )}
+                            {proj.recommendation.includes("MEDIO") && (
+                              <div className="flex items-center gap-1 text-yellow-600">
+                                <TrendingDown className="h-4 w-4" />
+                                <span>MEDIO</span>
+                              </div>
+                            )}
+                            {proj.recommendation.includes("BAJO") && (
+                              <div className="flex items-center gap-1 text-green-600">
+                                <DollarSign className="h-4 w-4" />
+                                <span>BAJO</span>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               )}

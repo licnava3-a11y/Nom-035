@@ -5,7 +5,11 @@ import { getDb } from "../db";
 
 async function requireDb() {
   const db = await getDb();
-  if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+  if (!db)
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Base de datos no disponible",
+    });
   return db;
 }
 import { caseInvestigationDocs, docFormatConfig } from "../../drizzle/schema";
@@ -14,13 +18,21 @@ import { invokeLLM } from "../_core/llm";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function generateFolio(db: NonNullable<Awaited<ReturnType<typeof getDb>>>): Promise<string> {
+async function generateFolio(
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>
+): Promise<string> {
   // Get format config
-  const [config] = await db.select().from(docFormatConfig).where(eq(docFormatConfig.docType, "investigacion")).limit(1);
+  const [config] = await db
+    .select()
+    .from(docFormatConfig)
+    .where(eq(docFormatConfig.docType, "investigacion"))
+    .limit(1);
   const prefix = config?.codigoFormato ?? "INV";
   const year = new Date().getFullYear();
   // Count existing docs this year
-  const [countRow] = await db.select({ count: sql<number>`COUNT(*)` }).from(caseInvestigationDocs);
+  const [countRow] = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(caseInvestigationDocs);
   const consecutive = String((countRow?.count ?? 0) + 1).padStart(3, "0");
   return `${prefix}-${consecutive}/${year}`;
 }
@@ -81,7 +93,19 @@ Cada apartado debe ser extenso, técnico-jurídico y completamente desarrollado 
             integracion_normas: { type: "string" },
             aprobacion_registro: { type: "string" },
           },
-          required: ["fundamento_normativo","objetivo","alcance","instrumentos","poblacion_muestra","periodicidad","responsables","calendario","confidencialidad","integracion_normas","aprobacion_registro"],
+          required: [
+            "fundamento_normativo",
+            "objetivo",
+            "alcance",
+            "instrumentos",
+            "poblacion_muestra",
+            "periodicidad",
+            "responsables",
+            "calendario",
+            "confidencialidad",
+            "integracion_normas",
+            "aprobacion_registro",
+          ],
           additionalProperties: false,
         },
       },
@@ -89,8 +113,12 @@ Cada apartado debe ser extenso, técnico-jurídico y completamente desarrollado 
   });
 
   const rawContent = response.choices?.[0]?.message?.content;
-  const content = typeof rawContent === 'string' ? rawContent : null;
-  if (!content) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "LLM no retornó contenido" });
+  const content = typeof rawContent === "string" ? rawContent : null;
+  if (!content)
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "LLM no retornó contenido",
+    });
   return JSON.parse(content);
 }
 
@@ -98,12 +126,14 @@ Cada apartado debe ser extenso, técnico-jurídico y completamente desarrollado 
 
 export const caseInvestigationDocsRouter = router({
   generate: protectedProcedure
-    .input(z.object({
-      empresa: z.string().min(2, "Nombre de empresa requerido"),
-      area: z.string().min(2, "Área requerida"),
-      fechaInvestigacion: z.string().min(4, "Fecha requerida"),
-      responsableSst: z.string().min(2, "Responsable SST requerido"),
-    }))
+    .input(
+      z.object({
+        empresa: z.string().min(2, "Nombre de empresa requerido"),
+        area: z.string().min(2, "Área requerida"),
+        fechaInvestigacion: z.string().min(4, "Fecha requerida"),
+        responsableSst: z.string().min(2, "Responsable SST requerido"),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const db = await requireDb();
       const contenido = await generateInvestigacionContent(input);
@@ -119,19 +149,26 @@ export const caseInvestigationDocsRouter = router({
         creadoPor: ctx.user.id,
       });
       const id = (result as any).insertId;
-      const [doc] = await db.select().from(caseInvestigationDocs).where(eq(caseInvestigationDocs.id, id)).limit(1);
+      const [doc] = await db
+        .select()
+        .from(caseInvestigationDocs)
+        .where(eq(caseInvestigationDocs.id, id))
+        .limit(1);
       return { success: true, doc };
     }),
 
   save: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      contenido: z.record(z.string(), z.string()),
-      estado: z.enum(["borrador", "final"]),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        contenido: z.record(z.string(), z.string()),
+        estado: z.enum(["borrador", "final"]),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await requireDb();
-      await db.update(caseInvestigationDocs)
+      await db
+        .update(caseInvestigationDocs)
         .set({ contenido: input.contenido as any, estado: input.estado })
         .where(eq(caseInvestigationDocs.id, input.id));
       return { success: true };
@@ -141,19 +178,33 @@ export const caseInvestigationDocsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await requireDb();
-      await db.update(caseInvestigationDocs)
-        .set({ estado: "aprobado", aprobadoPor: ctx.user.id, fechaAprobacion: new Date() })
+      await db
+        .update(caseInvestigationDocs)
+        .set({
+          estado: "aprobado",
+          aprobadoPor: ctx.user.id,
+          fechaAprobacion: new Date(),
+        })
         .where(eq(caseInvestigationDocs.id, input.id));
       return { success: true };
     }),
 
   list: protectedProcedure
-    .input(z.object({
-      estado: z.enum(["borrador", "final", "aprobado", "all"]).default("all"),
-    }).optional())
+    .input(
+      z
+        .object({
+          estado: z
+            .enum(["borrador", "final", "aprobado", "all"])
+            .default("all"),
+        })
+        .optional()
+    )
     .query(async ({ input }) => {
       const db = await requireDb();
-      const query = db.select().from(caseInvestigationDocs).orderBy(desc(caseInvestigationDocs.createdAt));
+      const query = db
+        .select()
+        .from(caseInvestigationDocs)
+        .orderBy(desc(caseInvestigationDocs.createdAt));
       const docs = await query;
       if (input?.estado && input.estado !== "all") {
         return docs.filter(d => d.estado === input.estado);
@@ -165,8 +216,16 @@ export const caseInvestigationDocsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await requireDb();
-      const [doc] = await db.select().from(caseInvestigationDocs).where(eq(caseInvestigationDocs.id, input.id)).limit(1);
-      if (!doc) throw new TRPCError({ code: "NOT_FOUND", message: "Documento no encontrado" });
+      const [doc] = await db
+        .select()
+        .from(caseInvestigationDocs)
+        .where(eq(caseInvestigationDocs.id, input.id))
+        .limit(1);
+      if (!doc)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Documento no encontrado",
+        });
       return doc;
     }),
 
@@ -174,7 +233,9 @@ export const caseInvestigationDocsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await requireDb();
-      await db.delete(caseInvestigationDocs).where(eq(caseInvestigationDocs.id, input.id));
+      await db
+        .delete(caseInvestigationDocs)
+        .where(eq(caseInvestigationDocs.id, input.id));
       return { success: true };
     }),
 });

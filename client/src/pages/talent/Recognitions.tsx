@@ -1,20 +1,51 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
-import { Award, Heart, ThumbsUp, Sparkles, Star, Send, Users } from "lucide-react";
+import {
+  Award,
+  Heart,
+  ThumbsUp,
+  Sparkles,
+  Star,
+  Send,
+  Users,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 type ReactionType = "like" | "applause" | "heart" | "star";
 
-const reactionIcons: Record<ReactionType, { icon: React.ReactNode; label: string }> = {
+const reactionIcons: Record<
+  ReactionType,
+  { icon: React.ReactNode; label: string }
+> = {
   like: { icon: <ThumbsUp className="h-4 w-4" />, label: "Me gusta" },
   applause: { icon: <Sparkles className="h-4 w-4" />, label: "Aplauso" },
   heart: { icon: <Heart className="h-4 w-4" />, label: "Corazón" },
@@ -24,8 +55,10 @@ const reactionIcons: Record<ReactionType, { icon: React.ReactNode; label: string
 export default function Recognitions() {
   // Using toast from sonner
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<"received" | "sent" | "public" | "all">("received");
-  
+  const [selectedTab, setSelectedTab] = useState<
+    "received" | "sent" | "public" | "all"
+  >("received");
+
   // Form state
   const [toUserId, setToUserId] = useState<string>("");
   const [categoryId, setCategoryId] = useState<string>("");
@@ -51,7 +84,7 @@ export default function Recognitions() {
       resetForm();
       recognitionsQuery.refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error("Error", {
         description: error.message,
       });
@@ -102,7 +135,11 @@ export default function Recognitions() {
     });
   };
 
-  const handleReaction = (recognitionId: number, reactionType: ReactionType, hasReacted: boolean) => {
+  const handleReaction = (
+    recognitionId: number,
+    reactionType: ReactionType,
+    hasReacted: boolean
+  ) => {
     if (hasReacted) {
       removeReactionMutation.mutate({ recognitionId });
     } else {
@@ -120,7 +157,8 @@ export default function Recognitions() {
   };
 
   const formatDate = (dateString: string | Date) => {
-    const date = typeof dateString === "string" ? new Date(dateString) : dateString;
+    const date =
+      typeof dateString === "string" ? new Date(dateString) : dateString;
     return date.toLocaleDateString("es-MX", {
       year: "numeric",
       month: "long",
@@ -133,7 +171,9 @@ export default function Recognitions() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Reconocimientos y Felicitaciones</h1>
+          <h1 className="text-3xl font-bold">
+            Reconocimientos y Felicitaciones
+          </h1>
           <p className="text-muted-foreground mt-2">
             Reconoce el esfuerzo y logros de tus compañeros
           </p>
@@ -161,9 +201,14 @@ export default function Recognitions() {
                     <SelectValue placeholder="Selecciona un empleado" />
                   </SelectTrigger>
                   <SelectContent>
-                    {((employeesQuery.data as any)?.employees || employeesQuery.data as any || []).map((emp: any) => (
+                    {(
+                      (employeesQuery.data as any)?.employees ||
+                      (employeesQuery.data as any) ||
+                      []
+                    ).map((emp: any) => (
                       <SelectItem key={emp.id} value={emp.id.toString()}>
-                        {emp.firstName} {emp.lastName} - {emp.position || "Sin puesto"}
+                        {emp.firstName} {emp.lastName} -{" "}
+                        {emp.position || "Sin puesto"}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -194,7 +239,7 @@ export default function Recognitions() {
                   id="message"
                   placeholder="Escribe un mensaje de reconocimiento (mínimo 10 caracteres)..."
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={e => setMessage(e.target.value)}
                   rows={5}
                   className="resize-none"
                 />
@@ -209,7 +254,7 @@ export default function Recognitions() {
                   type="checkbox"
                   id="isPublic"
                   checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
+                  onChange={e => setIsPublic(e.target.checked)}
                   className="h-4 w-4 rounded border-gray-300"
                 />
                 <Label htmlFor="isPublic" className="font-normal">
@@ -221,8 +266,13 @@ export default function Recognitions() {
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleSubmit} disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Enviando..." : "Enviar Reconocimiento"}
+              <Button
+                onClick={handleSubmit}
+                disabled={createMutation.isPending}
+              >
+                {createMutation.isPending
+                  ? "Enviando..."
+                  : "Enviar Reconocimiento"}
                 <Send className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>
@@ -231,7 +281,10 @@ export default function Recognitions() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as typeof selectedTab)}>
+      <Tabs
+        value={selectedTab}
+        onValueChange={v => setSelectedTab(v as typeof selectedTab)}
+      >
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="received">Recibidos</TabsTrigger>
           <TabsTrigger value="sent">Enviados</TabsTrigger>
@@ -242,17 +295,28 @@ export default function Recognitions() {
         <TabsContent value={selectedTab} className="space-y-4 mt-6">
           {recognitionsQuery.isLoading ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Cargando reconocimientos...</p>
+              <p className="text-muted-foreground">
+                Cargando reconocimientos...
+              </p>
             </div>
-          ) : recognitionsQuery.data && ((recognitionsQuery.data as any)?.recognitions?.length || (recognitionsQuery.data as any)?.length || 0) > 0 ? (
+          ) : recognitionsQuery.data &&
+            ((recognitionsQuery.data as any)?.recognitions?.length ||
+              (recognitionsQuery.data as any)?.length ||
+              0) > 0 ? (
             <div className="grid gap-4">
-              {((recognitionsQuery.data as any)?.recognitions || recognitionsQuery.data as any || []).map((recognition: any) => (
+              {(
+                (recognitionsQuery.data as any)?.recognitions ||
+                (recognitionsQuery.data as any) ||
+                []
+              ).map((recognition: any) => (
                 <Card key={recognition.id}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-4">
                         <Avatar>
-                          <AvatarFallback>{getInitials(recognition.fromUserName || "")}</AvatarFallback>
+                          <AvatarFallback>
+                            {getInitials(recognition.fromUserName || "")}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
                           <CardTitle className="text-lg">
@@ -260,19 +324,25 @@ export default function Recognitions() {
                             {selectedTab !== "sent" && (
                               <>
                                 {" "}
-                                <span className="text-muted-foreground font-normal">reconoció a</span>{" "}
+                                <span className="text-muted-foreground font-normal">
+                                  reconoció a
+                                </span>{" "}
                                 {recognition.toUserName}
                               </>
                             )}
                             {selectedTab === "sent" && (
                               <>
                                 {" "}
-                                <span className="text-muted-foreground font-normal">a</span>{" "}
+                                <span className="text-muted-foreground font-normal">
+                                  a
+                                </span>{" "}
                                 {recognition.toUserName}
                               </>
                             )}
                           </CardTitle>
-                          <CardDescription>{formatDate(recognition.createdAt)}</CardDescription>
+                          <CardDescription>
+                            {formatDate(recognition.createdAt)}
+                          </CardDescription>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -283,7 +353,11 @@ export default function Recognitions() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => markAsReadMutation.mutate({ recognitionId: recognition.id })}
+                            onClick={() =>
+                              markAsReadMutation.mutate({
+                                recognitionId: recognition.id,
+                              })
+                            }
                             disabled={markAsReadMutation.isPending}
                           >
                             Marcar como leído
@@ -294,21 +368,27 @@ export default function Recognitions() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-base mb-4">{recognition.message}</p>
-                    
+
                     {/* Reacciones */}
                     <div className="flex items-center space-x-2 pt-4 border-t">
-                      {(Object.keys(reactionIcons) as ReactionType[]).map((type) => (
-                        <Button
-                          key={type}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleReaction(recognition.id, type, false)}
-                          className="flex items-center space-x-1"
-                        >
-                          {reactionIcons[type].icon}
-                          <span className="text-xs">{reactionIcons[type].label}</span>
-                        </Button>
-                      ))}
+                      {(Object.keys(reactionIcons) as ReactionType[]).map(
+                        type => (
+                          <Button
+                            key={type}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              handleReaction(recognition.id, type, false)
+                            }
+                            className="flex items-center space-x-1"
+                          >
+                            {reactionIcons[type].icon}
+                            <span className="text-xs">
+                              {reactionIcons[type].label}
+                            </span>
+                          </Button>
+                        )
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -320,10 +400,14 @@ export default function Recognitions() {
                 <Users className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-lg font-medium">No hay reconocimientos</p>
                 <p className="text-muted-foreground text-center mt-2">
-                  {selectedTab === "received" && "Aún no has recibido reconocimientos"}
-                  {selectedTab === "sent" && "Aún no has enviado reconocimientos"}
-                  {selectedTab === "public" && "No hay reconocimientos públicos"}
-                  {selectedTab === "all" && "No hay reconocimientos en el sistema"}
+                  {selectedTab === "received" &&
+                    "Aún no has recibido reconocimientos"}
+                  {selectedTab === "sent" &&
+                    "Aún no has enviado reconocimientos"}
+                  {selectedTab === "public" &&
+                    "No hay reconocimientos públicos"}
+                  {selectedTab === "all" &&
+                    "No hay reconocimientos en el sistema"}
                 </p>
               </CardContent>
             </Card>

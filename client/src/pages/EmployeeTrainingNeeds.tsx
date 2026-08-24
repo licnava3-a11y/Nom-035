@@ -5,7 +5,13 @@ import { Card } from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { ArrowLeft, AlertCircle, TrendingUp, BookOpen, Target } from "lucide-react";
+import {
+  ArrowLeft,
+  AlertCircle,
+  TrendingUp,
+  BookOpen,
+  Target,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export default function EmployeeTrainingNeeds() {
@@ -13,8 +19,14 @@ export default function EmployeeTrainingNeeds() {
   const [, setLocation] = useLocation();
   const employeeId = parseInt(params.id || "0");
 
-  const { data: employee } = trpc.employees.getById.useQuery({ id: employeeId }) as { data: any };
-  const { data: dnc, mutate: generateDNC, isPending: isPending } = trpc.jobProfiles.generateDNC.useMutation();
+  const { data: employee } = trpc.employees.getById.useQuery({
+    id: employeeId,
+  }) as { data: any };
+  const {
+    data: dnc,
+    mutate: generateDNC,
+    isPending: isPending,
+  } = trpc.jobProfiles.generateDNC.useMutation();
 
   // Generate DNC on mount
   React.useEffect(() => {
@@ -29,7 +41,9 @@ export default function EmployeeTrainingNeeds() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Generando análisis de necesidades...</p>
+            <p className="text-muted-foreground">
+              Generando análisis de necesidades...
+            </p>
           </div>
         </div>
       </div>
@@ -41,9 +55,12 @@ export default function EmployeeTrainingNeeds() {
       <div className="container py-8">
         <Card className="p-8 text-center">
           <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No se pudo generar el análisis</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            No se pudo generar el análisis
+          </h3>
           <p className="text-muted-foreground mb-4">
-            Verifica que el empleado tenga un puesto asignado con competencias definidas
+            Verifica que el empleado tenga un puesto asignado con competencias
+            definidas
           </p>
           <Button onClick={() => setLocation(`/employees/${employeeId}`)}>
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -108,7 +125,8 @@ export default function EmployeeTrainingNeeds() {
           Determinación de Necesidades de Capacitación (DNC)
         </h1>
         <p className="text-muted-foreground">
-          {employee.firstName} {employee.lastName} - {employee.position || "Sin puesto"}
+          {employee.firstName} {employee.lastName} -{" "}
+          {employee.position || "Sin puesto"}
         </p>
       </div>
 
@@ -151,9 +169,15 @@ export default function EmployeeTrainingNeeds() {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Prioridad Media/Baja</p>
+              <p className="text-sm text-muted-foreground">
+                Prioridad Media/Baja
+              </p>
               <p className="text-3xl font-bold text-green-600">
-                {dnc.needs.filter((n: any) => n.priority === "media" || n.priority === "baja").length}
+                {
+                  dnc.needs.filter(
+                    (n: any) => n.priority === "media" || n.priority === "baja"
+                  ).length
+                }
               </p>
             </div>
             <BookOpen className="h-8 w-8 text-green-500" />
@@ -163,7 +187,9 @@ export default function EmployeeTrainingNeeds() {
 
       {/* Needs Analysis */}
       <Card className="p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Análisis de Brechas de Competencias</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          Análisis de Brechas de Competencias
+        </h2>
 
         {dnc.needs.length === 0 ? (
           <div className="text-center py-12">
@@ -172,7 +198,8 @@ export default function EmployeeTrainingNeeds() {
               ¡Excelente desempeño!
             </h3>
             <p className="text-muted-foreground">
-              El empleado cumple con todas las competencias requeridas para su puesto
+              El empleado cumple con todas las competencias requeridas para su
+              puesto
             </p>
           </div>
         ) : (
@@ -191,17 +218,23 @@ export default function EmployeeTrainingNeeds() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-2xl">{getPriorityIcon(need.priority)}</span>
-                        <h3 className="text-lg font-semibold">{need.competencyName}</h3>
+                        <span className="text-2xl">
+                          {getPriorityIcon(need.priority)}
+                        </span>
+                        <h3 className="text-lg font-semibold">
+                          {need.competencyName}
+                        </h3>
                         <span className="px-2 py-1 rounded text-xs bg-white/50">
                           {need.competencyType === "tecnica"
                             ? "Técnica"
                             : need.competencyType === "transversal"
-                            ? "Transversal"
-                            : "Conocimiento"}
+                              ? "Transversal"
+                              : "Conocimiento"}
                         </span>
                       </div>
-                      <p className="text-sm opacity-90">{need.description || "Sin descripción"}</p>
+                      <p className="text-sm opacity-90">
+                        {need.description || "Sin descripción"}
+                      </p>
                     </div>
                     <div className="text-right">
                       <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/70 uppercase">
@@ -237,7 +270,8 @@ export default function EmployeeTrainingNeeds() {
                       ></div>
                     </div>
                     <p className="text-xs mt-1 opacity-80">
-                      Brecha detectada: {Math.round(gapPercentage)}% de mejora necesaria
+                      Brecha detectada: {Math.round(gapPercentage)}% de mejora
+                      necesaria
                     </p>
                   </div>
 
@@ -246,10 +280,10 @@ export default function EmployeeTrainingNeeds() {
                     {need.priority === "critica"
                       ? "Capacitación inmediata requerida"
                       : need.priority === "alta"
-                      ? "Programar capacitación en el próximo mes"
-                      : need.priority === "media"
-                      ? "Incluir en plan de capacitación trimestral"
-                      : "Considerar para desarrollo a largo plazo"}
+                        ? "Programar capacitación en el próximo mes"
+                        : need.priority === "media"
+                          ? "Incluir en plan de capacitación trimestral"
+                          : "Considerar para desarrollo a largo plazo"}
                   </div>
                 </div>
               );
@@ -268,10 +302,19 @@ export default function EmployeeTrainingNeeds() {
                 Plan de Acción Recomendado
               </h3>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Priorizar capacitación en competencias críticas y de alta prioridad</li>
-                <li>• Programar cursos específicos para cerrar las brechas identificadas</li>
+                <li>
+                  • Priorizar capacitación en competencias críticas y de alta
+                  prioridad
+                </li>
+                <li>
+                  • Programar cursos específicos para cerrar las brechas
+                  identificadas
+                </li>
                 <li>• Realizar seguimiento trimestral del progreso</li>
-                <li>• Actualizar competencias del empleado conforme complete capacitaciones</li>
+                <li>
+                  • Actualizar competencias del empleado conforme complete
+                  capacitaciones
+                </li>
               </ul>
             </div>
           </div>

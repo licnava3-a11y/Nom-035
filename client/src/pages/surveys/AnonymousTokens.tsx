@@ -6,10 +6,22 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -34,7 +46,9 @@ export default function AnonymousTokens() {
   const utils = trpc.useUtils();
 
   // Generation form state
-  const [surveyType, setSurveyType] = useState<"guia_i" | "guia_ii" | "guia_iii">("guia_i");
+  const [surveyType, setSurveyType] = useState<
+    "guia_i" | "guia_ii" | "guia_iii"
+  >("guia_i");
   const [count, setCount] = useState("10");
   const [expiresInDays, setExpiresInDays] = useState("30");
   const [department, setDepartment] = useState("");
@@ -42,8 +56,12 @@ export default function AnonymousTokens() {
 
   // Filters state
   const [page, setPage] = useState(1);
-  const [filterSurveyType, setFilterSurveyType] = useState<"all" | "guia_i" | "guia_ii" | "guia_iii">("all");
-  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "used" | "expired" | "revoked">("active");
+  const [filterSurveyType, setFilterSurveyType] = useState<
+    "all" | "guia_i" | "guia_ii" | "guia_iii"
+  >("all");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "active" | "used" | "expired" | "revoked"
+  >("active");
   const [filterDepartment, setFilterDepartment] = useState("");
 
   // QR Code dialog
@@ -60,20 +78,22 @@ export default function AnonymousTokens() {
   });
 
   // Mutations
-  const generateMutation = trpc.surveyAnonymousTokens.generateBatch.useMutation({
-    onSuccess: (data) => {
-      toast.success(data.message || "Tokens generados exitosamente");
-      utils.surveyAnonymousTokens.getAll.invalidate();
-      utils.surveyAnonymousTokens.getStats.invalidate();
-      // Reset form
-      setCount("10");
-      setDepartment("");
-      setNotes("");
-    },
-    onError: (error) => {
-      toast.error(`Error al generar tokens: ${error.message}`);
-    },
-  });
+  const generateMutation = trpc.surveyAnonymousTokens.generateBatch.useMutation(
+    {
+      onSuccess: data => {
+        toast.success(data.message || "Tokens generados exitosamente");
+        utils.surveyAnonymousTokens.getAll.invalidate();
+        utils.surveyAnonymousTokens.getStats.invalidate();
+        // Reset form
+        setCount("10");
+        setDepartment("");
+        setNotes("");
+      },
+      onError: error => {
+        toast.error(`Error al generar tokens: ${error.message}`);
+      },
+    }
+  );
 
   const revokeMutation = trpc.surveyAnonymousTokens.revokeToken.useMutation({
     onSuccess: () => {
@@ -81,7 +101,7 @@ export default function AnonymousTokens() {
       utils.surveyAnonymousTokens.getAll.invalidate();
       utils.surveyAnonymousTokens.getStats.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al revocar token: ${error.message}`);
     },
   });
@@ -122,7 +142,15 @@ export default function AnonymousTokens() {
     if (!result.data) return;
 
     // Convert to CSV
-    const headers = ["Token", "Tipo de Encuesta", "Departamento", "Expira", "Usado", "Revocado", "Creado"];
+    const headers = [
+      "Token",
+      "Tipo de Encuesta",
+      "Departamento",
+      "Expira",
+      "Usado",
+      "Revocado",
+      "Creado",
+    ];
     const rows = result.data.map((token: any) => [
       token.token,
       token.surveyType,
@@ -188,7 +216,9 @@ export default function AnonymousTokens() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Total de Tokens</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total de Tokens
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{statsQuery.data.total}</div>
@@ -197,28 +227,40 @@ export default function AnonymousTokens() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Tokens Activos</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Tokens Activos
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{statsQuery.data.active}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {statsQuery.data.active}
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Tokens Usados</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Tokens Usados
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{statsQuery.data.used}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {statsQuery.data.used}
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Tokens Expirados</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Tokens Expirados
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{statsQuery.data.expired}</div>
+              <div className="text-2xl font-bold text-orange-600">
+                {statsQuery.data.expired}
+              </div>
             </CardContent>
           </Card>
 
@@ -227,7 +269,9 @@ export default function AnonymousTokens() {
               <CardTitle className="text-sm font-medium">Tasa de Uso</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{statsQuery.data.usageRate.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">
+                {statsQuery.data.usageRate.toFixed(1)}%
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -245,7 +289,10 @@ export default function AnonymousTokens() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="surveyType">Tipo de Encuesta</Label>
-              <Select value={surveyType} onValueChange={(v: any) => setSurveyType(v)}>
+              <Select
+                value={surveyType}
+                onValueChange={(v: any) => setSurveyType(v)}
+              >
                 <SelectTrigger id="surveyType">
                   <SelectValue />
                 </SelectTrigger>
@@ -265,7 +312,7 @@ export default function AnonymousTokens() {
                 min="1"
                 max="1000"
                 value={count}
-                onChange={(e) => setCount(e.target.value)}
+                onChange={e => setCount(e.target.value)}
                 placeholder="10"
               />
             </div>
@@ -278,7 +325,7 @@ export default function AnonymousTokens() {
                 min="1"
                 max="365"
                 value={expiresInDays}
-                onChange={(e) => setExpiresInDays(e.target.value)}
+                onChange={e => setExpiresInDays(e.target.value)}
                 placeholder="30"
               />
             </div>
@@ -288,7 +335,7 @@ export default function AnonymousTokens() {
               <Input
                 id="department"
                 value={department}
-                onChange={(e) => setDepartment(e.target.value)}
+                onChange={e => setDepartment(e.target.value)}
                 placeholder="Ej: Recursos Humanos"
               />
             </div>
@@ -299,7 +346,7 @@ export default function AnonymousTokens() {
             <Textarea
               id="notes"
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={e => setNotes(e.target.value)}
               placeholder="Notas internas sobre este lote de tokens..."
               rows={3}
             />
@@ -310,7 +357,9 @@ export default function AnonymousTokens() {
             disabled={generateMutation.isPending}
             className="w-full md:w-auto"
           >
-            {generateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {generateMutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             Generar Tokens
           </Button>
         </CardContent>
@@ -350,10 +399,13 @@ export default function AnonymousTokens() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="filterSurveyType">Tipo de Encuesta</Label>
-              <Select value={filterSurveyType} onValueChange={(v: any) => {
-                setFilterSurveyType(v);
-                setPage(1);
-              }}>
+              <Select
+                value={filterSurveyType}
+                onValueChange={(v: any) => {
+                  setFilterSurveyType(v);
+                  setPage(1);
+                }}
+              >
                 <SelectTrigger id="filterSurveyType">
                   <SelectValue />
                 </SelectTrigger>
@@ -368,10 +420,13 @@ export default function AnonymousTokens() {
 
             <div className="space-y-2">
               <Label htmlFor="filterStatus">Estado</Label>
-              <Select value={filterStatus} onValueChange={(v: any) => {
-                setFilterStatus(v);
-                setPage(1);
-              }}>
+              <Select
+                value={filterStatus}
+                onValueChange={(v: any) => {
+                  setFilterStatus(v);
+                  setPage(1);
+                }}
+              >
                 <SelectTrigger id="filterStatus">
                   <SelectValue />
                 </SelectTrigger>
@@ -390,7 +445,7 @@ export default function AnonymousTokens() {
               <Input
                 id="filterDepartment"
                 value={filterDepartment}
-                onChange={(e) => {
+                onChange={e => {
                   setFilterDepartment(e.target.value);
                   setPage(1);
                 }}
@@ -425,11 +480,15 @@ export default function AnonymousTokens() {
                         <TableCell className="font-mono text-xs">
                           {token.token.substring(0, 16)}...
                         </TableCell>
-                        <TableCell>{getSurveyTypeName(token.surveyType)}</TableCell>
+                        <TableCell>
+                          {getSurveyTypeName(token.surveyType)}
+                        </TableCell>
                         <TableCell>{token.department || "-"}</TableCell>
                         <TableCell>{getStatusBadge(token)}</TableCell>
                         <TableCell>
-                          {new Date(token.expiresAt).toLocaleDateString("es-MX")}
+                          {new Date(token.expiresAt).toLocaleDateString(
+                            "es-MX"
+                          )}
                         </TableCell>
                         <TableCell>
                           {token.usedAt
@@ -449,7 +508,9 @@ export default function AnonymousTokens() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => revokeMutation.mutate({ tokenId: token.id })}
+                                onClick={() =>
+                                  revokeMutation.mutate({ tokenId: token.id })
+                                }
                                 disabled={revokeMutation.isPending}
                               >
                                 <Ban className="h-4 w-4" />
@@ -466,7 +527,9 @@ export default function AnonymousTokens() {
               {/* Pagination */}
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  Mostrando {((page - 1) * 50) + 1} - {Math.min(page * 50, tokensQuery.data.total)} de {tokensQuery.data.total} tokens
+                  Mostrando {(page - 1) * 50 + 1} -{" "}
+                  {Math.min(page * 50, tokensQuery.data.total)} de{" "}
+                  {tokensQuery.data.total} tokens
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -497,7 +560,10 @@ export default function AnonymousTokens() {
       </Card>
 
       {/* QR Code Dialog */}
-      <Dialog open={!!selectedToken} onOpenChange={() => setSelectedToken(null)}>
+      <Dialog
+        open={!!selectedToken}
+        onOpenChange={() => setSelectedToken(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Código QR del Token</DialogTitle>

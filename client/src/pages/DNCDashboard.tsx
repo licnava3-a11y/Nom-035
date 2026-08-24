@@ -3,7 +3,15 @@ import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
-import { Loader2, Download, Filter, TrendingUp, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import {
+  Loader2,
+  Download,
+  Filter,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
@@ -60,11 +68,23 @@ export default function DNCDashboard() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Fetch all training needs
-  const { data: trainingNeeds, isLoading, refetch } = trpc.jobProfiles.getAllTrainingNeeds.useQuery();
+  const {
+    data: trainingNeeds,
+    isLoading,
+    refetch,
+  } = trpc.jobProfiles.getAllTrainingNeeds.useQuery();
 
   // Fetch employees for department filter
   const { data: employeesData } = trpc.employees.list.useQuery();
-  const employees = (employeesData as any) as Array<{ id: number; firstName: string; lastName: string; department: string; position: string }> | undefined;
+  const employees = employeesData as any as
+    | Array<{
+        id: number;
+        firstName: string;
+        lastName: string;
+        department: string;
+        position: string;
+      }>
+    | undefined;
 
   // Get unique departments
   const departments = useMemo(() => {
@@ -79,25 +99,48 @@ export default function DNCDashboard() {
 
     return trainingNeeds.filter((need: any) => {
       const employee = employees?.find((e: any) => e.id === need.employeeId);
-      const departmentMatch = selectedDepartment === "all" || employee?.department === selectedDepartment;
-      const priorityMatch = selectedPriority === "all" || need.priority === selectedPriority;
-      const statusMatch = selectedStatus === "all" || need.status === selectedStatus;
-      const categoryMatch = selectedCategory === "all" || need.competencyType === selectedCategory;
+      const departmentMatch =
+        selectedDepartment === "all" ||
+        employee?.department === selectedDepartment;
+      const priorityMatch =
+        selectedPriority === "all" || need.priority === selectedPriority;
+      const statusMatch =
+        selectedStatus === "all" || need.status === selectedStatus;
+      const categoryMatch =
+        selectedCategory === "all" || need.competencyType === selectedCategory;
 
       return departmentMatch && priorityMatch && statusMatch && categoryMatch;
     });
-  }, [trainingNeeds, employees, selectedDepartment, selectedPriority, selectedStatus, selectedCategory]);
+  }, [
+    trainingNeeds,
+    employees,
+    selectedDepartment,
+    selectedPriority,
+    selectedStatus,
+    selectedCategory,
+  ]);
 
   // Calculate statistics
   const stats = useMemo(() => {
-    if (!filteredNeeds) return { total: 0, pendiente: 0, en_progreso: 0, completada: 0, critica: 0 };
+    if (!filteredNeeds)
+      return {
+        total: 0,
+        pendiente: 0,
+        en_progreso: 0,
+        completada: 0,
+        critica: 0,
+      };
 
     return {
       total: filteredNeeds.length,
-      pendiente: filteredNeeds.filter((n: any) => n.status === "pendiente").length,
-      en_progreso: filteredNeeds.filter((n: any) => n.status === "en_proceso").length,
-      completada: filteredNeeds.filter((n: any) => n.status === "completada").length,
-      critica: filteredNeeds.filter((n: any) => n.priority === "critica").length,
+      pendiente: filteredNeeds.filter((n: any) => n.status === "pendiente")
+        .length,
+      en_progreso: filteredNeeds.filter((n: any) => n.status === "en_proceso")
+        .length,
+      completada: filteredNeeds.filter((n: any) => n.status === "completada")
+        .length,
+      critica: filteredNeeds.filter((n: any) => n.priority === "critica")
+        .length,
     };
   }, [filteredNeeds]);
 
@@ -122,7 +165,10 @@ export default function DNCDashboard() {
     return Object.entries(distribution).map(([category, count]) => ({
       category: categoryLabels[category as Category],
       count,
-      percentage: filteredNeeds.length > 0 ? Math.round((count / filteredNeeds.length) * 100) : 0,
+      percentage:
+        filteredNeeds.length > 0
+          ? Math.round((count / filteredNeeds.length) * 100)
+          : 0,
     }));
   }, [filteredNeeds]);
 
@@ -147,7 +193,10 @@ export default function DNCDashboard() {
     return Object.entries(distribution).map(([priority, count]) => ({
       priority: priorityLabels[priority as Priority],
       count,
-      percentage: filteredNeeds.length > 0 ? Math.round((count / filteredNeeds.length) * 100) : 0,
+      percentage:
+        filteredNeeds.length > 0
+          ? Math.round((count / filteredNeeds.length) * 100)
+          : 0,
       color: priorityColors[priority as Priority],
     }));
   }, [filteredNeeds]);
@@ -159,15 +208,17 @@ export default function DNCDashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-      <Breadcrumb items={[
-        {
-                label: "Gestión de Talento",
-                href: "/"
-        },
-        {
-                label: "DNC Consolidada"
-        }
-]} />
+        <Breadcrumb
+          items={[
+            {
+              label: "Gestión de Talento",
+              href: "/",
+            },
+            {
+              label: "DNC Consolidada",
+            },
+          ]}
+        />
 
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
@@ -179,7 +230,9 @@ export default function DNCDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Detección de Necesidades de Capacitación (DNC)</h1>
+          <h1 className="text-3xl font-bold">
+            Detección de Necesidades de Capacitación (DNC)
+          </h1>
           <p className="text-gray-600 mt-1">
             Vista consolidada de necesidades técnicas, blandas y transversales
           </p>
@@ -251,11 +304,13 @@ export default function DNCDashboard() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-2">Departamento</label>
+            <label className="text-sm font-medium text-gray-700 block mb-2">
+              Departamento
+            </label>
             <select
               className="w-full p-2 border rounded-lg"
               value={selectedDepartment}
-              onChange={(e) => setSelectedDepartment(e.target.value)}
+              onChange={e => setSelectedDepartment(e.target.value)}
             >
               <option value="all">Todos los departamentos</option>
               {departments.map((dept: any) => (
@@ -267,11 +322,13 @@ export default function DNCDashboard() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-2">Categoría</label>
+            <label className="text-sm font-medium text-gray-700 block mb-2">
+              Categoría
+            </label>
             <select
               className="w-full p-2 border rounded-lg"
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={e => setSelectedCategory(e.target.value)}
             >
               <option value="all">Todas las categorías</option>
               <option value="tecnica">Técnica</option>
@@ -282,11 +339,13 @@ export default function DNCDashboard() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-2">Prioridad</label>
+            <label className="text-sm font-medium text-gray-700 block mb-2">
+              Prioridad
+            </label>
             <select
               className="w-full p-2 border rounded-lg"
               value={selectedPriority}
-              onChange={(e) => setSelectedPriority(e.target.value)}
+              onChange={e => setSelectedPriority(e.target.value)}
             >
               <option value="all">Todas las prioridades</option>
               <option value="baja">Baja</option>
@@ -297,11 +356,13 @@ export default function DNCDashboard() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-2">Estado</label>
+            <label className="text-sm font-medium text-gray-700 block mb-2">
+              Estado
+            </label>
             <select
               className="w-full p-2 border rounded-lg"
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
+              onChange={e => setSelectedStatus(e.target.value)}
             >
               <option value="all">Todos los estados</option>
               <option value="pendiente">Pendiente</option>
@@ -316,7 +377,9 @@ export default function DNCDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Category Distribution */}
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Distribución por Categoría</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            Distribución por Categoría
+          </h2>
           <div className="space-y-4">
             {categoryDistribution.map((item: any) => (
               <div key={item.category}>
@@ -339,7 +402,9 @@ export default function DNCDashboard() {
 
         {/* Priority Distribution */}
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Distribución por Prioridad</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            Distribución por Prioridad
+          </h2>
           <div className="space-y-4">
             {priorityDistribution.map((item: any) => (
               <div key={item.priority}>
@@ -355,10 +420,10 @@ export default function DNCDashboard() {
                       item.priority === "Crítica"
                         ? "bg-red-600"
                         : item.priority === "Alta"
-                        ? "bg-orange-600"
-                        : item.priority === "Media"
-                        ? "bg-yellow-600"
-                        : "bg-blue-600"
+                          ? "bg-orange-600"
+                          : item.priority === "Media"
+                            ? "bg-yellow-600"
+                            : "bg-blue-600"
                     }`}
                     style={{ width: `${item.percentage}%` }}
                   />
@@ -383,18 +448,34 @@ export default function DNCDashboard() {
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-3 text-sm font-semibold">Empleado</th>
-                  <th className="text-left p-3 text-sm font-semibold">Competencia</th>
-                  <th className="text-left p-3 text-sm font-semibold">Categoría</th>
-                  <th className="text-left p-3 text-sm font-semibold">Brecha</th>
-                  <th className="text-left p-3 text-sm font-semibold">Prioridad</th>
-                  <th className="text-left p-3 text-sm font-semibold">Estado</th>
-                  <th className="text-left p-3 text-sm font-semibold">Fecha Límite</th>
+                  <th className="text-left p-3 text-sm font-semibold">
+                    Empleado
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold">
+                    Competencia
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold">
+                    Categoría
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold">
+                    Brecha
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold">
+                    Prioridad
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold">
+                    Estado
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold">
+                    Fecha Límite
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredNeeds.map((need: any) => {
-                  const employee = employees?.find((e: any) => e.id === need.employeeId);
+                  const employee = employees?.find(
+                    (e: any) => e.id === need.employeeId
+                  );
                   return (
                     <tr key={need.id} className="border-b hover:bg-gray-50">
                       <td className="p-3 text-sm">
@@ -402,7 +483,9 @@ export default function DNCDashboard() {
                           <div className="font-medium">
                             {employee?.firstName} {employee?.lastName}
                           </div>
-                          <div className="text-gray-600 text-xs">{employee?.department}</div>
+                          <div className="text-gray-600 text-xs">
+                            {employee?.department}
+                          </div>
                         </div>
                       </td>
                       <td className="p-3 text-sm">{need.competencyName}</td>
@@ -416,7 +499,9 @@ export default function DNCDashboard() {
                         </span>
                       </td>
                       <td className="p-3 text-sm">
-                        <span className="font-semibold text-red-600">{need.gap}</span>
+                        <span className="font-semibold text-red-600">
+                          {need.gap}
+                        </span>
                       </td>
                       <td className="p-3 text-sm">
                         <span
@@ -437,7 +522,9 @@ export default function DNCDashboard() {
                         </span>
                       </td>
                       <td className="p-3 text-sm text-gray-600">
-                        {need.dueDate ? new Date(need.dueDate).toLocaleDateString("es-MX") : "-"}
+                        {need.dueDate
+                          ? new Date(need.dueDate).toLocaleDateString("es-MX")
+                          : "-"}
                       </td>
                     </tr>
                   );

@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,7 +36,9 @@ const categoryLabels: Record<string, string> = {
 };
 
 export default function EvidenceFolder() {
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
+  const [selectedCategory, setSelectedCategory] = useState<
+    string | undefined
+  >();
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -73,7 +81,9 @@ export default function EvidenceFolder() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Total de Evidencias</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total de Evidencias
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
@@ -84,10 +94,14 @@ export default function EvidenceFolder() {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Tamaño Total</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Tamaño Total
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatFileSize(stats.totalSize)}</div>
+              <div className="text-2xl font-bold">
+                {formatFileSize(stats.totalSize)}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Espacio utilizado
               </p>
@@ -95,7 +109,9 @@ export default function EvidenceFolder() {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Categorías Activas</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Categorías Activas
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -126,25 +142,29 @@ export default function EvidenceFolder() {
                 <Input
                   placeholder="Buscar por título o descripción..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Fecha Inicio</label>
+              <label className="text-sm font-medium mb-2 block">
+                Fecha Inicio
+              </label>
               <Input
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={e => setStartDate(e.target.value)}
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Fecha Fin</label>
+              <label className="text-sm font-medium mb-2 block">
+                Fecha Fin
+              </label>
               <Input
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={e => setEndDate(e.target.value)}
               />
             </div>
           </div>
@@ -174,20 +194,31 @@ export default function EvidenceFolder() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={selectedCategory || "all"} onValueChange={(v) => setSelectedCategory(v === "all" ? undefined : v)}>
+          <Tabs
+            value={selectedCategory || "all"}
+            onValueChange={v =>
+              setSelectedCategory(v === "all" ? undefined : v)
+            }
+          >
             <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2 h-auto">
               <TabsTrigger value="all">Todas</TabsTrigger>
               <TabsTrigger value="policies">Políticas</TabsTrigger>
               <TabsTrigger value="preventive_actions">Preventivas</TabsTrigger>
               <TabsTrigger value="corrective_actions">Correctivas</TabsTrigger>
-              <TabsTrigger value="organizational_environment">Entorno</TabsTrigger>
+              <TabsTrigger value="organizational_environment">
+                Entorno
+              </TabsTrigger>
               <TabsTrigger value="training_program">Capacitación</TabsTrigger>
               <TabsTrigger value="surveys">Encuestas</TabsTrigger>
               <TabsTrigger value="cases">Casos</TabsTrigger>
               <TabsTrigger value="minutes">Minutas</TabsTrigger>
               <TabsTrigger value="certificates">Certificados</TabsTrigger>
-              <TabsTrigger value="position_acceptance">Aceptaciones</TabsTrigger>
-              <TabsTrigger value="photographic_evidence">Evidencias</TabsTrigger>
+              <TabsTrigger value="position_acceptance">
+                Aceptaciones
+              </TabsTrigger>
+              <TabsTrigger value="photographic_evidence">
+                Evidencias
+              </TabsTrigger>
             </TabsList>
 
             <div className="mt-6">
@@ -217,10 +248,13 @@ export default function EvidenceFolder() {
                       <TableRow key={evidence.id}>
                         <TableCell>
                           <Badge variant="outline">
-                            {categoryLabels[evidence.category] || evidence.category}
+                            {categoryLabels[evidence.category] ||
+                              evidence.category}
                           </Badge>
                         </TableCell>
-                        <TableCell className="font-medium">{evidence.title}</TableCell>
+                        <TableCell className="font-medium">
+                          {evidence.title}
+                        </TableCell>
                         <TableCell className="max-w-xs truncate">
                           {evidence.description || "Sin descripción"}
                         </TableCell>
@@ -229,13 +263,19 @@ export default function EvidenceFolder() {
                             {evidence.documentType || "N/A"}
                           </Badge>
                         </TableCell>
-                        <TableCell>{formatDate(evidence.generatedDate)}</TableCell>
-                        <TableCell>{formatFileSize(evidence.fileSize)}</TableCell>
+                        <TableCell>
+                          {formatDate(evidence.generatedDate)}
+                        </TableCell>
+                        <TableCell>
+                          {formatFileSize(evidence.fileSize)}
+                        </TableCell>
                         <TableCell>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(evidence.fileUrl, "_blank")}
+                            onClick={() =>
+                              window.open(evidence.fileUrl, "_blank")
+                            }
                           >
                             <FileText className="h-4 w-4 mr-2" />
                             Ver

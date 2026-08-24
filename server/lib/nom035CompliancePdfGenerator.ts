@@ -79,7 +79,12 @@ export interface CompliancePdfData {
     prioridad: string;
     tipoPlan: string;
   }>;
-  tendenciaMeses: Array<{ mes: string; cumplidas: number; vencidas: number; total: number }>;
+  tendenciaMeses: Array<{
+    mes: string;
+    cumplidas: number;
+    vencidas: number;
+    total: number;
+  }>;
   periodoMeses?: number;
 }
 
@@ -104,7 +109,11 @@ const PRIORIDAD_LABEL: Record<string, string> = {
 
 function fmtDate(d: string | null | undefined): string {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(d).toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function semaforoCircle(s: "verde" | "amarillo" | "rojo"): string {
@@ -112,7 +121,10 @@ function semaforoCircle(s: "verde" | "amarillo" | "rojo"): string {
   return `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${colors[s]};margin-right:6px;vertical-align:middle;"></span>`;
 }
 
-function progressBar(pct: number, semaforo: "verde" | "amarillo" | "rojo"): string {
+function progressBar(
+  pct: number,
+  semaforo: "verde" | "amarillo" | "rojo"
+): string {
   const colors = { verde: "#16a34a", amarillo: "#d97706", rojo: "#dc2626" };
   return `
     <div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%;">
@@ -120,21 +132,37 @@ function progressBar(pct: number, semaforo: "verde" | "amarillo" | "rojo"): stri
     </div>`;
 }
 
-export async function generateNom035CompliancePdf(data: CompliancePdfData): Promise<Buffer> {
+export async function generateNom035CompliancePdf(
+  data: CompliancePdfData
+): Promise<Buffer> {
   const generatedAt = new Date().toLocaleString("es-MX", {
-    year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
   const folio = `NOM035-DASH-${Date.now()}`;
   const periodoLabel = `Últimos ${data.periodoMeses ?? 12} meses`;
 
   // ── Semáforo global ──────────────────────────────────────────────────────────
-  const semaforoColors = { verde: "#16a34a", amarillo: "#d97706", rojo: "#dc2626" };
-  const semaforoLabels = { verde: "Óptimo", amarillo: "En riesgo", rojo: "Crítico" };
+  const semaforoColors = {
+    verde: "#16a34a",
+    amarillo: "#d97706",
+    rojo: "#dc2626",
+  };
+  const semaforoLabels = {
+    verde: "Óptimo",
+    amarillo: "En riesgo",
+    rojo: "Crítico",
+  };
   const semaforoColor = semaforoColors[data.kpis.semaforoGlobal];
   const semaforoLabel = semaforoLabels[data.kpis.semaforoGlobal];
 
   // ── Tabla de planes ──────────────────────────────────────────────────────────
-  const planesRows = data.planes.map(p => `
+  const planesRows = data.planes
+    .map(
+      p => `
     <tr>
       <td>${p.identificadorNivel}</td>
       <td>${TIPO_PLAN_LABEL[p.tipoPlan] ?? p.tipoPlan}</td>
@@ -150,11 +178,16 @@ export async function generateNom035CompliancePdf(data: CompliancePdfData): Prom
           <span style="font-weight:600;color:${semaforoColors[p.semaforo]};min-width:36px;">${p.porcentajeCumplimiento}%</span>
         </div>
       </td>
-    </tr>`).join("");
+    </tr>`
+    )
+    .join("");
 
   // ── Tabla de próximas a vencer ───────────────────────────────────────────────
-  const proximasRows = data.proximasAVencer.length > 0
-    ? data.proximasAVencer.map(a => `
+  const proximasRows =
+    data.proximasAVencer.length > 0
+      ? data.proximasAVencer
+          .map(
+            a => `
       <tr>
         <td class="mono">${a.accionId}</td>
         <td>${a.objetivo.slice(0, 70)}${a.objetivo.length > 70 ? "..." : ""}</td>
@@ -162,12 +195,17 @@ export async function generateNom035CompliancePdf(data: CompliancePdfData): Prom
         <td>${TIPO_PLAN_LABEL[a.tipoPlan] ?? a.tipoPlan}</td>
         <td class="center" style="color:#d97706;font-weight:600;">${fmtDate(a.plazo)}</td>
         <td class="center"><span class="badge badge-media">${PRIORIDAD_LABEL[a.prioridad] ?? a.prioridad}</span></td>
-      </tr>`).join("")
-    : `<tr><td colspan="6" class="center muted">Sin acciones próximas a vencer en los próximos 14 días</td></tr>`;
+      </tr>`
+          )
+          .join("")
+      : `<tr><td colspan="6" class="center muted">Sin acciones próximas a vencer en los próximos 14 días</td></tr>`;
 
   // ── Tabla de acciones vencidas ───────────────────────────────────────────────
-  const vencidasRows = data.accionesVencidas.length > 0
-    ? data.accionesVencidas.map(a => `
+  const vencidasRows =
+    data.accionesVencidas.length > 0
+      ? data.accionesVencidas
+          .map(
+            a => `
       <tr>
         <td class="mono">${a.accionId}</td>
         <td>${a.objetivo.slice(0, 70)}${a.objetivo.length > 70 ? "..." : ""}</td>
@@ -175,11 +213,15 @@ export async function generateNom035CompliancePdf(data: CompliancePdfData): Prom
         <td>${TIPO_PLAN_LABEL[a.tipoPlan] ?? a.tipoPlan}</td>
         <td class="center" style="color:#dc2626;font-weight:600;">${fmtDate(a.plazo)}</td>
         <td class="center"><span class="badge badge-alta">${PRIORIDAD_LABEL[a.prioridad] ?? a.prioridad}</span></td>
-      </tr>`).join("")
-    : `<tr><td colspan="6" class="center muted">Sin acciones vencidas registradas</td></tr>`;
+      </tr>`
+          )
+          .join("")
+      : `<tr><td colspan="6" class="center muted">Sin acciones vencidas registradas</td></tr>`;
 
   // ── Tabla de distribución por tipo de plan ───────────────────────────────────
-  const tipoPlanRows = data.byTipoPlan.map(r => `
+  const tipoPlanRows = data.byTipoPlan
+    .map(
+      r => `
     <tr>
       <td>${TIPO_PLAN_LABEL[r.tipoPlan] ?? r.tipoPlan}</td>
       <td class="center">${r.total}</td>
@@ -188,17 +230,23 @@ export async function generateNom035CompliancePdf(data: CompliancePdfData): Prom
       <td class="center">${r.enProceso}</td>
       <td class="center">${r.noIniciadas}</td>
       <td class="center" style="font-weight:600;">${r.porcentaje}%</td>
-    </tr>`).join("");
+    </tr>`
+    )
+    .join("");
 
   // ── Tabla de distribución por nivel ─────────────────────────────────────────
-  const nivelRows = data.byNivel.map(r => `
+  const nivelRows = data.byNivel
+    .map(
+      r => `
     <tr>
       <td>${NIVEL_LABEL[r.nivelAplicacion] ?? r.nivelAplicacion}</td>
       <td class="center">${r.total}</td>
       <td class="center green">${r.cumplidas}</td>
       <td class="center red">${r.vencidas}</td>
       <td class="center" style="font-weight:600;">${r.porcentaje}%</td>
-    </tr>`).join("");
+    </tr>`
+    )
+    .join("");
 
   const html = `<!DOCTYPE html>
 <html lang="es">
@@ -417,7 +465,9 @@ export async function generateNom035CompliancePdf(data: CompliancePdfData): Prom
   </div>
 
   <!-- ── TENDENCIA MENSUAL ── -->
-  ${data.tendenciaMeses.length > 0 ? `
+  ${
+    data.tendenciaMeses.length > 0
+      ? `
   <div class="section">
     <div class="section-title">Tendencia Mensual de Cumplimiento</div>
     <table class="tendencia-table">
@@ -432,10 +482,13 @@ export async function generateNom035CompliancePdf(data: CompliancePdfData): Prom
         </tr>
       </thead>
       <tbody>
-        ${data.tendenciaMeses.map(m => {
-          const pct = m.total > 0 ? Math.round((m.cumplidas / m.total) * 100) : 0;
-          const color = pct >= 80 ? "#16a34a" : pct >= 50 ? "#d97706" : "#dc2626";
-          return `
+        ${data.tendenciaMeses
+          .map(m => {
+            const pct =
+              m.total > 0 ? Math.round((m.cumplidas / m.total) * 100) : 0;
+            const color =
+              pct >= 80 ? "#16a34a" : pct >= 50 ? "#d97706" : "#dc2626";
+            return `
           <tr>
             <td>${m.mes}</td>
             <td class="center">${m.total}</td>
@@ -448,10 +501,13 @@ export async function generateNom035CompliancePdf(data: CompliancePdfData): Prom
               </div>
             </td>
           </tr>`;
-        }).join("")}
+          })
+          .join("")}
       </tbody>
     </table>
-  </div>` : ""}
+  </div>`
+      : ""
+  }
 
   <!-- ── CAMPOS DE FIRMA ── -->
   <div class="firma-section">
@@ -480,14 +536,21 @@ export async function generateNom035CompliancePdf(data: CompliancePdfData): Prom
 </html>`;
 
   const { generatePDFFromHTML } = await import("../_core/pdfGenerator");
-  const pdfUrl = await generatePDFFromHTML(html, `nom035-compliance-${Date.now()}`, {
-    format: "A4",
-    orientation: "portrait",
-    margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
-  });
+  const pdfUrl = await generatePDFFromHTML(
+    html,
+    `nom035-compliance-${Date.now()}`,
+    {
+      format: "A4",
+      orientation: "portrait",
+      margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
+    }
+  );
 
   const response = await fetch(pdfUrl);
-  if (!response.ok) throw new Error(`Error al descargar el PDF generado: ${response.statusText}`);
+  if (!response.ok)
+    throw new Error(
+      `Error al descargar el PDF generado: ${response.statusText}`
+    );
   const arrayBuffer = await response.arrayBuffer();
   return Buffer.from(arrayBuffer);
 }

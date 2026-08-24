@@ -1,7 +1,14 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, evaluation360Responses, evaluation360Evaluators, evaluation360Assignments, competencies, courses } from "../../drizzle/schema";
+import {
+  employees,
+  evaluation360Responses,
+  evaluation360Evaluators,
+  evaluation360Assignments,
+  competencies,
+  courses,
+} from "../../drizzle/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 
@@ -61,7 +68,8 @@ export const interventionsRouter = router({
         .groupBy(competencies.id, competencies.name, sql<number>`3`);
 
       // Identificar competencias críticas (brecha > 1.5)
-      const criticalCompetencies = competencyTrends.filter((comp: any) => comp.requiredLevel - comp.averageRating > 1.5
+      const criticalCompetencies = competencyTrends.filter(
+        (comp: any) => comp.requiredLevel - comp.averageRating > 1.5
       );
 
       // Generar recomendaciones de cursos (mock - en producción conectar con catálogo real)
@@ -166,10 +174,10 @@ export const interventionsRouter = router({
         retentionScore < 30
           ? "crítico"
           : retentionScore < 50
-          ? "alto"
-          : retentionScore < 70
-          ? "medio"
-          : "bajo";
+            ? "alto"
+            : retentionScore < 70
+              ? "medio"
+              : "bajo";
 
       // Guardar plan en la base de datos
       const planResult = await db.execute(sql`
@@ -200,10 +208,10 @@ export const interventionsRouter = router({
           retentionScore < 30
             ? "crítico"
             : retentionScore < 50
-            ? "alto"
-            : retentionScore < 70
-            ? "medio"
-            : "bajo",
+              ? "alto"
+              : retentionScore < 70
+                ? "medio"
+                : "bajo",
         criticalCompetencies: criticalCompetencies.length,
         courseRecommendations: courseRecommendations,
         assignedMentor: assignedMentor

@@ -1,6 +1,12 @@
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -46,18 +52,25 @@ export default function AlertMetricsDashboard() {
   const [months, setMonths] = useState(6);
   const [isExporting, setIsExporting] = useState(false);
   const dashboardRef = useRef<HTMLDivElement>(null);
-  const toast = (opts: { title: string; description: string; variant?: string }) => {
+  const toast = (opts: {
+    title: string;
+    description: string;
+    variant?: string;
+  }) => {
     alert(`${opts.title}\n${opts.description}`);
   };
 
   // Query para obtener estadísticas generales
-  const { data: stats, isLoading: loadingStats } = trpc.alerts.getStats.useQuery();
+  const { data: stats, isLoading: loadingStats } =
+    trpc.alerts.getStats.useQuery();
 
   // Query para obtener tendencias históricas
-  const { data: trends, isLoading: loadingTrends } = trpc.alerts.getTrends.useQuery({ months });
+  const { data: trends, isLoading: loadingTrends } =
+    trpc.alerts.getTrends.useQuery({ months });
 
   // Query para obtener métricas de resolución
-  const { data: resolutionMetrics, isLoading: loadingResolution } = trpc.alerts.getResolutionMetrics.useQuery();
+  const { data: resolutionMetrics, isLoading: loadingResolution } =
+    trpc.alerts.getResolutionMetrics.useQuery();
 
   // Función para exportar dashboard a PDF
   const exportToPDF = async () => {
@@ -247,7 +260,8 @@ export default function AlertMetricsDashboard() {
 
   // Calcular tasa de resolución
   const totalAlerts = (stats?.activeAlerts || 0) + (stats?.resolvedAlerts || 0);
-  const resolutionRate = totalAlerts > 0 ? ((stats?.resolvedAlerts || 0) / totalAlerts) * 100 : 0;
+  const resolutionRate =
+    totalAlerts > 0 ? ((stats?.resolvedAlerts || 0) / totalAlerts) * 100 : 0;
 
   return (
     <div className="container py-6 space-y-6" ref={dashboardRef}>
@@ -260,14 +274,18 @@ export default function AlertMetricsDashboard() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard de Métricas de Alertas</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Dashboard de Métricas de Alertas
+          </h1>
           <p className="text-muted-foreground mt-2">
             Análisis avanzado de alertas para auditoría de cumplimiento NOM-035
           </p>
         </div>
         <Button
           onClick={exportToPDF}
-          disabled={isExporting || loadingStats || loadingTrends || loadingResolution}
+          disabled={
+            isExporting || loadingStats || loadingTrends || loadingResolution
+          }
           className="flex items-center gap-2"
         >
           <Download className="h-4 w-4" />
@@ -279,7 +297,9 @@ export default function AlertMetricsDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Alertas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total de Alertas
+            </CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -292,11 +312,15 @@ export default function AlertMetricsDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas Activas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Alertas Activas
+            </CardTitle>
             <AlertCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats?.activeAlerts || 0}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {stats?.activeAlerts || 0}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Requieren atención
             </p>
@@ -305,11 +329,15 @@ export default function AlertMetricsDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas Resueltas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Alertas Resueltas
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats?.resolvedAlerts || 0}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats?.resolvedAlerts || 0}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Completadas exitosamente
             </p>
@@ -318,11 +346,15 @@ export default function AlertMetricsDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Resolución</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Resolución
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{resolutionRate.toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {resolutionRate.toFixed(1)}%
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Alertas resueltas del total
             </p>
@@ -337,7 +369,8 @@ export default function AlertMetricsDashboard() {
           <CardHeader>
             <CardTitle>Tendencia Histórica</CardTitle>
             <CardDescription>
-              Evolución de alertas activas y resueltas en los últimos {months} meses
+              Evolución de alertas activas y resueltas en los últimos {months}{" "}
+              meses
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -357,9 +390,7 @@ export default function AlertMetricsDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución por Tipo</CardTitle>
-            <CardDescription>
-              Cantidad de alertas por categoría
-            </CardDescription>
+            <CardDescription>Cantidad de alertas por categoría</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
@@ -368,7 +399,10 @@ export default function AlertMetricsDashboard() {
                   <p className="text-muted-foreground">Cargando datos...</p>
                 </div>
               ) : (
-                <Bar data={typeDistributionData} options={typeDistributionOptions} />
+                <Bar
+                  data={typeDistributionData}
+                  options={typeDistributionOptions}
+                />
               )}
             </div>
           </CardContent>
@@ -389,7 +423,10 @@ export default function AlertMetricsDashboard() {
                   <p className="text-muted-foreground">Cargando datos...</p>
                 </div>
               ) : (
-                <Doughnut data={priorityDistributionData} options={priorityDistributionOptions} />
+                <Doughnut
+                  data={priorityDistributionData}
+                  options={priorityDistributionOptions}
+                />
               )}
             </div>
           </CardContent>
@@ -409,11 +446,15 @@ export default function AlertMetricsDashboard() {
                 <Clock className="h-6 w-6 text-primary" />
                 <div>
                   <p className="text-sm font-medium">Promedio General</p>
-                  <p className="text-xs text-muted-foreground">Todas las alertas resueltas</p>
+                  <p className="text-xs text-muted-foreground">
+                    Todas las alertas resueltas
+                  </p>
                 </div>
               </div>
               <span className="text-3xl font-bold text-primary">
-                {loadingResolution ? "..." : `${(resolutionMetrics?.avgResolutionTime || 0).toFixed(1)}h`}
+                {loadingResolution
+                  ? "..."
+                  : `${(resolutionMetrics?.avgResolutionTime || 0).toFixed(1)}h`}
               </span>
             </div>
 
@@ -421,36 +462,49 @@ export default function AlertMetricsDashboard() {
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
                   <p className="text-sm font-medium">Casos Críticos</p>
-                  <p className="text-xs text-muted-foreground">Más de 50 casos abiertos</p>
+                  <p className="text-xs text-muted-foreground">
+                    Más de 50 casos abiertos
+                  </p>
                 </div>
                 <span className="text-xl font-bold text-red-600">
-                  {loadingResolution ? "..." : `${(resolutionMetrics?.byType.critical_cases || 0).toFixed(1)}h`}
+                  {loadingResolution
+                    ? "..."
+                    : `${(resolutionMetrics?.byType.critical_cases || 0).toFixed(1)}h`}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
                   <p className="text-sm font-medium">Cobertura Baja</p>
-                  <p className="text-xs text-muted-foreground">Menos del 80% de encuestas</p>
+                  <p className="text-xs text-muted-foreground">
+                    Menos del 80% de encuestas
+                  </p>
                 </div>
                 <span className="text-xl font-bold text-yellow-600">
-                  {loadingResolution ? "..." : `${(resolutionMetrics?.byType.low_coverage || 0).toFixed(1)}h`}
+                  {loadingResolution
+                    ? "..."
+                    : `${(resolutionMetrics?.byType.low_coverage || 0).toFixed(1)}h`}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
                   <p className="text-sm font-medium">Cumplimiento Excelente</p>
-                  <p className="text-xs text-muted-foreground">100% de cobertura alcanzada</p>
+                  <p className="text-xs text-muted-foreground">
+                    100% de cobertura alcanzada
+                  </p>
                 </div>
                 <span className="text-xl font-bold text-green-600">
-                  {loadingResolution ? "..." : `${(resolutionMetrics?.byType.excellent_compliance || 0).toFixed(1)}h`}
+                  {loadingResolution
+                    ? "..."
+                    : `${(resolutionMetrics?.byType.excellent_compliance || 0).toFixed(1)}h`}
                 </span>
               </div>
             </div>
 
             <div className="text-xs text-muted-foreground text-center pt-2 border-t">
-              Total de alertas resueltas: {resolutionMetrics?.totalResolved || 0}
+              Total de alertas resueltas:{" "}
+              {resolutionMetrics?.totalResolved || 0}
             </div>
           </CardContent>
         </Card>
@@ -469,10 +523,14 @@ export default function AlertMetricsDashboard() {
                 <AlertCircle className="h-5 w-5 text-red-600" />
                 <div>
                   <p className="text-sm font-medium">Casos Críticos</p>
-                  <p className="text-xs text-muted-foreground">Más de 50 casos abiertos</p>
+                  <p className="text-xs text-muted-foreground">
+                    Más de 50 casos abiertos
+                  </p>
                 </div>
               </div>
-              <span className="text-2xl font-bold text-red-600">{stats?.criticalCases || 0}</span>
+              <span className="text-2xl font-bold text-red-600">
+                {stats?.criticalCases || 0}
+              </span>
             </div>
 
             <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg">
@@ -480,10 +538,14 @@ export default function AlertMetricsDashboard() {
                 <AlertCircle className="h-5 w-5 text-yellow-600" />
                 <div>
                   <p className="text-sm font-medium">Cobertura Baja</p>
-                  <p className="text-xs text-muted-foreground">Menos del 80% de encuestas</p>
+                  <p className="text-xs text-muted-foreground">
+                    Menos del 80% de encuestas
+                  </p>
                 </div>
               </div>
-              <span className="text-2xl font-bold text-yellow-600">{stats?.lowCoverage || 0}</span>
+              <span className="text-2xl font-bold text-yellow-600">
+                {stats?.lowCoverage || 0}
+              </span>
             </div>
 
             <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
@@ -491,10 +553,14 @@ export default function AlertMetricsDashboard() {
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 <div>
                   <p className="text-sm font-medium">Cumplimiento Excelente</p>
-                  <p className="text-xs text-muted-foreground">100% de cobertura alcanzada</p>
+                  <p className="text-xs text-muted-foreground">
+                    100% de cobertura alcanzada
+                  </p>
                 </div>
               </div>
-              <span className="text-2xl font-bold text-green-600">{stats?.excellentCompliance || 0}</span>
+              <span className="text-2xl font-bold text-green-600">
+                {stats?.excellentCompliance || 0}
+              </span>
             </div>
           </CardContent>
         </Card>

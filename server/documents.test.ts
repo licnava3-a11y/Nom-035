@@ -138,7 +138,7 @@ describe("documents router - Acta de Recorrido", () => {
 
     expect(Array.isArray(documents)).toBe(true);
     // Verificar que todos los documentos son del tipo correcto
-    documents.forEach((doc) => {
+    documents.forEach(doc => {
       expect(doc.type).toBe("acta_recorrido");
     });
   });

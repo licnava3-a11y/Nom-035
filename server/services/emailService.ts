@@ -1,20 +1,30 @@
-import { isEmailEnabled } from '../_core/email';
+import { isEmailEnabled } from "../_core/email";
 import nodemailer from "nodemailer";
 import { getDb } from "../db";
-import { cases, employees, notifications, smtpConfig } from "../../drizzle/schema";
+import {
+  cases,
+  employees,
+  notifications,
+  smtpConfig,
+} from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 
 // Encryption key (same as smtpConfig router)
-const ENCRYPTION_KEY = process.env.SMTP_ENCRYPTION_KEY || "your-32-character-secret-key-here!";
+const ENCRYPTION_KEY =
+  process.env.SMTP_ENCRYPTION_KEY || "your-32-character-secret-key-here!";
 const ALGORITHM = "aes-256-cbc";
 
 // Decrypt password
 function decrypt(text: string): string {
-  const parts = text.split(':');
-  const iv = Buffer.from(parts.shift()!, 'hex');
-  const encryptedText = Buffer.from(parts.join(':'), 'hex');
-  const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv);
+  const parts = text.split(":");
+  const iv = Buffer.from(parts.shift()!, "hex");
+  const encryptedText = Buffer.from(parts.join(":"), "hex");
+  const decipher = crypto.createDecipheriv(
+    ALGORITHM,
+    Buffer.from(ENCRYPTION_KEY.padEnd(32, "0").slice(0, 32)),
+    iv
+  );
   let decrypted = decipher.update(encryptedText);
   decrypted = Buffer.concat([decrypted, decipher.final()]);
   return decrypted.toString();
@@ -29,17 +39,23 @@ async function getTransporter() {
     throw new Error("Base de datos no disponible");
   }
 
-  const configs = await db.select().from(smtpConfig).where(eq(smtpConfig.isActive, true)).limit(1);
-  
+  const configs = await db
+    .select()
+    .from(smtpConfig)
+    .where(eq(smtpConfig.isActive, true))
+    .limit(1);
+
   if (configs.length === 0) {
-    throw new Error("No hay configuración SMTP activa. Por favor configura el servidor de correo en Configuración > SMTP.");
+    throw new Error(
+      "No hay configuración SMTP activa. Por favor configura el servidor de correo en Configuración > SMTP."
+    );
   }
 
   const config = configs[0];
-  
+
   try {
     const decryptedPassword = decrypt(config.password);
-    
+
     const transporter = nodemailer.createTransport({
       host: config.host,
       port: config.port,
@@ -60,7 +76,7 @@ async function getTransporter() {
 /**
  * Email template types
  */
-export type EmailTemplate = 
+export type EmailTemplate =
   | "case_critical"
   | "case_assigned"
   | "case_resolved"
@@ -72,7 +88,6 @@ export type EmailTemplate =
   | "certificate_generated"
   | "contract_expiring"
   | "custom";
-
 
 /**
  * Send email with retry logic
@@ -108,16 +123,21 @@ export async function sendEmail(options: {
         html: options.html,
       });
 
-      console.log(`Email enviado exitosamente: ${info.messageId} (intento ${attempt}/${maxRetries})`);
-      
+      console.log(
+        `Email enviado exitosamente: ${info.messageId} (intento ${attempt}/${maxRetries})`
+      );
+
       return {
         success: true,
         messageId: info.messageId,
       };
     } catch (error: any) {
       lastError = error;
-      console.error(`Error al enviar email (intento ${attempt}/${maxRetries}):`, error);
-      
+      console.error(
+        `Error al enviar email (intento ${attempt}/${maxRetries}):`,
+        error
+      );
+
       // Wait before retry (exponential backoff)
       if (attempt < maxRetries) {
         const waitTime = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
@@ -177,7 +197,7 @@ export function getCaseCriticalTemplate(data: {
                       <td>
                         <p style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px;"><strong>Folio:</strong> ${data.folio}</p>
                         <p style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px;"><strong>Reportante:</strong> ${data.reporterName}</p>
-                        ${data.departmentName ? `<p style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px;"><strong>Departamento:</strong> ${data.departmentName}</p>` : ''}
+                        ${data.departmentName ? `<p style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px;"><strong>Departamento:</strong> ${data.departmentName}</p>` : ""}
                         <p style="margin: 0; color: #991b1b; font-size: 14px;"><strong>Descripción:</strong> ${data.description}</p>
                       </td>
                     </tr>
@@ -190,7 +210,7 @@ export function getCaseCriticalTemplate(data: {
                   <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                     <tr>
                       <td align="center">
-                        <a href="${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/cases" 
+                        <a href="${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/cases" 
                            style="display: inline-block; padding: 12px 30px; background-color: #dc2626; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
                           Ver Caso en el Sistema
                         </a>
@@ -270,7 +290,7 @@ export function getCaseAssignedTemplate(data: {
                   <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                     <tr>
                       <td align="center">
-                        <a href="${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/cases" 
+                        <a href="${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/cases" 
                            style="display: inline-block; padding: 12px 30px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
                           Ver Caso
                         </a>
@@ -306,11 +326,14 @@ export function getAlertThresholdTemplate(data: {
   thresholdValue: number;
   severity: string;
 }): string {
-  const severityColors: Record<string, { bg: string; text: string; border: string }> = {
-    critical: { bg: '#fef2f2', text: '#991b1b', border: '#dc2626' },
-    high: { bg: '#fff7ed', text: '#9a3412', border: '#ea580c' },
-    medium: { bg: '#fef9c3', text: '#854d0e', border: '#eab308' },
-    low: { bg: '#f0fdf4', text: '#166534', border: '#22c55e' },
+  const severityColors: Record<
+    string,
+    { bg: string; text: string; border: string }
+  > = {
+    critical: { bg: "#fef2f2", text: "#991b1b", border: "#dc2626" },
+    high: { bg: "#fff7ed", text: "#9a3412", border: "#ea580c" },
+    medium: { bg: "#fef9c3", text: "#854d0e", border: "#eab308" },
+    low: { bg: "#f0fdf4", text: "#166534", border: "#22c55e" },
   };
 
   const colors = severityColors[data.severity] || severityColors.medium;
@@ -347,7 +370,7 @@ export function getAlertThresholdTemplate(data: {
                     <tr>
                       <td>
                         <p style="margin: 0 0 10px 0; color: ${colors.text}; font-size: 14px;"><strong>Tipo de Alerta:</strong> ${data.alertType}</p>
-                        ${data.departmentName ? `<p style="margin: 0 0 10px 0; color: ${colors.text}; font-size: 14px;"><strong>Departamento:</strong> ${data.departmentName}</p>` : ''}
+                        ${data.departmentName ? `<p style="margin: 0 0 10px 0; color: ${colors.text}; font-size: 14px;"><strong>Departamento:</strong> ${data.departmentName}</p>` : ""}
                         <p style="margin: 0 0 10px 0; color: ${colors.text}; font-size: 14px;"><strong>Valor Actual:</strong> ${data.currentValue}</p>
                         <p style="margin: 0 0 10px 0; color: ${colors.text}; font-size: 14px;"><strong>Umbral:</strong> ${data.thresholdValue}</p>
                         <p style="margin: 0; color: ${colors.text}; font-size: 14px;"><strong>Severidad:</strong> ${data.severity.toUpperCase()}</p>
@@ -362,7 +385,7 @@ export function getAlertThresholdTemplate(data: {
                   <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                     <tr>
                       <td align="center">
-                        <a href="${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/alerts" 
+                        <a href="${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/alerts" 
                            style="display: inline-block; padding: 12px 30px; background-color: ${colors.border}; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
                           Ver Alertas
                         </a>
@@ -398,18 +421,22 @@ export function getContractExpiringTemplate(data: {
     daysRemaining: number;
   }>;
 }): string {
-  const contractRows = data.contracts.map(contract => `
+  const contractRows = data.contracts
+    .map(
+      contract => `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">${contract.employeeName}</td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">${contract.contractType}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">${contract.expirationDate.toLocaleDateString('es-MX')}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">${contract.expirationDate.toLocaleDateString("es-MX")}</td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
-        <span style="display: inline-block; padding: 4px 12px; background-color: ${contract.daysRemaining <= 2 ? '#fef2f2' : '#fff7ed'}; color: ${contract.daysRemaining <= 2 ? '#991b1b' : '#9a3412'}; border-radius: 12px; font-size: 12px; font-weight: bold;">
-          ${contract.daysRemaining} día${contract.daysRemaining !== 1 ? 's' : ''}
+        <span style="display: inline-block; padding: 4px 12px; background-color: ${contract.daysRemaining <= 2 ? "#fef2f2" : "#fff7ed"}; color: ${contract.daysRemaining <= 2 ? "#991b1b" : "#9a3412"}; border-radius: 12px; font-size: 12px; font-weight: bold;">
+          ${contract.daysRemaining} día${contract.daysRemaining !== 1 ? "s" : ""}
         </span>
       </td>
     </tr>
-  `).join('');
+  `
+    )
+    .join("");
 
   return `
     <!DOCTYPE html>
@@ -466,7 +493,7 @@ export function getContractExpiringTemplate(data: {
                   <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                     <tr>
                       <td align="center">
-                        <a href="${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/employees" 
+                        <a href="${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/employees" 
                            style="display: inline-block; padding: 12px 30px; background-color: #ea580c; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
                           Ver Contratos
                         </a>
@@ -503,9 +530,13 @@ export function getTrainingReminderTemplate(data: {
 }): string {
   const isExpiring = data.type === "certificate_expiring";
   const headerColor = isExpiring ? "#ea580c" : "#2563eb";
-  const headerGradient = isExpiring ? "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)" : "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)";
+  const headerGradient = isExpiring
+    ? "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)"
+    : "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)";
   const icon = isExpiring ? "⏰" : "📚";
-  const title = isExpiring ? "Certificado Próximo a Vencer" : "Recordatorio de Capacitación Pendiente";
+  const title = isExpiring
+    ? "Certificado Próximo a Vencer"
+    : "Recordatorio de Capacitación Pendiente";
 
   return `
     <!DOCTYPE html>
@@ -535,7 +566,9 @@ export function getTrainingReminderTemplate(data: {
                     Hola <strong>${data.employeeName}</strong>,
                   </p>
                   
-                  ${isExpiring ? `
+                  ${
+                    isExpiring
+                      ? `
                     <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
                       Tu certificado de <strong>${data.trainingTitle}</strong> está próximo a vencer.
                     </p>
@@ -544,7 +577,7 @@ export function getTrainingReminderTemplate(data: {
                       <tr>
                         <td>
                           <p style="margin: 0 0 10px 0; color: #9a3412; font-size: 14px;"><strong>Capacitación:</strong> ${data.trainingTitle}</p>
-                          <p style="margin: 0; color: #9a3412; font-size: 14px;"><strong>Fecha de Vencimiento:</strong> ${data.certificateExpirationDate?.toLocaleDateString('es-MX')}</p>
+                          <p style="margin: 0; color: #9a3412; font-size: 14px;"><strong>Fecha de Vencimiento:</strong> ${data.certificateExpirationDate?.toLocaleDateString("es-MX")}</p>
                         </td>
                       </tr>
                     </table>
@@ -552,7 +585,8 @@ export function getTrainingReminderTemplate(data: {
                     <p style="margin: 20px 0; color: #374151; font-size: 14px; line-height: 1.6;">
                       Por favor programa la renovación de tu certificación antes de la fecha de vencimiento.
                     </p>
-                  ` : `
+                  `
+                      : `
                     <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
                       Tienes pendiente completar la capacitación: <strong>${data.trainingTitle}</strong>.
                     </p>
@@ -561,7 +595,7 @@ export function getTrainingReminderTemplate(data: {
                       <tr>
                         <td>
                           <p style="margin: 0 0 10px 0; color: #1e40af; font-size: 14px;"><strong>Capacitación:</strong> ${data.trainingTitle}</p>
-                          ${data.daysOverdue ? `<p style="margin: 0; color: #1e40af; font-size: 14px;"><strong>Días de retraso:</strong> ${data.daysOverdue}</p>` : ''}
+                          ${data.daysOverdue ? `<p style="margin: 0; color: #1e40af; font-size: 14px;"><strong>Días de retraso:</strong> ${data.daysOverdue}</p>` : ""}
                         </td>
                       </tr>
                     </table>
@@ -569,12 +603,13 @@ export function getTrainingReminderTemplate(data: {
                     <p style="margin: 20px 0; color: #374151; font-size: 14px; line-height: 1.6;">
                       Por favor accede al sistema para completar esta capacitación a la brevedad.
                     </p>
-                  `}
+                  `
+                  }
                   
                   <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                     <tr>
                       <td align="center">
-                        <a href="${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/training" 
+                        <a href="${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/training" 
                            style="display: inline-block; padding: 12px 30px; background-color: ${headerColor}; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
                           Ir a Capacitaciones
                         </a>
@@ -646,12 +681,14 @@ export function getCertificateGeneratedTemplate(data: {
                       <td>
                         <p style="margin: 0 0 10px 0; color: #166534; font-size: 14px;"><strong>Capacitación:</strong> ${data.trainingTitle}</p>
                         <p style="margin: 0 0 10px 0; color: #166534; font-size: 14px;"><strong>Número de Certificado:</strong> ${data.certificateNumber}</p>
-                        <p style="margin: 0; color: #166534; font-size: 14px;"><strong>Fecha de Emisión:</strong> ${data.issueDate.toLocaleDateString('es-MX')}</p>
+                        <p style="margin: 0; color: #166534; font-size: 14px;"><strong>Fecha de Emisión:</strong> ${data.issueDate.toLocaleDateString("es-MX")}</p>
                       </td>
                     </tr>
                   </table>
                   
-                  ${data.downloadUrl ? `
+                  ${
+                    data.downloadUrl
+                      ? `
                     <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                       <tr>
                         <td align="center">
@@ -662,7 +699,9 @@ export function getCertificateGeneratedTemplate(data: {
                         </td>
                       </tr>
                     </table>
-                  ` : ''}
+                  `
+                      : ""
+                  }
                   
                   <p style="margin: 20px 0; color: #374151; font-size: 14px; line-height: 1.6;">
                     Puedes consultar y descargar tu certificado en cualquier momento desde el sistema.
@@ -694,11 +733,11 @@ export function getSurveyInvitationTemplate(data: {
   surveyToken: string;
   expiresAt: Date;
 }): string {
-  const surveyUrl = `${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/survey/public/${data.surveyToken}`;
-  const expirationDate = new Date(data.expiresAt).toLocaleDateString('es-MX', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  const surveyUrl = `${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/survey/public/${data.surveyToken}`;
+  const expirationDate = new Date(data.expiresAt).toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   return `
@@ -785,12 +824,14 @@ export function getSurveyInvitationTemplate(data: {
 /**
  * Send bulk emails (for notifications to multiple recipients)
  */
-export async function sendBulkEmails(emails: Array<{
-  to: string;
-  subject: string;
-  html: string;
-  template?: EmailTemplate;
-}>): Promise<{ sent: number; failed: number; errors: string[] }> {
+export async function sendBulkEmails(
+  emails: Array<{
+    to: string;
+    subject: string;
+    html: string;
+    template?: EmailTemplate;
+  }>
+): Promise<{ sent: number; failed: number; errors: string[] }> {
   const results = {
     sent: 0,
     failed: 0,
@@ -799,14 +840,14 @@ export async function sendBulkEmails(emails: Array<{
 
   for (const email of emails) {
     const result = await sendEmail(email);
-    
+
     if (result.success) {
       results.sent++;
     } else {
       results.failed++;
       results.errors.push(`${email.to}: ${result.error}`);
     }
-    
+
     // Small delay between emails to avoid rate limiting
     await new Promise(resolve => setTimeout(resolve, 100));
   }

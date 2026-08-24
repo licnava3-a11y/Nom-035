@@ -1,5 +1,11 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,11 +23,19 @@ export default function CaseAssignment() {
   const { data: cases, isLoading: casesLoading } = trpc.cases.list.useQuery();
   const { data: committeeMembers } = trpc.committee.list.useQuery();
 
-  const unassignedCases = cases?.cases?.filter((c: any) => c.status === "open" && !c.assignedTo) || [];
+  const unassignedCases =
+    cases?.cases?.filter((c: any) => c.status === "open" && !c.assignedTo) ||
+    [];
   const assignedCases = cases?.cases?.filter((c: any) => c.assignedTo) || [];
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+    const variants: Record<
+      string,
+      {
+        label: string;
+        variant: "default" | "secondary" | "destructive" | "outline";
+      }
+    > = {
       open: { label: "Abierto", variant: "destructive" },
       investigating: { label: "En Investigación", variant: "default" },
       resolved: { label: "Resuelto", variant: "secondary" },
@@ -49,7 +63,9 @@ export default function CaseAssignment() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Asignación de Casos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Asignación de Casos
+          </h1>
           <p className="text-muted-foreground mt-2">Cargando...</p>
         </div>
       </div>
@@ -60,7 +76,9 @@ export default function CaseAssignment() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Asignación de Casos</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Asignación de Casos
+        </h1>
         <p className="text-muted-foreground mt-2">
           Asignar casos psicosociales a miembros del comité de atención
         </p>
@@ -92,11 +110,15 @@ export default function CaseAssignment() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Miembros Disponibles</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Miembros Disponibles
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{committeeMembers?.length || 0}</div>
+            <div className="text-2xl font-bold">
+              {committeeMembers?.length || 0}
+            </div>
             <p className="text-xs text-muted-foreground">Del comité</p>
           </CardContent>
         </Card>
@@ -106,7 +128,9 @@ export default function CaseAssignment() {
       <Card>
         <CardHeader>
           <CardTitle>Casos Sin Asignar</CardTitle>
-          <CardDescription>Casos que requieren asignación a un miembro del comité</CardDescription>
+          <CardDescription>
+            Casos que requieren asignación a un miembro del comité
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {unassignedCases.length === 0 ? (
@@ -116,16 +140,23 @@ export default function CaseAssignment() {
           ) : (
             <div className="space-y-4">
               {unassignedCases.map((caso: any) => (
-                <div key={caso.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={caso.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="font-semibold">Caso #{caso.caseNumber}</h3>
                       {getStatusBadge(caso.status)}
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{caso.description}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {caso.description}
+                    </p>
                     <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                       <Clock className="h-3 w-3" />
-                      <span>{new Date(caso.createdAt).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(caso.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                   <Button onClick={() => handleAssignCase(caso.id)}>
@@ -142,7 +173,9 @@ export default function CaseAssignment() {
       <Card>
         <CardHeader>
           <CardTitle>Casos Asignados</CardTitle>
-          <CardDescription>Casos actualmente asignados a miembros del comité</CardDescription>
+          <CardDescription>
+            Casos actualmente asignados a miembros del comité
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {assignedCases.length === 0 ? (
@@ -152,15 +185,24 @@ export default function CaseAssignment() {
           ) : (
             <div className="space-y-4">
               {assignedCases.map((caso: any) => {
-                const assignedMember = committeeMembers?.find((m: any) => m.userId === caso.assignedTo);
+                const assignedMember = committeeMembers?.find(
+                  (m: any) => m.userId === caso.assignedTo
+                );
                 return (
-                  <div key={caso.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div
+                    key={caso.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold">Caso #{caso.caseNumber}</h3>
+                        <h3 className="font-semibold">
+                          Caso #{caso.caseNumber}
+                        </h3>
                         {getStatusBadge(caso.status)}
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{caso.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {caso.description}
+                      </p>
                       {assignedMember && (
                         <div className="flex items-center gap-2 mt-2">
                           <Avatar className="h-6 w-6">
@@ -168,14 +210,19 @@ export default function CaseAssignment() {
                               {getInitials(assignedMember.userName || "?")}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm">{assignedMember.userName}</span>
+                          <span className="text-sm">
+                            {assignedMember.userName}
+                          </span>
                           <Badge variant="outline" className="text-xs">
                             {assignedMember.position}
                           </Badge>
                         </div>
                       )}
                     </div>
-                    <Button variant="outline" onClick={() => handleAssignCase(caso.id)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleAssignCase(caso.id)}
+                    >
                       Reasignar
                     </Button>
                   </div>
@@ -190,7 +237,10 @@ export default function CaseAssignment() {
       {selectedCaseId && (
         <AssignCommitteeModal
           caseId={selectedCaseId}
-          caseNumber={cases?.cases?.find((c: any) => c.id === selectedCaseId)?.caseNumber || ""}
+          caseNumber={
+            cases?.cases?.find((c: any) => c.id === selectedCaseId)
+              ?.caseNumber || ""
+          }
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
         />

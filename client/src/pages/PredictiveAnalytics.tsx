@@ -1,48 +1,75 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, TrendingUp, Users, AlertCircle } from "lucide-react";
 import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function PredictiveAnalytics() {
-  const [departmentFilter, setDepartmentFilter] = useState<string | undefined>(undefined);
+  const [departmentFilter, setDepartmentFilter] = useState<string | undefined>(
+    undefined
+  );
   const [riskThreshold, setRiskThreshold] = useState(70);
 
-  const { data, isLoading } = trpc.predictiveAnalytics.getRiskPredictions.useQuery({
-    departmentFilter,
-    riskThreshold,
-    limit: 50,
-  });
+  const { data, isLoading } =
+    trpc.predictiveAnalytics.getRiskPredictions.useQuery({
+      departmentFilter,
+      riskThreshold,
+      limit: 50,
+    });
 
   const predictions = data?.predictions || [];
   const statistics = data?.statistics;
 
   // Preparar datos para gráfico de distribución por nivel de riesgo
-  const riskDistribution = predictions.reduce((acc: any, pred: any) => {
-    const level = pred.riskLevel;
-    acc[level] = (acc[level] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const riskDistribution = predictions.reduce(
+    (acc: any, pred: any) => {
+      const level = pred.riskLevel;
+      acc[level] = (acc[level] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
   const pieData = {
-    labels: ['Bajo Riesgo', 'Riesgo Medio', 'Alto Riesgo', 'Riesgo Muy Alto'],
-    datasets: [{
-      data: [
-        riskDistribution['low'] || 0,
-        riskDistribution['medium'] || 0,
-        riskDistribution['high'] || 0,
-        riskDistribution['very_high'] || 0,
-      ],
-      backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#7f1d1d'],
-      borderWidth: 0,
-    }],
+    labels: ["Bajo Riesgo", "Riesgo Medio", "Alto Riesgo", "Riesgo Muy Alto"],
+    datasets: [
+      {
+        data: [
+          riskDistribution["low"] || 0,
+          riskDistribution["medium"] || 0,
+          riskDistribution["high"] || 0,
+          riskDistribution["very_high"] || 0,
+        ],
+        backgroundColor: ["#10b981", "#f59e0b", "#ef4444", "#7f1d1d"],
+        borderWidth: 0,
+      },
+    ],
   };
 
   const getRiskBadge = (level: string) => {
@@ -58,12 +85,19 @@ export default function PredictiveAnalytics() {
       high: "Alto",
       very_high: "Muy Alto",
     };
-    return <Badge variant={variants[level] || "default"}>{labels[level] || level}</Badge>;
+    return (
+      <Badge variant={variants[level] || "default"}>
+        {labels[level] || level}
+      </Badge>
+    );
   };
 
   // Extraer recomendaciones únicas
   const allRecommendations = predictions.flatMap(p => p.recommendations);
-  const uniqueRecommendations = Array.from(new Set(allRecommendations)).slice(0, 5);
+  const uniqueRecommendations = Array.from(new Set(allRecommendations)).slice(
+    0,
+    5
+  );
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -83,14 +117,23 @@ export default function PredictiveAnalytics() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Departamento</label>
-            <Select value={departmentFilter} onValueChange={(val) => setDepartmentFilter(val === "all" ? undefined : val)}>
+            <label className="text-sm font-medium mb-2 block">
+              Departamento
+            </label>
+            <Select
+              value={departmentFilter}
+              onValueChange={val =>
+                setDepartmentFilter(val === "all" ? undefined : val)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Todos los departamentos" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los departamentos</SelectItem>
-                <SelectItem value="Recursos Humanos">Recursos Humanos</SelectItem>
+                <SelectItem value="Recursos Humanos">
+                  Recursos Humanos
+                </SelectItem>
                 <SelectItem value="Operaciones">Operaciones</SelectItem>
                 <SelectItem value="Ventas">Ventas</SelectItem>
                 <SelectItem value="Administración">Administración</SelectItem>
@@ -99,8 +142,13 @@ export default function PredictiveAnalytics() {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Umbral de Riesgo (%)</label>
-            <Select value={riskThreshold.toString()} onValueChange={(val) => setRiskThreshold(Number(val))}>
+            <label className="text-sm font-medium mb-2 block">
+              Umbral de Riesgo (%)
+            </label>
+            <Select
+              value={riskThreshold.toString()}
+              onValueChange={val => setRiskThreshold(Number(val))}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -119,12 +167,16 @@ export default function PredictiveAnalytics() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Analizado</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Analizado
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{predictions.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Empleados evaluados</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Empleados evaluados
+            </p>
           </CardContent>
         </Card>
 
@@ -135,9 +187,11 @@ export default function PredictiveAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {predictions.filter(p => p.riskLevel === 'critical').length}
+              {predictions.filter(p => p.riskLevel === "critical").length}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Requieren atención inmediata</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Requieren atención inmediata
+            </p>
           </CardContent>
         </Card>
 
@@ -148,9 +202,11 @@ export default function PredictiveAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {riskDistribution['medium'] || 0}
+              {riskDistribution["medium"] || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Monitoreo preventivo</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Monitoreo preventivo
+            </p>
           </CardContent>
         </Card>
 
@@ -161,9 +217,11 @@ export default function PredictiveAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {riskDistribution['low'] || 0}
+              {riskDistribution["low"] || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Sin intervención requerida</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Sin intervención requerida
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -173,7 +231,9 @@ export default function PredictiveAnalytics() {
         <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle>Distribución por Nivel de Riesgo</CardTitle>
-            <CardDescription>Clasificación de empleados según score predictivo</CardDescription>
+            <CardDescription>
+              Clasificación de empleados según score predictivo
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
             <div className="w-64 h-64">
@@ -186,7 +246,9 @@ export default function PredictiveAnalytics() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Recomendaciones Prioritarias</CardTitle>
-            <CardDescription>Acciones sugeridas basadas en análisis predictivo</CardDescription>
+            <CardDescription>
+              Acciones sugeridas basadas en análisis predictivo
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
@@ -198,7 +260,9 @@ export default function PredictiveAnalytics() {
                   </li>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">No hay recomendaciones disponibles</p>
+                <p className="text-sm text-muted-foreground">
+                  No hay recomendaciones disponibles
+                </p>
               )}
             </ul>
           </CardContent>
@@ -215,7 +279,9 @@ export default function PredictiveAnalytics() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-center text-muted-foreground py-8">Cargando predicciones...</p>
+            <p className="text-center text-muted-foreground py-8">
+              Cargando predicciones...
+            </p>
           ) : predictions.length > 0 ? (
             <Table>
               <TableHeader>
@@ -235,11 +301,15 @@ export default function PredictiveAnalytics() {
                     <TableCell>{pred.department || "N/A"}</TableCell>
                     <TableCell>{pred.position || "N/A"}</TableCell>
                     <TableCell className="text-center">
-                      <span className={`font-bold ${
-                        pred.riskScore >= 80 ? 'text-red-600' :
-                        pred.riskScore >= 60 ? 'text-yellow-600' :
-                        'text-green-600'
-                      }`}>
+                      <span
+                        className={`font-bold ${
+                          pred.riskScore >= 80
+                            ? "text-red-600"
+                            : pred.riskScore >= 60
+                              ? "text-yellow-600"
+                              : "text-green-600"
+                        }`}
+                      >
                         {pred.riskScore}%
                       </span>
                     </TableCell>
@@ -247,7 +317,7 @@ export default function PredictiveAnalytics() {
                       {getRiskBadge(pred.riskLevel)}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {pred.recommendations.slice(0, 2).join('; ')}
+                      {pred.recommendations.slice(0, 2).join("; ")}
                     </TableCell>
                   </TableRow>
                 ))}

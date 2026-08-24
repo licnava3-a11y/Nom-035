@@ -20,13 +20,13 @@ La implementación combina generación segura de tokens en el backend con interc
 
 Sin protección CSRF, un atacante podría realizar las siguientes acciones maliciosas si el usuario está autenticado en la plataforma:
 
-| Acción Maliciosa | Impacto en la Plataforma NOM-035 |
-|------------------|----------------------------------|
-| Crear casos falsos | Contaminación de datos de investigación, distorsión de métricas de cumplimiento |
-| Modificar datos de nómina | Alteración de registros salariales, posible fraude financiero |
-| Distribuir encuestas no autorizadas | Violación de privacidad de empleados, resultados de clima laboral manipulados |
-| Asignar roles administrativos | Escalación de privilegios, acceso no autorizado a información sensible |
-| Eliminar evidencias de cumplimiento | Pérdida de trazabilidad legal, incumplimiento normativo NOM-035 |
+| Acción Maliciosa                    | Impacto en la Plataforma NOM-035                                                |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| Crear casos falsos                  | Contaminación de datos de investigación, distorsión de métricas de cumplimiento |
+| Modificar datos de nómina           | Alteración de registros salariales, posible fraude financiero                   |
+| Distribuir encuestas no autorizadas | Violación de privacidad de empleados, resultados de clima laboral manipulados   |
+| Asignar roles administrativos       | Escalación de privilegios, acceso no autorizado a información sensible          |
+| Eliminar evidencias de cumplimiento | Pérdida de trazabilidad legal, incumplimiento normativo NOM-035                 |
 
 La protección CSRF implementada en esta plataforma mitiga estos riesgos al requerir que cada operación de escritura incluya un token criptográfico único que solo puede ser generado por el servidor legítimo y que no puede ser obtenido por un sitio de terceros debido a la política de Same-Origin del navegador.
 
@@ -42,13 +42,13 @@ El módulo `server/_core/csrf.ts` implementa la lógica central de generación y
 
 **Características técnicas de los tokens:**
 
-| Característica | Valor | Justificación |
-|----------------|-------|---------------|
-| Longitud | 32 bytes (64 caracteres hex) | Suficiente entropía para prevenir ataques de fuerza bruta |
-| Algoritmo | `crypto.randomBytes()` | Generador criptográficamente seguro (CSPRNG) |
-| Tiempo de expiración | 1 hora (3600000 ms) | Balance entre seguridad y experiencia de usuario |
-| Almacenamiento | In-memory Map | Rendimiento óptimo, limpieza automática de tokens expirados |
-| Validación | `crypto.timingSafeEqual()` | Protección contra timing attacks |
+| Característica       | Valor                        | Justificación                                               |
+| -------------------- | ---------------------------- | ----------------------------------------------------------- |
+| Longitud             | 32 bytes (64 caracteres hex) | Suficiente entropía para prevenir ataques de fuerza bruta   |
+| Algoritmo            | `crypto.randomBytes()`       | Generador criptográficamente seguro (CSPRNG)                |
+| Tiempo de expiración | 1 hora (3600000 ms)          | Balance entre seguridad y experiencia de usuario            |
+| Almacenamiento       | In-memory Map                | Rendimiento óptimo, limpieza automática de tokens expirados |
+| Validación           | `crypto.timingSafeEqual()`   | Protección contra timing attacks                            |
 
 El almacenamiento en memoria utiliza una estructura `Map<sessionId, {token, expiresAt}>` que asocia cada token con el identificador de sesión del usuario. Un proceso de limpieza automática se ejecuta cada 10 minutos para eliminar tokens expirados, evitando fugas de memoria en entornos de alta concurrencia.
 
@@ -98,7 +98,7 @@ const trpcClient = trpc.createClient({
         if (csrfToken) {
           headers.set("x-csrf-token", csrfToken);
         }
-        
+
         return globalThis.fetch(input, {
           ...(init ?? {}),
           headers,
@@ -206,13 +206,13 @@ La configuración de CSRF protection se centraliza en el objeto `CSRF_CONFIG` de
 
 ### Parámetros Configurables
 
-| Parámetro | Valor por Defecto | Descripción | Recomendaciones |
-|-----------|-------------------|-------------|-----------------|
-| `tokenLength` | 32 bytes | Longitud del token en bytes | No reducir por debajo de 16 bytes |
-| `tokenExpiry` | 3600000 ms (1 hora) | Tiempo de expiración del token | Ajustar según duración promedio de sesiones |
-| `headerName` | `x-csrf-token` | Nombre del header HTTP | Mantener consistente con estándares |
-| `cookieName` | `csrf_token` | Nombre de la cookie (no usado actualmente) | Reservado para implementación futura |
-| `secretKey` | `process.env.CSRF_SECRET` | Clave secreta para firma de tokens | **CRÍTICO**: Cambiar en producción |
+| Parámetro     | Valor por Defecto         | Descripción                                | Recomendaciones                             |
+| ------------- | ------------------------- | ------------------------------------------ | ------------------------------------------- |
+| `tokenLength` | 32 bytes                  | Longitud del token en bytes                | No reducir por debajo de 16 bytes           |
+| `tokenExpiry` | 3600000 ms (1 hora)       | Tiempo de expiración del token             | Ajustar según duración promedio de sesiones |
+| `headerName`  | `x-csrf-token`            | Nombre del header HTTP                     | Mantener consistente con estándares         |
+| `cookieName`  | `csrf_token`              | Nombre de la cookie (no usado actualmente) | Reservado para implementación futura        |
+| `secretKey`   | `process.env.CSRF_SECRET` | Clave secreta para firma de tokens         | **CRÍTICO**: Cambiar en producción          |
 
 **Consideraciones de seguridad para `secretKey`:**
 
@@ -229,11 +229,11 @@ El balance entre seguridad y experiencia de usuario se logra mediante la configu
 
 **Escenarios recomendados:**
 
-| Escenario | tokenExpiry | refetchInterval | Justificación |
-|-----------|-------------|-----------------|---------------|
-| Alta seguridad | 30 min | 25 min | Minimiza ventana de ataque, requiere renovación frecuente |
-| Balanceado (actual) | 60 min | 50 min | Equilibrio entre seguridad y UX |
-| Alta disponibilidad | 120 min | 110 min | Reduce requests al servidor, adecuado para operaciones largas |
+| Escenario           | tokenExpiry | refetchInterval | Justificación                                                 |
+| ------------------- | ----------- | --------------- | ------------------------------------------------------------- |
+| Alta seguridad      | 30 min      | 25 min          | Minimiza ventana de ataque, requiere renovación frecuente     |
+| Balanceado (actual) | 60 min      | 50 min          | Equilibrio entre seguridad y UX                               |
+| Alta disponibilidad | 120 min     | 110 min         | Reduce requests al servidor, adecuado para operaciones largas |
 
 Para modificar estos valores, editar:
 
@@ -264,19 +264,21 @@ Gracias al interceptor automático, **no se requiere código adicional** para pr
 ```typescript
 export const myRouter = router({
   createSensitiveData: protectedProcedure
-    .input(z.object({
-      data: z.string(),
-    }))
+    .input(
+      z.object({
+        data: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       // El token CSRF ya fue validado automáticamente
       // por el interceptor en main.tsx
-      
+
       const db = await getDb();
       await db.insert(sensitiveData).values({
         userId: ctx.user.id,
         data: input.data,
       });
-      
+
       return { success: true };
     }),
 });
@@ -303,9 +305,11 @@ import { requireCSRF } from "../_core/csrf";
 export const adminRouter = router({
   promoteToAdmin: protectedProcedure
     .use(requireCSRF) // Validación CSRF explícita
-    .input(z.object({
-      userId: z.number(),
-    }))
+    .input(
+      z.object({
+        userId: z.number(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       // Solo ejecuta si el token CSRF es válido
       await updateUserRole(input.userId, "admin");
@@ -325,10 +329,10 @@ import { useCSRF } from "@/contexts/CSRFContext";
 
 function MyComponent() {
   const { token, isLoading, error, renewToken } = useCSRF();
-  
+
   if (isLoading) return <div>Cargando token de seguridad...</div>;
   if (error) return <div>Error: {error}</div>;
-  
+
   return (
     <div>
       <p>Token CSRF activo: {token?.substring(0, 8)}...</p>
@@ -344,7 +348,7 @@ El sistema ya maneja errores 403 automáticamente, pero puedes personalizar el c
 
 ```typescript
 const createMutation = trpc.cases.create.useMutation({
-  onError: (error) => {
+  onError: error => {
     if (error.data?.code === "FORBIDDEN" && error.message.includes("CSRF")) {
       // Manejo personalizado de error CSRF
       toast.error("Tu sesión ha expirado. Recargando...");
@@ -363,10 +367,12 @@ Para endpoints públicos que no requieren autenticación (por ejemplo, registro 
 ```typescript
 export const publicRouter = router({
   register: publicProcedure
-    .input(z.object({
-      email: z.string().email(),
-      password: z.string().min(8),
-    }))
+    .input(
+      z.object({
+        email: z.string().email(),
+        password: z.string().min(8),
+      })
+    )
     .mutation(async ({ input }) => {
       // No requiere token CSRF
       await createUser(input);
@@ -386,11 +392,13 @@ Esta sección documenta los errores comunes relacionados con CSRF protection y s
 **Causa**: El frontend no está enviando el header `x-csrf-token` en la request.
 
 **Diagnóstico**:
+
 1. Verificar que `CSRFProvider` esté correctamente envuelto en `main.tsx`
 2. Inspeccionar en DevTools → Network → Headers que el header `x-csrf-token` esté presente
 3. Verificar que la variable global `csrfToken` no sea `undefined`
 
 **Solución**:
+
 ```typescript
 // Verificar en main.tsx que CSRFProvider esté antes de App
 <CSRFProvider>
@@ -405,6 +413,7 @@ Esta sección documenta los errores comunes relacionados con CSRF protection y s
 **Causa**: El token ha expirado (más de 1 hora desde su generación) o no coincide con el almacenado en el servidor.
 
 **Diagnóstico**:
+
 1. Verificar timestamp de expiración en logs del servidor
 2. Comprobar si el usuario dejó la aplicación abierta por más de 1 hora sin interacción
 3. Verificar que no haya múltiples instancias del servidor con diferentes `tokenStore` (problema en desarrollo)
@@ -412,6 +421,7 @@ Esta sección documenta los errores comunes relacionados con CSRF protection y s
 **Solución automática**: El sistema renueva automáticamente el token y solicita al usuario reintentar la operación.
 
 **Solución manual**:
+
 ```typescript
 // Forzar renovación del token
 const { renewToken } = useCSRF();
@@ -423,6 +433,7 @@ await renewToken();
 **Causa**: No se pudo obtener un `sessionId` válido (usuario no autenticado o sesión corrupta).
 
 **Diagnóstico**:
+
 1. Verificar que el usuario esté autenticado (`ctx.user` existe)
 2. Inspeccionar cookies de sesión en DevTools → Application → Cookies
 3. Verificar que la cookie de sesión no haya expirado
@@ -434,11 +445,13 @@ await renewToken();
 **Causa**: El `refetchInterval` está deshabilitado o el componente `CSRFProvider` se desmonta prematuramente.
 
 **Diagnóstico**:
+
 1. Verificar en React DevTools que `CSRFProvider` esté montado
 2. Inspeccionar en Network tab si las queries a `auth.getCSRFToken` se ejecutan cada 50 minutos
 3. Verificar que no haya errores en la consola del navegador
 
 **Solución**:
+
 ```typescript
 // Verificar configuración en useCSRFToken.ts
 const { data, refetch } = trpc.auth.getCSRFToken.useQuery(undefined, {
@@ -489,13 +502,13 @@ const redis = new Redis();
 export async function generateCSRFToken(sessionId: string): Promise<string> {
   const token = crypto.randomBytes(32).toString("hex");
   const expiresAt = Date.now() + CSRF_CONFIG.tokenExpiry;
-  
+
   await redis.setex(
     `csrf:${sessionId}`,
     CSRF_CONFIG.tokenExpiry / 1000,
     JSON.stringify({ token, expiresAt })
   );
-  
+
   return token;
 }
 ```
@@ -505,6 +518,7 @@ export async function generateCSRFToken(sessionId: string): Promise<string> {
 No. CSRF protection y XSS (Cross-Site Scripting) son vulnerabilidades diferentes que requieren mitigaciones distintas. Los tokens CSRF protegen contra requests maliciosas desde sitios de terceros, pero **no previenen** que un atacante ejecute código JavaScript malicioso en el contexto de la aplicación legítima.
 
 Para protección XSS, la plataforma implementa:
+
 - Sanitización de inputs en el backend (validaciones Zod)
 - Content Security Policy (CSP) headers
 - Escape automático de contenido en React (prevención de `dangerouslySetInnerHTML`)
@@ -522,11 +536,11 @@ const app = express();
 app.post("/api/rest/create-case", (req, res) => {
   const token = req.headers["x-csrf-token"];
   const sessionId = req.session.userId;
-  
+
   if (!validateCSRFToken(sessionId, token)) {
     return res.status(403).json({ error: "Invalid CSRF token" });
   }
-  
+
   // Procesar request
 });
 ```
@@ -535,12 +549,12 @@ app.post("/api/rest/create-case", (req, res) => {
 
 El impacto en rendimiento es mínimo:
 
-| Operación | Overhead | Justificación |
-|-----------|----------|---------------|
-| Generación de token | ~0.5ms | `crypto.randomBytes()` es muy eficiente |
-| Validación de token | ~0.1ms | Comparación de strings en memoria |
-| Almacenamiento | ~0.05ms | Operación `Map.set()` en memoria |
-| Limpieza periódica | ~1-5ms cada 10min | Iteración sobre tokens expirados |
+| Operación           | Overhead          | Justificación                           |
+| ------------------- | ----------------- | --------------------------------------- |
+| Generación de token | ~0.5ms            | `crypto.randomBytes()` es muy eficiente |
+| Validación de token | ~0.1ms            | Comparación de strings en memoria       |
+| Almacenamiento      | ~0.05ms           | Operación `Map.set()` en memoria        |
+| Limpieza periódica  | ~1-5ms cada 10min | Iteración sobre tokens expirados        |
 
 Para una aplicación con 1000 requests/segundo, el overhead total es inferior al 0.1% del tiempo de respuesta.
 
@@ -559,13 +573,13 @@ Implementar logging de tokens inválidos puede ayudar a detectar intentos de ata
 ```typescript
 export function validateCSRFToken(sessionId: string, token: string): boolean {
   const storedToken = tokenStore.get(sessionId);
-  
+
   if (!storedToken) {
     console.warn(`[CSRF] Token not found for session: ${sessionId}`);
     // TODO: Registrar en base de datos para análisis de seguridad
     return false;
   }
-  
+
   // ... resto de validación
 }
 ```
@@ -579,10 +593,10 @@ changePassword: protectedProcedure
   .use(requireCSRF)
   .mutation(async ({ ctx }) => {
     await updatePassword(ctx.user.id, newPassword);
-    
+
     // Invalidar token actual para forzar renovación
     invalidateCSRFToken(ctx.user.id.toString());
-    
+
     return { success: true, tokenRotated: true };
   }),
 ```
@@ -609,13 +623,13 @@ webhookHandler: publicProcedure
 
 La implementación de CSRF protection en la plataforma NOM-035 cumple con los siguientes estándares de seguridad:
 
-| Estándar | Requisito | Estado de Cumplimiento |
-|----------|-----------|------------------------|
-| OWASP Top 10 (2021) | A01:2021 – Broken Access Control | ✅ Cumple |
-| CWE-352 | Cross-Site Request Forgery | ✅ Mitigado |
-| PCI DSS 4.0 | Requirement 6.5.9 (CSRF protection) | ✅ Cumple |
-| ISO 27001:2022 | A.14.2.5 (Secure development) | ✅ Cumple |
-| NOM-035-STPS-2018 | Protección de datos de trabajadores | ✅ Cumple |
+| Estándar            | Requisito                           | Estado de Cumplimiento |
+| ------------------- | ----------------------------------- | ---------------------- |
+| OWASP Top 10 (2021) | A01:2021 – Broken Access Control    | ✅ Cumple              |
+| CWE-352             | Cross-Site Request Forgery          | ✅ Mitigado            |
+| PCI DSS 4.0         | Requirement 6.5.9 (CSRF protection) | ✅ Cumple              |
+| ISO 27001:2022      | A.14.2.5 (Secure development)       | ✅ Cumple              |
+| NOM-035-STPS-2018   | Protección de datos de trabajadores | ✅ Cumple              |
 
 ### Checklist de Auditoría
 
@@ -643,6 +657,7 @@ Para verificar el correcto funcionamiento de CSRF protection durante auditorías
 **Implementación estimada**: 2-3 horas
 
 **Beneficios**:
+
 - Alta disponibilidad de tokens en entornos con múltiples instancias del servidor
 - Escalabilidad horizontal sin pérdida de sesiones
 - TTL automático de tokens usando `EXPIRE` de Redis
@@ -654,6 +669,7 @@ Para verificar el correcto funcionamiento de CSRF protection durante auditorías
 **Implementación estimada**: 4-6 horas
 
 **Beneficios**:
+
 - Detección de manipulación de tokens en tránsito
 - Validación de integridad sin necesidad de consultar base de datos
 - Compatibilidad con arquitecturas stateless
@@ -665,6 +681,7 @@ Para verificar el correcto funcionamiento de CSRF protection durante auditorías
 **Implementación estimada**: 3-4 horas
 
 **Beneficios**:
+
 - Detección temprana de ataques
 - Análisis forense de incidentes de seguridad
 - Cumplimiento con requisitos de auditoría
@@ -676,6 +693,7 @@ Para verificar el correcto funcionamiento de CSRF protection durante auditorías
 **Implementación estimada**: 2 horas
 
 **Beneficios**:
+
 - Protección contra ataques de denegación de servicio (DoS)
 - Reducción de carga en el servidor por requests maliciosas
 - Complemento a la protección CSRF existente

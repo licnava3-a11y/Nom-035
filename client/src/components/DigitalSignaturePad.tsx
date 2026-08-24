@@ -1,6 +1,12 @@
 import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { RotateCcw, Check } from "lucide-react";
 
 interface DigitalSignaturePadProps {
@@ -38,7 +44,9 @@ export default function DigitalSignaturePad({
     ctx.lineJoin = "round";
   }, []);
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const startDrawing = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -49,14 +57,18 @@ export default function DigitalSignaturePad({
     setHasSignature(true);
 
     const rect = canvas.getBoundingClientRect();
-    const x = "touches" in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = "touches" in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    const x =
+      "touches" in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
+    const y =
+      "touches" in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
 
     ctx.beginPath();
     ctx.moveTo(x, y);
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const draw = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     if (!isDrawing) return;
 
     const canvas = canvasRef.current;
@@ -66,8 +78,10 @@ export default function DigitalSignaturePad({
     if (!ctx) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = "touches" in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = "touches" in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    const x =
+      "touches" in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
+    const y =
+      "touches" in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
 
     ctx.lineTo(x, y);
     ctx.stroke();
@@ -119,7 +133,11 @@ export default function DigitalSignaturePad({
         </div>
 
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" onClick={clearSignature} disabled={!hasSignature}>
+          <Button
+            variant="outline"
+            onClick={clearSignature}
+            disabled={!hasSignature}
+          >
             <RotateCcw className="h-4 w-4 mr-2" />
             Limpiar
           </Button>
@@ -135,7 +153,8 @@ export default function DigitalSignaturePad({
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
-          Su firma será almacenada de forma segura y se incluirá en el documento oficial.
+          Su firma será almacenada de forma segura y se incluirá en el documento
+          oficial.
         </p>
       </CardContent>
     </Card>

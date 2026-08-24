@@ -4,7 +4,13 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
@@ -84,7 +90,9 @@ export default function QuestionnairePublic() {
   const token = params.token || "";
 
   // Estados
-  const [step, setStep] = useState<"auth" | "questionnaire" | "completed">("auth");
+  const [step, setStep] = useState<"auth" | "questionnaire" | "completed">(
+    "auth"
+  );
   const [curp, setCurp] = useState("");
   const [questionnaireData, setQuestionnaireData] = useState<{
     questionnaireId: number;
@@ -101,11 +109,13 @@ export default function QuestionnairePublic() {
   );
 
   const submitMutation = trpc.investigations.submitPublicResponses.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Cuestionario completado. Nivel de riesgo: ${data.riskLevel}`);
+    onSuccess: data => {
+      toast.success(
+        `Cuestionario completado. Nivel de riesgo: ${data.riskLevel}`
+      );
       setStep("completed");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al enviar cuestionario: ${error.message}`);
     },
   });
@@ -131,8 +141,11 @@ export default function QuestionnairePublic() {
 
   // Enviar respuestas
   const handleSubmit = () => {
-    const questions = questionnaireData?.questionnaireType === "mobbing" ? mobbingQuestions : burnoutQuestions;
-    
+    const questions =
+      questionnaireData?.questionnaireType === "mobbing"
+        ? mobbingQuestions
+        : burnoutQuestions;
+
     // Verificar que todas las preguntas estén respondidas
     if (Object.keys(responses).length !== questions.length) {
       toast.error("Por favor responde todas las preguntas antes de enviar");
@@ -155,7 +168,9 @@ export default function QuestionnairePublic() {
             <div className="mx-auto w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4">
               <FileText className="w-6 h-6 text-white" />
             </div>
-            <CardTitle className="text-2xl">Cuestionario de Investigación</CardTitle>
+            <CardTitle className="text-2xl">
+              Cuestionario de Investigación
+            </CardTitle>
             <CardDescription>
               Ingresa tu CURP para acceder al cuestionario
             </CardDescription>
@@ -164,8 +179,9 @@ export default function QuestionnairePublic() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Este cuestionario es confidencial y forma parte de una investigación de riesgo psicosocial.
-                Tus respuestas serán tratadas con total privacidad.
+                Este cuestionario es confidencial y forma parte de una
+                investigación de riesgo psicosocial. Tus respuestas serán
+                tratadas con total privacidad.
               </AlertDescription>
             </Alert>
 
@@ -175,12 +191,13 @@ export default function QuestionnairePublic() {
                 id="curp"
                 placeholder="AAAA000000HDFBBB00"
                 value={curp}
-                onChange={(e) => setCurp(e.target.value.toUpperCase())}
+                onChange={e => setCurp(e.target.value.toUpperCase())}
                 maxLength={18}
                 className="uppercase"
               />
               <p className="text-xs text-muted-foreground">
-                Ingresa tu CURP exactamente como aparece en tu identificación oficial
+                Ingresa tu CURP exactamente como aparece en tu identificación
+                oficial
               </p>
             </div>
 
@@ -189,7 +206,9 @@ export default function QuestionnairePublic() {
               className="w-full"
               disabled={validateMutation.isPending || curp.length !== 18}
             >
-              {validateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {validateMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Acceder al cuestionario
             </Button>
 
@@ -197,7 +216,8 @@ export default function QuestionnairePublic() {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  {validateMutation.error?.message || "Error al validar credenciales"}
+                  {validateMutation.error?.message ||
+                    "Error al validar credenciales"}
                 </AlertDescription>
               </Alert>
             )}
@@ -209,11 +229,23 @@ export default function QuestionnairePublic() {
 
   // Pantalla de cuestionario
   if (step === "questionnaire" && questionnaireData) {
-    const questions = questionnaireData.questionnaireType === "mobbing" ? mobbingQuestions : burnoutQuestions;
+    const questions =
+      questionnaireData.questionnaireType === "mobbing"
+        ? mobbingQuestions
+        : burnoutQuestions;
     const scaleMax = questionnaireData.questionnaireType === "mobbing" ? 5 : 7;
-    const scaleLabels = questionnaireData.questionnaireType === "mobbing"
-      ? ["Nunca", "Rara vez", "A veces", "Frecuentemente", "Siempre"]
-      : ["Nunca", "Pocas veces al año", "Una vez al mes", "Pocas veces al mes", "Una vez a la semana", "Pocas veces a la semana", "Todos los días"];
+    const scaleLabels =
+      questionnaireData.questionnaireType === "mobbing"
+        ? ["Nunca", "Rara vez", "A veces", "Frecuentemente", "Siempre"]
+        : [
+            "Nunca",
+            "Pocas veces al año",
+            "Una vez al mes",
+            "Pocas veces al mes",
+            "Una vez a la semana",
+            "Pocas veces a la semana",
+            "Todos los días",
+          ];
 
     const progress = (Object.keys(responses).length / questions.length) * 100;
 
@@ -223,7 +255,7 @@ export default function QuestionnairePublic() {
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="text-2xl">
-                {questionnaireData.questionnaireType === "mobbing" 
+                {questionnaireData.questionnaireType === "mobbing"
                   ? "Cuestionario de Mobbing (Acoso Laboral)"
                   : "Cuestionario de Burnout (Síndrome de Desgaste)"}
               </CardTitle>
@@ -232,7 +264,10 @@ export default function QuestionnairePublic() {
               </CardDescription>
               <div className="mt-4">
                 <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                  <span>Progreso: {Object.keys(responses).length} / {questions.length}</span>
+                  <span>
+                    Progreso: {Object.keys(responses).length} /{" "}
+                    {questions.length}
+                  </span>
                   <span>{Math.round(progress)}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -255,21 +290,32 @@ export default function QuestionnairePublic() {
                     </Label>
                     <RadioGroup
                       value={responses[`q${index}`]?.toString() || ""}
-                      onValueChange={(value) => {
-                        setResponses((prev) => ({
+                      onValueChange={value => {
+                        setResponses(prev => ({
                           ...prev,
                           [`q${index}`]: parseInt(value),
                         }));
                       }}
                     >
-                      {Array.from({ length: scaleMax }, (_, i) => i + 1).map((value: any) => (
-                        <div key={value} className="flex items-center space-x-2">
-                          <RadioGroupItem value={value.toString()} id={`q${index}-${value}`} />
-                          <Label htmlFor={`q${index}-${value}`} className="font-normal cursor-pointer">
-                            {value} - {scaleLabels[value - 1]}
-                          </Label>
-                        </div>
-                      ))}
+                      {Array.from({ length: scaleMax }, (_, i) => i + 1).map(
+                        (value: any) => (
+                          <div
+                            key={value}
+                            className="flex items-center space-x-2"
+                          >
+                            <RadioGroupItem
+                              value={value.toString()}
+                              id={`q${index}-${value}`}
+                            />
+                            <Label
+                              htmlFor={`q${index}-${value}`}
+                              className="font-normal cursor-pointer"
+                            >
+                              {value} - {scaleLabels[value - 1]}
+                            </Label>
+                          </div>
+                        )
+                      )}
                     </RadioGroup>
                   </div>
                 </CardContent>
@@ -283,10 +329,16 @@ export default function QuestionnairePublic() {
                 onClick={handleSubmit}
                 className="w-full"
                 size="lg"
-                disabled={submitMutation.isPending || Object.keys(responses).length !== questions.length}
+                disabled={
+                  submitMutation.isPending ||
+                  Object.keys(responses).length !== questions.length
+                }
               >
-                {submitMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Enviar cuestionario ({Object.keys(responses).length}/{questions.length})
+                {submitMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Enviar cuestionario ({Object.keys(responses).length}/
+                {questions.length})
               </Button>
             </CardContent>
           </Card>
@@ -304,16 +356,20 @@ export default function QuestionnairePublic() {
             <div className="mx-auto w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mb-4">
               <CheckCircle2 className="w-10 h-10 text-white" />
             </div>
-            <CardTitle className="text-2xl">¡Cuestionario completado!</CardTitle>
+            <CardTitle className="text-2xl">
+              ¡Cuestionario completado!
+            </CardTitle>
             <CardDescription>
-              Gracias por completar el cuestionario. Tus respuestas han sido registradas exitosamente.
+              Gracias por completar el cuestionario. Tus respuestas han sido
+              registradas exitosamente.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert>
               <AlertDescription>
-                El equipo de Recursos Humanos revisará tus respuestas y se pondrá en contacto contigo
-                si es necesario. Toda la información será manejada con estricta confidencialidad.
+                El equipo de Recursos Humanos revisará tus respuestas y se
+                pondrá en contacto contigo si es necesario. Toda la información
+                será manejada con estricta confidencialidad.
               </AlertDescription>
             </Alert>
 

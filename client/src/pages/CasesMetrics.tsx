@@ -1,11 +1,23 @@
-import { useState, useMemo } from 'react';
-import { trpc } from '@/lib/trpc';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { DateRangeFilter, DateRange } from '@/components/DateRangeFilter';
-import { FileDown } from 'lucide-react';
-import { Line, Pie, Bar } from 'react-chartjs-2';
+import { useState, useMemo } from "react";
+import { trpc } from "@/lib/trpc";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
+import { FileDown } from "lucide-react";
+import { Line, Pie, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,7 +30,7 @@ import {
   Tooltip,
   Legend,
   ChartOptions,
-} from 'chart.js';
+} from "chart.js";
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -35,9 +47,11 @@ ChartJS.register(
 
 export default function CasesMetrics() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-  const [reportPeriod, setReportPeriod] = useState<'monthly' | 'quarterly'>('monthly');
+  const [reportPeriod, setReportPeriod] = useState<"monthly" | "quarterly">(
+    "monthly"
+  );
   const [isGenerating, setIsGenerating] = useState(false);
-  
+
   const generatePDFMutation = trpc.reports.generateCasesPDF.useMutation();
 
   // Preparar filtros para query
@@ -52,30 +66,31 @@ export default function CasesMetrics() {
     return params;
   }, [dateRange]);
 
-  const { data: metrics, isLoading } = trpc.cases.getMetrics.useQuery(queryParams);
+  const { data: metrics, isLoading } =
+    trpc.cases.getMetrics.useQuery(queryParams);
 
   const handleGeneratePDF = async () => {
     if (!dateRange) {
-      alert('Por favor selecciona un rango de fechas');
+      alert("Por favor selecciona un rango de fechas");
       return;
     }
 
     try {
       setIsGenerating(true);
-      
+
       const result = await generatePDFMutation.mutateAsync({
         period: reportPeriod,
         startDate: dateRange.from.toISOString(),
         endDate: dateRange.to.toISOString(),
       });
-      
+
       // Download file
       const blob = new Blob(
         [Uint8Array.from(atob(result.data), c => c.charCodeAt(0))],
-        { type: 'application/pdf' }
+        { type: "application/pdf" }
       );
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = result.filename;
       document.body.appendChild(a);
@@ -83,7 +98,7 @@ export default function CasesMetrics() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      alert('Error al generar reporte PDF');
+      alert("Error al generar reporte PDF");
     } finally {
       setIsGenerating(false);
     }
@@ -91,11 +106,11 @@ export default function CasesMetrics() {
 
   // Paleta de colores: negro, verde, azul marino, rojo
   const colors = {
-    primary: '#1e3a8a', // azul marino (navy blue)
-    success: '#16a34a', // verde
-    danger: '#dc2626', // rojo
-    dark: '#000000', // negro
-    warning: '#f59e0b', // naranja (adicional)
+    primary: "#1e3a8a", // azul marino (navy blue)
+    success: "#16a34a", // verde
+    danger: "#dc2626", // rojo
+    dark: "#000000", // negro
+    warning: "#f59e0b", // naranja (adicional)
   };
 
   // Configuración de gráfico de tendencias (casos por mes)
@@ -103,8 +118,10 @@ export default function CasesMetrics() {
     labels: metrics?.casesByMonth.map((m: any) => m.month).reverse() || [],
     datasets: [
       {
-        label: 'Casos Registrados',
-        data: metrics?.casesByMonth.map((m: any) => Number(m.count)).reverse() || [],
+        label: "Casos Registrados",
+        data:
+          metrics?.casesByMonth.map((m: any) => Number(m.count)).reverse() ||
+          [],
         borderColor: colors.primary,
         backgroundColor: `${colors.primary}33`,
         tension: 0.4,
@@ -112,12 +129,12 @@ export default function CasesMetrics() {
     ],
   };
 
-  const trendChartOptions: ChartOptions<'line'> = {
+  const trendChartOptions: ChartOptions<"line"> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top',
+        position: "top",
       },
       title: {
         display: false,
@@ -135,18 +152,19 @@ export default function CasesMetrics() {
 
   // Configuración de gráfico de distribución por tipo (pie chart)
   const typeLabels: Record<string, string> = {
-    mobbing: 'Mobbing',
-    burnout: 'Burnout',
-    violence: 'Violencia',
-    stress: 'Estrés',
-    other: 'Otro',
+    mobbing: "Mobbing",
+    burnout: "Burnout",
+    violence: "Violencia",
+    stress: "Estrés",
+    other: "Otro",
   };
 
   const typeChartData = {
-    labels: metrics?.casesByType.map((t: any) => typeLabels[t.type] || t.type) || [],
+    labels:
+      metrics?.casesByType.map((t: any) => typeLabels[t.type] || t.type) || [],
     datasets: [
       {
-        label: 'Casos por Tipo',
+        label: "Casos por Tipo",
         data: metrics?.casesByType.map((t: any) => Number(t.count)) || [],
         backgroundColor: [
           colors.primary,
@@ -159,29 +177,32 @@ export default function CasesMetrics() {
     ],
   };
 
-  const pieChartOptions: ChartOptions<'pie'> = {
+  const pieChartOptions: ChartOptions<"pie"> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'right',
+        position: "right",
       },
     },
   };
 
   // Configuración de gráfico de distribución por prioridad (bar chart)
   const priorityLabels: Record<string, string> = {
-    low: 'Baja',
-    medium: 'Media',
-    high: 'Alta',
-    critical: 'Crítica',
+    low: "Baja",
+    medium: "Media",
+    high: "Alta",
+    critical: "Crítica",
   };
 
   const priorityChartData = {
-    labels: metrics?.casesByPriority.map((p: any) => priorityLabels[p.priority] || p.priority) || [],
+    labels:
+      metrics?.casesByPriority.map(
+        (p: any) => priorityLabels[p.priority] || p.priority
+      ) || [],
     datasets: [
       {
-        label: 'Casos por Prioridad',
+        label: "Casos por Prioridad",
         data: metrics?.casesByPriority.map((p: any) => Number(p.count)) || [],
         backgroundColor: [
           colors.success,
@@ -193,7 +214,7 @@ export default function CasesMetrics() {
     ],
   };
 
-  const barChartOptions: ChartOptions<'bar'> = {
+  const barChartOptions: ChartOptions<"bar"> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -213,17 +234,20 @@ export default function CasesMetrics() {
 
   // Configuración de gráfico de distribución por estado
   const statusLabels: Record<string, string> = {
-    open: 'Abierto',
-    investigating: 'En Investigación',
-    resolved: 'Resuelto',
-    closed: 'Cerrado',
+    open: "Abierto",
+    investigating: "En Investigación",
+    resolved: "Resuelto",
+    closed: "Cerrado",
   };
 
   const statusChartData = {
-    labels: metrics?.casesByStatus.map((s: any) => statusLabels[s.status] || s.status) || [],
+    labels:
+      metrics?.casesByStatus.map(
+        (s: any) => statusLabels[s.status] || s.status
+      ) || [],
     datasets: [
       {
-        label: 'Casos por Estado',
+        label: "Casos por Estado",
         data: metrics?.casesByStatus.map((s: any) => Number(s.count)) || [],
         backgroundColor: [
           colors.danger,
@@ -248,13 +272,18 @@ export default function CasesMetrics() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Métricas de Casos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Métricas de Casos
+          </h1>
           <p className="text-muted-foreground mt-2">
             Análisis y tendencias de casos de riesgo psicosocial
           </p>
         </div>
         <div className="flex gap-2">
-          <Select value={reportPeriod} onValueChange={(v: any) => setReportPeriod(v)}>
+          <Select
+            value={reportPeriod}
+            onValueChange={(v: any) => setReportPeriod(v)}
+          >
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
@@ -269,7 +298,7 @@ export default function CasesMetrics() {
             variant="default"
           >
             <FileDown className="h-4 w-4 mr-2" />
-            {isGenerating ? 'Generando...' : 'Generar Reporte PDF'}
+            {isGenerating ? "Generando..." : "Generar Reporte PDF"}
           </Button>
         </div>
       </div>
@@ -278,7 +307,9 @@ export default function CasesMetrics() {
       <Card>
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
-          <CardDescription>Selecciona un rango de fechas para filtrar las métricas</CardDescription>
+          <CardDescription>
+            Selecciona un rango de fechas para filtrar las métricas
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 items-end">
@@ -301,11 +332,16 @@ export default function CasesMetrics() {
       <Card>
         <CardHeader>
           <CardTitle>Tiempo Promedio de Resolución</CardTitle>
-          <CardDescription>Días promedio desde apertura hasta cierre de caso</CardDescription>
+          <CardDescription>
+            Días promedio desde apertura hasta cierre de caso
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-4xl font-bold text-primary">
-            {metrics?.avgResolutionTime ? Math.round(metrics.avgResolutionTime) : 0} días
+            {metrics?.avgResolutionTime
+              ? Math.round(metrics.avgResolutionTime)
+              : 0}{" "}
+            días
           </div>
         </CardContent>
       </Card>
@@ -316,10 +352,12 @@ export default function CasesMetrics() {
         <Card>
           <CardHeader>
             <CardTitle>Tendencia de Casos</CardTitle>
-            <CardDescription>Casos registrados por mes (últimos 12 meses)</CardDescription>
+            <CardDescription>
+              Casos registrados por mes (últimos 12 meses)
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div style={{ height: '300px' }}>
+            <div style={{ height: "300px" }}>
               <Line data={trendChartData} options={trendChartOptions} />
             </div>
           </CardContent>
@@ -329,10 +367,12 @@ export default function CasesMetrics() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución por Tipo</CardTitle>
-            <CardDescription>Casos según tipo de riesgo psicosocial</CardDescription>
+            <CardDescription>
+              Casos según tipo de riesgo psicosocial
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div style={{ height: '300px' }}>
+            <div style={{ height: "300px" }}>
               <Pie data={typeChartData} options={pieChartOptions} />
             </div>
           </CardContent>
@@ -342,10 +382,12 @@ export default function CasesMetrics() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución por Prioridad</CardTitle>
-            <CardDescription>Casos según nivel de prioridad asignado</CardDescription>
+            <CardDescription>
+              Casos según nivel de prioridad asignado
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div style={{ height: '300px' }}>
+            <div style={{ height: "300px" }}>
               <Bar data={priorityChartData} options={barChartOptions} />
             </div>
           </CardContent>
@@ -355,10 +397,12 @@ export default function CasesMetrics() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución por Estado</CardTitle>
-            <CardDescription>Casos según estado actual de atención</CardDescription>
+            <CardDescription>
+              Casos según estado actual de atención
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div style={{ height: '300px' }}>
+            <div style={{ height: "300px" }}>
               <Bar data={statusChartData} options={barChartOptions} />
             </div>
           </CardContent>

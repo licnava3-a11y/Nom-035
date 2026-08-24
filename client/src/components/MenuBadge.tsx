@@ -9,7 +9,11 @@ interface MenuBadgeProps {
   maxCount?: number;
 }
 
-export function MenuBadge({ count, variant = "danger", maxCount = 99 }: MenuBadgeProps) {
+export function MenuBadge({
+  count,
+  variant = "danger",
+  maxCount = 99,
+}: MenuBadgeProps) {
   if (count === 0) return null;
 
   const displayCount = count > maxCount ? `${maxCount}+` : count.toString();

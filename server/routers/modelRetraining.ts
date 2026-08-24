@@ -38,7 +38,7 @@ export const modelRetrainingRouter = router({
 
         // Obtener configuraciones asociadas
         const recordsWithConfigs = await Promise.all(
-          retrainingRecords.map(async (record) => {
+          retrainingRecords.map(async record => {
             const [oldConfig] = await db
               .select()
               .from(modelThresholds)
@@ -59,10 +59,14 @@ export const modelRetrainingRouter = router({
 
         return recordsWithConfigs;
       } catch (error: any) {
-        console.error("Error al obtener historial de reentrena mientos:", error);
+        console.error(
+          "Error al obtener historial de reentrena mientos:",
+          error
+        );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error.message || "Error al obtener historial de reentrena mientos",
+          message:
+            error.message || "Error al obtener historial de reentrena mientos",
         });
       }
     }),
@@ -130,17 +134,23 @@ export const modelRetrainingRouter = router({
       const allRetrainings = await db.select().from(modelRetrainingHistory);
 
       const totalRetrainings = allRetrainings.length;
-      const appliedRetrainings = allRetrainings.filter(r => r.status === "applied").length;
-      const revertedRetrainings = allRetrainings.filter(r => r.status === "reverted").length;
+      const appliedRetrainings = allRetrainings.filter(
+        r => r.status === "applied"
+      ).length;
+      const revertedRetrainings = allRetrainings.filter(
+        r => r.status === "reverted"
+      ).length;
 
       // Calcular mejora promedio
       const improvements = allRetrainings
         .filter(r => r.improvementPercentage)
         .map(r => parseFloat(r.improvementPercentage || "0"));
 
-      const averageImprovement = improvements.length > 0
-        ? improvements.reduce((a: any, b: any) => a + b, 0) / improvements.length
-        : 0;
+      const averageImprovement =
+        improvements.length > 0
+          ? improvements.reduce((a: any, b: any) => a + b, 0) /
+            improvements.length
+          : 0;
 
       return {
         total: totalRetrainings,
@@ -149,10 +159,14 @@ export const modelRetrainingRouter = router({
         averageImprovement: averageImprovement.toFixed(2),
       };
     } catch (error: any) {
-      console.error("Error al obtener estadísticas de reentrena mientos:", error);
+      console.error(
+        "Error al obtener estadísticas de reentrena mientos:",
+        error
+      );
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: error.message || "Error al obtener estadísticas de reentrena mientos",
+        message:
+          error.message || "Error al obtener estadísticas de reentrena mientos",
       });
     }
   }),

@@ -1,6 +1,10 @@
 import cron from "node-cron";
 import { getDb } from "../db";
-import { operatingRulesApprovals, committeeOperatingRules, users } from "../../drizzle/schema";
+import {
+  operatingRulesApprovals,
+  committeeOperatingRules,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 
@@ -32,7 +36,9 @@ export async function sendDeadlineAlerts() {
   const threeDaysFromNow = new Date();
   threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
 
-  console.log(`[Deadline Alerts Job] Starting deadline alerts check at ${now.toISOString()}`);
+  console.log(
+    `[Deadline Alerts Job] Starting deadline alerts check at ${now.toISOString()}`
+  );
 
   try {
     // Obtener aprobaciones pendientes con deadline
@@ -61,11 +67,15 @@ export async function sendDeadlineAlerts() {
       );
 
     if (pendingApprovals.length === 0) {
-      console.log("[Deadline Alerts Job] No pending approvals with deadlines found");
+      console.log(
+        "[Deadline Alerts Job] No pending approvals with deadlines found"
+      );
       return { checked: 0, alertsSent: 0, errors: [] };
     }
 
-    console.log(`[Deadline Alerts Job] Found ${pendingApprovals.length} pending approvals with deadlines`);
+    console.log(
+      `[Deadline Alerts Job] Found ${pendingApprovals.length} pending approvals with deadlines`
+    );
 
     const alerts: DeadlineAlert[] = [];
     const errors: string[] = [];
@@ -75,7 +85,9 @@ export async function sendDeadlineAlerts() {
       if (!approval.deadline) continue;
 
       const deadlineDate = new Date(approval.deadline);
-      const daysLeft = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      const daysLeft = Math.ceil(
+        (deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
       let urgency: "critical" | "high" | "overdue" | null = null;
 
@@ -114,24 +126,27 @@ export async function sendDeadlineAlerts() {
       }
 
       try {
-        const subject = alert.urgency === "overdue"
-          ? `⚠️ Aprobación VENCIDA - ${alert.ruleVersion}`
-          : alert.urgency === "critical"
-          ? `🔴 Aprobación URGENTE - ${alert.ruleVersion}`
-          : `⏰ Recordatorio de Aprobación - ${alert.ruleVersion}`;
+        const subject =
+          alert.urgency === "overdue"
+            ? `⚠️ Aprobación VENCIDA - ${alert.ruleVersion}`
+            : alert.urgency === "critical"
+              ? `🔴 Aprobación URGENTE - ${alert.ruleVersion}`
+              : `⏰ Recordatorio de Aprobación - ${alert.ruleVersion}`;
 
-        const urgencyText = alert.urgency === "overdue"
-          ? `<strong style="color: #dc2626;">VENCIDA hace ${Math.abs(alert.daysLeft)} día(s)</strong>`
-          : alert.urgency === "critical"
-          ? `<strong style="color: #dc2626;">Vence HOY o mañana</strong>`
-          : `<strong style="color: #f59e0b;">Vence en ${alert.daysLeft} día(s)</strong>`;
+        const urgencyText =
+          alert.urgency === "overdue"
+            ? `<strong style="color: #dc2626;">VENCIDA hace ${Math.abs(alert.daysLeft)} día(s)</strong>`
+            : alert.urgency === "critical"
+              ? `<strong style="color: #dc2626;">Vence HOY o mañana</strong>`
+              : `<strong style="color: #f59e0b;">Vence en ${alert.daysLeft} día(s)</strong>`;
 
-        const roleLabel = {
-          president: "Presidente",
-          secretary: "Secretario",
-          vocal: "Vocal",
-          other: "Otro",
-        }[alert.approverRole] || alert.approverRole;
+        const roleLabel =
+          {
+            president: "Presidente",
+            secretary: "Secretario",
+            vocal: "Vocal",
+            other: "Otro",
+          }[alert.approverRole] || alert.approverRole;
 
         const html = `
           <!DOCTYPE html>
@@ -160,18 +175,23 @@ export async function sendDeadlineAlerts() {
                   <h2 style="margin-top: 0; color: #dc2626;">Aprobación Pendiente</h2>
                   <p><strong>Documento:</strong> ${alert.ruleVersion}</p>
                   <p><strong>Su rol:</strong> ${roleLabel}</p>
-                  <p><strong>Fecha límite:</strong> ${alert.deadline.toLocaleDateString("es-ES", { 
-                    day: "numeric", 
-                    month: "long", 
-                    year: "numeric" 
-                  })}</p>
+                  <p><strong>Fecha límite:</strong> ${alert.deadline.toLocaleDateString(
+                    "es-ES",
+                    {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }
+                  )}</p>
                   <p><strong>Estado:</strong> ${urgencyText}</p>
                 </div>
 
                 <p>
-                  ${alert.urgency === "overdue" 
-                    ? "La fecha límite para aprobar este documento ha vencido. Por favor, complete la aprobación lo antes posible." 
-                    : "La fecha límite para aprobar este documento se acerca. Por favor, revise y complete la aprobación a la brevedad."}
+                  ${
+                    alert.urgency === "overdue"
+                      ? "La fecha límite para aprobar este documento ha vencido. Por favor, complete la aprobación lo antes posible."
+                      : "La fecha límite para aprobar este documento se acerca. Por favor, revise y complete la aprobación a la brevedad."
+                  }
                 </p>
 
                 <p>
@@ -200,7 +220,9 @@ export async function sendDeadlineAlerts() {
         });
 
         alertsSent++;
-        console.log(`[Deadline Alerts Job] Alert sent to ${alert.approverEmail} for approval ${alert.approvalId}`);
+        console.log(
+          `[Deadline Alerts Job] Alert sent to ${alert.approverEmail} for approval ${alert.approvalId}`
+        );
       } catch (error) {
         const errorMsg = `Failed to send alert to ${alert.approverEmail}: ${error instanceof Error ? error.message : String(error)}`;
         console.error(`[Deadline Alerts Job] ${errorMsg}`);
@@ -208,7 +230,9 @@ export async function sendDeadlineAlerts() {
       }
     }
 
-    console.log(`[Deadline Alerts Job] Completed: ${alertsSent} alerts sent, ${errors.length} errors`);
+    console.log(
+      `[Deadline Alerts Job] Completed: ${alertsSent} alerts sent, ${errors.length} errors`
+    );
 
     return {
       checked: pendingApprovals.length,
@@ -227,7 +251,9 @@ export async function sendDeadlineAlerts() {
 export function startDeadlineAlertsJob() {
   // Ejecutar diariamente a las 09:00 AM
   cron.schedule("0 9 * * *", async () => {
-    console.log("[Deadline Alerts Job] Running scheduled deadline alerts check...");
+    console.log(
+      "[Deadline Alerts Job] Running scheduled deadline alerts check..."
+    );
     try {
       await sendDeadlineAlerts();
     } catch (error) {

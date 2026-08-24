@@ -6,8 +6,20 @@ import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import ProtectedButton from "@/components/ProtectedButton";
@@ -21,16 +33,19 @@ export default function ExpenseRequests() {
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [requestToDelete, setRequestToDelete] = useState<number | null>(null);
-  
+
   // Form state
   const [folio, setFolio] = useState("");
   const [monto, setMonto] = useState("");
   const [concepto, setConcepto] = useState("");
-  const [categoria, setCategoria] = useState<"viaje" | "materiales" | "servicios" | "capacitacion" | "otro">("otro");
+  const [categoria, setCategoria] = useState<
+    "viaje" | "materiales" | "servicios" | "capacitacion" | "otro"
+  >("otro");
   const [fechaSolicitud, setFechaSolicitud] = useState("");
 
   // Queries
-  const { data: requests, refetch } = trpc.financial.getAllExpenseRequests.useQuery();
+  const { data: requests, refetch } =
+    trpc.financial.getAllExpenseRequests.useQuery();
 
   // Mutations
   const createMutation = trpc.financial.createExpenseRequest.useMutation({
@@ -40,7 +55,7 @@ export default function ExpenseRequests() {
       resetForm();
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -52,7 +67,7 @@ export default function ExpenseRequests() {
       setSelectedRequest(null);
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -62,7 +77,7 @@ export default function ExpenseRequests() {
       toast.success("Solicitud de gasto eliminada exitosamente");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -72,7 +87,7 @@ export default function ExpenseRequests() {
       toast.success("Solicitud de gasto aprobada exitosamente");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -106,7 +121,10 @@ export default function ExpenseRequests() {
     setMonto(request.monto.toString());
     setConcepto(request.concepto);
     setCategoria(request.categoria || "otro");
-    const requestDate = request.fechaSolicitud instanceof Date ? request.fechaSolicitud : new Date(request.fechaSolicitud);
+    const requestDate =
+      request.fechaSolicitud instanceof Date
+        ? request.fechaSolicitud
+        : new Date(request.fechaSolicitud);
     setFechaSolicitud(requestDate.toISOString().split("T")[0]);
     setEditDialogOpen(true);
   };
@@ -173,8 +191,12 @@ export default function ExpenseRequests() {
 
       <div className="flex justify-between items-center mb-6 mt-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestión de Solicitudes de Gasto</h1>
-          <p className="text-muted-foreground mt-2">Administra las solicitudes de gasto y aprobaciones</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestión de Solicitudes de Gasto
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Administra las solicitudes de gasto y aprobaciones
+          </p>
         </div>
         <ProtectedButton
           onClick={() => setCreateDialogOpen(true)}
@@ -208,10 +230,14 @@ export default function ExpenseRequests() {
                 {requests?.map((request: any) => (
                   <tr key={request.id} className="border-b">
                     <td className="p-4">{request.folio}</td>
-                    <td className="p-4">{getCategoryLabel(request.categoria)}</td>
+                    <td className="p-4">
+                      {getCategoryLabel(request.categoria)}
+                    </td>
                     <td className="p-4">${request.monto.toFixed(2)}</td>
                     <td className="p-4">{request.concepto}</td>
-                    <td className="p-4">{new Date(request.fechaSolicitud).toLocaleDateString()}</td>
+                    <td className="p-4">
+                      {new Date(request.fechaSolicitud).toLocaleDateString()}
+                    </td>
                     <td className="p-4">{getStatusBadge(request.estado)}</td>
                     <td className="p-4">
                       <div className="flex gap-2">
@@ -247,9 +273,12 @@ export default function ExpenseRequests() {
                 ))}
               </tbody>
             </table>
-            {!requests || requests.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">No hay solicitudes de gasto registradas</p>
-            )}
+            {!requests ||
+              (requests.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  No hay solicitudes de gasto registradas
+                </p>
+              ))}
           </div>
         </CardContent>
       </Card>
@@ -263,11 +292,14 @@ export default function ExpenseRequests() {
           <div className="space-y-4">
             <div>
               <Label>Folio</Label>
-              <Input value={folio} onChange={(e) => setFolio(e.target.value)} />
+              <Input value={folio} onChange={e => setFolio(e.target.value)} />
             </div>
             <div>
               <Label>Categoría</Label>
-              <Select value={categoria} onValueChange={(value: any) => setCategoria(value)}>
+              <Select
+                value={categoria}
+                onValueChange={(value: any) => setCategoria(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -282,22 +314,43 @@ export default function ExpenseRequests() {
             </div>
             <div>
               <Label>Monto</Label>
-              <Input type="number" step="0.01" value={monto} onChange={(e) => setMonto(e.target.value)} />
+              <Input
+                type="number"
+                step="0.01"
+                value={monto}
+                onChange={e => setMonto(e.target.value)}
+              />
             </div>
             <div>
               <Label>Concepto</Label>
-              <Input value={concepto} onChange={(e) => setConcepto(e.target.value)} />
+              <Input
+                value={concepto}
+                onChange={e => setConcepto(e.target.value)}
+              />
             </div>
             <div>
               <Label>Fecha Solicitud</Label>
-              <Input type="date" value={fechaSolicitud} onChange={(e) => setFechaSolicitud(e.target.value)} />
+              <Input
+                type="date"
+                value={fechaSolicitud}
+                onChange={e => setFechaSolicitud(e.target.value)}
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setCreateDialogOpen(false)}
+            >
               Cancelar
             </Button>
-            <LoadingButton onClick={handleCreate} loading={createMutation.isPending} loadingText="Creando...">Crear</LoadingButton>
+            <LoadingButton
+              onClick={handleCreate}
+              loading={createMutation.isPending}
+              loadingText="Creando..."
+            >
+              Crear
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -311,11 +364,14 @@ export default function ExpenseRequests() {
           <div className="space-y-4">
             <div>
               <Label>Folio</Label>
-              <Input value={folio} onChange={(e) => setFolio(e.target.value)} />
+              <Input value={folio} onChange={e => setFolio(e.target.value)} />
             </div>
             <div>
               <Label>Categoría</Label>
-              <Select value={categoria} onValueChange={(value: any) => setCategoria(value)}>
+              <Select
+                value={categoria}
+                onValueChange={(value: any) => setCategoria(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -330,22 +386,40 @@ export default function ExpenseRequests() {
             </div>
             <div>
               <Label>Monto</Label>
-              <Input type="number" step="0.01" value={monto} onChange={(e) => setMonto(e.target.value)} />
+              <Input
+                type="number"
+                step="0.01"
+                value={monto}
+                onChange={e => setMonto(e.target.value)}
+              />
             </div>
             <div>
               <Label>Concepto</Label>
-              <Input value={concepto} onChange={(e) => setConcepto(e.target.value)} />
+              <Input
+                value={concepto}
+                onChange={e => setConcepto(e.target.value)}
+              />
             </div>
             <div>
               <Label>Fecha Solicitud</Label>
-              <Input type="date" value={fechaSolicitud} onChange={(e) => setFechaSolicitud(e.target.value)} />
+              <Input
+                type="date"
+                value={fechaSolicitud}
+                onChange={e => setFechaSolicitud(e.target.value)}
+              />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
               Cancelar
             </Button>
-            <LoadingButton onClick={handleUpdate} loading={updateMutation.isPending} loadingText="Actualizando...">Actualizar</LoadingButton>
+            <LoadingButton
+              onClick={handleUpdate}
+              loading={updateMutation.isPending}
+              loadingText="Actualizando..."
+            >
+              Actualizar
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

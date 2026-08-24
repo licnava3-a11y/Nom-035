@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,19 +41,53 @@ interface JobEditDialogProps {
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const FACTOR_META: Record<keyof FactorValues, { label: string; description: string }> = {
-  workload:        { label: "Carga de Trabajo",          description: "Exigencias que el trabajo impone al trabajador" },
-  control:         { label: "Control sobre el Trabajo",  description: "Autonomía y toma de decisiones en el puesto" },
-  leadership:      { label: "Liderazgo",                 description: "Relación con superiores y estilo de mando" },
-  relationships:   { label: "Relaciones en el Trabajo",  description: "Interacciones con compañeros y clima laboral" },
-  workEnvironment: { label: "Ambiente de Trabajo",       description: "Condiciones físicas y entorno organizacional" },
+const FACTOR_META: Record<
+  keyof FactorValues,
+  { label: string; description: string }
+> = {
+  workload: {
+    label: "Carga de Trabajo",
+    description: "Exigencias que el trabajo impone al trabajador",
+  },
+  control: {
+    label: "Control sobre el Trabajo",
+    description: "Autonomía y toma de decisiones en el puesto",
+  },
+  leadership: {
+    label: "Liderazgo",
+    description: "Relación con superiores y estilo de mando",
+  },
+  relationships: {
+    label: "Relaciones en el Trabajo",
+    description: "Interacciones con compañeros y clima laboral",
+  },
+  workEnvironment: {
+    label: "Ambiente de Trabajo",
+    description: "Condiciones físicas y entorno organizacional",
+  },
 };
 
-const LEVEL_LABELS: Record<number, string> = { 1: "Muy Bajo", 2: "Bajo", 3: "Medio", 4: "Alto", 5: "Muy Alto" };
+const LEVEL_LABELS: Record<number, string> = {
+  1: "Muy Bajo",
+  2: "Bajo",
+  3: "Medio",
+  4: "Alto",
+  5: "Muy Alto",
+};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function calcAvg(f: FactorValues) {
-  return Math.round(((f.workload + f.control + f.leadership + f.relationships + f.workEnvironment) / 5) * 10) / 10;
+  return (
+    Math.round(
+      ((f.workload +
+        f.control +
+        f.leadership +
+        f.relationships +
+        f.workEnvironment) /
+        5) *
+        10
+    ) / 10
+  );
 }
 
 function indexToRisk(idx: number): "low" | "medium" | "high" | "very_high" {
@@ -83,7 +124,12 @@ function factorColor(value: number) {
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEditDialogProps) {
+export function JobEditDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+  position,
+}: JobEditDialogProps) {
   const [formData, setFormData] = useState({
     positionName: "",
     department: "",
@@ -124,7 +170,7 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
 
   useEffect(() => {
     if (formData.autoRisk) {
-      setFormData((prev) => ({ ...prev, riskLevel: autoRiskLevel }));
+      setFormData(prev => ({ ...prev, riskLevel: autoRiskLevel }));
     }
   }, [autoRiskLevel, formData.autoRisk]);
 
@@ -136,7 +182,7 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
       onOpenChange(false);
       onSuccess?.();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al actualizar: ${error.message}`);
     },
   });
@@ -168,7 +214,8 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
         <DialogHeader>
           <DialogTitle>Actualizar Análisis de Puesto</DialogTitle>
           <DialogDescription>
-            Modifica los datos y factores de riesgo psicosocial. El historial se actualiza automáticamente al guardar.
+            Modifica los datos y factores de riesgo psicosocial. El historial se
+            actualiza automáticamente al guardar.
           </DialogDescription>
         </DialogHeader>
 
@@ -182,7 +229,9 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
               <Input
                 id="edit-positionName"
                 value={formData.positionName}
-                onChange={(e) => setFormData({ ...formData, positionName: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, positionName: e.target.value })
+                }
                 required
               />
             </div>
@@ -191,14 +240,19 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
               <Input
                 id="edit-department"
                 value={formData.department}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, department: e.target.value })
+                }
               />
             </div>
           </div>
 
           {/* ── Empleados ─────────────────────────────────────────────────── */}
           <div className="space-y-2">
-            <Label htmlFor="edit-employeeCount" className="flex items-center gap-1.5">
+            <Label
+              htmlFor="edit-employeeCount"
+              className="flex items-center gap-1.5"
+            >
               <Users className="h-3.5 w-3.5 text-blue-500" />
               Número de Empleados Asignados
             </Label>
@@ -207,7 +261,12 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
               type="number"
               min={0}
               value={formData.employeeCount}
-              onChange={(e) => setFormData({ ...formData, employeeCount: Math.max(0, parseInt(e.target.value) || 0) })}
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  employeeCount: Math.max(0, parseInt(e.target.value) || 0),
+                })
+              }
             />
           </div>
 
@@ -217,23 +276,28 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
             <Textarea
               id="edit-description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               rows={3}
             />
           </div>
-
 
           {/* Observaciones del análisis */}
           <div className="space-y-2">
             <Label htmlFor="edit-notes">
               Observaciones del Análisis
-              <span className="text-xs text-muted-foreground font-normal ml-1">(opcional — se guardará en el historial)</span>
+              <span className="text-xs text-muted-foreground font-normal ml-1">
+                (opcional — se guardará en el historial)
+              </span>
             </Label>
             <Textarea
               id="edit-notes"
               placeholder="Describe el contexto de este análisis, cambios relevantes en el puesto, acciones tomadas, etc."
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
               rows={3}
             />
           </div>
@@ -250,14 +314,23 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
             </div>
 
             <div className="space-y-3">
-              {(Object.keys(factors) as Array<keyof FactorValues>).map((key) => (
-                <div key={key} className={`rounded-lg border p-3 ${factorBg(factors[key])}`}>
+              {(Object.keys(factors) as Array<keyof FactorValues>).map(key => (
+                <div
+                  key={key}
+                  className={`rounded-lg border p-3 ${factorBg(factors[key])}`}
+                >
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <p className="text-sm font-medium">{FACTOR_META[key].label}</p>
-                      <p className="text-xs text-muted-foreground">{FACTOR_META[key].description}</p>
+                      <p className="text-sm font-medium">
+                        {FACTOR_META[key].label}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {FACTOR_META[key].description}
+                      </p>
                     </div>
-                    <span className={`text-sm font-bold min-w-[80px] text-right ${factorColor(factors[key])}`}>
+                    <span
+                      className={`text-sm font-bold min-w-[80px] text-right ${factorColor(factors[key])}`}
+                    >
                       {factors[key]}/5 — {LEVEL_LABELS[factors[key]]}
                     </span>
                   </div>
@@ -266,12 +339,16 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
                     max={5}
                     step={1}
                     value={[factors[key]]}
-                    onValueChange={([v]) => setFactors({ ...factors, [key]: v })}
+                    onValueChange={([v]) =>
+                      setFactors({ ...factors, [key]: v })
+                    }
                     className="w-full"
                   />
                   <div className="flex justify-between mt-1">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <span key={n} className="text-xs text-muted-foreground">{n}</span>
+                    {[1, 2, 3, 4, 5].map(n => (
+                      <span key={n} className="text-xs text-muted-foreground">
+                        {n}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -282,13 +359,18 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
           {/* ── Nivel de Riesgo (auto o manual) ──────────────────────────── */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="edit-riskLevel" className="flex items-center gap-1.5">
+              <Label
+                htmlFor="edit-riskLevel"
+                className="flex items-center gap-1.5"
+              >
                 <AlertTriangle className="h-3.5 w-3.5 text-yellow-500" />
                 Nivel de Riesgo
               </Label>
               <button
                 type="button"
-                onClick={() => setFormData((p) => ({ ...p, autoRisk: !p.autoRisk }))}
+                onClick={() =>
+                  setFormData(p => ({ ...p, autoRisk: !p.autoRisk }))
+                }
                 className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border transition-colors ${
                   formData.autoRisk
                     ? "bg-primary/10 border-primary/30 text-primary"
@@ -301,20 +383,36 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
             </div>
 
             {formData.autoRisk ? (
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-md border bg-muted/30`}>
-                <span className="text-sm text-muted-foreground">Calculado automáticamente:</span>
-                <span className={`text-sm font-bold ${RISK_COLORS[formData.riskLevel]}`}>
+              <div
+                className={`flex items-center gap-2 px-3 py-2 rounded-md border bg-muted/30`}
+              >
+                <span className="text-sm text-muted-foreground">
+                  Calculado automáticamente:
+                </span>
+                <span
+                  className={`text-sm font-bold ${RISK_COLORS[formData.riskLevel]}`}
+                >
                   {RISK_LABELS[formData.riskLevel]}
                 </span>
                 <span className="text-xs text-muted-foreground ml-auto">
-                  (índice {avgIndex} → umbral {avgIndex >= 4.5 ? "≥4.5" : avgIndex >= 3.5 ? "≥3.5" : avgIndex >= 2.5 ? "≥2.5" : "<2.5"})
+                  (índice {avgIndex} → umbral{" "}
+                  {avgIndex >= 4.5
+                    ? "≥4.5"
+                    : avgIndex >= 3.5
+                      ? "≥3.5"
+                      : avgIndex >= 2.5
+                        ? "≥2.5"
+                        : "<2.5"}
+                  )
                 </span>
               </div>
             ) : (
               <select
                 id="edit-riskLevel"
                 value={formData.riskLevel}
-                onChange={(e) => setFormData({ ...formData, riskLevel: e.target.value as any })}
+                onChange={e =>
+                  setFormData({ ...formData, riskLevel: e.target.value as any })
+                }
                 className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm"
               >
                 <option value="low">Bajo</option>
@@ -324,7 +422,8 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
               </select>
             )}
             <p className="text-xs text-muted-foreground">
-              Umbrales: Bajo &lt;2.5 · Medio 2.5–3.5 · Alto 3.5–4.5 · Muy Alto ≥4.5
+              Umbrales: Bajo &lt;2.5 · Medio 2.5–3.5 · Alto 3.5–4.5 · Muy Alto
+              ≥4.5
             </p>
           </div>
 

@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -35,10 +41,13 @@ export default function NumeralsVerification() {
   const handleVerify71 = async () => {
     try {
       const result = await verifyNumeral71.mutateAsync({});
-      setVerificationResults((prev) => ({ ...prev, numeral71: result }));
-      toast(result.hasPolicy ? "✅ Numeral 7.1 Cumple" : "❌ Numeral 7.1 No Cumple", {
-        description: result.findings,
-      });
+      setVerificationResults(prev => ({ ...prev, numeral71: result }));
+      toast(
+        result.hasPolicy ? "✅ Numeral 7.1 Cumple" : "❌ Numeral 7.1 No Cumple",
+        {
+          description: result.findings,
+        }
+      );
     } catch (error) {
       toast.error("Error en verificación", {
         description: "No se pudo verificar el Numeral 7.1",
@@ -49,10 +58,15 @@ export default function NumeralsVerification() {
   const handleVerify72 = async () => {
     try {
       const result = await verifyNumeral72.mutateAsync({});
-      setVerificationResults((prev) => ({ ...prev, numeral72: result }));
-      toast(result.hasSurveys ? "✅ Numeral 7.2 Cumple" : "❌ Numeral 7.2 No Cumple", {
-        description: result.findings,
-      });
+      setVerificationResults(prev => ({ ...prev, numeral72: result }));
+      toast(
+        result.hasSurveys
+          ? "✅ Numeral 7.2 Cumple"
+          : "❌ Numeral 7.2 No Cumple",
+        {
+          description: result.findings,
+        }
+      );
     } catch (error) {
       toast.error("Error en verificación", {
         description: "No se pudo verificar el Numeral 7.2",
@@ -63,11 +77,19 @@ export default function NumeralsVerification() {
   const handleVerify82 = async () => {
     try {
       const result = await verifyNumeral82.mutateAsync({});
-      setVerificationResults((prev) => ({ ...prev, numeral82: result }));
-      const status = result.status === "compliant" ? "✅" : result.status === "partial" ? "⚠️" : "❌";
-      toast(`${status} Numeral 8.2 - ${result.status === "compliant" ? "Cumple" : result.status === "partial" ? "Cumplimiento Parcial" : "No Cumple"}`, {
-        description: result.findings,
-      });
+      setVerificationResults(prev => ({ ...prev, numeral82: result }));
+      const status =
+        result.status === "compliant"
+          ? "✅"
+          : result.status === "partial"
+            ? "⚠️"
+            : "❌";
+      toast(
+        `${status} Numeral 8.2 - ${result.status === "compliant" ? "Cumple" : result.status === "partial" ? "Cumplimiento Parcial" : "No Cumple"}`,
+        {
+          description: result.findings,
+        }
+      );
     } catch (error) {
       toast.error("Error en verificación", {
         description: "No se pudo verificar el Numeral 8.2",
@@ -78,7 +100,7 @@ export default function NumeralsVerification() {
   const handleExportPDF = async () => {
     try {
       const result = await generatePDF.mutateAsync({ includeEvidence: true });
-      
+
       if (result.success && result.pdfBase64) {
         // Convertir base64 a blob y descargar
         const binaryString = window.atob(result.pdfBase64);
@@ -86,141 +108,181 @@ export default function NumeralsVerification() {
         for (let i = 0; i < binaryString.length; i++) {
           bytes[i] = binaryString.charCodeAt(i);
         }
-        const blob = new Blob([bytes], { type: 'application/pdf' });
+        const blob = new Blob([bytes], { type: "application/pdf" });
         const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        link.download = `Verificacion_Numerales_${result.data.folio.replace(/\//g, '-')}.pdf`;
+        link.download = `Verificacion_Numerales_${result.data.folio.replace(/\//g, "-")}.pdf`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        
-        toast.success('PDF generado exitosamente', {
-          description: `Folio: ${result.data.folio}`
+
+        toast.success("PDF generado exitosamente", {
+          description: `Folio: ${result.data.folio}`,
         });
         return;
       }
-      
+
       // Fallback al código anterior si no hay pdfBase64
-      
+
       if (result.success) {
         // Generar PDF en el cliente usando jsPDF
-        const { jsPDF } = await import('jspdf');
-        await import('jspdf-autotable');
-        
+        const { jsPDF } = await import("jspdf");
+        await import("jspdf-autotable");
+
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
-        
+
         let yPosition = 20;
-        
+
         // Código QR para verificación NOM-151 (esquina superior derecha)
         if (result.data.uuid) {
           try {
-            const QRCode = (await import('qrcode')).default;
+            const QRCode = (await import("qrcode")).default;
             const verificationUrl = `${window.location.origin}/verify/${result.data.uuid}`;
             const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
               width: 200,
               margin: 1,
               color: {
-                dark: '#000000',
-                light: '#FFFFFF',
+                dark: "#000000",
+                light: "#FFFFFF",
               },
             });
-            
+
             // Agregar QR en esquina superior derecha
             const qrSize = 25;
-            doc.addImage(qrDataUrl, 'PNG', pageWidth - qrSize - 14, yPosition, qrSize, qrSize);
-            
+            doc.addImage(
+              qrDataUrl,
+              "PNG",
+              pageWidth - qrSize - 14,
+              yPosition,
+              qrSize,
+              qrSize
+            );
+
             // Texto "Verificar autenticidad" debajo del QR
             doc.setFontSize(6);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Verificar', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 3, { align: 'center' });
-            doc.text('autenticidad', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 6, { align: 'center' });
-          } catch (error) {
-          }
+            doc.setFont("helvetica", "normal");
+            doc.text(
+              "Verificar",
+              pageWidth - qrSize / 2 - 14,
+              yPosition + qrSize + 3,
+              { align: "center" }
+            );
+            doc.text(
+              "autenticidad",
+              pageWidth - qrSize / 2 - 14,
+              yPosition + qrSize + 6,
+              { align: "center" }
+            );
+          } catch (error) {}
         }
-        
+
         // Logo de la empresa (si existe)
         if (result.data.logo?.logoUrl) {
           try {
             // Cargar logo como imagen
             const logoImg = new Image();
-            logoImg.crossOrigin = 'anonymous';
+            logoImg.crossOrigin = "anonymous";
             await new Promise((resolve, reject) => {
               logoImg.onload = resolve;
               logoImg.onerror = reject;
               logoImg.src = result.data.logo.logoUrl;
             });
-            
+
             // Agregar logo (esquina superior izquierda)
             const logoWidth = 30;
             const logoHeight = 15;
-            doc.addImage(logoImg, 'PNG', 14, yPosition, logoWidth, logoHeight);
-          } catch (error) {
-          }
+            doc.addImage(logoImg, "PNG", 14, yPosition, logoWidth, logoHeight);
+          } catch (error) {}
         }
-        
+
         // Encabezado con datos de empresa
         doc.setFontSize(18);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Reporte de Verificación de Cumplimiento', pageWidth / 2, yPosition, { align: 'center' });
+        doc.setFont("helvetica", "bold");
+        doc.text(
+          "Reporte de Verificación de Cumplimiento",
+          pageWidth / 2,
+          yPosition,
+          { align: "center" }
+        );
         yPosition += 8;
-        
+
         doc.setFontSize(14);
-        doc.text('Numerales 7 y 8 - NOM-035 STPS 2018', pageWidth / 2, yPosition, { align: 'center' });
+        doc.text(
+          "Numerales 7 y 8 - NOM-035 STPS 2018",
+          pageWidth / 2,
+          yPosition,
+          { align: "center" }
+        );
         yPosition += 10;
-        
+
         // Datos de la empresa (si existen)
         if (result.data.company) {
           doc.setFontSize(10);
-          doc.setFont('helvetica', 'bold');
-          doc.text(result.data.company.razonSocial, pageWidth / 2, yPosition, { align: 'center' });
+          doc.setFont("helvetica", "bold");
+          doc.text(result.data.company.razonSocial, pageWidth / 2, yPosition, {
+            align: "center",
+          });
           yPosition += 5;
-          
-          doc.setFont('helvetica', 'normal');
-          doc.text(`RFC: ${result.data.company.rfc}`, pageWidth / 2, yPosition, { align: 'center' });
+
+          doc.setFont("helvetica", "normal");
+          doc.text(
+            `RFC: ${result.data.company.rfc}`,
+            pageWidth / 2,
+            yPosition,
+            { align: "center" }
+          );
           yPosition += 8;
         }
-        
+
         // Información del reporte
         doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        const generatedDate = new Date(result.data.generatedAt).toLocaleString('es-MX');
-        
+        doc.setFont("helvetica", "normal");
+        const generatedDate = new Date(result.data.generatedAt).toLocaleString(
+          "es-MX"
+        );
+
         // Folio (destacado)
         if (result.data.folio) {
-          doc.setFont('helvetica', 'bold');
+          doc.setFont("helvetica", "bold");
           doc.text(`Folio: ${result.data.folio}`, 14, yPosition);
           yPosition += 6;
-          doc.setFont('helvetica', 'normal');
+          doc.setFont("helvetica", "normal");
         }
-        
+
         doc.text(`Fecha de generación: ${generatedDate}`, 14, yPosition);
         yPosition += 6;
         doc.text(`Generado por: ${result.data.generatedBy}`, 14, yPosition);
         yPosition += 4;
-        
+
         // Línea separadora
         doc.setLineWidth(0.5);
         doc.line(14, yPosition, pageWidth - 14, yPosition);
         yPosition += 5;
-        
+
         // Tabla de resultados
         const tableData = result.data.requirements.map((req: any) => [
           req.numeral,
           req.title,
-          req.isCompliant ? '✓ Cumple' : '✗ No Cumple',
-          req.verifiedAt ? new Date(req.verifiedAt).toLocaleDateString('es-MX') : 'Sin verificar',
+          req.isCompliant ? "✓ Cumple" : "✗ No Cumple",
+          req.verifiedAt
+            ? new Date(req.verifiedAt).toLocaleDateString("es-MX")
+            : "Sin verificar",
         ]);
-        
+
         (doc as any).autoTable({
           startY: yPosition,
-          head: [['Numeral', 'Requisito', 'Estado', 'Fecha Verificación']],
+          head: [["Numeral", "Requisito", "Estado", "Fecha Verificación"]],
           body: tableData,
-          theme: 'grid',
-          headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+          theme: "grid",
+          headStyles: {
+            fillColor: [41, 128, 185],
+            textColor: 255,
+            fontStyle: "bold",
+          },
           styles: { fontSize: 9, cellPadding: 3 },
           columnStyles: {
             0: { cellWidth: 20 },
@@ -229,37 +291,40 @@ export default function NumeralsVerification() {
             3: { cellWidth: 45 },
           },
         });
-        
+
         // Hallazgos detallados
         yPosition = (doc as any).lastAutoTable.finalY + 10;
-        
+
         doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Hallazgos y Observaciones', 14, yPosition);
+        doc.setFont("helvetica", "bold");
+        doc.text("Hallazgos y Observaciones", 14, yPosition);
         yPosition += 8;
-        
+
         doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        
+        doc.setFont("helvetica", "normal");
+
         result.data.requirements.forEach((req: any) => {
           // Verificar si necesitamos nueva página
           if (yPosition > pageHeight - 40) {
             doc.addPage();
             yPosition = 20;
           }
-          
-          doc.setFont('helvetica', 'bold');
+
+          doc.setFont("helvetica", "bold");
           doc.text(`${req.numeral} - ${req.title}`, 14, yPosition);
           yPosition += 5;
-          
-          doc.setFont('helvetica', 'normal');
+
+          doc.setFont("helvetica", "normal");
           const findings = doc.splitTextToSize(req.findings, pageWidth - 28);
           doc.text(findings, 14, yPosition);
-          yPosition += (findings.length * 5) + 5;
+          yPosition += findings.length * 5 + 5;
         });
-        
+
         // Sección de firmas de representantes legales
-        if (result.data.representatives && result.data.representatives.length > 0) {
+        if (
+          result.data.representatives &&
+          result.data.representatives.length > 0
+        ) {
           // Verificar si necesitamos nueva página para firmas
           if (yPosition > pageHeight - 60) {
             doc.addPage();
@@ -267,98 +332,125 @@ export default function NumeralsVerification() {
           } else {
             yPosition += 10;
           }
-          
+
           doc.setFontSize(12);
-          doc.setFont('helvetica', 'bold');
-          doc.text('Firmas de Autorización', 14, yPosition);
+          doc.setFont("helvetica", "bold");
+          doc.text("Firmas de Autorización", 14, yPosition);
           yPosition += 10;
-          
+
           // Calcular espacio disponible para cada firma
           const numReps = Math.min(result.data.representatives.length, 3);
           const signatureWidth = (pageWidth - 28) / numReps;
-          
+
           // Cargar y colocar firmas
           for (let i = 0; i < numReps; i++) {
             const rep = result.data.representatives[i];
-            const xPosition = 14 + (i * signatureWidth);
-            
+            const xPosition = 14 + i * signatureWidth;
+
             // Cargar firma si existe
             if (rep.firmaUrl) {
               try {
                 const firmaImg = new Image();
-                firmaImg.crossOrigin = 'anonymous';
+                firmaImg.crossOrigin = "anonymous";
                 await new Promise((resolve, reject) => {
                   firmaImg.onload = resolve;
                   firmaImg.onerror = reject;
-                  firmaImg.src = rep.firmaUrl || '';
+                  firmaImg.src = rep.firmaUrl || "";
                 });
-                
+
                 // Agregar firma
                 const firmaWidth = signatureWidth - 10;
                 const firmaHeight = 15;
-                doc.addImage(firmaImg, 'PNG', xPosition, yPosition, firmaWidth, firmaHeight);
-              } catch (error) {
-              }
+                doc.addImage(
+                  firmaImg,
+                  "PNG",
+                  xPosition,
+                  yPosition,
+                  firmaWidth,
+                  firmaHeight
+                );
+              } catch (error) {}
             }
-            
+
             // Línea para firma
             doc.setLineWidth(0.3);
-            doc.line(xPosition, yPosition + 20, xPosition + signatureWidth - 10, yPosition + 20);
-            
+            doc.line(
+              xPosition,
+              yPosition + 20,
+              xPosition + signatureWidth - 10,
+              yPosition + 20
+            );
+
             // Nombre y cargo
             doc.setFontSize(8);
-            doc.setFont('helvetica', 'bold');
-            const nameLines = doc.splitTextToSize(rep.nombre, signatureWidth - 10);
-            doc.text(nameLines, xPosition + (signatureWidth - 10) / 2, yPosition + 24, { align: 'center' });
-            
-            doc.setFont('helvetica', 'normal');
-            const cargoLines = doc.splitTextToSize(rep.cargo, signatureWidth - 10);
-            doc.text(cargoLines, xPosition + (signatureWidth - 10) / 2, yPosition + 28, { align: 'center' });
+            doc.setFont("helvetica", "bold");
+            const nameLines = doc.splitTextToSize(
+              rep.nombre,
+              signatureWidth - 10
+            );
+            doc.text(
+              nameLines,
+              xPosition + (signatureWidth - 10) / 2,
+              yPosition + 24,
+              { align: "center" }
+            );
+
+            doc.setFont("helvetica", "normal");
+            const cargoLines = doc.splitTextToSize(
+              rep.cargo,
+              signatureWidth - 10
+            );
+            doc.text(
+              cargoLines,
+              xPosition + (signatureWidth - 10) / 2,
+              yPosition + 28,
+              { align: "center" }
+            );
           }
         }
-        
+
         // Pie de página en todas las páginas
         const totalPages = doc.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {
           doc.setPage(i);
           doc.setFontSize(8);
-          doc.setFont('helvetica', 'italic');
-          
+          doc.setFont("helvetica", "italic");
+
           // Folio en esquina inferior izquierda
           if (result.data.folio) {
-            doc.setFont('helvetica', 'bold');
+            doc.setFont("helvetica", "bold");
             doc.text(result.data.folio, 14, pageHeight - 10);
-            doc.setFont('helvetica', 'italic');
+            doc.setFont("helvetica", "italic");
           }
-          
+
           // Número de página al centro
           doc.text(
             `Página ${i} de ${totalPages}`,
             pageWidth / 2,
             pageHeight - 10,
-            { align: 'center' }
+            { align: "center" }
           );
-          
+
           // Texto descriptivo
           doc.text(
-            'Documento generado automáticamente por el Sistema de Gestión NOM-035',
+            "Documento generado automáticamente por el Sistema de Gestión NOM-035",
             pageWidth / 2,
             pageHeight - 6,
-            { align: 'center' }
+            { align: "center" }
           );
         }
-        
+
         // Descargar PDF
-        const fileName = `Verificacion_Numerales_${new Date().toISOString().split('T')[0]}.pdf`;
+        const fileName = `Verificacion_Numerales_${new Date().toISOString().split("T")[0]}.pdf`;
         doc.save(fileName);
-        
-        toast.success('PDF generado exitosamente', {
+
+        toast.success("PDF generado exitosamente", {
           description: `El reporte ha sido descargado como ${fileName}`,
         });
       }
     } catch (error) {
-      toast.error('Error al generar PDF', {
-        description: 'Ocurrió un error al generar el reporte en PDF',
+      toast.error("Error al generar PDF", {
+        description: "Ocurrió un error al generar el reporte en PDF",
       });
     }
   };
@@ -369,10 +461,12 @@ export default function NumeralsVerification() {
 
   return (
     <div className="container py-8 space-y-6">
-      <Breadcrumb items={[
-        { label: "Cumplimiento", href: "/compliance" },
-        { label: "Verificación Numerales 7 y 8" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Cumplimiento", href: "/compliance" },
+          { label: "Verificación Numerales 7 y 8" },
+        ]}
+      />
 
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -382,7 +476,8 @@ export default function NumeralsVerification() {
             Verificación de Numerales 7 y 8
           </h1>
           <p className="text-muted-foreground mt-2">
-            Verificación automática de cumplimiento de obligaciones patronales según NOM-035 STPS 2018
+            Verificación automática de cumplimiento de obligaciones patronales
+            según NOM-035 STPS 2018
           </p>
         </div>
         <Button
@@ -408,9 +503,10 @@ export default function NumeralsVerification() {
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Información Importante</AlertTitle>
         <AlertDescription>
-          Esta herramienta verifica automáticamente el cumplimiento de los Numerales 7 y 8 de la NOM-035.
-          Los resultados se basan en la información registrada en el sistema y deben ser complementados
-          con evidencia documental para auditorías oficiales.
+          Esta herramienta verifica automáticamente el cumplimiento de los
+          Numerales 7 y 8 de la NOM-035. Los resultados se basan en la
+          información registrada en el sistema y deben ser complementados con
+          evidencia documental para auditorías oficiales.
         </AlertDescription>
       </Alert>
 
@@ -424,7 +520,8 @@ export default function NumeralsVerification() {
                 Numeral 7.1 - Política de Prevención de Riesgos Psicosociales
               </CardTitle>
               <CardDescription className="mt-2">
-                {numeral71?.description || "Establecer, implantar, mantener y difundir en el centro de trabajo una política de prevención de riesgos psicosociales que contemple: la prevención de los factores de riesgo psicosocial; la prevención de la violencia laboral, y la promoción de un entorno organizacional favorable."}
+                {numeral71?.description ||
+                  "Establecer, implantar, mantener y difundir en el centro de trabajo una política de prevención de riesgos psicosociales que contemple: la prevención de los factores de riesgo psicosocial; la prevención de la violencia laboral, y la promoción de un entorno organizacional favorable."}
               </CardDescription>
             </div>
             <Button
@@ -456,12 +553,21 @@ export default function NumeralsVerification() {
               )}
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant={verificationResults.numeral71.hasPolicy ? "default" : "destructive"}>
-                    {verificationResults.numeral71.status === "compliant" ? "Cumple" : "No Cumple"}
+                  <Badge
+                    variant={
+                      verificationResults.numeral71.hasPolicy
+                        ? "default"
+                        : "destructive"
+                    }
+                  >
+                    {verificationResults.numeral71.status === "compliant"
+                      ? "Cumple"
+                      : "No Cumple"}
                   </Badge>
                 </div>
                 <p className="text-sm">
-                  <strong>Hallazgos:</strong> {verificationResults.numeral71.findings}
+                  <strong>Hallazgos:</strong>{" "}
+                  {verificationResults.numeral71.findings}
                 </p>
               </div>
             </div>
@@ -479,7 +585,8 @@ export default function NumeralsVerification() {
                 Numeral 7.2 - Identificación y Análisis de Factores de Riesgo
               </CardTitle>
               <CardDescription className="mt-2">
-                {numeral72?.description || "Identificar y analizar los factores de riesgo psicosocial, de acuerdo con lo establecido en los numerales 7.2 y 7.3 de esta Norma, según corresponda al número de trabajadores del centro de trabajo."}
+                {numeral72?.description ||
+                  "Identificar y analizar los factores de riesgo psicosocial, de acuerdo con lo establecido en los numerales 7.2 y 7.3 de esta Norma, según corresponda al número de trabajadores del centro de trabajo."}
               </CardDescription>
             </div>
             <Button
@@ -511,17 +618,27 @@ export default function NumeralsVerification() {
               )}
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant={verificationResults.numeral72.hasSurveys ? "default" : "destructive"}>
-                    {verificationResults.numeral72.status === "compliant" ? "Cumple" : "No Cumple"}
+                  <Badge
+                    variant={
+                      verificationResults.numeral72.hasSurveys
+                        ? "default"
+                        : "destructive"
+                    }
+                  >
+                    {verificationResults.numeral72.status === "compliant"
+                      ? "Cumple"
+                      : "No Cumple"}
                   </Badge>
                   {verificationResults.numeral72.totalEvaluations > 0 && (
                     <span className="text-sm text-muted-foreground">
-                      {verificationResults.numeral72.totalEvaluations} evaluaciones realizadas
+                      {verificationResults.numeral72.totalEvaluations}{" "}
+                      evaluaciones realizadas
                     </span>
                   )}
                 </div>
                 <p className="text-sm">
-                  <strong>Hallazgos:</strong> {verificationResults.numeral72.findings}
+                  <strong>Hallazgos:</strong>{" "}
+                  {verificationResults.numeral72.findings}
                 </p>
               </div>
             </div>
@@ -539,7 +656,8 @@ export default function NumeralsVerification() {
                 Numeral 8.2 - Implementación de Medidas de Control
               </CardTitle>
               <CardDescription className="mt-2">
-                {numeral82?.description || "Adoptar las medidas para prevenir y controlar los factores de riesgo psicosocial, promover el entorno organizacional favorable, así como para atender las prácticas opuestas al entorno organizacional favorable y los actos de violencia laboral."}
+                {numeral82?.description ||
+                  "Adoptar las medidas para prevenir y controlar los factores de riesgo psicosocial, promover el entorno organizacional favorable, así como para atender las prácticas opuestas al entorno organizacional favorable y los actos de violencia laboral."}
               </CardDescription>
             </div>
             <Button
@@ -578,24 +696,29 @@ export default function NumeralsVerification() {
                       verificationResults.numeral82.status === "compliant"
                         ? "default"
                         : verificationResults.numeral82.status === "partial"
-                        ? "secondary"
-                        : "destructive"
+                          ? "secondary"
+                          : "destructive"
                     }
                   >
                     {verificationResults.numeral82.status === "compliant"
                       ? "Cumple"
                       : verificationResults.numeral82.status === "partial"
-                      ? "Cumplimiento Parcial"
-                      : "No Cumple"}
+                        ? "Cumplimiento Parcial"
+                        : "No Cumple"}
                   </Badge>
                   {verificationResults.numeral82.totalActions > 0 && (
                     <span className="text-sm text-muted-foreground">
-                      {verificationResults.numeral82.completedActions}/{verificationResults.numeral82.totalActions} acciones completadas ({verificationResults.numeral82.complianceRate.toFixed(1)}%)
+                      {verificationResults.numeral82.completedActions}/
+                      {verificationResults.numeral82.totalActions} acciones
+                      completadas (
+                      {verificationResults.numeral82.complianceRate.toFixed(1)}
+                      %)
                     </span>
                   )}
                 </div>
                 <p className="text-sm">
-                  <strong>Hallazgos:</strong> {verificationResults.numeral82.findings}
+                  <strong>Hallazgos:</strong>{" "}
+                  {verificationResults.numeral82.findings}
                 </p>
               </div>
             </div>
@@ -612,18 +735,40 @@ export default function NumeralsVerification() {
           <div>
             <h4 className="font-medium mb-2">Criterios de Verificación</h4>
             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-              <li><strong>Numeral 7.1:</strong> Verifica la existencia de una política de prevención activa en el sistema</li>
-              <li><strong>Numeral 7.2:</strong> Verifica que se hayan aplicado las Guías de Referencia I, II o III</li>
-              <li><strong>Numeral 8.2:</strong> Verifica la implementación de acciones correctivas (≥80% completadas = Cumple, ≥50% = Parcial, &lt;50% = No Cumple)</li>
+              <li>
+                <strong>Numeral 7.1:</strong> Verifica la existencia de una
+                política de prevención activa en el sistema
+              </li>
+              <li>
+                <strong>Numeral 7.2:</strong> Verifica que se hayan aplicado las
+                Guías de Referencia I, II o III
+              </li>
+              <li>
+                <strong>Numeral 8.2:</strong> Verifica la implementación de
+                acciones correctivas (≥80% completadas = Cumple, ≥50% = Parcial,
+                &lt;50% = No Cumple)
+              </li>
             </ul>
           </div>
           <div>
             <h4 className="font-medium mb-2">Recomendaciones</h4>
             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-              <li>Ejecute las verificaciones periódicamente para mantener el cumplimiento actualizado</li>
-              <li>Documente todas las evidencias de cumplimiento en la carpeta de evidencias NOM-035</li>
-              <li>Revise el dashboard de cumplimiento para una visión integral del estado normativo</li>
-              <li>Genere reportes de cumplimiento para auditorías internas y externas</li>
+              <li>
+                Ejecute las verificaciones periódicamente para mantener el
+                cumplimiento actualizado
+              </li>
+              <li>
+                Documente todas las evidencias de cumplimiento en la carpeta de
+                evidencias NOM-035
+              </li>
+              <li>
+                Revise el dashboard de cumplimiento para una visión integral del
+                estado normativo
+              </li>
+              <li>
+                Genere reportes de cumplimiento para auditorías internas y
+                externas
+              </li>
             </ul>
           </div>
         </CardContent>

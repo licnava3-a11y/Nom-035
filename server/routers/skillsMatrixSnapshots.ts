@@ -1,7 +1,15 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { competencies, departments, employees, organizationalCompetencies, positions, skillsMatrix, skillsMatrixSnapshots } from "../../drizzle/schema";
+import {
+  competencies,
+  departments,
+  employees,
+  organizationalCompetencies,
+  positions,
+  skillsMatrix,
+  skillsMatrixSnapshots,
+} from "../../drizzle/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 
 export const skillsMatrixSnapshotsRouter = router({
@@ -9,11 +17,13 @@ export const skillsMatrixSnapshotsRouter = router({
    * Save a new snapshot of the skills matrix
    */
   saveSnapshot: protectedProcedure
-    .input(z.object({
-      name: z.string().min(1, "El nombre es requerido"),
-      description: z.string().optional(),
-      departmentId: z.number().optional(),
-    }))
+    .input(
+      z.object({
+        name: z.string().min(1, "El nombre es requerido"),
+        description: z.string().optional(),
+        departmentId: z.number().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
@@ -35,18 +45,21 @@ export const skillsMatrixSnapshotsRouter = router({
         })
         .from(skillsMatrix)
         .innerJoin(employees, eq(skillsMatrix.employeeId, employees.id))
-        .innerJoin(organizationalCompetencies, eq(skillsMatrix.competencyId, organizationalCompetencies.id))
+        .innerJoin(
+          organizationalCompetencies,
+          eq(skillsMatrix.competencyId, organizationalCompetencies.id)
+        )
         .leftJoin(departments, eq(employees.departmentId, departments.id))
         .leftJoin(positions, eq(employees.positionId, positions.id))
         .where(
-          input.departmentId 
+          input.departmentId
             ? eq(employees.departmentId, input.departmentId)
             : sql`1=1`
         );
 
       // Group by employee
       const employeeMap = new Map<number, any>();
-      
+
       for (const row of matrixData) {
         if (!employeeMap.has(row.employeeId)) {
           employeeMap.set(row.employeeId, {
@@ -63,11 +76,28 @@ export const skillsMatrixSnapshotsRouter = router({
 
         const employee = employeeMap.get(row.employeeId);
         // Convert level strings to numbers for gap calculation
-        const levelMap: Record<string, number> = { 'Sin evaluar': 0, 'sin_evaluar': 0, 'basico': 1, 'Básico': 1, 'intermedio': 2, 'Intermedio': 2, 'avanzado': 3, 'Avanzado': 3, 'experto': 4, 'Experto': 4 };
-        const currentLevelNum = typeof row.currentLevel === 'string' ? (levelMap[row.currentLevel] || 0) : (row.currentLevel || 0);
-        const requiredLevelNum = typeof row.requiredLevel === 'string' ? (levelMap[row.requiredLevel] || 0) : (row.requiredLevel || 0);
+        const levelMap: Record<string, number> = {
+          "Sin evaluar": 0,
+          sin_evaluar: 0,
+          basico: 1,
+          Básico: 1,
+          intermedio: 2,
+          Intermedio: 2,
+          avanzado: 3,
+          Avanzado: 3,
+          experto: 4,
+          Experto: 4,
+        };
+        const currentLevelNum =
+          typeof row.currentLevel === "string"
+            ? levelMap[row.currentLevel] || 0
+            : row.currentLevel || 0;
+        const requiredLevelNum =
+          typeof row.requiredLevel === "string"
+            ? levelMap[row.requiredLevel] || 0
+            : row.requiredLevel || 0;
         const gap = requiredLevelNum - currentLevelNum;
-        
+
         employee.competencies.push({
           competencyId: row.competencyId,
           competencyName: row.competencyName || "",
@@ -79,24 +109,41 @@ export const skillsMatrixSnapshotsRouter = router({
 
       // Calculate averages and totals
       const employeesArray = Array.from(employeeMap.values());
-      
+
       for (const employee of employeesArray) {
-        const totalLevel = employee.competencies.reduce((sum: number, c: any) => sum + c.currentLevel, 0);
-        employee.averageLevel = employee.competencies.length > 0 
-          ? Number((totalLevel / employee.competencies.length).toFixed(2))
-          : 0;
-        
-        employee.totalGap = employee.competencies.reduce((sum: number, c: any) => sum + c.gap, 0);
+        const totalLevel = employee.competencies.reduce(
+          (sum: number, c: any) => sum + c.currentLevel,
+          0
+        );
+        employee.averageLevel =
+          employee.competencies.length > 0
+            ? Number((totalLevel / employee.competencies.length).toFixed(2))
+            : 0;
+
+        employee.totalGap = employee.competencies.reduce(
+          (sum: number, c: any) => sum + c.gap,
+          0
+        );
       }
 
       // Calculate summary statistics
       const totalEmployees = employeesArray.length;
-      const totalCompetencies = employeesArray.reduce((sum: any, e: any) => sum + e.competencies.length, 0);
-      const totalLevels = employeesArray.reduce((sum: any, e: any) => sum + (e.averageLevel * e.competencies.length), 0);
-      const averageCompetencyLevel = totalCompetencies > 0 
-        ? Number((totalLevels / totalCompetencies).toFixed(2))
-        : 0;
-      const totalGaps = employeesArray.reduce((sum: any, e: any) => sum + e.totalGap, 0);
+      const totalCompetencies = employeesArray.reduce(
+        (sum: any, e: any) => sum + e.competencies.length,
+        0
+      );
+      const totalLevels = employeesArray.reduce(
+        (sum: any, e: any) => sum + e.averageLevel * e.competencies.length,
+        0
+      );
+      const averageCompetencyLevel =
+        totalCompetencies > 0
+          ? Number((totalLevels / totalCompetencies).toFixed(2))
+          : 0;
+      const totalGaps = employeesArray.reduce(
+        (sum: any, e: any) => sum + e.totalGap,
+        0
+      );
       const criticalGaps = employeesArray.reduce((sum: any, e: any) => {
         return sum + e.competencies.filter((c: any) => c.gap >= 2).length;
       }, 0);
@@ -114,8 +161,8 @@ export const skillsMatrixSnapshotsRouter = router({
 
       // Insert snapshot
       const today = new Date();
-      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-      
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
       const result = await (db.insert(skillsMatrixSnapshots) as any).values({
         name: input.name,
         description: input.description || null,
@@ -136,16 +183,18 @@ export const skillsMatrixSnapshotsRouter = router({
    * Get all snapshots
    */
   getAll: protectedProcedure
-    .input(z.object({
-      departmentId: z.number().optional(),
-      limit: z.number().default(50),
-      offset: z.number().default(0),
-    }))
+    .input(
+      z.object({
+        departmentId: z.number().optional(),
+        limit: z.number().default(50),
+        offset: z.number().default(0),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
 
-      const conditions = input.departmentId 
+      const conditions = input.departmentId
         ? eq(skillsMatrixSnapshots.departmentId, input.departmentId)
         : sql`1=1`;
 
@@ -172,9 +221,11 @@ export const skillsMatrixSnapshotsRouter = router({
    * Get a single snapshot by ID
    */
   getById: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
@@ -196,17 +247,27 @@ export const skillsMatrixSnapshotsRouter = router({
    * Compare two snapshots
    */
   compareSnapshots: protectedProcedure
-    .input(z.object({
-      snapshot1Id: z.number(),
-      snapshot2Id: z.number(),
-    }))
+    .input(
+      z.object({
+        snapshot1Id: z.number(),
+        snapshot2Id: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
 
       const [snapshot1, snapshot2] = await Promise.all([
-        db.select().from(skillsMatrixSnapshots).where(eq(skillsMatrixSnapshots.id, input.snapshot1Id)).limit(1),
-        db.select().from(skillsMatrixSnapshots).where(eq(skillsMatrixSnapshots.id, input.snapshot2Id)).limit(1),
+        db
+          .select()
+          .from(skillsMatrixSnapshots)
+          .where(eq(skillsMatrixSnapshots.id, input.snapshot1Id))
+          .limit(1),
+        db
+          .select()
+          .from(skillsMatrixSnapshots)
+          .where(eq(skillsMatrixSnapshots.id, input.snapshot2Id))
+          .limit(1),
       ]);
 
       if (!snapshot1[0] || !snapshot2[0]) {
@@ -222,33 +283,68 @@ export const skillsMatrixSnapshotsRouter = router({
           before: data1.summary.totalEmployees,
           after: data2.summary.totalEmployees,
           change: data2.summary.totalEmployees - data1.summary.totalEmployees,
-          percentChange: data1.summary.totalEmployees > 0 
-            ? Number((((data2.summary.totalEmployees - data1.summary.totalEmployees) / data1.summary.totalEmployees) * 100).toFixed(2))
-            : 0,
+          percentChange:
+            data1.summary.totalEmployees > 0
+              ? Number(
+                  (
+                    ((data2.summary.totalEmployees -
+                      data1.summary.totalEmployees) /
+                      data1.summary.totalEmployees) *
+                    100
+                  ).toFixed(2)
+                )
+              : 0,
         },
         averageCompetencyLevel: {
           before: data1.summary.averageCompetencyLevel,
           after: data2.summary.averageCompetencyLevel,
-          change: Number((data2.summary.averageCompetencyLevel - data1.summary.averageCompetencyLevel).toFixed(2)),
-          percentChange: data1.summary.averageCompetencyLevel > 0 
-            ? Number((((data2.summary.averageCompetencyLevel - data1.summary.averageCompetencyLevel) / data1.summary.averageCompetencyLevel) * 100).toFixed(2))
-            : 0,
+          change: Number(
+            (
+              data2.summary.averageCompetencyLevel -
+              data1.summary.averageCompetencyLevel
+            ).toFixed(2)
+          ),
+          percentChange:
+            data1.summary.averageCompetencyLevel > 0
+              ? Number(
+                  (
+                    ((data2.summary.averageCompetencyLevel -
+                      data1.summary.averageCompetencyLevel) /
+                      data1.summary.averageCompetencyLevel) *
+                    100
+                  ).toFixed(2)
+                )
+              : 0,
         },
         totalGaps: {
           before: data1.summary.totalGaps,
           after: data2.summary.totalGaps,
           change: data2.summary.totalGaps - data1.summary.totalGaps,
-          percentChange: data1.summary.totalGaps > 0 
-            ? Number((((data2.summary.totalGaps - data1.summary.totalGaps) / data1.summary.totalGaps) * 100).toFixed(2))
-            : 0,
+          percentChange:
+            data1.summary.totalGaps > 0
+              ? Number(
+                  (
+                    ((data2.summary.totalGaps - data1.summary.totalGaps) /
+                      data1.summary.totalGaps) *
+                    100
+                  ).toFixed(2)
+                )
+              : 0,
         },
         criticalGaps: {
           before: data1.summary.criticalGaps,
           after: data2.summary.criticalGaps,
           change: data2.summary.criticalGaps - data1.summary.criticalGaps,
-          percentChange: data1.summary.criticalGaps > 0 
-            ? Number((((data2.summary.criticalGaps - data1.summary.criticalGaps) / data1.summary.criticalGaps) * 100).toFixed(2))
-            : 0,
+          percentChange:
+            data1.summary.criticalGaps > 0
+              ? Number(
+                  (
+                    ((data2.summary.criticalGaps - data1.summary.criticalGaps) /
+                      data1.summary.criticalGaps) *
+                    100
+                  ).toFixed(2)
+                )
+              : 0,
         },
       };
 
@@ -259,13 +355,15 @@ export const skillsMatrixSnapshotsRouter = router({
 
       for (const [empId, emp2] of Array.from(employeeMap2.entries())) {
         const emp1 = employeeMap1.get(empId);
-        
+
         if (emp1) {
           const emp1Data = emp1 as any;
           const emp2Data = emp2 as any;
-          const avgLevelChange = Number((emp2Data.averageLevel - emp1Data.averageLevel).toFixed(2));
+          const avgLevelChange = Number(
+            (emp2Data.averageLevel - emp1Data.averageLevel).toFixed(2)
+          );
           const gapChange = emp2Data.totalGap - emp1Data.totalGap;
-          
+
           employeeComparisons.push({
             employeeId: empId,
             employeeName: `${emp2Data.firstName} ${emp2Data.lastName}`,
@@ -287,8 +385,8 @@ export const skillsMatrixSnapshotsRouter = router({
 
       // Sort by improvement (best first)
       employeeComparisons.sort((a: any, b: any) => {
-        const scoreA = a.averageLevel.change - (a.totalGap.change * 0.5);
-        const scoreB = b.averageLevel.change - (b.totalGap.change * 0.5);
+        const scoreA = a.averageLevel.change - a.totalGap.change * 0.5;
+        const scoreB = b.averageLevel.change - b.totalGap.change * 0.5;
         return scoreB - scoreA;
       });
 
@@ -305,8 +403,12 @@ export const skillsMatrixSnapshotsRouter = router({
         },
         summaryComparison,
         employeeComparisons,
-        topImprovers: employeeComparisons.filter(e => e.improvement).slice(0, 10),
-        needsAttention: employeeComparisons.filter(e => !e.improvement).slice(0, 10),
+        topImprovers: employeeComparisons
+          .filter(e => e.improvement)
+          .slice(0, 10),
+        needsAttention: employeeComparisons
+          .filter(e => !e.improvement)
+          .slice(0, 10),
       };
     }),
 
@@ -314,9 +416,11 @@ export const skillsMatrixSnapshotsRouter = router({
    * Delete a snapshot
    */
   deleteSnapshot: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
@@ -336,7 +440,9 @@ export const skillsMatrixSnapshotsRouter = router({
         throw new Error("No tienes permiso para eliminar este snapshot");
       }
 
-      await db.delete(skillsMatrixSnapshots).where(eq(skillsMatrixSnapshots.id, input.id));
+      await db
+        .delete(skillsMatrixSnapshots)
+        .where(eq(skillsMatrixSnapshots.id, input.id));
 
       return {
         success: true,
@@ -348,9 +454,11 @@ export const skillsMatrixSnapshotsRouter = router({
    * Get trend data for all snapshots
    */
   getTrendData: protectedProcedure
-    .input(z.object({
-      departmentId: z.number().optional(),
-    }))
+    .input(
+      z.object({
+        departmentId: z.number().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
@@ -362,7 +470,9 @@ export const skillsMatrixSnapshotsRouter = router({
         .orderBy(skillsMatrixSnapshots.snapshotDate);
 
       if (input.departmentId) {
-        query = query.where(eq(skillsMatrixSnapshots.departmentId, input.departmentId)) as any;
+        query = query.where(
+          eq(skillsMatrixSnapshots.departmentId, input.departmentId)
+        ) as any;
       }
 
       const snapshots = await query;

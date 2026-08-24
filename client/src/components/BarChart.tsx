@@ -11,7 +11,14 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface BarChartProps {
   data: {
@@ -40,10 +47,11 @@ export function BarChart({ data, competencyName, className }: BarChartProps) {
       {
         label: "Nivel Actual",
         data: data.map((d: any) => d.averageLevel),
-        backgroundColor: data.map((d: any) =>
-          d.averageLevel >= d.requiredLevel
-            ? "rgba(34, 197, 94, 0.8)" // Verde si cumple
-            : "rgba(239, 68, 68, 0.8)" // Rojo si no cumple
+        backgroundColor: data.map(
+          (d: any) =>
+            d.averageLevel >= d.requiredLevel
+              ? "rgba(34, 197, 94, 0.8)" // Verde si cumple
+              : "rgba(239, 68, 68, 0.8)" // Rojo si no cumple
         ),
         borderColor: data.map((d: any) =>
           d.averageLevel >= d.requiredLevel
@@ -103,13 +111,14 @@ export function BarChart({ data, competencyName, className }: BarChartProps) {
         callbacks: {
           label: function (context) {
             const label = context.dataset.label || "";
-            const value = (((context.parsed.y ?? 0) ?? 0) ?? 0).toFixed(1);
+            const value = (context.parsed.y ?? 0 ?? 0 ?? 0).toFixed(1);
             return `${label}: ${value}`;
           },
           afterLabel: function (context) {
             if (context.datasetIndex === 0) {
               const departmentData = data[context.dataIndex];
-              const gap = departmentData.requiredLevel - departmentData.averageLevel;
+              const gap =
+                departmentData.requiredLevel - departmentData.averageLevel;
               if (gap > 0) {
                 return `⚠️ Brecha: ${gap.toFixed(1)} puntos`;
               } else if (gap === 0) {

@@ -7,7 +7,17 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { departments, employees, modelThresholds, nom035Cases, nom035Results, sentimentAnalysis, surveyResponses, surveyResults, users } from "../../drizzle/schema";
+import {
+  departments,
+  employees,
+  modelThresholds,
+  nom035Cases,
+  nom035Results,
+  sentimentAnalysis,
+  surveyResponses,
+  surveyResults,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, gte, desc, count, sql, inArray } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 
@@ -39,7 +49,10 @@ export const predictiveTurnoverDashboardRouter = router({
 
         // Obtener departamentos
         const depts = departmentId
-          ? await db.select().from(departments).where(eq(departments.id, departmentId))
+          ? await db
+              .select()
+              .from(departments)
+              .where(eq(departments.id, departmentId))
           : await db.select().from(departments);
 
         const metrics = [];
@@ -74,7 +87,10 @@ export const predictiveTurnoverDashboardRouter = router({
           const criticalCommentsCount = await db
             .select({ count: count() })
             .from(sentimentAnalysis)
-            .innerJoin(surveyResponses, eq(sentimentAnalysis.responseId, surveyResponses.id))
+            .innerJoin(
+              surveyResponses,
+              eq(sentimentAnalysis.responseId, surveyResponses.id)
+            )
             .innerJoin(users, eq(surveyResponses.userId, users.id))
             .where(
               and(
@@ -126,18 +142,27 @@ export const predictiveTurnoverDashboardRouter = router({
             .limit(1);
 
           // Usar umbrales configurables o valores por defecto
-          const criticalCommentsWeight = (activeConfig?.criticalCommentsWeight || 40) / 100;
+          const criticalCommentsWeight =
+            (activeConfig?.criticalCommentsWeight || 40) / 100;
           const openCasesWeight = (activeConfig?.openCasesWeight || 30) / 100;
-          const highRiskSurveysWeight = (activeConfig?.highRiskSurveysWeight || 30) / 100;
+          const highRiskSurveysWeight =
+            (activeConfig?.highRiskSurveysWeight || 30) / 100;
           const highRiskThreshold = activeConfig?.highRiskThreshold || 70;
           const mediumRiskThreshold = activeConfig?.mediumRiskThreshold || 40;
 
           // Calcular probabilidad de rotación (0-100) con pesos configurables
-          const criticalCommentsScore = Math.min((criticalComments / totalEmployees) * 100, 100) * criticalCommentsWeight;
-          const openCasesScore = Math.min((openCases / totalEmployees) * 100, 100) * openCasesWeight;
-          const highRiskSurveysScore = Math.min((highRiskSurveys / totalEmployees) * 100, 100) * highRiskSurveysWeight;
+          const criticalCommentsScore =
+            Math.min((criticalComments / totalEmployees) * 100, 100) *
+            criticalCommentsWeight;
+          const openCasesScore =
+            Math.min((openCases / totalEmployees) * 100, 100) * openCasesWeight;
+          const highRiskSurveysScore =
+            Math.min((highRiskSurveys / totalEmployees) * 100, 100) *
+            highRiskSurveysWeight;
 
-          const turnoverProbability = Math.round(criticalCommentsScore + openCasesScore + highRiskSurveysScore);
+          const turnoverProbability = Math.round(
+            criticalCommentsScore + openCasesScore + highRiskSurveysScore
+          );
 
           // Determinar nivel de riesgo usando umbrales configurables
           let riskLevel: "low" | "medium" | "high" | "critical" = "low";
@@ -162,14 +187,22 @@ export const predictiveTurnoverDashboardRouter = router({
         }
 
         // Ordenar por probabilidad de rotación (mayor a menor)
-        metrics.sort((a: any, b: any) => b.turnoverProbability - a.turnoverProbability);
+        metrics.sort(
+          (a: any, b: any) => b.turnoverProbability - a.turnoverProbability
+        );
 
         return metrics;
       } catch (error) {
-        console.error("[PredictiveTurnover] Error getting predictive metrics:", error);
+        console.error(
+          "[PredictiveTurnover] Error getting predictive metrics:",
+          error
+        );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : "Error al obtener métricas predictivas",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al obtener métricas predictivas",
         });
       }
     }),
@@ -211,12 +244,17 @@ export const predictiveTurnoverDashboardRouter = router({
           })
           .from(users)
           .innerJoin(surveyResponses, eq(surveyResponses.userId, users.id))
-          .innerJoin(sentimentAnalysis, eq(sentimentAnalysis.responseId, surveyResponses.id))
+          .innerJoin(
+            sentimentAnalysis,
+            eq(sentimentAnalysis.responseId, surveyResponses.id)
+          )
           .where(
             and(
               eq(sentimentAnalysis.riskLevel, "critical"),
               gte(sentimentAnalysis.analyzedAt, ninetyDaysAgo),
-              departmentId ? sql`${users.departamento} = ${String(departmentId)}` : sql`1=1`
+              departmentId
+                ? sql`${users.departamento} = ${String(departmentId)}`
+                : sql`1=1`
             )
           )
           .groupBy(users.id, users.name, users.email, users.departamento)
@@ -226,17 +264,18 @@ export const predictiveTurnoverDashboardRouter = router({
         // Obtener resultados de encuestas NOM-035 para estos empleados
         const userIds = employeesWithCriticalComments.map(e => e.userId);
 
-        const surveyResults = userIds.length > 0
-          ? await db
-              .select({
-                userId: nom035Results.employeeId,
-                riskLevel: nom035Results.globalRiskLevel,
-                finalScore: nom035Results.globalScore,
-              })
-              .from(nom035Results)
-              .where(inArray(nom035Results.employeeId, userIds))
-              .orderBy(desc(nom035Results.createdAt))
-          : [];
+        const surveyResults =
+          userIds.length > 0
+            ? await db
+                .select({
+                  userId: nom035Results.employeeId,
+                  riskLevel: nom035Results.globalRiskLevel,
+                  finalScore: nom035Results.globalScore,
+                })
+                .from(nom035Results)
+                .where(inArray(nom035Results.employeeId, userIds))
+                .orderBy(desc(nom035Results.createdAt))
+            : [];
 
         // Mapear resultados de encuestas por userId
         const surveyResultsMap = new Map();
@@ -257,7 +296,8 @@ export const predictiveTurnoverDashboardRouter = router({
             criticalCommentsCount: emp.criticalCommentsCount,
             lastSurveyRiskLevel: surveyResult?.riskLevel || "No disponible",
             lastSurveyScore: surveyResult?.finalScore || 0,
-            riskScore: emp.criticalCommentsCount * 10 + (surveyResult?.finalScore || 0),
+            riskScore:
+              emp.criticalCommentsCount * 10 + (surveyResult?.finalScore || 0),
           };
         });
 
@@ -266,10 +306,16 @@ export const predictiveTurnoverDashboardRouter = router({
 
         return highRiskEmployees;
       } catch (error) {
-        console.error("[PredictiveTurnover] Error getting high risk employees:", error);
+        console.error(
+          "[PredictiveTurnover] Error getting high risk employees:",
+          error
+        );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : "Error al obtener empleados en riesgo",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al obtener empleados en riesgo",
         });
       }
     }),
@@ -321,7 +367,10 @@ export const predictiveTurnoverDashboardRouter = router({
             analyzedAt: sentimentAnalysis.analyzedAt,
           })
           .from(sentimentAnalysis)
-          .innerJoin(surveyResponses, eq(sentimentAnalysis.responseId, surveyResponses.id))
+          .innerJoin(
+            surveyResponses,
+            eq(sentimentAnalysis.responseId, surveyResponses.id)
+          )
           .innerJoin(users, eq(surveyResponses.userId, users.id))
           .where(
             and(
@@ -349,8 +398,12 @@ export const predictiveTurnoverDashboardRouter = router({
           .limit(5);
 
         // Construir prompt para LLM
-        const commentsText = criticalComments.map(c => `- ${c.summary} (Palabras clave: ${c.keywords})`).join("\n");
-        const casesText = openCases.map(c => `- ${c.title}: ${c.description}`).join("\n");
+        const commentsText = criticalComments
+          .map(c => `- ${c.summary} (Palabras clave: ${c.keywords})`)
+          .join("\n");
+        const casesText = openCases
+          .map(c => `- ${c.title}: ${c.description}`)
+          .join("\n");
 
         const prompt = `Eres un experto en gestión de talento y prevención de rotación de personal. Analiza los siguientes datos del departamento "${dept[0].name}" y genera 5 recomendaciones específicas y accionables para reducir el riesgo de rotación:
 
@@ -383,7 +436,11 @@ Formato de respuesta (JSON):
         // Invocar LLM
         const response = await invokeLLM({
           messages: [
-            { role: "system", content: "Eres un experto en gestión de talento y prevención de rotación. Siempre respondes en formato JSON válido." },
+            {
+              role: "system",
+              content:
+                "Eres un experto en gestión de talento y prevención de rotación. Siempre respondes en formato JSON válido.",
+            },
             { role: "user", content: prompt },
           ],
           response_format: {
@@ -413,7 +470,13 @@ Formato de respuesta (JSON):
                           items: { type: "string" },
                         },
                       },
-                      required: ["title", "description", "expectedImpact", "timeline", "successMetrics"],
+                      required: [
+                        "title",
+                        "description",
+                        "expectedImpact",
+                        "timeline",
+                        "successMetrics",
+                      ],
                       additionalProperties: false,
                     },
                   },
@@ -426,7 +489,12 @@ Formato de respuesta (JSON):
         });
 
         const rawContent = response.choices[0].message.content;
-        const contentStr = typeof rawContent === 'string' ? rawContent : (Array.isArray(rawContent) ? rawContent.map((c: any) => c.text || '').join('') : '{}');
+        const contentStr =
+          typeof rawContent === "string"
+            ? rawContent
+            : Array.isArray(rawContent)
+              ? rawContent.map((c: any) => c.text || "").join("")
+              : "{}";
         const recommendations = JSON.parse(contentStr);
 
         return {
@@ -434,10 +502,16 @@ Formato de respuesta (JSON):
           ...recommendations,
         };
       } catch (error) {
-        console.error("[PredictiveTurnover] Error generating retention recommendations:", error);
+        console.error(
+          "[PredictiveTurnover] Error generating retention recommendations:",
+          error
+        );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : "Error al generar recomendaciones",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al generar recomendaciones",
         });
       }
     }),

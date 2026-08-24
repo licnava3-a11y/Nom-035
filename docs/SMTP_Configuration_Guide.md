@@ -17,6 +17,7 @@ Esta guía proporciona instrucciones detalladas para configurar el servidor SMTP
 ### 1. Gmail (Google Workspace)
 
 **Requisitos previos:**
+
 - Cuenta de Gmail o Google Workspace
 - Habilitar autenticación de dos factores
 - Generar contraseña de aplicación
@@ -43,6 +44,7 @@ Usar TLS/SSL: ✓ Activado
 ```
 
 **Límites de envío:**
+
 - Gmail gratuito: 500 correos/día
 - Google Workspace: 2,000 correos/día por usuario
 
@@ -51,6 +53,7 @@ Usar TLS/SSL: ✓ Activado
 ### 2. Microsoft Office 365 / Outlook
 
 **Requisitos previos:**
+
 - Cuenta de Office 365 o Outlook.com
 - Autenticación moderna habilitada
 
@@ -66,10 +69,12 @@ Usar TLS/SSL: ✓ Activado
 ```
 
 **Notas importantes:**
+
 - Si tiene autenticación multifactor (MFA) habilitada, genere una contraseña de aplicación
 - Para Office 365, asegúrese de que SMTP AUTH esté habilitado en su organización
 
 **Límites de envío:**
+
 - Office 365: 10,000 correos/día por buzón
 
 ---
@@ -77,6 +82,7 @@ Usar TLS/SSL: ✓ Activado
 ### 3. SendGrid (Recomendado para alto volumen)
 
 **Requisitos previos:**
+
 - Cuenta de SendGrid (gratuita o de pago)
 - API Key generada
 
@@ -101,6 +107,7 @@ Usar TLS/SSL: ✓ Activado
 ```
 
 **Límites de envío:**
+
 - Plan gratuito: 100 correos/día
 - Plan Essentials: 40,000-100,000 correos/mes
 - Plan Pro: 1,500,000+ correos/mes
@@ -110,6 +117,7 @@ Usar TLS/SSL: ✓ Activado
 ### 4. Mailgun
 
 **Requisitos previos:**
+
 - Cuenta de Mailgun
 - Dominio verificado
 
@@ -132,6 +140,7 @@ Usar TLS/SSL: ✓ Activado
 ```
 
 **Límites de envío:**
+
 - Plan gratuito: 5,000 correos/mes (primeros 3 meses)
 - Planes de pago: desde 50,000 correos/mes
 
@@ -176,11 +185,13 @@ Una vez configurado y probado el SMTP, las siguientes notificaciones se enviará
 ### Error: "Autenticación fallida"
 
 **Causas comunes:**
+
 - Contraseña incorrecta
 - Autenticación de dos factores no configurada (Gmail)
 - SMTP AUTH deshabilitado (Office 365)
 
 **Solución:**
+
 - Verifique que la contraseña sea correcta
 - Para Gmail, use contraseña de aplicación, no la contraseña de su cuenta
 - Para Office 365, habilite SMTP AUTH en el centro de administración
@@ -188,11 +199,13 @@ Una vez configurado y probado el SMTP, las siguientes notificaciones se enviará
 ### Error: "Conexión rechazada"
 
 **Causas comunes:**
+
 - Puerto incorrecto
 - Firewall bloqueando la conexión
 - Host SMTP incorrecto
 
 **Solución:**
+
 - Verifique que el puerto sea 587 (TLS) o 465 (SSL)
 - Contacte al administrador de red para verificar reglas de firewall
 - Confirme el host SMTP con su proveedor
@@ -200,21 +213,25 @@ Una vez configurado y probado el SMTP, las siguientes notificaciones se enviará
 ### Error: "Certificado SSL inválido"
 
 **Causas comunes:**
+
 - Configuración TLS/SSL incorrecta
 - Certificado expirado del proveedor
 
 **Solución:**
+
 - Intente cambiar entre puerto 587 (TLS) y 465 (SSL)
 - Verifique el estado del servicio del proveedor
 
 ### Correos no llegan a la bandeja de entrada
 
 **Causas comunes:**
+
 - Correos marcados como spam
 - Dominio remitente no verificado
 - Límite de envío excedido
 
 **Solución:**
+
 - Verifique la carpeta de spam del destinatario
 - Configure SPF, DKIM y DMARC para su dominio
 - Revise los límites de envío de su proveedor

@@ -1,33 +1,43 @@
-import { useState, useEffect } from 'react';
-import { trpc } from '@/lib/trpc';
-import { Button } from '@/components/ui/button';
-import { LoadingButton } from '@/components/ui/loading-button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Clock, AlertCircle, CheckCircle } from 'lucide-react';
-import { useRoute, useLocation } from 'wouter';
+import { useState, useEffect } from "react";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { useRoute, useLocation } from "wouter";
 
 export default function TakeExam() {
-  const [, params] = useRoute('/exams/:id/take');
+  const [, params] = useRoute("/exams/:id/take");
   const [, setLocation] = useLocation();
   const assessmentId = params?.id ? parseInt(params.id) : 0;
 
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, { selectedOptionId?: number; textAnswer?: string }>>({});
+  const [answers, setAnswers] = useState<
+    Record<number, { selectedOptionId?: number; textAnswer?: string }>
+  >({});
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Queries
-  const { data: assessment, isLoading } = trpc.assessments.getById.useQuery({ id: assessmentId });
+  const { data: assessment, isLoading } = trpc.assessments.getById.useQuery({
+    id: assessmentId,
+  });
 
   // Mutations
   const startAttemptMutation = trpc.assessments.startAttempt.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setAttemptId(data.attemptId);
       if (assessment?.timeLimit) {
         setTimeRemaining(assessment.timeLimit * 60); // Convertir minutos a segundos
@@ -36,7 +46,7 @@ export default function TakeExam() {
   });
 
   const submitAnswersMutation = trpc.assessments.submitAnswers.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setLocation(`/exams/${assessmentId}/results/${attemptId}`);
     },
   });
@@ -46,7 +56,7 @@ export default function TakeExam() {
     if (timeRemaining === null || timeRemaining <= 0) return;
 
     const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
+      setTimeRemaining(prev => {
         if (prev === null || prev <= 1) {
           handleSubmit();
           return 0;
@@ -63,8 +73,11 @@ export default function TakeExam() {
     startAttemptMutation.mutate({ assessmentId });
   };
 
-  const handleAnswerChange = (questionId: number, value: { selectedOptionId?: number; textAnswer?: string }) => {
-    setAnswers((prev) => ({
+  const handleAnswerChange = (
+    questionId: number,
+    value: { selectedOptionId?: number; textAnswer?: string }
+  ) => {
+    setAnswers(prev => ({
       ...prev,
       [questionId]: value,
     }));
@@ -75,10 +88,12 @@ export default function TakeExam() {
 
     setIsSubmitting(true);
 
-    const answersArray = Object.entries(answers).map(([questionId, answer]) => ({
-      questionId: parseInt(questionId),
-      ...answer,
-    }));
+    const answersArray = Object.entries(answers).map(
+      ([questionId, answer]) => ({
+        questionId: parseInt(questionId),
+        ...answer,
+      })
+    );
 
     submitAnswersMutation.mutate({
       attemptId,
@@ -89,7 +104,7 @@ export default function TakeExam() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const getProgress = () => {
@@ -129,37 +144,53 @@ export default function TakeExam() {
           <CardContent className="space-y-6">
             <div className="grid gap-4">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Número de preguntas:</span>
-                <span className="font-medium">{assessment.questions?.length || 0}</span>
+                <span className="text-muted-foreground">
+                  Número de preguntas:
+                </span>
+                <span className="font-medium">
+                  {assessment.questions?.length || 0}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Calificación mínima:</span>
+                <span className="text-muted-foreground">
+                  Calificación mínima:
+                </span>
                 <span className="font-medium">{assessment.passingScore}%</span>
               </div>
               {assessment.timeLimit && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tiempo límite:</span>
-                  <span className="font-medium">{assessment.timeLimit} minutos</span>
+                  <span className="font-medium">
+                    {assessment.timeLimit} minutos
+                  </span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Intentos máximos:</span>
-                <span className="font-medium">{assessment.maxAttempts || 'Ilimitados'}</span>
+                <span className="font-medium">
+                  {assessment.maxAttempts || "Ilimitados"}
+                </span>
               </div>
             </div>
 
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Una vez que inicie el examen, debe completarlo. {assessment.timeLimit && 'El tiempo comenzará a correr automáticamente.'}
+                Una vez que inicie el examen, debe completarlo.{" "}
+                {assessment.timeLimit &&
+                  "El tiempo comenzará a correr automáticamente."}
               </AlertDescription>
             </Alert>
 
-            <LoadingButton className="w-full"
+            <LoadingButton
+              className="w-full"
               size="lg"
               onClick={handleStartExam}
-              loading={startAttemptMutation.isPending} loadingText="Iniciando..."
-            >Iniciar Examen</LoadingButton>
+              loading={startAttemptMutation.isPending}
+              loadingText="Iniciando..."
+            >
+              Iniciar Examen
+            </LoadingButton>
           </CardContent>
         </Card>
       </div>
@@ -189,7 +220,9 @@ export default function TakeExam() {
           {timeRemaining !== null && (
             <div className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              <span className={`text-lg font-mono ${timeRemaining < 60 ? 'text-red-500' : ''}`}>
+              <span
+                className={`text-lg font-mono ${timeRemaining < 60 ? "text-red-500" : ""}`}
+              >
                 {formatTime(timeRemaining)}
               </span>
             </div>
@@ -200,7 +233,8 @@ export default function TakeExam() {
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>Progreso</span>
             <span>
-              {Object.keys(answers).length} de {assessment.questions.length} respondidas
+              {Object.keys(answers).length} de {assessment.questions.length}{" "}
+              respondidas
             </span>
           </div>
           <Progress value={getProgress()} />
@@ -212,9 +246,12 @@ export default function TakeExam() {
         <CardHeader>
           <div className="flex justify-between items-start">
             <CardTitle className="text-lg">
-              Pregunta {currentQuestionIndex + 1} de {assessment.questions.length}
+              Pregunta {currentQuestionIndex + 1} de{" "}
+              {assessment.questions.length}
             </CardTitle>
-            <span className="text-sm text-muted-foreground">{currentQuestion.points} puntos</span>
+            <span className="text-sm text-muted-foreground">
+              {currentQuestion.points} puntos
+            </span>
           </div>
           <CardDescription className="text-base text-foreground mt-4">
             {currentQuestion.questionText}
@@ -222,18 +259,32 @@ export default function TakeExam() {
         </CardHeader>
         <CardContent>
           {/* Opciones de respuesta */}
-          {currentQuestion.questionType === 'multiple_choice' || currentQuestion.questionType === 'true_false' ? (
+          {currentQuestion.questionType === "multiple_choice" ||
+          currentQuestion.questionType === "true_false" ? (
             <RadioGroup
-              value={answers[currentQuestion.id]?.selectedOptionId?.toString() || ''}
-              onValueChange={(value) =>
-                handleAnswerChange(currentQuestion.id, { selectedOptionId: parseInt(value) })
+              value={
+                answers[currentQuestion.id]?.selectedOptionId?.toString() || ""
+              }
+              onValueChange={value =>
+                handleAnswerChange(currentQuestion.id, {
+                  selectedOptionId: parseInt(value),
+                })
               }
             >
               <div className="space-y-3">
                 {currentQuestion.options?.map((option: any, index: number) => (
-                  <div key={option.id} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent">
-                    <RadioGroupItem value={option.id.toString()} id={`option-${option.id}`} />
-                    <Label htmlFor={`option-${option.id}`} className="flex-1 cursor-pointer">
+                  <div
+                    key={option.id}
+                    className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent"
+                  >
+                    <RadioGroupItem
+                      value={option.id.toString()}
+                      id={`option-${option.id}`}
+                    />
+                    <Label
+                      htmlFor={`option-${option.id}`}
+                      className="flex-1 cursor-pointer"
+                    >
                       {String.fromCharCode(65 + index)}. {option.optionText}
                     </Label>
                   </div>
@@ -245,9 +296,11 @@ export default function TakeExam() {
               <Label htmlFor="textAnswer">Su respuesta:</Label>
               <Textarea
                 id="textAnswer"
-                value={answers[currentQuestion.id]?.textAnswer || ''}
-                onChange={(e) =>
-                  handleAnswerChange(currentQuestion.id, { textAnswer: e.target.value })
+                value={answers[currentQuestion.id]?.textAnswer || ""}
+                onChange={e =>
+                  handleAnswerChange(currentQuestion.id, {
+                    textAnswer: e.target.value,
+                  })
                 }
                 placeholder="Escriba su respuesta aquí"
                 rows={5}
@@ -262,7 +315,7 @@ export default function TakeExam() {
       <div className="flex justify-between items-center">
         <Button
           variant="outline"
-          onClick={() => setCurrentQuestionIndex((prev) => Math.max(0, prev - 1))}
+          onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
           disabled={currentQuestionIndex === 0}
         >
           Anterior
@@ -275,10 +328,10 @@ export default function TakeExam() {
               onClick={() => setCurrentQuestionIndex(index)}
               className={`w-10 h-10 rounded-lg border ${
                 index === currentQuestionIndex
-                  ? 'bg-primary text-primary-foreground'
+                  ? "bg-primary text-primary-foreground"
                   : answers[assessment.questions[index].id]
-                  ? 'bg-green-100 border-green-500'
-                  : 'bg-background'
+                    ? "bg-green-100 border-green-500"
+                    : "bg-background"
               }`}
             >
               {index + 1}
@@ -287,7 +340,7 @@ export default function TakeExam() {
         </div>
 
         {currentQuestionIndex < assessment.questions.length - 1 ? (
-          <Button onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}>
+          <Button onClick={() => setCurrentQuestionIndex(prev => prev + 1)}>
             Siguiente
           </Button>
         ) : (
@@ -297,7 +350,9 @@ export default function TakeExam() {
             className="bg-green-600 hover:bg-green-700"
           >
             <CheckCircle className="mr-2 h-4 w-4" />
-            {isSubmitting || submitAnswersMutation.isPending ? 'Enviando...' : 'Finalizar Examen'}
+            {isSubmitting || submitAnswersMutation.isPending
+              ? "Enviando..."
+              : "Finalizar Examen"}
           </Button>
         )}
       </div>
@@ -307,7 +362,8 @@ export default function TakeExam() {
         <Alert className="mt-6">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Tiene {assessment.questions.length - Object.keys(answers).length} pregunta(s) sin responder
+            Tiene {assessment.questions.length - Object.keys(answers).length}{" "}
+            pregunta(s) sin responder
           </AlertDescription>
         </Alert>
       )}

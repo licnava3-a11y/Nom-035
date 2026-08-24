@@ -37,7 +37,11 @@ export type PsychosocialRiskReport = {
   executiveSummary: string;
   overallOrganizationRisk: "low" | "medium" | "high" | "critical";
   criticalDepartments: string[];
-  topRiskFactors: Array<{ factor: string; frequency: number; severity: string }>;
+  topRiskFactors: Array<{
+    factor: string;
+    frequency: number;
+    severity: string;
+  }>;
   immediateActions: string[];
   shortTermActions: string[];
   longTermActions: string[];
@@ -70,7 +74,11 @@ export type InterventionPlan = {
 export async function analyzeSurveyResponse(
   responseText: string,
   questionContext?: string,
-  employeeContext?: { department?: string; position?: string; yearsInCompany?: number }
+  employeeContext?: {
+    department?: string;
+    position?: string;
+    yearsInCompany?: number;
+  }
 ): Promise<SentimentResult> {
   const contextInfo = employeeContext
     ? `\n**Contexto del empleado:** Departamento: ${employeeContext.department || "No especificado"}, Puesto: ${employeeContext.position || "No especificado"}, Antigüedad: ${employeeContext.yearsInCompany || "No especificada"} años`
@@ -102,12 +110,14 @@ Evalúa el nivel de riesgo psicosocial y proporciona recomendaciones específica
             sentiment: {
               type: "string",
               enum: ["positive", "neutral", "negative", "critical"],
-              description: "Tono emocional: positive=satisfacción, neutral=indiferente, negative=insatisfacción, critical=alerta roja",
+              description:
+                "Tono emocional: positive=satisfacción, neutral=indiferente, negative=insatisfacción, critical=alerta roja",
             },
             riskLevel: {
               type: "string",
               enum: ["low", "medium", "high", "critical"],
-              description: "Nivel de riesgo psicosocial NOM-035: low=sin riesgo, medium=seguimiento, high=intervención, critical=atención inmediata",
+              description:
+                "Nivel de riesgo psicosocial NOM-035: low=sin riesgo, medium=seguimiento, high=intervención, critical=atención inmediata",
             },
             confidence: {
               type: "number",
@@ -116,12 +126,14 @@ Evalúa el nivel de riesgo psicosocial y proporciona recomendaciones específica
             keywords: {
               type: "array",
               items: { type: "string" },
-              description: "Palabras o frases clave identificadas en la respuesta",
+              description:
+                "Palabras o frases clave identificadas en la respuesta",
             },
             riskIndicators: {
               type: "array",
               items: { type: "string" },
-              description: "Factores de riesgo NOM-035 detectados (burnout, acoso, estrés_cronico, violencia, carga_excesiva, hostigamiento, discriminacion, jornada_extendida, conflicto_trabajo_familia, liderazgo_negativo)",
+              description:
+                "Factores de riesgo NOM-035 detectados (burnout, acoso, estrés_cronico, violencia, carga_excesiva, hostigamiento, discriminacion, jornada_extendida, conflicto_trabajo_familia, liderazgo_negativo)",
             },
             summary: {
               type: "string",
@@ -129,10 +141,19 @@ Evalúa el nivel de riesgo psicosocial y proporciona recomendaciones específica
             },
             recommendations: {
               type: "string",
-              description: "Recomendaciones concretas para el comité NOM-035 en máximo 300 caracteres",
+              description:
+                "Recomendaciones concretas para el comité NOM-035 en máximo 300 caracteres",
             },
           },
-          required: ["sentiment", "riskLevel", "confidence", "keywords", "riskIndicators", "summary", "recommendations"],
+          required: [
+            "sentiment",
+            "riskLevel",
+            "confidence",
+            "keywords",
+            "riskIndicators",
+            "summary",
+            "recommendations",
+          ],
           additionalProperties: false,
         },
       },
@@ -174,7 +195,9 @@ export async function analyzeDepartmentRisk(
       primaryRiskFactors: [],
       trendDirection: "stable",
       urgentActions: [],
-      preventiveActions: ["Continuar con el monitoreo periódico de clima laboral"],
+      preventiveActions: [
+        "Continuar con el monitoreo periódico de clima laboral",
+      ],
       estimatedImpact: "Sin datos suficientes para análisis",
       priorityScore: 0,
     };
@@ -189,7 +212,7 @@ export async function analyzeDepartmentRisk(
     {} as Record<string, number>
   );
 
-  const allIndicators = sentimentData.flatMap((d) => d.riskIndicators);
+  const allIndicators = sentimentData.flatMap(d => d.riskIndicators);
   const indicatorFrequency = allIndicators.reduce(
     (acc, ind) => {
       acc[ind] = (acc[ind] || 0) + 1;
@@ -207,8 +230,12 @@ export async function analyzeDepartmentRisk(
   const midpoint = Math.floor(sentimentData.length / 2);
   const firstHalf = sentimentData.slice(0, midpoint);
   const secondHalf = sentimentData.slice(midpoint);
-  const firstHalfCritical = firstHalf.filter((d) => d.riskLevel === "critical" || d.riskLevel === "high").length;
-  const secondHalfCritical = secondHalf.filter((d) => d.riskLevel === "critical" || d.riskLevel === "high").length;
+  const firstHalfCritical = firstHalf.filter(
+    d => d.riskLevel === "critical" || d.riskLevel === "high"
+  ).length;
+  const secondHalfCritical = secondHalf.filter(
+    d => d.riskLevel === "critical" || d.riskLevel === "high"
+  ).length;
 
   const response = await invokeLLM({
     messages: [
@@ -252,15 +279,30 @@ Proporciona un análisis profundo con acciones urgentes y preventivas específic
           type: "object",
           properties: {
             departmentName: { type: "string" },
-            overallRiskLevel: { type: "string", enum: ["low", "medium", "high", "critical"] },
+            overallRiskLevel: {
+              type: "string",
+              enum: ["low", "medium", "high", "critical"],
+            },
             primaryRiskFactors: { type: "array", items: { type: "string" } },
-            trendDirection: { type: "string", enum: ["improving", "stable", "worsening"] },
+            trendDirection: {
+              type: "string",
+              enum: ["improving", "stable", "worsening"],
+            },
             urgentActions: { type: "array", items: { type: "string" } },
             preventiveActions: { type: "array", items: { type: "string" } },
             estimatedImpact: { type: "string" },
             priorityScore: { type: "number" },
           },
-          required: ["departmentName", "overallRiskLevel", "primaryRiskFactors", "trendDirection", "urgentActions", "preventiveActions", "estimatedImpact", "priorityScore"],
+          required: [
+            "departmentName",
+            "overallRiskLevel",
+            "primaryRiskFactors",
+            "trendDirection",
+            "urgentActions",
+            "preventiveActions",
+            "estimatedImpact",
+            "priorityScore",
+          ],
           additionalProperties: false,
         },
       },
@@ -330,7 +372,7 @@ export async function generateOrganizationalRiskReport(orgData: {
 - Alto: ${orgData.riskStats.high}
 - Crítico: ${orgData.riskStats.critical}
 
-**Top indicadores de riesgo:** ${orgData.topRiskIndicators.map((r) => `${r.indicator} (${r.count})`).join(", ")}
+**Top indicadores de riesgo:** ${orgData.topRiskIndicators.map(r => `${r.indicator} (${r.count})`).join(", ")}
 
 **Departamentos en riesgo:** ${orgData.departmentsAtRisk.join(", ") || "Ninguno identificado"}
 
@@ -349,8 +391,14 @@ Genera un reporte ejecutivo completo con resumen, acciones inmediatas, a corto y
         schema: {
           type: "object",
           properties: {
-            executiveSummary: { type: "string", description: "Resumen ejecutivo de 2-3 párrafos" },
-            overallOrganizationRisk: { type: "string", enum: ["low", "medium", "high", "critical"] },
+            executiveSummary: {
+              type: "string",
+              description: "Resumen ejecutivo de 2-3 párrafos",
+            },
+            overallOrganizationRisk: {
+              type: "string",
+              enum: ["low", "medium", "high", "critical"],
+            },
             criticalDepartments: { type: "array", items: { type: "string" } },
             topRiskFactors: {
               type: "array",
@@ -365,13 +413,44 @@ Genera un reporte ejecutivo completo con resumen, acciones inmediatas, a corto y
                 additionalProperties: false,
               },
             },
-            immediateActions: { type: "array", items: { type: "string" }, description: "Acciones a implementar en los próximos 7 días" },
-            shortTermActions: { type: "array", items: { type: "string" }, description: "Acciones a implementar en los próximos 30-90 días" },
-            longTermActions: { type: "array", items: { type: "string" }, description: "Acciones estratégicas a 6-12 meses" },
-            complianceStatus: { type: "string", description: "Estado de cumplimiento NOM-035 y brechas identificadas" },
-            nom035Recommendations: { type: "array", items: { type: "string" }, description: "Recomendaciones específicas de cumplimiento NOM-035-STPS-2018" },
+            immediateActions: {
+              type: "array",
+              items: { type: "string" },
+              description: "Acciones a implementar en los próximos 7 días",
+            },
+            shortTermActions: {
+              type: "array",
+              items: { type: "string" },
+              description: "Acciones a implementar en los próximos 30-90 días",
+            },
+            longTermActions: {
+              type: "array",
+              items: { type: "string" },
+              description: "Acciones estratégicas a 6-12 meses",
+            },
+            complianceStatus: {
+              type: "string",
+              description:
+                "Estado de cumplimiento NOM-035 y brechas identificadas",
+            },
+            nom035Recommendations: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Recomendaciones específicas de cumplimiento NOM-035-STPS-2018",
+            },
           },
-          required: ["executiveSummary", "overallOrganizationRisk", "criticalDepartments", "topRiskFactors", "immediateActions", "shortTermActions", "longTermActions", "complianceStatus", "nom035Recommendations"],
+          required: [
+            "executiveSummary",
+            "overallOrganizationRisk",
+            "criticalDepartments",
+            "topRiskFactors",
+            "immediateActions",
+            "shortTermActions",
+            "longTermActions",
+            "complianceStatus",
+            "nom035Recommendations",
+          ],
           additionalProperties: false,
         },
       },
@@ -442,7 +521,13 @@ El plan debe ser práctico, con actividades concretas, responsables definidos y 
                   timeline: { type: "string" },
                   expectedOutcome: { type: "string" },
                 },
-                required: ["name", "description", "responsible", "timeline", "expectedOutcome"],
+                required: [
+                  "name",
+                  "description",
+                  "responsible",
+                  "timeline",
+                  "expectedOutcome",
+                ],
                 additionalProperties: false,
               },
             },
@@ -450,7 +535,15 @@ El plan debe ser práctico, con actividades concretas, responsables definidos y 
             estimatedDuration: { type: "string" },
             resources: { type: "array", items: { type: "string" } },
           },
-          required: ["title", "objective", "targetGroup", "activities", "successIndicators", "estimatedDuration", "resources"],
+          required: [
+            "title",
+            "objective",
+            "targetGroup",
+            "activities",
+            "successIndicators",
+            "estimatedDuration",
+            "resources",
+          ],
           additionalProperties: false,
         },
       },

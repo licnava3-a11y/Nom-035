@@ -18,7 +18,12 @@ export function useCSRFToken() {
   const [error, setError] = useState<string | null>(null);
 
   // Obtener token CSRF del servidor
-  const { data, isLoading: queryLoading, error: queryError, refetch } = trpc.auth.getCSRFToken.useQuery(undefined, {
+  const {
+    data,
+    isLoading: queryLoading,
+    error: queryError,
+    refetch,
+  } = trpc.auth.getCSRFToken.useQuery(undefined, {
     // Renovar token cada 50 minutos (antes de que expire en 1 hora)
     refetchInterval: 50 * 60 * 1000,
     // No refetch automático en focus/mount para evitar requests innecesarios
@@ -57,7 +62,9 @@ export function useCSRFToken() {
         setCSRFData(result.data);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al renovar token CSRF");
+      setError(
+        err instanceof Error ? err.message : "Error al renovar token CSRF"
+      );
     } finally {
       setIsLoading(false);
     }

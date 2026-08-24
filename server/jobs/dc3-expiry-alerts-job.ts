@@ -19,23 +19,38 @@ export async function runDc3ExpiryAlertsJob(): Promise<{
   alertsSent: number;
   errors: string[];
 }> {
-  console.log("[DC3 Expiry Alerts Job] Iniciando verificación de constancias próximas a vencer...");
+  console.log(
+    "[DC3 Expiry Alerts Job] Iniciando verificación de constancias próximas a vencer..."
+  );
 
   const errors: string[] = [];
 
   try {
     const db = await getDb();
     if (!db) {
-      return { success: false, checked: 0, alertsSent: 0, errors: ["Base de datos no disponible"] };
+      return {
+        success: false,
+        checked: 0,
+        alertsSent: 0,
+        errors: ["Base de datos no disponible"],
+      };
     }
 
     // Obtener email del responsable de capacitación desde systemSettings
     const [settings] = await db.select().from(systemSettings).limit(1);
-    const trainingEmail = (settings as any)?.trainingManagerEmail ?? (settings as any)?.hrEmail;
+    const trainingEmail =
+      (settings as any)?.trainingManagerEmail ?? (settings as any)?.hrEmail;
 
     if (!trainingEmail) {
-      console.warn("[DC3 Expiry Alerts Job] No hay email de responsable de capacitación configurado.");
-      return { success: false, checked: 0, alertsSent: 0, errors: ["Email de responsable de capacitación no configurado"] };
+      console.warn(
+        "[DC3 Expiry Alerts Job] No hay email de responsable de capacitación configurado."
+      );
+      return {
+        success: false,
+        checked: 0,
+        alertsSent: 0,
+        errors: ["Email de responsable de capacitación no configurado"],
+      };
     }
 
     const now = new Date();
@@ -60,7 +75,9 @@ export async function runDc3ExpiryAlertsJob(): Promise<{
         )
       );
 
-    console.log(`[DC3 Expiry Alerts Job] Constancias próximas a vencer: ${expiringRecords.length}`);
+    console.log(
+      `[DC3 Expiry Alerts Job] Constancias próximas a vencer: ${expiringRecords.length}`
+    );
 
     if (expiringRecords.length === 0) {
       return { success: true, checked: 0, alertsSent: 0, errors: [] };
@@ -78,11 +95,13 @@ export async function runDc3ExpiryAlertsJob(): Promise<{
       daysRemaining: number;
     };
 
-    const items: ExpiringItem[] = expiringRecords.map((r) => {
+    const items: ExpiringItem[] = expiringRecords.map(r => {
       // updatedAt es el proxy de la fecha de emisión (cuando status cambió a issued)
       const issuedAt = new Date(r.updatedAt);
       const expiresAt = new Date(issuedAt.getTime() + TWO_YEARS_MS);
-      const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+      const daysRemaining = Math.ceil(
+        (expiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)
+      );
       return {
         folio: r.folioNumber ?? r.id.toString(),
         workerName: r.workerName ?? "—",
@@ -101,7 +120,7 @@ export async function runDc3ExpiryAlertsJob(): Promise<{
     // Construir correo HTML
     const tableRows = items
       .map(
-        (item) => `
+        item => `
       <tr style="border-bottom:1px solid #e5e7eb;">
         <td style="padding:8px 12px;font-weight:600;color:#1e3a5f;">${item.folio}</td>
         <td style="padding:8px 12px;">${item.workerName}</td>
@@ -121,8 +140,10 @@ export async function runDc3ExpiryAlertsJob(): Promise<{
       )
       .join("");
 
-    const urgentCount = items.filter((i) => i.daysRemaining <= 7).length;
-    const warningCount = items.filter((i) => i.daysRemaining > 7 && i.daysRemaining <= 15).length;
+    const urgentCount = items.filter(i => i.daysRemaining <= 7).length;
+    const warningCount = items.filter(
+      i => i.daysRemaining > 7 && i.daysRemaining <= 15
+    ).length;
 
     const htmlBody = `
 <!DOCTYPE html>
@@ -193,9 +214,15 @@ export async function runDc3ExpiryAlertsJob(): Promise<{
       content: `Se detectaron ${items.length} constancias DC-3 que vencen en los próximos 30 días. ${urgentCount > 0 ? `${urgentCount} vencen en 7 días o menos.` : ""} Revisa el módulo DC-3 para gestionar las renovaciones.`,
     });
 
-    console.log(`[DC3 Expiry Alerts Job] Alerta enviada a ${trainingEmail} con ${items.length} registros.`);
-    return { success: true, checked: expiringRecords.length, alertsSent: 1, errors };
-
+    console.log(
+      `[DC3 Expiry Alerts Job] Alerta enviada a ${trainingEmail} con ${items.length} registros.`
+    );
+    return {
+      success: true,
+      checked: expiringRecords.length,
+      alertsSent: 1,
+      errors,
+    };
   } catch (err: any) {
     const msg = err?.message ?? String(err);
     console.error("[DC3 Expiry Alerts Job] Error:", msg);

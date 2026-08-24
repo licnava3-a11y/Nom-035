@@ -17,25 +17,37 @@
 **Archivo modificado**: `server/_core/index.ts`
 
 **Cambios**:
+
 - Agregado logging al inicio del servidor para mostrar valor de `TEST_MODE`
 - Logging detallado cuando endpoints de testing se registran
 - Logging de advertencia cuando `TEST_MODE` NO está activado
 
 **Código agregado** (líneas 106-120):
-```typescript
-console.log('[SERVER INIT] TEST_MODE environment variable:', process.env.TEST_MODE);
-console.log('[SERVER INIT] All environment variables:', Object.keys(process.env).filter(k => k.includes('TEST')));
 
-if (process.env.TEST_MODE === 'true') {
-  console.log('[TEST MODE] ✅ Test authentication endpoints ENABLED');
-  console.log('[TEST MODE] Registering POST /api/test/auth/token');
-  console.log('[TEST MODE] Registering POST /api/test/auth/logout');
-  app.post('/api/test/auth/token', createTestAuthEndpoint());
-  app.post('/api/test/auth/logout', createTestLogoutEndpoint());
+```typescript
+console.log(
+  "[SERVER INIT] TEST_MODE environment variable:",
+  process.env.TEST_MODE
+);
+console.log(
+  "[SERVER INIT] All environment variables:",
+  Object.keys(process.env).filter(k => k.includes("TEST"))
+);
+
+if (process.env.TEST_MODE === "true") {
+  console.log("[TEST MODE] ✅ Test authentication endpoints ENABLED");
+  console.log("[TEST MODE] Registering POST /api/test/auth/token");
+  console.log("[TEST MODE] Registering POST /api/test/auth/logout");
+  app.post("/api/test/auth/token", createTestAuthEndpoint());
+  app.post("/api/test/auth/logout", createTestLogoutEndpoint());
   app.use(testAuthBypass);
-  console.log('[TEST MODE] Test auth bypass middleware applied');
+  console.log("[TEST MODE] Test auth bypass middleware applied");
 } else {
-  console.log('[SERVER INIT] ⚠️ TEST_MODE is NOT enabled (value:', process.env.TEST_MODE, ')');
+  console.log(
+    "[SERVER INIT] ⚠️ TEST_MODE is NOT enabled (value:",
+    process.env.TEST_MODE,
+    ")"
+  );
 }
 ```
 
@@ -46,6 +58,7 @@ if (process.env.TEST_MODE === 'true') {
 **Archivo modificado**: `playwright.config.ts`
 
 **Cambio** (línea 121):
+
 ```typescript
 // Antes:
 reuseExistingServer: !process.env.CI,
@@ -67,17 +80,23 @@ reuseExistingServer: false, // Deshabilitado para forzar TEST_MODE=true
 **Solución**: Usar `context.request.post()` para que las cookies se compartan correctamente.
 
 **Cambios clave**:
+
 ```typescript
 // Antes:
-const response = await page.request.post('http://localhost:3000/api/test/auth/token');
+const response = await page.request.post(
+  "http://localhost:3000/api/test/auth/token"
+);
 
 // Después:
-await page.goto('/'); // Navegar primero para establecer dominio
-const response = await context.request.post('http://localhost:3000/api/test/auth/token', {
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+await page.goto("/"); // Navegar primero para establecer dominio
+const response = await context.request.post(
+  "http://localhost:3000/api/test/auth/token",
+  {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }
+);
 await page.reload(); // Recargar para que la app detecte la nueva sesión
 ```
 
@@ -88,11 +107,13 @@ await page.reload(); // Recargar para que la app detecte la nueva sesión
 **Resultado**: ✅ **Endpoint funciona correctamente**
 
 **Evidencia del log del test**:
+
 ```
 [Test Auth] Authenticated as: Usuario de Prueba E2E
 ```
 
 Esto confirma que:
+
 - El endpoint `/api/test/auth/token` devuelve JSON (no HTML)
 - La autenticación se completa exitosamente
 - El usuario de prueba se crea correctamente
@@ -104,6 +125,7 @@ Esto confirma que:
 ### Usuario Autenticado No Aparece en la UI
 
 **Síntoma**: El test falla con:
+
 ```
 Error: expect(locator).toBeVisible() failed
 Locator: locator('text=Usuario de Prueba E2E')
@@ -112,17 +134,20 @@ Timeout: 10000ms
 ```
 
 **Diagnóstico**:
+
 - Backend: ✅ Autenticación exitosa
 - Cookie: ✅ Se establece correctamente
 - Frontend: ❌ No muestra el usuario autenticado
 
 **Posibles causas**:
+
 1. La aplicación React no detecta la cookie de sesión después del reload
 2. El componente de usuario no se renderiza en la página de inicio
 3. El nombre del usuario no coincide exactamente con el texto buscado
 4. La aplicación requiere un request adicional para obtener datos del usuario
 
 **Próximos pasos para resolver**:
+
 1. Verificar qué componente muestra el nombre del usuario en la UI
 2. Agregar logging en el frontend para ver si detecta la sesión
 3. Revisar el flujo de autenticación en el cliente (useAuth hook)
@@ -191,7 +216,7 @@ Timeout: 10000ms
 
 ## 📝 Archivos Modificados en esta Sesión
 
-1. **server/_core/index.ts** - Logging detallado para TEST_MODE
+1. **server/\_core/index.ts** - Logging detallado para TEST_MODE
 2. **playwright.config.ts** - Deshabilitada reutilización de servidor
 3. **tests/fixtures/auth.ts** - Corrección de manejo de cookies
 4. **todo.md** - Actualizado con tareas de sesión 6

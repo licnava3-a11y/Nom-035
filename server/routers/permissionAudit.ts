@@ -20,7 +20,13 @@ export const permissionAuditRouter = router({
     .input(
       z.object({
         userId: z.number().optional(),
-        changeType: z.enum(["role_change", "custom_permission_update", "custom_permission_reset"]).optional(),
+        changeType: z
+          .enum([
+            "role_change",
+            "custom_permission_update",
+            "custom_permission_reset",
+          ])
+          .optional(),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
         page: z.number().default(1),
@@ -31,14 +37,23 @@ export const permissionAuditRouter = router({
       const { userId, changeType, startDate, endDate, page, limit } = input;
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Build filters
       const filters = [];
       if (userId) filters.push(eq(permissionChangeHistory.userId, userId));
-      if (changeType) filters.push(eq(permissionChangeHistory.changeType, changeType));
-      if (startDate) filters.push(gte(permissionChangeHistory.createdAt, new Date(startDate)));
-      if (endDate) filters.push(lte(permissionChangeHistory.createdAt, new Date(endDate)));
+      if (changeType)
+        filters.push(eq(permissionChangeHistory.changeType, changeType));
+      if (startDate)
+        filters.push(
+          gte(permissionChangeHistory.createdAt, new Date(startDate))
+        );
+      if (endDate)
+        filters.push(lte(permissionChangeHistory.createdAt, new Date(endDate)));
 
       const whereClause = filters.length > 0 ? and(...filters) : undefined;
 
@@ -94,7 +109,11 @@ export const permissionAuditRouter = router({
     .input(z.object({}).optional()) // Validación vacía para consistencia
     .query(async () => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const stats = await db
         .select({
@@ -115,7 +134,11 @@ export const permissionAuditRouter = router({
     .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const recentChanges = await db
         .select({
@@ -155,7 +178,11 @@ export const permissionAuditRouter = router({
     .query(async ({ input }) => {
       const { months } = input;
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Calcular fecha de inicio (hace N meses)
       const startDate = new Date();
@@ -170,8 +197,13 @@ export const permissionAuditRouter = router({
         })
         .from(permissionChangeHistory)
         .where(gte(permissionChangeHistory.createdAt, startDate))
-        .groupBy(sql`DATE_FORMAT(${permissionChangeHistory.createdAt}, '%Y-%m')`, permissionChangeHistory.changeType)
-        .orderBy(sql`DATE_FORMAT(${permissionChangeHistory.createdAt}, '%Y-%m')`);
+        .groupBy(
+          sql`DATE_FORMAT(${permissionChangeHistory.createdAt}, '%Y-%m')`,
+          permissionChangeHistory.changeType
+        )
+        .orderBy(
+          sql`DATE_FORMAT(${permissionChangeHistory.createdAt}, '%Y-%m')`
+        );
 
       return trends;
     }),
@@ -184,7 +216,11 @@ export const permissionAuditRouter = router({
     .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Cambios del mes actual
       const currentMonth = new Date();
@@ -198,23 +234,32 @@ export const permissionAuditRouter = router({
       const [currentMonthData] = await db
         .select({ count: sql<number>`count(*)` })
         .from(permissionChangeHistory)
-        .where(and(
-          gte(permissionChangeHistory.createdAt, currentMonth),
-          eq(permissionChangeHistory.changeType, "role_change")
-        ));
+        .where(
+          and(
+            gte(permissionChangeHistory.createdAt, currentMonth),
+            eq(permissionChangeHistory.changeType, "role_change")
+          )
+        );
 
       const [previousMonthData] = await db
         .select({ count: sql<number>`count(*)` })
         .from(permissionChangeHistory)
-        .where(and(
-          gte(permissionChangeHistory.createdAt, previousMonth),
-          lte(permissionChangeHistory.createdAt, currentMonth),
-          eq(permissionChangeHistory.changeType, "role_change")
-        ));
+        .where(
+          and(
+            gte(permissionChangeHistory.createdAt, previousMonth),
+            lte(permissionChangeHistory.createdAt, currentMonth),
+            eq(permissionChangeHistory.changeType, "role_change")
+          )
+        );
 
       const currentCount = Number(currentMonthData?.count || 0);
       const previousCount = Number(previousMonthData?.count || 0);
-      const trend = currentCount > previousCount ? "up" : currentCount < previousCount ? "down" : "stable";
+      const trend =
+        currentCount > previousCount
+          ? "up"
+          : currentCount < previousCount
+            ? "down"
+            : "stable";
 
       return { currentCount, previousCount, trend };
     }),
@@ -227,7 +272,11 @@ export const permissionAuditRouter = router({
     .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [{ count }] = await db
         .select({ count: sql<number>`count(*)` })
@@ -245,7 +294,11 @@ export const permissionAuditRouter = router({
     .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Últimos 30 días
       const thirtyDaysAgo = new Date();
@@ -264,7 +317,11 @@ export const permissionAuditRouter = router({
           sql`${permissionChangeHistory.changedBy} = admin_user.id`
         )
         .where(gte(permissionChangeHistory.createdAt, thirtyDaysAgo))
-        .groupBy(permissionChangeHistory.changedBy, sql`admin_user.name`, sql`admin_user.email`)
+        .groupBy(
+          permissionChangeHistory.changedBy,
+          sql`admin_user.name`,
+          sql`admin_user.email`
+        )
         .orderBy(desc(sql`count(*)`))
         .limit(5);
 
@@ -279,7 +336,11 @@ export const permissionAuditRouter = router({
     .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Últimas 24 horas
       const twentyFourHoursAgo = new Date();

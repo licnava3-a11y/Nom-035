@@ -5,7 +5,12 @@
 
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { cases, departments, postCaseSurveys, surveys } from "../../drizzle/schema";
+import {
+  cases,
+  departments,
+  postCaseSurveys,
+  surveys,
+} from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, or, isNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -17,14 +22,24 @@ export const alertsDashboardRouter = router({
   getConsolidatedAlerts: protectedProcedure
     .input(
       z.object({
-        category: z.enum(["all", "departmental", "survey", "case"]).default("all"),
-        priority: z.enum(["all", "low", "medium", "high", "critical"]).default("all"),
-        status: z.enum(["all", "active", "resolved", "silenced"]).default("active"),
+        category: z
+          .enum(["all", "departmental", "survey", "case"])
+          .default("all"),
+        priority: z
+          .enum(["all", "low", "medium", "high", "critical"])
+          .default("all"),
+        status: z
+          .enum(["all", "active", "resolved", "silenced"])
+          .default("active"),
       })
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const alerts: Array<{
         id: string;
@@ -44,7 +59,9 @@ export const alertsDashboardRouter = router({
       // 2. Alertas de Encuestas Post-Caso
       if (input.category === "all" || input.category === "survey") {
         const now = new Date();
-        const twoDaysFromNow = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+        const twoDaysFromNow = new Date(
+          now.getTime() + 2 * 24 * 60 * 60 * 1000
+        );
 
         const expiringSurveys = await db
           .select()
@@ -81,7 +98,8 @@ export const alertsDashboardRouter = router({
 
         const totalSurveys = Number(surveyStats?.total) || 0;
         const completedSurveys = Number(surveyStats?.completed) || 0;
-        const completionRate = totalSurveys > 0 ? (completedSurveys / totalSurveys) * 100 : 0;
+        const completionRate =
+          totalSurveys > 0 ? (completedSurveys / totalSurveys) * 100 : 0;
 
         if (totalSurveys > 10 && completionRate < 50) {
           alerts.push({
@@ -103,7 +121,13 @@ export const alertsDashboardRouter = router({
         const unassignedCritical = await db
           .select()
           .from(cases)
-          .where(and(sql`${cases.priority} = 'critical'`, isNull(cases.assignedTo), sql`${cases.status} = 'open'`));
+          .where(
+            and(
+              sql`${cases.priority} = 'critical'`,
+              isNull(cases.assignedTo),
+              sql`${cases.status} = 'open'`
+            )
+          );
 
         if (unassignedCritical.length > 0) {
           alerts.push({
@@ -151,25 +175,38 @@ export const alertsDashboardRouter = router({
       // Filtrar por prioridad
       let filteredAlerts = alerts;
       if (input.priority !== "all") {
-        filteredAlerts = alerts.filter((a: any) => a.priority === input.priority);
+        filteredAlerts = alerts.filter(
+          (a: any) => a.priority === input.priority
+        );
       }
 
       // Filtrar por estado
       if (input.status !== "all") {
-        filteredAlerts = filteredAlerts.filter((a: any) => a.status === input.status);
+        filteredAlerts = filteredAlerts.filter(
+          (a: any) => a.status === input.status
+        );
       }
 
       // Ordenar por prioridad (critical > high > medium > low)
       const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-      filteredAlerts.sort((a: any, b: any) => priorityOrder[(a.priority as keyof typeof priorityOrder)] - priorityOrder[(b.priority as keyof typeof priorityOrder)]);
+      filteredAlerts.sort(
+        (a: any, b: any) =>
+          priorityOrder[a.priority as keyof typeof priorityOrder] -
+          priorityOrder[b.priority as keyof typeof priorityOrder]
+      );
 
       return {
         alerts: filteredAlerts,
         total: filteredAlerts.length,
-        criticalCount: filteredAlerts.filter((a: any) => a.priority === "critical").length,
-        highCount: filteredAlerts.filter((a: any) => a.priority === "high").length,
-        mediumCount: filteredAlerts.filter((a: any) => a.priority === "medium").length,
-        lowCount: filteredAlerts.filter((a: any) => a.priority === "low").length,
+        criticalCount: filteredAlerts.filter(
+          (a: any) => a.priority === "critical"
+        ).length,
+        highCount: filteredAlerts.filter((a: any) => a.priority === "high")
+          .length,
+        mediumCount: filteredAlerts.filter((a: any) => a.priority === "medium")
+          .length,
+        lowCount: filteredAlerts.filter((a: any) => a.priority === "low")
+          .length,
       };
     }),
 
@@ -188,9 +225,15 @@ export const alertsDashboardRouter = router({
    * Silenciar alerta temporalmente
    */
   silenceAlert: protectedProcedure
-    .input(z.object({ alertId: z.string(), duration: z.number().min(1).max(168) })) // 1-168 horas
+    .input(
+      z.object({ alertId: z.string(), duration: z.number().min(1).max(168) })
+    ) // 1-168 horas
     .mutation(async ({ input }) => {
       // En producción, aquí se registraría en tabla de alertas silenciadas
-      return { success: true, alertId: input.alertId, silencedUntil: new Date(Date.now() + input.duration * 60 * 60 * 1000) };
+      return {
+        success: true,
+        alertId: input.alertId,
+        silencedUntil: new Date(Date.now() + input.duration * 60 * 60 * 1000),
+      };
     }),
 });

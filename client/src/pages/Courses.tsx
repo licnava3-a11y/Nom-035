@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -58,20 +65,24 @@ export default function Courses() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-      <Breadcrumb items={[
-        {
-                label: "Capacitación y Desarrollo",
-                href: "/"
-        },
-        {
-                label: "Cursos"
-        }
-]} />
+        <Breadcrumb
+          items={[
+            {
+              label: "Capacitación y Desarrollo",
+              href: "/",
+            },
+            {
+              label: "Cursos",
+            },
+          ]}
+        />
 
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Cursos</h1>
-            <p className="text-muted-foreground mt-2">Programas de capacitación NOM-035</p>
+            <p className="text-muted-foreground mt-2">
+              Programas de capacitación NOM-035
+            </p>
           </div>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -117,10 +128,15 @@ export default function Courses() {
       {courses && courses.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {courses.map((course: any) => (
-            <Card key={course.id} className="hover:shadow-lg transition-shadow flex flex-col">
+            <Card
+              key={course.id}
+              className="hover:shadow-lg transition-shadow flex flex-col"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-lg line-clamp-2">{course.title}</CardTitle>
+                  <CardTitle className="text-lg line-clamp-2">
+                    {course.title}
+                  </CardTitle>
                   <Badge className={getCategoryColor(course.category)}>
                     {getCategoryLabel(course.category)}
                   </Badge>
@@ -133,7 +149,9 @@ export default function Courses() {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    <span>{course.duration ? `${course.duration} min` : "Variable"}</span>
+                    <span>
+                      {course.duration ? `${course.duration} min` : "Variable"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <BookOpen className="h-4 w-4" />
@@ -165,7 +183,9 @@ export default function Courses() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No hay cursos disponibles</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              No hay cursos disponibles
+            </h3>
             <p className="text-sm text-muted-foreground text-center mb-4">
               Aún no se han publicado cursos de capacitación.
             </p>

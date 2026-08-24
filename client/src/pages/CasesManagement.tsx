@@ -4,12 +4,38 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Search, FileText, User, AlertCircle, CheckCircle, Clock, UserCheck, Eye, Sparkles, Save, RefreshCw, Download } from "lucide-react";
+import {
+  Plus,
+  Search,
+  FileText,
+  User,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  UserCheck,
+  Eye,
+  Sparkles,
+  Save,
+  RefreshCw,
+  Download,
+} from "lucide-react";
 import { DateRangeFilter, type DateRange } from "@/components/DateRangeFilter";
 import { startOfDay, endOfDay } from "date-fns";
 import { Pagination } from "@/components/Pagination";
@@ -19,8 +45,15 @@ import { CaseAIAssistant } from "@/components/CaseAIAssistant";
 import { Separator } from "@/components/ui/separator";
 
 // ─── Modal de Detalle de Caso ─────────────────────────────────────────────────
-function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => void }) {
-  const { data: caseData, isLoading } = trpc.casesManagement.getCaseById.useQuery({ id: caseId });
+function CaseDetailModal({
+  caseId,
+  onClose,
+}: {
+  caseId: number;
+  onClose: () => void;
+}) {
+  const { data: caseData, isLoading } =
+    trpc.casesManagement.getCaseById.useQuery({ id: caseId });
   const utils = trpc.useUtils();
 
   const [editFields, setEditFields] = useState<{
@@ -56,7 +89,8 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
         },
       });
     },
-    onError: (e) => toast.error("❌ Error al generar PDF: " + e.message, { duration: 5000 }),
+    onError: e =>
+      toast.error("❌ Error al generar PDF: " + e.message, { duration: 5000 }),
   });
 
   const updateCase = trpc.casesManagement.updateCase.useMutation({
@@ -68,7 +102,9 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
         resolution: "Resolución",
         status: "Estado",
       };
-      const changedLabels = Array.from(dirtyFields).map(f => fieldLabels[f] || f).join(", ");
+      const changedLabels = Array.from(dirtyFields)
+        .map(f => fieldLabels[f] || f)
+        .join(", ");
       toast.success(
         changedLabels
           ? `✅ Guardado: ${changedLabels}`
@@ -84,7 +120,8 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
       utils.casesManagement.getCasesStats.invalidate();
       setEditFields(null);
     },
-    onError: (e) => toast.error("❌ Error al guardar: " + e.message, { duration: 5000 }),
+    onError: e =>
+      toast.error("❌ Error al guardar: " + e.message, { duration: 5000 }),
   });
 
   const handleSave = () => {
@@ -102,7 +139,7 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
   };
 
   const setField = (key: keyof typeof fields, value: string) => {
-    setEditFields((prev) => ({
+    setEditFields(prev => ({
       ...(prev ?? {
         rootCause: caseData?.rootCause ?? "",
         actionPlan: caseData?.actionPlan ?? "",
@@ -112,36 +149,61 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
       [key]: value,
     }));
     // Marcar el campo como modificado
-    setDirtyFields((prev) => {
+    setDirtyFields(prev => {
       const next = new Set(prev);
-      const original = key === "rootCause" ? (caseData?.rootCause ?? "")
-        : key === "actionPlan" ? (caseData?.actionPlan ?? "")
-        : key === "resolution" ? (caseData?.resolution ?? "")
-        : (caseData?.status ?? "open");
-      if (value !== original) next.add(key); else next.delete(key);
+      const original =
+        key === "rootCause"
+          ? (caseData?.rootCause ?? "")
+          : key === "actionPlan"
+            ? (caseData?.actionPlan ?? "")
+            : key === "resolution"
+              ? (caseData?.resolution ?? "")
+              : (caseData?.status ?? "open");
+      if (value !== original) next.add(key);
+      else next.delete(key);
       return next;
     });
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "open": return "bg-blue-100 text-blue-800";
-      case "investigating": return "bg-purple-100 text-purple-800";
-      case "resolved": return "bg-green-100 text-green-800";
-      case "closed": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "open":
+        return "bg-blue-100 text-blue-800";
+      case "investigating":
+        return "bg-purple-100 text-purple-800";
+      case "resolved":
+        return "bg-green-100 text-green-800";
+      case "closed":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = { open: "Abierto", investigating: "Investigando", resolved: "Resuelto", closed: "Cerrado" };
+    const labels: Record<string, string> = {
+      open: "Abierto",
+      investigating: "Investigando",
+      resolved: "Resuelto",
+      closed: "Cerrado",
+    };
     return labels[status] || status;
   };
 
   // Helper: indicador de estado por campo
   const FieldStatusIndicator = ({ fieldKey }: { fieldKey: string }) => {
-    if (savedFields.has(fieldKey)) return <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Guardado</span>;
-    if (dirtyFields.has(fieldKey)) return <span className="text-xs text-amber-600 flex items-center gap-1"><RefreshCw className="h-3 w-3" /> Sin guardar</span>;
+    if (savedFields.has(fieldKey))
+      return (
+        <span className="text-xs text-green-600 flex items-center gap-1">
+          <CheckCircle className="h-3 w-3" /> Guardado
+        </span>
+      );
+    if (dirtyFields.has(fieldKey))
+      return (
+        <span className="text-xs text-amber-600 flex items-center gap-1">
+          <RefreshCw className="h-3 w-3" /> Sin guardar
+        </span>
+      );
     return null;
   };
 
@@ -149,30 +211,46 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
-        <span className="ml-3 text-sm text-muted-foreground">Cargando caso...</span>
+        <span className="ml-3 text-sm text-muted-foreground">
+          Cargando caso...
+        </span>
       </div>
     );
   }
 
-  if (!caseData) return <p className="text-center text-muted-foreground py-8">Caso no encontrado</p>;
+  if (!caseData)
+    return (
+      <p className="text-center text-muted-foreground py-8">
+        Caso no encontrado
+      </p>
+    );
 
   return (
     <div className="space-y-5">
       {/* Encabezado */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs text-muted-foreground font-mono">{caseData.caseNumber}</p>
-          <h3 className="font-semibold text-lg capitalize">{caseData.caseType} — {caseData.reporterName}</h3>
-          <p className="text-sm text-muted-foreground">{caseData.reporterEmail}</p>
+          <p className="text-xs text-muted-foreground font-mono">
+            {caseData.caseNumber}
+          </p>
+          <h3 className="font-semibold text-lg capitalize">
+            {caseData.caseType} — {caseData.reporterName}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {caseData.reporterEmail}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {hasPendingChanges && (
             <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 flex items-center gap-1">
               <RefreshCw className="h-3 w-3" />
-              {dirtyFields.size} campo{dirtyFields.size !== 1 ? "s" : ""} sin guardar
+              {dirtyFields.size} campo{dirtyFields.size !== 1 ? "s" : ""} sin
+              guardar
             </span>
           )}
-          <Badge className={getStatusColor(caseData.status)}>{getStatusLabel(caseData.status)}</Badge>
+          <Badge className={getStatusColor(caseData.status)}>
+            {getStatusLabel(caseData.status)}
+          </Badge>
         </div>
       </div>
 
@@ -191,7 +269,10 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
       {/* Causa Raíz — con IA */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="rootCause" className="flex items-center gap-2 text-sm font-semibold">
+          <Label
+            htmlFor="rootCause"
+            className="flex items-center gap-2 text-sm font-semibold"
+          >
             <Sparkles className="h-4 w-4 text-purple-500" />
             Causa Raíz
           </Label>
@@ -200,24 +281,33 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
         <Textarea
           id="rootCause"
           value={fields.rootCause}
-          onChange={(e) => setField("rootCause", e.target.value)}
+          onChange={e => setField("rootCause", e.target.value)}
           placeholder="Describe la causa raíz identificada del problema..."
           rows={3}
-          className={dirtyFields.has("rootCause") ? "border-amber-300 focus-visible:ring-amber-300" : savedFields.has("rootCause") ? "border-green-300" : ""}
+          className={
+            dirtyFields.has("rootCause")
+              ? "border-amber-300 focus-visible:ring-amber-300"
+              : savedFields.has("rootCause")
+                ? "border-green-300"
+                : ""
+          }
         />
         <CaseAIAssistant
           fieldType="rootCause"
           currentValue={fields.rootCause}
           caseType={caseData.caseType}
           context={caseData.description}
-          onApply={(text) => setField("rootCause", text)}
+          onApply={text => setField("rootCause", text)}
         />
       </div>
 
       {/* Plan de Acción — con IA */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="actionPlan" className="flex items-center gap-2 text-sm font-semibold">
+          <Label
+            htmlFor="actionPlan"
+            className="flex items-center gap-2 text-sm font-semibold"
+          >
             <Sparkles className="h-4 w-4 text-purple-500" />
             Plan de Acción Correctiva
           </Label>
@@ -226,24 +316,33 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
         <Textarea
           id="actionPlan"
           value={fields.actionPlan}
-          onChange={(e) => setField("actionPlan", e.target.value)}
+          onChange={e => setField("actionPlan", e.target.value)}
           placeholder="Describe las acciones correctivas y preventivas a implementar..."
           rows={3}
-          className={dirtyFields.has("actionPlan") ? "border-amber-300 focus-visible:ring-amber-300" : savedFields.has("actionPlan") ? "border-green-300" : ""}
+          className={
+            dirtyFields.has("actionPlan")
+              ? "border-amber-300 focus-visible:ring-amber-300"
+              : savedFields.has("actionPlan")
+                ? "border-green-300"
+                : ""
+          }
         />
         <CaseAIAssistant
           fieldType="actionPlan"
           currentValue={fields.actionPlan}
           caseType={caseData.caseType}
           context={`${caseData.description} Causa raíz: ${fields.rootCause}`}
-          onApply={(text) => setField("actionPlan", text)}
+          onApply={text => setField("actionPlan", text)}
         />
       </div>
 
       {/* Resolución — con IA */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="resolution" className="flex items-center gap-2 text-sm font-semibold">
+          <Label
+            htmlFor="resolution"
+            className="flex items-center gap-2 text-sm font-semibold"
+          >
             <Sparkles className="h-4 w-4 text-purple-500" />
             Resolución Final
           </Label>
@@ -252,17 +351,23 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
         <Textarea
           id="resolution"
           value={fields.resolution}
-          onChange={(e) => setField("resolution", e.target.value)}
+          onChange={e => setField("resolution", e.target.value)}
           placeholder="Describe la resolución y acciones tomadas para cerrar el caso..."
           rows={3}
-          className={dirtyFields.has("resolution") ? "border-amber-300 focus-visible:ring-amber-300" : savedFields.has("resolution") ? "border-green-300" : ""}
+          className={
+            dirtyFields.has("resolution")
+              ? "border-amber-300 focus-visible:ring-amber-300"
+              : savedFields.has("resolution")
+                ? "border-green-300"
+                : ""
+          }
         />
         <CaseAIAssistant
           fieldType="resolution"
           currentValue={fields.resolution}
           caseType={caseData.caseType}
           context={`${caseData.description} Plan de acción: ${fields.actionPlan}`}
-          onApply={(text) => setField("resolution", text)}
+          onApply={text => setField("resolution", text)}
         />
       </div>
 
@@ -272,8 +377,13 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
           <Label className="text-sm font-semibold">Estado del caso</Label>
           <FieldStatusIndicator fieldKey="status" />
         </div>
-        <Select value={fields.status} onValueChange={(v) => setField("status", v)}>
-          <SelectTrigger className={`w-48 ${dirtyFields.has("status") ? "border-amber-300" : ""}` }>
+        <Select
+          value={fields.status}
+          onValueChange={v => setField("status", v)}
+        >
+          <SelectTrigger
+            className={`w-48 ${dirtyFields.has("status") ? "border-amber-300" : ""}`}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -301,7 +411,9 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
           Exportar PDF
         </LoadingButton>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose}>Cerrar</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cerrar
+          </Button>
           <LoadingButton
             onClick={handleSave}
             loading={updateCase.isPending}
@@ -310,7 +422,9 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
             className={hasPendingChanges ? "" : "opacity-60"}
           >
             <Save className="h-4 w-4 mr-1" />
-            {hasPendingChanges ? `Guardar ${dirtyFields.size} cambio${dirtyFields.size !== 1 ? "s" : ""}` : "Sin cambios"}
+            {hasPendingChanges
+              ? `Guardar ${dirtyFields.size} cambio${dirtyFields.size !== 1 ? "s" : ""}`
+              : "Sin cambios"}
           </LoadingButton>
         </div>
       </div>
@@ -326,7 +440,7 @@ export default function CasesManagement() {
     departmentId: "",
     status: "",
     priority: "",
-    search: ""
+    search: "",
   });
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -339,26 +453,45 @@ export default function CasesManagement() {
     reporterEmail: "",
     reporterPhone: "",
     description: "",
-    reporterEmployeeId: ""
+    reporterEmployeeId: "",
   });
 
   const utils = trpc.useUtils();
 
   // Queries
-  const { data: casesData, isLoading } = trpc.casesPaginated.listPaginated.useQuery({
-    page,
-    pageSize,
-    status: filters.status && filters.status !== "all" ? filters.status as "open" | "investigating" | "resolved" | "closed" : undefined,
-    priority: filters.priority && filters.priority !== "all" ? filters.priority as "low" | "medium" | "high" | "critical" : undefined,
-    departmentId: filters.departmentId && filters.departmentId !== "all" ? parseInt(filters.departmentId) : undefined,
-    search: filters.search || undefined,
-    dateFrom: dateRange?.from ? startOfDay(dateRange.from).toISOString().split("T")[0] : undefined,
-    dateTo: dateRange?.to ? endOfDay(dateRange.to).toISOString().split("T")[0] : undefined,
-  });
+  const { data: casesData, isLoading } =
+    trpc.casesPaginated.listPaginated.useQuery({
+      page,
+      pageSize,
+      status:
+        filters.status && filters.status !== "all"
+          ? (filters.status as "open" | "investigating" | "resolved" | "closed")
+          : undefined,
+      priority:
+        filters.priority && filters.priority !== "all"
+          ? (filters.priority as "low" | "medium" | "high" | "critical")
+          : undefined,
+      departmentId:
+        filters.departmentId && filters.departmentId !== "all"
+          ? parseInt(filters.departmentId)
+          : undefined,
+      search: filters.search || undefined,
+      dateFrom: dateRange?.from
+        ? startOfDay(dateRange.from).toISOString().split("T")[0]
+        : undefined,
+      dateTo: dateRange?.to
+        ? endOfDay(dateRange.to).toISOString().split("T")[0]
+        : undefined,
+    });
 
-  const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
+  const { data: departments } = trpc.departments.list.useQuery({
+    page: 1,
+    pageSize: 100,
+  });
   const { data: stats } = trpc.casesManagement.getCasesStats.useQuery();
-  const { data: employeesRaw } = trpc.employees.list.useQuery({ isActive: true });
+  const { data: employeesRaw } = trpc.employees.list.useQuery({
+    isActive: true,
+  });
   const employeesData = { employees: employeesRaw?.employees ?? [] };
 
   // Mutations
@@ -366,11 +499,20 @@ export default function CasesManagement() {
     onSuccess: () => {
       toast.success("Caso creado exitosamente");
       setIsCreateDialogOpen(false);
-      setNewCase({ caseType: "mobbing", priority: "medium", departmentId: "", reporterName: "", reporterEmail: "", reporterPhone: "", description: "", reporterEmployeeId: "" });
+      setNewCase({
+        caseType: "mobbing",
+        priority: "medium",
+        departmentId: "",
+        reporterName: "",
+        reporterEmail: "",
+        reporterPhone: "",
+        description: "",
+        reporterEmployeeId: "",
+      });
       utils.casesManagement.listCases.invalidate();
       utils.casesManagement.getCasesStats.invalidate();
     },
-    onError: (error) => toast.error(`Error al crear caso: ${error.message}`)
+    onError: error => toast.error(`Error al crear caso: ${error.message}`),
   });
 
   const assignCase = trpc.casesManagement.assignCase.useMutation({
@@ -378,15 +520,23 @@ export default function CasesManagement() {
       toast.success("Caso asignado exitosamente");
       utils.casesManagement.listCases.invalidate();
     },
-    onError: (error) => toast.error(`Error al asignar caso: ${error.message}`)
+    onError: error => toast.error(`Error al asignar caso: ${error.message}`),
   });
 
   const handleCreateCase = () => {
-    if (!newCase.reporterName || !newCase.reporterEmail || !newCase.description || !newCase.departmentId) {
+    if (
+      !newCase.reporterName ||
+      !newCase.reporterEmail ||
+      !newCase.description ||
+      !newCase.departmentId
+    ) {
       toast.error("Por favor completa todos los campos obligatorios");
       return;
     }
-    createCase.mutate({ ...newCase, departmentId: parseInt(newCase.departmentId) });
+    createCase.mutate({
+      ...newCase,
+      departmentId: parseInt(newCase.departmentId),
+    });
   };
 
   const handleAssignCase = (caseId: number) => {
@@ -395,10 +545,19 @@ export default function CasesManagement() {
 
   const handleEmployeeSelect = (employeeId: string) => {
     if (employeeId === "manual" || !employeeId) {
-      setNewCase(prev => ({ ...prev, reporterEmployeeId: "", reporterName: "", reporterEmail: "", reporterPhone: "", departmentId: "" }));
+      setNewCase(prev => ({
+        ...prev,
+        reporterEmployeeId: "",
+        reporterName: "",
+        reporterEmail: "",
+        reporterPhone: "",
+        departmentId: "",
+      }));
       return;
     }
-    const employee = employeesData?.employees?.find((emp: any) => emp.id.toString() === employeeId);
+    const employee = employeesData?.employees?.find(
+      (emp: any) => emp.id.toString() === employeeId
+    );
     if (employee) {
       setNewCase(prev => ({
         ...prev,
@@ -406,7 +565,7 @@ export default function CasesManagement() {
         reporterName: `${employee.firstName} ${employee.lastName}`,
         reporterEmail: employee.email || "",
         reporterPhone: employee.phone || "",
-        departmentId: employee.departmentId?.toString() || prev.departmentId
+        departmentId: employee.departmentId?.toString() || prev.departmentId,
       }));
       toast.success("Datos del empleado prellenados automáticamente");
     }
@@ -414,31 +573,51 @@ export default function CasesManagement() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "critical": return "bg-red-100 text-red-800";
-      case "high": return "bg-orange-100 text-orange-800";
-      case "medium": return "bg-yellow-100 text-yellow-800";
-      case "low": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "critical":
+        return "bg-red-100 text-red-800";
+      case "high":
+        return "bg-orange-100 text-orange-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "open": return "bg-blue-100 text-blue-800";
-      case "investigating": return "bg-purple-100 text-purple-800";
-      case "resolved": return "bg-green-100 text-green-800";
-      case "closed": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "open":
+        return "bg-blue-100 text-blue-800";
+      case "investigating":
+        return "bg-purple-100 text-purple-800";
+      case "resolved":
+        return "bg-green-100 text-green-800";
+      case "closed":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = { open: "Abierto", investigating: "Investigando", resolved: "Resuelto", closed: "Cerrado" };
+    const labels: Record<string, string> = {
+      open: "Abierto",
+      investigating: "Investigando",
+      resolved: "Resuelto",
+      closed: "Cerrado",
+    };
     return labels[status] || status;
   };
 
   const getPriorityLabel = (priority: string) => {
-    const labels: Record<string, string> = { critical: "Crítica", high: "Alta", medium: "Media", low: "Baja" };
+    const labels: Record<string, string> = {
+      critical: "Crítica",
+      high: "Alta",
+      medium: "Media",
+      low: "Baja",
+    };
     return labels[priority] || priority;
   };
 
@@ -455,7 +634,10 @@ export default function CasesManagement() {
         {/* Modal Crear Caso */}
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" />Nuevo Caso</Button>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Caso
+            </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -465,8 +647,15 @@ export default function CasesManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Tipo de Caso *</Label>
-                  <Select value={newCase.caseType} onValueChange={(value: any) => setNewCase({ ...newCase, caseType: value })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={newCase.caseType}
+                    onValueChange={(value: any) =>
+                      setNewCase({ ...newCase, caseType: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="mobbing">Mobbing</SelectItem>
                       <SelectItem value="burnout">Burnout</SelectItem>
@@ -478,8 +667,15 @@ export default function CasesManagement() {
                 </div>
                 <div className="space-y-2">
                   <Label>Prioridad *</Label>
-                  <Select value={newCase.priority} onValueChange={(value: any) => setNewCase({ ...newCase, priority: value })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={newCase.priority}
+                    onValueChange={(value: any) =>
+                      setNewCase({ ...newCase, priority: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="critical">Crítica</SelectItem>
                       <SelectItem value="high">Alta</SelectItem>
@@ -492,12 +688,23 @@ export default function CasesManagement() {
 
               <div className="space-y-2">
                 <Label>Departamento *</Label>
-                <Select value={newCase.departmentId} onValueChange={(value) => setNewCase({ ...newCase, departmentId: value })}>
-                  <SelectTrigger><SelectValue placeholder="Selecciona un departamento" /></SelectTrigger>
+                <Select
+                  value={newCase.departmentId}
+                  onValueChange={value =>
+                    setNewCase({ ...newCase, departmentId: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un departamento" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {departments?.data?.map((dept: { id: number; name: string }) => (
-                      <SelectItem key={dept.id} value={dept.id.toString()}>{dept.name}</SelectItem>
-                    ))}
+                    {departments?.data?.map(
+                      (dept: { id: number; name: string }) => (
+                        <SelectItem key={dept.id} value={dept.id.toString()}>
+                          {dept.name}
+                        </SelectItem>
+                      )
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -510,8 +717,13 @@ export default function CasesManagement() {
                     Seleccionar Empleado (Prellenado Automático)
                   </div>
                 </Label>
-                <Select value={newCase.reporterEmployeeId} onValueChange={handleEmployeeSelect}>
-                  <SelectTrigger><SelectValue placeholder="Buscar empleado existente..." /></SelectTrigger>
+                <Select
+                  value={newCase.reporterEmployeeId}
+                  onValueChange={handleEmployeeSelect}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Buscar empleado existente..." />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="manual">— Captura manual —</SelectItem>
                     {employeesData?.employees?.map((emp: any) => (
@@ -521,30 +733,54 @@ export default function CasesManagement() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">Al seleccionar un empleado se prellenan nombre, email, teléfono y departamento</p>
+                <p className="text-xs text-muted-foreground">
+                  Al seleccionar un empleado se prellenan nombre, email,
+                  teléfono y departamento
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Nombre del Reportante *</Label>
-                  <Input value={newCase.reporterName} onChange={(e) => setNewCase({ ...newCase, reporterName: e.target.value })} placeholder="Juan Pérez" />
+                  <Input
+                    value={newCase.reporterName}
+                    onChange={e =>
+                      setNewCase({ ...newCase, reporterName: e.target.value })
+                    }
+                    placeholder="Juan Pérez"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Email *</Label>
-                  <Input type="email" value={newCase.reporterEmail} onChange={(e) => setNewCase({ ...newCase, reporterEmail: e.target.value })} placeholder="juan@empresa.com" />
+                  <Input
+                    type="email"
+                    value={newCase.reporterEmail}
+                    onChange={e =>
+                      setNewCase({ ...newCase, reporterEmail: e.target.value })
+                    }
+                    placeholder="juan@empresa.com"
+                  />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Teléfono</Label>
-                <Input value={newCase.reporterPhone} onChange={(e) => setNewCase({ ...newCase, reporterPhone: e.target.value })} placeholder="555-1234" />
+                <Input
+                  value={newCase.reporterPhone}
+                  onChange={e =>
+                    setNewCase({ ...newCase, reporterPhone: e.target.value })
+                  }
+                  placeholder="555-1234"
+                />
               </div>
 
               <div className="space-y-2">
                 <Label>Descripción *</Label>
                 <Textarea
                   value={newCase.description}
-                  onChange={(e) => setNewCase({ ...newCase, description: e.target.value })}
+                  onChange={e =>
+                    setNewCase({ ...newCase, description: e.target.value })
+                  }
                   placeholder="Describe el caso en detalle..."
                   rows={4}
                 />
@@ -552,13 +788,24 @@ export default function CasesManagement() {
                   fieldType="description"
                   currentValue={newCase.description}
                   caseType={newCase.caseType}
-                  onApply={(text) => setNewCase({ ...newCase, description: text })}
+                  onApply={text =>
+                    setNewCase({ ...newCase, description: text })
+                  }
                 />
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancelar</Button>
-                <LoadingButton onClick={handleCreateCase} loading={createCase.isPending} loadingText="Creando caso...">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <LoadingButton
+                  onClick={handleCreateCase}
+                  loading={createCase.isPending}
+                  loadingText="Creando caso..."
+                >
                   Crear Caso
                 </LoadingButton>
               </div>
@@ -567,7 +814,12 @@ export default function CasesManagement() {
         </Dialog>
 
         {/* Modal Detalle de Caso */}
-        <Dialog open={detailCaseId !== null} onOpenChange={(open) => { if (!open) setDetailCaseId(null); }}>
+        <Dialog
+          open={detailCaseId !== null}
+          onOpenChange={open => {
+            if (!open) setDetailCaseId(null);
+          }}
+        >
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -576,7 +828,10 @@ export default function CasesManagement() {
               </DialogTitle>
             </DialogHeader>
             {detailCaseId !== null && (
-              <CaseDetailModal caseId={detailCaseId} onClose={() => setDetailCaseId(null)} />
+              <CaseDetailModal
+                caseId={detailCaseId}
+                onClose={() => setDetailCaseId(null)}
+              />
             )}
           </DialogContent>
         </Dialog>
@@ -606,8 +861,12 @@ export default function CasesManagement() {
           <Card className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">En Investigación</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.investigating}</p>
+                <p className="text-sm text-muted-foreground">
+                  En Investigación
+                </p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {stats.investigating}
+                </p>
               </div>
               <Clock className="h-8 w-8 text-purple-600" />
             </div>
@@ -616,7 +875,9 @@ export default function CasesManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Resueltos</p>
-                <p className="text-2xl font-bold text-green-600">{stats.resolved}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {stats.resolved}
+                </p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
@@ -635,14 +896,23 @@ export default function CasesManagement() {
                 className="pl-9"
                 placeholder="Folio, nombre, descripción..."
                 value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                onChange={e =>
+                  setFilters({ ...filters, search: e.target.value })
+                }
               />
             </div>
           </div>
           <div className="w-40">
             <Label className="text-xs mb-1 block">Estado</Label>
-            <Select value={filters.status || "all"} onValueChange={(v) => setFilters({ ...filters, status: v === "all" ? "" : v })}>
-              <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
+            <Select
+              value={filters.status || "all"}
+              onValueChange={v =>
+                setFilters({ ...filters, status: v === "all" ? "" : v })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="open">Abierto</SelectItem>
@@ -654,8 +924,15 @@ export default function CasesManagement() {
           </div>
           <div className="w-40">
             <Label className="text-xs mb-1 block">Prioridad</Label>
-            <Select value={filters.priority || "all"} onValueChange={(v) => setFilters({ ...filters, priority: v === "all" ? "" : v })}>
-              <SelectTrigger><SelectValue placeholder="Todas" /></SelectTrigger>
+            <Select
+              value={filters.priority || "all"}
+              onValueChange={v =>
+                setFilters({ ...filters, priority: v === "all" ? "" : v })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 <SelectItem value="critical">Crítica</SelectItem>
@@ -667,13 +944,24 @@ export default function CasesManagement() {
           </div>
           <div className="w-48">
             <Label className="text-xs mb-1 block">Departamento</Label>
-            <Select value={filters.departmentId || "all"} onValueChange={(v) => setFilters({ ...filters, departmentId: v === "all" ? "" : v })}>
-              <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
+            <Select
+              value={filters.departmentId || "all"}
+              onValueChange={v =>
+                setFilters({ ...filters, departmentId: v === "all" ? "" : v })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                {departments?.data?.map((dept: { id: number; name: string }) => (
-                  <SelectItem key={dept.id} value={dept.id.toString()}>{dept.name}</SelectItem>
-                ))}
+                {departments?.data?.map(
+                  (dept: { id: number; name: string }) => (
+                    <SelectItem key={dept.id} value={dept.id.toString()}>
+                      {dept.name}
+                    </SelectItem>
+                  )
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -690,14 +978,30 @@ export default function CasesManagement() {
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium">Folio</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Tipo</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Reportante</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Departamento</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Prioridad</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Estado</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Fecha</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Acciones</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Folio
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Tipo
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Reportante
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Departamento
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Prioridad
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Estado
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Fecha
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -709,60 +1013,85 @@ export default function CasesManagement() {
                 </tr>
               ) : casesData?.cases?.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
+                  <td
+                    colSpan={8}
+                    className="px-4 py-8 text-center text-muted-foreground"
+                  >
                     No se encontraron casos
                   </td>
                 </tr>
               ) : (
-                (casesData?.cases ?? (casesData as any)?.items)?.map((caso: any) => (
-                  <tr key={caso.id} className="hover:bg-muted/50">
-                    <td className="px-4 py-3">
-                      <span className="font-mono text-sm">{caso.folio || caso.caseNumber}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant="outline" className="capitalize">{caso.caseType}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">{caso.reporterName}</p>
-                          <p className="text-xs text-muted-foreground">{caso.reporterEmail}</p>
+                (casesData?.cases ?? (casesData as any)?.items)?.map(
+                  (caso: any) => (
+                    <tr key={caso.id} className="hover:bg-muted/50">
+                      <td className="px-4 py-3">
+                        <span className="font-mono text-sm">
+                          {caso.folio || caso.caseNumber}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant="outline" className="capitalize">
+                          {caso.caseType}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm font-medium">
+                              {caso.reporterName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {caso.reporterEmail}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm">{caso.departmentName || "N/A"}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge className={getPriorityColor(caso.priority)}>{getPriorityLabel(caso.priority)}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge className={getStatusColor(caso.status)}>{getStatusLabel(caso.status)}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm">{new Date(caso.createdAt).toLocaleDateString('es-MX')}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        {!caso.assignedTo && (
-                          <Button size="sm" variant="outline" onClick={() => handleAssignCase(caso.id)}>
-                            Asignar
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm">
+                          {caso.departmentName || "N/A"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge className={getPriorityColor(caso.priority)}>
+                          {getPriorityLabel(caso.priority)}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge className={getStatusColor(caso.status)}>
+                          {getStatusLabel(caso.status)}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm">
+                          {new Date(caso.createdAt).toLocaleDateString("es-MX")}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2">
+                          {!caso.assignedTo && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleAssignCase(caso.id)}
+                            >
+                              Asignar
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setDetailCaseId(caso.id)}
+                            className="gap-1"
+                          >
+                            <Eye className="h-3 w-3" />
+                            Ver Detalle
                           </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setDetailCaseId(caso.id)}
-                          className="gap-1"
-                        >
-                          <Eye className="h-3 w-3" />
-                          Ver Detalle
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )
               )}
             </tbody>
           </table>

@@ -247,7 +247,11 @@ describe("Historial SIRCE — lógica de negocio", () => {
         key: fileKey,
       });
 
-      const result = await mockStoragePut(fileKey, Buffer.from(xmlContent), "application/xml");
+      const result = await mockStoragePut(
+        fileKey,
+        Buffer.from(xmlContent),
+        "application/xml"
+      );
       expect(result.key).toBe(fileKey);
       expect(mockStoragePut).toHaveBeenCalledWith(
         fileKey,
@@ -328,9 +332,13 @@ describe("Historial SIRCE — filtros de búsqueda", () => {
 
     it("con dateFrom, debe agregar una condición gte", () => {
       const conditions: string[] = [];
-      const input = { dateFrom: new Date("2026-01-01T00:00:00.000Z").getTime() };
+      const input = {
+        dateFrom: new Date("2026-01-01T00:00:00.000Z").getTime(),
+      };
       if (input.dateFrom !== undefined) {
-        conditions.push(`gte(exportedAt, ${new Date(input.dateFrom).toISOString()})`);
+        conditions.push(
+          `gte(exportedAt, ${new Date(input.dateFrom).toISOString()})`
+        );
       }
       expect(conditions).toHaveLength(1);
       expect(conditions[0]).toContain("gte");
@@ -340,7 +348,9 @@ describe("Historial SIRCE — filtros de búsqueda", () => {
       const conditions: string[] = [];
       const input = { dateTo: new Date("2026-01-31T23:59:59.999Z").getTime() };
       if (input.dateTo !== undefined) {
-        conditions.push(`lte(exportedAt, ${new Date(input.dateTo).toISOString()})`);
+        conditions.push(
+          `lte(exportedAt, ${new Date(input.dateTo).toISOString()})`
+        );
       }
       expect(conditions).toHaveLength(1);
       expect(conditions[0]).toContain("lte");
@@ -446,14 +456,14 @@ describe("Historial SIRCE — filtros de búsqueda", () => {
     ];
 
     it("filtrar por exportedByName 'Ana' debe devolver 2 registros", () => {
-      const filtered = records.filter((r) =>
+      const filtered = records.filter(r =>
         r.exportedByName?.toLowerCase().includes("ana")
       );
       expect(filtered).toHaveLength(2);
     });
 
     it("filtrar por companyRfc 'EEJ' debe devolver 2 registros", () => {
-      const filtered = records.filter((r) =>
+      const filtered = records.filter(r =>
         r.companyRfc?.toLowerCase().includes("eej")
       );
       expect(filtered).toHaveLength(2);
@@ -463,7 +473,7 @@ describe("Historial SIRCE — filtros de búsqueda", () => {
       const from = new Date("2026-01-01T00:00:00Z");
       const to = new Date("2026-01-31T23:59:59Z");
       const filtered = records.filter(
-        (r) => new Date(r.exportedAt) >= from && new Date(r.exportedAt) <= to
+        r => new Date(r.exportedAt) >= from && new Date(r.exportedAt) <= to
       );
       expect(filtered).toHaveLength(1);
       expect(filtered[0].id).toBe(1);
@@ -471,7 +481,7 @@ describe("Historial SIRCE — filtros de búsqueda", () => {
 
     it("combinar filtros (Ana + EEJ) debe devolver 2 registros", () => {
       const filtered = records.filter(
-        (r) =>
+        r =>
           r.exportedByName?.toLowerCase().includes("ana") &&
           r.companyRfc?.toLowerCase().includes("eej")
       );
@@ -479,7 +489,7 @@ describe("Historial SIRCE — filtros de búsqueda", () => {
     });
 
     it("filtros sin coincidencias deben devolver array vacío", () => {
-      const filtered = records.filter((r) =>
+      const filtered = records.filter(r =>
         r.exportedByName?.toLowerCase().includes("pedro")
       );
       expect(filtered).toHaveLength(0);

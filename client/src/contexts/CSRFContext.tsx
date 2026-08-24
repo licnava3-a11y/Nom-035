@@ -32,9 +32,7 @@ export function CSRFProvider({ children }: { children: ReactNode }) {
   }, [csrfData.renewToken]);
 
   return (
-    <CSRFContext.Provider value={csrfData}>
-      {children}
-    </CSRFContext.Provider>
+    <CSRFContext.Provider value={csrfData}>{children}</CSRFContext.Provider>
   );
 }
 

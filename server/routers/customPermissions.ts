@@ -1,6 +1,6 @@
 /**
  * Router para gestión de permisos personalizados por usuario
- * 
+ *
  * Permite a los administradores asignar permisos específicos a usuarios individuales
  * que sobrescriben los permisos del rol base.
  */
@@ -18,28 +18,34 @@ export const customPermissionsRouter = router({
    * Obtener permisos personalizados de un usuario específico
    */
   getUserCustomPermissions: protectedProcedure
-    .use(requirePermission('can_view'))
-    .input(z.object({
-      userId: z.number(),
-    }))
+    .use(requirePermission("can_view"))
+    .input(
+      z.object({
+        userId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database connection failed');
-      
-      const results = await db.select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        customPermissions: users.customPermissions,
-      }).from(users).where(eq(users.id, input.userId)).limit(1);
-      
+      if (!db) throw new Error("Database connection failed");
+
+      const results = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          role: users.role,
+          customPermissions: users.customPermissions,
+        })
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1);
+
       const user = results[0];
-      
+
       if (!user) {
-        throw new Error('Usuario no encontrado');
+        throw new Error("Usuario no encontrado");
       }
-      
+
       return {
         userId: user.id,
         name: user.name,
@@ -53,39 +59,48 @@ export const customPermissionsRouter = router({
    * Actualizar permisos personalizados de un usuario
    */
   updateUserCustomPermissions: protectedProcedure
-    .use(requirePermission('can_edit'))
-    .input(z.object({
-      userId: z.number(),
-      customPermissions: z.object({
-        can_view: z.boolean().optional(),
-        can_create: z.boolean().optional(),
-        can_edit: z.boolean().optional(),
-        can_delete: z.boolean().optional(),
-        can_approve: z.boolean().optional(),
-        can_export: z.boolean().optional(),
-      }).nullable(),
-    }))
+    .use(requirePermission("can_edit"))
+    .input(
+      z.object({
+        userId: z.number(),
+        customPermissions: z
+          .object({
+            can_view: z.boolean().optional(),
+            can_create: z.boolean().optional(),
+            can_edit: z.boolean().optional(),
+            can_delete: z.boolean().optional(),
+            can_approve: z.boolean().optional(),
+            can_export: z.boolean().optional(),
+          })
+          .nullable(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database connection failed');
-      
+      if (!db) throw new Error("Database connection failed");
+
       // Validación: no permitir cambiar permisos propios
       if (ctx.user!.id === input.userId) {
-        throw new Error('No puedes modificar tus propios permisos');
+        throw new Error("No puedes modificar tus propios permisos");
       }
-      
+
       // Obtener usuario antes de actualizar
-      const [user] = await db.select().from(users).where(eq(users.id, input.userId)).limit(1);
-      if (!user) throw new Error('Usuario no encontrado');
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1);
+      if (!user) throw new Error("Usuario no encontrado");
 
       // Actualizar permisos personalizados
-      await db.update(users)
+      await db
+        .update(users)
         .set({
           customPermissions: input.customPermissions,
           updatedAt: new Date(),
         } as any)
         .where(eq(users.id, input.userId));
-      
+
       // Registrar cambio en auditoría
       await (db.insert(permissionChangeHistory) as any).values({
         userId: input.userId,
@@ -101,7 +116,8 @@ export const customPermissionsRouter = router({
         if (user.email) {
           await sendEmail({
             to: user.email,
-            subject: "Actualización de Permisos Personalizados - Plataforma NOM-035",
+            subject:
+              "Actualización de Permisos Personalizados - Plataforma NOM-035",
             html: `
               <h2>Actualización de Permisos Personalizados</h2>
               <p>Hola ${user.name},</p>
@@ -120,7 +136,7 @@ export const customPermissionsRouter = router({
 
       return {
         success: true,
-        message: 'Permisos personalizados actualizados correctamente',
+        message: "Permisos personalizados actualizados correctamente",
       };
     }),
 
@@ -128,31 +144,38 @@ export const customPermissionsRouter = router({
    * Resetear permisos personalizados de un usuario (volver a permisos del rol)
    */
   resetUserCustomPermissions: protectedProcedure
-    .use(requirePermission('can_edit'))
-    .input(z.object({
-      userId: z.number(),
-    }))
+    .use(requirePermission("can_edit"))
+    .input(
+      z.object({
+        userId: z.number(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database connection failed');
-      
+      if (!db) throw new Error("Database connection failed");
+
       // Validación: no permitir resetear permisos propios
       if (ctx.user!.id === input.userId) {
-        throw new Error('No puedes resetear tus propios permisos');
+        throw new Error("No puedes resetear tus propios permisos");
       }
-      
+
       // Obtener usuario antes de resetear
-      const [user] = await db.select().from(users).where(eq(users.id, input.userId)).limit(1);
-      if (!user) throw new Error('Usuario no encontrado');
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1);
+      if (!user) throw new Error("Usuario no encontrado");
 
       // Resetear permisos personalizados (establecer a null)
-      await db.update(users)
+      await db
+        .update(users)
         .set({
           customPermissions: null,
           updatedAt: new Date(),
         } as any)
         .where(eq(users.id, input.userId));
-      
+
       // Registrar cambio en auditoría
       await (db.insert(permissionChangeHistory) as any).values({
         userId: input.userId,
@@ -187,7 +210,8 @@ export const customPermissionsRouter = router({
 
       return {
         success: true,
-        message: 'Permisos personalizados reseteados. El usuario ahora usa los permisos de su rol.',
+        message:
+          "Permisos personalizados reseteados. El usuario ahora usa los permisos de su rol.",
       };
     }),
 
@@ -195,24 +219,28 @@ export const customPermissionsRouter = router({
    * Listar usuarios con permisos personalizados
    */
   getUsersWithCustomPermissions: protectedProcedure
-    .use(requirePermission('can_view'))
+    .use(requirePermission("can_view"))
     .query(async () => {
       const db = await getDb();
-      if (!db) throw new Error('Database connection failed');
-      
+      if (!db) throw new Error("Database connection failed");
+
       // Obtener todos los usuarios que tienen customPermissions no nulo
-      const usersWithCustomPerms = await db.select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        customPermissions: users.customPermissions,
-        updatedAt: users.updatedAt,
-      }).from(users);
-      
+      const usersWithCustomPerms = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          role: users.role,
+          customPermissions: users.customPermissions,
+          updatedAt: users.updatedAt,
+        })
+        .from(users);
+
       // Filtrar solo usuarios con customPermissions definidos
-      const filtered = usersWithCustomPerms.filter((u: any) => u.customPermissions !== null);
-      
+      const filtered = usersWithCustomPerms.filter(
+        (u: any) => u.customPermissions !== null
+      );
+
       return {
         users: filtered,
         total: filtered.length,

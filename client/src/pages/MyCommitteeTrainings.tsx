@@ -3,7 +3,13 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -31,19 +37,25 @@ export default function MyCommitteeTrainings() {
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
 
-  const { data: myTrainings, isLoading, refetch } = trpc.trainingAssignments.getMyTrainings.useQuery();
-  const { data: myCertificates } = trpc.trainingCertificates.getMyCertificates.useQuery();
+  const {
+    data: myTrainings,
+    isLoading,
+    refetch,
+  } = trpc.trainingAssignments.getMyTrainings.useQuery();
+  const { data: myCertificates } =
+    trpc.trainingCertificates.getMyCertificates.useQuery();
 
-  const updateStatusMutation = trpc.trainingAssignments.updateStatus.useMutation({
-    onSuccess: () => {
-      toast.success("Estado actualizado exitosamente");
-      setIsCompleteDialogOpen(false);
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const updateStatusMutation =
+    trpc.trainingAssignments.updateStatus.useMutation({
+      onSuccess: () => {
+        toast.success("Estado actualizado exitosamente");
+        setIsCompleteDialogOpen(false);
+        refetch();
+      },
+      onError: error => {
+        toast.error(error.message);
+      },
+    });
 
   const handleStartTraining = (assignmentId: number) => {
     updateStatusMutation.mutate({
@@ -55,26 +67,41 @@ export default function MyCommitteeTrainings() {
   const handleCompleteTraining = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
+
     updateStatusMutation.mutate({
       id: selectedAssignment.assignment.id,
       status: "completed",
-      score: formData.get("score") ? parseInt(formData.get("score") as string) : undefined,
+      score: formData.get("score")
+        ? parseInt(formData.get("score") as string)
+        : undefined,
       notes: formData.get("notes") as string,
     });
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; label: string; icon: any }> = {
-      pending: { variant: "secondary", label: "Pendiente", icon: AlertCircle },
-      in_progress: { variant: "default", label: "En Progreso", icon: Clock },
-      completed: { variant: "default", label: "Completada", icon: CheckCircle2 },
-      expired: { variant: "destructive", label: "Vencida", icon: AlertCircle },
-    };
-    
+    const variants: Record<string, { variant: any; label: string; icon: any }> =
+      {
+        pending: {
+          variant: "secondary",
+          label: "Pendiente",
+          icon: AlertCircle,
+        },
+        in_progress: { variant: "default", label: "En Progreso", icon: Clock },
+        completed: {
+          variant: "default",
+          label: "Completada",
+          icon: CheckCircle2,
+        },
+        expired: {
+          variant: "destructive",
+          label: "Vencida",
+          icon: AlertCircle,
+        },
+      };
+
     const config = variants[status] || variants.pending;
     const Icon = config.icon;
-    
+
     return (
       <Badge variant={config.variant} className="flex items-center gap-1">
         <Icon className="h-3 w-3" />
@@ -83,11 +110,18 @@ export default function MyCommitteeTrainings() {
     );
   };
 
-  const pendingCount = myTrainings?.filter((t: any) => t.assignment.status === "pending").length || 0;
-  const inProgressCount = myTrainings?.filter((t: any) => t.assignment.status === "in_progress").length || 0;
-  const completedCount = myTrainings?.filter((t: any) => t.assignment.status === "completed").length || 0;
+  const pendingCount =
+    myTrainings?.filter((t: any) => t.assignment.status === "pending").length ||
+    0;
+  const inProgressCount =
+    myTrainings?.filter((t: any) => t.assignment.status === "in_progress")
+      .length || 0;
+  const completedCount =
+    myTrainings?.filter((t: any) => t.assignment.status === "completed")
+      .length || 0;
   const totalCount = myTrainings?.length || 0;
-  const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+  const completionPercentage =
+    totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -102,7 +136,9 @@ export default function MyCommitteeTrainings() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Asignadas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Asignadas
+            </CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -166,7 +202,9 @@ export default function MyCommitteeTrainings() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{item.training?.title}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {item.training?.title}
+                    </CardTitle>
                     <CardDescription className="mt-1">
                       {item.training?.description}
                     </CardDescription>
@@ -178,19 +216,25 @@ export default function MyCommitteeTrainings() {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-muted-foreground">Duración</p>
-                    <p className="font-medium">{item.training?.duration} horas</p>
+                    <p className="font-medium">
+                      {item.training?.duration} horas
+                    </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Asignada</p>
                     <p className="font-medium">
-                      {new Date(item.assignment.assignedDate).toLocaleDateString("es-MX")}
+                      {new Date(
+                        item.assignment.assignedDate
+                      ).toLocaleDateString("es-MX")}
                     </p>
                   </div>
                   {item.assignment.startDate && (
                     <div>
                       <p className="text-muted-foreground">Iniciada</p>
                       <p className="font-medium">
-                        {new Date(item.assignment.startDate).toLocaleDateString("es-MX")}
+                        {new Date(item.assignment.startDate).toLocaleDateString(
+                          "es-MX"
+                        )}
                       </p>
                     </div>
                   )}
@@ -198,18 +242,25 @@ export default function MyCommitteeTrainings() {
                     <div>
                       <p className="text-muted-foreground">Completada</p>
                       <p className="font-medium">
-                        {new Date(item.assignment.completionDate).toLocaleDateString("es-MX")}
+                        {new Date(
+                          item.assignment.completionDate
+                        ).toLocaleDateString("es-MX")}
                       </p>
                     </div>
                   )}
                 </div>
 
-                {item.assignment.score !== null && item.assignment.score !== undefined && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Calificación</p>
-                    <p className="text-2xl font-bold">{item.assignment.score}/100</p>
-                  </div>
-                )}
+                {item.assignment.score !== null &&
+                  item.assignment.score !== undefined && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Calificación
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {item.assignment.score}/100
+                      </p>
+                    </div>
+                  )}
 
                 {item.assignment.notes && (
                   <div>
@@ -239,16 +290,19 @@ export default function MyCommitteeTrainings() {
                       Marcar como Completada
                     </Button>
                   )}
-                  {item.assignment.status === "completed" && item.certificate && (
-                    <Button
-                      variant="outline"
-                      onClick={() => window.open(item.certificate?.pdfUrl, "_blank")}
-                      className="flex-1"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Descargar Certificado
-                    </Button>
-                  )}
+                  {item.assignment.status === "completed" &&
+                    item.certificate && (
+                      <Button
+                        variant="outline"
+                        onClick={() =>
+                          window.open(item.certificate?.pdfUrl, "_blank")
+                        }
+                        className="flex-1"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Descargar Certificado
+                      </Button>
+                    )}
                 </div>
               </CardContent>
             </Card>
@@ -272,11 +326,16 @@ export default function MyCommitteeTrainings() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {myCertificates.map((item: any) => (
-                <Card key={item.certificate.id} className="border-2 border-primary/20">
+                <Card
+                  key={item.certificate.id}
+                  className="border-2 border-primary/20"
+                >
                   <CardHeader>
                     <div className="flex items-center gap-2">
                       <Award className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-sm">{item.training?.title}</CardTitle>
+                      <CardTitle className="text-sm">
+                        {item.training?.title}
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -285,18 +344,26 @@ export default function MyCommitteeTrainings() {
                         Certificado No. {item.certificate.certificateNumber}
                       </p>
                       <p className="text-muted-foreground">
-                        Emitido: {new Date(item.certificate.issueDate).toLocaleDateString("es-MX")}
+                        Emitido:{" "}
+                        {new Date(
+                          item.certificate.issueDate
+                        ).toLocaleDateString("es-MX")}
                       </p>
                       {item.certificate.expiryDate && (
                         <p className="text-muted-foreground">
-                          Vence: {new Date(item.certificate.expiryDate).toLocaleDateString("es-MX")}
+                          Vence:{" "}
+                          {new Date(
+                            item.certificate.expiryDate
+                          ).toLocaleDateString("es-MX")}
                         </p>
                       )}
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(item.certificate.pdfUrl, "_blank")}
+                      onClick={() =>
+                        window.open(item.certificate.pdfUrl, "_blank")
+                      }
                       className="w-full"
                     >
                       <Download className="h-3 w-3 mr-2" />
@@ -311,7 +378,10 @@ export default function MyCommitteeTrainings() {
       )}
 
       {/* Dialog Completar Capacitación */}
-      <Dialog open={isCompleteDialogOpen} onOpenChange={setIsCompleteDialogOpen}>
+      <Dialog
+        open={isCompleteDialogOpen}
+        onOpenChange={setIsCompleteDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Completar Capacitación</DialogTitle>
@@ -327,17 +397,33 @@ export default function MyCommitteeTrainings() {
               </div>
               <div>
                 <Label htmlFor="score">Calificación (0-100)</Label>
-                <Input id="score" name="score" type="number" min="0" max="100" />
+                <Input
+                  id="score"
+                  name="score"
+                  type="number"
+                  min="0"
+                  max="100"
+                />
               </div>
               <div>
                 <Label htmlFor="notes">Notas</Label>
                 <Textarea id="notes" name="notes" rows={3} />
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsCompleteDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCompleteDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
-                <LoadingButton type="submit" loading={updateStatusMutation.isPending} loadingText="Guardando...">Completar</LoadingButton>
+                <LoadingButton
+                  type="submit"
+                  loading={updateStatusMutation.isPending}
+                  loadingText="Guardando..."
+                >
+                  Completar
+                </LoadingButton>
               </DialogFooter>
             </form>
           )}

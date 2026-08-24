@@ -6,17 +6,19 @@ export default function GuideIII() {
   const [anonymousToken, setAnonymousToken] = useState<string | undefined>();
 
   useEffect(() => {
-    const token = sessionStorage.getItem('anonymousToken');
+    const token = sessionStorage.getItem("anonymousToken");
     if (token) {
       setAnonymousToken(token);
     }
   }, []);
   return (
     <div>
-      <Breadcrumb items={[
-        { label: "Encuestas NOM-035", href: "/surveys" },
-        { label: "Guía III - Entorno Organizacional" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Encuestas NOM-035", href: "/surveys" },
+          { label: "Guía III - Entorno Organizacional" },
+        ]}
+      />
       <SurveyForm
         surveyId={3}
         title="Guía de Referencia III"

@@ -1,7 +1,13 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { cases, employees, protocolSteps, users, workplaceViolenceCases } from "../../drizzle/schema";
+import {
+  cases,
+  employees,
+  protocolSteps,
+  users,
+  workplaceViolenceCases,
+} from "../../drizzle/schema";
 import { eq, desc, and, or, like, gte, lte } from "drizzle-orm";
 
 export const workplaceViolenceRouter = router({
@@ -16,7 +22,9 @@ export const workplaceViolenceRouter = router({
         incidentDate: z.string().optional(),
         description: z.string(),
         evidenceFiles: z.array(z.string()).optional(),
-        witnesses: z.array(z.object({ name: z.string(), contact: z.string() })).optional(),
+        witnesses: z
+          .array(z.object({ name: z.string(), contact: z.string() }))
+          .optional(),
         priority: z.enum(["baja", "media", "alta", "critica"]).default("media"),
       })
     )
@@ -43,19 +51,23 @@ export const workplaceViolenceRouter = router({
       const folio = `VL-${year}-${nextNumber.toString().padStart(4, "0")}`;
 
       // Crear caso
-      const [newCase] = await (db.insert(workplaceViolenceCases) as any).values({
-        folio: folio,
-        complainantId: input.complainantId,
-        complainantName: input.complainantName,
-        accusedId: input.accusedId,
-        complaintDate: new Date(input.complaintDate),
-        incidentDate: input.incidentDate ? new Date(input.incidentDate) : undefined,
-        description: input.description,
-        evidenceFiles: input.evidenceFiles,
-        witnesses: input.witnesses,
-        priority: input.priority,
-        createdBy: ctx.user.id,
-      });
+      const [newCase] = await (db.insert(workplaceViolenceCases) as any).values(
+        {
+          folio: folio,
+          complainantId: input.complainantId,
+          complainantName: input.complainantName,
+          accusedId: input.accusedId,
+          complaintDate: new Date(input.complaintDate),
+          incidentDate: input.incidentDate
+            ? new Date(input.incidentDate)
+            : undefined,
+          description: input.description,
+          evidenceFiles: input.evidenceFiles,
+          witnesses: input.witnesses,
+          priority: input.priority,
+          createdBy: ctx.user.id,
+        }
+      );
 
       // Registrar primer paso del protocolo (Recepción)
       await (db.insert(protocolSteps) as any).values({
@@ -76,11 +88,28 @@ export const workplaceViolenceRouter = router({
   // Listar todos los casos
   listCases: protectedProcedure
     .input(
-      z.object({
-        status: z.enum(["activo", "suspendido", "cerrado", "todos"]).default("todos"),
-        priority: z.enum(["baja", "media", "alta", "critica", "todas"]).default("todas"),
-        phase: z.enum(["recepcion", "evaluacion_inicial", "medidas_cautelares", "investigacion", "resolucion", "seguimiento", "cerrado", "todas"]).default("todas"),
-      }).optional()
+      z
+        .object({
+          status: z
+            .enum(["activo", "suspendido", "cerrado", "todos"])
+            .default("todos"),
+          priority: z
+            .enum(["baja", "media", "alta", "critica", "todas"])
+            .default("todas"),
+          phase: z
+            .enum([
+              "recepcion",
+              "evaluacion_inicial",
+              "medidas_cautelares",
+              "investigacion",
+              "resolucion",
+              "seguimiento",
+              "cerrado",
+              "todas",
+            ])
+            .default("todas"),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       const db = await getDb();
@@ -169,7 +198,15 @@ export const workplaceViolenceRouter = router({
     .input(
       z.object({
         caseId: z.number(),
-        newPhase: z.enum(["recepcion", "evaluacion_inicial", "medidas_cautelares", "investigacion", "resolucion", "seguimiento", "cerrado"]),
+        newPhase: z.enum([
+          "recepcion",
+          "evaluacion_inicial",
+          "medidas_cautelares",
+          "investigacion",
+          "resolucion",
+          "seguimiento",
+          "cerrado",
+        ]),
         action: z.string(),
         notes: z.string().optional(),
         attachments: z.array(z.string()).optional(),

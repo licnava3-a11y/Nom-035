@@ -10,8 +10,14 @@ const ROOT = join(__dirname, "..");
 
 // ─── P1: Seed de preguntas predeterminadas ─────────────────────────────────────
 describe("P1 — exitInterviews: seed de preguntas predeterminadas", () => {
-  const routerContent = readFileSync(join(ROOT, "server/routers/exitInterviews.ts"), "utf-8");
-  const uiContent = readFileSync(join(ROOT, "client/src/pages/ExitInterviews.tsx"), "utf-8");
+  const routerContent = readFileSync(
+    join(ROOT, "server/routers/exitInterviews.ts"),
+    "utf-8"
+  );
+  const uiContent = readFileSync(
+    join(ROOT, "client/src/pages/ExitInterviews.tsx"),
+    "utf-8"
+  );
 
   it("tiene procedure initDefaultQuestions en el router", () => {
     expect(routerContent).toContain("initDefaultQuestions");
@@ -24,7 +30,10 @@ describe("P1 — exitInterviews: seed de preguntas predeterminadas", () => {
 
 // ─── P2: Selector de responsable técnico en Dictamen ──────────────────────────
 describe("P2 — LegalDocGenerator: selector de responsable técnico", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/LegalDocGenerator.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/LegalDocGenerator.tsx"),
+    "utf-8"
+  );
 
   it("tiene selector de responsable técnico con búsqueda", () => {
     expect(content).toContain("responsableSearch");
@@ -44,7 +53,10 @@ describe("P2 — LegalDocGenerator: selector de responsable técnico", () => {
 
 // ─── P3: Exportar catálogo de preguntas a Excel ───────────────────────────────
 describe("P3 — ExitInterviews: exportar catálogo de preguntas a Excel", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/ExitInterviews.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/ExitInterviews.tsx"),
+    "utf-8"
+  );
 
   it("tiene botón de exportación a Excel en el catálogo de preguntas", () => {
     expect(content).toMatch(/[Ee]xportar|[Ee]xport/);
@@ -60,7 +72,10 @@ describe("P3 — ExitInterviews: exportar catálogo de preguntas a Excel", () =>
 
 // ─── P4: sortOrder editable inline ────────────────────────────────────────────
 describe("P4 — ExitInterviews: sortOrder editable inline", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/ExitInterviews.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/ExitInterviews.tsx"),
+    "utf-8"
+  );
 
   it("tiene estado editOrder para edición inline", () => {
     expect(content).toContain("editOrder");
@@ -74,7 +89,10 @@ describe("P4 — ExitInterviews: sortOrder editable inline", () => {
 
 // ─── P5: Filtro por categoría ─────────────────────────────────────────────────
 describe("P5 — ExitInterviews: filtro por categoría", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/ExitInterviews.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/ExitInterviews.tsx"),
+    "utf-8"
+  );
 
   it("tiene estado filterCategory", () => {
     expect(content).toContain("filterCategory");
@@ -88,7 +106,10 @@ describe("P5 — ExitInterviews: filtro por categoría", () => {
 
 // ─── P6: QR en preview del Dictamen ──────────────────────────────────────────
 describe("P6 — LegalDocGenerator: QR en preview del Dictamen", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/LegalDocGenerator.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/LegalDocGenerator.tsx"),
+    "utf-8"
+  );
 
   it("tiene QR de verificación NOM-151 en el preview", () => {
     expect(content).toContain("qrserver.com");
@@ -102,7 +123,10 @@ describe("P6 — LegalDocGenerator: QR en preview del Dictamen", () => {
 
 // ─── P7: Validación de cédula profesional ────────────────────────────────────
 describe("P7 — LegalDocGenerator: validación de cédula profesional", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/LegalDocGenerator.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/LegalDocGenerator.tsx"),
+    "utf-8"
+  );
 
   it("muestra indicador visual cuando la cédula es válida del catálogo", () => {
     expect(content).toContain("border-green-500");
@@ -115,7 +139,10 @@ describe("P7 — LegalDocGenerator: validación de cédula profesional", () => {
 
 // ─── P8: RFC y NSS como columnas visibles en Employees ───────────────────────
 describe("P8 — Employees: RFC y NSS como columnas visibles con toggle", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/Employees.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/Employees.tsx"),
+    "utf-8"
+  );
 
   it("tiene estado showRfcNss para toggle de columnas", () => {
     expect(content).toContain("showRfcNss");
@@ -136,7 +163,10 @@ describe("P8 — Employees: RFC y NSS como columnas visibles con toggle", () => 
 // ─── P9: Búsqueda por RFC y NSS ──────────────────────────────────────────────
 describe("P9 — Employees: búsqueda por RFC y NSS", () => {
   const dbContent = readFileSync(join(ROOT, "server/db-employees.ts"), "utf-8");
-  const uiContent = readFileSync(join(ROOT, "client/src/pages/Employees.tsx"), "utf-8");
+  const uiContent = readFileSync(
+    join(ROOT, "client/src/pages/Employees.tsx"),
+    "utf-8"
+  );
 
   it("el backend filtra por RFC en la búsqueda", () => {
     expect(dbContent).toContain("employees.rfc");
@@ -153,7 +183,10 @@ describe("P9 — Employees: búsqueda por RFC y NSS", () => {
 
 // ─── Preview de Reporte Ejecutivo ────────────────────────────────────────────
 describe("ReportConfigurationPanel: preview de reporte ejecutivo", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/ReportConfigurationPanel.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/ReportConfigurationPanel.tsx"),
+    "utf-8"
+  );
 
   it("tiene estado isPreviewOpen para el modal de preview", () => {
     expect(content).toContain("isPreviewOpen");
@@ -203,7 +236,10 @@ describe("shared/validators.ts — validadores RFC y NSS", () => {
 
 // ─── Branches: CRUD completo ──────────────────────────────────────────────────
 describe("branches router — CRUD completo", () => {
-  const content = readFileSync(join(ROOT, "server/routers/branches.ts"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "server/routers/branches.ts"),
+    "utf-8"
+  );
 
   it("tiene procedures list, listAll, create, update, delete", () => {
     expect(content).toContain("list:");
@@ -221,10 +257,15 @@ describe("branches router — CRUD completo", () => {
 // ─── BranchesManagement.tsx existe ───────────────────────────────────────────
 describe("BranchesManagement.tsx — página CRUD de sucursales", () => {
   it("el archivo existe", () => {
-    expect(existsSync(join(ROOT, "client/src/pages/BranchesManagement.tsx"))).toBe(true);
+    expect(
+      existsSync(join(ROOT, "client/src/pages/BranchesManagement.tsx"))
+    ).toBe(true);
   });
 
-  const content = readFileSync(join(ROOT, "client/src/pages/BranchesManagement.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/BranchesManagement.tsx"),
+    "utf-8"
+  );
 
   it("tiene tabla con CRUD de sucursales", () => {
     expect(content).toContain("branches");
@@ -240,38 +281,56 @@ describe("todo.md — P1-P9 marcados como completados", () => {
   const content = readFileSync(join(ROOT, "todo.md"), "utf-8");
 
   it("P1 está marcado como completado", () => {
-    expect(content).toContain("P1 — Seed de preguntas predeterminadas para Entrevistas de Salida ✅");
+    expect(content).toContain(
+      "P1 — Seed de preguntas predeterminadas para Entrevistas de Salida ✅"
+    );
   });
 
   it("P2 está marcado como completado", () => {
-    expect(content).toContain("P2 — Selector de responsable técnico en formulario del Dictamen ✅");
+    expect(content).toContain(
+      "P2 — Selector de responsable técnico en formulario del Dictamen ✅"
+    );
   });
 
   it("P3 está marcado como completado", () => {
-    expect(content).toContain("P3 — Exportar Catálogo de Preguntas de Entrevistas de Salida a Excel ✅");
+    expect(content).toContain(
+      "P3 — Exportar Catálogo de Preguntas de Entrevistas de Salida a Excel ✅"
+    );
   });
 
   it("P4 está marcado como completado", () => {
-    expect(content).toContain("P4 — Número de orden editable en Catálogo de Preguntas de Entrevistas de Salida ✅");
+    expect(content).toContain(
+      "P4 — Número de orden editable en Catálogo de Preguntas de Entrevistas de Salida ✅"
+    );
   });
 
   it("P5 está marcado como completado", () => {
-    expect(content).toContain("P5 — Filtro por categoría en Catálogo de Preguntas de Entrevistas de Salida ✅");
+    expect(content).toContain(
+      "P5 — Filtro por categoría en Catálogo de Preguntas de Entrevistas de Salida ✅"
+    );
   });
 
   it("P6 está marcado como completado", () => {
-    expect(content).toContain("P6 — Mostrar QR de verificación NOM-151 en vista previa del Dictamen en pantalla ✅");
+    expect(content).toContain(
+      "P6 — Mostrar QR de verificación NOM-151 en vista previa del Dictamen en pantalla ✅"
+    );
   });
 
   it("P7 está marcado como completado", () => {
-    expect(content).toContain("P7 — Validar cédula profesional automáticamente al seleccionar responsable clínico ✅");
+    expect(content).toContain(
+      "P7 — Validar cédula profesional automáticamente al seleccionar responsable clínico ✅"
+    );
   });
 
   it("P8 está marcado como completado", () => {
-    expect(content).toContain("P8 — RFC y NSS como columnas visibles en tabla catálogo de empleados ✅");
+    expect(content).toContain(
+      "P8 — RFC y NSS como columnas visibles en tabla catálogo de empleados ✅"
+    );
   });
 
   it("P9 está marcado como completado", () => {
-    expect(content).toContain("P9 — Búsqueda por RFC y NSS en el catálogo de empleados ✅");
+    expect(content).toContain(
+      "P9 — Búsqueda por RFC y NSS en el catálogo de empleados ✅"
+    );
   });
 });

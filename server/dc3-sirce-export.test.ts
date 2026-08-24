@@ -9,10 +9,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // ─── Mocks globales ───────────────────────────────────────────────────────────
 vi.mock("../db", () => ({ getDb: vi.fn() }));
 vi.mock("../storage", () => ({
-  storagePut: vi.fn().mockResolvedValue({ url: "https://s3.example.com/test.png", key: "test.png" }),
+  storagePut: vi.fn().mockResolvedValue({
+    url: "https://s3.example.com/test.png",
+    key: "test.png",
+  }),
 }));
-vi.mock("../_core/email", () => ({ sendEmail: vi.fn().mockResolvedValue(true) }));
-vi.mock("../_core/notification", () => ({ notifyOwner: vi.fn().mockResolvedValue(true) }));
+vi.mock("../_core/email", () => ({
+  sendEmail: vi.fn().mockResolvedValue(true),
+}));
+vi.mock("../_core/notification", () => ({
+  notifyOwner: vi.fn().mockResolvedValue(true),
+}));
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -56,11 +63,15 @@ function formatDate(val: string | Date | null | undefined): string {
   return d.toISOString().slice(0, 10);
 }
 
-function buildSirceXml(records: Dc3Row[], companyRfc = "", companyName = ""): string {
+function buildSirceXml(
+  records: Dc3Row[],
+  companyRfc = "",
+  companyName = ""
+): string {
   const items = records
-    .filter((r) => r.status === "issued")
+    .filter(r => r.status === "issued")
     .map(
-      (r) => `    <Constancia>
+      r => `    <Constancia>
       <Folio>${escapeXml(r.folioNumber ?? String(r.id))}</Folio>
       <RFC_Empresa>${escapeXml(r.companyRfc ?? companyRfc)}</RFC_Empresa>
       <Razon_Social>${escapeXml(r.companyName ?? companyName)}</Razon_Social>
@@ -86,12 +97,12 @@ function buildSirceXml(records: Dc3Row[], companyRfc = "", companyName = ""): st
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!-- Archivo generado por la Plataforma de Capacitación NOM-035 STPS -->
 <!-- Fecha de generación: ${now.toISOString()} -->
-<!-- Total de constancias: ${records.filter((r) => r.status === "issued").length} -->
+<!-- Total de constancias: ${records.filter(r => r.status === "issued").length} -->
 <Constancias_DC3 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0">
   <Encabezado>
     <Sistema>Plataforma NOM-035 STPS</Sistema>
     <Fecha_Generacion>${now.toISOString()}</Fecha_Generacion>
-    <Total_Constancias>${records.filter((r) => r.status === "issued").length}</Total_Constancias>
+    <Total_Constancias>${records.filter(r => r.status === "issued").length}</Total_Constancias>
   </Encabezado>
   <Constancias>
 ${items}
@@ -208,9 +219,7 @@ describe("exportSirceXml — generación de XML", () => {
   });
 
   it("maneja registros sin CURP sin lanzar error", () => {
-    const records: Dc3Row[] = [
-      { ...sampleRecords[0], workerCurp: null },
-    ];
+    const records: Dc3Row[] = [{ ...sampleRecords[0], workerCurp: null }];
     expect(() => buildSirceXml(records)).not.toThrow();
   });
 
@@ -230,7 +239,11 @@ describe("dc3-expiry-alerts-job — lógica de detección de vencimiento", () =>
     twoAndHalfYearsAgo.setMonth(twoAndHalfYearsAgo.getMonth() - 6);
 
     const now = new Date();
-    const twoYearsAgo = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
+    const twoYearsAgo = new Date(
+      now.getFullYear() - 2,
+      now.getMonth(),
+      now.getDate()
+    );
     expect(twoAndHalfYearsAgo < twoYearsAgo).toBe(true);
   });
 
@@ -239,7 +252,11 @@ describe("dc3-expiry-alerts-job — lógica de detección de vencimiento", () =>
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
     const now = new Date();
-    const twoYearsAgo = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
+    const twoYearsAgo = new Date(
+      now.getFullYear() - 2,
+      now.getMonth(),
+      now.getDate()
+    );
     expect(sixMonthsAgo < twoYearsAgo).toBe(false);
   });
 
@@ -307,28 +324,29 @@ describe("DC3Dashboard — estructura de datos para exportación PDF/Excel", () 
   });
 
   it("la tasa de emisión se calcula correctamente", () => {
-    const rate = mockStats.totals.total > 0
-      ? Math.round((mockStats.totals.issued / mockStats.totals.total) * 100)
-      : 0;
+    const rate =
+      mockStats.totals.total > 0
+        ? Math.round((mockStats.totals.issued / mockStats.totals.total) * 100)
+        : 0;
     expect(rate).toBe(80); // 120/150 = 80%
   });
 
   it("byMonth tiene los campos necesarios para la gráfica de barras", () => {
-    mockStats.byMonth.forEach((entry) => {
+    mockStats.byMonth.forEach(entry => {
       expect(entry).toHaveProperty("month");
       expect(entry).toHaveProperty("count");
     });
   });
 
   it("byCompany tiene los campos necesarios para la gráfica de empresas", () => {
-    mockStats.byCompany.forEach((entry) => {
+    mockStats.byCompany.forEach(entry => {
       expect(entry).toHaveProperty("company");
       expect(entry).toHaveProperty("count");
     });
   });
 
   it("byThematicArea tiene los campos necesarios para la gráfica de áreas", () => {
-    mockStats.byThematicArea.forEach((entry) => {
+    mockStats.byThematicArea.forEach(entry => {
       expect(entry).toHaveProperty("area");
       expect(entry).toHaveProperty("count");
     });
@@ -336,13 +354,13 @@ describe("DC3Dashboard — estructura de datos para exportación PDF/Excel", () 
 
   it("los datos del Excel tienen todas las columnas requeridas para el reporte STPS", () => {
     // Simular la transformación de datos para Excel
-    const excelRows = mockStats.byMonth.map((m) => ({
+    const excelRows = mockStats.byMonth.map(m => ({
       Mes: m.month,
       Total: m.count,
       Emitidas: m.issued,
       Pendientes: m.count - m.issued,
     }));
-    excelRows.forEach((row) => {
+    excelRows.forEach(row => {
       expect(row).toHaveProperty("Mes");
       expect(row).toHaveProperty("Total");
       expect(row).toHaveProperty("Emitidas");

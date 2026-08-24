@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
-import { openWhatsAppDemo, DemoRequestData, NORMATIVAS_MAP } from "@/lib/whatsapp";
+import {
+  openWhatsAppDemo,
+  DemoRequestData,
+  NORMATIVAS_MAP,
+} from "@/lib/whatsapp";
 
 interface WhatsAppButtonProps {
   phoneNumber?: string; // Número de WhatsApp del negocio (formato: 525512345678)
@@ -28,7 +32,10 @@ export function WhatsAppButton({
     if (userData && phoneNumber) {
       openWhatsAppDemo(phoneNumber, userData);
     } else {
-      window.open(`https://api.whatsapp.com/send?phone=${phoneNumber ?? ""}`, "_blank");
+      window.open(
+        `https://api.whatsapp.com/send?phone=${phoneNumber ?? ""}`,
+        "_blank"
+      );
     }
   };
 

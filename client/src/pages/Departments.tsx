@@ -172,7 +172,7 @@ export default function Departments() {
           <Input
             placeholder="Buscar departamentos..."
             value={search}
-            onChange={(e) => {
+            onChange={e => {
               setSearch(e.target.value);
               setPage(1);
             }}
@@ -205,7 +205,10 @@ export default function Departments() {
               </TableRow>
             ) : data?.data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-8 text-muted-foreground"
+                >
                   No se encontraron departamentos
                 </TableCell>
               </TableRow>
@@ -254,7 +257,7 @@ export default function Departments() {
         <div className="flex justify-center gap-2 mt-6">
           <Button
             variant="outline"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             Anterior
@@ -264,7 +267,7 @@ export default function Departments() {
           </span>
           <Button
             variant="outline"
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() => setPage(p => p + 1)}
             disabled={page >= data.pagination.totalPages}
           >
             Siguiente
@@ -288,7 +291,7 @@ export default function Departments() {
                 id="code"
                 placeholder="Ej: RRHH"
                 value={formData.code}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, code: e.target.value })
                 }
               />
@@ -299,7 +302,7 @@ export default function Departments() {
                 id="name"
                 placeholder="Ej: Recursos Humanos"
                 value={formData.name}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, name: e.target.value })
                 }
               />
@@ -310,7 +313,7 @@ export default function Departments() {
                 id="description"
                 placeholder="Descripción del departamento"
                 value={formData.description}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, description: e.target.value })
                 }
               />
@@ -322,7 +325,7 @@ export default function Departments() {
               </Label>
               <Select
                 value={formData.parentId?.toString() || "none"}
-                onValueChange={(value) =>
+                onValueChange={value =>
                   setFormData({
                     ...formData,
                     parentId: value === "none" ? null : parseInt(value),
@@ -333,7 +336,9 @@ export default function Departments() {
                   <SelectValue placeholder="Sin departamento padre" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Sin departamento padre (Raíz)</SelectItem>
+                  <SelectItem value="none">
+                    Sin departamento padre (Raíz)
+                  </SelectItem>
                   {data?.data
                     .filter((d: any) => d.id !== selectedDepartment?.id)
                     .map((dept: any) => (
@@ -352,9 +357,13 @@ export default function Departments() {
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
               Cancelar
             </Button>
-            <LoadingButton onClick={handleCreate}
-              loading={createMutation.isPending} loadingText="Creando..."
-            >Crear</LoadingButton>
+            <LoadingButton
+              onClick={handleCreate}
+              loading={createMutation.isPending}
+              loadingText="Creando..."
+            >
+              Crear
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -374,7 +383,7 @@ export default function Departments() {
               <Input
                 id="edit-code"
                 value={formData.code}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, code: e.target.value })
                 }
               />
@@ -384,7 +393,7 @@ export default function Departments() {
               <Input
                 id="edit-name"
                 value={formData.name}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, name: e.target.value })
                 }
               />
@@ -394,7 +403,7 @@ export default function Departments() {
               <Textarea
                 id="edit-description"
                 value={formData.description}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, description: e.target.value })
                 }
               />
@@ -406,7 +415,7 @@ export default function Departments() {
               </Label>
               <Select
                 value={formData.parentId?.toString() || "none"}
-                onValueChange={(value) =>
+                onValueChange={value =>
                   setFormData({
                     ...formData,
                     parentId: value === "none" ? null : parseInt(value),
@@ -417,7 +426,9 @@ export default function Departments() {
                   <SelectValue placeholder="Sin departamento padre" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Sin departamento padre (Raíz)</SelectItem>
+                  <SelectItem value="none">
+                    Sin departamento padre (Raíz)
+                  </SelectItem>
                   {data?.data
                     .filter((d: any) => d.id !== selectedDepartment?.id)
                     .map((dept: any) => (
@@ -436,9 +447,13 @@ export default function Departments() {
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>
               Cancelar
             </Button>
-            <LoadingButton onClick={handleUpdate}
-              loading={updateMutation.isPending} loadingText="Guardando..."
-            >Guardar</LoadingButton>
+            <LoadingButton
+              onClick={handleUpdate}
+              loading={updateMutation.isPending}
+              loadingText="Guardando..."
+            >
+              Guardar
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -453,7 +468,8 @@ export default function Departments() {
               {selectedDepartment?.name}" permanentemente.
               {selectedDepartment?.employeeCount > 0 && (
                 <span className="block mt-2 text-destructive font-semibold">
-                  Advertencia: Este departamento tiene {selectedDepartment.employeeCount} empleado(s) asignado(s).
+                  Advertencia: Este departamento tiene{" "}
+                  {selectedDepartment.employeeCount} empleado(s) asignado(s).
                 </span>
               )}
             </AlertDialogDescription>

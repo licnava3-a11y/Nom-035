@@ -50,9 +50,13 @@ export const performanceEvaluation360Router = router({
    */
   getCycles: protectedProcedure
     .input(
-      z.object({
-        status: z.enum(["draft", "active", "completed", "cancelled"]).optional(),
-      }).optional()
+      z
+        .object({
+          status: z
+            .enum(["draft", "active", "completed", "cancelled"])
+            .optional(),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       const db = await getDb();
@@ -61,10 +65,14 @@ export const performanceEvaluation360Router = router({
       let baseQuery: any = db.select().from(evaluation360Cycles);
 
       if (input?.status) {
-        baseQuery = baseQuery.where(sql`${evaluation360Cycles.status} = ${input.status}`);
+        baseQuery = baseQuery.where(
+          sql`${evaluation360Cycles.status} = ${input.status}`
+        );
       }
 
-      const cycles = await baseQuery.orderBy(desc(evaluation360Cycles.createdAt));
+      const cycles = await baseQuery.orderBy(
+        desc(evaluation360Cycles.createdAt)
+      );
       return cycles;
     }),
 
@@ -103,7 +111,13 @@ export const performanceEvaluation360Router = router({
         evaluators: z.array(
           z.object({
             employeeId: z.number(),
-            type: z.enum(["self", "peer", "supervisor", "subordinate", "external"]),
+            type: z.enum([
+              "self",
+              "peer",
+              "supervisor",
+              "subordinate",
+              "external",
+            ]),
           })
         ),
       })
@@ -119,7 +133,9 @@ export const performanceEvaluation360Router = router({
         status: "pending" as const,
       }));
 
-      await (db.insert(evaluation360Evaluators) as any).values(evaluatorRecords);
+      await (db.insert(evaluation360Evaluators) as any).values(
+        evaluatorRecords
+      );
 
       return { success: true, evaluatorsCount: evaluatorRecords.length };
     }),
@@ -134,7 +150,12 @@ export const performanceEvaluation360Router = router({
         responses: z.array(
           z.object({
             competencyId: z.number(),
-            competencyType: z.enum(["technical", "soft_skill", "leadership", "organizational"]),
+            competencyType: z.enum([
+              "technical",
+              "soft_skill",
+              "leadership",
+              "organizational",
+            ]),
             score: z.number().min(1).max(5),
             comments: z.string().optional(),
           })
@@ -188,41 +209,67 @@ export const performanceEvaluation360Router = router({
       const responses = await db
         .select()
         .from(evaluation360Responses)
-        .where(sql`${evaluation360Responses.evaluatorId} IN (${evaluatorIds.join(",")})`);
+        .where(
+          sql`${evaluation360Responses.evaluatorId} IN (${evaluatorIds.join(",")})`
+        );
 
       // Agrupar respuestas por competencia
-      const competencyGroups = responses.reduce((acc: any, response: any) => {
-        const key = `${response.competencyId}-${response.competencyType}`;
-        if (!acc[key]) {
-          acc[key] = {
-            competencyId: response.competencyId,
-            competencyType: response.competencyType,
-            self: [],
-            peer: [],
-            supervisor: [],
-            subordinate: [],
-          };
-        }
+      const competencyGroups = responses.reduce(
+        (acc: any, response: any) => {
+          const key = `${response.competencyId}-${response.competencyType}`;
+          if (!acc[key]) {
+            acc[key] = {
+              competencyId: response.competencyId,
+              competencyType: response.competencyType,
+              self: [],
+              peer: [],
+              supervisor: [],
+              subordinate: [],
+            };
+          }
 
-        const evaluator = evaluators.find((e: any) => e.id === response.evaluatorId);
-        if (!evaluator) return acc;
+          const evaluator = evaluators.find(
+            (e: any) => e.id === response.evaluatorId
+          );
+          if (!evaluator) return acc;
 
-        const scoreNum = typeof response.score === 'string' ? parseFloat(response.score) : response.score;
+          const scoreNum =
+            typeof response.score === "string"
+              ? parseFloat(response.score)
+              : response.score;
 
-        if (evaluator.evaluatorType === "self") acc[key].self.push(scoreNum);
-        else if (evaluator.evaluatorType === "peer") acc[key].peer.push(scoreNum);
-        else if (evaluator.evaluatorType === "supervisor") acc[key].supervisor.push(scoreNum);
-        else if (evaluator.evaluatorType === "subordinate") acc[key].subordinate.push(scoreNum);
+          if (evaluator.evaluatorType === "self") acc[key].self.push(scoreNum);
+          else if (evaluator.evaluatorType === "peer")
+            acc[key].peer.push(scoreNum);
+          else if (evaluator.evaluatorType === "supervisor")
+            acc[key].supervisor.push(scoreNum);
+          else if (evaluator.evaluatorType === "subordinate")
+            acc[key].subordinate.push(scoreNum);
 
-        return acc;
-      }, {} as Record<string, any>);
+          return acc;
+        },
+        {} as Record<string, any>
+      );
 
       // Calcular promedios y consolidar resultados
       const results = Object.values(competencyGroups).map((group: any) => {
-        const selfScore = group.self.length > 0 ? group.self.reduce((a: number, b: number) => a + b, 0) / group.self.length : null;
-        const peerAvgScore = group.peer.length > 0 ? group.peer.reduce((a: number, b: number) => a + b, 0) / group.peer.length : null;
-        const supervisorScore = group.supervisor.length > 0 ? group.supervisor[0] : null;
-        const subordinateAvgScore = group.subordinate.length > 0 ? group.subordinate.reduce((a: number, b: number) => a + b, 0) / group.subordinate.length : null;
+        const selfScore =
+          group.self.length > 0
+            ? group.self.reduce((a: number, b: number) => a + b, 0) /
+              group.self.length
+            : null;
+        const peerAvgScore =
+          group.peer.length > 0
+            ? group.peer.reduce((a: number, b: number) => a + b, 0) /
+              group.peer.length
+            : null;
+        const supervisorScore =
+          group.supervisor.length > 0 ? group.supervisor[0] : null;
+        const subordinateAvgScore =
+          group.subordinate.length > 0
+            ? group.subordinate.reduce((a: number, b: number) => a + b, 0) /
+              group.subordinate.length
+            : null;
 
         const allScores = [
           ...(selfScore !== null ? [selfScore] : []),
@@ -231,10 +278,17 @@ export const performanceEvaluation360Router = router({
           ...(subordinateAvgScore !== null ? [subordinateAvgScore] : []),
         ];
 
-        const overallAvgScore = allScores.reduce((a: any, b: any) => a + b, 0) / allScores.length;
+        const overallAvgScore =
+          allScores.reduce((a: any, b: any) => a + b, 0) / allScores.length;
 
-        const gapSelfVsOthers = selfScore !== null && peerAvgScore !== null ? selfScore - peerAvgScore : null;
-        const gapSupervisorVsPeers = supervisorScore !== null && peerAvgScore !== null ? supervisorScore - peerAvgScore : null;
+        const gapSelfVsOthers =
+          selfScore !== null && peerAvgScore !== null
+            ? selfScore - peerAvgScore
+            : null;
+        const gapSupervisorVsPeers =
+          supervisorScore !== null && peerAvgScore !== null
+            ? supervisorScore - peerAvgScore
+            : null;
 
         return {
           assignmentId: input.assignmentId,
@@ -242,11 +296,19 @@ export const performanceEvaluation360Router = router({
           competencyType: group.competencyType,
           selfScore: selfScore !== null ? selfScore.toFixed(2) : null,
           peerAvgScore: peerAvgScore !== null ? peerAvgScore.toFixed(2) : null,
-          supervisorScore: supervisorScore !== null ? supervisorScore.toFixed(2) : null,
-          subordinateAvgScore: subordinateAvgScore !== null ? subordinateAvgScore.toFixed(2) : null,
+          supervisorScore:
+            supervisorScore !== null ? supervisorScore.toFixed(2) : null,
+          subordinateAvgScore:
+            subordinateAvgScore !== null
+              ? subordinateAvgScore.toFixed(2)
+              : null,
           overallAvgScore: overallAvgScore.toFixed(2),
-          gapSelfVsOthers: gapSelfVsOthers !== null ? gapSelfVsOthers.toFixed(2) : null,
-          gapSupervisorVsPeers: gapSupervisorVsPeers !== null ? gapSupervisorVsPeers.toFixed(2) : null,
+          gapSelfVsOthers:
+            gapSelfVsOthers !== null ? gapSelfVsOthers.toFixed(2) : null,
+          gapSupervisorVsPeers:
+            gapSupervisorVsPeers !== null
+              ? gapSupervisorVsPeers.toFixed(2)
+              : null,
           totalEvaluators: evaluators.length,
         };
       });
@@ -413,7 +475,9 @@ export const performanceEvaluation360Router = router({
         const [evaluatorsCount] = await db
           .select({ count: count() })
           .from(evaluation360Evaluators)
-          .where(sql`${evaluation360Evaluators.assignmentId} IN (${assignmentIds.join(",")})`);
+          .where(
+            sql`${evaluation360Evaluators.assignmentId} IN (${assignmentIds.join(",")})`
+          );
 
         totalEvaluators = evaluatorsCount.count;
 
@@ -432,9 +496,13 @@ export const performanceEvaluation360Router = router({
         completedAssignments: completedAssignments.count,
         totalEvaluators,
         completedEvaluators,
-        completionRate: totalAssignments.count > 0
-          ? ((completedAssignments.count / totalAssignments.count) * 100).toFixed(2)
-          : "0.00",
+        completionRate:
+          totalAssignments.count > 0
+            ? (
+                (completedAssignments.count / totalAssignments.count) *
+                100
+              ).toFixed(2)
+            : "0.00",
       };
     }),
 
@@ -518,14 +586,19 @@ export const performanceEvaluation360Router = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Obtener todos los departamentos o los especificados
       const departmentsQuery = input.departmentIds
         ? await db
             .select()
             .from(departments)
-            .where(sql`${departments.id} IN (${sql.join(input.departmentIds.map((id: any) => sql`${id}`), sql`, `)})`)
+            .where(
+              sql`${departments.id} IN (${sql.join(
+                input.departmentIds.map((id: any) => sql`${id}`),
+                sql`, `
+              )})`
+            )
         : await db.select().from(departments);
 
       // Obtener todas las competencias
@@ -550,7 +623,10 @@ export const performanceEvaluation360Router = router({
             )
             .innerJoin(
               evaluation360Assignments,
-              eq(evaluation360Evaluators.assignmentId, evaluation360Assignments.id)
+              eq(
+                evaluation360Evaluators.assignmentId,
+                evaluation360Assignments.id
+              )
             )
             .innerJoin(
               employees,
@@ -589,8 +665,8 @@ export const performanceEvaluation360Router = router({
               c.gap > 1.5
                 ? "Capacitación intensiva requerida (talleres presenciales, mentorías)"
                 : c.gap > 0.5
-                ? "Capacitación estándar recomendada (cursos en línea, webinars)"
-                : "Refuerzo ligero sugerido (lecturas, videos cortos)",
+                  ? "Capacitación estándar recomendada (cursos en línea, webinars)"
+                  : "Refuerzo ligero sugerido (lecturas, videos cortos)",
           }));
 
         reportData.push({
@@ -599,8 +675,8 @@ export const performanceEvaluation360Router = router({
           competencies: departmentCompetencies,
           developmentPlan: developmentPlan,
           ranking:
-            departmentCompetencies.filter((c: any) => c.status === "fortaleza").length /
-            departmentCompetencies.length,
+            departmentCompetencies.filter((c: any) => c.status === "fortaleza")
+              .length / departmentCompetencies.length,
         });
       }
 
@@ -654,7 +730,8 @@ export const performanceEvaluation360Router = router({
           </table>
 
           ${reportData
-            .map((dept: any) => `
+            .map(
+              (dept: any) => `
             <div style="page-break-before: always;">
               <h2>${dept.departmentName}</h2>
               
@@ -669,7 +746,8 @@ export const performanceEvaluation360Router = router({
                   <th>Empleados Evaluados</th>
                 </tr>
                 ${dept.competencies
-                  .map((comp: any) => `
+                  .map(
+                    (comp: any) => `
                   <tr class="${comp.status}">
                     <td>${comp.competencyName}</td>
                     <td>${comp.averageLevel.toFixed(2)}</td>
@@ -684,8 +762,9 @@ export const performanceEvaluation360Router = router({
               </table>
 
               <h3>Plan de Desarrollo Colectivo</h3>
-              ${dept.developmentPlan.length > 0
-                ? `
+              ${
+                dept.developmentPlan.length > 0
+                  ? `
                 <table>
                   <tr>
                     <th>Competencia</th>
@@ -693,7 +772,8 @@ export const performanceEvaluation360Router = router({
                     <th>Recomendación</th>
                   </tr>
                   ${dept.developmentPlan
-                    .map((plan: any) => `
+                    .map(
+                      (plan: any) => `
                     <tr>
                       <td>${plan.competency}</td>
                       <td>${plan.gap}</td>
@@ -704,7 +784,8 @@ export const performanceEvaluation360Router = router({
                     .join("")}
                 </table>
               `
-                : `<p style="color: #059669;">✅ Este departamento no requiere plan de desarrollo. Todas las competencias están en nivel de fortaleza.</p>`}
+                  : `<p style="color: #059669;">✅ Este departamento no requiere plan de desarrollo. Todas las competencias están en nivel de fortaleza.</p>`
+              }
             </div>
           `
             )
@@ -714,7 +795,10 @@ export const performanceEvaluation360Router = router({
       `;
 
       // Generar PDF
-      const pdfUrl = await generatePDFFromHTML(htmlContent, `dept-report-${input.cycleId}`);
+      const pdfUrl = await generatePDFFromHTML(
+        htmlContent,
+        `dept-report-${input.cycleId}`
+      );
 
       return {
         success: true,
@@ -723,7 +807,9 @@ export const performanceEvaluation360Router = router({
         summary: {
           totalCompetencies: competenciesData.length,
           topDepartment: reportData[0]?.departmentName || "N/A",
-          topDepartmentScore: reportData[0] ? (reportData[0].ranking * 100).toFixed(1) : "0",
+          topDepartmentScore: reportData[0]
+            ? (reportData[0].ranking * 100).toFixed(1)
+            : "0",
         },
       };
     }),

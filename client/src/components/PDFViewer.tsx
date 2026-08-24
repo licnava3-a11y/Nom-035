@@ -49,7 +49,7 @@ export function PDFViewer({
   // Construir la URL del iframe — base64 tiene prioridad
   const iframeSrc = pdfBase64
     ? `data:application/pdf;base64,${pdfBase64}`
-    : pdfUrl ?? "";
+    : (pdfUrl ?? "");
 
   const handleDownload = () => {
     if (!iframeSrc) return;
@@ -60,7 +60,7 @@ export function PDFViewer({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
+    <Dialog open={open} onOpenChange={v => !v && handleClose()}>
       <DialogContent className="max-w-5xl w-full h-[90vh] flex flex-col p-0 gap-0">
         {/* Header */}
         <DialogHeader className="px-4 py-3 border-b flex-shrink-0">
@@ -74,7 +74,7 @@ export function PDFViewer({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => setZoom((z) => Math.max(50, z - 10))}
+                onClick={() => setZoom(z => Math.max(50, z - 10))}
                 title="Reducir zoom"
               >
                 <ZoomOut className="h-4 w-4" />
@@ -86,7 +86,7 @@ export function PDFViewer({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => setZoom((z) => Math.min(200, z + 10))}
+                onClick={() => setZoom(z => Math.min(200, z + 10))}
                 title="Aumentar zoom"
               >
                 <ZoomIn className="h-4 w-4" />
@@ -131,11 +131,15 @@ export function PDFViewer({
           {loading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">Generando documento...</p>
+              <p className="text-sm text-muted-foreground">
+                Generando documento...
+              </p>
             </div>
           ) : !iframeSrc ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <p className="text-sm text-muted-foreground">No hay documento disponible</p>
+              <p className="text-sm text-muted-foreground">
+                No hay documento disponible
+              </p>
             </div>
           ) : (
             <div

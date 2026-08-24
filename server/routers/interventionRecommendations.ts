@@ -49,7 +49,8 @@ export const interventionRecommendationsRouter = router({
         const allInterventions = await db.select().from(retentionInterventions);
 
         // Filtrar intervenciones con outcome conocido
-        const completedInterventions = allInterventions.filter((i: any) => i.outcome === "retained" || i.outcome === "left"
+        const completedInterventions = allInterventions.filter(
+          (i: any) => i.outcome === "retained" || i.outcome === "left"
         );
 
         if (completedInterventions.length === 0) {
@@ -61,46 +62,71 @@ export const interventionRecommendationsRouter = router({
         }
 
         // Calcular efectividad por tipo de intervención
-        const interventionTypes = ["training", "salary_adjustment", "position_change", "benefits", "recognition", "other"];
+        const interventionTypes = [
+          "training",
+          "salary_adjustment",
+          "position_change",
+          "benefits",
+          "recognition",
+          "other",
+        ];
         const recommendations: InterventionRecommendation[] = [];
 
         for (const type of interventionTypes) {
-          const typeInterventions = completedInterventions.filter((i: any) => i.interventionType === type);
+          const typeInterventions = completedInterventions.filter(
+            (i: any) => i.interventionType === type
+          );
 
           if (typeInterventions.length === 0) continue;
 
           // Calcular tasa de éxito general
-          const successCount = typeInterventions.filter((i: any) => i.outcome === "retained").length;
+          const successCount = typeInterventions.filter(
+            (i: any) => i.outcome === "retained"
+          ).length;
           const successRate = (successCount / typeInterventions.length) * 100;
 
           // Filtrar intervenciones similares (mismo departamento o puesto)
           const similarInterventions = typeInterventions.filter((i: any) => {
-            const deptMatch = input.department && i.department === input.department;
-            const posMatch = input.position && i.employeePosition === input.position;
+            const deptMatch =
+              input.department && i.department === input.department;
+            const posMatch =
+              input.position && i.employeePosition === input.position;
             return deptMatch || posMatch;
           });
 
-          const similarSuccessCount = similarInterventions.filter((i: any) => i.outcome === "retained").length;
-          const similarSuccessRate = similarInterventions.length > 0
-            ? (similarSuccessCount / similarInterventions.length) * 100
-            : successRate;
+          const similarSuccessCount = similarInterventions.filter(
+            (i: any) => i.outcome === "retained"
+          ).length;
+          const similarSuccessRate =
+            similarInterventions.length > 0
+              ? (similarSuccessCount / similarInterventions.length) * 100
+              : successRate;
 
           // Calcular costo promedio
           const costsWithValues = typeInterventions.filter((i: any) => i.cost);
-          const avgCost = costsWithValues.length > 0
-            ? costsWithValues.reduce((acc: any, i: any) => acc + parseFloat(i.cost || "0"), 0) / costsWithValues.length
-            : 0;
+          const avgCost =
+            costsWithValues.length > 0
+              ? costsWithValues.reduce(
+                  (acc: any, i: any) => acc + parseFloat(i.cost || "0"),
+                  0
+                ) / costsWithValues.length
+              : 0;
 
           // Calcular score basado en múltiples factores
           const riskFactor = input.riskScore / 100; // 0-1
           const similarityBonus = similarInterventions.length > 0 ? 1.2 : 1.0;
-          const costPenalty = avgCost > 0 ? Math.max(0.5, 1 - (avgCost / 50000)) : 1.0; // Penalizar costos altos
+          const costPenalty =
+            avgCost > 0 ? Math.max(0.5, 1 - avgCost / 50000) : 1.0; // Penalizar costos altos
 
-          const baseScore = (similarSuccessRate / 100) * similarityBonus * costPenalty;
-          const adjustedScore = baseScore * (0.7 + (riskFactor * 0.3)); // Mayor peso para alto riesgo
+          const baseScore =
+            (similarSuccessRate / 100) * similarityBonus * costPenalty;
+          const adjustedScore = baseScore * (0.7 + riskFactor * 0.3); // Mayor peso para alto riesgo
 
           // Calcular probabilidad de éxito
-          const successProbability = Math.min(95, similarSuccessRate * (similarityBonus * 0.9));
+          const successProbability = Math.min(
+            95,
+            similarSuccessRate * (similarityBonus * 0.9)
+          );
 
           // Generar razonamiento
           const reasoning = generateReasoning(
@@ -183,7 +209,8 @@ function generateReasoning(
 
   // Agregar recomendación específica según tipo
   if (type === "training") {
-    reasoning += ". Recomendado para desarrollar habilidades y aumentar engagement.";
+    reasoning +=
+      ". Recomendado para desarrollar habilidades y aumentar engagement.";
   } else if (type === "salary_adjustment") {
     reasoning += ". Efectivo cuando hay brecha salarial con el mercado.";
   } else if (type === "position_change") {
@@ -200,7 +227,9 @@ function generateReasoning(
 /**
  * Recomendaciones por defecto cuando no hay datos históricos
  */
-function getDefaultRecommendations(riskScore: number): InterventionRecommendation[] {
+function getDefaultRecommendations(
+  riskScore: number
+): InterventionRecommendation[] {
   const recommendations: InterventionRecommendation[] = [];
 
   if (riskScore >= 70) {
@@ -211,7 +240,8 @@ function getDefaultRecommendations(riskScore: number): InterventionRecommendatio
       successProbability: 75,
       avgCost: 15000,
       historicalSuccessRate: 75,
-      reasoning: "Ajuste salarial es altamente efectivo para retener talento de alto riesgo. Recomendado cuando hay brecha salarial con el mercado.",
+      reasoning:
+        "Ajuste salarial es altamente efectivo para retener talento de alto riesgo. Recomendado cuando hay brecha salarial con el mercado.",
       similarCases: 0,
     });
     recommendations.push({
@@ -220,7 +250,8 @@ function getDefaultRecommendations(riskScore: number): InterventionRecommendatio
       successProbability: 70,
       avgCost: 5000,
       historicalSuccessRate: 70,
-      reasoning: "Cambio de puesto ofrece nuevos desafíos y oportunidades de crecimiento. Útil para empleados con potencial de desarrollo.",
+      reasoning:
+        "Cambio de puesto ofrece nuevos desafíos y oportunidades de crecimiento. Útil para empleados con potencial de desarrollo.",
       similarCases: 0,
     });
     recommendations.push({
@@ -229,7 +260,8 @@ function getDefaultRecommendations(riskScore: number): InterventionRecommendatio
       successProbability: 65,
       avgCost: 8000,
       historicalSuccessRate: 65,
-      reasoning: "Mejora de beneficios aumenta satisfacción y balance vida-trabajo. Efectivo para retención a mediano plazo.",
+      reasoning:
+        "Mejora de beneficios aumenta satisfacción y balance vida-trabajo. Efectivo para retención a mediano plazo.",
       similarCases: 0,
     });
   } else if (riskScore >= 40) {
@@ -240,7 +272,8 @@ function getDefaultRecommendations(riskScore: number): InterventionRecommendatio
       successProbability: 70,
       avgCost: 3000,
       historicalSuccessRate: 70,
-      reasoning: "Capacitación desarrolla habilidades y aumenta engagement. Recomendado para empleados con deseos de crecimiento profesional.",
+      reasoning:
+        "Capacitación desarrolla habilidades y aumenta engagement. Recomendado para empleados con deseos de crecimiento profesional.",
       similarCases: 0,
     });
     recommendations.push({
@@ -249,7 +282,8 @@ function getDefaultRecommendations(riskScore: number): InterventionRecommendatio
       successProbability: 65,
       avgCost: 500,
       historicalSuccessRate: 65,
-      reasoning: "Reconocimiento tiene bajo costo y alto impacto en motivación. Efectivo para mejorar clima laboral.",
+      reasoning:
+        "Reconocimiento tiene bajo costo y alto impacto en motivación. Efectivo para mejorar clima laboral.",
       similarCases: 0,
     });
     recommendations.push({
@@ -258,7 +292,8 @@ function getDefaultRecommendations(riskScore: number): InterventionRecommendatio
       successProbability: 60,
       avgCost: 8000,
       historicalSuccessRate: 60,
-      reasoning: "Mejora de beneficios aumenta satisfacción general. Útil para empleados que valoran balance vida-trabajo.",
+      reasoning:
+        "Mejora de beneficios aumenta satisfacción general. Útil para empleados que valoran balance vida-trabajo.",
       similarCases: 0,
     });
   } else {
@@ -269,7 +304,8 @@ function getDefaultRecommendations(riskScore: number): InterventionRecommendatio
       successProbability: 80,
       avgCost: 500,
       historicalSuccessRate: 80,
-      reasoning: "Reconocimiento mantiene motivación alta. Bajo costo y efectivo para prevención.",
+      reasoning:
+        "Reconocimiento mantiene motivación alta. Bajo costo y efectivo para prevención.",
       similarCases: 0,
     });
     recommendations.push({
@@ -278,7 +314,8 @@ function getDefaultRecommendations(riskScore: number): InterventionRecommendatio
       successProbability: 75,
       avgCost: 3000,
       historicalSuccessRate: 75,
-      reasoning: "Capacitación continua mantiene engagement. Recomendado para desarrollo profesional sostenido.",
+      reasoning:
+        "Capacitación continua mantiene engagement. Recomendado para desarrollo profesional sostenido.",
       similarCases: 0,
     });
     recommendations.push({
@@ -287,7 +324,8 @@ function getDefaultRecommendations(riskScore: number): InterventionRecommendatio
       successProbability: 70,
       avgCost: 8000,
       historicalSuccessRate: 70,
-      reasoning: "Mejora de beneficios fortalece compromiso a largo plazo. Útil para retención preventiva.",
+      reasoning:
+        "Mejora de beneficios fortalece compromiso a largo plazo. Útil para retención preventiva.",
       similarCases: 0,
     });
   }

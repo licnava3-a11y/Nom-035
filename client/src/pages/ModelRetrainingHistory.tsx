@@ -1,15 +1,31 @@
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { RefreshCw, TrendingUp, TrendingDown, Activity } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 export default function ModelRetrainingHistory() {
-  const { data: retrainingHistory = [], isLoading: loadingHistory } = trpc.modelRetraining.getRetrainingHistory.useQuery({ limit: 20 });
-  const { data: stats, isLoading: loadingStats } = trpc.modelRetraining.getRetrainingStats.useQuery();
-  const { data: lastRetraining } = trpc.modelRetraining.getLastRetraining.useQuery();
+  const { data: retrainingHistory = [], isLoading: loadingHistory } =
+    trpc.modelRetraining.getRetrainingHistory.useQuery({ limit: 20 });
+  const { data: stats, isLoading: loadingStats } =
+    trpc.modelRetraining.getRetrainingStats.useQuery();
+  const { data: lastRetraining } =
+    trpc.modelRetraining.getLastRetraining.useQuery();
 
   if (loadingHistory || loadingStats) {
     return (
@@ -22,9 +38,12 @@ export default function ModelRetrainingHistory() {
   return (
     <div className="container mx-auto py-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Historial de Reentrenamiento Automático</h1>
+        <h1 className="text-3xl font-bold">
+          Historial de Reentrenamiento Automático
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Registro de ajustes automáticos del modelo predictivo basados en degradación de métricas
+          Registro de ajustes automáticos del modelo predictivo basados en
+          degradación de métricas
         </p>
       </div>
 
@@ -32,12 +51,16 @@ export default function ModelRetrainingHistory() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Reentrena mientos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Reentrena mientos
+            </CardTitle>
             <RefreshCw className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.total || 0}</div>
-            <p className="text-xs text-muted-foreground">Desde el inicio del sistema</p>
+            <p className="text-xs text-muted-foreground">
+              Desde el inicio del sistema
+            </p>
           </CardContent>
         </Card>
 
@@ -47,8 +70,12 @@ export default function ModelRetrainingHistory() {
             <Activity className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats?.applied || 0}</div>
-            <p className="text-xs text-muted-foreground">Configuraciones activas</p>
+            <div className="text-2xl font-bold text-green-600">
+              {stats?.applied || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Configuraciones activas
+            </p>
           </CardContent>
         </Card>
 
@@ -58,18 +85,26 @@ export default function ModelRetrainingHistory() {
             <Activity className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats?.reverted || 0}</div>
-            <p className="text-xs text-muted-foreground">Configuraciones revertidas</p>
+            <div className="text-2xl font-bold text-red-600">
+              {stats?.reverted || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Configuraciones revertidas
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Mejora Promedio</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Mejora Promedio
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">+{stats?.averageImprovement || 0}%</div>
+            <div className="text-2xl font-bold text-blue-600">
+              +{stats?.averageImprovement || 0}%
+            </div>
             <p className="text-xs text-muted-foreground">En F1-Score</p>
           </CardContent>
         </Card>
@@ -84,7 +119,9 @@ export default function ModelRetrainingHistory() {
               Último Reentrenamiento
             </CardTitle>
             <CardDescription>
-              {format(new Date(lastRetraining.appliedAt), "PPP 'a las' HH:mm", { locale: es })}
+              {format(new Date(lastRetraining.appliedAt), "PPP 'a las' HH:mm", {
+                locale: es,
+              })}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -94,28 +131,51 @@ export default function ModelRetrainingHistory() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">Configuración Anterior</p>
-                <p className="text-sm">{lastRetraining.oldConfig?.description || `Config ${lastRetraining.oldConfigId}`}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  Configuración Anterior
+                </p>
+                <p className="text-sm">
+                  {lastRetraining.oldConfig?.description ||
+                    `Config ${lastRetraining.oldConfigId}`}
+                </p>
                 <div className="mt-2 space-y-1">
-                  <p className="text-xs">Precisión: {lastRetraining.oldPrecision || "N/A"}%</p>
-                  <p className="text-xs">Recall: {lastRetraining.oldRecall || "N/A"}%</p>
-                  <p className="text-xs">F1-Score: {lastRetraining.oldF1Score || "N/A"}%</p>
+                  <p className="text-xs">
+                    Precisión: {lastRetraining.oldPrecision || "N/A"}%
+                  </p>
+                  <p className="text-xs">
+                    Recall: {lastRetraining.oldRecall || "N/A"}%
+                  </p>
+                  <p className="text-xs">
+                    F1-Score: {lastRetraining.oldF1Score || "N/A"}%
+                  </p>
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">Nueva Configuración</p>
-                <p className="text-sm">{lastRetraining.newConfig?.description || `Config ${lastRetraining.newConfigId}`}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  Nueva Configuración
+                </p>
+                <p className="text-sm">
+                  {lastRetraining.newConfig?.description ||
+                    `Config ${lastRetraining.newConfigId}`}
+                </p>
                 <div className="mt-2 space-y-1">
-                  <p className="text-xs">Precisión: {lastRetraining.newPrecision || "N/A"}%</p>
-                  <p className="text-xs">Recall: {lastRetraining.newRecall || "N/A"}%</p>
-                  <p className="text-xs">F1-Score: {lastRetraining.newF1Score || "N/A"}%</p>
+                  <p className="text-xs">
+                    Precisión: {lastRetraining.newPrecision || "N/A"}%
+                  </p>
+                  <p className="text-xs">
+                    Recall: {lastRetraining.newRecall || "N/A"}%
+                  </p>
+                  <p className="text-xs">
+                    F1-Score: {lastRetraining.newF1Score || "N/A"}%
+                  </p>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-green-600" />
               <span className="text-sm font-medium">
-                Mejora esperada: +{lastRetraining.improvementPercentage}% en F1-Score
+                Mejora esperada: +{lastRetraining.improvementPercentage}% en
+                F1-Score
               </span>
             </div>
           </CardContent>
@@ -126,15 +186,20 @@ export default function ModelRetrainingHistory() {
       <Card>
         <CardHeader>
           <CardTitle>Historial Completo</CardTitle>
-          <CardDescription>Todos los reentrena mientos automáticos del modelo</CardDescription>
+          <CardDescription>
+            Todos los reentrena mientos automáticos del modelo
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {retrainingHistory.length === 0 ? (
             <div className="text-center py-12">
               <RefreshCw className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No hay reentrena mientos registrados</p>
+              <p className="text-muted-foreground">
+                No hay reentrena mientos registrados
+              </p>
               <p className="text-sm text-muted-foreground mt-2">
-                El sistema aplicará reentrena mientos automáticos cuando detecte degradación persistente
+                El sistema aplicará reentrena mientos automáticos cuando detecte
+                degradación persistente
               </p>
             </div>
           ) : (
@@ -160,10 +225,12 @@ export default function ModelRetrainingHistory() {
                       {record.reason}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {record.oldConfig?.description || `Config ${record.oldConfigId}`}
+                      {record.oldConfig?.description ||
+                        `Config ${record.oldConfigId}`}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {record.newConfig?.description || `Config ${record.newConfigId}`}
+                      {record.newConfig?.description ||
+                        `Config ${record.newConfigId}`}
                     </TableCell>
                     <TableCell>
                       <Badge variant="destructive">{record.alertCount}</Badge>
@@ -181,7 +248,11 @@ export default function ModelRetrainingHistory() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={record.status === "applied" ? "default" : "secondary"}>
+                      <Badge
+                        variant={
+                          record.status === "applied" ? "default" : "secondary"
+                        }
+                      >
                         {record.status === "applied" ? "Aplicado" : "Revertido"}
                       </Badge>
                     </TableCell>

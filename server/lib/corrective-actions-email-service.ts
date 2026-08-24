@@ -1,4 +1,4 @@
-import { sendEmail } from './survey-email-service';
+import { sendEmail } from "./survey-email-service";
 
 /**
  * Servicio de envío de correos electrónicos para acciones correctivas NOM-035
@@ -162,16 +162,16 @@ const getEmailTemplate = (content: string, title: string): string => {
  */
 const getRiskBadge = (riskLevel: string): string => {
   const levelMap: Record<string, string> = {
-    'nulo': 'Nulo',
-    'bajo': 'Bajo',
-    'medio': 'Medio',
-    'alto': 'Alto',
-    'muy alto': 'Muy Alto',
+    nulo: "Nulo",
+    bajo: "Bajo",
+    medio: "Medio",
+    alto: "Alto",
+    "muy alto": "Muy Alto",
   };
-  
-  const levelClass = `risk-${riskLevel.replace(' ', '-')}`;
+
+  const levelClass = `risk-${riskLevel.replace(" ", "-")}`;
   const levelText = levelMap[riskLevel] || riskLevel;
-  
+
   return `<span class="risk-badge ${levelClass}">${levelText}</span>`;
 };
 
@@ -218,8 +218,8 @@ export const getActionAssignmentTemplate = (data: {
       Si tiene alguna duda sobre esta asignación, por favor contacte al coordinador de NOM-035.
     </p>
   `;
-  
-  return getEmailTemplate(content, 'Nueva Acción Correctiva Asignada');
+
+  return getEmailTemplate(content, "Nueva Acción Correctiva Asignada");
 };
 
 /**
@@ -235,15 +235,15 @@ export const getActionStatusChangeTemplate = (data: {
   actionUrl: string;
 }): string => {
   const statusMap: Record<string, string> = {
-    'pendiente': 'Pendiente',
-    'en_proceso': 'En Proceso',
-    'completada': 'Completada',
-    'cancelada': 'Cancelada',
+    pendiente: "Pendiente",
+    en_proceso: "En Proceso",
+    completada: "Completada",
+    cancelada: "Cancelada",
   };
-  
+
   const oldStatusText = statusMap[data.oldStatus] || data.oldStatus;
   const newStatusText = statusMap[data.newStatus] || data.newStatus;
-  
+
   const content = `
     <p>Estimado(a) <strong>${data.recipientName}</strong>,</p>
     
@@ -268,11 +268,15 @@ export const getActionStatusChangeTemplate = (data: {
       </table>
     </div>
     
-    ${data.newStatus === 'completada' ? `
+    ${
+      data.newStatus === "completada"
+        ? `
     <div class="success-box">
       <p style="margin: 0;">✅ <strong>¡Acción completada exitosamente!</strong> Gracias por su compromiso con el cumplimiento de la NOM-035.</p>
     </div>
-    ` : ''}
+    `
+        : ""
+    }
     
     <div style="text-align: center;">
       <a href="${data.actionUrl}" class="button">Ver Detalles</a>
@@ -282,8 +286,8 @@ export const getActionStatusChangeTemplate = (data: {
       Esta es una notificación automática del sistema de gestión NOM-035.
     </p>
   `;
-  
-  return getEmailTemplate(content, 'Cambio de Estado: Acción Correctiva');
+
+  return getEmailTemplate(content, "Cambio de Estado: Acción Correctiva");
 };
 
 /**
@@ -314,7 +318,7 @@ export const getActionDueReminderTemplate = (data: {
         </tr>
         <tr>
           <td>Días restantes:</td>
-          <td><strong style="color: #f59e0b;">${data.daysRemaining} ${data.daysRemaining === 1 ? 'día' : 'días'}</strong></td>
+          <td><strong style="color: #f59e0b;">${data.daysRemaining} ${data.daysRemaining === 1 ? "día" : "días"}</strong></td>
         </tr>
       </table>
     </div>
@@ -329,8 +333,11 @@ export const getActionDueReminderTemplate = (data: {
       Si ya completó esta acción, por favor actualice su estado en el sistema.
     </p>
   `;
-  
-  return getEmailTemplate(content, 'Recordatorio: Acción Correctiva Próxima a Vencer');
+
+  return getEmailTemplate(
+    content,
+    "Recordatorio: Acción Correctiva Próxima a Vencer"
+  );
 };
 
 /**
@@ -361,7 +368,7 @@ export const getActionOverdueTemplate = (data: {
         </tr>
         <tr>
           <td>Días de retraso:</td>
-          <td><strong style="color: #dc2626;">${data.daysOverdue} ${data.daysOverdue === 1 ? 'día' : 'días'}</strong></td>
+          <td><strong style="color: #dc2626;">${data.daysOverdue} ${data.daysOverdue === 1 ? "día" : "días"}</strong></td>
         </tr>
       </table>
     </div>
@@ -376,8 +383,8 @@ export const getActionOverdueTemplate = (data: {
       El incumplimiento de las acciones correctivas puede afectar el cumplimiento de la NOM-035-STPS-2018.
     </p>
   `;
-  
-  return getEmailTemplate(content, '🚨 URGENTE: Acción Correctiva Vencida');
+
+  return getEmailTemplate(content, "🚨 URGENTE: Acción Correctiva Vencida");
 };
 
 /**
@@ -395,20 +402,24 @@ export const getOverdueActionsSummaryTemplate = (data: {
   }>;
   dashboardUrl: string;
 }): string => {
-  const actionsHtml = data.overdueActions.map(action => `
+  const actionsHtml = data.overdueActions
+    .map(
+      action => `
     <tr style="border-bottom: 1px solid #e5e7eb;">
       <td style="padding: 12px 8px; font-weight: 600;">#${action.id}</td>
-      <td style="padding: 12px 8px;">${action.description.substring(0, 60)}${action.description.length > 60 ? '...' : ''}</td>
+      <td style="padding: 12px 8px;">${action.description.substring(0, 60)}${action.description.length > 60 ? "..." : ""}</td>
       <td style="padding: 12px 8px;">${action.responsibleName}</td>
       <td style="padding: 12px 8px;">${action.department}</td>
-      <td style="padding: 12px 8px; color: #dc2626; font-weight: 600;">${action.daysOverdue} ${action.daysOverdue === 1 ? 'día' : 'días'}</td>
+      <td style="padding: 12px 8px; color: #dc2626; font-weight: 600;">${action.daysOverdue} ${action.daysOverdue === 1 ? "día" : "días"}</td>
     </tr>
-  `).join('');
-  
+  `
+    )
+    .join("");
+
   const content = `
     <p>Estimado(a) <strong>${data.coordinatorName}</strong>,</p>
     
-    <p>Como coordinador de NOM-035, le informamos que existen <strong style="color: #dc2626;">${data.overdueActions.length} ${data.overdueActions.length === 1 ? 'acción correctiva vencida' : 'acciones correctivas vencidas'}</strong> que requieren seguimiento:</p>
+    <p>Como coordinador de NOM-035, le informamos que existen <strong style="color: #dc2626;">${data.overdueActions.length} ${data.overdueActions.length === 1 ? "acción correctiva vencida" : "acciones correctivas vencidas"}</strong> que requieren seguimiento:</p>
     
     <div class="info-box" style="border-left-color: #dc2626;">
       <h3 style="margin-top: 0; color: #dc2626;">Acciones Vencidas</h3>
@@ -438,8 +449,8 @@ export const getOverdueActionsSummaryTemplate = (data: {
       Este es un resumen automático generado por el sistema de gestión NOM-035.
     </p>
   `;
-  
-  return getEmailTemplate(content, 'Resumen: Acciones Correctivas Vencidas');
+
+  return getEmailTemplate(content, "Resumen: Acciones Correctivas Vencidas");
 };
 
 /**
@@ -456,7 +467,7 @@ export async function sendActionAssignmentNotification(data: {
   actionUrl: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const html = getActionAssignmentTemplate(data);
-  
+
   return sendEmail({
     to: data.to,
     subject: `Nueva Acción Correctiva Asignada #${data.actionId}`,
@@ -478,7 +489,7 @@ export async function sendActionStatusChangeNotification(data: {
   actionUrl: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const html = getActionStatusChangeTemplate(data);
-  
+
   return sendEmail({
     to: data.to,
     subject: `Actualización: Acción Correctiva #${data.actionId}`,
@@ -500,7 +511,7 @@ export async function sendActionDueReminder(data: {
   actionUrl: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const html = getActionDueReminderTemplate(data);
-  
+
   return sendEmail({
     to: data.to,
     subject: `⚠️ Recordatorio: Acción Correctiva #${data.actionId} próxima a vencer`,
@@ -522,7 +533,7 @@ export async function sendActionOverdueNotification(data: {
   actionUrl: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const html = getActionOverdueTemplate(data);
-  
+
   return sendEmail({
     to: data.to,
     subject: `🚨 URGENTE: Acción Correctiva #${data.actionId} vencida`,
@@ -547,10 +558,10 @@ export async function sendOverdueActionsSummary(data: {
   dashboardUrl: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const html = getOverdueActionsSummaryTemplate(data);
-  
+
   return sendEmail({
     to: data.to,
-    subject: `Resumen: ${data.overdueActions.length} ${data.overdueActions.length === 1 ? 'Acción Vencida' : 'Acciones Vencidas'}`,
+    subject: `Resumen: ${data.overdueActions.length} ${data.overdueActions.length === 1 ? "Acción Vencida" : "Acciones Vencidas"}`,
     html,
   });
 }

@@ -1,7 +1,19 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Bar, Line, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -33,9 +45,10 @@ ChartJS.register(
 export default function ApprovalMetrics() {
   const [period, setPeriod] = useState<"month" | "quarter" | "year">("month");
 
-  const { data: metrics, isLoading } = trpc.committeeOperatingRules.getApprovalMetrics.useQuery({
-    period,
-  });
+  const { data: metrics, isLoading } =
+    trpc.committeeOperatingRules.getApprovalMetrics.useQuery({
+      period,
+    });
 
   if (isLoading) {
     return (
@@ -62,7 +75,11 @@ export default function ApprovalMetrics() {
     labels: ["Aprobadas", "Rechazadas", "Pendientes"],
     datasets: [
       {
-        data: [metrics.summary.approved, metrics.summary.rejected, metrics.summary.pending],
+        data: [
+          metrics.summary.approved,
+          metrics.summary.rejected,
+          metrics.summary.pending,
+        ],
         backgroundColor: ["#10b981", "#ef4444", "#f59e0b"],
         borderColor: ["#059669", "#dc2626", "#d97706"],
         borderWidth: 1,
@@ -88,7 +105,20 @@ export default function ApprovalMetrics() {
   const monthlyTrendData = {
     labels: metrics.approvalsByMonth.map((m: any) => {
       const [year, month] = m.month.split("-");
-      const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+      const monthNames = [
+        "Ene",
+        "Feb",
+        "Mar",
+        "Abr",
+        "May",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dic",
+      ];
       return `${monthNames[parseInt(month) - 1]} ${year}`;
     }),
     datasets: [
@@ -134,7 +164,8 @@ export default function ApprovalMetrics() {
         <div>
           <h1 className="text-3xl font-bold">Métricas de Aprobaciones</h1>
           <p className="text-muted-foreground mt-1">
-            Análisis de eficiencia del proceso de aprobación de bases de funcionamiento
+            Análisis de eficiencia del proceso de aprobación de bases de
+            funcionamiento
           </p>
         </div>
         <Select value={period} onValueChange={(value: any) => setPeriod(value)}>
@@ -153,35 +184,53 @@ export default function ApprovalMetrics() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Aprobaciones</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Aprobaciones
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.summary.totalApprovals}</div>
-            <p className="text-xs text-muted-foreground mt-1">{getPeriodLabel()}</p>
+            <div className="text-2xl font-bold">
+              {metrics.summary.totalApprovals}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {getPeriodLabel()}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Tiempo Promedio</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tiempo Promedio
+            </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.summary.avgApprovalTime.toFixed(1)} días</div>
-            <p className="text-xs text-muted-foreground mt-1">Desde solicitud hasta firma</p>
+            <div className="text-2xl font-bold">
+              {metrics.summary.avgApprovalTime.toFixed(1)} días
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Desde solicitud hasta firma
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Aprobación</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Aprobación
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
               {metrics.summary.totalApprovals > 0
-                ? ((metrics.summary.approved / metrics.summary.totalApprovals) * 100).toFixed(1)
+                ? (
+                    (metrics.summary.approved /
+                      metrics.summary.totalApprovals) *
+                    100
+                  ).toFixed(1)
                 : 0}
               %
             </div>
@@ -193,11 +242,15 @@ export default function ApprovalMetrics() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Rechazo</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Rechazo
+            </CardTitle>
             <XCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{metrics.summary.rejectionRate.toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-red-600">
+              {metrics.summary.rejectionRate.toFixed(1)}%
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               {metrics.summary.rejected} rechazadas
             </p>
@@ -211,7 +264,9 @@ export default function ApprovalMetrics() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución de Aprobaciones</CardTitle>
-            <CardDescription>Proporción de aprobaciones, rechazos y pendientes</CardDescription>
+            <CardDescription>
+              Proporción de aprobaciones, rechazos y pendientes
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80 flex items-center justify-center">
@@ -235,7 +290,9 @@ export default function ApprovalMetrics() {
         <Card>
           <CardHeader>
             <CardTitle>Aprobadores Más Activos</CardTitle>
-            <CardDescription>Top 5 miembros con más aprobaciones completadas</CardDescription>
+            <CardDescription>
+              Top 5 miembros con más aprobaciones completadas
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -269,7 +326,10 @@ export default function ApprovalMetrics() {
       <Card>
         <CardHeader>
           <CardTitle>Tendencia Mensual de Aprobaciones</CardTitle>
-          <CardDescription>Evolución de aprobaciones, rechazos y pendientes en los últimos 6 meses</CardDescription>
+          <CardDescription>
+            Evolución de aprobaciones, rechazos y pendientes en los últimos 6
+            meses
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-96">

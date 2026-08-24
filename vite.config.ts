@@ -57,7 +57,7 @@ function writeToLogFile(source: LogSource, entries: unknown[]) {
   const logPath = path.join(LOG_DIR, `${source}.log`);
 
   // Format entries with timestamps
-  const lines = entries.map((entry) => {
+  const lines = entries.map(entry => {
     const ts = new Date().toISOString();
     return `[${ts}] ${JSON.stringify(entry)}`;
   });
@@ -133,7 +133,7 @@ function vitePluginManusDebugCollector(): Plugin {
         }
 
         let body = "";
-        req.on("data", (chunk) => {
+        req.on("data", chunk => {
           body += chunk.toString();
         });
 
@@ -156,12 +156,22 @@ function vitePluginBundleBudget(): Plugin {
     name: "nom035-bundle-budget",
     generateBundle(_options, bundle) {
       const oversizedChunks = Object.values(bundle)
-        .filter((entry): entry is import("rollup").OutputChunk => entry.type === "chunk")
-        .filter((entry) => Buffer.byteLength(entry.code, "utf-8") > BUNDLE_BUDGET_BYTES)
-        .map((entry) => `${entry.fileName} (${Math.ceil(Buffer.byteLength(entry.code, "utf-8") / 1024)} KB)`);
+        .filter(
+          (entry): entry is import("rollup").OutputChunk =>
+            entry.type === "chunk"
+        )
+        .filter(
+          entry => Buffer.byteLength(entry.code, "utf-8") > BUNDLE_BUDGET_BYTES
+        )
+        .map(
+          entry =>
+            `${entry.fileName} (${Math.ceil(Buffer.byteLength(entry.code, "utf-8") / 1024)} KB)`
+        );
 
       if (oversizedChunks.length > 0) {
-        this.warn(`Presupuesto de bundle excedido (900 KB): ${oversizedChunks.join(", ")}`);
+        this.warn(
+          `Presupuesto de bundle excedido (900 KB): ${oversizedChunks.join(", ")}`
+        );
       }
     },
   };
@@ -193,151 +203,190 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     // Optimizaciones críticas de velocidad de build para producción
-    minify: 'esbuild',         // esbuild es 10-20x más rápido que terser (default)
-    sourcemap: false,           // Sin sourcemaps → build ~40% más rápido
-    target: 'es2020',           // Target moderno → menos transpilación
-    cssMinify: 'esbuild',       // CSS minificado con esbuild también
+    minify: "esbuild", // esbuild es 10-20x más rápido que terser (default)
+    sourcemap: false, // Sin sourcemaps → build ~40% más rápido
+    target: "es2020", // Target moderno → menos transpilación
+    cssMinify: "esbuild", // CSS minificado con esbuild también
     rollupOptions: {
       output: {
         // manualChunks simplificado: solo las dependencias más pesadas
         // Menos chunks = menos overhead de análisis en Rollup
         manualChunks(id) {
           // React core (crítico: siempre en caché)
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/wouter/')) {
-            return 'vendor-react';
+          if (
+            id.includes("node_modules/react/") ||
+            id.includes("node_modules/react-dom/") ||
+            id.includes("node_modules/wouter/")
+          ) {
+            return "vendor-react";
           }
           // tRPC + React Query
-          if (id.includes('node_modules/@trpc/') || id.includes('node_modules/@tanstack/')) {
-            return 'vendor-trpc';
+          if (
+            id.includes("node_modules/@trpc/") ||
+            id.includes("node_modules/@tanstack/")
+          ) {
+            return "vendor-trpc";
           }
           // Radix UI (muy pesado, vale la pena separar)
-          if (id.includes('node_modules/@radix-ui/')) {
-            return 'vendor-radix';
+          if (id.includes("node_modules/@radix-ui/")) {
+            return "vendor-radix";
           }
           // Librerías pesadas de visualización y datos (agrupadas juntas)
           if (
-            id.includes('node_modules/chart.js/') ||
-            id.includes('node_modules/react-chartjs-2/') ||
-            id.includes('node_modules/chartjs-plugin-annotation/') ||
-            id.includes('node_modules/recharts/') ||
-            id.includes('node_modules/d3-')
+            id.includes("node_modules/chart.js/") ||
+            id.includes("node_modules/react-chartjs-2/") ||
+            id.includes("node_modules/chartjs-plugin-annotation/") ||
+            id.includes("node_modules/recharts/") ||
+            id.includes("node_modules/d3-")
           ) {
-            return 'vendor-charts';
+            return "vendor-charts";
           }
           // Exportaciones: aislar cada familia para no descargar XLSX al generar PDF y viceversa.
-          if (id.includes('node_modules/xlsx/')) {
-            return 'vendor-xlsx';
-          }
-          if (id.includes('node_modules/jspdf/') || id.includes('node_modules/jspdf-autotable/')) {
-            return 'vendor-pdf';
+          if (id.includes("node_modules/xlsx/")) {
+            return "vendor-xlsx";
           }
           if (
-            id.includes('node_modules/docx/') ||
-            id.includes('node_modules/file-saver/') ||
-            id.includes('node_modules/html2canvas/') ||
-            id.includes('node_modules/fflate/')
+            id.includes("node_modules/jspdf/") ||
+            id.includes("node_modules/jspdf-autotable/")
           ) {
-            return 'vendor-export-utils';
+            return "vendor-pdf";
+          }
+          if (
+            id.includes("node_modules/docx/") ||
+            id.includes("node_modules/file-saver/") ||
+            id.includes("node_modules/html2canvas/") ||
+            id.includes("node_modules/fflate/")
+          ) {
+            return "vendor-export-utils";
           }
           // i18n (pesado, vale separar)
-          if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next/')) {
-            return 'vendor-i18n';
+          if (
+            id.includes("node_modules/i18next") ||
+            id.includes("node_modules/react-i18next/")
+          ) {
+            return "vendor-i18n";
           }
           // Framer Motion
-          if (id.includes('node_modules/framer-motion/')) {
-            return 'vendor-motion';
+          if (id.includes("node_modules/framer-motion/")) {
+            return "vendor-motion";
           }
           // Formularios y validación
-          if (id.includes('node_modules/react-hook-form/') || id.includes('node_modules/zod/') || id.includes('node_modules/@hookform/')) {
-            return 'vendor-forms';
+          if (
+            id.includes("node_modules/react-hook-form/") ||
+            id.includes("node_modules/zod/") ||
+            id.includes("node_modules/@hookform/")
+          ) {
+            return "vendor-forms";
           }
           // Utilidades de fecha
-          if (id.includes('node_modules/date-fns/') || id.includes('node_modules/react-day-picker/')) {
-            return 'vendor-dates';
+          if (
+            id.includes("node_modules/date-fns/") ||
+            id.includes("node_modules/react-day-picker/")
+          ) {
+            return "vendor-dates";
           }
           // Monaco Editor (muy pesado, lazy-load)
-          if (id.includes('node_modules/@monaco-editor/') || id.includes('node_modules/monaco-editor/')) {
-            return 'vendor-monaco';
+          if (
+            id.includes("node_modules/@monaco-editor/") ||
+            id.includes("node_modules/monaco-editor/")
+          ) {
+            return "vendor-monaco";
           }
           // DnD Kit (arrastrar y soltar)
-          if (id.includes('node_modules/@dnd-kit/')) {
-            return 'vendor-dnd';
+          if (id.includes("node_modules/@dnd-kit/")) {
+            return "vendor-dnd";
           }
           // ReactFlow / XyFlow (diagramas)
-          if (id.includes('node_modules/reactflow/') || id.includes('node_modules/@xyflow/')) {
-            return 'vendor-flow';
+          if (
+            id.includes("node_modules/reactflow/") ||
+            id.includes("node_modules/@xyflow/")
+          ) {
+            return "vendor-flow";
           }
           // Socket.io cliente
-          if (id.includes('node_modules/socket.io-client/') || id.includes('node_modules/engine.io-client/')) {
-            return 'vendor-socket';
+          if (
+            id.includes("node_modules/socket.io-client/") ||
+            id.includes("node_modules/engine.io-client/")
+          ) {
+            return "vendor-socket";
           }
           // Streamdown (markdown streaming)
-          if (id.includes('node_modules/streamdown/')) {
-            return 'vendor-markdown';
+          if (id.includes("node_modules/streamdown/")) {
+            return "vendor-markdown";
           }
           // Lucide React (iconos — muy pesado por la cantidad de SVGs)
-          if (id.includes('node_modules/lucide-react/')) {
-            return 'vendor-icons';
+          if (id.includes("node_modules/lucide-react/")) {
+            return "vendor-icons";
           }
           // Sonner (toasts)
-          if (id.includes('node_modules/sonner/') || id.includes('node_modules/vaul/') || id.includes('node_modules/cmdk/')) {
-            return 'vendor-ui-extra';
+          if (
+            id.includes("node_modules/sonner/") ||
+            id.includes("node_modules/vaul/") ||
+            id.includes("node_modules/cmdk/")
+          ) {
+            return "vendor-ui-extra";
           }
           // PDF.js (muy pesado, solo para visualización de PDFs)
-          if (id.includes('node_modules/pdfjs-dist/')) {
-            return 'vendor-pdfjs';
+          if (id.includes("node_modules/pdfjs-dist/")) {
+            return "vendor-pdfjs";
           }
           // react-pdf
-          if (id.includes('node_modules/react-pdf/')) {
-            return 'vendor-react-pdf';
+          if (id.includes("node_modules/react-pdf/")) {
+            return "vendor-react-pdf";
           }
           // QR Code
-          if (id.includes('node_modules/qrcode/')) {
-            return 'vendor-qrcode';
+          if (id.includes("node_modules/qrcode/")) {
+            return "vendor-qrcode";
           }
           // html2canvas + html-to-image (exportación visual)
-          if (id.includes('node_modules/html2canvas/') || id.includes('node_modules/html-to-image/')) {
-            return 'vendor-html2img';
+          if (
+            id.includes("node_modules/html2canvas/") ||
+            id.includes("node_modules/html-to-image/")
+          ) {
+            return "vendor-html2img";
           }
           // docx (generación de Word)
-          if (id.includes('node_modules/docx/')) {
-            return 'vendor-docx';
+          if (id.includes("node_modules/docx/")) {
+            return "vendor-docx";
           }
           // exceljs (alternativa a xlsx)
-          if (id.includes('node_modules/exceljs/')) {
-            return 'vendor-exceljs';
+          if (id.includes("node_modules/exceljs/")) {
+            return "vendor-exceljs";
           }
           // jszip (compresión ZIP)
-          if (id.includes('node_modules/jszip/')) {
-            return 'vendor-jszip';
+          if (id.includes("node_modules/jszip/")) {
+            return "vendor-jszip";
           }
           // embla-carousel
-          if (id.includes('node_modules/embla-carousel')) {
-            return 'vendor-carousel';
+          if (id.includes("node_modules/embla-carousel")) {
+            return "vendor-carousel";
           }
           // Los motores de layout se cargan en momentos distintos.
           // ELK solo se importa al calcular el organigrama; no debe viajar con Dagre.
-          if (id.includes('node_modules/elkjs/')) {
-            return 'vendor-elk-layout';
+          if (id.includes("node_modules/elkjs/")) {
+            return "vendor-elk-layout";
           }
-          if (id.includes('node_modules/dagre/')) {
-            return 'vendor-dagre-layout';
+          if (id.includes("node_modules/dagre/")) {
+            return "vendor-dagre-layout";
           }
           // react-signature-canvas
-          if (id.includes('node_modules/react-signature-canvas/') || id.includes('node_modules/signature_pad/')) {
-            return 'vendor-signature';
+          if (
+            id.includes("node_modules/react-signature-canvas/") ||
+            id.includes("node_modules/signature_pad/")
+          ) {
+            return "vendor-signature";
           }
           // react-dropzone
-          if (id.includes('node_modules/react-dropzone/')) {
-            return 'vendor-dropzone';
+          if (id.includes("node_modules/react-dropzone/")) {
+            return "vendor-dropzone";
           }
           // react-resizable-panels
-          if (id.includes('node_modules/react-resizable-panels/')) {
-            return 'vendor-panels';
+          if (id.includes("node_modules/react-resizable-panels/")) {
+            return "vendor-panels";
           }
           // Resto de node_modules → vendor-misc (ahora mucho más pequeño)
-          if (id.includes('node_modules/')) {
-            return 'vendor-misc';
+          if (id.includes("node_modules/")) {
+            return "vendor-misc";
           }
         },
       },

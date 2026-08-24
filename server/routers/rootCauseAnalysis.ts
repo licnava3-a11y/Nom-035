@@ -67,13 +67,20 @@ export const rootCauseAnalysisRouter = router({
         department: deptMap.get(c.departmentId || 0) || "Desconocido",
         description: c.description,
         // resolution: "Caso cerrado", // Campo no disponible
-        daysToResolve: c.closedAt && c.createdAt 
-          ? Math.ceil((new Date(c.closedAt).getTime() - new Date(c.createdAt).getTime()) / (1000 * 60 * 60 * 24))
-          : null,
+        daysToResolve:
+          c.closedAt && c.createdAt
+            ? Math.ceil(
+                (new Date(c.closedAt).getTime() -
+                  new Date(c.createdAt).getTime()) /
+                  (1000 * 60 * 60 * 24)
+              )
+            : null,
       }));
 
       // Crear análisis pendiente
-      const [analysisRecord] = await (db.insert(rootCauseAnalysis) as any).values({
+      const [analysisRecord] = await (
+        db.insert(rootCauseAnalysis) as any
+      ).values({
         analysisDate: new Date(),
         periodStart: input.periodStart,
         periodEnd: input.periodEnd,
@@ -122,13 +129,23 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                 properties: {
                   rootCauses: {
                     type: "array",
-                    description: "Causas raíz identificadas ordenadas por frecuencia",
+                    description:
+                      "Causas raíz identificadas ordenadas por frecuencia",
                     items: {
                       type: "object",
                       properties: {
-                        cause: { type: "string", description: "Descripción de la causa raíz" },
-                        frequency: { type: "number", description: "Número de casos afectados" },
-                        percentage: { type: "number", description: "Porcentaje del total de casos" },
+                        cause: {
+                          type: "string",
+                          description: "Descripción de la causa raíz",
+                        },
+                        frequency: {
+                          type: "number",
+                          description: "Número de casos afectados",
+                        },
+                        percentage: {
+                          type: "number",
+                          description: "Porcentaje del total de casos",
+                        },
                         affectedDepartments: {
                           type: "array",
                           items: { type: "string" },
@@ -140,7 +157,13 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                           description: "Nivel de severidad",
                         },
                       },
-                      required: ["cause", "frequency", "percentage", "affectedDepartments", "severity"],
+                      required: [
+                        "cause",
+                        "frequency",
+                        "percentage",
+                        "affectedDepartments",
+                        "severity",
+                      ],
                       additionalProperties: false,
                     },
                   },
@@ -150,16 +173,30 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                     items: {
                       type: "object",
                       properties: {
-                        pattern: { type: "string", description: "Nombre del patrón" },
-                        description: { type: "string", description: "Descripción detallada" },
-                        casesAffected: { type: "number", description: "Casos afectados" },
+                        pattern: {
+                          type: "string",
+                          description: "Nombre del patrón",
+                        },
+                        description: {
+                          type: "string",
+                          description: "Descripción detallada",
+                        },
+                        casesAffected: {
+                          type: "number",
+                          description: "Casos afectados",
+                        },
                         departments: {
                           type: "array",
                           items: { type: "string" },
                           description: "Departamentos donde se observa",
                         },
                       },
-                      required: ["pattern", "description", "casesAffected", "departments"],
+                      required: [
+                        "pattern",
+                        "description",
+                        "casesAffected",
+                        "departments",
+                      ],
                       additionalProperties: false,
                     },
                   },
@@ -169,15 +206,29 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                     items: {
                       type: "object",
                       properties: {
-                        factor1: { type: "string", description: "Primer factor" },
-                        factor2: { type: "string", description: "Segundo factor" },
+                        factor1: {
+                          type: "string",
+                          description: "Primer factor",
+                        },
+                        factor2: {
+                          type: "string",
+                          description: "Segundo factor",
+                        },
                         correlationStrength: {
                           type: "number",
                           description: "Fuerza de correlación (0-1)",
                         },
-                        description: { type: "string", description: "Descripción de la correlación" },
+                        description: {
+                          type: "string",
+                          description: "Descripción de la correlación",
+                        },
                       },
-                      required: ["factor1", "factor2", "correlationStrength", "description"],
+                      required: [
+                        "factor1",
+                        "factor2",
+                        "correlationStrength",
+                        "description",
+                      ],
                       additionalProperties: false,
                     },
                   },
@@ -192,13 +243,19 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                           enum: ["high", "medium", "low"],
                           description: "Prioridad de la recomendación",
                         },
-                        recommendation: { type: "string", description: "Recomendación específica" },
+                        recommendation: {
+                          type: "string",
+                          description: "Recomendación específica",
+                        },
                         targetDepartments: {
                           type: "array",
                           items: { type: "string" },
                           description: "Departamentos objetivo",
                         },
-                        expectedImpact: { type: "string", description: "Impacto esperado" },
+                        expectedImpact: {
+                          type: "string",
+                          description: "Impacto esperado",
+                        },
                         actionItems: {
                           type: "array",
                           items: { type: "string" },
@@ -221,7 +278,10 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                     additionalProperties: {
                       type: "object",
                       properties: {
-                        totalCases: { type: "number", description: "Total de casos" },
+                        totalCases: {
+                          type: "number",
+                          description: "Total de casos",
+                        },
                         topCauses: {
                           type: "array",
                           items: { type: "string" },
@@ -238,12 +298,23 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                           description: "Recomendaciones específicas",
                         },
                       },
-                      required: ["totalCases", "topCauses", "riskLevel", "specificRecommendations"],
+                      required: [
+                        "totalCases",
+                        "topCauses",
+                        "riskLevel",
+                        "specificRecommendations",
+                      ],
                       additionalProperties: false,
                     },
                   },
                 },
-                required: ["rootCauses", "patterns", "correlations", "recommendations", "departmentInsights"],
+                required: [
+                  "rootCauses",
+                  "patterns",
+                  "correlations",
+                  "recommendations",
+                  "departmentInsights",
+                ],
                 additionalProperties: false,
               },
             },
@@ -252,7 +323,8 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
 
         // Parsear respuesta del LLM
         const content = response.choices[0].message.content;
-        const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
+        const contentStr =
+          typeof content === "string" ? content : JSON.stringify(content);
         const analysisResult = JSON.parse(contentStr || "{}");
 
         // Actualizar registro con resultados

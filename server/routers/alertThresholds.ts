@@ -18,7 +18,11 @@ export const alertThresholdsRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        alertType: z.enum(["critical_cases", "low_coverage", "excellent_compliance"]),
+        alertType: z.enum([
+          "critical_cases",
+          "low_coverage",
+          "excellent_compliance",
+        ]),
         threshold: z.number().int().positive(),
         description: z.string().optional(),
       })

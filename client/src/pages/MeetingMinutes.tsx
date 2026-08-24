@@ -7,7 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, FileText, Calendar, Users, CheckCircle, Clock, Edit, BookUser } from "lucide-react";
+import {
+  Plus,
+  FileText,
+  Calendar,
+  Users,
+  CheckCircle,
+  Clock,
+  Edit,
+  BookUser,
+} from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -18,7 +27,10 @@ export default function MeetingMinutes() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: minutes, isLoading } = trpc.meetingMinutes.list.useQuery({
-    status: statusFilter === "all" ? undefined : (statusFilter as "draft" | "finalized" | "signed"),
+    status:
+      statusFilter === "all"
+        ? undefined
+        : (statusFilter as "draft" | "finalized" | "signed"),
     meetingType: typeFilter === "all" ? undefined : typeFilter,
     search: searchQuery || undefined,
   });
@@ -28,11 +40,20 @@ export default function MeetingMinutes() {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       draft: { label: "Borrador", variant: "secondary" as const, icon: Edit },
-      finalized: { label: "Finalizada", variant: "default" as const, icon: CheckCircle },
-      signed: { label: "Firmada", variant: "default" as const, icon: CheckCircle },
+      finalized: {
+        label: "Finalizada",
+        variant: "default" as const,
+        icon: CheckCircle,
+      },
+      signed: {
+        label: "Firmada",
+        variant: "default" as const,
+        icon: CheckCircle,
+      },
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
     const Icon = config.icon;
 
     return (
@@ -46,10 +67,12 @@ export default function MeetingMinutes() {
   if (isLoading) {
     return (
       <div className="container py-8">
-      <Breadcrumb items={[
-        { label: "Prevención de Riesgos", href: "/prevention" },
-        { label: "Minutas de Reunión" }
-      ]} />
+        <Breadcrumb
+          items={[
+            { label: "Prevención de Riesgos", href: "/prevention" },
+            { label: "Minutas de Reunión" },
+          ]}
+        />
 
         <div className="flex items-center justify-center min-h-[400px]">
           <Clock className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -68,7 +91,11 @@ export default function MeetingMinutes() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setLocation("/committee/minute-recipients")} className="gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setLocation("/committee/minute-recipients")}
+            className="gap-2"
+          >
             <BookUser className="h-4 w-4" />
             Destinatarios
           </Button>
@@ -87,14 +114,14 @@ export default function MeetingMinutes() {
             <Input
               placeholder="Buscar por título..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
           <div>
             <label className="text-sm font-medium mb-2 block">Estado</label>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={e => setStatusFilter(e.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="all">Todos los estados</option>
@@ -104,10 +131,12 @@ export default function MeetingMinutes() {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium mb-2 block">Tipo de Reunión</label>
+            <label className="text-sm font-medium mb-2 block">
+              Tipo de Reunión
+            </label>
             <select
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
+              onChange={e => setTypeFilter(e.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="all">Todos los tipos</option>
@@ -125,7 +154,9 @@ export default function MeetingMinutes() {
       {!minutes || minutes.length === 0 ? (
         <Card className="p-12 text-center">
           <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No hay minutas registradas</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            No hay minutas registradas
+          </h3>
           <p className="text-muted-foreground mb-4">
             Comienza creando tu primera minuta de reunión
           </p>
@@ -156,7 +187,11 @@ export default function MeetingMinutes() {
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
                       <span>
-                        {format(new Date(minute.meetingDate), "d 'de' MMMM, yyyy", { locale: es })}
+                        {format(
+                          new Date(minute.meetingDate),
+                          "d 'de' MMMM, yyyy",
+                          { locale: es }
+                        )}
                       </span>
                     </div>
                     <Badge variant="outline">{minute.meetingType}</Badge>

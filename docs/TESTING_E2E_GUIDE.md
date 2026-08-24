@@ -27,12 +27,14 @@ tests/e2e/
 **Archivo**: `workflow-aprobacion-bases.spec.ts`
 
 **Casos de prueba**:
+
 - ✅ Crear y aprobar base de funcionamiento completa
 - ✅ Validación en tiempo real funciona correctamente
 - ✅ Confirmación de salida con cambios sin guardar
 - ✅ Recuperación de borradores al volver
 
 **Flujo completo probado**:
+
 1. Login como usuario autorizado
 2. Navegar a Bases de Funcionamiento
 3. Crear nueva base con formulario completo
@@ -43,6 +45,7 @@ tests/e2e/
 8. Verificar notificaciones
 
 **Validaciones específicas**:
+
 - Campo `objectives`: mínimo 50 caracteres
 - Campo `structure`: mínimo 50 caracteres
 - Campo `roles`: mínimo 30 caracteres
@@ -57,12 +60,14 @@ tests/e2e/
 **Archivo**: `calendario-graficos.spec.ts`
 
 **Casos de prueba - Calendario**:
+
 - ✅ Navegación entre meses funciona correctamente
 - ✅ Filtros por tipo de evento funcionan
 - ✅ Click en evento muestra detalles
 - ✅ Eventos se renderizan en las fechas correctas
 
 **Casos de prueba - Gráficos**:
+
 - ✅ Gráficos de Chart.js se renderizan correctamente
 - ✅ Interacción con gráficos (hover) funciona
 - ✅ Gráfico de casos por mes muestra datos correctos
@@ -71,6 +76,7 @@ tests/e2e/
 - ✅ Gráficos responden a cambios de datos
 
 **Casos de prueba - Compatibilidad**:
+
 - ✅ Dashboard funciona en diferentes viewports (1920x1080, 768x1024, 375x667)
 
 ---
@@ -80,6 +86,7 @@ tests/e2e/
 **Archivo**: `busqueda-confirmaciones.spec.ts`
 
 **Casos de prueba - Búsqueda Global (Ctrl+K)**:
+
 - ✅ Abrir búsqueda con Ctrl+K
 - ✅ Búsqueda funciona correctamente
 - ✅ Navegación a resultados funciona
@@ -87,6 +94,7 @@ tests/e2e/
 - ✅ Búsqueda vacía muestra mensaje apropiado
 
 **Casos de prueba - Confirmaciones Destructivas**:
+
 - ✅ Confirmación antes de eliminar minuta del comité
 - ✅ Confirmación antes de eliminar departamento
 - ✅ Confirmación antes de eliminar evaluación
@@ -96,6 +104,7 @@ tests/e2e/
 - ✅ Componente ConfirmDialog es reutilizable
 
 **Casos de prueba - Accesibilidad**:
+
 - ✅ Dialog de confirmación tiene roles ARIA correctos
 - ✅ Focus trap funciona en dialog de confirmación
 - ✅ Escape cierra el dialog de confirmación
@@ -106,24 +115,24 @@ tests/e2e/
 
 ### Navegadores Desktop
 
-| Navegador | Versión | Motor | Estado |
-|-----------|---------|-------|--------|
-| **Chromium** | Última estable | Blink | ✅ Configurado |
-| **Firefox** | Última estable | Gecko | ✅ Configurado |
-| **WebKit** | Última estable | WebKit | ✅ Configurado |
+| Navegador    | Versión        | Motor  | Estado         |
+| ------------ | -------------- | ------ | -------------- |
+| **Chromium** | Última estable | Blink  | ✅ Configurado |
+| **Firefox**  | Última estable | Gecko  | ✅ Configurado |
+| **WebKit**   | Última estable | WebKit | ✅ Configurado |
 
 ### Dispositivos Móviles
 
-| Dispositivo | Viewport | User Agent | Estado |
-|-------------|----------|------------|--------|
-| **Mobile Chrome** | 375x667 | Android Chrome | ✅ Configurado |
-| **Mobile Safari** | 375x667 | iOS Safari | ✅ Configurado |
+| Dispositivo       | Viewport | User Agent     | Estado         |
+| ----------------- | -------- | -------------- | -------------- |
+| **Mobile Chrome** | 375x667  | Android Chrome | ✅ Configurado |
+| **Mobile Safari** | 375x667  | iOS Safari     | ✅ Configurado |
 
 ### Tablets
 
-| Dispositivo | Viewport | Estado |
-|-------------|----------|--------|
-| **iPad** | 768x1024 | ✅ Configurado |
+| Dispositivo | Viewport | Estado         |
+| ----------- | -------- | -------------- |
+| **iPad**    | 768x1024 | ✅ Configurado |
 
 ---
 
@@ -132,6 +141,7 @@ tests/e2e/
 ### Requisitos Previos
 
 1. **Servidor de desarrollo corriendo**:
+
    ```bash
    pnpm run dev
    ```
@@ -151,6 +161,7 @@ cd /home/ubuntu/nom035_moodle_platform
 ```
 
 Este script:
+
 - ✅ Verifica que el servidor esté corriendo
 - ✅ Ejecuta tests en todos los navegadores secuencialmente
 - ✅ Genera reportes HTML y JSON
@@ -160,11 +171,13 @@ Este script:
 #### Opción 2: Comandos Individuales
 
 **Todos los navegadores**:
+
 ```bash
 pnpm exec playwright test
 ```
 
 **Navegador específico**:
+
 ```bash
 pnpm exec playwright test --project=chromium
 pnpm exec playwright test --project=firefox
@@ -172,6 +185,7 @@ pnpm exec playwright test --project=webkit
 ```
 
 **Test específico**:
+
 ```bash
 pnpm exec playwright test workflow-aprobacion-bases.spec.ts
 pnpm exec playwright test calendario-graficos.spec.ts
@@ -179,11 +193,13 @@ pnpm exec playwright test busqueda-confirmaciones.spec.ts
 ```
 
 **Modo debug**:
+
 ```bash
 pnpm exec playwright test --debug
 ```
 
 **Modo headed (ver navegador)**:
+
 ```bash
 pnpm exec playwright test --headed
 ```
@@ -201,6 +217,7 @@ pnpm exec playwright show-report
 ```
 
 El reporte incluye:
+
 - ✅ Resumen de tests pasados/fallidos por navegador
 - ✅ Tiempo de ejecución de cada test
 - ✅ Screenshots de fallos
@@ -266,34 +283,39 @@ test-results/               # Resultados de tests
 ### 1. Selectores Estables
 
 ✅ **Bueno**:
+
 ```typescript
-page.locator('button[aria-label="Eliminar"]')
-page.locator('text=Guardar')
-page.locator('[data-testid="submit-button"]')
+page.locator('button[aria-label="Eliminar"]');
+page.locator("text=Guardar");
+page.locator('[data-testid="submit-button"]');
 ```
 
 ❌ **Malo**:
+
 ```typescript
-page.locator('.btn-primary')  // Clases CSS pueden cambiar
-page.locator('button').nth(3)  // Posición puede cambiar
+page.locator(".btn-primary"); // Clases CSS pueden cambiar
+page.locator("button").nth(3); // Posición puede cambiar
 ```
 
 ### 2. Esperas Explícitas
 
 ✅ **Bueno**:
+
 ```typescript
-await expect(page.locator('text=Guardado')).toBeVisible({ timeout: 5000 });
-await page.waitForLoadState('networkidle');
+await expect(page.locator("text=Guardado")).toBeVisible({ timeout: 5000 });
+await page.waitForLoadState("networkidle");
 ```
 
 ❌ **Malo**:
+
 ```typescript
-await page.waitForTimeout(3000);  // Espera fija
+await page.waitForTimeout(3000); // Espera fija
 ```
 
 ### 3. Aislamiento de Tests
 
 Cada test debe:
+
 - ✅ Ser independiente de otros tests
 - ✅ Limpiar su estado después de ejecutarse
 - ✅ No depender del orden de ejecución
@@ -302,11 +324,11 @@ Cada test debe:
 
 ```typescript
 test.beforeEach(async ({ page }) => {
-  await page.goto('http://localhost:3000');
-  const loginButton = page.locator('text=Acceder');
+  await page.goto("http://localhost:3000");
+  const loginButton = page.locator("text=Acceder");
   if (await loginButton.isVisible()) {
     await loginButton.click();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
   }
 });
 ```
@@ -328,6 +350,7 @@ pnpm exec playwright test --debug
 ```
 
 Esto abre el Playwright Inspector que permite:
+
 - ⏸️ Pausar ejecución
 - ⏭️ Ejecutar paso a paso
 - 🔍 Inspeccionar selectores
@@ -384,16 +407,16 @@ jobs:
 
 ### Funcionalidades Críticas Cubiertas
 
-| Funcionalidad | Cobertura | Tests |
-|---------------|-----------|-------|
-| **Workflow de Aprobación** | 100% | 4 tests |
-| **Validación en Tiempo Real** | 100% | 2 tests |
-| **Guardado Automático** | 100% | 2 tests |
-| **Calendario** | 100% | 4 tests |
-| **Gráficos Chart.js** | 100% | 6 tests |
-| **Búsqueda Global** | 100% | 5 tests |
-| **Confirmaciones Destructivas** | 100% | 8 tests |
-| **Accesibilidad** | 80% | 3 tests |
+| Funcionalidad                   | Cobertura | Tests   |
+| ------------------------------- | --------- | ------- |
+| **Workflow de Aprobación**      | 100%      | 4 tests |
+| **Validación en Tiempo Real**   | 100%      | 2 tests |
+| **Guardado Automático**         | 100%      | 2 tests |
+| **Calendario**                  | 100%      | 4 tests |
+| **Gráficos Chart.js**           | 100%      | 6 tests |
+| **Búsqueda Global**             | 100%      | 5 tests |
+| **Confirmaciones Destructivas** | 100%      | 8 tests |
+| **Accesibilidad**               | 80%       | 3 tests |
 
 **Total**: 34 tests E2E implementados
 
@@ -406,8 +429,9 @@ jobs:
 **Problema**: Tests fallan con error de timeout.
 
 **Solución**:
+
 ```typescript
-test('mi test', async ({ page }) => {
+test("mi test", async ({ page }) => {
   test.setTimeout(60000); // Aumentar timeout a 60 segundos
   // ...
 });
@@ -418,12 +442,13 @@ test('mi test', async ({ page }) => {
 **Problema**: `Element is not visible` error.
 
 **Solución**:
+
 ```typescript
 // Esperar a que el elemento sea visible
-await expect(page.locator('button')).toBeVisible({ timeout: 10000 });
+await expect(page.locator("button")).toBeVisible({ timeout: 10000 });
 
 // O scroll al elemento
-await page.locator('button').scrollIntoViewIfNeeded();
+await page.locator("button").scrollIntoViewIfNeeded();
 ```
 
 ### 3. Tests Intermitentes (Flaky)
@@ -431,6 +456,7 @@ await page.locator('button').scrollIntoViewIfNeeded();
 **Problema**: Tests pasan a veces y fallan otras veces.
 
 **Solución**:
+
 - Aumentar timeouts
 - Usar `waitForLoadState('networkidle')`
 - Evitar `waitForTimeout()` fijos
@@ -469,6 +495,7 @@ await page.locator('button').scrollIntoViewIfNeeded();
 ## Contacto y Soporte
 
 Para preguntas o problemas con los tests E2E, consultar:
+
 - Documentación del proyecto en `/docs`
 - Issues en el repositorio
 - Equipo de QA

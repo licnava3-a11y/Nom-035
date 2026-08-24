@@ -17,7 +17,14 @@ export const interventionPredictionRouter = router({
   predictEffectiveness: protectedProcedure
     .input(
       z.object({
-        interventionType: z.enum(["training", "salary_adjustment", "position_change", "benefits", "recognition", "other"]),
+        interventionType: z.enum([
+          "training",
+          "salary_adjustment",
+          "position_change",
+          "benefits",
+          "recognition",
+          "other",
+        ]),
         cost: z.number().optional(),
         department: z.string().optional(),
         position: z.string().optional(),
@@ -39,10 +46,13 @@ export const interventionPredictionRouter = router({
         const historicalInterventions = await db
           .select()
           .from(retentionInterventions)
-          .where(eq(retentionInterventions.interventionType, input.interventionType));
+          .where(
+            eq(retentionInterventions.interventionType, input.interventionType)
+          );
 
         // Filtrar intervenciones con outcome conocido
-        const completedInterventions = historicalInterventions.filter((i: any) => i.outcome === "retained" || i.outcome === "left"
+        const completedInterventions = historicalInterventions.filter(
+          (i: any) => i.outcome === "retained" || i.outcome === "left"
         );
 
         if (completedInterventions.length < 3) {
@@ -51,27 +61,35 @@ export const interventionPredictionRouter = router({
         }
 
         // Calcular tasa de éxito base
-        const successCount = completedInterventions.filter((i: any) => i.outcome === "retained").length;
-        const baseSuccessRate = (successCount / completedInterventions.length) * 100;
+        const successCount = completedInterventions.filter(
+          (i: any) => i.outcome === "retained"
+        ).length;
+        const baseSuccessRate =
+          (successCount / completedInterventions.length) * 100;
 
         // Filtrar intervenciones similares (mismo departamento o puesto)
         const similarInterventions = completedInterventions.filter((i: any) => {
-          const deptMatch = input.department && i.department === input.department;
-          const posMatch = input.position && i.employeePosition === input.position;
+          const deptMatch =
+            input.department && i.department === input.department;
+          const posMatch =
+            input.position && i.employeePosition === input.position;
           return deptMatch || posMatch;
         });
 
         // Calcular tasa de éxito para casos similares
         let similarSuccessRate = baseSuccessRate;
         if (similarInterventions.length > 0) {
-          const similarSuccessCount = similarInterventions.filter((i: any) => i.outcome === "retained").length;
-          similarSuccessRate = (similarSuccessCount / similarInterventions.length) * 100;
+          const similarSuccessCount = similarInterventions.filter(
+            (i: any) => i.outcome === "retained"
+          ).length;
+          similarSuccessRate =
+            (similarSuccessCount / similarInterventions.length) * 100;
         }
 
         // Ajustar por nivel de riesgo
         const riskFactor = input.riskScore / 100;
         let riskAdjustment = 1.0;
-        
+
         if (riskFactor >= 0.7) {
           // Alto riesgo: reducir probabilidad de éxito
           riskAdjustment = 0.85;
@@ -87,13 +105,19 @@ export const interventionPredictionRouter = router({
         let costAdjustment = 1.0;
         if (input.cost) {
           // Calcular costo promedio histórico
-          const costsWithValues = completedInterventions.filter((i: any) => i.cost);
-          const avgHistoricalCost = costsWithValues.length > 0
-            ? costsWithValues.reduce((acc: any, i: any) => acc + parseFloat(i.cost || "0"), 0) / costsWithValues.length
-            : 5000;
+          const costsWithValues = completedInterventions.filter(
+            (i: any) => i.cost
+          );
+          const avgHistoricalCost =
+            costsWithValues.length > 0
+              ? costsWithValues.reduce(
+                  (acc: any, i: any) => acc + parseFloat(i.cost || "0"),
+                  0
+                ) / costsWithValues.length
+              : 5000;
 
           const costRatio = input.cost / avgHistoricalCost;
-          
+
           if (costRatio > 1.5) {
             // Costo muy alto: aumentar probabilidad (inversión mayor)
             costAdjustment = 1.1;
@@ -104,32 +128,45 @@ export const interventionPredictionRouter = router({
         }
 
         // Calcular probabilidad de éxito final
-        const rawProbability = similarSuccessRate * riskAdjustment * costAdjustment;
+        const rawProbability =
+          similarSuccessRate * riskAdjustment * costAdjustment;
         const successProbability = Math.max(5, Math.min(95, rawProbability));
 
         // Calcular ROI esperado
-        const avgRetentionCost = calculateAvgRetentionCost(completedInterventions);
+        const avgRetentionCost = calculateAvgRetentionCost(
+          completedInterventions
+        );
         const replacementCost = 50000; // Costo estimado de reemplazo de empleado
         const expectedROI = input.cost
-          ? ((replacementCost * (successProbability / 100)) - input.cost) / input.cost * 100
+          ? ((replacementCost * (successProbability / 100) - input.cost) /
+              input.cost) *
+            100
           : 0;
 
         // Calcular reducción de riesgo esperada
-        const avgRiskReduction = calculateAvgRiskReduction(completedInterventions);
-        const expectedRiskReduction = avgRiskReduction * (successProbability / 100);
+        const avgRiskReduction = calculateAvgRiskReduction(
+          completedInterventions
+        );
+        const expectedRiskReduction =
+          avgRiskReduction * (successProbability / 100);
 
         // Generar factores de confianza
         const confidenceFactors = {
-          dataQuality: Math.min(100, (completedInterventions.length / 10) * 100),
-          similarity: similarInterventions.length > 0 ? Math.min(100, (similarInterventions.length / 5) * 100) : 30,
+          dataQuality: Math.min(
+            100,
+            (completedInterventions.length / 10) * 100
+          ),
+          similarity:
+            similarInterventions.length > 0
+              ? Math.min(100, (similarInterventions.length / 5) * 100)
+              : 30,
           riskAlignment: 100 - Math.abs(riskFactor - 0.5) * 100,
         };
 
-        const overallConfidence = (
+        const overallConfidence =
           confidenceFactors.dataQuality * 0.4 +
           confidenceFactors.similarity * 0.4 +
-          confidenceFactors.riskAlignment * 0.2
-        );
+          confidenceFactors.riskAlignment * 0.2;
 
         return {
           successProbability: parseFloat(successProbability.toFixed(1)),
@@ -144,7 +181,11 @@ export const interventionPredictionRouter = router({
             similarSuccessRate: parseFloat(similarSuccessRate.toFixed(1)),
             avgCost: avgRetentionCost,
           },
-          recommendation: generateRecommendation(successProbability, expectedROI, overallConfidence),
+          recommendation: generateRecommendation(
+            successProbability,
+            expectedROI,
+            overallConfidence
+          ),
         };
       } catch (error: any) {
         console.error("Error al predecir efectividad:", error);
@@ -160,10 +201,17 @@ export const interventionPredictionRouter = router({
  * Calcular costo promedio de retención
  */
 function calculateAvgRetentionCost(interventions: any[]): number {
-  const costsWithValues = interventions.filter((i: any) => i.cost && i.outcome === "retained");
+  const costsWithValues = interventions.filter(
+    (i: any) => i.cost && i.outcome === "retained"
+  );
   if (costsWithValues.length === 0) return 0;
-  
-  return costsWithValues.reduce((acc: any, i: any) => acc + parseFloat(i.cost || "0"), 0) / costsWithValues.length;
+
+  return (
+    costsWithValues.reduce(
+      (acc: any, i: any) => acc + parseFloat(i.cost || "0"),
+      0
+    ) / costsWithValues.length
+  );
 }
 
 /**
@@ -172,8 +220,13 @@ function calculateAvgRetentionCost(interventions: any[]): number {
 function calculateAvgRiskReduction(interventions: any[]): number {
   const withReduction = interventions.filter((i: any) => i.riskReduction);
   if (withReduction.length === 0) return 0;
-  
-  return withReduction.reduce((acc: any, i: any) => acc + parseFloat(i.riskReduction || "0"), 0) / withReduction.length;
+
+  return (
+    withReduction.reduce(
+      (acc: any, i: any) => acc + parseFloat(i.riskReduction || "0"),
+      0
+    ) / withReduction.length
+  );
 }
 
 /**
@@ -214,17 +267,23 @@ function getDefaultPrediction(input: any) {
   };
 
   const baseProbability = baseRates[input.interventionType] || 50;
-  
+
   // Ajustar por nivel de riesgo
   const riskFactor = input.riskScore / 100;
-  const riskAdjustment = riskFactor >= 0.7 ? 0.85 : riskFactor >= 0.4 ? 0.95 : 1.05;
-  
-  const successProbability = Math.max(5, Math.min(95, baseProbability * riskAdjustment));
+  const riskAdjustment =
+    riskFactor >= 0.7 ? 0.85 : riskFactor >= 0.4 ? 0.95 : 1.05;
+
+  const successProbability = Math.max(
+    5,
+    Math.min(95, baseProbability * riskAdjustment)
+  );
 
   // ROI estimado
   const replacementCost = 50000;
   const expectedROI = input.cost
-    ? ((replacementCost * (successProbability / 100)) - input.cost) / input.cost * 100
+    ? ((replacementCost * (successProbability / 100) - input.cost) /
+        input.cost) *
+      100
     : 0;
 
   return {
@@ -244,6 +303,7 @@ function getDefaultPrediction(input: any) {
       similarSuccessRate: baseProbability,
       avgCost: 0,
     },
-    recommendation: "⚠️ Predicción basada en estimaciones generales. Se recomienda recopilar datos históricos para mejorar precisión.",
+    recommendation:
+      "⚠️ Predicción basada en estimaciones generales. Se recomienda recopilar datos históricos para mejorar precisión.",
   };
 }

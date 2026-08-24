@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { SignaturePad } from '../SignaturePad';
-import { Card } from '../ui/card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { trpc } from '@/lib/trpc';
-import { Save, FileText, Users } from 'lucide-react';
+import { useState } from "react";
+import { SignaturePad } from "../SignaturePad";
+import { Card } from "../ui/card";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+import { trpc } from "@/lib/trpc";
+import { Save, FileText, Users } from "lucide-react";
 
 interface CommitteeMember {
   id: string;
@@ -30,9 +30,9 @@ interface ActaConstitutivaData {
 
 /**
  * Componente de Acta Constitutiva del Comité de Seguridad y Salud
- * 
+ *
  * Cumple con requisitos de NOM-035-STPS-2018 para la constitución formal del comité.
- * 
+ *
  * Características:
  * - Campos dinámicos para datos de la empresa
  * - Gestión de asistentes con firmas digitales
@@ -42,40 +42,51 @@ interface ActaConstitutivaData {
  */
 export function ActaConstitutiva() {
   const [formData, setFormData] = useState<ActaConstitutivaData>({
-    companyName: '',
-    companyAddress: '',
-    companyRFC: '',
-    meetingDate: new Date().toISOString().split('T')[0],
-    meetingPlace: '',
+    companyName: "",
+    companyAddress: "",
+    companyRFC: "",
+    meetingDate: new Date().toISOString().split("T")[0],
+    meetingPlace: "",
     attendees: [],
-    objectives: 'Constituir el Comité de Seguridad y Salud en el Trabajo conforme a la NOM-035-STPS-2018, con el objetivo de identificar, analizar y prevenir los factores de riesgo psicosocial en el centro de trabajo.',
-    responsibilities: '1. Vigilar el cumplimiento de la normativa en materia de riesgos psicosociales\n2. Promover la prevención de factores de riesgo psicosocial\n3. Proponer medidas de control y seguimiento\n4. Evaluar los factores de riesgo psicosocial\n5. Atender y dar seguimiento a los casos identificados',
-    meetingFrequency: 'Mensual',
-    additionalNotes: '',
+    objectives:
+      "Constituir el Comité de Seguridad y Salud en el Trabajo conforme a la NOM-035-STPS-2018, con el objetivo de identificar, analizar y prevenir los factores de riesgo psicosocial en el centro de trabajo.",
+    responsibilities:
+      "1. Vigilar el cumplimiento de la normativa en materia de riesgos psicosociales\n2. Promover la prevención de factores de riesgo psicosocial\n3. Proponer medidas de control y seguimiento\n4. Evaluar los factores de riesgo psicosocial\n5. Atender y dar seguimiento a los casos identificados",
+    meetingFrequency: "Mensual",
+    additionalNotes: "",
   });
 
-  const [currentSigningMember, setCurrentSigningMember] = useState<string | null>(null);
+  const [currentSigningMember, setCurrentSigningMember] = useState<
+    string | null
+  >(null);
   const [isDraft, setIsDraft] = useState(true);
 
   // Mutation para guardar documento
   const saveDocumentMutation = trpc.signatures.saveSignature.useMutation({
     onSuccess: () => {
-      alert(isDraft ? 'Borrador guardado exitosamente' : 'Acta Constitutiva finalizada exitosamente');
+      alert(
+        isDraft
+          ? "Borrador guardado exitosamente"
+          : "Acta Constitutiva finalizada exitosamente"
+      );
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error al guardar: ${error.message}`);
     },
   });
 
-  const handleInputChange = (field: keyof ActaConstitutivaData, value: string) => {
+  const handleInputChange = (
+    field: keyof ActaConstitutivaData,
+    value: string
+  ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleAddAttendee = () => {
     const newAttendee: CommitteeMember = {
       id: `member-${Date.now()}`,
-      name: '',
-      position: '',
+      name: "",
+      position: "",
       signature: null,
     };
     setFormData(prev => ({
@@ -91,7 +102,11 @@ export function ActaConstitutiva() {
     }));
   };
 
-  const handleAttendeeChange = (id: string, field: keyof CommitteeMember, value: string) => {
+  const handleAttendeeChange = (
+    id: string,
+    field: keyof CommitteeMember,
+    value: string
+  ) => {
     setFormData(prev => ({
       ...prev,
       attendees: prev.attendees.map(a =>
@@ -102,7 +117,7 @@ export function ActaConstitutiva() {
 
   const handleSignatureCapture = (signature: string) => {
     if (currentSigningMember) {
-      handleAttendeeChange(currentSigningMember, 'signature', signature);
+      handleAttendeeChange(currentSigningMember, "signature", signature);
       setCurrentSigningMember(null);
     }
   };
@@ -110,29 +125,35 @@ export function ActaConstitutiva() {
   const handleSaveDraft = () => {
     setIsDraft(true);
     // Aquí se guardaría el borrador en la base de datos
-    alert('Funcionalidad de guardado de borrador en desarrollo');
+    alert("Funcionalidad de guardado de borrador en desarrollo");
   };
 
   const handleFinalize = () => {
     // Validar que todos los campos requeridos estén llenos
-    if (!formData.companyName || !formData.companyRFC || !formData.meetingDate) {
-      alert('Por favor complete todos los campos requeridos');
+    if (
+      !formData.companyName ||
+      !formData.companyRFC ||
+      !formData.meetingDate
+    ) {
+      alert("Por favor complete todos los campos requeridos");
       return;
     }
 
     if (formData.attendees.length < 2) {
-      alert('Se requieren al menos 2 asistentes para constituir el comité');
+      alert("Se requieren al menos 2 asistentes para constituir el comité");
       return;
     }
 
     const unsignedMembers = formData.attendees.filter(a => !a.signature);
     if (unsignedMembers.length > 0) {
-      alert(`Faltan firmas de: ${unsignedMembers.map(m => m.name || 'Sin nombre').join(', ')}`);
+      alert(
+        `Faltan firmas de: ${unsignedMembers.map(m => m.name || "Sin nombre").join(", ")}`
+      );
       return;
     }
 
     setIsDraft(false);
-    alert('Funcionalidad de finalización en desarrollo');
+    alert("Funcionalidad de finalización en desarrollo");
   };
 
   return (
@@ -158,7 +179,7 @@ export function ActaConstitutiva() {
             <Input
               id="companyName"
               value={formData.companyName}
-              onChange={(e) => handleInputChange('companyName', e.target.value)}
+              onChange={e => handleInputChange("companyName", e.target.value)}
               placeholder="Nombre completo de la empresa"
             />
           </div>
@@ -168,7 +189,7 @@ export function ActaConstitutiva() {
             <Input
               id="companyRFC"
               value={formData.companyRFC}
-              onChange={(e) => handleInputChange('companyRFC', e.target.value)}
+              onChange={e => handleInputChange("companyRFC", e.target.value)}
               placeholder="RFC de la empresa"
               maxLength={13}
             />
@@ -179,7 +200,9 @@ export function ActaConstitutiva() {
             <Input
               id="companyAddress"
               value={formData.companyAddress}
-              onChange={(e) => handleInputChange('companyAddress', e.target.value)}
+              onChange={e =>
+                handleInputChange("companyAddress", e.target.value)
+              }
               placeholder="Dirección completa del centro de trabajo"
             />
           </div>
@@ -190,7 +213,7 @@ export function ActaConstitutiva() {
               id="meetingDate"
               type="date"
               value={formData.meetingDate}
-              onChange={(e) => handleInputChange('meetingDate', e.target.value)}
+              onChange={e => handleInputChange("meetingDate", e.target.value)}
             />
           </div>
 
@@ -199,7 +222,7 @@ export function ActaConstitutiva() {
             <Input
               id="meetingPlace"
               value={formData.meetingPlace}
-              onChange={(e) => handleInputChange('meetingPlace', e.target.value)}
+              onChange={e => handleInputChange("meetingPlace", e.target.value)}
               placeholder="Sala de juntas, oficina principal, etc."
             />
           </div>
@@ -215,7 +238,7 @@ export function ActaConstitutiva() {
           <Textarea
             id="objectives"
             value={formData.objectives}
-            onChange={(e) => handleInputChange('objectives', e.target.value)}
+            onChange={e => handleInputChange("objectives", e.target.value)}
             rows={3}
           />
         </div>
@@ -225,7 +248,9 @@ export function ActaConstitutiva() {
           <Textarea
             id="responsibilities"
             value={formData.responsibilities}
-            onChange={(e) => handleInputChange('responsibilities', e.target.value)}
+            onChange={e =>
+              handleInputChange("responsibilities", e.target.value)
+            }
             rows={6}
           />
         </div>
@@ -235,7 +260,9 @@ export function ActaConstitutiva() {
           <Input
             id="meetingFrequency"
             value={formData.meetingFrequency}
-            onChange={(e) => handleInputChange('meetingFrequency', e.target.value)}
+            onChange={e =>
+              handleInputChange("meetingFrequency", e.target.value)
+            }
             placeholder="Ej: Mensual, Bimestral, etc."
           />
         </div>
@@ -255,7 +282,8 @@ export function ActaConstitutiva() {
 
         {formData.attendees.length === 0 && (
           <p className="text-muted-foreground text-center py-8">
-            No hay asistentes agregados. Haga clic en "Agregar Asistente" para comenzar.
+            No hay asistentes agregados. Haga clic en "Agregar Asistente" para
+            comenzar.
           </p>
         )}
 
@@ -267,7 +295,9 @@ export function ActaConstitutiva() {
                   <Label>Nombre Completo</Label>
                   <Input
                     value={attendee.name}
-                    onChange={(e) => handleAttendeeChange(attendee.id, 'name', e.target.value)}
+                    onChange={e =>
+                      handleAttendeeChange(attendee.id, "name", e.target.value)
+                    }
                     placeholder="Nombre completo del asistente"
                   />
                 </div>
@@ -276,7 +306,13 @@ export function ActaConstitutiva() {
                   <Label>Cargo/Posición</Label>
                   <Input
                     value={attendee.position}
-                    onChange={(e) => handleAttendeeChange(attendee.id, 'position', e.target.value)}
+                    onChange={e =>
+                      handleAttendeeChange(
+                        attendee.id,
+                        "position",
+                        e.target.value
+                      )
+                    }
                     placeholder="Coordinador, Secretario, etc."
                   />
                 </div>
@@ -285,7 +321,9 @@ export function ActaConstitutiva() {
               <div className="flex items-center justify-between">
                 {attendee.signature ? (
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground mb-2">Firma capturada:</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Firma capturada:
+                    </p>
                     <div className="border rounded p-2 bg-white dark:bg-gray-900">
                       <img
                         src={attendee.signature}
@@ -324,10 +362,12 @@ export function ActaConstitutiva() {
               onSave={handleSignatureCapture}
               onCancel={() => setCurrentSigningMember(null)}
               signerName={
-                formData.attendees.find(a => a.id === currentSigningMember)?.name || 'Asistente'
+                formData.attendees.find(a => a.id === currentSigningMember)
+                  ?.name || "Asistente"
               }
               signerRole={
-                formData.attendees.find(a => a.id === currentSigningMember)?.position
+                formData.attendees.find(a => a.id === currentSigningMember)
+                  ?.position
               }
             />
           </div>
@@ -339,7 +379,7 @@ export function ActaConstitutiva() {
         <h2 className="text-xl font-semibold">Notas Adicionales</h2>
         <Textarea
           value={formData.additionalNotes}
-          onChange={(e) => handleInputChange('additionalNotes', e.target.value)}
+          onChange={e => handleInputChange("additionalNotes", e.target.value)}
           rows={4}
           placeholder="Cualquier información adicional relevante para el acta..."
         />

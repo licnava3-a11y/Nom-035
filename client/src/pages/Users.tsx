@@ -1,12 +1,33 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users as UsersIcon, Search, Plus, Shield, BookOpen, AlertCircle, Mail, Calendar } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Users as UsersIcon,
+  Search,
+  Plus,
+  Shield,
+  BookOpen,
+  AlertCircle,
+  Mail,
+  Calendar,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Pagination } from "@/components/Pagination";
@@ -24,16 +45,23 @@ export default function Users() {
   });
 
   // Query con paginación real
-  const { data: usersData, isLoading } = trpc.usersPaginated.listPaginated.useQuery({
-    page,
-    pageSize,
-    search: filters.search || undefined,
-    role: filters.role === "all" ? undefined : filters.role || undefined,
-    departamento: filters.department === "all" ? undefined : filters.department || undefined,
-  });
+  const { data: usersData, isLoading } =
+    trpc.usersPaginated.listPaginated.useQuery({
+      page,
+      pageSize,
+      search: filters.search || undefined,
+      role: filters.role === "all" ? undefined : filters.role || undefined,
+      departamento:
+        filters.department === "all"
+          ? undefined
+          : filters.department || undefined,
+    });
 
   const { data: statsData } = trpc.usersPaginated.getStats.useQuery();
-  const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
+  const { data: departments } = trpc.departments.list.useQuery({
+    page: 1,
+    pageSize: 100,
+  });
 
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -44,7 +72,14 @@ export default function Users() {
       case "student":
         return <Badge variant="outline">Estudiante</Badge>;
       case "committee":
-        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Comité</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-purple-50 text-purple-700 border-purple-200"
+          >
+            Comité
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{role}</Badge>;
     }
@@ -76,10 +111,12 @@ export default function Users() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[
-        { label: "Administración", href: "/" },
-        { label: "Usuarios", href: "/users" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Administración", href: "/" },
+          { label: "Usuarios", href: "/users" },
+        ]}
+      />
 
       <div className="flex justify-between items-center">
         <div>
@@ -98,16 +135,22 @@ export default function Users() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Usuarios</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Usuarios
+            </CardTitle>
             <UsersIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{usersData?.pagination.totalCount || 0}</div>
+            <div className="text-2xl font-bold">
+              {usersData?.pagination.totalCount || 0}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Administradores</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Administradores
+            </CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -120,7 +163,9 @@ export default function Users() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{statsData?.instructor || 0}</div>
+            <div className="text-2xl font-bold">
+              {statsData?.instructor || 0}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -144,7 +189,9 @@ export default function Users() {
               <Input
                 placeholder="Nombre o email..."
                 value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                onChange={e =>
+                  setFilters({ ...filters, search: e.target.value })
+                }
                 className="pl-8"
               />
             </div>
@@ -153,7 +200,7 @@ export default function Users() {
             <label className="text-sm font-medium">Rol</label>
             <Select
               value={filters.role}
-              onValueChange={(value) => setFilters({ ...filters, role: value })}
+              onValueChange={value => setFilters({ ...filters, role: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Todos" />
@@ -171,18 +218,22 @@ export default function Users() {
             <label className="text-sm font-medium">Departamento</label>
             <Select
               value={filters.department}
-              onValueChange={(value) => setFilters({ ...filters, department: value })}
+              onValueChange={value =>
+                setFilters({ ...filters, department: value })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                {departments?.data?.map((dept: { id: number; name: string }) => (
-                  <SelectItem key={dept.id} value={dept.id.toString()}>
-                    {dept.name}
-                  </SelectItem>
-                ))}
+                {departments?.data?.map(
+                  (dept: { id: number; name: string }) => (
+                    <SelectItem key={dept.id} value={dept.id.toString()}>
+                      {dept.name}
+                    </SelectItem>
+                  )
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -195,12 +246,22 @@ export default function Users() {
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium">Usuario</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Email</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Usuario
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Email
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Rol</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Departamento</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Última Actividad</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Acciones</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Departamento
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Última Actividad
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -212,7 +273,10 @@ export default function Users() {
                 </tr>
               ) : usersData?.users?.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-8 text-center text-muted-foreground"
+                  >
                     No se encontraron usuarios
                   </td>
                 </tr>
@@ -222,11 +286,15 @@ export default function Users() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Avatar>
-                          <AvatarFallback>{getInitials(usuario.name)}</AvatarFallback>
+                          <AvatarFallback>
+                            {getInitials(usuario.name)}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">{usuario.name}</p>
-                          <p className="text-sm text-muted-foreground">ID: {usuario.id}</p>
+                          <p className="text-sm text-muted-foreground">
+                            ID: {usuario.id}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -236,18 +304,20 @@ export default function Users() {
                         <span className="text-sm">{usuario.email}</span>
                       </div>
                     </td>
+                    <td className="px-4 py-3">{getRoleBadge(usuario.role)}</td>
                     <td className="px-4 py-3">
-                      {getRoleBadge(usuario.role)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm">{usuario.departmentName || "N/A"}</span>
+                      <span className="text-sm">
+                        {usuario.departmentName || "N/A"}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">
-                          {usuario.lastActivity 
-                            ? new Date(usuario.lastActivity).toLocaleDateString('es-MX')
+                          {usuario.lastActivity
+                            ? new Date(usuario.lastActivity).toLocaleDateString(
+                                "es-MX"
+                              )
                             : "Nunca"}
                         </span>
                       </div>
@@ -257,7 +327,9 @@ export default function Users() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => toast.info("Vista de detalle próximamente")}
+                          onClick={() =>
+                            toast.info("Vista de detalle próximamente")
+                          }
                         >
                           Ver Detalle
                         </Button>

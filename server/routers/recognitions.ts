@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb, createNotification } from "../db";
-import { recognitions, recognitionCategories, recognitionReactions, users } from "../../drizzle/schema";
+import {
+  recognitions,
+  recognitionCategories,
+  recognitionReactions,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, or, desc, sql, gte, lte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -11,8 +16,12 @@ export const recognitionsRouter = router({
    */
   getCategories: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-    
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
+
     return await db
       .select()
       .from(recognitionCategories)
@@ -29,71 +38,87 @@ export const recognitionsRouter = router({
         toUserId: z.number(),
         categoryId: z.number(),
         type: z.enum(["reconocimiento", "felicitacion"]),
-        message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres"),
-        isPublic: z.boolean().default(false),      })
+        message: z
+          .string()
+          .min(10, "El mensaje debe tener al menos 10 caracteres"),
+        isPublic: z.boolean().default(false),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-        
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
         // Validar que no se reconozca a sí mismo
-      if (ctx.user.id === input.toUserId) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "No puedes enviarte un reconocimiento a ti mismo",
+        if (ctx.user.id === input.toUserId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "No puedes enviarte un reconocimiento a ti mismo",
+          });
+        }
+
+        // Validar que el usuario destino existe
+        const toUser = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, input.toUserId))
+          .limit(1);
+        if (toUser.length === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "El usuario destino no existe",
+          });
+        }
+
+        // Validar que la categoría existe
+        const category = await db
+          .select()
+          .from(recognitionCategories)
+          .where(
+            and(
+              eq(recognitionCategories.id, input.categoryId),
+              eq(recognitionCategories.isActive, true)
+            )
+          )
+          .limit(1);
+
+        if (category.length === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "La categoría seleccionada no existe o está inactiva",
+          });
+        }
+
+        // Crear reconocimiento
+        const result = await (db.insert(recognitions) as any).values({
+          fromUserId: ctx.user.id,
+          toUserId: input.toUserId,
+          categoryId: input.categoryId,
+          type: input.type,
+          message: input.message,
+          isPublic: input.isPublic,
+          status: "approved", // Por defecto aprobado, se puede cambiar a "pending" si se requiere moderación
         });
-      }
 
-      // Validar que el usuario destino existe
-      const toUser = await db.select().from(users).where(eq(users.id, input.toUserId)).limit(1);
-      if (toUser.length === 0) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "El usuario destino no existe",
+        // Enviar notificación al usuario destino (no bloqueante)
+        createNotification({
+          userId: input.toUserId,
+          type: "system",
+          title: "¡Has recibido un reconocimiento!",
+          message: `${ctx.user.name} te ha enviado un reconocimiento en la categoría "${category[0].name}": ${input.message.substring(0, 100)}${input.message.length > 100 ? "..." : ""}`,
+          relatedEntityType: "recognition",
+          relatedEntityId: Number((result as any)[0]?.insertId || 0),
+        }).catch(error => {
+          console.error("[Recognitions] Error al enviar notificación:", error);
         });
-      }
 
-      // Validar que la categoría existe
-      const category = await db
-        .select()
-        .from(recognitionCategories)
-        .where(and(eq(recognitionCategories.id, input.categoryId), eq(recognitionCategories.isActive, true)))
-        .limit(1);
-
-      if (category.length === 0) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "La categoría seleccionada no existe o está inactiva",
-        });
-      }
-
-      // Crear reconocimiento
-      const result = await (db.insert(recognitions) as any).values({
-        fromUserId: ctx.user.id,
-        toUserId: input.toUserId,
-        categoryId: input.categoryId,
-        type: input.type,
-        message: input.message,
-        isPublic: input.isPublic,
-        status: "approved", // Por defecto aprobado, se puede cambiar a "pending" si se requiere moderación
-      });
-
-      // Enviar notificación al usuario destino (no bloqueante)
-      createNotification({
-        userId: input.toUserId,
-        type: "system",
-        title: "¡Has recibido un reconocimiento!",
-        message: `${ctx.user.name} te ha enviado un reconocimiento en la categoría "${category[0].name}": ${input.message.substring(0, 100)}${input.message.length > 100 ? '...' : ''}`,
-        relatedEntityType: "recognition",
-        relatedEntityId: Number((result as any)[0]?.insertId || 0),
-      }).catch(error => {
-        console.error("[Recognitions] Error al enviar notificación:", error);
-      });
-
-      return { success: true };
+        return { success: true };
       } catch (error) {
-        console.error('[Recognitions] Error creating recognition:', error);
+        console.error("[Recognitions] Error creating recognition:", error);
         if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -108,15 +133,21 @@ export const recognitionsRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        filter: z.enum(["received", "sent", "public", "all"]).default("received"),
+        filter: z
+          .enum(["received", "sent", "public", "all"])
+          .default("received"),
         limit: z.number().min(1).max(100).default(20),
         offset: z.number().min(0).default(0),
       })
     )
     .query(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       let whereCondition: any;
 
       switch (input.filter) {
@@ -127,10 +158,16 @@ export const recognitionsRouter = router({
           whereCondition = eq(recognitions.fromUserId, ctx.user.id);
           break;
         case "public":
-          whereCondition = and(eq(recognitions.isPublic, true), eq(recognitions.status, "approved"));
+          whereCondition = and(
+            eq(recognitions.isPublic, true),
+            eq(recognitions.status, "approved")
+          );
           break;
         case "all":
-          whereCondition = or(eq(recognitions.toUserId, ctx.user.id), eq(recognitions.fromUserId, ctx.user.id));
+          whereCondition = or(
+            eq(recognitions.toUserId, ctx.user.id),
+            eq(recognitions.fromUserId, ctx.user.id)
+          );
           break;
       }
 
@@ -159,7 +196,10 @@ export const recognitionsRouter = router({
           createdAt: recognitions.createdAt,
         })
         .from(recognitions)
-        .leftJoin(recognitionCategories, eq(recognitions.categoryId, recognitionCategories.id))
+        .leftJoin(
+          recognitionCategories,
+          eq(recognitions.categoryId, recognitionCategories.id)
+        )
         .where(whereCondition)
         .orderBy(desc(recognitions.createdAt))
         .limit(input.limit)
@@ -182,54 +222,63 @@ export const recognitionsRouter = router({
   /**
    * Obtener reconocimiento por ID
    */
-  getById: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
-    const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-    
-    const result = await db
-      .select({
-        id: recognitions.id,
-        fromUserId: recognitions.fromUserId,
-        fromUserName: sql<string>`(SELECT name FROM users WHERE id = ${recognitions.fromUserId})`,
-        toUserId: recognitions.toUserId,
-        toUserName: sql<string>`(SELECT name FROM users WHERE id = ${recognitions.toUserId})`,
-        categoryId: recognitions.categoryId,
-        categoryName: recognitionCategories.name,
-        categoryIcon: recognitionCategories.icon,
-        type: recognitions.type,
-        message: recognitions.message,
-        isPublic: recognitions.isPublic,
-        status: recognitions.status,
-        createdAt: recognitions.createdAt,
-      })
-      .from(recognitions)
-      .leftJoin(recognitionCategories, eq(recognitions.categoryId, recognitionCategories.id))
-      .where(eq(recognitions.id, input.id))
-      .limit(1);
+  getById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
-    if (result.length === 0) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Reconocimiento no encontrado",
-      });
-    }
+      const result = await db
+        .select({
+          id: recognitions.id,
+          fromUserId: recognitions.fromUserId,
+          fromUserName: sql<string>`(SELECT name FROM users WHERE id = ${recognitions.fromUserId})`,
+          toUserId: recognitions.toUserId,
+          toUserName: sql<string>`(SELECT name FROM users WHERE id = ${recognitions.toUserId})`,
+          categoryId: recognitions.categoryId,
+          categoryName: recognitionCategories.name,
+          categoryIcon: recognitionCategories.icon,
+          type: recognitions.type,
+          message: recognitions.message,
+          isPublic: recognitions.isPublic,
+          status: recognitions.status,
+          createdAt: recognitions.createdAt,
+        })
+        .from(recognitions)
+        .leftJoin(
+          recognitionCategories,
+          eq(recognitions.categoryId, recognitionCategories.id)
+        )
+        .where(eq(recognitions.id, input.id))
+        .limit(1);
 
-    // Validar que el usuario tenga permiso para ver este reconocimiento
-    const recognition = result[0];
-    if (
-      !recognition.isPublic &&
-      recognition.fromUserId !== ctx.user.id &&
-      recognition.toUserId !== ctx.user.id &&
-      ctx.user.role !== "admin"
-    ) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "No tienes permiso para ver este reconocimiento",
-      });
-    }
+      if (result.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Reconocimiento no encontrado",
+        });
+      }
 
-    return recognition;
-  }),
+      // Validar que el usuario tenga permiso para ver este reconocimiento
+      const recognition = result[0];
+      if (
+        !recognition.isPublic &&
+        recognition.fromUserId !== ctx.user.id &&
+        recognition.toUserId !== ctx.user.id &&
+        ctx.user.role !== "admin"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permiso para ver este reconocimiento",
+        });
+      }
+
+      return recognition;
+    }),
 
   /**
    * Reporte mensual de reconocimientos
@@ -243,8 +292,12 @@ export const recognitionsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       const startDate = new Date(input.year, input.month - 1, 1);
       const endDate = new Date(input.year, input.month, 0, 23, 59, 59);
 
@@ -252,7 +305,12 @@ export const recognitionsRouter = router({
       const totalRecognitions = await db
         .select({ count: sql<number>`count(*)` })
         .from(recognitions)
-        .where(and(gte(recognitions.createdAt, startDate), lte(recognitions.createdAt, endDate)));
+        .where(
+          and(
+            gte(recognitions.createdAt, startDate),
+            lte(recognitions.createdAt, endDate)
+          )
+        );
 
       // Reconocimientos por categoría
       const byCategory = await db
@@ -262,8 +320,16 @@ export const recognitionsRouter = router({
           count: sql<number>`count(*)`,
         })
         .from(recognitions)
-        .leftJoin(recognitionCategories, eq(recognitions.categoryId, recognitionCategories.id))
-        .where(and(gte(recognitions.createdAt, startDate), lte(recognitions.createdAt, endDate)))
+        .leftJoin(
+          recognitionCategories,
+          eq(recognitions.categoryId, recognitionCategories.id)
+        )
+        .where(
+          and(
+            gte(recognitions.createdAt, startDate),
+            lte(recognitions.createdAt, endDate)
+          )
+        )
         .groupBy(recognitions.categoryId, recognitionCategories.name);
 
       // Top 10 empleados más reconocidos
@@ -275,7 +341,12 @@ export const recognitionsRouter = router({
         })
         .from(recognitions)
         .leftJoin(users, eq(recognitions.toUserId, users.id))
-        .where(and(gte(recognitions.createdAt, startDate), lte(recognitions.createdAt, endDate)))
+        .where(
+          and(
+            gte(recognitions.createdAt, startDate),
+            lte(recognitions.createdAt, endDate)
+          )
+        )
         .groupBy(recognitions.toUserId, users.name)
         .orderBy(desc(sql`count(*)`))
         .limit(10);
@@ -289,7 +360,12 @@ export const recognitionsRouter = router({
         })
         .from(recognitions)
         .leftJoin(users, eq(recognitions.fromUserId, users.id))
-        .where(and(gte(recognitions.createdAt, startDate), lte(recognitions.createdAt, endDate)))
+        .where(
+          and(
+            gte(recognitions.createdAt, startDate),
+            lte(recognitions.createdAt, endDate)
+          )
+        )
         .groupBy(recognitions.fromUserId, users.name)
         .orderBy(desc(sql`count(*)`))
         .limit(10);
@@ -320,8 +396,12 @@ export const recognitionsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       // Verificar que el reconocimiento existe
       const recognition = await db
         .select()
@@ -341,7 +421,10 @@ export const recognitionsRouter = router({
         .select()
         .from(recognitionReactions)
         .where(
-          and(eq(recognitionReactions.recognitionId, input.recognitionId), eq(recognitionReactions.userId, ctx.user.id))
+          and(
+            eq(recognitionReactions.recognitionId, input.recognitionId),
+            eq(recognitionReactions.userId, ctx.user.id)
+          )
         )
         .limit(1);
 
@@ -376,12 +459,19 @@ export const recognitionsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       await db
         .delete(recognitionReactions)
         .where(
-          and(eq(recognitionReactions.recognitionId, input.recognitionId), eq(recognitionReactions.userId, ctx.user.id))
+          and(
+            eq(recognitionReactions.recognitionId, input.recognitionId),
+            eq(recognitionReactions.userId, ctx.user.id)
+          )
         );
 
       return { success: true };
@@ -398,8 +488,12 @@ export const recognitionsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       const reactions = await db
         .select({
           id: recognitionReactions.id,
@@ -421,11 +515,15 @@ export const recognitionsRouter = router({
         star: 0,
       };
 
-      reactions.forEach((r: { reactionType: "like" | "applause" | "heart" | "star" | null }) => {
-        if (r.reactionType) {
-          counts[r.reactionType]++;
+      reactions.forEach(
+        (r: {
+          reactionType: "like" | "applause" | "heart" | "star" | null;
+        }) => {
+          if (r.reactionType) {
+            counts[r.reactionType]++;
+          }
         }
-      });
+      );
 
       return {
         reactions,
@@ -439,8 +537,12 @@ export const recognitionsRouter = router({
    */
   getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-    
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
+
     // Contar reconocimientos recibidos que no han sido leídos (readAt IS NULL)
     const result = await db
       .select({ count: sql<number>`count(*)` })
@@ -464,8 +566,12 @@ export const recognitionsRouter = router({
     .input(z.object({ recognitionId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       // Verificar que el reconocimiento existe y pertenece al usuario actual
       const recognition = await db
         .select()
@@ -483,7 +589,8 @@ export const recognitionsRouter = router({
       if (recognition[0].toUserId !== ctx.user.id) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "No tienes permiso para marcar este reconocimiento como leído",
+          message:
+            "No tienes permiso para marcar este reconocimiento como leído",
         });
       }
 

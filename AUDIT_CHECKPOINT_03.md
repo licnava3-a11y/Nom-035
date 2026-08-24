@@ -6,20 +6,20 @@
 
 ## Hallazgos y correcciones
 
-| Hallazgo | Riesgo | Corrección aplicada |
-|---|---|---|
+| Hallazgo                                                                                                                         | Riesgo                                                                                                                  | Corrección aplicada                                                                                                                 |
+| -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `exitInterviews` comparaba `exitInterviews.employeeId` con `ctx.user.id`, aunque la tabla relaciona el campo con `employees.id`. | Un colaborador podía no ver su propia entrevista o la confidencialidad podía evaluarse contra una identidad equivocada. | Se resuelve el perfil de colaborador mediante `employees.userId = ctx.user.id` en los flujos `list`, `getById` y `submitResponses`. |
-| `RecognitionsCard` importaba `jspdf` y `jspdf-autotable` al cargar el dashboard. | Descarga y análisis innecesario de dependencias de PDF cuando el usuario no solicita exportar. | Se sustituyeron por importaciones dinámicas que se cargan solo al pulsar el botón de exportación. |
-| La exportación tomaba el primer elemento `canvas` del documento. | El PDF podía capturar un gráfico ajeno si coexistían varios canvases en la página. | El selector queda acotado al contenedor `#recognitions-category-chart`. |
+| `RecognitionsCard` importaba `jspdf` y `jspdf-autotable` al cargar el dashboard.                                                 | Descarga y análisis innecesario de dependencias de PDF cuando el usuario no solicita exportar.                          | Se sustituyeron por importaciones dinámicas que se cargan solo al pulsar el botón de exportación.                                   |
+| La exportación tomaba el primer elemento `canvas` del documento.                                                                 | El PDF podía capturar un gráfico ajeno si coexistían varios canvases en la página.                                      | El selector queda acotado al contenedor `#recognitions-category-chart`.                                                             |
 
 ## Validación
 
-| Verificación | Resultado |
-|---|---|
-| TypeScript — servidor | Aprobado. |
-| TypeScript — cliente | Aprobado. |
-| Build de cliente | Aprobado con carga diferida del exportador PDF. |
-| Suite unitaria de CI | **93 archivos aprobados; 1,463 pruebas aprobadas.** |
+| Verificación          | Resultado                                           |
+| --------------------- | --------------------------------------------------- |
+| TypeScript — servidor | Aprobado.                                           |
+| TypeScript — cliente  | Aprobado.                                           |
+| Build de cliente      | Aprobado con carga diferida del exportador PDF.     |
+| Suite unitaria de CI  | **93 archivos aprobados; 1,463 pruebas aprobadas.** |
 
 ## Observación de rendimiento
 

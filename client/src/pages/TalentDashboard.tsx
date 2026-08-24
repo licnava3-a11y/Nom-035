@@ -1,11 +1,30 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, TrendingUp, AlertTriangle, FileText, Target, Activity } from "lucide-react";
+import {
+  Users,
+  TrendingUp,
+  AlertTriangle,
+  FileText,
+  Target,
+  Activity,
+} from "lucide-react";
 import { Line, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -33,15 +52,21 @@ ChartJS.register(
 );
 
 export default function TalentDashboard() {
-  const [departmentId, setDepartmentId] = useState<number | undefined>(undefined);
+  const [departmentId, setDepartmentId] = useState<number | undefined>(
+    undefined
+  );
   const [period, setPeriod] = useState<"month" | "quarter" | "year">("month");
 
-  const { data: metrics, isLoading } = trpc.talentDashboard.getDashboardMetrics.useQuery({
-    departmentId,
-    period,
-  });
+  const { data: metrics, isLoading } =
+    trpc.talentDashboard.getDashboardMetrics.useQuery({
+      departmentId,
+      period,
+    });
 
-  const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
+  const { data: departments } = trpc.departments.list.useQuery({
+    page: 1,
+    pageSize: 100,
+  });
 
   if (isLoading) {
     return (
@@ -57,7 +82,9 @@ export default function TalentDashboard() {
     return (
       <div className="container mx-auto py-8">
         <Alert>
-          <AlertDescription>No se pudieron cargar las métricas del dashboard.</AlertDescription>
+          <AlertDescription>
+            No se pudieron cargar las métricas del dashboard.
+          </AlertDescription>
         </Alert>
       </div>
     );
@@ -67,7 +94,8 @@ export default function TalentDashboard() {
   const nineBoxData = Array.from({ length: 9 }, (_, i) => {
     const performance = Math.floor(i / 3) + 1;
     const potential = (i % 3) + 1;
-    const cell = metrics.nineBoxMatrix.find((m: any) => m.performance === performance && m.potential === potential
+    const cell = metrics.nineBoxMatrix.find(
+      (m: any) => m.performance === performance && m.potential === potential
     );
     return { performance, potential, count: cell?.count || 0 };
   });
@@ -128,7 +156,9 @@ export default function TalentDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard Consolidado de Talento</h1>
+          <h1 className="text-3xl font-bold">
+            Dashboard Consolidado de Talento
+          </h1>
           <p className="text-muted-foreground">
             Vista ejecutiva unificada de métricas clave de gestión de talento
           </p>
@@ -136,7 +166,7 @@ export default function TalentDashboard() {
         <div className="flex gap-4">
           <Select
             value={departmentId?.toString() || "all"}
-            onValueChange={(value) =>
+            onValueChange={value =>
               setDepartmentId(value === "all" ? undefined : parseInt(value))
             }
           >
@@ -152,7 +182,10 @@ export default function TalentDashboard() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={period} onValueChange={(value: any) => setPeriod(value)}>
+          <Select
+            value={period}
+            onValueChange={(value: any) => setPeriod(value)}
+          >
             <SelectTrigger className="w-[150px]">
               <SelectValue />
             </SelectTrigger>
@@ -169,11 +202,15 @@ export default function TalentDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Empleados Activos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Empleados Activos
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.kpis.activeEmployees}</div>
+            <div className="text-2xl font-bold">
+              {metrics.kpis.activeEmployees}
+            </div>
             <p className="text-xs text-muted-foreground">
               de {metrics.kpis.totalEmployees} totales
             </p>
@@ -182,11 +219,15 @@ export default function TalentDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Retención</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Retención
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.kpis.retentionRate}%</div>
+            <div className="text-2xl font-bold">
+              {metrics.kpis.retentionRate}%
+            </div>
             <p className="text-xs text-muted-foreground">
               Score promedio: {metrics.kpis.avgRetentionScore.toFixed(1)}
             </p>
@@ -195,7 +236,9 @@ export default function TalentDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Riesgo Crítico</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Riesgo Crítico
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -210,13 +253,16 @@ export default function TalentDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Reportes Enviados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Reportes Enviados
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.reports.sent}</div>
             <p className="text-xs text-muted-foreground">
-              {metrics.reports.pending} pendientes, {metrics.reports.failed} fallidos
+              {metrics.reports.pending} pendientes, {metrics.reports.failed}{" "}
+              fallidos
             </p>
           </CardContent>
         </Card>
@@ -307,10 +353,10 @@ export default function TalentDashboard() {
                     cell.performance === 3 && cell.potential === 3
                       ? "bg-green-100 border-green-500"
                       : cell.performance >= 2 && cell.potential >= 2
-                      ? "bg-blue-100 border-blue-500"
-                      : cell.performance === 1 || cell.potential === 1
-                      ? "bg-red-100 border-red-500"
-                      : "bg-yellow-100 border-yellow-500";
+                        ? "bg-blue-100 border-blue-500"
+                        : cell.performance === 1 || cell.potential === 1
+                          ? "bg-red-100 border-red-500"
+                          : "bg-yellow-100 border-yellow-500";
 
                   return (
                     <div
@@ -341,7 +387,8 @@ export default function TalentDashboard() {
             <CardHeader>
               <CardTitle>Empleados con Menor Score de Retención</CardTitle>
               <CardDescription>
-                Top 10 empleados en riesgo de rotación (requieren atención prioritaria)
+                Top 10 empleados en riesgo de rotación (requieren atención
+                prioritaria)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -363,8 +410,8 @@ export default function TalentDashboard() {
                           emp.retentionScore < 30
                             ? "destructive"
                             : emp.retentionScore < 50
-                            ? "default"
-                            : "secondary"
+                              ? "default"
+                              : "secondary"
                         }
                       >
                         Score: {emp.retentionScore}
@@ -382,38 +429,52 @@ export default function TalentDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total de Alertas</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total de Alertas
+                </CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{metrics.riskAlerts.total}</div>
-                <p className="text-xs text-muted-foreground">En el período seleccionado</p>
+                <div className="text-2xl font-bold">
+                  {metrics.riskAlerts.total}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  En el período seleccionado
+                </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Alertas Activas</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Alertas Activas
+                </CardTitle>
                 <Target className="h-4 w-4 text-yellow-600" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-yellow-600">
                   {metrics.riskAlerts.active}
                 </div>
-                <p className="text-xs text-muted-foreground">Requieren seguimiento</p>
+                <p className="text-xs text-muted-foreground">
+                  Requieren seguimiento
+                </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Alertas Críticas</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Alertas Críticas
+                </CardTitle>
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-red-600">
                   {metrics.riskAlerts.critical}
                 </div>
-                <p className="text-xs text-muted-foreground">Atención inmediata</p>
+                <p className="text-xs text-muted-foreground">
+                  Atención inmediata
+                </p>
               </CardContent>
             </Card>
           </div>

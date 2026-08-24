@@ -34,13 +34,14 @@ describe("Sprint 55 — Corrección definitiva del segfault en producción", () 
   it("vite.ts NO tiene import estático de vite.config", () => {
     const content = fs.readFileSync(viteTsPath, "utf-8");
     // No debe haber import estático de vite.config
-    const staticViteConfigImport = /^import\s+.*from\s+["'].*vite\.config/m.test(content);
+    const staticViteConfigImport =
+      /^import\s+.*from\s+["'].*vite\.config/m.test(content);
     expect(staticViteConfigImport).toBe(false);
   });
 
   it("vite.ts usa import() dinámico para vite", () => {
     const content = fs.readFileSync(viteTsPath, "utf-8");
-    expect(content).toContain("await import(\"vite\")");
+    expect(content).toContain('await import("vite")');
   });
 
   it("index.ts usa Vite solo en desarrollo y estáticos compatibles en producción", () => {

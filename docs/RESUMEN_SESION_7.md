@@ -15,12 +15,14 @@
 ### 1. Investigación de Componente de Usuario
 
 **Archivos investigados**:
+
 - `client/src/components/DashboardLayout.tsx` (líneas 637-648)
 - `client/src/_core/hooks/useAuth.ts`
 
 **Hallazgos**:
 
 El nombre del usuario se muestra en el sidebar de DashboardLayout:
+
 ```typescript
 <p className="text-sm font-medium truncate leading-none">
   {user?.name || "-"}
@@ -28,6 +30,7 @@ El nombre del usuario se muestra en el sidebar de DashboardLayout:
 ```
 
 El hook `useAuth` obtiene el usuario mediante:
+
 ```typescript
 const meQuery = trpc.auth.me.useQuery(undefined, {
   retry: false,
@@ -46,21 +49,27 @@ const meQuery = trpc.auth.me.useQuery(undefined, {
 **Cambios implementados**:
 
 1. **Esperar a que la query de autenticación se complete**:
+
 ```typescript
 await page.waitForResponse(
-  response => response.url().includes('/api/trpc/auth.me') && response.status() === 200,
+  response =>
+    response.url().includes("/api/trpc/auth.me") && response.status() === 200,
   { timeout: 10000 }
 );
 ```
 
 2. **Dar tiempo a React para renderizar**:
+
 ```typescript
 await page.waitForTimeout(1000);
 ```
 
 3. **Buscar el nombre del usuario con timeout reducido**:
+
 ```typescript
-await expect(page.locator('text=Usuario de Prueba E2E')).toBeVisible({ timeout: 5000 });
+await expect(page.locator("text=Usuario de Prueba E2E")).toBeVisible({
+  timeout: 5000,
+});
 ```
 
 **Razón**: El fixture anterior no esperaba a que la query de autenticación se completara antes de buscar el nombre del usuario, causando que el test fallara.
@@ -108,6 +117,7 @@ await expect(page.locator('text=Usuario de Prueba E2E')).toBeVisible({ timeout: 
 **Total**: 726 errores (sin cambios)
 
 **Distribución**:
+
 - Enum columns de Drizzle: ~600 errores
 - 'db possibly null': 67 errores
 - '@ts-expect-error' innecesarios: 0 (corregido en sesión 3)

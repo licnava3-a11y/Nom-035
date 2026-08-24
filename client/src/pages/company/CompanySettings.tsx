@@ -1,15 +1,27 @@
-import { useState, useEffect } from 'react';
-import { trpc } from '@/lib/trpc';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState, useEffect } from "react";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { Building2, Upload, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import LegalRepresentatives from '@/components/LegalRepresentatives';
+import {
+  Building2,
+  Upload,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
+import { toast } from "sonner";
+import LegalRepresentatives from "@/components/LegalRepresentatives";
 
 export default function CompanySettings() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -17,71 +29,77 @@ export default function CompanySettings() {
   const [isUploading, setIsUploading] = useState(false);
 
   // Queries
-  const { data: companyData, isLoading, refetch } = trpc.company.generalData.get.useQuery();
+  const {
+    data: companyData,
+    isLoading,
+    refetch,
+  } = trpc.company.generalData.get.useQuery();
   const { data: logoData } = trpc.company.logo.get.useQuery();
 
   // Mutations
   const updateCompany = trpc.company.generalData.update.useMutation({
     onSuccess: () => {
-      toast.success('Datos actualizados correctamente');
+      toast.success("Datos actualizados correctamente");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
 
   const uploadLogo = trpc.company.logo.upload.useMutation({
     onSuccess: () => {
-      toast.success('Logo subido correctamente');
+      toast.success("Logo subido correctamente");
       setLogoFile(null);
       setLogoPreview(null);
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al subir logo: ${error.message}`);
     },
   });
 
   // Form state
   const [formData, setFormData] = useState({
-    razonSocial: '',
-    rfc: '',
-    direccionFiscal: '',
-    giro: '',
-    actividadesPreponderantes: '',
+    razonSocial: "",
+    rfc: "",
+    direccionFiscal: "",
+    giro: "",
+    actividadesPreponderantes: "",
     numeroTrabajadores: 0,
-    representanteLegal: '',
-    telefonoContacto: '',
-    emailContacto: '',
-    paginaWeb: '',
-    notificationEmail: '',
+    representanteLegal: "",
+    telefonoContacto: "",
+    emailContacto: "",
+    paginaWeb: "",
+    notificationEmail: "",
   });
 
   // Cargar datos existentes
   useEffect(() => {
     if (companyData) {
       setFormData({
-        razonSocial: companyData.razonSocial || '',
-        rfc: companyData.rfc || '',
-        direccionFiscal: companyData.direccionFiscal || '',
-        giro: companyData.giro || '',
-        actividadesPreponderantes: companyData.actividadesPreponderantes || '',
+        razonSocial: companyData.razonSocial || "",
+        rfc: companyData.rfc || "",
+        direccionFiscal: companyData.direccionFiscal || "",
+        giro: companyData.giro || "",
+        actividadesPreponderantes: companyData.actividadesPreponderantes || "",
         numeroTrabajadores: companyData.numeroTrabajadores || 0,
-        representanteLegal: companyData.representanteLegal || '',
-        telefonoContacto: companyData.telefonoContacto || '',
-        emailContacto: companyData.emailContacto || '',
-        paginaWeb: companyData.paginaWeb || '',
-        notificationEmail: companyData.notificationEmail || '',
+        representanteLegal: companyData.representanteLegal || "",
+        telefonoContacto: companyData.telefonoContacto || "",
+        emailContacto: companyData.emailContacto || "",
+        paginaWeb: companyData.paginaWeb || "",
+        notificationEmail: companyData.notificationEmail || "",
       });
     }
   }, [companyData]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'numeroTrabajadores' ? parseInt(value) || 0 : value,
+      [name]: name === "numeroTrabajadores" ? parseInt(value) || 0 : value,
     }));
   };
 
@@ -89,14 +107,14 @@ export default function CompanySettings() {
     const file = e.target.files?.[0];
     if (file) {
       // Validar tipo de archivo
-      if (!file.type.startsWith('image/')) {
-        toast.error('Por favor selecciona un archivo de imagen');
+      if (!file.type.startsWith("image/")) {
+        toast.error("Por favor selecciona un archivo de imagen");
         return;
       }
 
       // Validar tamaño (máximo 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('El archivo no debe exceder 5MB');
+        toast.error("El archivo no debe exceder 5MB");
         return;
       }
 
@@ -129,7 +147,7 @@ export default function CompanySettings() {
       reader.readAsDataURL(logoFile);
     } catch (error) {
       setIsUploading(false);
-      toast.error('Error al procesar el archivo');
+      toast.error("Error al procesar el archivo");
     }
   };
 
@@ -150,9 +168,7 @@ export default function CompanySettings() {
 
   return (
     <div className="container py-8 space-y-6">
-      <Breadcrumb items={[
-        { label: "Configuración de Empresa" }
-      ]} />
+      <Breadcrumb items={[{ label: "Configuración de Empresa" }]} />
 
       <div>
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
@@ -179,9 +195,9 @@ export default function CompanySettings() {
               <div className="space-y-2">
                 <Label>Logo Actual</Label>
                 <div className="border rounded-lg p-4 bg-muted/50 flex items-center justify-center">
-                  <img 
-                    src={logoData.logoUrl} 
-                    alt="Logo actual" 
+                  <img
+                    src={logoData.logoUrl}
+                    alt="Logo actual"
                     className="max-h-32 object-contain"
                   />
                 </div>
@@ -193,9 +209,9 @@ export default function CompanySettings() {
               <div className="space-y-2">
                 <Label>Vista Previa</Label>
                 <div className="border rounded-lg p-4 bg-muted/50 flex items-center justify-center">
-                  <img 
-                    src={logoPreview} 
-                    alt="Preview" 
+                  <img
+                    src={logoPreview}
+                    alt="Preview"
                     className="max-h-32 object-contain"
                   />
                 </div>
@@ -306,7 +322,9 @@ export default function CompanySettings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="numeroTrabajadores">Número de Trabajadores</Label>
+                  <Label htmlFor="numeroTrabajadores">
+                    Número de Trabajadores
+                  </Label>
                   <Input
                     id="numeroTrabajadores"
                     name="numeroTrabajadores"
@@ -319,7 +337,9 @@ export default function CompanySettings() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="actividadesPreponderantes">Actividades Preponderantes</Label>
+                <Label htmlFor="actividadesPreponderantes">
+                  Actividades Preponderantes
+                </Label>
                 <Textarea
                   id="actividadesPreponderantes"
                   name="actividadesPreponderantes"
@@ -380,7 +400,9 @@ export default function CompanySettings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notificationEmail">Email de Notificaciones</Label>
+                  <Label htmlFor="notificationEmail">
+                    Email de Notificaciones
+                  </Label>
                   <Input
                     id="notificationEmail"
                     name="notificationEmail"
@@ -395,15 +417,13 @@ export default function CompanySettings() {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Los campos marcados con <span className="text-destructive">*</span> son obligatorios
+                  Los campos marcados con{" "}
+                  <span className="text-destructive">*</span> son obligatorios
                 </AlertDescription>
               </Alert>
 
               <div className="flex justify-end gap-2">
-                <Button
-                  type="submit"
-                  disabled={updateCompany.isPending}
-                >
+                <Button type="submit" disabled={updateCompany.isPending}>
                   {updateCompany.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />

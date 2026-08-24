@@ -92,8 +92,13 @@ function escapeHtml(str: string): string {
  * Envía un correo de notificación o recordatorio a un destinatario.
  * El token ya debe estar guardado en la BD antes de llamar a esta función.
  */
-export async function sendDispatchEmail(data: SingleDispatchEmailData): Promise<boolean> {
-  const baseUrl = process.env.VITE_APP_URL || process.env.PUBLIC_URL || "https://app.example.com";
+export async function sendDispatchEmail(
+  data: SingleDispatchEmailData
+): Promise<boolean> {
+  const baseUrl =
+    process.env.VITE_APP_URL ||
+    process.env.PUBLIC_URL ||
+    "https://app.example.com";
   const confirmUrl = `${baseUrl}/api/confirm-read/${data.token}`;
   const meetingDateStr = formatDate(data.minuteDate);
 
@@ -150,7 +155,9 @@ Sistema de Gestión de Riesgos Psicosociales
  * Envía el correo de notificación de minuta al destinatario.
  * Genera y guarda el readToken en el despacho antes de enviar.
  */
-export async function sendDispatchEmailBulk(data: DispatchEmailData): Promise<boolean> {
+export async function sendDispatchEmailBulk(
+  data: DispatchEmailData
+): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
 
@@ -220,7 +227,10 @@ export async function sendDispatchEmails(
       if (ok) sent++;
       else failed++;
     } catch (err) {
-      console.error(`[DispatchEmail] Error enviando a ${dispatch.recipientEmail}:`, err);
+      console.error(
+        `[DispatchEmail] Error enviando a ${dispatch.recipientEmail}:`,
+        err
+      );
       failed++;
     }
   }
@@ -261,7 +271,9 @@ function buildEmailHtml(data: EmailTemplateData): string {
     : "";
 
   const ctaColor = data.isReminder ? "#d97706" : "#16a34a";
-  const ctaText = data.isReminder ? "⚠️ Confirmar lectura ahora" : "✓ Confirmar lectura";
+  const ctaText = data.isReminder
+    ? "⚠️ Confirmar lectura ahora"
+    : "✓ Confirmar lectura";
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -292,9 +304,11 @@ function buildEmailHtml(data: EmailTemplateData): string {
                 Estimado/a <strong style="color:#0f172a;">${escapeHtml(data.recipientName)}</strong>,
               </p>
               <p style="font-size:15px;color:#475569;line-height:1.6;margin:0 0 32px;">
-                ${data.isReminder
-                  ? "Le recordamos que tiene pendiente confirmar la recepción de la siguiente minuta:"
-                  : "Se le hace llegar la siguiente minuta para su conocimiento y seguimiento de los acuerdos establecidos."}
+                ${
+                  data.isReminder
+                    ? "Le recordamos que tiene pendiente confirmar la recepción de la siguiente minuta:"
+                    : "Se le hace llegar la siguiente minuta para su conocimiento y seguimiento de los acuerdos establecidos."
+                }
               </p>
 
               <!-- Minuta Card -->
@@ -309,10 +323,14 @@ function buildEmailHtml(data: EmailTemplateData): string {
                     
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        ${data.meetingType ? `<td width="50%" style="vertical-align:top;">
+                        ${
+                          data.meetingType
+                            ? `<td width="50%" style="vertical-align:top;">
                           <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Tipo de Reunión</div>
                           <div style="font-size:14px;color:#334155;">${escapeHtml(data.meetingType)}</div>
-                        </td>` : ""}
+                        </td>`
+                            : ""
+                        }
                         <td width="50%" style="vertical-align:top;">
                           <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Fecha de Reunión</div>
                           <div style="font-size:14px;color:#334155;">${escapeHtml(data.meetingDate)}</div>

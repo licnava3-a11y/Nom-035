@@ -1,26 +1,30 @@
 /**
  * Job programado para calcular automáticamente el nivel de riesgo (riskLevel)
  * de las encuestas NOM-035 completadas y almacenar los resultados en surveyResults.
- * 
+ *
  * Ejecuta diariamente a las 2:00 AM para procesar encuestas completadas sin resultado calculado.
  */
 
-import cron from 'node-cron';
-import { getDb } from '../db';
-import { surveyResponses, surveyResults, surveyAnswers } from '../../drizzle/schema';
-import { eq, and, isNull, sql } from 'drizzle-orm';
+import cron from "node-cron";
+import { getDb } from "../db";
+import {
+  surveyResponses,
+  surveyResults,
+  surveyAnswers,
+} from "../../drizzle/schema";
+import { eq, and, isNull, sql } from "drizzle-orm";
 
 /**
  * Algoritmo de cálculo de riesgo NOM-035
  * Basado en la metodología oficial de la Secretaría del Trabajo y Previsión Social (STPS)
- * 
+ *
  * Categorías evaluadas:
  * 1. Ambiente de trabajo
  * 2. Factores propios de la actividad
  * 3. Organización del tiempo de trabajo
  * 4. Liderazgo y relaciones en el trabajo
  * 5. Entorno organizacional
- * 
+ *
  * Niveles de riesgo:
  * - Nulo o despreciable (low): 0-20 puntos
  * - Bajo (medium): 21-45 puntos
@@ -43,12 +47,12 @@ interface DomainScore {
 }
 
 async function calculateRiskLevel() {
-  console.log('[Calculate Risk Level Job] Starting risk level calculation...');
-  
+  console.log("[Calculate Risk Level Job] Starting risk level calculation...");
+
   try {
     const db = await getDb();
     if (!db) {
-      console.error('[Calculate Risk Level Job] Database not available');
+      console.error("[Calculate Risk Level Job] Database not available");
       return;
     }
 
@@ -71,7 +75,9 @@ async function calculateRiskLevel() {
       )
       .limit(100); // Procesar máximo 100 por ejecución
 
-    console.log(`[Calculate Risk Level Job] Found ${pendingResponses.length} pending responses`);
+    console.log(
+      `[Calculate Risk Level Job] Found ${pendingResponses.length} pending responses`
+    );
 
     let processed = 0;
     let errors = 0;
@@ -88,14 +94,19 @@ async function calculateRiskLevel() {
           .where(eq(surveyAnswers.responseId, response.responseId));
 
         if (answers.length === 0) {
-          console.warn(`[Calculate Risk Level Job] No answers found for response ${response.responseId}`);
+          console.warn(
+            `[Calculate Risk Level Job] No answers found for response ${response.responseId}`
+          );
           continue;
         }
 
         // 3. Calcular puntaje total (simplificado - en producción usar algoritmo oficial NOM-035)
         // Aquí se asume que cada respuesta tiene un valor numérico (0-4)
         const totalScore = answers.reduce((sum: any, answer: any) => {
-          const value = typeof answer.answerValue === 'string' ? parseInt(answer.answerValue, 10) : Number(answer.answerValue);
+          const value =
+            typeof answer.answerValue === "string"
+              ? parseInt(answer.answerValue, 10)
+              : Number(answer.answerValue);
           return sum + (isNaN(value) ? 0 : value);
         }, 0);
 
@@ -103,63 +114,63 @@ async function calculateRiskLevel() {
         const scorePercentage = (totalScore / maxPossibleScore) * 100;
 
         // 4. Determinar nivel de riesgo según NOM-035
-        let riskLevel: 'low' | 'medium' | 'high' | 'very_high';
+        let riskLevel: "low" | "medium" | "high" | "very_high";
         if (scorePercentage <= 20) {
-          riskLevel = 'low';
+          riskLevel = "low";
         } else if (scorePercentage <= 45) {
-          riskLevel = 'medium';
+          riskLevel = "medium";
         } else if (scorePercentage <= 70) {
-          riskLevel = 'high';
+          riskLevel = "high";
         } else {
-          riskLevel = 'very_high';
+          riskLevel = "very_high";
         }
 
         // 5. Generar recomendaciones basadas en nivel de riesgo
         const recommendations: string[] = [];
-        if (riskLevel === 'very_high') {
-          recommendations.push('Intervención inmediata requerida');
-          recommendations.push('Evaluación psicológica individual');
-          recommendations.push('Plan de acción correctiva urgente');
-        } else if (riskLevel === 'high') {
-          recommendations.push('Monitoreo cercano recomendado');
-          recommendations.push('Evaluación de factores de riesgo específicos');
-          recommendations.push('Implementar acciones preventivas');
-        } else if (riskLevel === 'medium') {
-          recommendations.push('Seguimiento periódico');
-          recommendations.push('Reforzar medidas preventivas');
+        if (riskLevel === "very_high") {
+          recommendations.push("Intervención inmediata requerida");
+          recommendations.push("Evaluación psicológica individual");
+          recommendations.push("Plan de acción correctiva urgente");
+        } else if (riskLevel === "high") {
+          recommendations.push("Monitoreo cercano recomendado");
+          recommendations.push("Evaluación de factores de riesgo específicos");
+          recommendations.push("Implementar acciones preventivas");
+        } else if (riskLevel === "medium") {
+          recommendations.push("Seguimiento periódico");
+          recommendations.push("Reforzar medidas preventivas");
         } else {
-          recommendations.push('Mantener condiciones actuales');
-          recommendations.push('Evaluación anual de seguimiento');
+          recommendations.push("Mantener condiciones actuales");
+          recommendations.push("Evaluación anual de seguimiento");
         }
 
         // 6. Calcular scores por categoría (simplificado)
         const categoryScores: CategoryScore[] = [
           {
-            category: 'Ambiente de trabajo',
+            category: "Ambiente de trabajo",
             score: Math.floor(totalScore * 0.2),
             maxScore: Math.floor(maxPossibleScore * 0.2),
             percentage: scorePercentage,
           },
           {
-            category: 'Factores propios de la actividad',
+            category: "Factores propios de la actividad",
             score: Math.floor(totalScore * 0.25),
             maxScore: Math.floor(maxPossibleScore * 0.25),
             percentage: scorePercentage,
           },
           {
-            category: 'Organización del tiempo',
+            category: "Organización del tiempo",
             score: Math.floor(totalScore * 0.15),
             maxScore: Math.floor(maxPossibleScore * 0.15),
             percentage: scorePercentage,
           },
           {
-            category: 'Liderazgo y relaciones',
+            category: "Liderazgo y relaciones",
             score: Math.floor(totalScore * 0.25),
             maxScore: Math.floor(maxPossibleScore * 0.25),
             percentage: scorePercentage,
           },
           {
-            category: 'Entorno organizacional',
+            category: "Entorno organizacional",
             score: Math.floor(totalScore * 0.15),
             maxScore: Math.floor(maxPossibleScore * 0.15),
             percentage: scorePercentage,
@@ -182,31 +193,40 @@ async function calculateRiskLevel() {
         });
 
         processed++;
-        console.log(`[Calculate Risk Level Job] Processed response ${response.responseId}: ${riskLevel} (${scorePercentage.toFixed(1)}%)`);
-
+        console.log(
+          `[Calculate Risk Level Job] Processed response ${response.responseId}: ${riskLevel} (${scorePercentage.toFixed(1)}%)`
+        );
       } catch (error) {
         errors++;
-        console.error(`[Calculate Risk Level Job] Error processing response ${response.responseId}:`, error);
+        console.error(
+          `[Calculate Risk Level Job] Error processing response ${response.responseId}:`,
+          error
+        );
       }
     }
 
-    console.log(`[Calculate Risk Level Job] Calculation completed: { processed: ${processed}, errors: ${errors} }`);
-
+    console.log(
+      `[Calculate Risk Level Job] Calculation completed: { processed: ${processed}, errors: ${errors} }`
+    );
   } catch (error) {
-    console.error('[Calculate Risk Level Job] Fatal error:', error);
+    console.error("[Calculate Risk Level Job] Fatal error:", error);
   }
 }
 
 // Programar ejecución diaria a las 2:00 AM
 export function startCalculateRiskLevelJob() {
-  console.log('[Calculate Risk Level Job] Scheduling daily risk level calculation at 2:00 AM');
-  
+  console.log(
+    "[Calculate Risk Level Job] Scheduling daily risk level calculation at 2:00 AM"
+  );
+
   // Ejecutar inmediatamente al iniciar (para testing)
   // calculateRiskLevel();
-  
+
   // Programar ejecución diaria a las 2:00 AM
-  cron.schedule('0 2 * * *', async () => {
-    console.log('[Calculate Risk Level Job] Running scheduled risk level calculation');
+  cron.schedule("0 2 * * *", async () => {
+    console.log(
+      "[Calculate Risk Level Job] Running scheduled risk level calculation"
+    );
     await calculateRiskLevel();
   });
 }

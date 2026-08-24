@@ -51,7 +51,15 @@ export const massiveImportRouter = router({
           title: z.string(),
           description: z.string().optional(),
           departmentId: z.number(),
-          level: z.enum(["executive", "management", "supervisor", "specialist", "entry"]).optional(),
+          level: z
+            .enum([
+              "executive",
+              "management",
+              "supervisor",
+              "specialist",
+              "entry",
+            ])
+            .optional(),
         })
       )
     )
@@ -103,8 +111,27 @@ export const massiveImportRouter = router({
           rfc: z.string().max(13).optional(),
           nss: z.string().max(11).optional(),
           gender: z.enum(["male", "female", "other"]).optional(),
-          educationLevel: z.enum(["primary", "secondary", "high_school", "technical", "bachelor", "master", "doctorate", "other"]).optional(),
-          contractType: z.enum(["permanent", "temporary", "project", "internship", "outsourcing"]).optional(),
+          educationLevel: z
+            .enum([
+              "primary",
+              "secondary",
+              "high_school",
+              "technical",
+              "bachelor",
+              "master",
+              "doctorate",
+              "other",
+            ])
+            .optional(),
+          contractType: z
+            .enum([
+              "permanent",
+              "temporary",
+              "project",
+              "internship",
+              "outsourcing",
+            ])
+            .optional(),
         })
       )
     )
@@ -145,8 +172,11 @@ export const massiveImportRouter = router({
             employeeNumber: employee.employeeNumber || null,
             departmentId: employee.departmentId,
             positionId: employee.positionId,
-            hireDate: employee.hireDate ? new Date(employee.hireDate) : new Date(),
-            isActive: employee.isActive !== undefined ? employee.isActive : true,
+            hireDate: employee.hireDate
+              ? new Date(employee.hireDate)
+              : new Date(),
+            isActive:
+              employee.isActive !== undefined ? employee.isActive : true,
             // Campos extendidos opcionales
             rfc: employee.rfc || null,
             nss: employee.nss || null,

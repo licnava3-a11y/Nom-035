@@ -2,7 +2,13 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { employees, surveyNotifications, surveyTokens, surveys, users } from "../../drizzle/schema";
+import {
+  employees,
+  surveyNotifications,
+  surveyTokens,
+  surveys,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { sendEmail } from "../lib/email-service";
 // crypto se importará dinámicamente en el servidor
@@ -13,19 +19,23 @@ export const surveyDistributionRouter = router({
    */
   getRequiredSurveys: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-    
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
+
     // Contar trabajadores activos (excluyendo administradores)
     const result = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(users)
       .where(eq(users.role, "student"));
-    
+
     const employeeCount = result[0]?.count || 0;
-    
+
     // Determinar guías requeridas según NOM-035
     let requiredSurveys: string[] = [];
-    
+
     if (employeeCount < 15) {
       requiredSurveys = ["guia_i"];
     } else if (employeeCount >= 15 && employeeCount <= 50) {
@@ -33,22 +43,28 @@ export const surveyDistributionRouter = router({
     } else {
       requiredSurveys = ["guia_i", "guia_ii", "guia_iii"];
     }
-    
+
     // Obtener información de las encuestas
     const surveyList = await db
       .select()
       .from(surveys)
-      .where(sql`${surveys.type} IN (${sql.join(requiredSurveys.map(t => sql`${t}`), sql`, `)})`);
-    
+      .where(
+        sql`${surveys.type} IN (${sql.join(
+          requiredSurveys.map(t => sql`${t}`),
+          sql`, `
+        )})`
+      );
+
     return {
       employeeCount,
       requiredSurveys,
       surveys: surveyList,
-      recommendation: employeeCount < 15 
-        ? "Menos de 15 trabajadores: Solo se requiere Guía I"
-        : employeeCount <= 50
-        ? "15-50 trabajadores: Se requieren Guía I y Guía II"
-        : "Más de 50 trabajadores: Se requieren Guía I, Guía II y Guía III"
+      recommendation:
+        employeeCount < 15
+          ? "Menos de 15 trabajadores: Solo se requiere Guía I"
+          : employeeCount <= 50
+            ? "15-50 trabajadores: Se requieren Guía I y Guía II"
+            : "Más de 50 trabajadores: Se requieren Guía I, Guía II y Guía III",
     };
   }),
 
@@ -56,14 +72,20 @@ export const surveyDistributionRouter = router({
    * Obtener lista de empleados elegibles para encuestas
    */
   getEligibleEmployees: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-      excludeCompleted: z.boolean().default(true),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+        excludeCompleted: z.boolean().default(true),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       if (input.excludeCompleted) {
         // Obtener empleados que NO han completado la encuesta
         const employees = await db
@@ -87,7 +109,7 @@ export const surveyDistributionRouter = router({
               )`
             )
           );
-        
+
         return employees;
       } else {
         // Obtener todos los empleados
@@ -102,7 +124,7 @@ export const surveyDistributionRouter = router({
           })
           .from(users)
           .where(eq(users.role, "student"));
-        
+
         return employees;
       }
     }),
@@ -111,41 +133,52 @@ export const surveyDistributionRouter = router({
    * Enviar encuestas por correo a empleados seleccionados
    */
   sendSurveyInvitations: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-      employeeIds: z.array(z.number()),
-      subject: z.string().optional(),
-      customMessage: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+        employeeIds: z.array(z.number()),
+        subject: z.string().optional(),
+        customMessage: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       // Obtener información de la encuesta
       const survey = await db
         .select()
         .from(surveys)
         .where(eq(surveys.id, input.surveyId))
         .limit(1);
-      
+
       if (!survey[0]) {
         throw new Error("Encuesta no encontrada");
       }
-      
+
       const surveyInfo = survey[0];
-      
+
       // Obtener información de los empleados
       const employees = await db
         .select()
         .from(users)
-        .where(sql`${users.id} IN (${sql.join(input.employeeIds.map(id => sql`${id}`), sql`, `)})`);
-      
+        .where(
+          sql`${users.id} IN (${sql.join(
+            input.employeeIds.map(id => sql`${id}`),
+            sql`, `
+          )})`
+        );
+
       const results = {
         sent: 0,
         failed: 0,
         errors: [] as string[],
       };
-      
+
       // Generar tokens y enviar correos
       for (const employee of employees) {
         try {
@@ -161,20 +194,20 @@ export const surveyDistributionRouter = router({
               )
             )
             .limit(1);
-          
+
           let token: string;
-          
+
           if (existingToken[0]) {
             token = existingToken[0].token;
           } else {
             // Generar nuevo token único
             const crypto = await import("crypto");
             token = crypto.randomBytes(32).toString("hex");
-            
+
             // Calcular fecha de expiración (30 días)
             const expiresAt = new Date();
             expiresAt.setDate(expiresAt.getDate() + 30);
-            
+
             // NOTA: Este código necesita actualizarse para incluir periodId
             // Temporalmente comentado hasta implementar sistema de periodos completo
             // await (db.insert(surveyTokens) as any).values({
@@ -187,13 +220,14 @@ export const surveyDistributionRouter = router({
             //   sentAt: new Date(),
             // });
           }
-          
+
           // Generar enlace único
           const surveyLink = `${process.env.VITE_OAUTH_PORTAL_URL || "http://localhost:3000"}/surveys/respond/${token}`;
-          
+
           // Preparar contenido del correo
-          const subject = input.subject || `Encuesta NOM-035: ${surveyInfo.title}`;
-          
+          const subject =
+            input.subject || `Encuesta NOM-035: ${surveyInfo.title}`;
+
           const emailBody = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #2563eb;">Encuesta NOM-035 STPS 2018</h2>
@@ -235,7 +269,7 @@ export const surveyDistributionRouter = router({
               </p>
             </div>
           `;
-          
+
           // Enviar correo
           if (employee.email) {
             const emailConfig = {
@@ -245,7 +279,7 @@ export const surveyDistributionRouter = router({
               html: emailBody,
             };
             await sendEmail(emailConfig);
-            
+
             // Registrar notificación
             await (db.insert(surveyNotifications) as any).values({
               surveyId: input.surveyId,
@@ -255,18 +289,22 @@ export const surveyDistributionRouter = router({
               body: emailBody,
               sentAt: new Date(),
             });
-            
+
             results.sent++;
           } else {
             results.failed++;
-            results.errors.push(`${employee.name}: Sin correo electrónico registrado`);
+            results.errors.push(
+              `${employee.name}: Sin correo electrónico registrado`
+            );
           }
         } catch (error) {
           results.failed++;
-          results.errors.push(`${employee.name}: ${error instanceof Error ? error.message : "Error desconocido"}`);
+          results.errors.push(
+            `${employee.name}: ${error instanceof Error ? error.message : "Error desconocido"}`
+          );
         }
       }
-      
+
       return results;
     }),
 
@@ -274,19 +312,25 @@ export const surveyDistributionRouter = router({
    * Obtener estadísticas de envío y respuestas
    */
   getSurveyStats: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       // Total de tokens enviados
       const sentTokens = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(surveyTokens)
         .where(eq(surveyTokens.surveyId, input.surveyId));
-      
+
       // Tokens usados (encuestas completadas)
       const usedTokens = await db
         .select({ count: sql<number>`COUNT(*)` })
@@ -297,7 +341,7 @@ export const surveyDistributionRouter = router({
             sql`${surveyTokens.usedAt} IS NOT NULL`
           )
         );
-      
+
       // Tokens pendientes
       const pendingTokens = await db
         .select({ count: sql<number>`COUNT(*)` })
@@ -308,11 +352,11 @@ export const surveyDistributionRouter = router({
             isNull(surveyTokens.usedAt)
           )
         );
-      
+
       const sent = sentTokens[0]?.count || 0;
       const completed = usedTokens[0]?.count || 0;
       const pending = pendingTokens[0]?.count || 0;
-      
+
       return {
         sent,
         completed,
@@ -325,14 +369,20 @@ export const surveyDistributionRouter = router({
    * Enviar recordatorios a empleados que no han completado la encuesta
    */
   sendReminders: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-      customMessage: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+        customMessage: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       // Obtener tokens pendientes
       const tokens = await db
         .select({
@@ -352,19 +402,19 @@ export const surveyDistributionRouter = router({
             isNull(surveyTokens.usedAt)
           )
         );
-      
+
       const results = {
         sent: 0,
         failed: 0,
         errors: [] as string[],
       };
-      
+
       for (const tokenData of tokens) {
         try {
           const surveyLink = `${process.env.VITE_OAUTH_PORTAL_URL || "http://localhost:3000"}/surveys/respond/${tokenData.token}`;
-          
+
           const subject = `Recordatorio: Encuesta NOM-035 pendiente`;
-          
+
           const emailBody = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #f59e0b;">Recordatorio: Encuesta Pendiente</h2>
@@ -394,7 +444,7 @@ export const surveyDistributionRouter = router({
               </p>
             </div>
           `;
-          
+
           if (tokenData.userEmail) {
             const emailConfig = {
               from: process.env.SMTP_FROM || "noreply@nom035.com",
@@ -403,7 +453,7 @@ export const surveyDistributionRouter = router({
               html: emailBody,
             };
             await sendEmail(emailConfig);
-            
+
             // Registrar notificación de recordatorio
             await (db.insert(surveyNotifications) as any).values({
               surveyId: input.surveyId,
@@ -413,18 +463,22 @@ export const surveyDistributionRouter = router({
               body: emailBody,
               sentAt: new Date(),
             });
-            
+
             results.sent++;
           } else {
             results.failed++;
-            results.errors.push(`${tokenData.userName}: Sin correo electrónico`);
+            results.errors.push(
+              `${tokenData.userName}: Sin correo electrónico`
+            );
           }
         } catch (error) {
           results.failed++;
-          results.errors.push(`${tokenData.userName}: ${error instanceof Error ? error.message : "Error"}`);
+          results.errors.push(
+            `${tokenData.userName}: ${error instanceof Error ? error.message : "Error"}`
+          );
         }
       }
-      
+
       return results;
     }),
 });

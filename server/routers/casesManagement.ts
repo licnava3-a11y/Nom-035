@@ -5,7 +5,11 @@ import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { cases, employees, departments, users } from "../../drizzle/schema";
 import { eq, desc, and, or, like, isNull, sql } from "drizzle-orm";
-import { sendEmail, getCaseCriticalTemplate, getCaseAssignedTemplate } from "../services/emailService";
+import {
+  sendEmail,
+  getCaseCriticalTemplate,
+  getCaseAssignedTemplate,
+} from "../services/emailService";
 
 export const casesManagementRouter = router({
   // Crear nuevo caso manualmente
@@ -16,8 +20,12 @@ export const casesManagementRouter = router({
         reporterEmail: z.string().email("Email inválido").optional(),
         isAnonymous: z.boolean().default(false),
         caseType: z.enum(["mobbing", "burnout", "violence", "stress", "other"]),
-        description: z.string().min(10, "Descripción debe tener al menos 10 caracteres"),
-        priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+        description: z
+          .string()
+          .min(10, "Descripción debe tener al menos 10 caracteres"),
+        priority: z
+          .enum(["low", "medium", "high", "critical"])
+          .default("medium"),
         departmentId: z.number({ message: "Departamento requerido" }),
         assignedTo: z.number().optional(),
       })
@@ -54,20 +62,30 @@ export const casesManagementRouter = router({
         if (input.priority === "critical" || input.priority === "high") {
           try {
             // Obtener información del departamento
-            const [department] = await db.select().from(departments).where(eq(departments.id, input.departmentId)).limit(1);
-            
+            const [department] = await db
+              .select()
+              .from(departments)
+              .where(eq(departments.id, input.departmentId))
+              .limit(1);
+
             // Obtener emails de administradores y responsables de NOM-035
-            const admins = await db.select().from(users).where(
-              or(
-                eq(users.role, "admin"),
-                eq(users.role, "responsable_nom035"),
-                eq(users.role, "director")
-              )
-            );
-            
+            const admins = await db
+              .select()
+              .from(users)
+              .where(
+                or(
+                  eq(users.role, "admin"),
+                  eq(users.role, "responsable_nom035"),
+                  eq(users.role, "director")
+                )
+              );
+
             const adminEmails = admins
               .map(admin => admin.email)
-              .filter((email): email is string => email !== null && email !== undefined);
+              .filter(
+                (email): email is string =>
+                  email !== null && email !== undefined
+              );
 
             if (adminEmails.length > 0) {
               const emailHtml = getCaseCriticalTemplate({
@@ -86,11 +104,17 @@ export const casesManagementRouter = router({
                 html: emailHtml,
                 template: "case_critical",
               }).catch(error => {
-                console.error("[CasesManagement] Error al enviar email de caso crítico:", error);
+                console.error(
+                  "[CasesManagement] Error al enviar email de caso crítico:",
+                  error
+                );
               });
             }
           } catch (emailError) {
-            console.error("[CasesManagement] Error al preparar email de notificación:", emailError);
+            console.error(
+              "[CasesManagement] Error al preparar email de notificación:",
+              emailError
+            );
             // No lanzar error, solo registrar - el caso ya fue creado exitosamente
           }
         }
@@ -98,8 +122,12 @@ export const casesManagementRouter = router({
         // Si se asignó a alguien, enviar notificación
         if (input.assignedTo) {
           try {
-            const [assignedUser] = await db.select().from(users).where(eq(users.id, input.assignedTo)).limit(1);
-            
+            const [assignedUser] = await db
+              .select()
+              .from(users)
+              .where(eq(users.id, input.assignedTo))
+              .limit(1);
+
             if (assignedUser && assignedUser.email) {
               const emailHtml = getCaseAssignedTemplate({
                 folio: caseNumber,
@@ -115,11 +143,17 @@ export const casesManagementRouter = router({
                 html: emailHtml,
                 template: "case_assigned",
               }).catch(error => {
-                console.error("[CasesManagement] Error al enviar email de asignación:", error);
+                console.error(
+                  "[CasesManagement] Error al enviar email de asignación:",
+                  error
+                );
               });
             }
           } catch (emailError) {
-            console.error("[CasesManagement] Error al preparar email de asignación:", emailError);
+            console.error(
+              "[CasesManagement] Error al preparar email de asignación:",
+              emailError
+            );
           }
         }
 
@@ -132,7 +166,8 @@ export const casesManagementRouter = router({
         console.error("[CasesManagement] Error creating case:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : "Error al crear caso",
+          message:
+            error instanceof Error ? error.message : "Error al crear caso",
         });
       }
     }),
@@ -140,16 +175,22 @@ export const casesManagementRouter = router({
   // Listar casos con filtros
   listCases: protectedProcedure
     .input(
-      z.object({
-        status: z.enum(["open", "investigating", "resolved", "closed", "all"]).default("all"),
-        priority: z.enum(["low", "medium", "high", "critical", "all"]).default("all"),
-        departmentId: z.number().optional(),
-        search: z.string().optional(),
-        dateFrom: z.string().optional(), // ISO date string YYYY-MM-DD
-        dateTo: z.string().optional(),   // ISO date string YYYY-MM-DD
-        page: z.number().default(1),
-        pageSize: z.number().default(20),
-      }).optional()
+      z
+        .object({
+          status: z
+            .enum(["open", "investigating", "resolved", "closed", "all"])
+            .default("all"),
+          priority: z
+            .enum(["low", "medium", "high", "critical", "all"])
+            .default("all"),
+          departmentId: z.number().optional(),
+          search: z.string().optional(),
+          dateFrom: z.string().optional(), // ISO date string YYYY-MM-DD
+          dateTo: z.string().optional(), // ISO date string YYYY-MM-DD
+          page: z.number().default(1),
+          pageSize: z.number().default(20),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       try {
@@ -176,14 +217,18 @@ export const casesManagementRouter = router({
           conditions.push(eq(cases.departmentId, input.departmentId));
         }
         if (input?.search) {
-          conditions.push(or(
-            like(cases.reporterName, `%${input.search}%`),
-            like(cases.caseNumber, `%${input.search}%`),
-            like(cases.description, `%${input.search}%`),
-          ) as any);
+          conditions.push(
+            or(
+              like(cases.reporterName, `%${input.search}%`),
+              like(cases.caseNumber, `%${input.search}%`),
+              like(cases.description, `%${input.search}%`)
+            ) as any
+          );
         }
         if (input?.dateFrom) {
-          conditions.push(sql`${cases.createdAt} >= ${new Date(input.dateFrom)}`);
+          conditions.push(
+            sql`${cases.createdAt} >= ${new Date(input.dateFrom)}`
+          );
         }
         if (input?.dateTo) {
           const toDate = new Date(input.dateTo);
@@ -191,7 +236,8 @@ export const casesManagementRouter = router({
           conditions.push(sql`${cases.createdAt} <= ${toDate}`);
         }
 
-        const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+        const whereClause =
+          conditions.length > 0 ? and(...conditions) : undefined;
 
         const [casesList, totalCount] = await Promise.all([
           db
@@ -268,7 +314,9 @@ export const casesManagementRouter = router({
     .input(
       z.object({
         id: z.number(),
-        status: z.enum(["open", "investigating", "resolved", "closed"]).optional(),
+        status: z
+          .enum(["open", "investigating", "resolved", "closed"])
+          .optional(),
         priority: z.enum(["low", "medium", "high", "critical"]).optional(),
         assignedTo: z.number().nullable().optional(),
         resolution: z.string().optional(),
@@ -289,10 +337,14 @@ export const casesManagementRouter = router({
         const updateData: any = {};
         if (input.status) updateData.status = input.status;
         if (input.priority) updateData.priority = input.priority;
-        if (input.assignedTo !== undefined) updateData.assignedTo = input.assignedTo;
-        if (input.resolution !== undefined) updateData.resolution = input.resolution;
-        if (input.rootCause !== undefined) updateData.rootCause = input.rootCause;
-        if (input.actionPlan !== undefined) updateData.actionPlan = input.actionPlan;
+        if (input.assignedTo !== undefined)
+          updateData.assignedTo = input.assignedTo;
+        if (input.resolution !== undefined)
+          updateData.resolution = input.resolution;
+        if (input.rootCause !== undefined)
+          updateData.rootCause = input.rootCause;
+        if (input.actionPlan !== undefined)
+          updateData.actionPlan = input.actionPlan;
 
         if (input.status === "resolved" || input.status === "closed") {
           updateData.resolvedAt = new Date();
@@ -347,7 +399,12 @@ export const casesManagementRouter = router({
   suggestCaseField: protectedProcedure
     .input(
       z.object({
-        fieldType: z.enum(["description", "resolution", "rootCause", "actionPlan"]),
+        fieldType: z.enum([
+          "description",
+          "resolution",
+          "rootCause",
+          "actionPlan",
+        ]),
         context: z.string().optional(),
         currentValue: z.string().optional(),
         caseType: z.string().optional(),
@@ -358,11 +415,14 @@ export const casesManagementRouter = router({
         description: "descripción detallada del caso",
         resolution: "resolución y acciones tomadas para cerrar el caso",
         rootCause: "análisis de causa raíz del problema identificado",
-        actionPlan: "plan de acción correctiva y preventiva para evitar recurrencia",
+        actionPlan:
+          "plan de acción correctiva y preventiva para evitar recurrencia",
       };
 
       const fieldLabel = fieldLabels[input.fieldType] || input.fieldType;
-      const contextInfo = input.context ? `\nContexto adicional: ${input.context}` : "";
+      const contextInfo = input.context
+        ? `\nContexto adicional: ${input.context}`
+        : "";
       const currentValueInfo = input.currentValue
         ? `\nContenido actual del campo: ${input.currentValue}`
         : "";
@@ -428,15 +488,17 @@ El texto debe ser específico, accionable y seguir las mejores prácticas de la 
         })
         .from(cases);
 
-      return stats || {
-        total: 0,
-        open: 0,
-        investigating: 0,
-        resolved: 0,
-        closed: 0,
-        critical: 0,
-        unassigned: 0,
-      };
+      return (
+        stats || {
+          total: 0,
+          open: 0,
+          investigating: 0,
+          resolved: 0,
+          closed: 0,
+          critical: 0,
+          unassigned: 0,
+        }
+      );
     } catch (error) {
       console.error("[CasesManagement] Error getting stats:", error);
       throw new TRPCError({
@@ -452,24 +514,52 @@ El texto debe ser específico, accionable y seguir las mejores prácticas de la 
     .mutation(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
 
-        const [caseData] = await db.select().from(cases).where(eq(cases.id, input.id)).limit(1);
-        if (!caseData) throw new TRPCError({ code: "NOT_FOUND", message: "Caso no encontrado" });
+        const [caseData] = await db
+          .select()
+          .from(cases)
+          .where(eq(cases.id, input.id))
+          .limit(1);
+        if (!caseData)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Caso no encontrado",
+          });
 
         const statusLabels: Record<string, string> = {
-          open: "Abierto", investigating: "Investigando", resolved: "Resuelto", closed: "Cerrado",
+          open: "Abierto",
+          investigating: "Investigando",
+          resolved: "Resuelto",
+          closed: "Cerrado",
         };
         const priorityLabels: Record<string, string> = {
-          low: "Baja", medium: "Media", high: "Alta", critical: "Crítica",
+          low: "Baja",
+          medium: "Media",
+          high: "Alta",
+          critical: "Crítica",
         };
         const caseTypeLabels: Record<string, string> = {
-          mobbing: "Acoso Laboral", harassment: "Hostigamiento", stress: "Estrés Laboral",
-          violence: "Violencia Laboral", burnout: "Burnout", other: "Otro",
+          mobbing: "Acoso Laboral",
+          harassment: "Hostigamiento",
+          stress: "Estrés Laboral",
+          violence: "Violencia Laboral",
+          burnout: "Burnout",
+          other: "Otro",
         };
 
         const formatDate = (d: Date | string | null) =>
-          d ? new Date(d).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" }) : "N/A";
+          d
+            ? new Date(d).toLocaleDateString("es-MX", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            : "N/A";
 
         const section = (title: string, content: string, color = "#1e3a5f") => `
           <div style="margin-bottom:20px">
@@ -547,12 +637,18 @@ El texto debe ser específico, accionable y seguir las mejores prácticas de la 
 
         const { generatePDFFromHTML } = await import("../_core/pdfGenerator");
         const fileName = `caso-${caseData.caseNumber}-${Date.now()}`;
-        const pdfUrl = await generatePDFFromHTML(html, fileName, { format: "A4", orientation: "portrait" });
+        const pdfUrl = await generatePDFFromHTML(html, fileName, {
+          format: "A4",
+          orientation: "portrait",
+        });
         return { url: pdfUrl, caseNumber: caseData.caseNumber };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
         console.error("[CasesManagement] Error generating PDF:", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al generar el PDF del caso" });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al generar el PDF del caso",
+        });
       }
     }),
 
@@ -564,7 +660,11 @@ El texto debe ser específico, accionable y seguir las mejores prácticas de la 
     .input(z.object({ limit: z.number().min(1).max(50).default(5) }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const { ne } = await import("drizzle-orm");
       const openCases = await db
         .select({

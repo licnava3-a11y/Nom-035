@@ -12,7 +12,11 @@ export const notificationPreferencesRouter = router({
    */
   getPreferences: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Base de datos no disponible",
+      });
 
     const rows = await db
       .select()
@@ -49,7 +53,11 @@ export const notificationPreferencesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
 
       const existing = await db
         .select({ id: notificationPreferences.id })

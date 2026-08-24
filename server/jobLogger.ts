@@ -64,7 +64,10 @@ export async function logJobExecution(
     }
   } catch (logErr) {
     // No propagar errores de logging — el job ya terminó
-    console.warn(`[JobLogger] Could not save execution log for ${jobName}:`, logErr);
+    console.warn(
+      `[JobLogger] Could not save execution log for ${jobName}:`,
+      logErr
+    );
   }
 
   return result;

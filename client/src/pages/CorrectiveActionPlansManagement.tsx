@@ -3,7 +3,13 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -36,11 +42,24 @@ import {
   Calendar,
 } from "lucide-react";
 
-type PlanStatus = "draft" | "assigned" | "in_progress" | "completed" | "verified" | "closed";
+type PlanStatus =
+  | "draft"
+  | "assigned"
+  | "in_progress"
+  | "completed"
+  | "verified"
+  | "closed";
 type PlanPriority = "low" | "medium" | "high" | "critical";
-type OriginType = "root_cause_analysis" | "intelligent_alert" | "manual_case" | "recommendation";
+type OriginType =
+  | "root_cause_analysis"
+  | "intelligent_alert"
+  | "manual_case"
+  | "recommendation";
 
-const statusConfig: Record<PlanStatus, { label: string; color: string; icon: any }> = {
+const statusConfig: Record<
+  PlanStatus,
+  { label: string; color: string; icon: any }
+> = {
   draft: { label: "Borrador", color: "bg-gray-500", icon: FileText },
   assigned: { label: "Asignado", color: "bg-blue-500", icon: ClipboardList },
   in_progress: { label: "En Progreso", color: "bg-yellow-500", icon: Clock },
@@ -58,7 +77,9 @@ const priorityConfig: Record<PlanPriority, { label: string; color: string }> = {
 
 export default function CorrectiveActionPlansManagement() {
   const [statusFilter, setStatusFilter] = useState<PlanStatus | "all">("all");
-  const [priorityFilter, setPriorityFilter] = useState<PlanPriority | "all">("all");
+  const [priorityFilter, setPriorityFilter] = useState<PlanPriority | "all">(
+    "all"
+  );
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
@@ -82,17 +103,21 @@ export default function CorrectiveActionPlansManagement() {
     file: null as File | null,
   });
 
-  const [signatureRole, setSignatureRole] = useState<"responsible" | "verifier">("responsible");
+  const [signatureRole, setSignatureRole] = useState<
+    "responsible" | "verifier"
+  >("responsible");
 
   // Queries
-  const { data: dashboard } = trpc.correctiveActionPlans.getDashboard.useQuery();
+  const { data: dashboard } =
+    trpc.correctiveActionPlans.getDashboard.useQuery();
   const { data: plansData } = trpc.correctiveActionPlans.list.useQuery({
     status: statusFilter !== "all" ? statusFilter : undefined,
     priority: priorityFilter !== "all" ? priorityFilter : undefined,
     page: 1,
     pageSize: 50,
   });
-  const { data: expiringSoon } = trpc.correctiveActionPlans.getExpiringSoon.useQuery();
+  const { data: expiringSoon } =
+    trpc.correctiveActionPlans.getExpiringSoon.useQuery();
 
   // Mutations
   const createMutation = trpc.correctiveActionPlans.create.useMutation({
@@ -109,43 +134,45 @@ export default function CorrectiveActionPlansManagement() {
         notes: "",
       });
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
 
   const autoAssignMutation = trpc.correctiveActionPlans.autoAssign.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(`Asignado automáticamente a ${data.assignedToName}`);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
 
-  const changeStatusMutation = trpc.correctiveActionPlans.changeStatus.useMutation({
-    onSuccess: () => {
-      toast.success("Estado actualizado exitosamente");
-      setShowDetailsDialog(false);
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const changeStatusMutation =
+    trpc.correctiveActionPlans.changeStatus.useMutation({
+      onSuccess: () => {
+        toast.success("Estado actualizado exitosamente");
+        setShowDetailsDialog(false);
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
-  const uploadEvidenceMutation = trpc.correctiveActionPlans.uploadEvidence.useMutation({
-    onSuccess: () => {
-      toast.success("Evidencia subida exitosamente");
-      setShowEvidenceDialog(false);
-      setEvidenceForm({ title: "", description: "", file: null });
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const uploadEvidenceMutation =
+    trpc.correctiveActionPlans.uploadEvidence.useMutation({
+      onSuccess: () => {
+        toast.success("Evidencia subida exitosamente");
+        setShowEvidenceDialog(false);
+        setEvidenceForm({ title: "", description: "", file: null });
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
   const signMutation = trpc.correctiveActionPlans.sign.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       if (data.verificationCode) {
         toast.success(`Firmado exitosamente. Código: ${data.verificationCode}`);
       } else {
@@ -153,7 +180,7 @@ export default function CorrectiveActionPlansManagement() {
       }
       setShowSignDialog(false);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -230,7 +257,9 @@ export default function CorrectiveActionPlansManagement() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Planes</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total de Planes
+            </CardTitle>
             <ClipboardList className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -244,13 +273,17 @@ export default function CorrectiveActionPlansManagement() {
             <AlertCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-500">{dashboard?.overdue || 0}</div>
+            <div className="text-2xl font-bold text-red-500">
+              {dashboard?.overdue || 0}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Completitud</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Completitud
+            </CardTitle>
             <CheckCircle2 className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -262,7 +295,9 @@ export default function CorrectiveActionPlansManagement() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Próximos a Vencer</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Próximos a Vencer
+            </CardTitle>
             <Calendar className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
@@ -281,7 +316,10 @@ export default function CorrectiveActionPlansManagement() {
         <CardContent className="flex gap-4">
           <div className="flex-1">
             <Label>Estado</Label>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+            <Select
+              value={statusFilter}
+              onValueChange={v => setStatusFilter(v as any)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -299,7 +337,10 @@ export default function CorrectiveActionPlansManagement() {
 
           <div className="flex-1">
             <Label>Prioridad</Label>
-            <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as any)}>
+            <Select
+              value={priorityFilter}
+              onValueChange={v => setPriorityFilter(v as any)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -338,16 +379,26 @@ export default function CorrectiveActionPlansManagement() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold">{plan.title}</h3>
-                    <Badge className={priorityConfig[plan.priority as PlanPriority].color}>
+                    <Badge
+                      className={
+                        priorityConfig[plan.priority as PlanPriority].color
+                      }
+                    >
                       {priorityConfig[plan.priority as PlanPriority].label}
                     </Badge>
-                    <Badge className={statusConfig[plan.status as PlanStatus].color}>
+                    <Badge
+                      className={statusConfig[plan.status as PlanStatus].color}
+                    >
                       {statusConfig[plan.status as PlanStatus].label}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {plan.description}
+                  </p>
                   <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                    <span>Asignado a: {plan.assignedToName || "Sin asignar"}</span>
+                    <span>
+                      Asignado a: {plan.assignedToName || "Sin asignar"}
+                    </span>
                     <span>
                       Vence:{" "}
                       {plan.dueDate
@@ -361,7 +412,7 @@ export default function CorrectiveActionPlansManagement() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       handleAutoAssign(plan.id);
                     }}
@@ -396,7 +447,9 @@ export default function CorrectiveActionPlansManagement() {
               <Label>Título *</Label>
               <Input
                 value={newPlan.title}
-                onChange={(e) => setNewPlan({ ...newPlan, title: e.target.value })}
+                onChange={e =>
+                  setNewPlan({ ...newPlan, title: e.target.value })
+                }
                 placeholder="Título del plan"
               />
             </div>
@@ -405,7 +458,9 @@ export default function CorrectiveActionPlansManagement() {
               <Label>Descripción *</Label>
               <Textarea
                 value={newPlan.description}
-                onChange={(e) => setNewPlan({ ...newPlan, description: e.target.value })}
+                onChange={e =>
+                  setNewPlan({ ...newPlan, description: e.target.value })
+                }
                 placeholder="Descripción detallada"
                 rows={4}
               />
@@ -416,7 +471,9 @@ export default function CorrectiveActionPlansManagement() {
                 <Label>Prioridad *</Label>
                 <Select
                   value={newPlan.priority}
-                  onValueChange={(v) => setNewPlan({ ...newPlan, priority: v as PlanPriority })}
+                  onValueChange={v =>
+                    setNewPlan({ ...newPlan, priority: v as PlanPriority })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -435,7 +492,9 @@ export default function CorrectiveActionPlansManagement() {
                 <Input
                   type="date"
                   value={newPlan.dueDate}
-                  onChange={(e) => setNewPlan({ ...newPlan, dueDate: e.target.value })}
+                  onChange={e =>
+                    setNewPlan({ ...newPlan, dueDate: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -444,7 +503,9 @@ export default function CorrectiveActionPlansManagement() {
               <Label>Notas</Label>
               <Textarea
                 value={newPlan.notes}
-                onChange={(e) => setNewPlan({ ...newPlan, notes: e.target.value })}
+                onChange={e =>
+                  setNewPlan({ ...newPlan, notes: e.target.value })
+                }
                 placeholder="Notas adicionales (opcional)"
                 rows={3}
               />
@@ -452,10 +513,19 @@ export default function CorrectiveActionPlansManagement() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateDialog(false)}
+            >
               Cancelar
             </Button>
-            <LoadingButton onClick={handleCreate} loading={createMutation.isPending} loadingText="Creando...">Crear Plan</LoadingButton>
+            <LoadingButton
+              onClick={handleCreate}
+              loading={createMutation.isPending}
+              loadingText="Creando..."
+            >
+              Crear Plan
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -465,16 +535,26 @@ export default function CorrectiveActionPlansManagement() {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{selectedPlan?.title}</DialogTitle>
-            <DialogDescription>Detalles del plan de acción correctiva</DialogDescription>
+            <DialogDescription>
+              Detalles del plan de acción correctiva
+            </DialogDescription>
           </DialogHeader>
 
           {selectedPlan && (
             <div className="space-y-4">
               <div className="flex gap-2">
-                <Badge className={priorityConfig[selectedPlan.priority as PlanPriority].color}>
+                <Badge
+                  className={
+                    priorityConfig[selectedPlan.priority as PlanPriority].color
+                  }
+                >
                   {priorityConfig[selectedPlan.priority as PlanPriority].label}
                 </Badge>
-                <Badge className={statusConfig[selectedPlan.status as PlanStatus].color}>
+                <Badge
+                  className={
+                    statusConfig[selectedPlan.status as PlanStatus].color
+                  }
+                >
                   {statusConfig[selectedPlan.status as PlanStatus].label}
                 </Badge>
               </div>
@@ -487,7 +567,9 @@ export default function CorrectiveActionPlansManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Asignado a</Label>
-                  <p className="text-sm">{selectedPlan.assignedToName || "Sin asignar"}</p>
+                  <p className="text-sm">
+                    {selectedPlan.assignedToName || "Sin asignar"}
+                  </p>
                 </div>
                 <div>
                   <Label>Fecha Límite</Label>
@@ -510,7 +592,9 @@ export default function CorrectiveActionPlansManagement() {
                 {selectedPlan.status === "assigned" && (
                   <Button
                     variant="outline"
-                    onClick={() => handleChangeStatus(selectedPlan.id, "in_progress")}
+                    onClick={() =>
+                      handleChangeStatus(selectedPlan.id, "in_progress")
+                    }
                   >
                     Marcar En Progreso
                   </Button>
@@ -553,7 +637,9 @@ export default function CorrectiveActionPlansManagement() {
                 {selectedPlan.status === "verified" && (
                   <Button
                     variant="outline"
-                    onClick={() => handleChangeStatus(selectedPlan.id, "closed")}
+                    onClick={() =>
+                      handleChangeStatus(selectedPlan.id, "closed")
+                    }
                   >
                     Cerrar Plan
                   </Button>
@@ -563,7 +649,10 @@ export default function CorrectiveActionPlansManagement() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDetailsDialog(false)}
+            >
               Cerrar
             </Button>
           </DialogFooter>
@@ -575,7 +664,9 @@ export default function CorrectiveActionPlansManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Subir Evidencia</DialogTitle>
-            <DialogDescription>Adjunta documentos o imágenes como evidencia</DialogDescription>
+            <DialogDescription>
+              Adjunta documentos o imágenes como evidencia
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -583,7 +674,9 @@ export default function CorrectiveActionPlansManagement() {
               <Label>Título *</Label>
               <Input
                 value={evidenceForm.title}
-                onChange={(e) => setEvidenceForm({ ...evidenceForm, title: e.target.value })}
+                onChange={e =>
+                  setEvidenceForm({ ...evidenceForm, title: e.target.value })
+                }
                 placeholder="Título de la evidencia"
               />
             </div>
@@ -592,8 +685,11 @@ export default function CorrectiveActionPlansManagement() {
               <Label>Descripción</Label>
               <Textarea
                 value={evidenceForm.description}
-                onChange={(e) =>
-                  setEvidenceForm({ ...evidenceForm, description: e.target.value })
+                onChange={e =>
+                  setEvidenceForm({
+                    ...evidenceForm,
+                    description: e.target.value,
+                  })
                 }
                 placeholder="Descripción (opcional)"
                 rows={3}
@@ -605,18 +701,30 @@ export default function CorrectiveActionPlansManagement() {
               <Input
                 type="file"
                 accept="image/*,application/pdf"
-                onChange={(e) =>
-                  setEvidenceForm({ ...evidenceForm, file: e.target.files?.[0] || null })
+                onChange={e =>
+                  setEvidenceForm({
+                    ...evidenceForm,
+                    file: e.target.files?.[0] || null,
+                  })
                 }
               />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEvidenceDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowEvidenceDialog(false)}
+            >
               Cancelar
             </Button>
-            <LoadingButton onClick={handleUploadEvidence} loading={uploadEvidenceMutation.isPending} loadingText="Subiendo...">Subir</LoadingButton>
+            <LoadingButton
+              onClick={handleUploadEvidence}
+              loading={uploadEvidenceMutation.isPending}
+              loadingText="Subiendo..."
+            >
+              Subir
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -627,7 +735,8 @@ export default function CorrectiveActionPlansManagement() {
           <DialogHeader>
             <DialogTitle>Firma Digital</DialogTitle>
             <DialogDescription>
-              Firma como {signatureRole === "responsible" ? "Responsable" : "Verificador"}
+              Firma como{" "}
+              {signatureRole === "responsible" ? "Responsable" : "Verificador"}
             </DialogDescription>
           </DialogHeader>
 
@@ -646,7 +755,13 @@ export default function CorrectiveActionPlansManagement() {
             <Button variant="outline" onClick={() => setShowSignDialog(false)}>
               Cancelar
             </Button>
-            <LoadingButton onClick={handleSign} loading={signMutation.isPending} loadingText="Firmando...">Confirmar Firma</LoadingButton>
+            <LoadingButton
+              onClick={handleSign}
+              loading={signMutation.isPending}
+              loadingText="Firmando..."
+            >
+              Confirmar Firma
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

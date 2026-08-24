@@ -1,9 +1,29 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { bulkReassignmentDetails, bulkReassignments, departmentHistory, departments, employees, positions, predictiveAlgorithmConfig, predictiveTurnoverAlerts, systemSettings } from "../../drizzle/schema";
+import {
+  bulkReassignmentDetails,
+  bulkReassignments,
+  departmentHistory,
+  departments,
+  employees,
+  positions,
+  predictiveAlgorithmConfig,
+  predictiveTurnoverAlerts,
+  systemSettings,
+} from "../../drizzle/schema";
 import { sendEmail } from "../lib/email-sender";
-import { eq, like, and, sql, count, desc, isNull, gte, inArray } from "drizzle-orm";
+import {
+  eq,
+  like,
+  and,
+  sql,
+  count,
+  desc,
+  isNull,
+  gte,
+  inArray,
+} from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const departmentsRouter = router({
@@ -19,7 +39,7 @@ export const departmentsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
       const { page, pageSize, search, isActive } = input;
       const offset = (page - 1) * pageSize;
 
@@ -31,7 +51,8 @@ export const departmentsRouter = router({
         conditions.push(eq(departments.isActive, isActive));
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       // Obtener departamentos con conteo de empleados
       const results = await db
@@ -78,7 +99,7 @@ export const departmentsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
       const [department] = await db
         .select()
         .from(departments)
@@ -109,7 +130,7 @@ export const departmentsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Verificar código único
       const [existing] = await db
@@ -154,7 +175,7 @@ export const departmentsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
       const { id, ...updates } = input;
 
       // Verificar que existe
@@ -172,9 +193,15 @@ export const departmentsRouter = router({
       }
 
       // Si se actualiza el parentId, verificar que no cree un ciclo
-      if (updates.parentId !== undefined && updates.parentId !== existing.parentId) {
+      if (
+        updates.parentId !== undefined &&
+        updates.parentId !== existing.parentId
+      ) {
         // Función recursiva para detectar ciclos
-        const wouldCreateCycle = async (deptId: number, targetParentId: number | null): Promise<boolean> => {
+        const wouldCreateCycle = async (
+          deptId: number,
+          targetParentId: number | null
+        ): Promise<boolean> => {
           if (targetParentId === null) return false; // Raíz no crea ciclo
           if (targetParentId === deptId) return true; // Ciclo directo
           const [parent] = await db
@@ -182,19 +209,20 @@ export const departmentsRouter = router({
             .from(departments)
             .where(eq(departments.id, targetParentId))
             .limit(1);
-          
+
           if (!parent) return false; // Padre no existe
           if (parent.parentId === null) return false; // Llegó a la raíz
-          
+
           // Verificar recursivamente hacia arriba
           return await wouldCreateCycle(deptId, parent.parentId);
         };
-        
+
         const hasCycle = await wouldCreateCycle(id, updates.parentId);
         if (hasCycle) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "No se puede asignar este departamento padre porque crearía un ciclo en la jerarquía. Un departamento no puede ser descendiente de sí mismo.",
+            message:
+              "No se puede asignar este departamento padre porque crearía un ciclo en la jerarquía. Un departamento no puede ser descendiente de sí mismo.",
           });
         }
       }
@@ -232,27 +260,30 @@ export const departmentsRouter = router({
           parentId: updated.parentId,
           managerId: updated.managerId,
           isActive: updated.isActive,
-          changeType: 'updated',
+          changeType: "updated",
           changedBy: null,
         });
-        
+
         // Notificar cambios críticos de estructura
-        if (updates.parentId !== undefined && updates.parentId !== existing.parentId) {
+        if (
+          updates.parentId !== undefined &&
+          updates.parentId !== existing.parentId
+        ) {
           try {
             // Obtener configuración del sistema para correo de notificaciones
             const [settings] = await db
               .select()
               .from(systemSettings)
-              .where(eq(systemSettings.settingKey, 'hr_email'))
+              .where(eq(systemSettings.settingKey, "hr_email"))
               .limit(1);
-            
+
             const hrEmail = settings?.settingValue || process.env.OWNER_EMAIL;
-            
+
             if (hrEmail) {
               // Obtener información del departamento padre anterior y nuevo
-              let oldParentName = 'Raíz (sin padre)';
-              let newParentName = 'Raíz (sin padre)';
-              
+              let oldParentName = "Raíz (sin padre)";
+              let newParentName = "Raíz (sin padre)";
+
               if (existing.parentId) {
                 const [oldParent] = await db
                   .select()
@@ -261,7 +292,7 @@ export const departmentsRouter = router({
                   .limit(1);
                 if (oldParent) oldParentName = oldParent.name;
               }
-              
+
               if (updated.parentId) {
                 const [newParent] = await db
                   .select()
@@ -270,7 +301,7 @@ export const departmentsRouter = router({
                   .limit(1);
                 if (newParent) newParentName = newParent.name;
               }
-              
+
               // Obtener empleados afectados
               const affectedEmployees = await db
                 .select({
@@ -281,11 +312,14 @@ export const departmentsRouter = router({
                 })
                 .from(employees)
                 .where(eq(employees.departmentId, updated.id));
-              
-              const employeeList = affectedEmployees.length > 0
-                ? affectedEmployees.map(e => `- ${e.firstName} ${e.lastName} (${e.email})`).join('\n')
-                : 'Ningún empleado asignado actualmente';
-              
+
+              const employeeList =
+                affectedEmployees.length > 0
+                  ? affectedEmployees
+                      .map(e => `- ${e.firstName} ${e.lastName} (${e.email})`)
+                      .join("\n")
+                  : "Ningún empleado asignado actualmente";
+
               await sendEmail({
                 to: hrEmail,
                 subject: `⚠️ Reestructuración Organizacional: ${updated.name}`,
@@ -298,7 +332,7 @@ export const departmentsRouter = router({
                     <p><strong>Departamento:</strong> ${updated.name} (${updated.code})</p>
                     <p><strong>Departamento Padre Anterior:</strong> ${oldParentName}</p>
                     <p><strong>Nuevo Departamento Padre:</strong> ${newParentName}</p>
-                    <p><strong>Fecha del Cambio:</strong> ${new Date().toLocaleString('es-MX')}</p>
+                    <p><strong>Fecha del Cambio:</strong> ${new Date().toLocaleString("es-MX")}</p>
                   </div>
                   
                   <h3>Empleados Afectados (${affectedEmployees.length})</h3>
@@ -313,7 +347,10 @@ export const departmentsRouter = router({
             }
           } catch (emailError) {
             // No fallar la operación si el correo falla, solo registrar
-            console.error('Error al enviar notificación de cambio organizacional:', emailError);
+            console.error(
+              "Error al enviar notificación de cambio organizacional:",
+              emailError
+            );
           }
         }
       }
@@ -326,7 +363,7 @@ export const departmentsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Verificar que no tenga empleados asignados
       const [{ employeeCount }] = await db
@@ -361,7 +398,7 @@ export const departmentsRouter = router({
   // Obtener jerarquía organizacional
   getHierarchy: protectedProcedure.query(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
     const allDepartments = await db
       .select({
         id: departments.id,
@@ -380,8 +417,10 @@ export const departmentsRouter = router({
       .where(eq(departments.isActive, true));
 
     // Construir árbol jerárquico
-    type DepartmentNode = typeof allDepartments[0] & { children?: DepartmentNode[] };
-    
+    type DepartmentNode = (typeof allDepartments)[0] & {
+      children?: DepartmentNode[];
+    };
+
     const departmentMap = new Map<number, DepartmentNode>();
     const rootDepartments: DepartmentNode[] = [];
 
@@ -393,7 +432,7 @@ export const departmentsRouter = router({
     // Construir jerarquía
     allDepartments.forEach(dept => {
       const node = departmentMap.get(dept.id)!;
-      
+
       if (dept.parentId === null) {
         // Es un departamento raíz
         rootDepartments.push(node);
@@ -415,18 +454,20 @@ export const departmentsRouter = router({
   // Obtener estadísticas por departamento
   getStats: protectedProcedure
     .input(
-      z.object({
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-      }).optional()
+      z
+        .object({
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Construir condiciones de filtrado
       const conditions = [eq(departments.isActive, true)];
-      
+
       if (input?.startDate && input?.endDate) {
         conditions.push(
           and(
@@ -449,7 +490,10 @@ export const departmentsRouter = router({
 
       // Calcular totales
       const totalDepartments = stats.length;
-      const totalEmployees = stats.reduce((sum: any, dept: any) => sum + dept.employeeCount, 0);
+      const totalEmployees = stats.reduce(
+        (sum: any, dept: any) => sum + dept.employeeCount,
+        0
+      );
 
       return {
         totalDepartments,
@@ -463,20 +507,18 @@ export const departmentsRouter = router({
     .input(z.object({ date: z.string() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Obtener el estado de cada departamento en la fecha especificada
-      const historicalDepartments = await db
-        .select({
-          id: sql<number>`dh.departmentId`,
-          name: sql<string>`dh.name`,
-          code: sql<string>`dh.code`,
-          managerId: sql<number | null>`dh.managerId`,
-          parentId: sql<number | null>`dh.parentId`,
-          isActive: sql<boolean>`dh.isActive`,
-          employeeCount: sql<number>`0`, // No calculamos empleados históricos por simplicidad
-        })
-        .from(sql`(
+      const historicalDepartments = await db.select({
+        id: sql<number>`dh.departmentId`,
+        name: sql<string>`dh.name`,
+        code: sql<string>`dh.code`,
+        managerId: sql<number | null>`dh.managerId`,
+        parentId: sql<number | null>`dh.parentId`,
+        isActive: sql<boolean>`dh.isActive`,
+        employeeCount: sql<number>`0`, // No calculamos empleados históricos por simplicidad
+      }).from(sql`(
           SELECT dh1.*
           FROM department_history dh1
           INNER JOIN (
@@ -489,8 +531,10 @@ export const departmentsRouter = router({
         ) as dh`);
 
       // Construir árbol jerárquico
-      type DepartmentNode = typeof historicalDepartments[0] & { children?: DepartmentNode[] };
-      
+      type DepartmentNode = (typeof historicalDepartments)[0] & {
+        children?: DepartmentNode[];
+      };
+
       const departmentMap = new Map<number, DepartmentNode>();
       const rootDepartments: DepartmentNode[] = [];
 
@@ -502,7 +546,7 @@ export const departmentsRouter = router({
       // Construir jerarquía
       historicalDepartments.forEach(dept => {
         const node = departmentMap.get(dept.id)!;
-        
+
         if (dept.parentId === null) {
           rootDepartments.push(node);
         } else {
@@ -521,32 +565,40 @@ export const departmentsRouter = router({
   // Obtener historial de cambios organizacionales
   getChangeHistory: protectedProcedure
     .input(
-      z.object({
-        changeType: z.enum(['created', 'updated', 'deleted', 'all']).optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        departmentId: z.number().optional(),
-      }).optional()
+      z
+        .object({
+          changeType: z
+            .enum(["created", "updated", "deleted", "all"])
+            .optional(),
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+          departmentId: z.number().optional(),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Construir condiciones de filtrado
       const conditions: any[] = [];
-      
-      if (input?.changeType && input.changeType !== 'all') {
+
+      if (input?.changeType && input.changeType !== "all") {
         conditions.push(eq(departmentHistory.changeType, input.changeType));
       }
-      
+
       if (input?.startDate) {
-        conditions.push(sql`${departmentHistory.changedAt} >= ${input.startDate}`);
+        conditions.push(
+          sql`${departmentHistory.changedAt} >= ${input.startDate}`
+        );
       }
-      
+
       if (input?.endDate) {
-        conditions.push(sql`${departmentHistory.changedAt} <= ${input.endDate}`);
+        conditions.push(
+          sql`${departmentHistory.changedAt} <= ${input.endDate}`
+        );
       }
-      
+
       if (input?.departmentId) {
         conditions.push(eq(departmentHistory.departmentId, input.departmentId));
       }
@@ -563,24 +615,30 @@ export const departmentsRouter = router({
   // Obtener estadísticas de cambios
   getChangeStats: protectedProcedure
     .input(
-      z.object({
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-      }).optional()
+      z
+        .object({
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Construir condiciones de filtrado
       const conditions: any[] = [];
-      
+
       if (input?.startDate) {
-        conditions.push(sql`${departmentHistory.changedAt} >= ${input.startDate}`);
+        conditions.push(
+          sql`${departmentHistory.changedAt} >= ${input.startDate}`
+        );
       }
-      
+
       if (input?.endDate) {
-        conditions.push(sql`${departmentHistory.changedAt} <= ${input.endDate}`);
+        conditions.push(
+          sql`${departmentHistory.changedAt} <= ${input.endDate}`
+        );
       }
 
       // Obtener conteo por tipo de cambio
@@ -614,14 +672,16 @@ export const departmentsRouter = router({
   bulkReassign: protectedProcedure
     .input(
       z.object({
-        employeeIds: z.array(z.number()).min(1, "Debe seleccionar al menos un empleado"),
+        employeeIds: z
+          .array(z.number())
+          .min(1, "Debe seleccionar al menos un empleado"),
         newDepartmentId: z.number(),
         reason: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Verificar que el departamento destino existe
       const [targetDept] = await db
@@ -646,7 +706,12 @@ export const departmentsRouter = router({
           departmentId: employees.departmentId,
         })
         .from(employees)
-        .where(sql`${employees.id} IN (${sql.join(input.employeeIds.map(id => sql`${id}`), sql`, `)})`)
+        .where(
+          sql`${employees.id} IN (${sql.join(
+            input.employeeIds.map(id => sql`${id}`),
+            sql`, `
+          )})`
+        )
         .execute();
 
       if (employeesToReassign.length === 0) {
@@ -660,7 +725,12 @@ export const departmentsRouter = router({
       await db
         .update(employees)
         .set({ departmentId: input.newDepartmentId } as any)
-        .where(sql`${employees.id} IN (${sql.join(input.employeeIds.map(id => sql`${id}`), sql`, `)})`)
+        .where(
+          sql`${employees.id} IN (${sql.join(
+            input.employeeIds.map(id => sql`${id}`),
+            sql`, `
+          )})`
+        )
         .execute();
 
       // Registrar reasignación masiva en tabla de auditoría
@@ -669,12 +739,20 @@ export const departmentsRouter = router({
         .values({
           sourceDepartmentId: employeesToReassign[0]?.departmentId || null,
           sourceDepartmentName: employeesToReassign[0]?.departmentId
-            ? (await db.select({ name: departments.name }).from(departments).where(eq(departments.id, employeesToReassign[0].departmentId)).execute())[0]?.name || null
+            ? (
+                await db
+                  .select({ name: departments.name })
+                  .from(departments)
+                  .where(
+                    eq(departments.id, employeesToReassign[0].departmentId)
+                  )
+                  .execute()
+              )[0]?.name || null
             : null,
           targetDepartmentId: input.newDepartmentId,
           targetDepartmentName: targetDept.name,
           performedBy: ctx.user.id,
-          performedByName: ctx.user.name || 'Usuario',
+          performedByName: ctx.user.name || "Usuario",
           reason: input.reason || null,
           employeeCount: employeesToReassign.length,
         })
@@ -692,7 +770,7 @@ export const departmentsRouter = router({
       await (db.insert(bulkReassignmentDetails) as any).values(detailRecords);
 
       // Enviar notificaciones por email a empleados afectados (opcional)
-      const emailPromises = employeesToReassign.map(async (emp) => {
+      const emailPromises = employeesToReassign.map(async emp => {
         if (!emp.email) return;
 
         try {
@@ -728,7 +806,7 @@ export const departmentsRouter = router({
    */
   getActiveAlerts: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
     if (!db) throw new Error("Database not available");
 
     // Obtener departamentos activos sin manager
@@ -742,27 +820,32 @@ export const departmentsRouter = router({
       })
       .from(departments)
       .where(
-        and(
-          eq(departments.isActive, true),
-          isNull(departments.managerId)
-        )
+        and(eq(departments.isActive, true), isNull(departments.managerId))
       );
 
     // Calcular días sin manager desde creación
     const alerts = deptsWithoutManager.map((dept: any) => {
       const daysSinceCreation = Math.floor(
-        (Date.now() - new Date(dept.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+        (Date.now() - new Date(dept.createdAt).getTime()) /
+          (1000 * 60 * 60 * 24)
       );
 
       return {
         ...dept,
         daysSinceCreation,
-        urgency: daysSinceCreation > 60 ? "critical" : daysSinceCreation > 30 ? "high" : "medium",
+        urgency:
+          daysSinceCreation > 60
+            ? "critical"
+            : daysSinceCreation > 30
+              ? "high"
+              : "medium",
       };
     });
 
     // Filtrar solo departamentos con más de 30 días
-    const criticalAlerts = alerts.filter((alert: any) => alert.daysSinceCreation >= 30);
+    const criticalAlerts = alerts.filter(
+      (alert: any) => alert.daysSinceCreation >= 30
+    );
 
     return {
       alerts: criticalAlerts,
@@ -782,7 +865,7 @@ export const departmentsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
       if (!db) throw new Error("Database not available");
 
       const { page, pageSize } = input;
@@ -805,11 +888,16 @@ export const departmentsRouter = router({
 
       // Obtener detalles de todos los reasignaciones en 1 query (evita N+1)
       const reassignmentIds = reassignments.map(r => r.id);
-      const allDetails = reassignmentIds.length > 0
-        ? await db.select().from(bulkReassignmentDetails)
-            .where(inArray(bulkReassignmentDetails.reassignmentId, reassignmentIds))
-            .execute()
-        : [];
+      const allDetails =
+        reassignmentIds.length > 0
+          ? await db
+              .select()
+              .from(bulkReassignmentDetails)
+              .where(
+                inArray(bulkReassignmentDetails.reassignmentId, reassignmentIds)
+              )
+              .execute()
+          : [];
       const detailsByReassignment = new Map<number, typeof allDetails>();
       allDetails.forEach(d => {
         const arr = detailsByReassignment.get(d.reassignmentId) ?? [];
@@ -836,7 +924,7 @@ export const departmentsRouter = router({
    */
   exportAll: protectedProcedure.mutation(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
     if (!db) throw new Error("Database not available");
 
     const XLSX = await import("xlsx");
@@ -848,9 +936,10 @@ export const departmentsRouter = router({
         name: departments.name,
         code: departments.code,
         managerId: departments.managerId,
-        managerName: sql`(SELECT name FROM user WHERE id = ${departments.managerId})`
-          .mapWith(String)
-          .as("managerName"),
+        managerName:
+          sql`(SELECT name FROM user WHERE id = ${departments.managerId})`
+            .mapWith(String)
+            .as("managerName"),
         createdAt: departments.createdAt,
         isActive: departments.isActive,
       })
@@ -859,56 +948,62 @@ export const departmentsRouter = router({
 
     // Contar empleados por departamento (1 query en lugar de N)
     const allDeptIds = allDepartments.map((d: any) => d.id);
-    const empCountRows = allDeptIds.length > 0
-      ? await db.select({ departmentId: employees.departmentId, cnt: count() })
-          .from(employees)
-          .where(inArray(employees.departmentId, allDeptIds))
-          .groupBy(employees.departmentId)
-          .execute()
-      : [];
+    const empCountRows =
+      allDeptIds.length > 0
+        ? await db
+            .select({ departmentId: employees.departmentId, cnt: count() })
+            .from(employees)
+            .where(inArray(employees.departmentId, allDeptIds))
+            .groupBy(employees.departmentId)
+            .execute()
+        : [];
     const empCountMap = new Map(empCountRows.map(r => [r.departmentId, r.cnt]));
 
     // Hoja 1: Departamentos
     const departmentsData = allDepartments.map((dept: any) => ({
       ID: dept.id,
-      "Nombre": dept.name,
-      "Código": dept.code,
-      "Manager": dept.managerName || "Sin asignar",
+      Nombre: dept.name,
+      Código: dept.code,
+      Manager: dept.managerName || "Sin asignar",
       "Total Empleados": empCountMap.get(dept.id) ?? 0,
-      "Fecha Creación": dept.createdAt ? new Date(dept.createdAt).toLocaleDateString("es-MX") : "",
-      "Estado": dept.isActive ? "Activo" : "Inactivo",
+      "Fecha Creación": dept.createdAt
+        ? new Date(dept.createdAt).toLocaleDateString("es-MX")
+        : "",
+      Estado: dept.isActive ? "Activo" : "Inactivo",
     }));
 
     // Hoja 2: Empleados por Departamento (1 query en lugar de N)
-    const allEmpRows = allDeptIds.length > 0
-      ? await db.select({
-          id: employees.id,
-          name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
-          email: employees.email,
-          position: employees.positionId,
-          isActive: employees.isActive,
-          departmentId: employees.departmentId,
-        })
-          .from(employees)
-          .where(inArray(employees.departmentId, allDeptIds))
-          .execute()
-      : [];
+    const allEmpRows =
+      allDeptIds.length > 0
+        ? await db
+            .select({
+              id: employees.id,
+              name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
+              email: employees.email,
+              position: employees.positionId,
+              isActive: employees.isActive,
+              departmentId: employees.departmentId,
+            })
+            .from(employees)
+            .where(inArray(employees.departmentId, allDeptIds))
+            .execute()
+        : [];
     const deptNameMap = new Map(allDepartments.map((d: any) => [d.id, d.name]));
     const flatEmployeesData = allEmpRows.map((emp: any) => ({
-      "Departamento": deptNameMap.get(emp.departmentId) ?? "",
+      Departamento: deptNameMap.get(emp.departmentId) ?? "",
       "ID Empleado": emp.id,
-      "Nombre": emp.name,
-      "Email": emp.email,
-      "Puesto": emp.position,
-      "Estado": emp.isActive,
+      Nombre: emp.name,
+      Email: emp.email,
+      Puesto: emp.position,
+      Estado: emp.isActive,
     }));
 
     // Hoja 3: Managers
     const managersData = allDepartments
       .filter((dept: any) => dept.managerId)
       .map((dept: any) => ({
-        "Departamento": dept.name,
-        "Manager": dept.managerName || "",
+        Departamento: dept.name,
+        Manager: dept.managerName || "",
         "ID Manager": dept.managerId,
       }));
 
@@ -953,21 +1048,26 @@ export const departmentsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       let conditions = [];
       if (input.status) {
         conditions.push(eq(predictiveTurnoverAlerts.status, input.status));
       }
       if (input.minRiskScore !== undefined) {
-        conditions.push(gte(predictiveTurnoverAlerts.riskScore, input.minRiskScore));
+        conditions.push(
+          gte(predictiveTurnoverAlerts.riskScore, input.minRiskScore)
+        );
       }
 
       const alerts = await db
         .select()
         .from(predictiveTurnoverAlerts)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(predictiveTurnoverAlerts.riskScore), desc(predictiveTurnoverAlerts.analyzedAt))
+        .orderBy(
+          desc(predictiveTurnoverAlerts.riskScore),
+          desc(predictiveTurnoverAlerts.analyzedAt)
+        )
         .execute();
 
       return {
@@ -979,7 +1079,9 @@ export const departmentsRouter = router({
         })),
         totalAlerts: alerts.length,
         highRiskCount: alerts.filter((a: any) => a.riskScore >= 70).length,
-        mediumRiskCount: alerts.filter((a: any) => a.riskScore >= 40 && a.riskScore < 70).length,
+        mediumRiskCount: alerts.filter(
+          (a: any) => a.riskScore >= 40 && a.riskScore < 70
+        ).length,
       };
     }),
 
@@ -988,7 +1090,7 @@ export const departmentsRouter = router({
    */
   generatePredictiveAlertsPDF: protectedProcedure.mutation(async () => {
     const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
     if (!db) throw new Error("Database not available");
 
     // Obtener alertas activas ordenadas por riesgo
@@ -996,7 +1098,10 @@ export const departmentsRouter = router({
       .select()
       .from(predictiveTurnoverAlerts)
       .where(eq(predictiveTurnoverAlerts.status, "active"))
-      .orderBy(desc(predictiveTurnoverAlerts.riskScore), desc(predictiveTurnoverAlerts.analyzedAt))
+      .orderBy(
+        desc(predictiveTurnoverAlerts.riskScore),
+        desc(predictiveTurnoverAlerts.analyzedAt)
+      )
       .execute();
 
     if (alerts.length === 0) {
@@ -1012,13 +1117,20 @@ export const departmentsRouter = router({
 
     // Portada ejecutiva
     doc.fontSize(24).text("Reporte Ejecutivo", { align: "center" });
-    doc.fontSize(20).text("Alertas Predictivas de Rotación", { align: "center" });
+    doc
+      .fontSize(20)
+      .text("Alertas Predictivas de Rotación", { align: "center" });
     doc.moveDown(2);
 
     // Resumen ejecutivo
     const highRiskCount = alerts.filter((a: any) => a.riskScore >= 70).length;
-    const mediumRiskCount = alerts.filter((a: any) => a.riskScore >= 40 && a.riskScore < 70).length;
-    const totalEmployeesAtRisk = alerts.reduce((sum: any, a: any) => sum + a.currentEmployeeCount, 0);
+    const mediumRiskCount = alerts.filter(
+      (a: any) => a.riskScore >= 40 && a.riskScore < 70
+    ).length;
+    const totalEmployeesAtRisk = alerts.reduce(
+      (sum: any, a: any) => sum + a.currentEmployeeCount,
+      0
+    );
 
     doc.fontSize(16).text("Resumen Ejecutivo", { underline: true });
     doc.moveDown(0.5);
@@ -1026,8 +1138,12 @@ export const departmentsRouter = router({
     doc.text(`Total de departamentos en riesgo: ${alerts.length}`);
     doc.text(`Departamentos de riesgo alto (>70%): ${highRiskCount}`);
     doc.text(`Departamentos de riesgo medio (40-70%): ${mediumRiskCount}`);
-    doc.text(`Total de empleados en departamentos de riesgo: ${totalEmployeesAtRisk}`);
-    doc.text(`Fecha de análisis: ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}`);
+    doc.text(
+      `Total de empleados en departamentos de riesgo: ${totalEmployeesAtRisk}`
+    );
+    doc.text(
+      `Fecha de análisis: ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}`
+    );
     doc.moveDown(2);
 
     // Tabla de departamentos de riesgo
@@ -1040,9 +1156,13 @@ export const departmentsRouter = router({
         doc.addPage();
       }
 
-      doc.fontSize(14).text(`${index + 1}. ${alert.departmentName}`, { continued: false });
+      doc
+        .fontSize(14)
+        .text(`${index + 1}. ${alert.departmentName}`, { continued: false });
       doc.fontSize(10);
-      doc.text(`   Score de Riesgo: ${alert.riskScore}% (${alert.riskLevel === "high" ? "Alto" : "Medio"})`);
+      doc.text(
+        `   Score de Riesgo: ${alert.riskScore}% (${alert.riskLevel === "high" ? "Alto" : "Medio"})`
+      );
       doc.text(`   Empleados: ${alert.currentEmployeeCount}`);
       doc.text(`   Antigüedad Promedio: ${alert.avgTenureMonths} meses`);
       doc.text(`   Altas (últimos 3m): ${alert.hiresLast3Months}`);
@@ -1058,10 +1178,16 @@ export const departmentsRouter = router({
 
     const topAlerts = alerts.slice(0, 5); // Top 5 departamentos de riesgo
     topAlerts.forEach((alert: any, index: number) => {
-      doc.fontSize(14).text(`${index + 1}. ${alert.departmentName} (Riesgo: ${alert.riskScore}%)`);
+      doc
+        .fontSize(14)
+        .text(
+          `${index + 1}. ${alert.departmentName} (Riesgo: ${alert.riskScore}%)`
+        );
       doc.fontSize(10);
 
-      const actions = alert.recommendedActions ? JSON.parse(alert.recommendedActions) : [];
+      const actions = alert.recommendedActions
+        ? JSON.parse(alert.recommendedActions)
+        : [];
       if (actions.length > 0) {
         actions.forEach((action: string, idx: number) => {
           doc.text(`   • ${action}`);
@@ -1069,7 +1195,9 @@ export const departmentsRouter = router({
       } else {
         doc.text("   • Revisar condiciones laborales y clima organizacional");
         doc.text("   • Implementar programa de retención de talento");
-        doc.text("   • Realizar entrevistas de permanencia con empleados clave");
+        doc.text(
+          "   • Realizar entrevistas de permanencia con empleados clave"
+        );
       }
       doc.moveDown(0.5);
     });
@@ -1082,35 +1210,45 @@ export const departmentsRouter = router({
 
     doc.text("Corto Plazo (1-2 meses):");
     doc.fontSize(10);
-    doc.text("   • Realizar entrevistas de permanencia con empleados de departamentos de alto riesgo");
+    doc.text(
+      "   • Realizar entrevistas de permanencia con empleados de departamentos de alto riesgo"
+    );
     doc.text("   • Revisar y ajustar compensaciones y beneficios");
     doc.text("   • Implementar programa de reconocimiento inmediato");
     doc.moveDown(1);
 
     doc.fontSize(12).text("Mediano Plazo (3-6 meses):");
     doc.fontSize(10);
-    doc.text("   • Desarrollar plan de carrera y sucesión para puestos críticos");
+    doc.text(
+      "   • Desarrollar plan de carrera y sucesión para puestos críticos"
+    );
     doc.text("   • Implementar programa de capacitación y desarrollo");
-    doc.text("   • Mejorar comunicación interna y transparencia organizacional");
+    doc.text(
+      "   • Mejorar comunicación interna y transparencia organizacional"
+    );
     doc.moveDown(1);
 
     doc.fontSize(12).text("Largo Plazo (6-12 meses):");
     doc.fontSize(10);
     doc.text("   • Fortalecer cultura organizacional y valores compartidos");
-    doc.text("   • Implementar sistema de gestión del desempeño basado en competencias");
+    doc.text(
+      "   • Implementar sistema de gestión del desempeño basado en competencias"
+    );
     doc.text("   • Establecer métricas de seguimiento y evaluación continua");
 
     // Pie de página
     doc.moveDown(2);
-    doc.fontSize(8).text(
-      `Generado el ${new Date().toLocaleDateString("es-MX")} | Sistema de Gestión de Talento NOM-035`,
-      { align: "center" }
-    );
+    doc
+      .fontSize(8)
+      .text(
+        `Generado el ${new Date().toLocaleDateString("es-MX")} | Sistema de Gestión de Talento NOM-035`,
+        { align: "center" }
+      );
 
     doc.end();
 
     // Esperar a que termine de generar el PDF
-    const pdfBuffer = await new Promise<Buffer>((resolve) => {
+    const pdfBuffer = await new Promise<Buffer>(resolve => {
       doc.on("end", () => {
         resolve(Buffer.concat(chunks));
       });
@@ -1130,8 +1268,10 @@ export const departmentsRouter = router({
   // Obtener configuración del algoritmo predictivo
   getAlgorithmConfig: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new Error('Database not initialized');
-    const config = await db.select().from(predictiveAlgorithmConfig)
+    if (!db) throw new Error("Database not initialized");
+    const config = await db
+      .select()
+      .from(predictiveAlgorithmConfig)
       .where(eq(predictiveAlgorithmConfig.isActive, true))
       .limit(1);
 
@@ -1139,7 +1279,7 @@ export const departmentsRouter = router({
       // Retornar configuración por defecto si no existe
       return {
         id: 0,
-        configName: 'default',
+        configName: "default",
         rotationWeight: 40,
         tenureWeight: 30,
         managerWeight: 20,
@@ -1165,25 +1305,31 @@ export const departmentsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
       // Validar que la suma sea 100
-      const sum = input.rotationWeight + input.tenureWeight + input.managerWeight + input.teamSizeWeight;
+      const sum =
+        input.rotationWeight +
+        input.tenureWeight +
+        input.managerWeight +
+        input.teamSizeWeight;
       if (sum !== 100) {
         throw new TRPCError({
-          code: 'BAD_REQUEST',
+          code: "BAD_REQUEST",
           message: `La suma de los pesos debe ser 100%. Suma actual: ${sum}%`,
         });
       }
 
       // Obtener configuración activa
-      const activeConfig = await db.select().from(predictiveAlgorithmConfig)
+      const activeConfig = await db
+        .select()
+        .from(predictiveAlgorithmConfig)
         .where(eq(predictiveAlgorithmConfig.isActive, true))
         .limit(1);
 
       if (activeConfig.length === 0) {
         // Crear nueva configuración
         await (db.insert(predictiveAlgorithmConfig) as any).values({
-          configName: 'default',
+          configName: "default",
           rotationWeight: input.rotationWeight,
           tenureWeight: input.tenureWeight,
           managerWeight: input.managerWeight,
@@ -1194,7 +1340,8 @@ export const departmentsRouter = router({
         });
       } else {
         // Actualizar configuración existente
-        await db.update(predictiveAlgorithmConfig)
+        await db
+          .update(predictiveAlgorithmConfig)
           .set({
             rotationWeight: input.rotationWeight,
             tenureWeight: input.tenureWeight,
@@ -1208,9 +1355,7 @@ export const departmentsRouter = router({
 
       return {
         success: true,
-        message: 'Configuración actualizada exitosamente',
+        message: "Configuración actualizada exitosamente",
       };
     }),
 });
-
-

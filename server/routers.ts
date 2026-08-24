@@ -73,8 +73,8 @@ import { recruitmentRouter } from "./routers/recruitment";
 import { committeeMinutesRouter } from "./routers/committeeMinutes";
 import { minuteRecipientsRouter } from "./routers/minuteRecipients";
 import { committeeAnnualReportsRouter } from "./routers/committeeAnnualReports";
-import { digitalCertificatesRouter } from './routers/digitalCertificates';
-import { assessmentsRouter } from './routers/assessments';
+import { digitalCertificatesRouter } from "./routers/digitalCertificates";
+import { assessmentsRouter } from "./routers/assessments";
 import { trainingDashboardRouter } from "./routers/trainingDashboard";
 import { trainingRouter } from "./routers/training";
 import { dashboardRouter } from "./routers/dashboard";
@@ -174,24 +174,35 @@ import { clinicalRecordsRouter } from "./routers/clinicalRecords";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== 'admin') {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo los administradores pueden acceder a este recurso' });
+  if (ctx.user.role !== "admin") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Solo los administradores pueden acceder a este recurso",
+    });
   }
   return next({ ctx });
 });
 
 // Instructor or admin procedure
 const instructorProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== 'admin' && ctx.user.role !== 'instructor') {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo los instructores y administradores pueden acceder a este recurso' });
+  if (ctx.user.role !== "admin" && ctx.user.role !== "instructor") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message:
+        "Solo los instructores y administradores pueden acceder a este recurso",
+    });
   }
   return next({ ctx });
 });
 
 // Committee or admin procedure
 const committeeProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== 'admin' && ctx.user.role !== 'committee') {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo los miembros del comité y administradores pueden acceder a este recurso' });
+  if (ctx.user.role !== "admin" && ctx.user.role !== "committee") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message:
+        "Solo los miembros del comité y administradores pueden acceder a este recurso",
+    });
   }
   return next({ ctx });
 });
@@ -199,19 +210,24 @@ const committeeProcedure = protectedProcedure.use(({ ctx, next }) => {
 export const jobPositionUpdateInput = z.object({
   id: z.number(),
   catalogPositionId: z.number().int().positive().nullable().optional(),
-  positionName: z.string().min(1, 'El nombre del puesto es requerido').optional(),
+  positionName: z
+    .string()
+    .min(1, "El nombre del puesto es requerido")
+    .optional(),
   department: z.string().optional(),
   description: z.string().optional(),
-  riskLevel: z.enum(['low', 'medium', 'high', 'very_high']).optional(),
+  riskLevel: z.enum(["low", "medium", "high", "very_high"]).optional(),
   employeeCount: z.number().int().min(0).optional(),
   analysisNotes: z.string().optional(),
-  factors: z.object({
-    workload: z.number().min(1).max(5),
-    control: z.number().min(1).max(5),
-    leadership: z.number().min(1).max(5),
-    relationships: z.number().min(1).max(5),
-    workEnvironment: z.number().min(1).max(5),
-  }).optional(),
+  factors: z
+    .object({
+      workload: z.number().min(1).max(5),
+      control: z.number().min(1).max(5),
+      leadership: z.number().min(1).max(5),
+      relationships: z.number().min(1).max(5),
+      workEnvironment: z.number().min(1).max(5),
+    })
+    .optional(),
 });
 
 export const appRouter = router({
@@ -334,22 +350,26 @@ export const appRouter = router({
   surveysPaginated: surveysPaginatedRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
-    
+
     /**
      * Obtener token CSRF para el usuario actual
      * Debe ser llamado al cargar la aplicación
      */
     getCSRFToken: publicProcedure.query(({ ctx }) => {
       // Generar sessionId basado en usuario o IP
-      const sessionId = ctx.user?.id?.toString() || (ctx.req as any).sessionID || ctx.req.ip || 'anonymous';
+      const sessionId =
+        ctx.user?.id?.toString() ||
+        (ctx.req as any).sessionID ||
+        ctx.req.ip ||
+        "anonymous";
       const token = getCSRFTokenForUser(sessionId);
-      
+
       return {
         token,
         headerName: csrfConfig.headerName,
       };
     }),
-    
+
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -365,10 +385,12 @@ export const appRouter = router({
       return await db.getAllUsers();
     }),
     updateRole: adminProcedure
-      .input(z.object({
-        userId: z.number(),
-        role: z.enum(['admin', 'instructor', 'student', 'committee']),
-      }))
+      .input(
+        z.object({
+          userId: z.number(),
+          role: z.enum(["admin", "instructor", "student", "committee"]),
+        })
+      )
       .mutation(async ({ input }) => {
         await db.updateUserRole(input.userId, input.role);
         return { success: true };
@@ -379,7 +401,7 @@ export const appRouter = router({
   courses: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       // Students only see published courses
-      if (ctx.user.role === 'student') {
+      if (ctx.user.role === "student") {
         return await db.getPublishedCourses();
       }
       // Admin and instructors see all courses
@@ -391,17 +413,32 @@ export const appRouter = router({
         return await db.getCourseById(input.id);
       }),
     create: instructorProcedure
-      .input(z.object({
-        title: z.string().min(1),
-        description: z.string().optional(),
-        category: z.enum(['fundamentos', 'categorias_dominios', 'mobbing', 'burnout', 'protocolos', 'comite', 'analisis_puestos', 'otros']),
-        duration: z.number().optional(),
-      }))
+      .input(
+        z.object({
+          title: z.string().min(1),
+          description: z.string().optional(),
+          category: z.enum([
+            "fundamentos",
+            "categorias_dominios",
+            "mobbing",
+            "burnout",
+            "protocolos",
+            "comite",
+            "analisis_puestos",
+            "otros",
+          ]),
+          duration: z.number().optional(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { courses } = await import('../drizzle/schema');
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { courses } = await import("../drizzle/schema");
         await dbInstance.insert(courses).values({
           ...input,
           createdBy: ctx.user.id,
@@ -410,30 +447,54 @@ export const appRouter = router({
         return { success: true };
       }),
     update: instructorProcedure
-      .input(z.object({
-        id: z.number(),
-        title: z.string().min(1).optional(),
-        description: z.string().optional(),
-        category: z.enum(['fundamentos', 'categorias_dominios', 'mobbing', 'burnout', 'protocolos', 'comite', 'analisis_puestos', 'otros']).optional(),
-        duration: z.number().optional(),
-        isPublished: z.boolean().optional(),
-      }))
+      .input(
+        z.object({
+          id: z.number(),
+          title: z.string().min(1).optional(),
+          description: z.string().optional(),
+          category: z
+            .enum([
+              "fundamentos",
+              "categorias_dominios",
+              "mobbing",
+              "burnout",
+              "protocolos",
+              "comite",
+              "analisis_puestos",
+              "otros",
+            ])
+            .optional(),
+          duration: z.number().optional(),
+          isPublished: z.boolean().optional(),
+        })
+      )
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { courses } = await import('../drizzle/schema');
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { courses } = await import("../drizzle/schema");
         const { id, ...updateData } = input;
-        await dbInstance.update(courses).set(updateData).where(eq(courses.id, id));
+        await dbInstance
+          .update(courses)
+          .set(updateData)
+          .where(eq(courses.id, id));
         return { success: true };
       }),
     delete: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { courses } = await import('../drizzle/schema');
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { courses } = await import("../drizzle/schema");
         await dbInstance.delete(courses).where(eq(courses.id, input.id));
         return { success: true };
       }),
@@ -452,47 +513,66 @@ export const appRouter = router({
         return await db.getModuleById(input.id);
       }),
     create: instructorProcedure
-      .input(z.object({
-        courseId: z.number(),
-        title: z.string().min(1),
-        description: z.string().optional(),
-        content: z.string().optional(),
-        orderIndex: z.number().default(0),
-        duration: z.number().optional(),
-      }))
+      .input(
+        z.object({
+          courseId: z.number(),
+          title: z.string().min(1),
+          description: z.string().optional(),
+          content: z.string().optional(),
+          orderIndex: z.number().default(0),
+          duration: z.number().optional(),
+        })
+      )
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { modules } = await import('../drizzle/schema');
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { modules } = await import("../drizzle/schema");
         await dbInstance.insert(modules).values(input);
         return { success: true };
       }),
     update: instructorProcedure
-      .input(z.object({
-        id: z.number(),
-        title: z.string().min(1).optional(),
-        description: z.string().optional(),
-        content: z.string().optional(),
-        orderIndex: z.number().optional(),
-        duration: z.number().optional(),
-      }))
+      .input(
+        z.object({
+          id: z.number(),
+          title: z.string().min(1).optional(),
+          description: z.string().optional(),
+          content: z.string().optional(),
+          orderIndex: z.number().optional(),
+          duration: z.number().optional(),
+        })
+      )
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { modules } = await import('../drizzle/schema');
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { modules } = await import("../drizzle/schema");
         const { id, ...updateData } = input;
-        await dbInstance.update(modules).set(updateData).where(eq(modules.id, id));
+        await dbInstance
+          .update(modules)
+          .set(updateData)
+          .where(eq(modules.id, id));
         return { success: true };
       }),
     delete: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { modules } = await import('../drizzle/schema');
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { modules } = await import("../drizzle/schema");
         await dbInstance.delete(modules).where(eq(modules.id, input.id));
         return { success: true };
       }),
@@ -513,27 +593,39 @@ export const appRouter = router({
   // Cases management
   cases: router({
     list: committeeProcedure
-      .input(z.object({
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        page: z.number().min(1).default(1),
-        pageSize: z.number().min(1).max(100).default(20),
-        caseType: z.enum(['mobbing', 'burnout', 'violence', 'stress', 'other']).optional(),
-        priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
-        status: z.enum(['open', 'investigating', 'resolved', 'closed']).optional(),
-        search: z.string().optional(),
-      }).optional())
+      .input(
+        z
+          .object({
+            startDate: z.string().optional(),
+            endDate: z.string().optional(),
+            page: z.number().min(1).default(1),
+            pageSize: z.number().min(1).max(100).default(20),
+            caseType: z
+              .enum(["mobbing", "burnout", "violence", "stress", "other"])
+              .optional(),
+            priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+            status: z
+              .enum(["open", "investigating", "resolved", "closed"])
+              .optional(),
+            search: z.string().optional(),
+          })
+          .optional()
+      )
       .query(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { cases } = await import('../drizzle/schema');
-        const { eq, and, sql, desc } = await import('drizzle-orm');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { cases } = await import("../drizzle/schema");
+        const { eq, and, sql, desc } = await import("drizzle-orm");
+
         const page = input?.page || 1;
         const pageSize = input?.pageSize || 20;
         const offset = (page - 1) * pageSize;
-        
+
         // Build where conditions
         const conditions = [];
         if (input?.caseType) {
@@ -558,23 +650,23 @@ export const appRouter = router({
         }
         if (input?.startDate) {
           // Extract date from ISO string (YYYY-MM-DD)
-          const startDateStr = input.startDate.split('T')[0];
+          const startDateStr = input.startDate.split("T")[0];
           conditions.push(sql`DATE(${cases.createdAt}) >= ${startDateStr}`);
         }
         if (input?.endDate) {
           // Extract date from ISO string (YYYY-MM-DD)
-          const endDateStr = input.endDate.split('T')[0];
+          const endDateStr = input.endDate.split("T")[0];
           conditions.push(sql`DATE(${cases.createdAt}) <= ${endDateStr}`);
         }
-        
+
         const where = conditions.length > 0 ? and(...conditions) : undefined;
-        
+
         // Get total count
         const [{ count: totalCount }] = await dbInstance
           .select({ count: sql<number>`count(*)` })
           .from(cases)
           .where(where);
-        
+
         // Get paginated cases
         const casesList = await dbInstance
           .select()
@@ -583,7 +675,7 @@ export const appRouter = router({
           .orderBy(desc(cases.createdAt))
           .limit(pageSize)
           .offset(offset);
-        
+
         return {
           cases: casesList,
           totalCount: Number(totalCount),
@@ -592,24 +684,36 @@ export const appRouter = router({
           pageSize,
         };
       }),
-    
+
     exportToExcel: committeeProcedure
-      .input(z.object({
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        caseType: z.enum(['mobbing', 'burnout', 'violence', 'stress', 'other']).optional(),
-        priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
-        status: z.enum(['open', 'investigating', 'resolved', 'closed']).optional(),
-        search: z.string().optional(),
-      }).optional())
+      .input(
+        z
+          .object({
+            startDate: z.string().optional(),
+            endDate: z.string().optional(),
+            caseType: z
+              .enum(["mobbing", "burnout", "violence", "stress", "other"])
+              .optional(),
+            priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+            status: z
+              .enum(["open", "investigating", "resolved", "closed"])
+              .optional(),
+            search: z.string().optional(),
+          })
+          .optional()
+      )
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { cases } = await import('../drizzle/schema');
-        const { eq, and, sql, desc } = await import('drizzle-orm');
-        const XLSX = await import('xlsx');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { cases } = await import("../drizzle/schema");
+        const { eq, and, sql, desc } = await import("drizzle-orm");
+        const XLSX = await import("xlsx");
+
         // Build where conditions (same as list)
         const conditions = [];
         if (input?.caseType) {
@@ -633,144 +737,196 @@ export const appRouter = router({
           );
         }
         if (input?.startDate) {
-          const startDateStr = input.startDate.split('T')[0];
+          const startDateStr = input.startDate.split("T")[0];
           conditions.push(sql`DATE(${cases.createdAt}) >= ${startDateStr}`);
         }
         if (input?.endDate) {
-          const endDateStr = input.endDate.split('T')[0];
+          const endDateStr = input.endDate.split("T")[0];
           conditions.push(sql`DATE(${cases.createdAt}) <= ${endDateStr}`);
         }
-        
+
         const where = conditions.length > 0 ? and(...conditions) : undefined;
-        
+
         // Get all cases (no pagination for export)
         const casesList = await dbInstance
           .select()
           .from(cases)
           .where(where)
           .orderBy(desc(cases.createdAt));
-        
+
         // Transform data for Excel
         const excelData = casesList.map(c => ({
-          'Folio': c.caseNumber,
-          'Tipo': c.caseType,
-          'Prioridad': c.priority,
-          'Estado': c.status,
-          'Reportante': c.reporterName || 'Anónimo',
-          'Email': c.reporterEmail || '',
-          'Teléfono': c.reporterPhone || '',
-          'Descripción': c.description || '',
-          'Fecha Creación': c.createdAt ? new Date(c.createdAt).toLocaleDateString('es-MX') : '',
-          'Fecha Cierre': c.closedAt ? new Date(c.closedAt).toLocaleDateString('es-MX') : '',
+          Folio: c.caseNumber,
+          Tipo: c.caseType,
+          Prioridad: c.priority,
+          Estado: c.status,
+          Reportante: c.reporterName || "Anónimo",
+          Email: c.reporterEmail || "",
+          Teléfono: c.reporterPhone || "",
+          Descripción: c.description || "",
+          "Fecha Creación": c.createdAt
+            ? new Date(c.createdAt).toLocaleDateString("es-MX")
+            : "",
+          "Fecha Cierre": c.closedAt
+            ? new Date(c.closedAt).toLocaleDateString("es-MX")
+            : "",
         }));
-        
+
         // Create workbook and worksheet
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(excelData);
-        XLSX.utils.book_append_sheet(wb, ws, 'Casos NOM-035');
-        
+        XLSX.utils.book_append_sheet(wb, ws, "Casos NOM-035");
+
         // Generate buffer
-        const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-        
+        const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
         // Return base64 for download
         return {
-          data: buffer.toString('base64'),
-          filename: `casos-nom035-${new Date().toISOString().split('T')[0]}.xlsx`,
+          data: buffer.toString("base64"),
+          filename: `casos-nom035-${new Date().toISOString().split("T")[0]}.xlsx`,
           totalRecords: casesList.length,
         };
       }),
-    
+
     getById: committeeProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
         const caseData = await db.getCaseById(input.id);
         if (!caseData) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'Caso no encontrado' });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Caso no encontrado",
+          });
         }
         const followUps = await db.getCaseFollowUpsByCaseId(input.id);
         const documents = await db.getCaseDocumentsByCaseId(input.id);
         return { ...caseData, followUps, documents };
       }),
     create: publicProcedure
-      .input(z.object({
-        reporterName: z.string().optional(),
-        reporterEmail: z.union([z.string().email(), z.literal('')]).optional(),
-        reporterPhone: z.string().optional(),
-        isAnonymous: z.boolean().default(false),
-        caseType: z.enum(['mobbing', 'burnout', 'violence', 'stress', 'other']),
-        description: z.string().min(10),
-        priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
-      }))
+      .input(
+        z.object({
+          reporterName: z.string().optional(),
+          reporterEmail: z
+            .union([z.string().email(), z.literal("")])
+            .optional(),
+          reporterPhone: z.string().optional(),
+          isAnonymous: z.boolean().default(false),
+          caseType: z.enum([
+            "mobbing",
+            "burnout",
+            "violence",
+            "stress",
+            "other",
+          ]),
+          description: z.string().min(10),
+          priority: z
+            .enum(["low", "medium", "high", "critical"])
+            .default("medium"),
+        })
+      )
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { cases } = await import('../drizzle/schema');
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { cases } = await import("../drizzle/schema");
         const caseNumber = `CASO-${Date.now()}`;
         const result = await dbInstance.insert(cases).values({
           ...input,
           caseNumber,
-          status: 'open',
+          status: "open",
         });
-        
+
         const caseId = Number((result as any)[0]?.insertId || 0);
-        
+
         // Si el caso es crítico, notificar a todos los miembros del comité
-        if (input.priority === 'critical') {
+        if (input.priority === "critical") {
           const committeeMembers = await db.getAllCommitteeMembers();
           const notificationPromises = committeeMembers.map(member =>
-            db.createNotification({
-              userId: member.id,
-              type: 'new_case',
-              title: '¡Caso Crítico Reportado!',
-              message: `Se ha registrado un nuevo caso crítico (${caseNumber}) de tipo ${input.caseType}. Requiere atención inmediata.`,
-              relatedEntityType: 'case',
-              relatedEntityId: caseId,
-            }).catch(err => console.error('Error al crear notificación:', err))
+            db
+              .createNotification({
+                userId: member.id,
+                type: "new_case",
+                title: "¡Caso Crítico Reportado!",
+                message: `Se ha registrado un nuevo caso crítico (${caseNumber}) de tipo ${input.caseType}. Requiere atención inmediata.`,
+                relatedEntityType: "case",
+                relatedEntityId: caseId,
+              })
+              .catch(err => console.error("Error al crear notificación:", err))
           );
           await Promise.allSettled(notificationPromises);
         }
-        
+
         return { success: true, caseNumber };
       }),
     updateStatus: committeeProcedure
-      .input(z.object({
-        id: z.number(),
-        status: z.enum(['open', 'investigating', 'resolved', 'closed']),
-      }))
+      .input(
+        z.object({
+          id: z.number(),
+          status: z.enum(["open", "investigating", "resolved", "closed"]),
+        })
+      )
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { cases } = await import('../drizzle/schema');
-        await dbInstance.update(cases).set({ status: input.status } as any).where(eq(cases.id, input.id));
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { cases } = await import("../drizzle/schema");
+        await dbInstance
+          .update(cases)
+          .set({ status: input.status } as any)
+          .where(eq(cases.id, input.id));
         return { success: true };
       }),
     getFollowUps: protectedProcedure
-      .input(z.object({
-        caseId: z.number(),
-      }))
+      .input(
+        z.object({
+          caseId: z.number(),
+        })
+      )
       .query(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { caseFollowUps } = await import('../drizzle/schema');
-        return await dbInstance.select().from(caseFollowUps).where(eq(caseFollowUps.caseId, input.caseId)).orderBy(desc(caseFollowUps.createdAt));
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { caseFollowUps } = await import("../drizzle/schema");
+        return await dbInstance
+          .select()
+          .from(caseFollowUps)
+          .where(eq(caseFollowUps.caseId, input.caseId))
+          .orderBy(desc(caseFollowUps.createdAt));
       }),
     addFollowUp: committeeProcedure
-      .input(z.object({
-        caseId: z.number(),
-        action: z.string().min(1),
-        notes: z.string().optional(),
-        newStatus: z.enum(['open', 'investigating', 'resolved', 'closed']).optional(),
-      }))
+      .input(
+        z.object({
+          caseId: z.number(),
+          action: z.string().min(1),
+          notes: z.string().optional(),
+          newStatus: z
+            .enum(["open", "investigating", "resolved", "closed"])
+            .optional(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { caseFollowUps, cases } = await import('../drizzle/schema');
-        const { eq } = await import('drizzle-orm');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { caseFollowUps, cases } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+
         // Insertar seguimiento
         await dbInstance.insert(caseFollowUps).values({
           caseId: input.caseId,
@@ -778,47 +934,59 @@ export const appRouter = router({
           notes: input.notes,
           userId: ctx.user.id,
         });
-        
+
         // Actualizar estado del caso si se proporciona
         if (input.newStatus) {
-          await dbInstance.update(cases)
+          await dbInstance
+            .update(cases)
             .set({ status: input.newStatus } as any)
             .where(eq(cases.id, input.caseId));
         }
-        
+
         return { success: true };
       }),
     getCommitteeMembers: protectedProcedure.query(async () => {
       const dbInstance = await db.getDb();
-      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-      
-      const { users } = await import('../drizzle/schema');
-      const { eq } = await import('drizzle-orm');
-      return await dbInstance.select().from(users).where(eq(users.role, 'committee'));
+      if (!dbInstance)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
+      const { users } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      return await dbInstance
+        .select()
+        .from(users)
+        .where(eq(users.role, "committee"));
     }),
     getCommitteeWorkload: protectedProcedure.query(async () => {
       const dbInstance = await db.getDb();
-      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-      
-      const { users, cases } = await import('../drizzle/schema');
-      const { eq, and, ne, sql } = await import('drizzle-orm');
-      
+      if (!dbInstance)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
+      const { users, cases } = await import("../drizzle/schema");
+      const { eq, and, ne, sql } = await import("drizzle-orm");
+
       // Obtener todos los miembros del comité
-      const committeeMembers = await dbInstance.select().from(users).where(eq(users.role, 'committee'));
-      
+      const committeeMembers = await dbInstance
+        .select()
+        .from(users)
+        .where(eq(users.role, "committee"));
+
       // Contar casos activos por miembro
       const workload = await Promise.all(
-        committeeMembers.map(async (member) => {
+        committeeMembers.map(async member => {
           const activeCases = await dbInstance
             .select({ count: sql<number>`count(*)` })
             .from(cases)
             .where(
-              and(
-                eq(cases.assignedTo, member.id),
-                ne(cases.status, 'closed')
-              )
+              and(eq(cases.assignedTo, member.id), ne(cases.status, "closed"))
             );
-          
+
           return {
             userId: member.id,
             userName: member.name,
@@ -826,65 +994,102 @@ export const appRouter = router({
           };
         })
       );
-      
+
       return workload;
     }),
     assignCaseToCommittee: committeeProcedure
-      .input(z.object({
-        caseId: z.number(),
-        userId: z.number(),
-        role: z.enum(['investigador_principal', 'investigador_apoyo', 'coordinador']).default('investigador_principal'),
-      }))
+      .input(
+        z.object({
+          caseId: z.number(),
+          userId: z.number(),
+          role: z
+            .enum([
+              "investigador_principal",
+              "investigador_apoyo",
+              "coordinador",
+            ])
+            .default("investigador_principal"),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { cases, caseAssignments, caseFollowUps, notifications } = await import('../drizzle/schema');
-        const { eq } = await import('drizzle-orm');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { cases, caseAssignments, caseFollowUps, notifications } =
+          await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+
         // Actualizar el caso con el miembro asignado
-        await dbInstance.update(cases).set({ assignedTo: input.userId } as any).where(eq(cases.id, input.caseId));
-        
+        await dbInstance
+          .update(cases)
+          .set({ assignedTo: input.userId } as any)
+          .where(eq(cases.id, input.caseId));
+
         // Crear registro de asignación
         await dbInstance.insert(caseAssignments).values({
           caseId: input.caseId,
           committeeMemberId: input.userId,
-          role: 'lead' as any,
+          role: "lead" as any,
           assignedBy: ctx.user.id,
         });
-        
+
         // Agregar seguimiento
-        const { users } = await import('../drizzle/schema');
-        const assignedUser = await dbInstance.select().from(users).where(eq(users.id, input.userId)).limit(1);
+        const { users } = await import("../drizzle/schema");
+        const assignedUser = await dbInstance
+          .select()
+          .from(users)
+          .where(eq(users.id, input.userId))
+          .limit(1);
         await dbInstance.insert(caseFollowUps).values({
           caseId: input.caseId,
           userId: ctx.user.id,
-          action: `Caso asignado a ${assignedUser[0]?.name || 'miembro del comité'}`,
+          action: `Caso asignado a ${assignedUser[0]?.name || "miembro del comité"}`,
         });
-        
+
         // Crear notificación para el miembro asignado
-        const caseData = await dbInstance.select().from(cases).where(eq(cases.id, input.caseId)).limit(1);
+        const caseData = await dbInstance
+          .select()
+          .from(cases)
+          .where(eq(cases.id, input.caseId))
+          .limit(1);
         await dbInstance.insert(notifications).values({
           userId: input.userId,
-          title: 'Nuevo caso asignado',
+          title: "Nuevo caso asignado",
           message: `Se te ha asignado el caso ${caseData[0]?.caseNumber}`,
-          type: 'caso_asignado' as any,
+          type: "caso_asignado" as any,
           isRead: false,
         });
-        
+
         return { success: true };
       }),
     autoAssign: committeeProcedure
-      .input(z.object({
-        caseId: z.number(),
-      }))
+      .input(
+        z.object({
+          caseId: z.number(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { cases, caseAssignments, caseFollowUps, notifications, committeeMembers, users } = await import('../drizzle/schema');
-        const { eq, sql, and } = await import('drizzle-orm');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const {
+          cases,
+          caseAssignments,
+          caseFollowUps,
+          notifications,
+          committeeMembers,
+          users,
+        } = await import("../drizzle/schema");
+        const { eq, sql, and } = await import("drizzle-orm");
+
         // 1. Obtener miembros activos del comité con JOIN a users para obtener nombre
         const activeMembers = await dbInstance
           .select({
@@ -894,61 +1099,73 @@ export const appRouter = router({
           .from(committeeMembers)
           .innerJoin(users, eq(committeeMembers.userId, users.id))
           .where(eq(committeeMembers.isActive, true));
-        
+
         if (activeMembers.length === 0) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'No hay miembros activos en el comité' });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "No hay miembros activos en el comité",
+          });
         }
-        
+
         // 2. Calcular workload de cada miembro (casos abiertos asignados)
-        const workloadPromises = activeMembers.map(async (member) => {
+        const workloadPromises = activeMembers.map(async member => {
           const workload = await dbInstance.execute(sql`
             SELECT COUNT(*) as count
             FROM ${cases}
             WHERE ${cases.assignedTo} = ${member.userId}
             AND ${cases.status} IN ('open', 'investigating')
           `);
-          
+
           return {
             userId: member.userId,
-            name: member.name || 'Sin nombre',
+            name: member.name || "Sin nombre",
             workload: Number((workload as any).rows?.[0]?.count || 0),
           };
         });
-        
+
         const workloads = await Promise.all(workloadPromises);
-        
+
         // 3. Algoritmo de balanceo: asignar al miembro con menor workload
-        const sortedByWorkload = workloads.sort((a: any, b: any) => a.workload - b.workload);
+        const sortedByWorkload = workloads.sort(
+          (a: any, b: any) => a.workload - b.workload
+        );
         const selectedMember = sortedByWorkload[0];
-        
+
         // 4. Asignar caso al miembro seleccionado
-        await dbInstance.update(cases).set({ assignedTo: selectedMember.userId } as any).where(eq(cases.id, input.caseId));
-        
+        await dbInstance
+          .update(cases)
+          .set({ assignedTo: selectedMember.userId } as any)
+          .where(eq(cases.id, input.caseId));
+
         // 5. Crear registro de asignación
         await dbInstance.insert(caseAssignments).values({
           caseId: input.caseId,
           committeeMemberId: selectedMember.userId,
-          role: 'lead' as any,
+          role: "lead" as any,
           assignedBy: ctx.user.id,
         });
-        
+
         // 6. Agregar seguimiento
         await dbInstance.insert(caseFollowUps).values({
           caseId: input.caseId,
           userId: ctx.user.id,
           action: `Caso asignado automáticamente a ${selectedMember.name} (workload: ${selectedMember.workload} casos)`,
         });
-        
+
         // 7. Crear notificación para el miembro asignado
-        const caseData = await dbInstance.select().from(cases).where(eq(cases.id, input.caseId)).limit(1);
+        const caseData = await dbInstance
+          .select()
+          .from(cases)
+          .where(eq(cases.id, input.caseId))
+          .limit(1);
         await dbInstance.insert(notifications).values({
           userId: selectedMember.userId,
-          title: 'Nuevo caso asignado automáticamente',
+          title: "Nuevo caso asignado automáticamente",
           message: `Se te ha asignado automáticamente el caso ${caseData[0]?.caseNumber}`,
-          type: 'case_assigned' as any,
+          type: "case_assigned" as any,
           isRead: false,
         });
-        
+
         return {
           success: true,
           assignedTo: {
@@ -959,27 +1176,42 @@ export const appRouter = router({
         };
       }),
     getMetrics: committeeProcedure
-      .input(z.object({
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-      }).optional())
+      .input(
+        z
+          .object({
+            startDate: z.string().optional(),
+            endDate: z.string().optional(),
+          })
+          .optional()
+      )
       .query(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { cases } = await import('../drizzle/schema');
-        const { sql } = await import('drizzle-orm');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { cases } = await import("../drizzle/schema");
+        const { sql } = await import("drizzle-orm");
+
         // Filtros de fecha opcionales
         const conditions = [];
         if (input?.startDate) {
-          conditions.push(sql`DATE(${cases.createdAt}) >= ${input.startDate.split('T')[0]}`);
+          conditions.push(
+            sql`DATE(${cases.createdAt}) >= ${input.startDate.split("T")[0]}`
+          );
         }
         if (input?.endDate) {
-          conditions.push(sql`DATE(${cases.createdAt}) <= ${input.endDate.split('T')[0]}`);
+          conditions.push(
+            sql`DATE(${cases.createdAt}) <= ${input.endDate.split("T")[0]}`
+          );
         }
-        const whereClause = conditions.length > 0 ? sql`WHERE ${sql.join(conditions, sql` AND `)}` : sql``;
-        
+        const whereClause =
+          conditions.length > 0
+            ? sql`WHERE ${sql.join(conditions, sql` AND `)}`
+            : sql``;
+
         // 1. Casos por mes (últimos 12 meses)
         const casesByMonth = await dbInstance.execute(sql`
           SELECT 
@@ -991,7 +1223,7 @@ export const appRouter = router({
           ORDER BY month DESC
           LIMIT 12
         `);
-        
+
         // 2. Distribución por tipo
         const casesByType = await dbInstance.execute(sql`
           SELECT 
@@ -1001,7 +1233,7 @@ export const appRouter = router({
           ${whereClause}
           GROUP BY ${cases.caseType}
         `);
-        
+
         // 3. Tiempo promedio de resolución (en días)
         const avgResolutionTime = await dbInstance.execute(sql`
           SELECT 
@@ -1010,7 +1242,7 @@ export const appRouter = router({
           WHERE ${cases.closedAt} IS NOT NULL
           ${conditions.length > 0 ? sql`AND ${sql.join(conditions, sql` AND `)}` : sql``}
         `);
-        
+
         // 4. Distribución por prioridad
         const casesByPriority = await dbInstance.execute(sql`
           SELECT 
@@ -1020,7 +1252,7 @@ export const appRouter = router({
           ${whereClause}
           GROUP BY ${cases.priority}
         `);
-        
+
         // 5. Distribución por estado
         const casesByStatus = await dbInstance.execute(sql`
           SELECT 
@@ -1030,11 +1262,11 @@ export const appRouter = router({
           ${whereClause}
           GROUP BY ${cases.status}
         `);
-        
+
         return {
           casesByMonth: (casesByMonth as any).rows || [],
           casesByType: (casesByType as any).rows || [],
-          avgResolutionTime: ((avgResolutionTime as any).rows?.[0]?.avgDays || 0),
+          avgResolutionTime: (avgResolutionTime as any).rows?.[0]?.avgDays || 0,
           casesByPriority: (casesByPriority as any).rows || [],
           casesByStatus: (casesByStatus as any).rows || [],
         };
@@ -1044,9 +1276,13 @@ export const appRouter = router({
       .input(z.object({ employeeId: z.number() }))
       .query(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        const { cases } = await import('../drizzle/schema');
-        const { eq, desc } = await import('drizzle-orm');
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+        const { cases } = await import("../drizzle/schema");
+        const { eq, desc } = await import("drizzle-orm");
         // Cases linked by reporterEmail matching employee email, or by description containing employee id
         // We use the caseNumber prefix 'AUTO-' to identify auto-generated cases and filter by description
         const allCases = await dbInstance
@@ -1055,10 +1291,11 @@ export const appRouter = router({
           .orderBy(desc(cases.createdAt))
           .limit(200);
         // Filter cases that mention this employee in description (auto-generated cases include employee id)
-        const employeeCases = allCases.filter((c: any) =>
-          c.description?.includes(`empleado #${input.employeeId}`) ||
-          c.description?.includes(`employee_id:${input.employeeId}`) ||
-          c.caseNumber?.startsWith(`AUTO-PSICO-${input.employeeId}-`)
+        const employeeCases = allCases.filter(
+          (c: any) =>
+            c.description?.includes(`empleado #${input.employeeId}`) ||
+            c.description?.includes(`employee_id:${input.employeeId}`) ||
+            c.caseNumber?.startsWith(`AUTO-PSICO-${input.employeeId}-`)
         );
         return employeeCases;
       }),
@@ -1073,11 +1310,15 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { committeeMembers, users } = await import('../drizzle/schema');
-        const { eq } = await import('drizzle-orm');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { committeeMembers, users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+
         const result = await dbInstance
           .select({
             id: committeeMembers.id,
@@ -1093,40 +1334,55 @@ export const appRouter = router({
           .leftJoin(users, eq(committeeMembers.userId, users.id))
           .where(eq(committeeMembers.id, input.id))
           .limit(1);
-        
+
         if (result.length === 0) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'Miembro del comité no encontrado' });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Miembro del comité no encontrado",
+          });
         }
-        
+
         return result[0];
       }),
     add: adminProcedure
-      .input(z.object({
-        userId: z.number(),
-        position: z.string().optional(),
-        responsibilities: z.string().optional(),
-      }))
+      .input(
+        z.object({
+          userId: z.number(),
+          position: z.string().optional(),
+          responsibilities: z.string().optional(),
+        })
+      )
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { committeeMembers } = await import('../drizzle/schema');
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { committeeMembers } = await import("../drizzle/schema");
         await dbInstance.insert(committeeMembers).values(input);
         return { success: true };
       }),
     update: adminProcedure
-      .input(z.object({
-        id: z.number(),
-        position: z.string().optional(),
-        responsibilities: z.string().optional(),
-      }))
+      .input(
+        z.object({
+          id: z.number(),
+          position: z.string().optional(),
+          responsibilities: z.string().optional(),
+        })
+      )
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { committeeMembers } = await import('../drizzle/schema');
-        const { eq } = await import('drizzle-orm');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { committeeMembers } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+
         await dbInstance
           .update(committeeMembers)
           .set({
@@ -1134,19 +1390,25 @@ export const appRouter = router({
             responsibilities: input.responsibilities,
           } as any)
           .where(eq(committeeMembers.id, input.id));
-        
+
         return { success: true };
       }),
     remove: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { committeeMembers } = await import('../drizzle/schema');
-        const { eq } = await import('drizzle-orm');
-        
-        await dbInstance.delete(committeeMembers).where(eq(committeeMembers.id, input.id));
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { committeeMembers } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+
+        await dbInstance
+          .delete(committeeMembers)
+          .where(eq(committeeMembers.id, input.id));
         return { success: true };
       }),
   }),
@@ -1162,13 +1424,22 @@ export const appRouter = router({
         return await db.getResourceById(input.id);
       }),
     create: instructorProcedure
-      .input(z.object({
-        title: z.string(),
-        description: z.string().optional(),
-        category: z.enum(['manual', 'protocol', 'form', 'pdf', 'presentation', 'other']),
-        fileUrl: z.string(),
-        fileType: z.string(),
-      }))
+      .input(
+        z.object({
+          title: z.string(),
+          description: z.string().optional(),
+          category: z.enum([
+            "manual",
+            "protocol",
+            "form",
+            "pdf",
+            "presentation",
+            "other",
+          ]),
+          fileUrl: z.string(),
+          fileType: z.string(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         return await db.createResource({
           ...input,
@@ -1176,14 +1447,23 @@ export const appRouter = router({
         });
       }),
     update: instructorProcedure
-      .input(z.object({
-        id: z.number(),
-        title: z.string(),
-        description: z.string().optional(),
-        category: z.enum(['manual', 'protocol', 'form', 'pdf', 'presentation', 'other']),
-        fileUrl: z.string(),
-        fileType: z.string(),
-      }))
+      .input(
+        z.object({
+          id: z.number(),
+          title: z.string(),
+          description: z.string().optional(),
+          category: z.enum([
+            "manual",
+            "protocol",
+            "form",
+            "pdf",
+            "presentation",
+            "other",
+          ]),
+          fileUrl: z.string(),
+          fileType: z.string(),
+        })
+      )
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
         return await db.updateResource(id, data);
@@ -1200,7 +1480,10 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const evaluation = await db.getEvaluationById(input.id);
         if (!evaluation) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'Evaluación no encontrada' });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Evaluación no encontrada",
+          });
         }
         const questions = await db.getQuestionsByEvaluationId(input.id);
         return { ...evaluation, questions };
@@ -1209,50 +1492,77 @@ export const appRouter = router({
       .input(z.object({ evaluationId: z.number() }))
       .mutation(async ({ input, ctx }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { evaluationAttempts } = await import('../drizzle/schema');
-        const attemptNumber = await db.getNextAttemptNumber(ctx.user.id, input.evaluationId);
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { evaluationAttempts } = await import("../drizzle/schema");
+        const attemptNumber = await db.getNextAttemptNumber(
+          ctx.user.id,
+          input.evaluationId
+        );
+
         const result = await dbInstance.insert(evaluationAttempts).values({
           userId: ctx.user.id,
           evaluationId: input.evaluationId,
           attemptNumber,
           startedAt: new Date(),
         });
-        
+
         const insertId = (result as any).insertId || 0;
         return { attemptId: Number(insertId), attemptNumber };
       }),
     submitAnswer: protectedProcedure
-      .input(z.object({
-        attemptId: z.number(),
-        questionId: z.number(),
-        selectedOptionId: z.number().optional(),
-        answerText: z.string().optional(),
-      }))
+      .input(
+        z.object({
+          attemptId: z.number(),
+          questionId: z.number(),
+          selectedOptionId: z.number().optional(),
+          answerText: z.string().optional(),
+        })
+      )
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { studentAnswers, questions, answerOptions } = await import('../drizzle/schema');
-        const { eq } = await import('drizzle-orm');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { studentAnswers, questions, answerOptions } = await import(
+          "../drizzle/schema"
+        );
+        const { eq } = await import("drizzle-orm");
+
         // Get question details
-        const question = await dbInstance.select().from(questions).where(eq(questions.id, input.questionId)).limit(1);
-        if (!question[0]) throw new TRPCError({ code: 'NOT_FOUND', message: 'Pregunta no encontrada' });
-        
+        const question = await dbInstance
+          .select()
+          .from(questions)
+          .where(eq(questions.id, input.questionId))
+          .limit(1);
+        if (!question[0])
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Pregunta no encontrada",
+          });
+
         let isCorrect = false;
         let pointsEarned = 0;
-        
+
         if (input.selectedOptionId) {
-          const option = await dbInstance.select().from(answerOptions).where(eq(answerOptions.id, input.selectedOptionId)).limit(1);
+          const option = await dbInstance
+            .select()
+            .from(answerOptions)
+            .where(eq(answerOptions.id, input.selectedOptionId))
+            .limit(1);
           if (option[0]?.isCorrect) {
             isCorrect = true;
             pointsEarned = question[0].points;
           }
         }
-        
+
         await dbInstance.insert(studentAnswers).values({
           attemptId: input.attemptId,
           questionId: input.questionId,
@@ -1261,41 +1571,65 @@ export const appRouter = router({
           isCorrect,
           pointsEarned,
         });
-        
+
         return { success: true, isCorrect, pointsEarned };
       }),
     completeAttempt: protectedProcedure
       .input(z.object({ attemptId: z.number() }))
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
-        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-        
-        const { evaluationAttempts, studentAnswers, evaluations } = await import('../drizzle/schema');
-        const { eq, sum } = await import('drizzle-orm');
-        
+        if (!dbInstance)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        const { evaluationAttempts, studentAnswers, evaluations } =
+          await import("../drizzle/schema");
+        const { eq, sum } = await import("drizzle-orm");
+
         // Get attempt details
-        const attempt = await dbInstance.select().from(evaluationAttempts).where(eq(evaluationAttempts.id, input.attemptId)).limit(1);
-        if (!attempt[0]) throw new TRPCError({ code: 'NOT_FOUND', message: 'Intento no encontrado' });
-        
+        const attempt = await dbInstance
+          .select()
+          .from(evaluationAttempts)
+          .where(eq(evaluationAttempts.id, input.attemptId))
+          .limit(1);
+        if (!attempt[0])
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Intento no encontrado",
+          });
+
         // Calculate total score
-        const answers = await dbInstance.select().from(studentAnswers).where(eq(studentAnswers.attemptId, input.attemptId));
-        const totalPoints = answers.reduce((acc: any, ans: any) => acc + ans.pointsEarned, 0);
+        const answers = await dbInstance
+          .select()
+          .from(studentAnswers)
+          .where(eq(studentAnswers.attemptId, input.attemptId));
+        const totalPoints = answers.reduce(
+          (acc: any, ans: any) => acc + ans.pointsEarned,
+          0
+        );
         const maxPoints = answers.length; // Assuming 1 point per question
         const score = (totalPoints / maxPoints) * 100;
-        
+
         // Get evaluation passing score
-        const evaluation = await dbInstance.select().from(evaluations).where(eq(evaluations.id, attempt[0].evaluationId)).limit(1);
+        const evaluation = await dbInstance
+          .select()
+          .from(evaluations)
+          .where(eq(evaluations.id, attempt[0].evaluationId))
+          .limit(1);
         const passed = score >= (evaluation[0]?.passingScore || 70);
-        
+
         // Update attempt
-        await dbInstance.update(evaluationAttempts)
+        await dbInstance
+          .update(evaluationAttempts)
           .set({
             score: score.toString(),
             passed,
             completedAt: new Date(),
           } as any)
           .where(eq(evaluationAttempts.id, input.attemptId));
-        
+
         return { success: true, score, passed };
       }),
     getAttempts: protectedProcedure
@@ -1312,9 +1646,11 @@ export const appRouter = router({
       if (allPositions.length === 0) return [];
       // Contar empleados mediante la relación explícita al catálogo, no por coincidencia de título.
       try {
-        const { getDb } = await import('./db');
-        const { employees: empTable } = await import('../drizzle/schema');
-        const { count: drizzleCount, inArray: drizzleInArray } = await import('drizzle-orm');
+        const { getDb } = await import("./db");
+        const { employees: empTable } = await import("../drizzle/schema");
+        const { count: drizzleCount, inArray: drizzleInArray } = await import(
+          "drizzle-orm"
+        );
         const rawDb = await getDb();
         const countMap: Record<number, number> = {};
         if (rawDb) {
@@ -1322,18 +1658,26 @@ export const appRouter = router({
             .map(position => position.catalogPositionId)
             .filter((id): id is number => id !== null);
           if (catalogPositionIds.length > 0) {
-            const empCounts = await rawDb.select({ positionId: empTable.positionId, total: drizzleCount() })
-              .from(empTable).where(drizzleInArray(empTable.positionId, catalogPositionIds))
+            const empCounts = await rawDb
+              .select({
+                positionId: empTable.positionId,
+                total: drizzleCount(),
+              })
+              .from(empTable)
+              .where(drizzleInArray(empTable.positionId, catalogPositionIds))
               .groupBy(empTable.positionId);
             empCounts.forEach(countEntry => {
-              if (countEntry.positionId) countMap[countEntry.positionId] = countEntry.total;
+              if (countEntry.positionId)
+                countMap[countEntry.positionId] = countEntry.total;
             });
           }
         }
         return allPositions.map(position => ({
           ...position,
           // Mientras se vinculan registros históricos, se conserva el conteo analizado guardado.
-          employeeCount: position.catalogPositionId ? (countMap[position.catalogPositionId] ?? 0) : position.employeeCount,
+          employeeCount: position.catalogPositionId
+            ? (countMap[position.catalogPositionId] ?? 0)
+            : position.employeeCount,
         }));
       } catch {
         return allPositions;
@@ -1344,28 +1688,35 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const position = await db.getJobPositionById(input.id);
         if (!position) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'Puesto no encontrado' });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Puesto no encontrado",
+          });
         }
         const functions = await db.getJobFunctionsByPositionId(input.id);
         return { ...position, functions };
       }),
     create: instructorProcedure
-      .input(z.object({
-        catalogPositionId: z.number().int().positive().nullable().optional(),
-        positionName: z.string().min(1, 'El nombre del puesto es requerido'),
-        department: z.string().optional(),
-        description: z.string().optional(),
-        riskLevel: z.enum(['low', 'medium', 'high', 'very_high']).optional(),
-        employeeCount: z.number().int().min(0).optional(),
-        analysisNotes: z.string().optional(),
-        factors: z.object({
-          workload: z.number().min(1).max(5),
-          control: z.number().min(1).max(5),
-          leadership: z.number().min(1).max(5),
-          relationships: z.number().min(1).max(5),
-          workEnvironment: z.number().min(1).max(5),
-        }).optional(),
-      }))
+      .input(
+        z.object({
+          catalogPositionId: z.number().int().positive().nullable().optional(),
+          positionName: z.string().min(1, "El nombre del puesto es requerido"),
+          department: z.string().optional(),
+          description: z.string().optional(),
+          riskLevel: z.enum(["low", "medium", "high", "very_high"]).optional(),
+          employeeCount: z.number().int().min(0).optional(),
+          analysisNotes: z.string().optional(),
+          factors: z
+            .object({
+              workload: z.number().min(1).max(5),
+              control: z.number().min(1).max(5),
+              leadership: z.number().min(1).max(5),
+              relationships: z.number().min(1).max(5),
+              workEnvironment: z.number().min(1).max(5),
+            })
+            .optional(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         const { factors, ...rest } = input;
         const position = await db.createJobPosition({
@@ -1382,17 +1733,27 @@ export const appRouter = router({
         const { id, factors, analysisNotes, ...rest } = input;
         await db.updateJobPosition(id, {
           ...rest,
-          ...(factors !== undefined ? { factors: JSON.stringify(factors) } : {}),
+          ...(factors !== undefined
+            ? { factors: JSON.stringify(factors) }
+            : {}),
         });
         // Save history snapshot when factors are provided
         if (factors && rest.riskLevel) {
           try {
-            const { getDb } = await import('./db');
-            const { jobPositionHistory, jobPositions: jpTable } = await import('../drizzle/schema');
-            const { desc: descOrd, eq: eqOp } = await import('drizzle-orm');
+            const { getDb } = await import("./db");
+            const { jobPositionHistory, jobPositions: jpTable } = await import(
+              "../drizzle/schema"
+            );
+            const { desc: descOrd, eq: eqOp } = await import("drizzle-orm");
             const rawDb = await getDb();
             if (rawDb) {
-              const avg = (factors.workload + factors.control + factors.leadership + factors.relationships + factors.workEnvironment) / 5;
+              const avg =
+                (factors.workload +
+                  factors.control +
+                  factors.leadership +
+                  factors.relationships +
+                  factors.workEnvironment) /
+                5;
               const newIndex = parseFloat(avg.toFixed(1));
               // Check if risk increased vs previous analysis
               const prevRows = await rawDb
@@ -1401,7 +1762,8 @@ export const appRouter = router({
                 .where(eqOp(jobPositionHistory.positionId, id))
                 .orderBy(descOrd(jobPositionHistory.analyzedAt))
                 .limit(1);
-              const prevIndex = prevRows.length > 0 ? Number(prevRows[0].riskIndex) : null;
+              const prevIndex =
+                prevRows.length > 0 ? Number(prevRows[0].riskIndex) : null;
               await rawDb.insert(jobPositionHistory).values({
                 positionId: id,
                 riskLevel: rest.riskLevel,
@@ -1415,20 +1777,43 @@ export const appRouter = router({
               if (prevIndex !== null && newIndex > prevIndex) {
                 try {
                   // Read threshold from system_config
-                  const { systemConfig: sysConfigTable, riskNotificationLog: riskLogTable } = await import('../drizzle/schema');
-                  const { eq: eqSys } = await import('drizzle-orm');
-                  const thresholdRows = await rawDb.select().from(sysConfigTable).where(eqSys(sysConfigTable.configKey, 'notificationThreshold')).limit(1);
-                  const threshold = thresholdRows.length > 0 ? parseFloat(thresholdRows[0].configValue) : 0.5;
+                  const {
+                    systemConfig: sysConfigTable,
+                    riskNotificationLog: riskLogTable,
+                  } = await import("../drizzle/schema");
+                  const { eq: eqSys } = await import("drizzle-orm");
+                  const thresholdRows = await rawDb
+                    .select()
+                    .from(sysConfigTable)
+                    .where(
+                      eqSys(sysConfigTable.configKey, "notificationThreshold")
+                    )
+                    .limit(1);
+                  const threshold =
+                    thresholdRows.length > 0
+                      ? parseFloat(thresholdRows[0].configValue)
+                      : 0.5;
                   const delta = parseFloat((newIndex - prevIndex).toFixed(2));
                   if (delta >= threshold) {
-                    const { notifyOwner } = await import('./_core/notification');
-                    const posRows = await rawDb.select().from(jpTable).where(eqOp(jpTable.id, id)).limit(1);
+                    const { notifyOwner } = await import(
+                      "./_core/notification"
+                    );
+                    const posRows = await rawDb
+                      .select()
+                      .from(jpTable)
+                      .where(eqOp(jpTable.id, id))
+                      .limit(1);
                     const posName = posRows[0]?.positionName ?? `Puesto #${id}`;
-                    const dept = posRows[0]?.department ?? '';
-                    const riskLabel: Record<string, string> = { low: 'Bajo', medium: 'Medio', high: 'Alto', very_high: 'Muy Alto' };
+                    const dept = posRows[0]?.department ?? "";
+                    const riskLabel: Record<string, string> = {
+                      low: "Bajo",
+                      medium: "Medio",
+                      high: "Alto",
+                      very_high: "Muy Alto",
+                    };
                     await notifyOwner({
-                      title: `⚠️ Riesgo psicosocial aumentado: ${posName}${dept ? ` (${dept})` : ''}`,
-                      content: `El índice de riesgo del puesto "${posName}"${dept ? ` (${dept})` : ''} aumentó de ${prevIndex}/5 a ${newIndex}/5 (▲ +${delta.toFixed(1)}). Nivel actual: ${riskLabel[rest.riskLevel] ?? rest.riskLevel}. Analizado por: ${ctx.user.name ?? ctx.user.openId}. Fecha: ${new Date().toLocaleString('es-MX')}.`,
+                      title: `⚠️ Riesgo psicosocial aumentado: ${posName}${dept ? ` (${dept})` : ""}`,
+                      content: `El índice de riesgo del puesto "${posName}"${dept ? ` (${dept})` : ""} aumentó de ${prevIndex}/5 a ${newIndex}/5 (▲ +${delta.toFixed(1)}). Nivel actual: ${riskLabel[rest.riskLevel] ?? rest.riskLevel}. Analizado por: ${ctx.user.name ?? ctx.user.openId}. Fecha: ${new Date().toLocaleString("es-MX")}.`,
                     });
                     // Save to risk_notification_log
                     await rawDb.insert(riskLogTable).values({
@@ -1440,26 +1825,35 @@ export const appRouter = router({
                       delta: delta.toFixed(2),
                       riskLevel: rest.riskLevel,
                     });
-                    console.log(`[JobPositions] Notificación enviada: riesgo aumentado en "${posName}" (${prevIndex} → ${newIndex}), delta=${delta}, threshold=${threshold}`);
+                    console.log(
+                      `[JobPositions] Notificación enviada: riesgo aumentado en "${posName}" (${prevIndex} → ${newIndex}), delta=${delta}, threshold=${threshold}`
+                    );
                   } else {
-                    console.log(`[JobPositions] Riesgo aumentó pero delta=${delta} < threshold=${threshold}, no se notifica.`);
+                    console.log(
+                      `[JobPositions] Riesgo aumentó pero delta=${delta} < threshold=${threshold}, no se notifica.`
+                    );
                   }
                 } catch (notifErr) {
-                  console.error('[JobPositions] Error enviando notificación de riesgo:', notifErr);
+                  console.error(
+                    "[JobPositions] Error enviando notificación de riesgo:",
+                    notifErr
+                  );
                 }
               }
             }
           } catch (e) {
-            console.error('[JobPositions] Error saving history:', e);
+            console.error("[JobPositions] Error saving history:", e);
           }
         }
         return { success: true };
       }),
     getRiskEscalated: protectedProcedure.query(async () => {
       try {
-        const { getDb } = await import('./db');
-        const { jobPositionHistory, jobPositions: jpTable } = await import('../drizzle/schema');
-        const { desc: descOrd, eq: eqOp } = await import('drizzle-orm');
+        const { getDb } = await import("./db");
+        const { jobPositionHistory, jobPositions: jpTable } = await import(
+          "../drizzle/schema"
+        );
+        const { desc: descOrd, eq: eqOp } = await import("drizzle-orm");
         const rawDb = await getDb();
         if (!rawDb) return [];
         const positions = await rawDb.select().from(jpTable);
@@ -1490,7 +1884,7 @@ export const appRouter = router({
         }
         return escalated.sort((a: any, b: any) => b.delta - a.delta);
       } catch (e) {
-        console.error('[JobPositions] Error fetching escalated risks:', e);
+        console.error("[JobPositions] Error fetching escalated risks:", e);
         return [];
       }
     }),
@@ -1498,9 +1892,9 @@ export const appRouter = router({
       .input(z.object({ positionId: z.number() }))
       .query(async ({ input }) => {
         try {
-          const { getDb } = await import('./db');
-          const { jobPositionHistory } = await import('../drizzle/schema');
-          const { desc: descOrd, eq: eqOp } = await import('drizzle-orm');
+          const { getDb } = await import("./db");
+          const { jobPositionHistory } = await import("../drizzle/schema");
+          const { desc: descOrd, eq: eqOp } = await import("drizzle-orm");
           const rawDb = await getDb();
           if (!rawDb) return [];
           const rows = await rawDb
@@ -1511,21 +1905,23 @@ export const appRouter = router({
             .limit(20);
           return rows;
         } catch (e) {
-          console.error('[JobPositions] Error fetching history:', e);
+          console.error("[JobPositions] Error fetching history:", e);
           return [];
         }
       }),
     getNotificationLog: protectedProcedure
-      .input(z.object({
-        limit: z.number().optional().default(100),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional(),
-      }))
+      .input(
+        z.object({
+          limit: z.number().optional().default(100),
+          dateFrom: z.string().optional(),
+          dateTo: z.string().optional(),
+        })
+      )
       .query(async ({ input }) => {
         try {
-          const { getDb } = await import('./db');
-          const { riskNotificationLog } = await import('../drizzle/schema');
-          const { desc: descOrd, gte, lte, and } = await import('drizzle-orm');
+          const { getDb } = await import("./db");
+          const { riskNotificationLog } = await import("../drizzle/schema");
+          const { desc: descOrd, gte, lte, and } = await import("drizzle-orm");
           const rawDb = await getDb();
           if (!rawDb) return [];
           const conditions: any[] = [];
@@ -1539,14 +1935,17 @@ export const appRouter = router({
             to.setHours(23, 59, 59, 999);
             conditions.push(lte(riskNotificationLog.sentAt, to));
           }
-          const baseQuery = rawDb.select().from(riskNotificationLog)
+          const baseQuery = rawDb
+            .select()
+            .from(riskNotificationLog)
             .orderBy(descOrd(riskNotificationLog.sentAt))
             .limit(input.limit);
           if (conditions.length === 0) return await baseQuery;
-          if (conditions.length === 1) return await baseQuery.where(conditions[0]);
+          if (conditions.length === 1)
+            return await baseQuery.where(conditions[0]);
           return await baseQuery.where(and(...conditions));
         } catch (e) {
-          console.error('[JobPositions] Error fetching notification log:', e);
+          console.error("[JobPositions] Error fetching notification log:", e);
           return [];
         }
       }),
@@ -1555,62 +1954,134 @@ export const appRouter = router({
       .input(z.object({ positionId: z.number() }))
       .mutation(async ({ input, ctx }) => {
         try {
-          const { getDb } = await import('./db');
-          const { nom035Results, employees, departments, jobPositions: jpTable, jobPositionHistory } = await import('../drizzle/schema');
-          const { eq: eqOp, desc: descOrd, sql } = await import('drizzle-orm');
+          const { getDb } = await import("./db");
+          const {
+            nom035Results,
+            employees,
+            departments,
+            jobPositions: jpTable,
+            jobPositionHistory,
+          } = await import("../drizzle/schema");
+          const { eq: eqOp, desc: descOrd, sql } = await import("drizzle-orm");
           const rawDb = await getDb();
-          if (!rawDb) throw new Error('Database not available');
-          const posRows = await rawDb.select().from(jpTable).where(eqOp(jpTable.id, input.positionId)).limit(1);
-          if (!posRows.length) throw new Error('Puesto no encontrado');
+          if (!rawDb) throw new Error("Database not available");
+          const posRows = await rawDb
+            .select()
+            .from(jpTable)
+            .where(eqOp(jpTable.id, input.positionId))
+            .limit(1);
+          if (!posRows.length) throw new Error("Puesto no encontrado");
           const pos = posRows[0];
           let deptCondition: any = sql`1=1`;
           if (pos.department) {
-            const deptRows = await rawDb.select({ id: departments.id }).from(departments).where(eqOp(departments.name, pos.department)).limit(1);
-            if (deptRows.length > 0) deptCondition = eqOp(employees.departmentId, deptRows[0].id);
+            const deptRows = await rawDb
+              .select({ id: departments.id })
+              .from(departments)
+              .where(eqOp(departments.name, pos.department))
+              .limit(1);
+            if (deptRows.length > 0)
+              deptCondition = eqOp(employees.departmentId, deptRows[0].id);
           }
           const results = await rawDb
-            .select({ categoryScores: nom035Results.categoryScores, globalScore: nom035Results.globalScore })
+            .select({
+              categoryScores: nom035Results.categoryScores,
+              globalScore: nom035Results.globalScore,
+            })
             .from(nom035Results)
             .innerJoin(employees, eqOp(nom035Results.employeeId, employees.id))
             .where(deptCondition)
             .orderBy(descOrd(nom035Results.completedAt))
             .limit(50);
           if (!results.length) {
-            return { success: false, message: 'No se encontraron encuestas NOM-035 para este departamento', updated: false, count: 0 };
+            return {
+              success: false,
+              message:
+                "No se encontraron encuestas NOM-035 para este departamento",
+              updated: false,
+              count: 0,
+            };
           }
           const CATEGORY_MAX: Record<string, number> = {
-            'Condiciones en el ambiente de trabajo': 40,
-            'Carga de trabajo': 30,
-            'Falta de control sobre el trabajo': 25,
-            'Jornada de trabajo': 20,
-            'Liderazgo': 35,
-            'Relaciones en el trabajo': 30,
-            'Violencia': 25,
+            "Condiciones en el ambiente de trabajo": 40,
+            "Carga de trabajo": 30,
+            "Falta de control sobre el trabajo": 25,
+            "Jornada de trabajo": 20,
+            Liderazgo: 35,
+            "Relaciones en el trabajo": 30,
+            Violencia: 25,
           };
-          const accum = { workload: 0, control: 0, leadership: 0, relationships: 0, workEnvironment: 0 };
+          const accum = {
+            workload: 0,
+            control: 0,
+            leadership: 0,
+            relationships: 0,
+            workEnvironment: 0,
+          };
           for (const r of results) {
-            const cats: Record<string, number> = typeof r.categoryScores === 'string'
-              ? JSON.parse(r.categoryScores as string)
-              : ((r.categoryScores as Record<string, number>) ?? {});
-            const norm = (val: number, max: number) => Math.max(1, Math.min(5, Math.round((val / max) * 4) + 1));
-            accum.workload       += norm((cats['Carga de trabajo'] ?? 0) + (cats['Jornada de trabajo'] ?? 0), CATEGORY_MAX['Carga de trabajo'] + CATEGORY_MAX['Jornada de trabajo']);
-            accum.control        += norm(cats['Falta de control sobre el trabajo'] ?? 0, CATEGORY_MAX['Falta de control sobre el trabajo']);
-            accum.leadership     += norm(cats['Liderazgo'] ?? 0, CATEGORY_MAX['Liderazgo']);
-            accum.relationships  += norm((cats['Relaciones en el trabajo'] ?? 0) + (cats['Violencia'] ?? 0), CATEGORY_MAX['Relaciones en el trabajo'] + CATEGORY_MAX['Violencia']);
-            accum.workEnvironment += norm(cats['Condiciones en el ambiente de trabajo'] ?? 0, CATEGORY_MAX['Condiciones en el ambiente de trabajo']);
+            const cats: Record<string, number> =
+              typeof r.categoryScores === "string"
+                ? JSON.parse(r.categoryScores as string)
+                : ((r.categoryScores as Record<string, number>) ?? {});
+            const norm = (val: number, max: number) =>
+              Math.max(1, Math.min(5, Math.round((val / max) * 4) + 1));
+            accum.workload += norm(
+              (cats["Carga de trabajo"] ?? 0) +
+                (cats["Jornada de trabajo"] ?? 0),
+              CATEGORY_MAX["Carga de trabajo"] +
+                CATEGORY_MAX["Jornada de trabajo"]
+            );
+            accum.control += norm(
+              cats["Falta de control sobre el trabajo"] ?? 0,
+              CATEGORY_MAX["Falta de control sobre el trabajo"]
+            );
+            accum.leadership += norm(
+              cats["Liderazgo"] ?? 0,
+              CATEGORY_MAX["Liderazgo"]
+            );
+            accum.relationships += norm(
+              (cats["Relaciones en el trabajo"] ?? 0) +
+                (cats["Violencia"] ?? 0),
+              CATEGORY_MAX["Relaciones en el trabajo"] +
+                CATEGORY_MAX["Violencia"]
+            );
+            accum.workEnvironment += norm(
+              cats["Condiciones en el ambiente de trabajo"] ?? 0,
+              CATEGORY_MAX["Condiciones en el ambiente de trabajo"]
+            );
           }
           const n = results.length;
           const newFactors = {
-            workload:        Math.round(accum.workload / n),
-            control:         Math.round(accum.control / n),
-            leadership:      Math.round(accum.leadership / n),
-            relationships:   Math.round(accum.relationships / n),
+            workload: Math.round(accum.workload / n),
+            control: Math.round(accum.control / n),
+            leadership: Math.round(accum.leadership / n),
+            relationships: Math.round(accum.relationships / n),
             workEnvironment: Math.round(accum.workEnvironment / n),
           };
-          const avgIdx = parseFloat(((newFactors.workload + newFactors.control + newFactors.leadership + newFactors.relationships + newFactors.workEnvironment) / 5).toFixed(1));
-          const newRiskLevel = avgIdx >= 4 ? 'very_high' : avgIdx >= 3 ? 'high' : avgIdx >= 2 ? 'medium' : 'low';
-          await rawDb.update(jpTable)
-            .set({ factors: JSON.stringify(newFactors), riskLevel: newRiskLevel, updatedAt: new Date() })
+          const avgIdx = parseFloat(
+            (
+              (newFactors.workload +
+                newFactors.control +
+                newFactors.leadership +
+                newFactors.relationships +
+                newFactors.workEnvironment) /
+              5
+            ).toFixed(1)
+          );
+          const newRiskLevel =
+            avgIdx >= 4
+              ? "very_high"
+              : avgIdx >= 3
+                ? "high"
+                : avgIdx >= 2
+                  ? "medium"
+                  : "low";
+          await rawDb
+            .update(jpTable)
+            .set({
+              factors: JSON.stringify(newFactors),
+              riskLevel: newRiskLevel,
+              updatedAt: new Date(),
+            })
             .where(eqOp(jpTable.id, input.positionId));
           await rawDb.insert(jobPositionHistory).values({
             positionId: input.positionId,
@@ -1619,39 +2090,69 @@ export const appRouter = router({
             employeeCount: pos.employeeCount ?? 0,
             factors: JSON.stringify(newFactors),
             analyzedBy: ctx.user.id,
-            notes: `Actualizado autom\u00e1ticamente desde ${n} encuesta${n !== 1 ? 's' : ''} NOM-035 del departamento "${pos.department ?? 'General'}".`,
+            notes: `Actualizado autom\u00e1ticamente desde ${n} encuesta${n !== 1 ? "s" : ""} NOM-035 del departamento "${pos.department ?? "General"}".`,
           });
-          return { success: true, updated: true, count: n, newFactors, newRiskLevel, avgIdx, message: `Factores actualizados desde ${n} encuesta${n !== 1 ? 's' : ''} NOM-035` };
+          return {
+            success: true,
+            updated: true,
+            count: n,
+            newFactors,
+            newRiskLevel,
+            avgIdx,
+            message: `Factores actualizados desde ${n} encuesta${n !== 1 ? "s" : ""} NOM-035`,
+          };
         } catch (e: any) {
-          console.error('[JobPositions] Error syncing from surveys:', e);
-          throw new Error(e.message ?? 'Error al sincronizar desde encuestas');
+          console.error("[JobPositions] Error syncing from surveys:", e);
+          throw new Error(e.message ?? "Error al sincronizar desde encuestas");
         }
       }),
     getSurveySummaryForPosition: protectedProcedure
       .input(z.object({ positionId: z.number() }))
       .query(async ({ input }) => {
         try {
-          const { getDb } = await import('./db');
-          const { nom035Results, employees, departments, jobPositions: jpTable } = await import('../drizzle/schema');
-          const { eq: eqOp, desc: descOrd, sql } = await import('drizzle-orm');
+          const { getDb } = await import("./db");
+          const {
+            nom035Results,
+            employees,
+            departments,
+            jobPositions: jpTable,
+          } = await import("../drizzle/schema");
+          const { eq: eqOp, desc: descOrd, sql } = await import("drizzle-orm");
           const rawDb = await getDb();
           if (!rawDb) return { count: 0, department: null, latestDate: null };
-          const posRows = await rawDb.select().from(jpTable).where(eqOp(jpTable.id, input.positionId)).limit(1);
-          if (!posRows.length) return { count: 0, department: null, latestDate: null };
+          const posRows = await rawDb
+            .select()
+            .from(jpTable)
+            .where(eqOp(jpTable.id, input.positionId))
+            .limit(1);
+          if (!posRows.length)
+            return { count: 0, department: null, latestDate: null };
           const pos = posRows[0];
           let deptCond: any = sql`1=1`;
           if (pos.department) {
-            const deptRows = await rawDb.select({ id: departments.id }).from(departments).where(eqOp(departments.name, pos.department)).limit(1);
-            if (deptRows.length > 0) deptCond = eqOp(employees.departmentId, deptRows[0].id);
+            const deptRows = await rawDb
+              .select({ id: departments.id })
+              .from(departments)
+              .where(eqOp(departments.name, pos.department))
+              .limit(1);
+            if (deptRows.length > 0)
+              deptCond = eqOp(employees.departmentId, deptRows[0].id);
           }
           const rows = await rawDb
-            .select({ id: nom035Results.id, completedAt: nom035Results.completedAt })
+            .select({
+              id: nom035Results.id,
+              completedAt: nom035Results.completedAt,
+            })
             .from(nom035Results)
             .innerJoin(employees, eqOp(nom035Results.employeeId, employees.id))
             .where(deptCond)
             .orderBy(descOrd(nom035Results.completedAt))
             .limit(100);
-          return { count: rows.length, department: pos.department, latestDate: rows[0]?.completedAt ?? null };
+          return {
+            count: rows.length,
+            department: pos.department,
+            latestDate: rows[0]?.completedAt ?? null,
+          };
         } catch (e) {
           return { count: 0, department: null, latestDate: null };
         }
@@ -1664,30 +2165,51 @@ export const appRouter = router({
       .input(z.object({ key: z.string() }))
       .query(async ({ input }) => {
         try {
-          const { getDb } = await import('./db');
-          const { systemConfig: sysConfigTable } = await import('../drizzle/schema');
-          const { eq: eqOp } = await import('drizzle-orm');
+          const { getDb } = await import("./db");
+          const { systemConfig: sysConfigTable } = await import(
+            "../drizzle/schema"
+          );
+          const { eq: eqOp } = await import("drizzle-orm");
           const rawDb = await getDb();
           if (!rawDb) return null;
-          const rows = await rawDb.select().from(sysConfigTable).where(eqOp(sysConfigTable.configKey, input.key)).limit(1);
+          const rows = await rawDb
+            .select()
+            .from(sysConfigTable)
+            .where(eqOp(sysConfigTable.configKey, input.key))
+            .limit(1);
           return rows[0] ?? null;
         } catch (e) {
-          console.error('[SystemConfig] Error fetching config:', e);
+          console.error("[SystemConfig] Error fetching config:", e);
           return null;
         }
       }),
     set: protectedProcedure
-      .input(z.object({ key: z.string(), value: z.string(), description: z.string().optional() }))
+      .input(
+        z.object({
+          key: z.string(),
+          value: z.string(),
+          description: z.string().optional(),
+        })
+      )
       .mutation(async ({ input }) => {
         try {
-          const { getDb } = await import('./db');
-          const { systemConfig: sysConfigTable } = await import('../drizzle/schema');
+          const { getDb } = await import("./db");
+          const { systemConfig: sysConfigTable } = await import(
+            "../drizzle/schema"
+          );
           const rawDb = await getDb();
           if (!rawDb) return { success: false };
-          await rawDb.insert(sysConfigTable).values({ configKey: input.key, configValue: input.value, description: input.description }).onDuplicateKeyUpdate({ set: { configValue: input.value } });
+          await rawDb
+            .insert(sysConfigTable)
+            .values({
+              configKey: input.key,
+              configValue: input.value,
+              description: input.description,
+            })
+            .onDuplicateKeyUpdate({ set: { configValue: input.value } });
           return { success: true };
         } catch (e) {
-          console.error('[SystemConfig] Error setting config:', e);
+          console.error("[SystemConfig] Error setting config:", e);
           return { success: false };
         }
       }),
@@ -1703,44 +2225,56 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const request = await db.getMailboxRequestById(input.id);
         if (!request) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'Solicitud no encontrada' });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Solicitud no encontrada",
+          });
         }
         const responses = await db.getMailboxResponses(input.id);
         return { ...request, responses };
       }),
     create: publicProcedure
-      .input(z.object({
-        requestType: z.enum(["queja", "sugerencia", "felicitacion", "solicitud_capacitacion"]),
-        complaintType: z.enum([
-          "liderazgo_negativo",
-          "entorno_organizacional_desfavorable",
-          "conductas_contrarias_ambiente_laboral",
-          "carga_trabajo",
-          "falta_control_trabajo",
-          "jornadas_trabajo_extensas",
-          "interferencia_relacion_trabajo_familia",
-          "acoso_laboral",
-          "acoso_sexual",
-          "hostigamiento_sexual",
-          "mobbing",
-          "burnout",
-          "violencia_laboral",
-          "otros"
-        ]).optional(),
-        senderName: z.string().optional(),
-        senderEmail: z.string().email(),
-        senderPhone: z.string().optional(),
-        isAnonymous: z.boolean(),
-        subject: z.string(),
-        message: z.string(),
-        priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
-      }))
+      .input(
+        z.object({
+          requestType: z.enum([
+            "queja",
+            "sugerencia",
+            "felicitacion",
+            "solicitud_capacitacion",
+          ]),
+          complaintType: z
+            .enum([
+              "liderazgo_negativo",
+              "entorno_organizacional_desfavorable",
+              "conductas_contrarias_ambiente_laboral",
+              "carga_trabajo",
+              "falta_control_trabajo",
+              "jornadas_trabajo_extensas",
+              "interferencia_relacion_trabajo_familia",
+              "acoso_laboral",
+              "acoso_sexual",
+              "hostigamiento_sexual",
+              "mobbing",
+              "burnout",
+              "violencia_laboral",
+              "otros",
+            ])
+            .optional(),
+          senderName: z.string().optional(),
+          senderEmail: z.string().email(),
+          senderPhone: z.string().optional(),
+          isAnonymous: z.boolean(),
+          subject: z.string(),
+          message: z.string(),
+          priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+        })
+      )
       .mutation(async ({ input }) => {
         const request = await db.createMailboxRequest({
           ...input,
           receivedVia: "web_form",
         });
-        
+
         // Create notification for committee members
         const committeeMembers = await db.getAllCommitteeMembers();
         for (const member of committeeMembers) {
@@ -1753,18 +2287,24 @@ export const appRouter = router({
             relatedEntityId: request.id,
           });
         }
-        
+
         return request;
       }),
     updateStatus: committeeProcedure
-      .input(z.object({
-        id: z.number(),
-        status: z.enum(["recibido", "asignado", "en_proceso", "concluido"]),
-        assignedTo: z.number().optional(),
-      }))
+      .input(
+        z.object({
+          id: z.number(),
+          status: z.enum(["recibido", "asignado", "en_proceso", "concluido"]),
+          assignedTo: z.number().optional(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
-        const result = await db.updateMailboxStatus(input.id, input.status, input.assignedTo);
-        
+        const result = await db.updateMailboxStatus(
+          input.id,
+          input.status,
+          input.assignedTo
+        );
+
         // Get request details for email
         const request = await db.getMailboxRequestById(input.id);
         if (request) {
@@ -1781,27 +2321,35 @@ export const appRouter = router({
             });
           }
         }
-        
+
         return result;
       }),
     addResponse: committeeProcedure
-      .input(z.object({
-        mailboxId: z.number(),
-        response: z.string(),
-      }))
+      .input(
+        z.object({
+          mailboxId: z.number(),
+          response: z.string(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
-        return await db.addMailboxResponse(input.mailboxId, ctx.user.id, input.response);
+        return await db.addMailboxResponse(
+          input.mailboxId,
+          ctx.user.id,
+          input.response
+        );
       }),
   }),
 
   // Case assignments
   caseAssignments: router({
     assign: committeeProcedure
-      .input(z.object({
-        caseId: z.number(),
-        committeeMemberId: z.number(),
-        role: z.enum(["lead", "support", "observer"]).optional(),
-      }))
+      .input(
+        z.object({
+          caseId: z.number(),
+          committeeMemberId: z.number(),
+          role: z.enum(["lead", "support", "observer"]).optional(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         const result = await db.assignCommitteeMemberToCase(
           input.caseId,
@@ -1809,7 +2357,7 @@ export const appRouter = router({
           ctx.user.id,
           input.role
         );
-        
+
         // Create notification for assigned member
         await db.createNotification({
           userId: input.committeeMemberId,
@@ -1819,7 +2367,7 @@ export const appRouter = router({
           relatedEntityType: "case",
           relatedEntityId: input.caseId,
         });
-        
+
         return result;
       }),
     getByCaseId: committeeProcedure
@@ -1877,7 +2425,7 @@ export const appRouter = router({
   bugReports: bugReportsRouter,
   featureRequests: featureRequestsRouter,
   annualTrainingPlan: annualTrainingPlanRouter,
-   webVitals: webVitalsRouter,
+  webVitals: webVitalsRouter,
   branches: branchesRouter,
   committeeModule: committeeModuleRouter,
   employeePortal: employeePortalRouter,

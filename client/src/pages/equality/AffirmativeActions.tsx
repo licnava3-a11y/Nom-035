@@ -1,17 +1,38 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, CheckCircle, Clock, XCircle, Target } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Target,
+} from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
 type ActionFormData = {
   titulo: string;
-  tipo: "capacitacion" | "promocion" | "contratacion" | "conciliacion" | "infraestructura" | "otro" | "";
+  tipo:
+    | "capacitacion"
+    | "promocion"
+    | "contratacion"
+    | "conciliacion"
+    | "infraestructura"
+    | "otro"
+    | "";
   descripcion: string;
   objetivo: string;
   responsable: string;
@@ -33,7 +54,8 @@ export default function AffirmativeActions() {
   });
 
   const utils = trpc.useUtils();
-  const { data: actions = [], isLoading } = trpc.equality.affirmativeActions.list.useQuery();
+  const { data: actions = [], isLoading } =
+    trpc.equality.affirmativeActions.list.useQuery();
 
   const createMutation = trpc.equality.affirmativeActions.create.useMutation({
     onSuccess: () => {
@@ -41,7 +63,7 @@ export default function AffirmativeActions() {
       utils.equality.affirmativeActions.list.invalidate();
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -52,7 +74,7 @@ export default function AffirmativeActions() {
       utils.equality.affirmativeActions.list.invalidate();
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -62,7 +84,7 @@ export default function AffirmativeActions() {
       alert("Acción afirmativa eliminada exitosamente");
       utils.equality.affirmativeActions.list.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -89,7 +111,13 @@ export default function AffirmativeActions() {
     }
     const data = {
       titulo: formData.titulo,
-      tipo: formData.tipo as "capacitacion" | "promocion" | "contratacion" | "conciliacion" | "infraestructura" | "otro",
+      tipo: formData.tipo as
+        | "capacitacion"
+        | "promocion"
+        | "contratacion"
+        | "conciliacion"
+        | "infraestructura"
+        | "otro",
       descripcion: formData.descripcion,
       objetivo: formData.objetivo,
       responsable: formData.responsable,
@@ -124,9 +152,15 @@ export default function AffirmativeActions() {
   };
 
   const getStatusBadge = (estado: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; icon: any }> = {
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        icon: any;
+      }
+    > = {
       planificada: { variant: "secondary", icon: Clock },
-      "en_progreso": { variant: "default", icon: Target },
+      en_progreso: { variant: "default", icon: Target },
       completada: { variant: "default", icon: CheckCircle },
       cancelada: { variant: "outline", icon: XCircle },
     };
@@ -135,7 +169,8 @@ export default function AffirmativeActions() {
     return (
       <Badge variant={config.variant} className="gap-1">
         <Icon className="h-3 w-3" />
-        {estado.replace("_", " ").charAt(0).toUpperCase() + estado.replace("_", " ").slice(1)}
+        {estado.replace("_", " ").charAt(0).toUpperCase() +
+          estado.replace("_", " ").slice(1)}
       </Badge>
     );
   };
@@ -152,15 +187,22 @@ export default function AffirmativeActions() {
 
   return (
     <div className="p-6 space-y-6">
-      <Breadcrumb items={[
-        { label: "Igualdad Laboral y No Discriminación", href: "/equality/policy" },
-        { label: "Acciones Afirmativas" }
-      ]} />
-      
+      <Breadcrumb
+        items={[
+          {
+            label: "Igualdad Laboral y No Discriminación",
+            href: "/equality/policy",
+          },
+          { label: "Acciones Afirmativas" },
+        ]}
+      />
+
       <div className="flex items-center justify-between mt-4">
         <div>
           <h1 className="text-3xl font-bold">Acciones Afirmativas</h1>
-          <p className="text-muted-foreground">NMX-025-SCFI-2015 - Requisito 4.3.1</p>
+          <p className="text-muted-foreground">
+            NMX-025-SCFI-2015 - Requisito 4.3.1
+          </p>
         </div>
         <Button onClick={() => setIsCreating(!isCreating)}>
           <Plus className="h-4 w-4 mr-2" />
@@ -185,13 +227,17 @@ export default function AffirmativeActions() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>En Progreso</CardDescription>
-            <CardTitle className="text-3xl text-blue-600">{inProgress}</CardTitle>
+            <CardTitle className="text-3xl text-blue-600">
+              {inProgress}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Completadas</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{completed}</CardTitle>
+            <CardTitle className="text-3xl text-green-600">
+              {completed}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -200,9 +246,14 @@ export default function AffirmativeActions() {
       {isCreating && (
         <Card>
           <CardHeader>
-            <CardTitle>{editingId ? "Editar Acción Afirmativa" : "Nueva Acción Afirmativa"}</CardTitle>
+            <CardTitle>
+              {editingId
+                ? "Editar Acción Afirmativa"
+                : "Nueva Acción Afirmativa"}
+            </CardTitle>
             <CardDescription>
-              Registra acciones para promover la igualdad laboral y no discriminación
+              Registra acciones para promover la igualdad laboral y no
+              discriminación
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -212,7 +263,9 @@ export default function AffirmativeActions() {
                 <Input
                   id="titulo"
                   value={formData.titulo}
-                  onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, titulo: e.target.value })
+                  }
                   placeholder="Ej: Programa de Capacitación en Igualdad de Género"
                   required
                 />
@@ -224,7 +277,9 @@ export default function AffirmativeActions() {
                   <select
                     id="tipo"
                     value={formData.tipo}
-                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
+                    onChange={e =>
+                      setFormData({ ...formData, tipo: e.target.value as any })
+                    }
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     required
                   >
@@ -243,7 +298,9 @@ export default function AffirmativeActions() {
                   <Input
                     id="responsable"
                     value={formData.responsable}
-                    onChange={(e) => setFormData({ ...formData, responsable: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, responsable: e.target.value })
+                    }
                     placeholder="Nombre del responsable"
                     required
                   />
@@ -255,7 +312,9 @@ export default function AffirmativeActions() {
                 <Textarea
                   id="descripcion"
                   value={formData.descripcion}
-                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, descripcion: e.target.value })
+                  }
                   placeholder="Describe la acción afirmativa..."
                   rows={3}
                   required
@@ -267,7 +326,9 @@ export default function AffirmativeActions() {
                 <Textarea
                   id="objetivo"
                   value={formData.objetivo}
-                  onChange={(e) => setFormData({ ...formData, objetivo: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, objetivo: e.target.value })
+                  }
                   placeholder="Describe el objetivo de la acción..."
                   rows={3}
                   required
@@ -281,7 +342,9 @@ export default function AffirmativeActions() {
                     id="fechaInicio"
                     type="date"
                     value={formData.fechaInicio}
-                    onChange={(e) => setFormData({ ...formData, fechaInicio: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, fechaInicio: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -292,14 +355,25 @@ export default function AffirmativeActions() {
                     id="fechaFin"
                     type="date"
                     value={formData.fechaFin}
-                    onChange={(e) => setFormData({ ...formData, fechaFin: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, fechaFin: e.target.value })
+                    }
                   />
                 </div>
               </div>
 
               <div className="flex gap-2">
-                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-                  {createMutation.isPending || updateMutation.isPending ? "Guardando..." : editingId ? "Actualizar" : "Crear Acción"}
+                <Button
+                  type="submit"
+                  disabled={
+                    createMutation.isPending || updateMutation.isPending
+                  }
+                >
+                  {createMutation.isPending || updateMutation.isPending
+                    ? "Guardando..."
+                    : editingId
+                      ? "Actualizar"
+                      : "Crear Acción"}
                 </Button>
                 <Button type="button" variant="outline" onClick={resetForm}>
                   Cancelar
@@ -314,7 +388,9 @@ export default function AffirmativeActions() {
       <Card>
         <CardHeader>
           <CardTitle>Acciones Afirmativas Registradas</CardTitle>
-          <CardDescription>Todas las acciones para promover la igualdad</CardDescription>
+          <CardDescription>
+            Todas las acciones para promover la igualdad
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {actions.length === 0 ? (
@@ -333,12 +409,19 @@ export default function AffirmativeActions() {
                       <h3 className="font-medium">{action.tipo}</h3>
                       {getStatusBadge(action.estado)}
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">{action.descripcion}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {action.descripcion}
+                    </p>
                     <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
                       <span>Responsable: {action.responsable}</span>
-                      <span>Inicio: {new Date(action.fechaInicio).toLocaleDateString()}</span>
+                      <span>
+                        Inicio:{" "}
+                        {new Date(action.fechaInicio).toLocaleDateString()}
+                      </span>
                       {action.fechaFin && (
-                        <span>Fin: {new Date(action.fechaFin).toLocaleDateString()}</span>
+                        <span>
+                          Fin: {new Date(action.fechaFin).toLocaleDateString()}
+                        </span>
                       )}
                     </div>
                   </div>

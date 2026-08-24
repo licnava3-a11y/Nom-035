@@ -27,6 +27,7 @@
 **Impacto en producción**: ❌ NINGUNO (solo advertencias de tipos)
 
 **Distribución**:
+
 - **~600 errores**: Enum columns de Drizzle (problema conocido de la librería)
 - **67 errores**: 'db possibly null' (guards de null faltantes)
 - **~60 errores**: Queries con campos obsoletos (riskLevel, employeeId, severity)
@@ -42,6 +43,7 @@
 **Causa raíz**: Cookies establecidas por `context.request.post()` no persisten en navegación de Playwright
 
 **Progreso realizado** (8 sesiones de trabajo):
+
 - ✅ Infraestructura completa de Playwright configurada
 - ✅ Navegadores instalados (chromium, firefox, webkit)
 - ✅ Endpoint de autenticación `/api/test/auth/token` funcional
@@ -57,17 +59,17 @@
 
 ## 📈 Progreso de las Últimas 8 Sesiones
 
-| Sesión | Objetivo | Resultado | Tiempo Invertido |
-|--------|----------|-----------|------------------|
-| 1 | Seed data + Confirmaciones | ✅ Completado | 2-3 horas |
-| 2 | Testing E2E + Análisis TypeScript | ✅ Infraestructura | 2-3 horas |
-| 3 | Eliminación @ts-expect-error | ✅ 64 eliminados | 1 hora |
-| 4 | Regenerar schema Drizzle | ✅ Sin cambios | 30 minutos |
-| 5 | Instalación Playwright | ✅ Completado | 1 hora |
-| 6 | Debug autenticación E2E | ⚠️ Parcial | 2 horas |
-| 7 | Flujo de autenticación frontend | ⚠️ Parcial | 1.5 horas |
-| 8 | Análisis profundo cookies | ✅ Documentado | 2 horas |
-| **Total** | | | **~12-14 horas** |
+| Sesión    | Objetivo                          | Resultado          | Tiempo Invertido |
+| --------- | --------------------------------- | ------------------ | ---------------- |
+| 1         | Seed data + Confirmaciones        | ✅ Completado      | 2-3 horas        |
+| 2         | Testing E2E + Análisis TypeScript | ✅ Infraestructura | 2-3 horas        |
+| 3         | Eliminación @ts-expect-error      | ✅ 64 eliminados   | 1 hora           |
+| 4         | Regenerar schema Drizzle          | ✅ Sin cambios     | 30 minutos       |
+| 5         | Instalación Playwright            | ✅ Completado      | 1 hora           |
+| 6         | Debug autenticación E2E           | ⚠️ Parcial         | 2 horas          |
+| 7         | Flujo de autenticación frontend   | ⚠️ Parcial         | 1.5 horas        |
+| 8         | Análisis profundo cookies         | ✅ Documentado     | 2 horas          |
+| **Total** |                                   |                    | **~12-14 horas** |
 
 ---
 
@@ -80,6 +82,7 @@
 **Descripción**: Implementar `if (!db) throw new Error('Database not initialized')` en 67 ubicaciones
 
 **Beneficio**:
+
 - Prevenir errores en runtime si DB falla
 - Mejorar estabilidad del código
 - Reducir 67 errores TypeScript
@@ -95,6 +98,7 @@
 **Descripción**: Corregir queries que usan campos inexistentes (riskLevel, employeeId, severity)
 
 **Beneficio**:
+
 - Reducir errores TypeScript de 726 a ~600
 - Mejorar mantenibilidad del código
 - Eliminar warnings confusos
@@ -112,16 +116,19 @@
 **Opciones**:
 
 **Opción A**: Continuar con Playwright (2-3 horas adicionales)
+
 - Implementar establecimiento manual de cookies
 - Revisar configuración de cookies en servidor
 - Usar Storage State como última opción
 
 **Opción B**: Migrar a Cypress (4-5 horas)
+
 - Cypress maneja cookies automáticamente
 - Mejor experiencia de desarrollo
 - Más fácil de depurar
 
 **Opción C**: Simplificar autenticación con mocks (1-2 horas)
+
 - Mockear `trpc.auth.me.useQuery()` en tests
 - Evitar complejidad de cookies reales
 - Más rápido y confiable
@@ -129,6 +136,7 @@
 **Recomendación**: Opción C (más simple y rápida)
 
 **Beneficio**:
+
 - Tests E2E funcionales para validación automática
 - Mejor confianza en cambios futuros
 - Documentación viva del sistema
@@ -146,6 +154,7 @@
 **Descripción**: Reemplazar `eq()` con `sql` raw en todas las queries con enum columns
 
 **Beneficio**:
+
 - Eliminar warnings de TypeScript
 - Código más limpio
 
@@ -228,12 +237,14 @@ Durante las 8 sesiones se creó documentación exhaustiva:
 **Opción**: Escenario 1 (Priorizar Calidad del Código)
 
 **Justificación**:
+
 - **ROI más alto**: 3-5 horas para mejorar estabilidad y reducir errores
 - **Impacto directo**: Guards de null previenen errores en producción
 - **Mantenibilidad**: Queries correctas facilitan desarrollo futuro
 - **Tests E2E**: Pueden resolverse en sesión futura con enfoque más simple
 
 **Próximos pasos inmediatos**:
+
 1. Agregar guards de null para db (67 ubicaciones)
 2. Actualizar queries obsoletas (riskLevel, employeeId, severity)
 3. Guardar checkpoint final con código más robusto

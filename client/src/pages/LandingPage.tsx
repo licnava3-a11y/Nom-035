@@ -30,7 +30,12 @@ export default function LandingPage() {
       if (cached) {
         const parsed = JSON.parse(cached);
         // Solo redirigir si hay un objeto de usuario válido (no null/undefined)
-        return parsed !== null && parsed !== undefined && typeof parsed === "object" && parsed.id;
+        return (
+          parsed !== null &&
+          parsed !== undefined &&
+          typeof parsed === "object" &&
+          parsed.id
+        );
       }
     } catch {
       // localStorage no disponible o JSON inválido — ignorar
@@ -66,10 +71,25 @@ export default function LandingPage() {
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-            <svg viewBox="0 0 24 24" className="w-9 h-9 stroke-green-500 fill-none stroke-2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 2L2 7l10 5 10-5-10-5z"/>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2 17l10 5 10-5"/>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2 12l10 5 10-5"/>
+            <svg
+              viewBox="0 0 24 24"
+              className="w-9 h-9 stroke-green-500 fill-none stroke-2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 2L2 7l10 5 10-5-10-5z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2 17l10 5 10-5"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2 12l10 5 10-5"
+              />
             </svg>
           </div>
           <p className="text-sm text-slate-500">Verificando sesión...</p>
@@ -84,10 +104,25 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center">
       <div className="text-center space-y-6 max-w-4xl mx-auto p-8">
         <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center mx-auto shadow-xl">
-          <svg viewBox="0 0 24 24" className="w-11 h-11 stroke-green-500 fill-none stroke-2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 2L2 7l10 5 10-5-10-5z"/>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2 17l10 5 10-5"/>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2 12l10 5 10-5"/>
+          <svg
+            viewBox="0 0 24 24"
+            className="w-11 h-11 stroke-green-500 fill-none stroke-2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 2L2 7l10 5 10-5-10-5z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2 17l10 5 10-5"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2 12l10 5 10-5"
+            />
           </svg>
         </div>
 
@@ -109,7 +144,8 @@ export default function LandingPage() {
         </div>
 
         <p className="text-sm text-slate-400 pt-4">
-          Sistema de gestión de factores de riesgo psicosocial conforme a la NOM-035-STPS-2018
+          Sistema de gestión de factores de riesgo psicosocial conforme a la
+          NOM-035-STPS-2018
         </p>
       </div>
     </div>

@@ -28,7 +28,9 @@ describe("Sprint 33 - Comparativa interanual en gráfica de tendencia", () => {
     const filePath = path.join(ROOT, "server/routers/exitInterviews.ts");
     const content = fs.readFileSync(filePath, "utf-8");
     // Debe estar en el return del procedure
-    const returnMatch = content.match(/return \{[\s\S]*?monthlyTrendPrevYear[\s\S]*?\};/);
+    const returnMatch = content.match(
+      /return \{[\s\S]*?monthlyTrendPrevYear[\s\S]*?\};/
+    );
     expect(returnMatch).not.toBeNull();
   });
 
@@ -110,7 +112,9 @@ describe("Sprint 33 - Botón Generar Plan de Acción con pre-llenado", () => {
   it("el formulario llama a trpc.exitInterviews.createActionPlan al guardar", () => {
     const filePath = path.join(ROOT, "client/src/pages/ExitInterviews.tsx");
     const content = fs.readFileSync(filePath, "utf-8");
-    expect(content).toContain("trpc.exitInterviews.createActionPlan.useMutation");
+    expect(content).toContain(
+      "trpc.exitInterviews.createActionPlan.useMutation"
+    );
     expect(content).toContain("createMutation.mutate");
   });
 

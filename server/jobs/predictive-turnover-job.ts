@@ -1,6 +1,12 @@
 import cron from "node-cron";
 import { getDb } from "../db";
-import { departments, employees, predictiveTurnoverAlerts, predictiveAlgorithmConfig, predictionHistory } from "../../drizzle/schema";
+import {
+  departments,
+  employees,
+  predictiveTurnoverAlerts,
+  predictiveAlgorithmConfig,
+  predictionHistory,
+} from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, isNull } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 
@@ -10,7 +16,9 @@ import { notifyOwner } from "../_core/notification";
  */
 
 async function analyzePredictiveTurnover() {
-  console.log("[Predictive Turnover Job] Starting predictive turnover analysis...");
+  console.log(
+    "[Predictive Turnover Job] Starting predictive turnover analysis..."
+  );
 
   try {
     const db = await getDb();
@@ -30,7 +38,9 @@ async function analyzePredictiveTurnover() {
       .where(eq(departments.isActive, true))
       .execute();
 
-    console.log(`[Predictive Turnover Job] Analyzing ${allDepartments.length} departments...`);
+    console.log(
+      `[Predictive Turnover Job] Analyzing ${allDepartments.length} departments...`
+    );
 
     // Obtener configuración de pesos del algoritmo
     const [config] = await db
@@ -47,7 +57,9 @@ async function analyzePredictiveTurnover() {
       teamSizeWeight: 10,
     };
 
-    console.log(`[Predictive Turnover Job] Using algorithm weights: turnover=${weights.rotationWeight}%, tenure=${weights.tenureWeight}%, manager=${weights.managerWeight}%, teamSize=${weights.teamSizeWeight}%`);
+    console.log(
+      `[Predictive Turnover Job] Using algorithm weights: turnover=${weights.rotationWeight}%, tenure=${weights.tenureWeight}%, manager=${weights.managerWeight}%, teamSize=${weights.teamSizeWeight}%`
+    );
 
     const alerts: Array<{
       departmentId: number;
@@ -71,10 +83,7 @@ async function analyzePredictiveTurnover() {
         .select({ count: sql`COUNT(*)`.mapWith(Number) })
         .from(employees)
         .where(
-          and(
-            eq(employees.departmentId, dept.id),
-            eq(employees.isActive, true)
-          )
+          and(eq(employees.departmentId, dept.id), eq(employees.isActive, true))
         )
         .execute();
 
@@ -112,14 +121,13 @@ async function analyzePredictiveTurnover() {
       // Calcular antigüedad promedio (en meses)
       const [avgTenure] = await db
         .select({
-          avg: sql`AVG(TIMESTAMPDIFF(MONTH, ${employees.createdAt}, NOW()))`.mapWith(Number),
+          avg: sql`AVG(TIMESTAMPDIFF(MONTH, ${employees.createdAt}, NOW()))`.mapWith(
+            Number
+          ),
         })
         .from(employees)
         .where(
-          and(
-            eq(employees.departmentId, dept.id),
-            eq(employees.isActive, true)
-          )
+          and(eq(employees.departmentId, dept.id), eq(employees.isActive, true))
         )
         .execute();
 
@@ -147,7 +155,8 @@ async function analyzePredictiveTurnover() {
       if (!dept.managerId) riskScore += weights.managerWeight;
 
       // Factor 4: Tamaño del equipo pequeño con rotación (0-teamSizeWeight puntos)
-      if (currentEmployeeCount < 5 && terminationsLast3Months > 0) riskScore += weights.teamSizeWeight;
+      if (currentEmployeeCount < 5 && terminationsLast3Months > 0)
+        riskScore += weights.teamSizeWeight;
 
       // Predicción de tasa de rotación anualizada
       const predictedTurnoverRate = turnoverRate * 4; // Proyección anual
@@ -155,18 +164,24 @@ async function analyzePredictiveTurnover() {
       // Generar recomendaciones
       const recommendations = [];
       if (turnoverRate > 10) {
-        recommendations.push("Realizar entrevistas de salida para identificar causas de rotación");
+        recommendations.push(
+          "Realizar entrevistas de salida para identificar causas de rotación"
+        );
         recommendations.push("Revisar políticas de compensación y beneficios");
       }
       if (avgTenureMonths < 12) {
         recommendations.push("Implementar programa de onboarding mejorado");
-        recommendations.push("Establecer plan de desarrollo de carrera para nuevos empleados");
+        recommendations.push(
+          "Establecer plan de desarrollo de carrera para nuevos empleados"
+        );
       }
       if (!dept.managerId) {
         recommendations.push("Asignar manager al departamento urgentemente");
       }
       if (currentEmployeeCount < 5) {
-        recommendations.push("Considerar fusión con otro departamento o contratación de refuerzos");
+        recommendations.push(
+          "Considerar fusión con otro departamento o contratación de refuerzos"
+        );
       }
 
       // Solo crear alerta si el score es >= 40 (riesgo medio-alto)
@@ -198,7 +213,9 @@ async function analyzePredictiveTurnover() {
             predictedTurnoverRate: String(alert.predictedTurnoverRate),
             currentEmployeeCount: alert.currentEmployeeCount,
             avgTenureMonths: String(alert.avgTenureMonths),
-            hasManager: !!(allDepartments.find((d: any) => d.id === alert.departmentId)?.managerId),
+            hasManager: !!allDepartments.find(
+              (d: any) => d.id === alert.departmentId
+            )?.managerId,
             algorithmConfigId: config?.id || null,
             rotationWeight: weights.rotationWeight,
             tenureWeight: weights.tenureWeight,
@@ -209,29 +226,44 @@ async function analyzePredictiveTurnover() {
           })
           .execute();
       }
-      console.log(`[Predictive Turnover Job] Saved ${alerts.length} predictions to history`);
+      console.log(
+        `[Predictive Turnover Job] Saved ${alerts.length} predictions to history`
+      );
 
       // Guardar alertas{
-      await (db.insert(predictiveTurnoverAlerts) as any).values(alerts).execute();
+      await (db.insert(predictiveTurnoverAlerts) as any)
+        .values(alerts)
+        .execute();
 
-      console.log(`[Predictive Turnover Job] Created ${alerts.length} predictive turnover alerts`);
+      console.log(
+        `[Predictive Turnover Job] Created ${alerts.length} predictive turnover alerts`
+      );
 
       // Notificar al propietario
       const highRiskDepts = alerts.filter((a: any) => a.riskScore >= 70);
       if (highRiskDepts.length > 0) {
-        const deptNames = highRiskDepts.map((a: any) => a.departmentName).join(", ");
+        const deptNames = highRiskDepts
+          .map((a: any) => a.departmentName)
+          .join(", ");
         await notifyOwner({
           title: "⚠️ Alerta de Rotación Predictiva - Riesgo Alto",
           content: `Se detectaron ${highRiskDepts.length} departamento(s) con alto riesgo de rotación: ${deptNames}. Revisa el dashboard de métricas para más detalles.`,
         });
       }
     } else {
-      console.log("[Predictive Turnover Job] No high-risk departments detected");
+      console.log(
+        "[Predictive Turnover Job] No high-risk departments detected"
+      );
     }
 
-    console.log("[Predictive Turnover Job] Predictive turnover analysis completed successfully");
+    console.log(
+      "[Predictive Turnover Job] Predictive turnover analysis completed successfully"
+    );
   } catch (error) {
-    console.error("[Predictive Turnover Job] Error during predictive turnover analysis:", error);
+    console.error(
+      "[Predictive Turnover Job] Error during predictive turnover analysis:",
+      error
+    );
   }
 }
 
@@ -240,12 +272,16 @@ async function analyzePredictiveTurnover() {
  * Se ejecuta el día 1 de cada mes a las 8:00 AM
  */
 export function startPredictiveTurnoverJob() {
-  console.log("[Predictive Turnover Job] Scheduling predictive turnover analysis job...");
+  console.log(
+    "[Predictive Turnover Job] Scheduling predictive turnover analysis job..."
+  );
 
   // Ejecutar el día 1 de cada mes a las 8:00 AM
   cron.schedule("0 8 1 * *", analyzePredictiveTurnover, {
     timezone: "America/Mexico_City",
   });
 
-  console.log("[Predictive Turnover Job] Job scheduled: Monthly on day 1 at 8:00 AM");
+  console.log(
+    "[Predictive Turnover Job] Job scheduled: Monthly on day 1 at 8:00 AM"
+  );
 }

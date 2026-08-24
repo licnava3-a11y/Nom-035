@@ -1,6 +1,6 @@
 /**
  * Helper de Invalidación Inteligente de Caché para tRPC
- * 
+ *
  * Este módulo proporciona funciones reutilizables para invalidar el caché de queries tRPC
  * de manera inteligente, reduciendo llamadas innecesarias al servidor.
  */
@@ -38,13 +38,13 @@ export const CACHE_CONFIG = {
  */
 export function invalidateCasesCache() {
   const utils = trpc.useUtils();
-  
+
   // Invalidar queries de casos
   utils.casesManagement.listCases.invalidate();
   utils.casesPaginated.listPaginated.invalidate();
   utils.casesManagement.getCaseById.invalidate();
   utils.casesManagement.getCasesStats.invalidate();
-  
+
   // Invalidar dashboard que depende de casos
   (utils as any).dashboard.getCasesOverview.invalidate();
   utils.executiveDashboard.getMetrics.invalidate();
@@ -55,12 +55,12 @@ export function invalidateCasesCache() {
  */
 export function invalidateUsersCache() {
   const utils = trpc.useUtils();
-  
+
   // Invalidar queries de usuarios
   utils.usersPaginated.listPaginated.invalidate();
   (utils as any).rolesPermissions.getUsersByRole.invalidate();
   (utils as any).employees.list.invalidate();
-  
+
   // Invalidar dashboard que depende de usuarios
   (utils as any).dashboard.getUsersOverview.invalidate();
 }
@@ -70,12 +70,12 @@ export function invalidateUsersCache() {
  */
 export function invalidateSurveysCache() {
   const utils = trpc.useUtils();
-  
+
   // Invalidar queries de encuestas
   utils.surveysPaginated.listPaginated.invalidate();
   (utils as any).surveys.list.invalidate();
   utils.surveys.getById.invalidate();
-  
+
   // Invalidar resultados de encuestas
   (utils as any).surveyResults.list.invalidate();
   utils.predictiveAnalytics.getRiskPredictions.invalidate();
@@ -86,7 +86,7 @@ export function invalidateSurveysCache() {
  */
 export function invalidateCommitteeCache() {
   const utils = trpc.useUtils();
-  
+
   // Invalidar queries de comité
   utils.committeeMinutes.list.invalidate();
   utils.committeeMinutes.getById.invalidate();
@@ -98,7 +98,7 @@ export function invalidateCommitteeCache() {
  */
 export function invalidateComplianceCache() {
   const utils = trpc.useUtils();
-  
+
   // Invalidar queries de cumplimiento
   utils.complianceNOM035.getComplianceByNumeral.invalidate();
   utils.complianceNOM035.getGlobalStats.invalidate();
@@ -110,7 +110,7 @@ export function invalidateComplianceCache() {
  */
 export function invalidateReportsCache() {
   const utils = trpc.useUtils();
-  
+
   // Invalidar queries de reportes
   (utils as any).reports.generateCasesPDF.invalidate();
   (utils as any).reports.generateCompliancePDF.invalidate();
@@ -126,11 +126,11 @@ export function invalidateAllCache() {
 
 /**
  * Hook personalizado para invalidación optimista
- * 
+ *
  * Ejemplo de uso:
  * ```tsx
  * const { invalidateOnSuccess } = useOptimisticInvalidation();
- * 
+ *
  * const createCase = trpc.casesManagement.create.useMutation({
  *   onSuccess: invalidateOnSuccess(invalidateCasesCache)
  * });

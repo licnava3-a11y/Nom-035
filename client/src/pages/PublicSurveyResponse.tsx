@@ -5,11 +5,23 @@ import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { Shield, CheckCircle2, AlertCircle, FileText, User } from "lucide-react";
+import {
+  Shield,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  User,
+} from "lucide-react";
 
 type SurveyQuestion = {
   id: number;
@@ -31,32 +43,33 @@ export default function PublicSurveyResponse() {
 
   // Mutations
   const validateToken = trpc.publicSurveys.validateToken.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setTokenData(data);
       setStep("survey");
       toast.success(`Bienvenido/a, ${data.employee.name}`);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
 
-  const { data: questionsData, refetch: refetchQuestions } = trpc.publicSurveys.getSurveyQuestions.useQuery(
-    {
-      token,
-      surveyType: tokenData?.tokenData?.surveyType || "guia_i",
-    },
-    {
-      enabled: false, // Solo ejecutar manualmente después de autenticación
-    }
-  );
+  const { data: questionsData, refetch: refetchQuestions } =
+    trpc.publicSurveys.getSurveyQuestions.useQuery(
+      {
+        token,
+        surveyType: tokenData?.tokenData?.surveyType || "guia_i",
+      },
+      {
+        enabled: false, // Solo ejecutar manualmente después de autenticación
+      }
+    );
 
   const submitSurvey = trpc.publicSurveys.submitSurveyResponses.useMutation({
     onSuccess: () => {
       setStep("completed");
       toast.success("¡Encuesta enviada exitosamente!");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al enviar encuesta: ${error.message}`);
     },
   });
@@ -76,7 +89,7 @@ export default function PublicSurveyResponse() {
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!curp || curp.length !== 18) {
       toast.error("Por favor ingresa un CURP válido (18 caracteres)");
       return;
@@ -91,17 +104,21 @@ export default function PublicSurveyResponse() {
   const handleSubmitSurvey = () => {
     // Validar que todas las preguntas tengan respuesta
     const unansweredQuestions = questions.filter(q => !responses[q.id]);
-    
+
     if (unansweredQuestions.length > 0) {
-      toast.error(`Por favor responde todas las preguntas (${unansweredQuestions.length} pendientes)`);
+      toast.error(
+        `Por favor responde todas las preguntas (${unansweredQuestions.length} pendientes)`
+      );
       return;
     }
 
     // Convertir respuestas a formato esperado
-    const formattedResponses = Object.entries(responses).map(([questionId, answer]) => ({
-      questionId: parseInt(questionId),
-      answer,
-    }));
+    const formattedResponses = Object.entries(responses).map(
+      ([questionId, answer]) => ({
+        questionId: parseInt(questionId),
+        answer,
+      })
+    );
 
     submitSurvey.mutate({
       token,
@@ -111,9 +128,12 @@ export default function PublicSurveyResponse() {
 
   const getSurveyTypeName = (type: string) => {
     const types: Record<string, string> = {
-      guia_i: "Guía de Referencia I - Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos",
-      guia_ii: "Guía de Referencia II - Cuestionario para identificar factores de riesgo psicosocial en los centros de trabajo",
-      guia_iii: "Guía de Referencia III - Cuestionario para identificar factores de riesgo psicosocial y evaluar el entorno organizacional",
+      guia_i:
+        "Guía de Referencia I - Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos",
+      guia_ii:
+        "Guía de Referencia II - Cuestionario para identificar factores de riesgo psicosocial en los centros de trabajo",
+      guia_iii:
+        "Guía de Referencia III - Cuestionario para identificar factores de riesgo psicosocial y evaluar el entorno organizacional",
     };
     return types[type] || type;
   };
@@ -127,7 +147,9 @@ export default function PublicSurveyResponse() {
             <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
               <Shield className="h-8 w-8 text-blue-600" />
             </div>
-            <CardTitle className="text-2xl">Encuesta NOM-035 STPS 2018</CardTitle>
+            <CardTitle className="text-2xl">
+              Encuesta NOM-035 STPS 2018
+            </CardTitle>
             <CardDescription>
               Por favor ingresa tu CURP para acceder a la encuesta
             </CardDescription>
@@ -139,7 +161,7 @@ export default function PublicSurveyResponse() {
                 <Input
                   id="curp"
                   value={curp}
-                  onChange={(e) => setCurp(e.target.value.toUpperCase())}
+                  onChange={e => setCurp(e.target.value.toUpperCase())}
                   placeholder="AAAA000000HDFBBB00"
                   maxLength={18}
                   required
@@ -153,7 +175,9 @@ export default function PublicSurveyResponse() {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Confidencialidad garantizada:</strong> Tus respuestas son anónimas y serán utilizadas únicamente para mejorar las condiciones laborales.
+                  <strong>Confidencialidad garantizada:</strong> Tus respuestas
+                  son anónimas y serán utilizadas únicamente para mejorar las
+                  condiciones laborales.
                 </AlertDescription>
               </Alert>
 
@@ -197,7 +221,9 @@ export default function PublicSurveyResponse() {
                 <div className="text-right text-sm text-muted-foreground">
                   <p>Válido hasta:</p>
                   <p className="font-semibold">
-                    {new Date(tokenData?.tokenData?.expiresAt).toLocaleDateString('es-MX')}
+                    {new Date(
+                      tokenData?.tokenData?.expiresAt
+                    ).toLocaleDateString("es-MX")}
                   </p>
                 </div>
               </div>
@@ -207,7 +233,9 @@ export default function PublicSurveyResponse() {
                 {getSurveyTypeName(tokenData?.tokenData?.surveyType)}
               </h2>
               <p className="text-sm text-muted-foreground">
-                Por favor responde todas las preguntas con sinceridad. Tu participación es fundamental para mejorar nuestro entorno laboral.
+                Por favor responde todas las preguntas con sinceridad. Tu
+                participación es fundamental para mejorar nuestro entorno
+                laboral.
               </p>
             </CardContent>
           </Card>
@@ -220,37 +248,57 @@ export default function PublicSurveyResponse() {
                 Cuestionario
               </CardTitle>
               <CardDescription>
-                {questions.length} preguntas • {Object.keys(responses).length} respondidas
+                {questions.length} preguntas • {Object.keys(responses).length}{" "}
+                respondidas
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {questions.map((question, index) => (
-                <div key={question.id} className="p-4 border rounded-lg bg-white">
+                <div
+                  key={question.id}
+                  className="p-4 border rounded-lg bg-white"
+                >
                   <Label className="text-base font-medium mb-3 block">
                     {index + 1}. {question.questionText}
                   </Label>
-                  
-                  {question.questionType === "multiple_choice" && question.options ? (
+
+                  {question.questionType === "multiple_choice" &&
+                  question.options ? (
                     <RadioGroup
                       value={responses[question.id] || ""}
-                      onValueChange={(value) => setResponses({ ...responses, [question.id]: value })}
+                      onValueChange={value =>
+                        setResponses({ ...responses, [question.id]: value })
+                      }
                     >
-                      {JSON.parse(question.options).map((option: string, optIndex: number) => (
-                        <div key={optIndex} className="flex items-center space-x-2 mb-2">
-                          <RadioGroupItem value={option} id={`q${question.id}-opt${optIndex}`} />
-                          <Label
-                            htmlFor={`q${question.id}-opt${optIndex}`}
-                            className="cursor-pointer font-normal"
+                      {JSON.parse(question.options).map(
+                        (option: string, optIndex: number) => (
+                          <div
+                            key={optIndex}
+                            className="flex items-center space-x-2 mb-2"
                           >
-                            {option}
-                          </Label>
-                        </div>
-                      ))}
+                            <RadioGroupItem
+                              value={option}
+                              id={`q${question.id}-opt${optIndex}`}
+                            />
+                            <Label
+                              htmlFor={`q${question.id}-opt${optIndex}`}
+                              className="cursor-pointer font-normal"
+                            >
+                              {option}
+                            </Label>
+                          </div>
+                        )
+                      )}
                     </RadioGroup>
                   ) : (
                     <Input
                       value={responses[question.id] || ""}
-                      onChange={(e) => setResponses({ ...responses, [question.id]: e.target.value })}
+                      onChange={e =>
+                        setResponses({
+                          ...responses,
+                          [question.id]: e.target.value,
+                        })
+                      }
                       placeholder="Tu respuesta..."
                     />
                   )}
@@ -306,13 +354,16 @@ export default function PublicSurveyResponse() {
             <Alert className="bg-green-50 border-green-200">
               <CheckCircle2 className="h-4 w-4 text-green-600" />
               <AlertDescription>
-                Tus respuestas han sido registradas exitosamente. Tu participación contribuye a mejorar nuestro entorno laboral.
+                Tus respuestas han sido registradas exitosamente. Tu
+                participación contribuye a mejorar nuestro entorno laboral.
               </AlertDescription>
             </Alert>
 
             <div className="text-sm text-muted-foreground space-y-2">
               <p>
-                <strong>Importante:</strong> Este enlace ya no es válido. Si necesitas modificar tus respuestas, contacta al administrador del sistema.
+                <strong>Importante:</strong> Este enlace ya no es válido. Si
+                necesitas modificar tus respuestas, contacta al administrador
+                del sistema.
               </p>
             </div>
 

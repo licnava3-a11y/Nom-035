@@ -73,7 +73,10 @@ describe("generateVerificationHash — formato y propiedades", () => {
 
   it("cambia si se modifica el nombre del trabajador", () => {
     const hash1 = generateVerificationHash(baseRecord);
-    const hash2 = generateVerificationHash({ ...baseRecord, workerName: "OTRO NOMBRE" });
+    const hash2 = generateVerificationHash({
+      ...baseRecord,
+      workerName: "OTRO NOMBRE",
+    });
     expect(hash1).not.toBe(hash2);
   });
 
@@ -94,7 +97,10 @@ describe("generateVerificationHash — formato y propiedades", () => {
 
   it("cambia si se modifica el nombre del curso", () => {
     const hash1 = generateVerificationHash(baseRecord);
-    const hash2 = generateVerificationHash({ ...baseRecord, courseName: "Otro curso" });
+    const hash2 = generateVerificationHash({
+      ...baseRecord,
+      courseName: "Otro curso",
+    });
     expect(hash1).not.toBe(hash2);
   });
 
@@ -167,17 +173,17 @@ describe("Cadena canónica — estructura del hash", () => {
 
   it("incluye exactamente 12 campos en la cadena canónica", () => {
     const fields = [
-      "42",         // id
-      "JUAN",       // workerName
-      "CURP123",    // workerCurp
-      "EMPRESA",    // companyName
-      "RFC123",     // companyRfc
-      "CURSO",      // courseName
-      "8",          // courseDurationHours
+      "42", // id
+      "JUAN", // workerName
+      "CURP123", // workerCurp
+      "EMPRESA", // companyName
+      "RFC123", // companyRfc
+      "CURSO", // courseName
+      "8", // courseDurationHours
       "2024-01-15", // periodStartDate
       "2024-01-15", // periodEndDate
-      "06",         // thematicAreaKey
-      "DC3-001",    // folioNumber
+      "06", // thematicAreaKey
+      "DC3-001", // folioNumber
       "2024-01-15T10:00:00.000Z", // createdAt
     ];
     expect(fields).toHaveLength(12);
@@ -193,7 +199,9 @@ describe("URL de verificación — formato", () => {
     const appUrl = "https://nom035mood-32dy4ksx.manus.space";
     const hash = "a".repeat(64);
     const verifyUrl = `${appUrl}/verificar-dc3?hash=${hash}`;
-    expect(verifyUrl).toBe(`https://nom035mood-32dy4ksx.manus.space/verificar-dc3?hash=${"a".repeat(64)}`);
+    expect(verifyUrl).toBe(
+      `https://nom035mood-32dy4ksx.manus.space/verificar-dc3?hash=${"a".repeat(64)}`
+    );
     expect(verifyUrl).toContain("/verificar-dc3?hash=");
   });
 
@@ -236,7 +244,8 @@ describe("Parámetros del QR — configuración", () => {
   });
 
   it("el hash truncado en el pie del PDF tiene 16 caracteres + '…'", () => {
-    const hash = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2";
+    const hash =
+      "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2";
     const truncated = `${hash.slice(0, 16)}…`;
     expect(truncated).toHaveLength(17); // 16 + '…'
     expect(truncated).toMatch(/^[0-9a-z]{16}…$/);

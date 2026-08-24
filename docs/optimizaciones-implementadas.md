@@ -1,4 +1,5 @@
 # Optimizaciones Implementadas - Checkpoint Final
+
 ## Plataforma NOM-035 STPS 2018
 
 **Fecha**: 19 de febrero de 2026  
@@ -21,26 +22,30 @@ Se han implementado exitosamente tres optimizaciones críticas que mejoran signi
 ## 1. CORRECCIÓN DE WARNINGS DE TYPESCRIPT
 
 ### Problema Identificado
+
 - 757 errores de TypeScript relacionados con sintaxis deprecada de Zod
 - Uso de `errorMap` en lugar de la nueva API de mensajes personalizados
 
 ### Solución Implementada
+
 **Archivo Modificado:** `server/validators/common.ts`
 
 **Cambios Realizados:**
+
 ```typescript
 // ❌ Antes (deprecado)
 gender: z.enum(["male", "female", "other", "prefer_not_to_say"], {
   errorMap: () => ({ message: "Género inválido" }),
-})
+});
 
 // ✅ Después (correcto)
 gender: z.enum(["male", "female", "other", "prefer_not_to_say"], {
   message: "Género inválido",
-})
+});
 ```
 
 **Enums Corregidos:**
+
 1. `gender` - Género
 2. `complianceStatus` - Estado de cumplimiento
 3. `evidenceType` - Tipo de evidencia
@@ -49,6 +54,7 @@ gender: z.enum(["male", "female", "other", "prefer_not_to_say"], {
 6. `status` - Estado de hito
 
 ### Resultado
+
 - ✅ **6 errores de Zod corregidos** (757 → 751)
 - ✅ Sintaxis actualizada a la nueva API de Zod
 - ⚠️ **751 errores restantes** en `notifyOperatingRulesChanges.ts` (no relacionados con Zod)
@@ -58,21 +64,24 @@ gender: z.enum(["male", "female", "other", "prefer_not_to_say"], {
 ## 2. ESTANDARIZACIÓN DE ENUMS
 
 ### Problema Identificado
+
 - Inconsistencia entre valores de enum en español e inglés
 - Dificultad para mantener traducciones dispersas en el código
 - Riesgo de inconsistencias en queries y filtros
 
 ### Solución Implementada
+
 **Archivo Creado:** `shared/enum-labels.ts`
 
 **Estructura del Archivo:**
+
 ```typescript
 // Traducciones centralizadas
 export const CASE_STATUS_LABELS = {
-  open: 'Abierto',
-  investigating: 'En Investigación',
-  resolved: 'Resuelto',
-  closed: 'Cerrado',
+  open: "Abierto",
+  investigating: "En Investigación",
+  resolved: "Resuelto",
+  closed: "Cerrado",
 } as const;
 
 // Utilidades para uso en componentes
@@ -94,6 +103,7 @@ export function getEnumOptions<T extends Record<string, string>>(
 ```
 
 **Enums Estandarizados:**
+
 1. **Casos**: `CASE_TYPE_LABELS`, `CASE_PRIORITY_LABELS`, `CASE_STATUS_LABELS`
 2. **Empleados**: `GENDER_LABELS`, `EMPLOYMENT_STATUS_LABELS`
 3. **Bases de Funcionamiento**: `OPERATING_RULES_STATUS_LABELS`, `APPROVAL_STATUS_LABELS`
@@ -106,6 +116,7 @@ export function getEnumOptions<T extends Record<string, string>>(
 10. **Hitos**: `MILESTONE_STATUS_LABELS`
 
 **Tipos de TypeScript Exportados:**
+
 ```typescript
 export type CaseStatus = keyof typeof CASE_STATUS_LABELS;
 export type Gender = keyof typeof GENDER_LABELS;
@@ -113,6 +124,7 @@ export type Gender = keyof typeof GENDER_LABELS;
 ```
 
 ### Beneficios
+
 - ✅ **Centralización**: Todas las traducciones en un solo archivo
 - ✅ **Consistencia**: Mismos valores en todo el sistema
 - ✅ **Mantenibilidad**: Fácil actualizar traducciones
@@ -120,6 +132,7 @@ export type Gender = keyof typeof GENDER_LABELS;
 - ✅ **Utilidades**: Funciones helper para uso en componentes
 
 ### Uso en Componentes
+
 ```typescript
 import { CASE_STATUS_LABELS, getEnumLabel, getEnumOptions } from '@/shared/enum-labels';
 
@@ -139,16 +152,19 @@ import { CASE_STATUS_LABELS, getEnumLabel, getEnumOptions } from '@/shared/enum-
 ## 3. CODE SPLITTING CON REACT.LAZY()
 
 ### Estado Actual
+
 ✅ **Ya implementado correctamente** en el sistema
 
 **Archivo:** `client/src/App.tsx`
 
 **Componentes con Lazy Loading:**
+
 - ✅ **97+ páginas** cargadas dinámicamente con `React.lazy()`
 - ✅ **Suspense** configurado con fallback optimizado (`PageLoader`)
 - ✅ **SkeletonLoader** usado para mejor experiencia de usuario
 
 **Ejemplo de Implementación:**
+
 ```typescript
 // Lazy load de páginas
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -169,12 +185,14 @@ const PageLoader = () => (
 ```
 
 ### Beneficios Actuales
+
 - ✅ **Reducción de Bundle Inicial**: Solo carga código de la página actual
 - ✅ **Mejora de First Contentful Paint (FCP)**: Carga más rápida inicial
 - ✅ **Experiencia de Usuario**: Skeleton loaders durante carga
 - ✅ **Escalabilidad**: Fácil agregar nuevas páginas sin impactar bundle
 
 ### Métricas Estimadas
+
 - **Bundle Inicial Sin Code Splitting**: ~2.5MB
 - **Bundle Inicial Con Code Splitting**: ~800KB (68% reducción)
 - **Páginas Individuales**: ~50-150KB cada una
@@ -184,9 +202,11 @@ const PageLoader = () => (
 ## 4. TESTING MULTI-NAVEGADOR CON PLAYWRIGHT
 
 ### Configuración Implementada
+
 **Archivo Creado:** `playwright.config.ts`
 
 **Navegadores Configurados:**
+
 1. **Chromium** (Chrome, Edge)
 2. **Firefox**
 3. **WebKit** (Safari)
@@ -195,6 +215,7 @@ const PageLoader = () => (
 6. **Tablet** (iPad Pro)
 
 **Características:**
+
 - ✅ Tests en paralelo para mayor velocidad
 - ✅ Screenshots automáticos en fallos
 - ✅ Videos de tests fallidos
@@ -203,6 +224,7 @@ const PageLoader = () => (
 - ✅ Integración con CI/CD
 
 **Comandos Disponibles:**
+
 ```bash
 # Ejecutar todos los tests
 pnpm exec playwright test
@@ -220,9 +242,11 @@ pnpm exec playwright show-report
 ```
 
 ### Tests Recomendados a Crear
+
 **Directorio:** `tests/e2e/`
 
 **Prioridad Alta:**
+
 1. `operating-rules-workflow.spec.ts` - Workflow de aprobación de bases
 2. `approval-calendar.spec.ts` - Navegación y filtros del calendario
 3. `charts-rendering.spec.ts` - Renderizado de gráficos Chart.js
@@ -231,19 +255,22 @@ pnpm exec playwright show-report
 6. `global-search.spec.ts` - Búsqueda global (Ctrl+K)
 
 **Ejemplo de Test:**
-```typescript
-import { test, expect } from '@playwright/test';
 
-test('workflow de aprobación funciona en todos los navegadores', async ({ page }) => {
-  await page.goto('/committee/operating-rules');
-  
+```typescript
+import { test, expect } from "@playwright/test";
+
+test("workflow de aprobación funciona en todos los navegadores", async ({
+  page,
+}) => {
+  await page.goto("/committee/operating-rules");
+
   // Crear nueva base
   await page.click('button:has-text("Nueva Base")');
-  await page.fill('[name="objectives"]', 'Objetivos de prueba');
+  await page.fill('[name="objectives"]', "Objetivos de prueba");
   await page.click('button:has-text("Guardar")');
-  
+
   // Verificar que se creó
-  await expect(page.locator('text=Objetivos de prueba')).toBeVisible();
+  await expect(page.locator("text=Objetivos de prueba")).toBeVisible();
 });
 ```
 
@@ -254,16 +281,19 @@ test('workflow de aprobación funciona en todos los navegadores', async ({ page 
 ### 🔴 Prioridad 1 (Crítico - Inmediato)
 
 #### 5.1 Corregir Errores Restantes de TypeScript
+
 **Archivo:** `server/utils/notifyOperatingRulesChanges.ts`  
 **Errores:** 751 (4 errores específicos)
 
 **Problemas Identificados:**
+
 1. Parámetro `m` con tipo `any` implícito (línea 44)
 2. Propiedad `active` no existe en tipo `users` (línea 45)
 3. Parámetro `user` con tipo `any` implícito (línea 149)
 4. Propiedad `insert` no existe en Promise (línea 151)
 
 **Solución Propuesta:**
+
 ```typescript
 // Línea 44: Tipar parámetro 'm'
 .filter((m: typeof committeeMembers.$inferSelect) => m.active)
@@ -280,9 +310,11 @@ await db.insert(notifications).values(notificationsToInsert);
 ```
 
 #### 5.2 Implementar Confirmación en Acciones Destructivas
+
 **Páginas Afectadas:** 20+ páginas con botones de eliminar/rechazar
 
 **Solución:**
+
 ```typescript
 import { AlertDialog } from '@/components/ui/alert-dialog';
 
@@ -308,11 +340,13 @@ import { AlertDialog } from '@/components/ui/alert-dialog';
 ```
 
 #### 5.3 Agregar Loading States a Todos los Botones
+
 **Componentes Afectados:** 50+ componentes con mutaciones
 
 **Patrón Estándar:**
+
 ```typescript
-<Button 
+<Button
   disabled={mutation.isPending}
   onClick={() => mutation.mutate(data)}
 >
@@ -324,9 +358,11 @@ import { AlertDialog } from '@/components/ui/alert-dialog';
 ### 🟠 Prioridad 2 (Alto - 1-2 Semanas)
 
 #### 5.4 Migrar Valores de Enum a Inglés en Backend
+
 **Archivos Afectados:** `drizzle/schema.ts`, `server/routers/*.ts`
 
 **Proceso:**
+
 1. Cambiar definiciones de enum en schema.ts
 2. Crear migración SQL para actualizar datos existentes
 3. Actualizar queries que filtran por valores de enum
@@ -334,10 +370,11 @@ import { AlertDialog } from '@/components/ui/alert-dialog';
 5. Ejecutar tests para verificar que no se rompió nada
 
 **Ejemplo de Migración:**
+
 ```sql
 -- Migración para actualizar valores de enum
-UPDATE cases 
-SET status = CASE 
+UPDATE cases
+SET status = CASE
   WHEN status = 'abierto' THEN 'open'
   WHEN status = 'investigando' THEN 'investigating'
   WHEN status = 'resuelto' THEN 'resolved'
@@ -346,10 +383,12 @@ END;
 ```
 
 #### 5.5 Expandir Breadcrumbs a Todas las Páginas
+
 **Estado Actual:** 3/97 páginas (3.1%)  
 **Meta:** 97/97 páginas (100%)
 
 **Componente Reutilizable:**
+
 ```typescript
 // components/Breadcrumb.tsx
 export function Breadcrumb({ items }: { items: Array<{label: string, href?: string}> }) {
@@ -373,12 +412,14 @@ export function Breadcrumb({ items }: { items: Array<{label: string, href?: stri
 ```
 
 #### 5.6 Refactorizar Iconos en 92 Páginas Restantes
+
 **Estado Actual:** 5/97 páginas (5.1%)  
 **Meta:** 97/97 páginas (100%)
 
 **Sistema de Iconos:** `shared/icons.ts`
 
 **Categorías:**
+
 1. Navegación (Home, ArrowLeft, Menu, X)
 2. Acciones (Plus, Edit, Trash2, Save, Download)
 3. Estados (Check, AlertCircle, Info, XCircle)
@@ -393,9 +434,11 @@ export function Breadcrumb({ items }: { items: Array<{label: string, href?: stri
 ### 🟡 Prioridad 3 (Medio - 1 Mes)
 
 #### 5.7 Crear Tests E2E con Playwright
+
 **Directorio:** `tests/e2e/`
 
 **Tests Críticos:**
+
 1. `operating-rules-workflow.spec.ts`
 2. `approval-calendar.spec.ts`
 3. `charts-rendering.spec.ts`
@@ -404,16 +447,20 @@ export function Breadcrumb({ items }: { items: Array<{label: string, href?: stri
 6. `global-search.spec.ts`
 
 #### 5.8 Optimizar Responsive Design para Móviles
+
 **Viewports:** 320px, 375px, 425px, 768px
 
 **Componentes Críticos:**
+
 - Tablas → Vista de cards
 - Formularios → Wizard multi-paso
 - Gráficos → Simplificados
 - Menú → Sidebar collapse
 
 #### 5.9 Performance Testing con Lighthouse CI
+
 **Métricas Target:**
+
 - FCP: <1.8s
 - LCP: <2.5s
 - TTI: <3.8s
@@ -425,6 +472,7 @@ export function Breadcrumb({ items }: { items: Array<{label: string, href?: stri
 ## 6. MÉTRICAS DEL SISTEMA
 
 ### Estado Actual
+
 - ✅ **Errores de TypeScript**: 751 (reducidos de 757)
 - ✅ **Code Splitting**: Implementado en 97+ páginas
 - ✅ **Testing Multi-Navegador**: Configurado (Playwright)
@@ -433,6 +481,7 @@ export function Breadcrumb({ items }: { items: Array<{label: string, href?: stri
 - ✅ **Páginas con Mejoras UX**: 5/97 (5.1%)
 
 ### Mejoras de Performance Estimadas
+
 - **Bundle Inicial**: ~2.5MB → ~800KB (68% reducción)
 - **FCP**: ~3.5s → ~1.5s (57% mejora)
 - **TTI**: ~5.0s → ~2.8s (44% mejora)
@@ -449,6 +498,7 @@ Se han completado exitosamente las optimizaciones críticas del sistema:
 4. ✅ **Testing Multi-Navegador** - Playwright configurado
 
 **Próximos Pasos Inmediatos:**
+
 1. Corregir 751 errores restantes de TypeScript
 2. Implementar confirmaciones en acciones destructivas
 3. Agregar loading states a todos los botones

@@ -15,12 +15,12 @@ import { logJobExecution } from "../jobLogger";
  * Ejecutar verificación de departamentos sin manager
  */
 export async function runDepartmentsWithoutManagerCheck() {
-  console.log('[Departments Without Manager Job] Starting automated check...');
-  
+  console.log("[Departments Without Manager Job] Starting automated check...");
+
   try {
     const db = await getDb();
     if (!db) {
-      console.error('[Departments Without Manager Job] Database not available');
+      console.error("[Departments Without Manager Job] Database not available");
       return;
     }
 
@@ -35,16 +35,17 @@ export async function runDepartmentsWithoutManagerCheck() {
       })
       .from(departments)
       .where(
-        and(
-          eq(departments.isActive, true),
-          isNull(departments.managerId)
-        )
+        and(eq(departments.isActive, true), isNull(departments.managerId))
       );
 
-    console.log(`[Departments Without Manager Job] Found ${deptsWithoutManager.length} departments without manager`);
+    console.log(
+      `[Departments Without Manager Job] Found ${deptsWithoutManager.length} departments without manager`
+    );
 
     if (deptsWithoutManager.length === 0) {
-      console.log('[Departments Without Manager Job] No departments without manager found');
+      console.log(
+        "[Departments Without Manager Job] No departments without manager found"
+      );
       return {
         success: true,
         alertsSent: 0,
@@ -61,10 +62,14 @@ export async function runDepartmentsWithoutManagerCheck() {
       return createdDate < thirtyDaysAgo;
     });
 
-    console.log(`[Departments Without Manager Job] Found ${criticalDepts.length} critical departments (>30 days without manager)`);
+    console.log(
+      `[Departments Without Manager Job] Found ${criticalDepts.length} critical departments (>30 days without manager)`
+    );
 
     if (criticalDepts.length === 0) {
-      console.log('[Departments Without Manager Job] No critical departments found');
+      console.log(
+        "[Departments Without Manager Job] No critical departments found"
+      );
       return {
         success: true,
         alertsSent: 0,
@@ -76,11 +81,12 @@ export async function runDepartmentsWithoutManagerCheck() {
     const deptList = criticalDepts
       .map((dept: any) => {
         const daysSinceCreation = Math.floor(
-          (Date.now() - new Date(dept.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+          (Date.now() - new Date(dept.createdAt).getTime()) /
+            (1000 * 60 * 60 * 24)
         );
-        return `• ${dept.name} (${dept.code || 'Sin código'}) - ${daysSinceCreation} días sin manager`;
+        return `• ${dept.name} (${dept.code || "Sin código"}) - ${daysSinceCreation} días sin manager`;
       })
-      .join('\n');
+      .join("\n");
 
     const alertMessage = `
 ⚠️ ALERTA: Departamentos sin Responsable Asignado
@@ -97,18 +103,24 @@ Panel de Administración > Gestión de Departamentos
 
     // Enviar notificación al propietario
     const notificationSent = await notifyOwner({
-      title: '⚠️ Departamentos sin Manager',
+      title: "⚠️ Departamentos sin Manager",
       content: alertMessage,
     });
 
     if (notificationSent) {
-      console.log('[Departments Without Manager Job] Alert notification sent successfully');
+      console.log(
+        "[Departments Without Manager Job] Alert notification sent successfully"
+      );
     } else {
-      console.warn('[Departments Without Manager Job] Failed to send alert notification');
+      console.warn(
+        "[Departments Without Manager Job] Failed to send alert notification"
+      );
     }
 
-    console.log('[Departments Without Manager Job] Check completed successfully');
-    
+    console.log(
+      "[Departments Without Manager Job] Check completed successfully"
+    );
+
     return {
       success: true,
       alertsSent: notificationSent ? 1 : 0,
@@ -116,10 +128,13 @@ Panel de Administración > Gestión de Departamentos
       departments: criticalDepts.map((d: any) => ({ id: d.id, name: d.name })),
     };
   } catch (error) {
-    console.error('[Departments Without Manager Job] Error running check:', error);
+    console.error(
+      "[Departments Without Manager Job] Error running check:",
+      error
+    );
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -129,19 +144,26 @@ Panel de Administración > Gestión de Departamentos
  * Se ejecuta semanalmente (cada 7 días)
  */
 export function startDepartmentsWithoutManagerJob() {
-  console.log('[Departments Without Manager Job] Initializing automated job (weekly)...');
+  console.log(
+    "[Departments Without Manager Job] Initializing automated job (weekly)..."
+  );
   const deptWrapper = async () => {
     const r = await runDepartmentsWithoutManagerCheck();
-    return { notificationsSent: r?.alertsSent ?? 0, itemsProcessed: r?.departmentsFound ?? 0 };
+    return {
+      notificationsSent: r?.alertsSent ?? 0,
+      itemsProcessed: r?.departmentsFound ?? 0,
+    };
   };
   // Ejecutar inmediatamente al iniciar
-  logJobExecution('departments-without-manager', deptWrapper);
-  
+  logJobExecution("departments-without-manager", deptWrapper);
+
   // Programar ejecución semanal (7 * 24 * 60 * 60 * 1000 ms)
   const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
   setInterval(() => {
-    logJobExecution('departments-without-manager', deptWrapper);
+    logJobExecution("departments-without-manager", deptWrapper);
   }, ONE_WEEK);
-  
-  console.log('[Departments Without Manager Job] Automated job started successfully');
+
+  console.log(
+    "[Departments Without Manager Job] Automated job started successfully"
+  );
 }

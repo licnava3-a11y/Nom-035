@@ -11,21 +11,141 @@ import { describe, it, expect, vi } from "vitest";
 // ── Fase 1: Seed de preguntas NOM-035 ────────────────────────────────────────
 
 const EXIT_INTERVIEW_SEED_QUESTIONS = [
-  { order: 1, category: "ambiente", questionText: "¿Cómo calificarías el ambiente de trabajo en tu área?", options: ["Muy bueno", "Bueno", "Regular", "Malo", "Muy malo"] },
-  { order: 2, category: "liderazgo", questionText: "¿Cómo fue tu relación con tu jefe directo?", options: ["Excelente", "Buena", "Regular", "Difícil", "Muy difícil"] },
-  { order: 3, category: "compensacion", questionText: "¿Consideras que tu salario era justo para las responsabilidades del puesto?", options: ["Totalmente de acuerdo", "De acuerdo", "Neutral", "En desacuerdo", "Totalmente en desacuerdo"] },
-  { order: 4, category: "desarrollo", questionText: "¿Tuviste oportunidades de crecimiento y desarrollo profesional?", options: ["Sí, muchas", "Algunas", "Pocas", "Ninguna", "No aplica"] },
-  { order: 5, category: "carga_trabajo", questionText: "¿Cómo describirías la carga de trabajo que tenías?", options: ["Muy adecuada", "Adecuada", "Algo excesiva", "Excesiva", "Insostenible"] },
-  { order: 6, category: "reconocimiento", questionText: "¿Sentiste que tu trabajo era reconocido y valorado?", options: ["Siempre", "Frecuentemente", "A veces", "Raramente", "Nunca"] },
-  { order: 7, category: "comunicacion", questionText: "¿Cómo evalúas la comunicación interna en la organización?", options: ["Muy efectiva", "Efectiva", "Regular", "Deficiente", "Muy deficiente"] },
-  { order: 8, category: "herramientas", questionText: "¿Contabas con las herramientas y recursos necesarios para realizar tu trabajo?", options: ["Siempre", "Casi siempre", "A veces", "Raramente", "Nunca"] },
-  { order: 9, category: "equilibrio", questionText: "¿Pudiste mantener un equilibrio adecuado entre tu vida laboral y personal?", options: ["Siempre", "Casi siempre", "A veces", "Raramente", "Nunca"] },
-  { order: 10, category: "capacitacion", questionText: "¿Recibiste la capacitación necesaria para desempeñar tu puesto?", options: ["Sí, completa", "Parcialmente", "Mínima", "Insuficiente", "No recibí"] },
-  { order: 11, category: "companeros", questionText: "¿Cómo fue tu relación con tus compañeros de trabajo?", options: ["Excelente", "Buena", "Regular", "Difícil", "Muy difícil"] },
-  { order: 12, category: "politicas", questionText: "¿Las políticas y procedimientos de la empresa te parecían claros y justos?", options: ["Totalmente", "En su mayoría", "Parcialmente", "Poco", "No"] },
-  { order: 13, category: "seguridad", questionText: "¿Te sentiste seguro/a en tu lugar de trabajo (física y emocionalmente)?", options: ["Siempre", "Casi siempre", "A veces", "Raramente", "Nunca"] },
-  { order: 14, category: "motivo_salida", questionText: "¿Cuál es la razón principal de tu salida?", options: ["Mejor oferta económica", "Crecimiento profesional externo", "Problemas con el jefe", "Ambiente laboral", "Motivos personales", "Reubicación geográfica", "Otro"] },
-  { order: 15, category: "recomendacion", questionText: "¿Recomendarías esta empresa como lugar de trabajo?", options: ["Definitivamente sí", "Probablemente sí", "No estoy seguro/a", "Probablemente no", "Definitivamente no"] },
+  {
+    order: 1,
+    category: "ambiente",
+    questionText: "¿Cómo calificarías el ambiente de trabajo en tu área?",
+    options: ["Muy bueno", "Bueno", "Regular", "Malo", "Muy malo"],
+  },
+  {
+    order: 2,
+    category: "liderazgo",
+    questionText: "¿Cómo fue tu relación con tu jefe directo?",
+    options: ["Excelente", "Buena", "Regular", "Difícil", "Muy difícil"],
+  },
+  {
+    order: 3,
+    category: "compensacion",
+    questionText:
+      "¿Consideras que tu salario era justo para las responsabilidades del puesto?",
+    options: [
+      "Totalmente de acuerdo",
+      "De acuerdo",
+      "Neutral",
+      "En desacuerdo",
+      "Totalmente en desacuerdo",
+    ],
+  },
+  {
+    order: 4,
+    category: "desarrollo",
+    questionText:
+      "¿Tuviste oportunidades de crecimiento y desarrollo profesional?",
+    options: ["Sí, muchas", "Algunas", "Pocas", "Ninguna", "No aplica"],
+  },
+  {
+    order: 5,
+    category: "carga_trabajo",
+    questionText: "¿Cómo describirías la carga de trabajo que tenías?",
+    options: [
+      "Muy adecuada",
+      "Adecuada",
+      "Algo excesiva",
+      "Excesiva",
+      "Insostenible",
+    ],
+  },
+  {
+    order: 6,
+    category: "reconocimiento",
+    questionText: "¿Sentiste que tu trabajo era reconocido y valorado?",
+    options: ["Siempre", "Frecuentemente", "A veces", "Raramente", "Nunca"],
+  },
+  {
+    order: 7,
+    category: "comunicacion",
+    questionText: "¿Cómo evalúas la comunicación interna en la organización?",
+    options: [
+      "Muy efectiva",
+      "Efectiva",
+      "Regular",
+      "Deficiente",
+      "Muy deficiente",
+    ],
+  },
+  {
+    order: 8,
+    category: "herramientas",
+    questionText:
+      "¿Contabas con las herramientas y recursos necesarios para realizar tu trabajo?",
+    options: ["Siempre", "Casi siempre", "A veces", "Raramente", "Nunca"],
+  },
+  {
+    order: 9,
+    category: "equilibrio",
+    questionText:
+      "¿Pudiste mantener un equilibrio adecuado entre tu vida laboral y personal?",
+    options: ["Siempre", "Casi siempre", "A veces", "Raramente", "Nunca"],
+  },
+  {
+    order: 10,
+    category: "capacitacion",
+    questionText:
+      "¿Recibiste la capacitación necesaria para desempeñar tu puesto?",
+    options: [
+      "Sí, completa",
+      "Parcialmente",
+      "Mínima",
+      "Insuficiente",
+      "No recibí",
+    ],
+  },
+  {
+    order: 11,
+    category: "companeros",
+    questionText: "¿Cómo fue tu relación con tus compañeros de trabajo?",
+    options: ["Excelente", "Buena", "Regular", "Difícil", "Muy difícil"],
+  },
+  {
+    order: 12,
+    category: "politicas",
+    questionText:
+      "¿Las políticas y procedimientos de la empresa te parecían claros y justos?",
+    options: ["Totalmente", "En su mayoría", "Parcialmente", "Poco", "No"],
+  },
+  {
+    order: 13,
+    category: "seguridad",
+    questionText:
+      "¿Te sentiste seguro/a en tu lugar de trabajo (física y emocionalmente)?",
+    options: ["Siempre", "Casi siempre", "A veces", "Raramente", "Nunca"],
+  },
+  {
+    order: 14,
+    category: "motivo_salida",
+    questionText: "¿Cuál es la razón principal de tu salida?",
+    options: [
+      "Mejor oferta económica",
+      "Crecimiento profesional externo",
+      "Problemas con el jefe",
+      "Ambiente laboral",
+      "Motivos personales",
+      "Reubicación geográfica",
+      "Otro",
+    ],
+  },
+  {
+    order: 15,
+    category: "recomendacion",
+    questionText: "¿Recomendarías esta empresa como lugar de trabajo?",
+    options: [
+      "Definitivamente sí",
+      "Probablemente sí",
+      "No estoy seguro/a",
+      "Probablemente no",
+      "Definitivamente no",
+    ],
+  },
 ];
 
 describe("Sprint 31 – Fase 1: Seed de preguntas NOM-035 para Entrevistas de Salida", () => {
@@ -54,7 +174,15 @@ describe("Sprint 31 – Fase 1: Seed de preguntas NOM-035 para Entrevistas de Sa
 
   it("las categorías cubren los factores de riesgo NOM-035 principales", () => {
     const categories = EXIT_INTERVIEW_SEED_QUESTIONS.map(q => q.category);
-    const requiredCategories = ["ambiente", "liderazgo", "compensacion", "desarrollo", "carga_trabajo", "motivo_salida", "recomendacion"];
+    const requiredCategories = [
+      "ambiente",
+      "liderazgo",
+      "compensacion",
+      "desarrollo",
+      "carga_trabajo",
+      "motivo_salida",
+      "recomendacion",
+    ];
     for (const cat of requiredCategories) {
       expect(categories).toContain(cat);
     }
@@ -71,7 +199,10 @@ describe("Sprint 31 – Fase 1: Seed de preguntas NOM-035 para Entrevistas de Sa
 
     let insertCalled = false;
     const seedFn = async (db: typeof mockDb) => {
-      const existing = await db.select().from({} as any).limit(1);
+      const existing = await db
+        .select()
+        .from({} as any)
+        .limit(1);
       if (existing.length > 0) return;
       insertCalled = true;
       for (const q of EXIT_INTERVIEW_SEED_QUESTIONS) {
@@ -90,11 +221,17 @@ describe("Sprint 31 – Fase 1: Seed de preguntas NOM-035 para Entrevistas de Sa
       from: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([]),
       insert: vi.fn().mockReturnThis(),
-      values: vi.fn().mockImplementation((v) => { insertedItems.push(v); return Promise.resolve({}); }),
+      values: vi.fn().mockImplementation(v => {
+        insertedItems.push(v);
+        return Promise.resolve({});
+      }),
     };
 
     const seedFn = async (db: typeof mockDb) => {
-      const existing = await db.select().from({} as any).limit(1);
+      const existing = await db
+        .select()
+        .from({} as any)
+        .limit(1);
       if (existing.length > 0) return;
       for (const q of EXIT_INTERVIEW_SEED_QUESTIONS) {
         await db.insert({} as any).values({
@@ -118,11 +255,46 @@ describe("Sprint 31 – Fase 1: Seed de preguntas NOM-035 para Entrevistas de Sa
 // ── Fase 2: Selector de responsable técnico ──────────────────────────────────
 
 const mockClinicalEmployees = [
-  { id: 1, fullName: "María García López", positionTitle: "Psicóloga Organizacional", cedulaProfesional: "1234567", clinicalTitle: "Psic.", email: "mgarcia@empresa.com" },
-  { id: 2, fullName: "Juan Pérez Rodríguez", positionTitle: "Médico del Trabajo", cedulaProfesional: "7654321", clinicalTitle: "Dr.", email: "jperez@empresa.com" },
-  { id: 3, fullName: "Ana López Martínez", positionTitle: "Coordinadora de SST", cedulaProfesional: null, clinicalTitle: null, email: "alopez@empresa.com" },
-  { id: 4, fullName: "Carlos Ruiz Sánchez", positionTitle: "Director de RRHH", cedulaProfesional: "9876543", clinicalTitle: null, email: "cruiz@empresa.com" },
-  { id: 5, fullName: "Laura Hernández Torres", positionTitle: "Supervisora de Calidad", cedulaProfesional: null, clinicalTitle: null, email: "lhernandez@empresa.com" },
+  {
+    id: 1,
+    fullName: "María García López",
+    positionTitle: "Psicóloga Organizacional",
+    cedulaProfesional: "1234567",
+    clinicalTitle: "Psic.",
+    email: "mgarcia@empresa.com",
+  },
+  {
+    id: 2,
+    fullName: "Juan Pérez Rodríguez",
+    positionTitle: "Médico del Trabajo",
+    cedulaProfesional: "7654321",
+    clinicalTitle: "Dr.",
+    email: "jperez@empresa.com",
+  },
+  {
+    id: 3,
+    fullName: "Ana López Martínez",
+    positionTitle: "Coordinadora de SST",
+    cedulaProfesional: null,
+    clinicalTitle: null,
+    email: "alopez@empresa.com",
+  },
+  {
+    id: 4,
+    fullName: "Carlos Ruiz Sánchez",
+    positionTitle: "Director de RRHH",
+    cedulaProfesional: "9876543",
+    clinicalTitle: null,
+    email: "cruiz@empresa.com",
+  },
+  {
+    id: 5,
+    fullName: "Laura Hernández Torres",
+    positionTitle: "Supervisora de Calidad",
+    cedulaProfesional: null,
+    clinicalTitle: null,
+    email: "lhernandez@empresa.com",
+  },
 ];
 
 describe("Sprint 31 – Fase 2: Selector de responsable técnico con auto-relleno de cédula", () => {
@@ -140,7 +312,7 @@ describe("Sprint 31 – Fase 2: Selector de responsable técnico con auto-rellen
     expect(emp).toBeDefined();
 
     const formUpdate = {
-      responsableTecnico: `${emp!.clinicalTitle ? emp!.clinicalTitle + ' ' : ''}${emp!.fullName}`,
+      responsableTecnico: `${emp!.clinicalTitle ? emp!.clinicalTitle + " " : ""}${emp!.fullName}`,
       cedulaProfesional: emp!.cedulaProfesional || "",
     };
 
@@ -150,13 +322,13 @@ describe("Sprint 31 – Fase 2: Selector de responsable técnico con auto-rellen
 
   it("debe mostrar el nombre completo con título clínico cuando existe", () => {
     const emp = mockClinicalEmployees[0];
-    const displayName = `${emp.clinicalTitle ? emp.clinicalTitle + ' ' : ''}${emp.fullName}`;
+    const displayName = `${emp.clinicalTitle ? emp.clinicalTitle + " " : ""}${emp.fullName}`;
     expect(displayName).toBe("Psic. María García López");
   });
 
   it("debe mostrar el nombre sin título cuando no tiene título clínico", () => {
     const emp = mockClinicalEmployees[2];
-    const displayName = `${emp.clinicalTitle ? emp.clinicalTitle + ' ' : ''}${emp.fullName}`;
+    const displayName = `${emp.clinicalTitle ? emp.clinicalTitle + " " : ""}${emp.fullName}`;
     expect(displayName).toBe("Ana López Martínez");
   });
 
@@ -235,9 +407,33 @@ describe("Sprint 31 – Fase 2: Selector de responsable técnico con auto-rellen
 // ── Fase 3: Exportar comparativa de departamentos a Excel ────────────────────
 
 const mockDepts = [
-  { deptName: "Producción", totalEmployees: 45, turnoverRate: 12, trainingRate: 78, nom035Score: 85, pendingVacations: 3, highRiskPsycho: 2 },
-  { deptName: "Administración", totalEmployees: 20, turnoverRate: 5, trainingRate: 92, nom035Score: 91, pendingVacations: 1, highRiskPsycho: 0 },
-  { deptName: "Ventas", totalEmployees: 30, turnoverRate: 18, trainingRate: 65, nom035Score: 72, pendingVacations: 5, highRiskPsycho: 4 },
+  {
+    deptName: "Producción",
+    totalEmployees: 45,
+    turnoverRate: 12,
+    trainingRate: 78,
+    nom035Score: 85,
+    pendingVacations: 3,
+    highRiskPsycho: 2,
+  },
+  {
+    deptName: "Administración",
+    totalEmployees: 20,
+    turnoverRate: 5,
+    trainingRate: 92,
+    nom035Score: 91,
+    pendingVacations: 1,
+    highRiskPsycho: 0,
+  },
+  {
+    deptName: "Ventas",
+    totalEmployees: 30,
+    turnoverRate: 18,
+    trainingRate: 65,
+    nom035Score: 72,
+    pendingVacations: 5,
+    highRiskPsycho: 4,
+  },
 ];
 
 describe("Sprint 31 – Fase 3: Exportar comparativa de departamentos a Excel", () => {
@@ -259,10 +455,19 @@ describe("Sprint 31 – Fase 3: Exportar comparativa de departamentos a Excel", 
 
   it("debe calcular el promedio general correctamente", () => {
     const n = mockDepts.length;
-    const avgTurnover = Math.round(mockDepts.reduce((s, d) => s + d.turnoverRate, 0) / n);
-    const avgTraining = Math.round(mockDepts.reduce((s, d) => s + d.trainingRate, 0) / n);
-    const avgNom035 = Math.round(mockDepts.reduce((s, d) => s + d.nom035Score, 0) / n);
-    const totalPendingVacations = mockDepts.reduce((s, d) => s + d.pendingVacations, 0);
+    const avgTurnover = Math.round(
+      mockDepts.reduce((s, d) => s + d.turnoverRate, 0) / n
+    );
+    const avgTraining = Math.round(
+      mockDepts.reduce((s, d) => s + d.trainingRate, 0) / n
+    );
+    const avgNom035 = Math.round(
+      mockDepts.reduce((s, d) => s + d.nom035Score, 0) / n
+    );
+    const totalPendingVacations = mockDepts.reduce(
+      (s, d) => s + d.pendingVacations,
+      0
+    );
     const totalHighRisk = mockDepts.reduce((s, d) => s + d.highRiskPsycho, 0);
 
     expect(avgTurnover).toBe(12);
@@ -274,7 +479,7 @@ describe("Sprint 31 – Fase 3: Exportar comparativa de departamentos a Excel", 
 
   it("debe generar filas de Excel con los campos correctos", () => {
     const rows = mockDepts.map(d => ({
-      "Departamento": d.deptName,
+      Departamento: d.deptName,
       "Total Empleados": d.totalEmployees,
       "Rotación %": d.turnoverRate,
       "% Personal Capacitado": d.trainingRate,
@@ -291,7 +496,9 @@ describe("Sprint 31 – Fase 3: Exportar comparativa de departamentos a Excel", 
   it("el nombre del archivo Excel debe incluir la fecha", () => {
     const fechaStr = new Date().toISOString().slice(0, 10);
     const fileName = `Comparativa_Departamentos_${fechaStr}.xlsx`;
-    expect(fileName).toMatch(/^Comparativa_Departamentos_\d{4}-\d{2}-\d{2}\.xlsx$/);
+    expect(fileName).toMatch(
+      /^Comparativa_Departamentos_\d{4}-\d{2}-\d{2}\.xlsx$/
+    );
   });
 
   it("no debe exportar si no hay datos de departamentos", () => {

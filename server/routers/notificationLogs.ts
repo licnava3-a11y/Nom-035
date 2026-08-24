@@ -23,33 +23,42 @@ export const notificationLogsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
-      const { page, pageSize, type, status, recipientEmail, dateFrom, dateTo, search } = input;
+      if (!db) throw new Error("Database not initialized");
+      const {
+        page,
+        pageSize,
+        type,
+        status,
+        recipientEmail,
+        dateFrom,
+        dateTo,
+        search,
+      } = input;
       const offset = (page - 1) * pageSize;
 
       // Build WHERE conditions
       const conditions = [];
-      
+
       if (type) {
         conditions.push(eq(notificationLogs.templateCode, type));
       }
-      
+
       if (status) {
         conditions.push(eq(notificationLogs.status, status));
       }
-      
+
       if (recipientEmail) {
         conditions.push(eq(notificationLogs.recipientEmail, recipientEmail));
       }
-      
+
       if (dateFrom) {
         conditions.push(gte(notificationLogs.sentAt, new Date(dateFrom)));
       }
-      
+
       if (dateTo) {
         conditions.push(lte(notificationLogs.sentAt, new Date(dateTo)));
       }
-      
+
       if (search) {
         conditions.push(
           or(
@@ -59,7 +68,8 @@ export const notificationLogsRouter = router({
         );
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       // Get total count
       const db1 = await getDb();
@@ -68,7 +78,7 @@ export const notificationLogsRouter = router({
         .select({ count: sql<number>`count(*)` })
         .from(notificationLogs)
         .where(whereClause);
-      
+
       const total = Number(countResult[0]?.count || 0);
 
       // Get paginated logs
@@ -121,22 +131,23 @@ export const notificationLogsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
       const { dateFrom, dateTo } = input;
 
       const conditions = [];
-      
+
       if (dateFrom) {
         conditions.push(gte(notificationLogs.sentAt, new Date(dateFrom)));
       }
-      
+
       if (dateTo) {
         conditions.push(lte(notificationLogs.sentAt, new Date(dateTo)));
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
-       // Get stats by status
+      // Get stats by status
       const db3 = await getDb();
       if (!db3) throw new Error("Database connection failed");
       const stats = await db3
@@ -148,10 +159,21 @@ export const notificationLogsRouter = router({
         .where(whereClause)
         .groupBy(notificationLogs.status);
 
-      const totalSent = stats.find((s: { status: string | null; count: number }) => s.status === "sent")?.count || 0;
-      const totalFailed = stats.find((s: { status: string | null; count: number }) => s.status === "failed")?.count || 0;
-      const totalBounced = stats.find((s: { status: string | null; count: number }) => s.status === "bounced")?.count || 0;
-      const total = Number(totalSent) + Number(totalFailed) + Number(totalBounced);
+      const totalSent =
+        stats.find(
+          (s: { status: string | null; count: number }) => s.status === "sent"
+        )?.count || 0;
+      const totalFailed =
+        stats.find(
+          (s: { status: string | null; count: number }) => s.status === "failed"
+        )?.count || 0;
+      const totalBounced =
+        stats.find(
+          (s: { status: string | null; count: number }) =>
+            s.status === "bounced"
+        )?.count || 0;
+      const total =
+        Number(totalSent) + Number(totalFailed) + Number(totalBounced);
 
       // Get counts by type
       const db4 = await getDb();
@@ -170,7 +192,8 @@ export const notificationLogsRouter = router({
         totalSent: Number(totalSent),
         totalFailed: Number(totalFailed),
         totalBounced: Number(totalBounced),
-        successRate: total > 0 ? ((Number(totalSent) / total) * 100).toFixed(2) : "0.00",
+        successRate:
+          total > 0 ? ((Number(totalSent) / total) * 100).toFixed(2) : "0.00",
         byType: byType.map((t: { type: string | null; count: number }) => ({
           type: t.type,
           count: Number(t.count),
@@ -194,6 +217,8 @@ export const notificationLogsRouter = router({
       .orderBy(notificationLogs.recipientEmail)
       .limit(100);
 
-    return recipients.map((r: { email: string | null }) => r.email).filter((email): email is string => email !== null);
+    return recipients
+      .map((r: { email: string | null }) => r.email)
+      .filter((email): email is string => email !== null);
   }),
 });

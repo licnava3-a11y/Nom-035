@@ -129,7 +129,12 @@ describe("dc3.validateRFC — endpoint tRPC", () => {
 
   function createTestCaller() {
     const mockCtx = {
-      user: { id: 1, openId: "test-open-id", name: "Test User", role: "admin" as const },
+      user: {
+        id: 1,
+        openId: "test-open-id",
+        name: "Test User",
+        role: "admin" as const,
+      },
       req: {} as any,
       res: { clearCookie: () => {} } as any,
     };
@@ -176,7 +181,12 @@ describe("dc3.exportToPdf — endpoint tRPC", () => {
 
   function createTestCaller() {
     const mockCtx = {
-      user: { id: 1, openId: "test-open-id", name: "Test User", role: "admin" as const },
+      user: {
+        id: 1,
+        openId: "test-open-id",
+        name: "Test User",
+        role: "admin" as const,
+      },
       req: {} as any,
       res: { clearCookie: () => {} } as any,
     };
@@ -195,7 +205,8 @@ describe("dc3.exportToPdf — endpoint tRPC", () => {
       workerPosition: "Analista Administrativo",
       companyName: "EMPRESA EJEMPLO S.A. DE C.V.",
       companyRfc: "EEJ850101XXX",
-      courseName: "Prevención de Factores de Riesgo Psicosocial NOM-035-STPS-2018",
+      courseName:
+        "Prevención de Factores de Riesgo Psicosocial NOM-035-STPS-2018",
       courseDurationHours: 16,
       periodStartDate: "2025-01-15",
       periodEndDate: "2025-01-16",
@@ -239,9 +250,7 @@ describe("dc3.exportToPdf — endpoint tRPC", () => {
   });
 
   it("lanza NOT_FOUND para un ID inexistente", async () => {
-    await expect(
-      caller.dc3.exportToPdf({ id: 999999 })
-    ).rejects.toMatchObject({
+    await expect(caller.dc3.exportToPdf({ id: 999999 })).rejects.toMatchObject({
       code: "NOT_FOUND",
     });
   });

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -9,17 +15,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, FileText, MessageSquare, ThumbsUp, GraduationCap, Send } from "lucide-react";
+import {
+  Loader2,
+  ArrowLeft,
+  FileText,
+  MessageSquare,
+  ThumbsUp,
+  GraduationCap,
+  Send,
+} from "lucide-react";
 import { Link } from "wouter";
 
 export default function MailboxDetail() {
   const [, params] = useRoute("/mailbox/:id");
   const mailboxId = params?.id ? parseInt(params.id) : 0;
-  
+
   const [response, setResponse] = useState("");
   const [newStatus, setNewStatus] = useState("");
 
-  const { data: mailboxItem, isLoading, refetch } = trpc.mailbox.getById.useQuery(
+  const {
+    data: mailboxItem,
+    isLoading,
+    refetch,
+  } = trpc.mailbox.getById.useQuery(
     { id: mailboxId },
     { enabled: mailboxId > 0 }
   );
@@ -29,7 +47,7 @@ export default function MailboxDetail() {
       toast.success("Estado actualizado correctamente");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al actualizar estado: ${error.message}`);
     },
   });
@@ -40,12 +58,14 @@ export default function MailboxDetail() {
       setResponse("");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al agregar respuesta: ${error.message}`);
     },
   });
 
-  const handleUpdateStatus = (status: "recibido" | "asignado" | "en_proceso" | "concluido") => {
+  const handleUpdateStatus = (
+    status: "recibido" | "asignado" | "en_proceso" | "concluido"
+  ) => {
     updateStatusMutation.mutate({ id: mailboxId, status });
   };
 
@@ -58,7 +78,13 @@ export default function MailboxDetail() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline", label: string }> = {
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        label: string;
+      }
+    > = {
       recibido: { variant: "outline", label: "Recibido" },
       asignado: { variant: "secondary", label: "Asignado" },
       en_proceso: { variant: "default", label: "En Proceso" },
@@ -130,11 +156,15 @@ export default function MailboxDetail() {
               Volver al Buzón
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight mt-2">Detalle del Mensaje</h1>
+          <h1 className="text-3xl font-bold tracking-tight mt-2">
+            Detalle del Mensaje
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           {getTypeIcon(mailboxItem.requestType)}
-          <span className="text-lg font-medium">{getTypeLabel(mailboxItem.requestType)}</span>
+          <span className="text-lg font-medium">
+            {getTypeLabel(mailboxItem.requestType)}
+          </span>
         </div>
       </div>
 
@@ -145,7 +175,8 @@ export default function MailboxDetail() {
             <div>
               <CardTitle>{mailboxItem.subject}</CardTitle>
               <CardDescription className="mt-2">
-                Folio: {mailboxItem.folio} | Fecha: {new Date(mailboxItem.createdAt).toLocaleDateString("es-MX")}
+                Folio: {mailboxItem.folio} | Fecha:{" "}
+                {new Date(mailboxItem.createdAt).toLocaleDateString("es-MX")}
               </CardDescription>
             </div>
             {getStatusBadge(mailboxItem.status)}
@@ -169,12 +200,20 @@ export default function MailboxDetail() {
               {!mailboxItem.isAnonymous && (
                 <>
                   <div>
-                    <span className="text-sm text-muted-foreground">Email:</span>
-                    <p className="font-medium">{mailboxItem.senderEmail || "N/A"}</p>
+                    <span className="text-sm text-muted-foreground">
+                      Email:
+                    </span>
+                    <p className="font-medium">
+                      {mailboxItem.senderEmail || "N/A"}
+                    </p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Teléfono:</span>
-                    <p className="font-medium">{mailboxItem.senderPhone || "N/A"}</p>
+                    <span className="text-sm text-muted-foreground">
+                      Teléfono:
+                    </span>
+                    <p className="font-medium">
+                      {mailboxItem.senderPhone || "N/A"}
+                    </p>
                   </div>
                 </>
               )}
@@ -195,7 +234,11 @@ export default function MailboxDetail() {
               <Separator />
               <div>
                 <h3 className="font-semibold mb-2">Tipo de Queja</h3>
-                <p className="text-sm">{mailboxItem.complaintType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+                <p className="text-sm">
+                  {mailboxItem.complaintType
+                    .replace(/_/g, " ")
+                    .replace(/\b\w/g, l => l.toUpperCase())}
+                </p>
               </div>
             </>
           )}
@@ -206,33 +249,43 @@ export default function MailboxDetail() {
       <Card>
         <CardHeader>
           <CardTitle>Gestión del Mensaje</CardTitle>
-          <CardDescription>Actualiza el estado del mensaje según su progreso</CardDescription>
+          <CardDescription>
+            Actualiza el estado del mensaje según su progreso
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2 flex-wrap">
             <Button
-              variant={mailboxItem.status === "recibido" ? "default" : "outline"}
+              variant={
+                mailboxItem.status === "recibido" ? "default" : "outline"
+              }
               onClick={() => handleUpdateStatus("recibido")}
               disabled={updateStatusMutation.isPending}
             >
               Recibido
             </Button>
             <Button
-              variant={mailboxItem.status === "asignado" ? "default" : "outline"}
+              variant={
+                mailboxItem.status === "asignado" ? "default" : "outline"
+              }
               onClick={() => handleUpdateStatus("asignado")}
               disabled={updateStatusMutation.isPending}
             >
               Asignado
             </Button>
             <Button
-              variant={mailboxItem.status === "en_proceso" ? "default" : "outline"}
+              variant={
+                mailboxItem.status === "en_proceso" ? "default" : "outline"
+              }
               onClick={() => handleUpdateStatus("en_proceso")}
               disabled={updateStatusMutation.isPending}
             >
               En Proceso
             </Button>
             <Button
-              variant={mailboxItem.status === "concluido" ? "default" : "outline"}
+              variant={
+                mailboxItem.status === "concluido" ? "default" : "outline"
+              }
               onClick={() => handleUpdateStatus("concluido")}
               disabled={updateStatusMutation.isPending}
             >
@@ -246,7 +299,9 @@ export default function MailboxDetail() {
       <Card>
         <CardHeader>
           <CardTitle>Respuestas y Seguimiento</CardTitle>
-          <CardDescription>Historial de respuestas y acciones realizadas</CardDescription>
+          <CardDescription>
+            Historial de respuestas y acciones realizadas
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Agregar nueva respuesta */}
@@ -254,7 +309,7 @@ export default function MailboxDetail() {
             <Textarea
               placeholder="Escribe una respuesta o comentario..."
               value={response}
-              onChange={(e) => setResponse(e.target.value)}
+              onChange={e => setResponse(e.target.value)}
               rows={4}
             />
             <Button
@@ -278,14 +333,23 @@ export default function MailboxDetail() {
             {mailboxItem.responses && mailboxItem.responses.length > 0 ? (
               <>
                 {mailboxItem.responses.map((resp: any, index: number) => (
-                  <div key={`response-${resp.id || index}`} className="border-l-2 border-primary pl-4 py-2">
+                  <div
+                    key={`response-${resp.id || index}`}
+                    className="border-l-2 border-primary pl-4 py-2"
+                  >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">{resp.responderName || 'Usuario'}</span>
+                      <span className="text-sm font-medium">
+                        {resp.responderName || "Usuario"}
+                      </span>
                       <span className="text-xs text-muted-foreground">
-                        {resp.createdAt ? new Date(resp.createdAt).toLocaleString("es-MX") : 'Fecha no disponible'}
+                        {resp.createdAt
+                          ? new Date(resp.createdAt).toLocaleString("es-MX")
+                          : "Fecha no disponible"}
                       </span>
                     </div>
-                    <p className="text-sm whitespace-pre-wrap">{resp.response || ''}</p>
+                    <p className="text-sm whitespace-pre-wrap">
+                      {resp.response || ""}
+                    </p>
                   </div>
                 ))}
               </>

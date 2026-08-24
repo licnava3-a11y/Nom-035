@@ -156,7 +156,7 @@ describe("minuteRecipients router", () => {
     });
 
     it("hay al menos un destinatario activo en los datos de muestra", () => {
-      const activeCount = sampleRecipients.filter((r) => r.isActive).length;
+      const activeCount = sampleRecipients.filter(r => r.isActive).length;
       expect(activeCount).toBeGreaterThan(0);
     });
   });
@@ -197,9 +197,7 @@ describe("minuteRecipients router", () => {
         res: {} as TrpcContext["res"],
       };
       const caller = appRouter.createCaller(unauthCtx);
-      await expect(
-        caller.minuteRecipients.delete({ id: 1 })
-      ).rejects.toThrow();
+      await expect(caller.minuteRecipients.delete({ id: 1 })).rejects.toThrow();
     });
 
     it("toggleActive requiere autenticación", async () => {

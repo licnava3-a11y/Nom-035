@@ -22,10 +22,11 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
   const [, setLocation] = useLocation();
 
   // Query para buscar bases de funcionamiento
-  const { data: searchData, isLoading } = trpc.committeeOperatingRules.searchOperatingRules.useQuery(
-    { query },
-    { enabled: open && query.length >= 2 }
-  );
+  const { data: searchData, isLoading } =
+    trpc.committeeOperatingRules.searchOperatingRules.useQuery(
+      { query },
+      { enabled: open && query.length >= 2 }
+    );
   const results = searchData?.results;
 
   // Limpiar query cuando se cierra el diálogo
@@ -55,7 +56,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
           <Input
             placeholder="Buscar bases de funcionamiento..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={e => setQuery(e.target.value)}
             className="pl-10"
             autoFocus
           />
@@ -65,7 +66,9 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
           {query.length < 2 && (
             <div className="text-center py-8 text-muted-foreground">
               <ICONS.actions.search className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Escribe al menos 2 caracteres para buscar</p>
+              <p className="text-sm">
+                Escribe al menos 2 caracteres para buscar
+              </p>
             </div>
           )}
 
@@ -76,12 +79,18 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
             </div>
           )}
 
-          {query.length >= 2 && !isLoading && searchData && results && results.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              <ICONS.status.alert className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No se encontraron resultados para "{query}"</p>
-            </div>
-          )}
+          {query.length >= 2 &&
+            !isLoading &&
+            searchData &&
+            results &&
+            results.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <ICONS.status.alert className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">
+                  No se encontraron resultados para "{query}"
+                </p>
+              </div>
+            )}
 
           {results && results.length > 0 && (
             <div className="space-y-2">
@@ -101,7 +110,14 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
                           {result.description || "Sin descripción"}
                         </p>
                         <div className="flex items-center gap-2 mt-2">
-                          <Badge variant={result.status === "active" ? "default" : "secondary"} className="text-xs">
+                          <Badge
+                            variant={
+                              result.status === "active"
+                                ? "default"
+                                : "secondary"
+                            }
+                            className="text-xs"
+                          >
                             {result.status === "active" ? "Activo" : "Borrador"}
                           </Badge>
                           {result.version && (
@@ -124,8 +140,15 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
           <p className="text-xs text-muted-foreground flex items-center gap-2">
             <ICONS.status.info className="h-3 w-3" />
             <span>
-              Presiona <Badge variant="outline" className="font-mono text-xs mx-1">Ctrl</Badge> + 
-              <Badge variant="outline" className="font-mono text-xs mx-1">K</Badge> para abrir la búsqueda
+              Presiona{" "}
+              <Badge variant="outline" className="font-mono text-xs mx-1">
+                Ctrl
+              </Badge>{" "}
+              +
+              <Badge variant="outline" className="font-mono text-xs mx-1">
+                K
+              </Badge>{" "}
+              para abrir la búsqueda
             </span>
           </p>
         </div>

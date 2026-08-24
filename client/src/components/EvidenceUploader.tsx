@@ -8,11 +8,26 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Upload, X, FileText, Image, File, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Upload,
+  X,
+  FileText,
+  Image,
+  File,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 
 const TIPO_EVIDENCIA_LABELS: Record<string, string> = {
   acta_capacitacion: "Acta de Capacitación",
@@ -58,8 +73,10 @@ interface EvidenceUploaderProps {
 }
 
 function getFileIcon(type: string) {
-  if (type.startsWith("image/")) return <Image className="h-5 w-5 text-blue-500" />;
-  if (type === "application/pdf") return <FileText className="h-5 w-5 text-red-500" />;
+  if (type.startsWith("image/"))
+    return <Image className="h-5 w-5 text-blue-500" />;
+  if (type === "application/pdf")
+    return <FileText className="h-5 w-5 text-red-500" />;
   return <File className="h-5 w-5 text-gray-500" />;
 }
 
@@ -69,7 +86,11 @@ function formatBytes(bytes: number) {
   return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 }
 
-export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUploaderProps) {
+export function EvidenceUploader({
+  actionId,
+  onSuccess,
+  onCancel,
+}: EvidenceUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<FileItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -81,11 +102,19 @@ export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUplo
     const validFiles: FileItem[] = [];
     for (const file of newFiles) {
       if (file.size > MAX_FILE_SIZE) {
-        toast({ title: "Archivo muy grande", description: `${file.name} supera el límite de 16 MB.`, variant: "destructive" });
+        toast({
+          title: "Archivo muy grande",
+          description: `${file.name} supera el límite de 16 MB.`,
+          variant: "destructive",
+        });
         continue;
       }
       if (!ALLOWED_TYPES.includes(file.type)) {
-        toast({ title: "Tipo no permitido", description: `${file.name} no es un tipo de archivo soportado.`, variant: "destructive" });
+        toast({
+          title: "Tipo no permitido",
+          description: `${file.name} no es un tipo de archivo soportado.`,
+          variant: "destructive",
+        });
         continue;
       }
       validFiles.push({
@@ -100,11 +129,14 @@ export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUplo
     setFiles(prev => [...prev, ...validFiles]);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    addFiles(Array.from(e.dataTransfer.files));
-  }, [addFiles]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      addFiles(Array.from(e.dataTransfer.files));
+    },
+    [addFiles]
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -118,7 +150,7 @@ export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUplo
   };
 
   const updateFile = (id: string, updates: Partial<FileItem>) => {
-    setFiles(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
+    setFiles(prev => prev.map(f => (f.id === id ? { ...f, ...updates } : f)));
   };
 
   const uploadAll = async () => {
@@ -167,14 +199,20 @@ export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUplo
         updateFile(item.id, { status: "done", progress: 100 });
         successCount++;
       } catch (err: any) {
-        updateFile(item.id, { status: "error", error: err.message || "Error desconocido" });
+        updateFile(item.id, {
+          status: "error",
+          error: err.message || "Error desconocido",
+        });
       }
     }
 
     setIsUploading(false);
 
     if (successCount > 0) {
-      toast({ title: `${successCount} evidencia(s) subida(s)`, description: "Las evidencias se registraron correctamente." });
+      toast({
+        title: `${successCount} evidencia(s) subida(s)`,
+        description: "Las evidencias se registraron correctamente.",
+      });
       if (successCount === pendingFiles.length) {
         onSuccess?.();
       }
@@ -194,9 +232,10 @@ export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUplo
         onClick={() => fileInputRef.current?.click()}
         className={`
           border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-          ${isDragging
-            ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-            : "border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+          ${
+            isDragging
+              ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+              : "border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800/50"
           }
         `}
       >
@@ -221,19 +260,38 @@ export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUplo
       {files.length > 0 && (
         <div className="space-y-3">
           {files.map(item => (
-            <div key={item.id} className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800/50">
+            <div
+              key={item.id}
+              className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800/50"
+            >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5">{getFileIcon(item.file.type)}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium truncate">{item.file.name}</p>
+                    <p className="text-sm font-medium truncate">
+                      {item.file.name}
+                    </p>
                     <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-xs text-gray-500">{formatBytes(item.file.size)}</span>
-                      {item.status === "done" && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                      {item.status === "error" && <AlertCircle className="h-4 w-4 text-red-500" />}
-                      {item.status === "uploading" && <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />}
+                      <span className="text-xs text-gray-500">
+                        {formatBytes(item.file.size)}
+                      </span>
+                      {item.status === "done" && (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      )}
+                      {item.status === "error" && (
+                        <AlertCircle className="h-4 w-4 text-red-500" />
+                      )}
+                      {item.status === "uploading" && (
+                        <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />
+                      )}
                       {item.status === "pending" && (
-                        <button onClick={e => { e.stopPropagation(); removeFile(item.id); }} className="text-gray-400 hover:text-red-500">
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            removeFile(item.id);
+                          }}
+                          className="text-gray-400 hover:text-red-500"
+                        >
                           <X className="h-4 w-4" />
                         </button>
                       )}
@@ -250,26 +308,42 @@ export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUplo
                   {item.status === "pending" && (
                     <div className="mt-2 grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-xs text-gray-500">Tipo de evidencia</Label>
+                        <Label className="text-xs text-gray-500">
+                          Tipo de evidencia
+                        </Label>
                         <Select
                           value={item.tipoEvidencia}
-                          onValueChange={val => updateFile(item.id, { tipoEvidencia: val })}
+                          onValueChange={val =>
+                            updateFile(item.id, { tipoEvidencia: val })
+                          }
                         >
                           <SelectTrigger className="h-7 text-xs mt-0.5">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.entries(TIPO_EVIDENCIA_LABELS).map(([val, label]) => (
-                              <SelectItem key={val} value={val} className="text-xs">{label}</SelectItem>
-                            ))}
+                            {Object.entries(TIPO_EVIDENCIA_LABELS).map(
+                              ([val, label]) => (
+                                <SelectItem
+                                  key={val}
+                                  value={val}
+                                  className="text-xs"
+                                >
+                                  {label}
+                                </SelectItem>
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
                       <div>
-                        <Label className="text-xs text-gray-500">Descripción (opcional)</Label>
+                        <Label className="text-xs text-gray-500">
+                          Descripción (opcional)
+                        </Label>
                         <Textarea
                           value={item.descripcion}
-                          onChange={e => updateFile(item.id, { descripcion: e.target.value })}
+                          onChange={e =>
+                            updateFile(item.id, { descripcion: e.target.value })
+                          }
                           placeholder="Breve descripción..."
                           className="h-7 text-xs mt-0.5 resize-none"
                           rows={1}
@@ -287,12 +361,23 @@ export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUplo
       {/* Acciones */}
       <div className="flex items-center justify-between pt-2">
         <div className="text-sm text-gray-500">
-          {doneCount > 0 && <Badge variant="secondary" className="mr-2">{doneCount} subida(s)</Badge>}
-          {pendingCount > 0 && <Badge variant="outline">{pendingCount} pendiente(s)</Badge>}
+          {doneCount > 0 && (
+            <Badge variant="secondary" className="mr-2">
+              {doneCount} subida(s)
+            </Badge>
+          )}
+          {pendingCount > 0 && (
+            <Badge variant="outline">{pendingCount} pendiente(s)</Badge>
+          )}
         </div>
         <div className="flex gap-2">
           {onCancel && (
-            <Button variant="ghost" size="sm" onClick={onCancel} disabled={isUploading}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCancel}
+              disabled={isUploading}
+            >
               Cancelar
             </Button>
           )}
@@ -302,9 +387,15 @@ export function EvidenceUploader({ actionId, onSuccess, onCancel }: EvidenceUplo
             disabled={pendingCount === 0 || isUploading}
           >
             {isUploading ? (
-              <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Subiendo...</>
+              <>
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                Subiendo...
+              </>
             ) : (
-              <><Upload className="h-4 w-4 mr-1" />Subir {pendingCount > 0 ? `(${pendingCount})` : ""}</>
+              <>
+                <Upload className="h-4 w-4 mr-1" />
+                Subir {pendingCount > 0 ? `(${pendingCount})` : ""}
+              </>
             )}
           </Button>
         </div>

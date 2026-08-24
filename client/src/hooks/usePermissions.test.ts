@@ -14,7 +14,12 @@ describe("usePermissions", () => {
   describe("Admin role", () => {
     beforeEach(() => {
       vi.mocked(useAuth).mockReturnValue({
-        user: { role: "admin", id: 1, name: "Admin User", email: "admin@test.com" },
+        user: {
+          role: "admin",
+          id: 1,
+          name: "Admin User",
+          email: "admin@test.com",
+        },
         isLoading: false,
       } as any);
     });
@@ -50,7 +55,12 @@ describe("usePermissions", () => {
   describe("User role", () => {
     beforeEach(() => {
       vi.mocked(useAuth).mockReturnValue({
-        user: { role: "user", id: 2, name: "Regular User", email: "user@test.com" },
+        user: {
+          role: "user",
+          id: 2,
+          name: "Regular User",
+          email: "user@test.com",
+        },
         isLoading: false,
       } as any);
     });
@@ -86,7 +96,12 @@ describe("usePermissions", () => {
   describe("Instructor role", () => {
     beforeEach(() => {
       vi.mocked(useAuth).mockReturnValue({
-        user: { role: "instructor", id: 3, name: "Instructor User", email: "instructor@test.com" },
+        user: {
+          role: "instructor",
+          id: 3,
+          name: "Instructor User",
+          email: "instructor@test.com",
+        },
         isLoading: false,
       } as any);
     });
@@ -111,7 +126,12 @@ describe("usePermissions", () => {
   describe("Committee role", () => {
     beforeEach(() => {
       vi.mocked(useAuth).mockReturnValue({
-        user: { role: "committee", id: 4, name: "Committee User", email: "committee@test.com" },
+        user: {
+          role: "committee",
+          id: 4,
+          name: "Committee User",
+          email: "committee@test.com",
+        },
         isLoading: false,
       } as any);
     });
@@ -136,38 +156,56 @@ describe("usePermissions", () => {
   describe("hasAllPermissions", () => {
     beforeEach(() => {
       vi.mocked(useAuth).mockReturnValue({
-        user: { role: "instructor", id: 3, name: "Instructor User", email: "instructor@test.com" },
+        user: {
+          role: "instructor",
+          id: 3,
+          name: "Instructor User",
+          email: "instructor@test.com",
+        },
         isLoading: false,
       } as any);
     });
 
     it("should return true when user has all specified permissions", () => {
       const { result } = renderHook(() => usePermissions());
-      expect(result.current.hasAllPermissions(["can_create", "can_edit"])).toBe(true);
+      expect(result.current.hasAllPermissions(["can_create", "can_edit"])).toBe(
+        true
+      );
     });
 
     it("should return false when user is missing one permission", () => {
       const { result } = renderHook(() => usePermissions());
-      expect(result.current.hasAllPermissions(["can_create", "can_delete"])).toBe(false);
+      expect(
+        result.current.hasAllPermissions(["can_create", "can_delete"])
+      ).toBe(false);
     });
   });
 
   describe("hasAnyPermission", () => {
     beforeEach(() => {
       vi.mocked(useAuth).mockReturnValue({
-        user: { role: "user", id: 2, name: "Regular User", email: "user@test.com" },
+        user: {
+          role: "user",
+          id: 2,
+          name: "Regular User",
+          email: "user@test.com",
+        },
         isLoading: false,
       } as any);
     });
 
     it("should return true when user has at least one permission", () => {
       const { result } = renderHook(() => usePermissions());
-      expect(result.current.hasAnyPermission(["can_create", "can_view"])).toBe(true);
+      expect(result.current.hasAnyPermission(["can_create", "can_view"])).toBe(
+        true
+      );
     });
 
     it("should return false when user has none of the permissions", () => {
       const { result } = renderHook(() => usePermissions());
-      expect(result.current.hasAnyPermission(["can_create", "can_delete"])).toBe(false);
+      expect(
+        result.current.hasAnyPermission(["can_create", "can_delete"])
+      ).toBe(false);
     });
   });
 

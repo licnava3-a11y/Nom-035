@@ -21,7 +21,9 @@ export interface ValidationRules {
  * Soporta validación de email, teléfono, CURP y reglas personalizadas
  */
 export function useRealtimeValidation() {
-  const [validationState, setValidationState] = useState<Record<string, ValidationResult>>({});
+  const [validationState, setValidationState] = useState<
+    Record<string, ValidationResult>
+  >({});
 
   /**
    * Valida formato de email según RFC 5322 (simplificado)
@@ -52,14 +54,16 @@ export function useRealtimeValidation() {
 
     // Remover espacios, guiones y paréntesis
     const cleanPhone = phone.replace(/[\s\-()]/g, "");
-    
+
     // Validar formato: debe tener 10 dígitos o 12-13 con código de país
     const phoneRegex = /^(\+?52)?[0-9]{10}$/;
     const isValid = phoneRegex.test(cleanPhone);
 
     return {
       isValid,
-      message: isValid ? "Teléfono válido" : "Formato de teléfono inválido (10 dígitos)",
+      message: isValid
+        ? "Teléfono válido"
+        : "Formato de teléfono inválido (10 dígitos)",
       type: isValid ? "success" : "error",
     };
   }, []);
@@ -74,7 +78,7 @@ export function useRealtimeValidation() {
     }
 
     const curpUpper = curp.toUpperCase();
-    
+
     // Validar longitud
     if (curpUpper.length !== 18) {
       return {
@@ -120,11 +124,19 @@ export function useRealtimeValidation() {
    * Valida un campo según las reglas especificadas
    */
   const validate = useCallback(
-    (fieldName: string, value: string, rules: ValidationRules): ValidationResult => {
+    (
+      fieldName: string,
+      value: string,
+      rules: ValidationRules
+    ): ValidationResult => {
       // Campo vacío
       if (!value || value.trim() === "") {
         if (rules.required) {
-          return { isValid: false, message: "Este campo es requerido", type: "error" };
+          return {
+            isValid: false,
+            message: "Este campo es requerido",
+            type: "error",
+          };
         }
         return { isValid: true, message: "", type: "idle" };
       }
@@ -178,7 +190,7 @@ export function useRealtimeValidation() {
   const validateField = useCallback(
     (fieldName: string, value: string, rules: ValidationRules) => {
       const result = validate(fieldName, value, rules);
-      setValidationState((prev) => ({
+      setValidationState(prev => ({
         ...prev,
         [fieldName]: result,
       }));
@@ -191,7 +203,7 @@ export function useRealtimeValidation() {
    * Limpia la validación de un campo
    */
   const clearValidation = useCallback((fieldName: string) => {
-    setValidationState((prev) => {
+    setValidationState(prev => {
       const newState = { ...prev };
       delete newState[fieldName];
       return newState;
@@ -210,7 +222,13 @@ export function useRealtimeValidation() {
    */
   const getValidation = useCallback(
     (fieldName: string): ValidationResult => {
-      return validationState[fieldName] || { isValid: true, message: "", type: "idle" };
+      return (
+        validationState[fieldName] || {
+          isValid: true,
+          message: "",
+          type: "idle",
+        }
+      );
     },
     [validationState]
   );

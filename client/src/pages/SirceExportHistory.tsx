@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -81,9 +87,19 @@ function toDateInputValue(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-type QuickPeriod = "today" | "week" | "month" | "prev_week" | "prev_month" | "prev_year" | "year";
+type QuickPeriod =
+  | "today"
+  | "week"
+  | "month"
+  | "prev_week"
+  | "prev_month"
+  | "prev_year"
+  | "year";
 
-function getQuickPeriodDates(period: QuickPeriod): { from: string; to: string } {
+function getQuickPeriodDates(period: QuickPeriod): {
+  from: string;
+  to: string;
+} {
   const now = new Date();
   const y = now.getFullYear();
   const m = now.getMonth();
@@ -100,7 +116,10 @@ function getQuickPeriodDates(period: QuickPeriod): { from: string; to: string } 
       return { from: toDateInputValue(startOfWeek), to: toDateInputValue(now) };
     }
     case "month": {
-      return { from: `${y}-${String(m + 1).padStart(2, "0")}-01`, to: toDateInputValue(now) };
+      return {
+        from: `${y}-${String(m + 1).padStart(2, "0")}-01`,
+        to: toDateInputValue(now),
+      };
     }
     case "prev_week": {
       const dayOfWeek = now.getDay();
@@ -109,7 +128,10 @@ function getQuickPeriodDates(period: QuickPeriod): { from: string; to: string } 
       startOfPrevWeek.setDate(startOfPrevWeek.getDate() - 7);
       const endOfPrevWeek = new Date(startOfThisWeek);
       endOfPrevWeek.setDate(endOfPrevWeek.getDate() - 1);
-      return { from: toDateInputValue(startOfPrevWeek), to: toDateInputValue(endOfPrevWeek) };
+      return {
+        from: toDateInputValue(startOfPrevWeek),
+        to: toDateInputValue(endOfPrevWeek),
+      };
     }
     case "prev_month": {
       const prevMonth = m === 0 ? 11 : m - 1;
@@ -170,15 +192,20 @@ export default function SirceExportHistory() {
     return params;
   }, [page, dateFrom, dateTo, exportedByName, companyRfc]);
 
-  const { data, isLoading, refetch } = trpc.dc3.listSirceExports.useQuery(queryParams, {
-    refetchOnWindowFocus: false,
-  });
+  const { data, isLoading, refetch } = trpc.dc3.listSirceExports.useQuery(
+    queryParams,
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
 
   // P11: Exportar historial filtrado a Excel
   const exportExcelMutation = trpc.dc3.exportSirceHistoryExcel.useMutation({
-    onSuccess: (result) => {
+    onSuccess: result => {
       const bytes = Uint8Array.from(atob(result.data), c => c.charCodeAt(0));
-      const blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const blob = new Blob([bytes], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -187,11 +214,11 @@ export default function SirceExportHistory() {
       URL.revokeObjectURL(url);
       toast.success(`Excel exportado: ${result.count} registros`);
     },
-    onError: (err) => toast.error(err.message),
+    onError: err => toast.error(err.message),
   });
 
   const redownloadMutation = trpc.dc3.redownloadSirceExport.useMutation({
-    onSuccess: (result) => {
+    onSuccess: result => {
       const a = document.createElement("a");
       a.href = result.url;
       a.download = result.filename;
@@ -201,7 +228,7 @@ export default function SirceExportHistory() {
       document.body.removeChild(a);
       toast.success(`Descargando ${result.filename}`);
     },
-    onError: (err) => {
+    onError: err => {
       setErrorDialog(err.message);
     },
   });
@@ -251,8 +278,8 @@ export default function SirceExportHistory() {
                 Historial de Exportaciones SIRCE
               </h1>
               <p className="text-sm text-muted-foreground">
-                Registro de todos los archivos XML generados para el Sistema de Registro de
-                Constancias de Empresas (SIRCE-STPS)
+                Registro de todos los archivos XML generados para el Sistema de
+                Registro de Constancias de Empresas (SIRCE-STPS)
               </p>
             </div>
           </div>
@@ -260,7 +287,7 @@ export default function SirceExportHistory() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowFilters((v) => !v)}
+              onClick={() => setShowFilters(v => !v)}
               className="gap-2"
             >
               <Filter className="h-4 w-4" />
@@ -278,13 +305,22 @@ export default function SirceExportHistory() {
               disabled={isLoading}
               className="gap-2"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
               Actualizar
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => exportExcelMutation.mutate({ dateFrom: dateFrom || undefined, dateTo: dateTo || undefined, exportedByName: exportedByName.trim() || undefined, companyRfc: companyRfc.trim() || undefined })}
+              onClick={() =>
+                exportExcelMutation.mutate({
+                  dateFrom: dateFrom || undefined,
+                  dateTo: dateTo || undefined,
+                  exportedByName: exportedByName.trim() || undefined,
+                  companyRfc: companyRfc.trim() || undefined,
+                })
+              }
               disabled={exportExcelMutation.isPending}
               className="gap-2 text-green-700 border-green-300 hover:bg-green-50"
             >
@@ -333,7 +369,10 @@ export default function SirceExportHistory() {
                     { key: "week" as QuickPeriod, label: "Esta semana" },
                     { key: "month" as QuickPeriod, label: "Este mes" },
                     { key: "year" as QuickPeriod, label: "Este año" },
-                    { key: "prev_week" as QuickPeriod, label: "Semana anterior" },
+                    {
+                      key: "prev_week" as QuickPeriod,
+                      label: "Semana anterior",
+                    },
                     { key: "prev_month" as QuickPeriod, label: "Mes anterior" },
                     { key: "prev_year" as QuickPeriod, label: "Año anterior" },
                   ].map(({ key, label }) => (
@@ -354,7 +393,10 @@ export default function SirceExportHistory() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Fecha desde */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="filter-date-from" className="text-xs flex items-center gap-1">
+                  <Label
+                    htmlFor="filter-date-from"
+                    className="text-xs flex items-center gap-1"
+                  >
                     <CalendarRange className="h-3.5 w-3.5" />
                     Fecha desde
                   </Label>
@@ -362,14 +404,19 @@ export default function SirceExportHistory() {
                     id="filter-date-from"
                     type="date"
                     value={dateFrom}
-                    onChange={(e) => handleFilterChange(setDateFrom)(e.target.value)}
+                    onChange={e =>
+                      handleFilterChange(setDateFrom)(e.target.value)
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
 
                 {/* Fecha hasta */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="filter-date-to" className="text-xs flex items-center gap-1">
+                  <Label
+                    htmlFor="filter-date-to"
+                    className="text-xs flex items-center gap-1"
+                  >
                     <CalendarRange className="h-3.5 w-3.5" />
                     Fecha hasta
                   </Label>
@@ -377,14 +424,19 @@ export default function SirceExportHistory() {
                     id="filter-date-to"
                     type="date"
                     value={dateTo}
-                    onChange={(e) => handleFilterChange(setDateTo)(e.target.value)}
+                    onChange={e =>
+                      handleFilterChange(setDateTo)(e.target.value)
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
 
                 {/* Usuario exportador */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="filter-user" className="text-xs flex items-center gap-1">
+                  <Label
+                    htmlFor="filter-user"
+                    className="text-xs flex items-center gap-1"
+                  >
                     <User className="h-3.5 w-3.5" />
                     Usuario exportador
                   </Label>
@@ -393,14 +445,19 @@ export default function SirceExportHistory() {
                     type="text"
                     placeholder="Nombre del usuario…"
                     value={exportedByName}
-                    onChange={(e) => handleFilterChange(setExportedByName)(e.target.value)}
+                    onChange={e =>
+                      handleFilterChange(setExportedByName)(e.target.value)
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
 
                 {/* RFC empresa */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="filter-rfc" className="text-xs flex items-center gap-1">
+                  <Label
+                    htmlFor="filter-rfc"
+                    className="text-xs flex items-center gap-1"
+                  >
                     <Building2 className="h-3.5 w-3.5" />
                     RFC empresa
                   </Label>
@@ -409,7 +466,9 @@ export default function SirceExportHistory() {
                     type="text"
                     placeholder="RFC de la empresa…"
                     value={companyRfc}
-                    onChange={(e) => handleFilterChange(setCompanyRfc)(e.target.value)}
+                    onChange={e =>
+                      handleFilterChange(setCompanyRfc)(e.target.value)
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
@@ -422,7 +481,10 @@ export default function SirceExportHistory() {
                     <Badge variant="secondary" className="gap-1 text-xs">
                       <CalendarRange className="h-3 w-3" />
                       Desde: {dateFrom}
-                      <button onClick={() => handleFilterChange(setDateFrom)("")} className="ml-1 hover:text-destructive">
+                      <button
+                        onClick={() => handleFilterChange(setDateFrom)("")}
+                        className="ml-1 hover:text-destructive"
+                      >
                         <X className="h-3 w-3" />
                       </button>
                     </Badge>
@@ -431,7 +493,10 @@ export default function SirceExportHistory() {
                     <Badge variant="secondary" className="gap-1 text-xs">
                       <CalendarRange className="h-3 w-3" />
                       Hasta: {dateTo}
-                      <button onClick={() => handleFilterChange(setDateTo)("")} className="ml-1 hover:text-destructive">
+                      <button
+                        onClick={() => handleFilterChange(setDateTo)("")}
+                        className="ml-1 hover:text-destructive"
+                      >
                         <X className="h-3 w-3" />
                       </button>
                     </Badge>
@@ -440,7 +505,12 @@ export default function SirceExportHistory() {
                     <Badge variant="secondary" className="gap-1 text-xs">
                       <User className="h-3 w-3" />
                       Usuario: {exportedByName}
-                      <button onClick={() => handleFilterChange(setExportedByName)("")} className="ml-1 hover:text-destructive">
+                      <button
+                        onClick={() =>
+                          handleFilterChange(setExportedByName)("")
+                        }
+                        className="ml-1 hover:text-destructive"
+                      >
                         <X className="h-3 w-3" />
                       </button>
                     </Badge>
@@ -449,7 +519,10 @@ export default function SirceExportHistory() {
                     <Badge variant="secondary" className="gap-1 text-xs">
                       <Building2 className="h-3 w-3" />
                       RFC: {companyRfc}
-                      <button onClick={() => handleFilterChange(setCompanyRfc)("")} className="ml-1 hover:text-destructive">
+                      <button
+                        onClick={() => handleFilterChange(setCompanyRfc)("")}
+                        className="ml-1 hover:text-destructive"
+                      >
                         <X className="h-3 w-3" />
                       </button>
                     </Badge>
@@ -469,7 +542,9 @@ export default function SirceExportHistory() {
                 <div>
                   <p className="text-2xl font-bold">{data?.total ?? "—"}</p>
                   <p className="text-sm text-muted-foreground">
-                    {activeFilterCount > 0 ? "Exportaciones encontradas" : "Exportaciones totales"}
+                    {activeFilterCount > 0
+                      ? "Exportaciones encontradas"
+                      : "Exportaciones totales"}
                   </p>
                 </div>
               </div>
@@ -481,9 +556,11 @@ export default function SirceExportHistory() {
                 <CheckCircle2 className="h-8 w-8 text-green-500" />
                 <div>
                   <p className="text-2xl font-bold">
-                    {data?.exports.filter((e) => e.fileKey).length ?? "—"}
+                    {data?.exports.filter(e => e.fileKey).length ?? "—"}
                   </p>
-                  <p className="text-sm text-muted-foreground">Disponibles para re-descarga</p>
+                  <p className="text-sm text-muted-foreground">
+                    Disponibles para re-descarga
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -497,7 +574,9 @@ export default function SirceExportHistory() {
                     {data?.totalRecords?.toLocaleString("es-MX") ?? "—"}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {activeFilterCount > 0 ? "Constancias en el período filtrado" : "Total de constancias exportadas"}
+                    {activeFilterCount > 0
+                      ? "Constancias en el período filtrado"
+                      : "Total de constancias exportadas"}
                   </p>
                 </div>
               </div>
@@ -508,7 +587,9 @@ export default function SirceExportHistory() {
         {/* Tabla de historial */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Registro de exportaciones</CardTitle>
+            <CardTitle className="text-base">
+              Registro de exportaciones
+            </CardTitle>
             <CardDescription>
               {activeFilterCount > 0
                 ? `Mostrando resultados filtrados — ${data?.total ?? 0} exportaciones encontradas`
@@ -526,18 +607,27 @@ export default function SirceExportHistory() {
                 <History className="h-12 w-12 opacity-30" />
                 {activeFilterCount > 0 ? (
                   <>
-                    <p className="text-sm">No se encontraron exportaciones con los filtros aplicados.</p>
-                    <Button variant="outline" size="sm" onClick={handleClearFilters} className="gap-1">
+                    <p className="text-sm">
+                      No se encontraron exportaciones con los filtros aplicados.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleClearFilters}
+                      className="gap-1"
+                    >
                       <X className="h-3.5 w-3.5" />
                       Limpiar filtros
                     </Button>
                   </>
                 ) : (
                   <>
-                    <p className="text-sm">No hay exportaciones registradas aún.</p>
+                    <p className="text-sm">
+                      No hay exportaciones registradas aún.
+                    </p>
                     <p className="text-xs">
-                      Las exportaciones aparecerán aquí después de generar el primer archivo SIRCE
-                      desde el módulo DC-3.
+                      Las exportaciones aparecerán aquí después de generar el
+                      primer archivo SIRCE desde el módulo DC-3.
                     </p>
                   </>
                 )}
@@ -558,7 +648,7 @@ export default function SirceExportHistory() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {data.exports.map((exp) => (
+                    {data.exports.map(exp => (
                       <TableRow key={exp.id} className="hover:bg-muted/30">
                         {/* ID */}
                         <TableCell className="text-center text-muted-foreground text-xs font-mono">
@@ -569,7 +659,9 @@ export default function SirceExportHistory() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <FileCode2 className="h-4 w-4 text-blue-500 shrink-0" />
-                            <span className="font-mono text-xs break-all">{exp.filename}</span>
+                            <span className="font-mono text-xs break-all">
+                              {exp.filename}
+                            </span>
                           </div>
                           {exp.companyRfc && (
                             <p className="text-xs text-muted-foreground mt-0.5 ml-6">
@@ -609,7 +701,9 @@ export default function SirceExportHistory() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-6 w-6"
-                                  onClick={() => handleCopyHash(exp.id, exp.fileHash)}
+                                  onClick={() =>
+                                    handleCopyHash(exp.id, exp.fileHash)
+                                  }
                                 >
                                   {copiedId === exp.id ? (
                                     <CheckCircle2 className="h-3 w-3 text-green-500" />
@@ -618,7 +712,9 @@ export default function SirceExportHistory() {
                                   )}
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Copiar hash completo</TooltipContent>
+                              <TooltipContent>
+                                Copiar hash completo
+                              </TooltipContent>
                             </Tooltip>
                           </div>
                         </TableCell>
@@ -642,8 +738,8 @@ export default function SirceExportHistory() {
                                 </Badge>
                               </TooltipTrigger>
                               <TooltipContent>
-                                El archivo no fue guardado en el almacenamiento. Genere una nueva
-                                exportación.
+                                El archivo no fue guardado en el almacenamiento.
+                                Genere una nueva exportación.
                               </TooltipContent>
                             </Tooltip>
                           )}
@@ -657,7 +753,9 @@ export default function SirceExportHistory() {
                                 variant="outline"
                                 size="sm"
                                 className="gap-1.5"
-                                disabled={!exp.fileKey || redownloadMutation.isPending}
+                                disabled={
+                                  !exp.fileKey || redownloadMutation.isPending
+                                }
                                 onClick={() =>
                                   redownloadMutation.mutate({ id: exp.id })
                                 }
@@ -691,13 +789,14 @@ export default function SirceExportHistory() {
             <div className="flex items-center justify-between px-6 py-4 border-t">
               <p className="text-sm text-muted-foreground">
                 Mostrando {(page - 1) * PAGE_SIZE + 1}–
-                {Math.min(page * PAGE_SIZE, data.total)} de {data.total} exportaciones
+                {Math.min(page * PAGE_SIZE, data.total)} de {data.total}{" "}
+                exportaciones
               </p>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -708,7 +807,7 @@ export default function SirceExportHistory() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -724,16 +823,20 @@ export default function SirceExportHistory() {
           <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
             <p className="font-medium">Verificación de integridad</p>
             <p>
-              El hash SHA-256 de cada exportación permite verificar que el archivo no fue
-              modificado después de su generación. Para verificar, calcule el SHA-256 del archivo
-              descargado y compárelo con el hash registrado en esta tabla.
+              El hash SHA-256 de cada exportación permite verificar que el
+              archivo no fue modificado después de su generación. Para
+              verificar, calcule el SHA-256 del archivo descargado y compárelo
+              con el hash registrado en esta tabla.
             </p>
           </div>
         </div>
       </div>
 
       {/* Diálogo de error al re-descargar */}
-      <AlertDialog open={!!errorDialog} onOpenChange={() => setErrorDialog(null)}>
+      <AlertDialog
+        open={!!errorDialog}
+        onOpenChange={() => setErrorDialog(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">

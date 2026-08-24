@@ -6,7 +6,12 @@
 
 import cron from "node-cron";
 import { getDb } from "../db";
-import { modelPerformanceAlerts, thresholdExperiments, modelThresholds, modelRetrainingHistory } from "../../drizzle/schema";
+import {
+  modelPerformanceAlerts,
+  thresholdExperiments,
+  modelThresholds,
+  modelRetrainingHistory,
+} from "../../drizzle/schema";
 import { desc, eq, and, gte } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 
@@ -17,7 +22,9 @@ const DAYS_TO_CHECK = 7;
 export function startModelAutoRetrainingJob() {
   // Ejecutar semanalmente los domingos a las 03:00 AM
   cron.schedule("0 3 * * 0", async () => {
-    console.log("[Model Auto-Retraining Job] Starting weekly retraining check...");
+    console.log(
+      "[Model Auto-Retraining Job] Starting weekly retraining check..."
+    );
 
     try {
       const db = await getDb();
@@ -41,10 +48,14 @@ export function startModelAutoRetrainingJob() {
           )
         );
 
-      console.log(`[Model Auto-Retraining Job] Found ${recentCriticalAlerts.length} critical alerts in the last ${DAYS_TO_CHECK} days`);
+      console.log(
+        `[Model Auto-Retraining Job] Found ${recentCriticalAlerts.length} critical alerts in the last ${DAYS_TO_CHECK} days`
+      );
 
       if (recentCriticalAlerts.length < CRITICAL_ALERT_THRESHOLD) {
-        console.log("[Model Auto-Retraining Job] No retraining needed - alert count below threshold");
+        console.log(
+          "[Model Auto-Retraining Job] No retraining needed - alert count below threshold"
+        );
         return;
       }
 
@@ -57,7 +68,9 @@ export function startModelAutoRetrainingJob() {
         .limit(1);
 
       if (!currentConfig) {
-        console.error("[Model Auto-Retraining Job] No active configuration found");
+        console.error(
+          "[Model Auto-Retraining Job] No active configuration found"
+        );
         return;
       }
 
@@ -70,7 +83,9 @@ export function startModelAutoRetrainingJob() {
         .limit(10); // Últimos 10 experimentos
 
       if (experiments.length === 0) {
-        console.log("[Model Auto-Retraining Job] No completed experiments found");
+        console.log(
+          "[Model Auto-Retraining Job] No completed experiments found"
+        );
         return;
       }
 
@@ -115,7 +130,9 @@ export function startModelAutoRetrainingJob() {
       }
 
       if (!bestConfig || bestConfig.length === 0) {
-        console.error("[Model Auto-Retraining Job] No valid configuration found in experiments");
+        console.error(
+          "[Model Auto-Retraining Job] No valid configuration found in experiments"
+        );
         return;
       }
 
@@ -123,13 +140,18 @@ export function startModelAutoRetrainingJob() {
 
       // Verificar si la configuración seleccionada es diferente a la actual
       if (selectedConfig.id === currentConfig.id) {
-        console.log("[Model Auto-Retraining Job] Best configuration is already active");
+        console.log(
+          "[Model Auto-Retraining Job] Best configuration is already active"
+        );
         return;
       }
 
       // Calcular mejora esperada
-      const currentF1 = parseFloat(String(currentConfig.criticalCommentsWeight ?? 0)); // Placeholder - debería calcularse
-      const improvementPercentage = ((bestF1Score - currentF1) / currentF1) * 100;
+      const currentF1 = parseFloat(
+        String(currentConfig.criticalCommentsWeight ?? 0)
+      ); // Placeholder - debería calcularse
+      const improvementPercentage =
+        ((bestF1Score - currentF1) / currentF1) * 100;
 
       // Desactivar configuración actual
       await db
@@ -162,23 +184,33 @@ export function startModelAutoRetrainingJob() {
         createdBy: null, // Automático
       });
 
-      console.log(`[Model Auto-Retraining Job] Retraining applied: Config ${currentConfig.id} → ${selectedConfig.id}`);
+      console.log(
+        `[Model Auto-Retraining Job] Retraining applied: Config ${currentConfig.id} → ${selectedConfig.id}`
+      );
 
       // Notificar al owner
       await notifyOwner({
         title: "🔄 Reentrenamiento Automático del Modelo Aplicado",
-        content: `El sistema detectó degradación persistente del modelo predictivo (${recentCriticalAlerts.length} alertas críticas en ${DAYS_TO_CHECK} días) y aplicó automáticamente la mejor configuración histórica.\n\n` +
+        content:
+          `El sistema detectó degradación persistente del modelo predictivo (${recentCriticalAlerts.length} alertas críticas en ${DAYS_TO_CHECK} días) y aplicó automáticamente la mejor configuración histórica.\n\n` +
           `**Configuración Anterior:** ${currentConfig.description || `Config ${currentConfig.id}`}\n` +
           `**Nueva Configuración:** ${selectedConfig.description || `Config ${selectedConfig.id}`}\n` +
           `**Mejora Esperada:** ${improvementPercentage.toFixed(1)}% en F1-Score\n\n` +
           `Revisa el historial de reentrena mientos en el dashboard para más detalles.`,
       });
 
-      console.log("[Model Auto-Retraining Job] Retraining completed successfully");
+      console.log(
+        "[Model Auto-Retraining Job] Retraining completed successfully"
+      );
     } catch (error) {
-      console.error("[Model Auto-Retraining Job] Error during retraining check:", error);
+      console.error(
+        "[Model Auto-Retraining Job] Error during retraining check:",
+        error
+      );
     }
   });
 
-  console.log("[Model Auto-Retraining Job] Scheduled to run weekly on Sundays at 03:00 AM");
+  console.log(
+    "[Model Auto-Retraining Job] Scheduled to run weekly on Sundays at 03:00 AM"
+  );
 }

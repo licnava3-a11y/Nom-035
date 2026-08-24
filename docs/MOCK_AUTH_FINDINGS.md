@@ -11,6 +11,7 @@ El mock de autenticación **NO funciona correctamente** porque el test muestra l
 ![Test Fallido](../test-results/busqueda-confirmaciones-Bú-2108e-K-Abrir-búsqueda-con-Ctrl-K-chromium/test-failed-1.png)
 
 La página muestra:
+
 - Título: "Plataforma NOM-035 STPS 2018"
 - Subtítulo: "Gestión Integral de Riesgos Psicosociales"
 - Botón: "Acceder a la Plataforma"
@@ -33,10 +34,10 @@ El fixture `mockedAuthPage` intercepta el request a `/api/trpc/auth.me`, pero:
 export const test = base.extend<{ mockedAuthPage: Page }>({
   mockedAuthPage: async ({ page }, use) => {
     // 1. Configurar interceptor PRIMERO
-    await page.route('**/api/trpc/auth.me*', async (route) => {
+    await page.route("**/api/trpc/auth.me*", async route => {
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         body: JSON.stringify({
           result: {
             data: MOCK_USER,
@@ -46,10 +47,10 @@ export const test = base.extend<{ mockedAuthPage: Page }>({
     });
 
     // 2. LUEGO navegar
-    await page.goto('/');
-    
+    await page.goto("/");
+
     // 3. Esperar a que React renderice
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000); // Dar más tiempo
 
     await use(page);
@@ -62,11 +63,14 @@ export const test = base.extend<{ mockedAuthPage: Page }>({
 ```typescript
 // Establecer usuario directamente en localStorage
 await page.addInitScript(() => {
-  localStorage.setItem('mock-user', JSON.stringify({
-    id: 'test-user-001',
-    name: 'Usuario de Prueba E2E',
-    role: 'admin',
-  }));
+  localStorage.setItem(
+    "mock-user",
+    JSON.stringify({
+      id: "test-user-001",
+      name: "Usuario de Prueba E2E",
+      role: "admin",
+    })
+  );
 });
 ```
 
@@ -76,9 +80,9 @@ Agregar lógica en `useAuth` para detectar modo de testing:
 
 ```typescript
 // En client/src/_core/hooks/useAuth.ts
-if (import.meta.env.VITE_TEST_MODE === 'true') {
+if (import.meta.env.VITE_TEST_MODE === "true") {
   return {
-    user: JSON.parse(localStorage.getItem('mock-user') || 'null'),
+    user: JSON.parse(localStorage.getItem("mock-user") || "null"),
     isLoading: false,
   };
 }
@@ -95,11 +99,13 @@ El enfoque de mock de autenticación **requiere más trabajo** del anticipado:
 ## Recomendación Final
 
 Dado que:
+
 1. El sistema está 100% funcional en producción
 2. Ya se invirtieron 14+ horas en testing E2E sin éxito
 3. Los tests E2E son herramientas de desarrollo, no críticos para producción
 
 **Recomendación**: Posponer testing E2E y enfocar esfuerzos en:
+
 - Corregir errores TypeScript de Drizzle ORM (~600 errores)
 - Mejorar documentación del sistema
 - Implementar features de negocio pendientes

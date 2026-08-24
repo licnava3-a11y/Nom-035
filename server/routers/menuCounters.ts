@@ -1,6 +1,12 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { cases, mailbox, surveys, surveyTokens, courses } from "../../drizzle/schema";
+import {
+  cases,
+  mailbox,
+  surveys,
+  surveyTokens,
+  courses,
+} from "../../drizzle/schema";
 import { eq, and, sql, lt, gte } from "drizzle-orm";
 
 /**
@@ -35,22 +41,24 @@ export const menuCountersRouter = router({
         .select({ count: sql<number>`count(*)` })
         .from(cases)
         .where(sql`${cases.status} = 'open'`),
-      
+
       // Contador de casos en investigación
       db
         .select({ count: sql<number>`count(*)` })
         .from(cases)
         .where(sql`${cases.status} = 'investigating'`),
-      
+
       // Contador de quejas pendientes en buzón (recibidas, no atendidas)
       db
         .select({ count: sql<number>`count(*)` })
         .from(mailbox)
         .where(eq(mailbox.status, "recibido")),
-      
+
       // Contador de encuestas próximas a vencer (tokens no usados que expiran en 7 días)
       db
-        .select({ count: sql<number>`count(distinct ${surveyTokens.surveyId})` })
+        .select({
+          count: sql<number>`count(distinct ${surveyTokens.surveyId})`,
+        })
         .from(surveyTokens)
         .where(
           and(
@@ -59,17 +67,15 @@ export const menuCountersRouter = router({
             lt(surveyTokens.expiresAt, sevenDaysFromNow)
           )
         ),
-      
+
       // Contador de cursos publicados
       db
         .select({ count: sql<number>`count(*)` })
         .from(courses)
         .where(eq(courses.isPublished, true)),
-      
+
       // Contador total de cursos
-      db
-        .select({ count: sql<number>`count(*)` })
-        .from(courses),
+      db.select({ count: sql<number>`count(*)` }).from(courses),
     ]);
 
     const openCases = Number(openCasesResult[0]?.count || 0);

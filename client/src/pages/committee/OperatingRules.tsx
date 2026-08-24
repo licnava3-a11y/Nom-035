@@ -3,15 +3,24 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { FileText, Download, Calendar, MapPin } from "lucide-react";
 
 export default function OperatingRules() {
-  const [approvalDate, setApprovalDate] = useState(new Date().toISOString().split("T")[0]);
+  const [approvalDate, setApprovalDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [approvalPlace, setApprovalPlace] = useState("");
   const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
 
-  const generateMutation = trpc.committeeDocuments.generateOperatingRules.useMutation();
+  const generateMutation =
+    trpc.committeeDocuments.generateOperatingRules.useMutation();
 
   const handleGenerate = async () => {
     if (!approvalPlace.trim()) {
@@ -26,7 +35,9 @@ export default function OperatingRules() {
       });
 
       setGeneratedPdfUrl(result.pdfUrl);
-      alert(`Bases de funcionamiento generadas exitosamente. Folio: ${result.folio}`);
+      alert(
+        `Bases de funcionamiento generadas exitosamente. Folio: ${result.folio}`
+      );
     } catch (error: any) {
       alert(error.message || "Error al generar las bases de funcionamiento");
     }
@@ -35,9 +46,12 @@ export default function OperatingRules() {
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Bases de Funcionamiento del Comité</h1>
+        <h1 className="text-3xl font-bold">
+          Bases de Funcionamiento del Comité
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Genere el reglamento interno del Comité de Seguridad y Salud en el Trabajo
+          Genere el reglamento interno del Comité de Seguridad y Salud en el
+          Trabajo
         </p>
       </div>
 
@@ -62,12 +76,15 @@ export default function OperatingRules() {
                 id="approvalDate"
                 type="date"
                 value={approvalDate}
-                onChange={(e) => setApprovalDate(e.target.value)}
+                onChange={e => setApprovalDate(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="approvalPlace" className="flex items-center gap-2">
+              <Label
+                htmlFor="approvalPlace"
+                className="flex items-center gap-2"
+              >
                 <MapPin className="h-4 w-4" />
                 Lugar de Aprobación
               </Label>
@@ -76,7 +93,7 @@ export default function OperatingRules() {
                 type="text"
                 placeholder="Ej: Ciudad de México, CDMX"
                 value={approvalPlace}
-                onChange={(e) => setApprovalPlace(e.target.value)}
+                onChange={e => setApprovalPlace(e.target.value)}
               />
             </div>
 
@@ -85,7 +102,9 @@ export default function OperatingRules() {
               disabled={generateMutation.isPending}
               className="w-full"
             >
-              {generateMutation.isPending ? "Generando..." : "Generar Bases de Funcionamiento"}
+              {generateMutation.isPending
+                ? "Generando..."
+                : "Generar Bases de Funcionamiento"}
             </Button>
           </CardContent>
         </Card>
@@ -102,36 +121,56 @@ export default function OperatingRules() {
               <div className="flex items-start gap-2">
                 <div className="h-2 w-2 rounded-full bg-primary mt-1.5" />
                 <div>
-                  <p className="font-medium">Capítulo I: Disposiciones Generales</p>
-                  <p className="text-muted-foreground">Objeto, fundamento legal y ámbito de aplicación</p>
+                  <p className="font-medium">
+                    Capítulo I: Disposiciones Generales
+                  </p>
+                  <p className="text-muted-foreground">
+                    Objeto, fundamento legal y ámbito de aplicación
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <div className="h-2 w-2 rounded-full bg-primary mt-1.5" />
                 <div>
-                  <p className="font-medium">Capítulo II: Integración del Comité</p>
-                  <p className="text-muted-foreground">Composición, miembros y duración del cargo</p>
+                  <p className="font-medium">
+                    Capítulo II: Integración del Comité
+                  </p>
+                  <p className="text-muted-foreground">
+                    Composición, miembros y duración del cargo
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <div className="h-2 w-2 rounded-full bg-primary mt-1.5" />
                 <div>
-                  <p className="font-medium">Capítulo III: Funciones del Comité</p>
-                  <p className="text-muted-foreground">Funciones generales según NOM-035-STPS-2018</p>
+                  <p className="font-medium">
+                    Capítulo III: Funciones del Comité
+                  </p>
+                  <p className="text-muted-foreground">
+                    Funciones generales según NOM-035-STPS-2018
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <div className="h-2 w-2 rounded-full bg-primary mt-1.5" />
                 <div>
-                  <p className="font-medium">Capítulo IV: Reuniones del Comité</p>
-                  <p className="text-muted-foreground">Periodicidad, convocatoria, quórum y actas</p>
+                  <p className="font-medium">
+                    Capítulo IV: Reuniones del Comité
+                  </p>
+                  <p className="text-muted-foreground">
+                    Periodicidad, convocatoria, quórum y actas
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <div className="h-2 w-2 rounded-full bg-primary mt-1.5" />
                 <div>
-                  <p className="font-medium">Capítulo V: Atribuciones de los Miembros</p>
-                  <p className="text-muted-foreground">Presidente, Secretario y Vocales</p>
+                  <p className="font-medium">
+                    Capítulo V: Atribuciones de los Miembros
+                  </p>
+                  <p className="text-muted-foreground">
+                    Presidente, Secretario y Vocales
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">

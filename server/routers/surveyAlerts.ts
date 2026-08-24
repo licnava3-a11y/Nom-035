@@ -1,7 +1,12 @@
 import { router, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { surveys, surveyResponses, users, alertLogs } from "../../drizzle/schema";
+import {
+  surveys,
+  surveyResponses,
+  users,
+  alertLogs,
+} from "../../drizzle/schema";
 import { eq, and, sql, lt, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "../_core/notification";
@@ -19,13 +24,19 @@ export const surveyAlertsRouter = router({
    * Se ejecuta periódicamente para detectar encuestas con cobertura < 80%
    */
   checkLowCoverageAlerts: publicProcedure
-    .input(z.object({
-      surveyId: z.number().optional(), // Si no se especifica, verifica todas las encuestas activas
-      coverageThreshold: z.number().optional(), // Umbral de cobertura (por defecto 80)
-    }))
+    .input(
+      z.object({
+        surveyId: z.number().optional(), // Si no se especifica, verifica todas las encuestas activas
+        coverageThreshold: z.number().optional(), // Umbral de cobertura (por defecto 80)
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const results = {
         checked: 0,
@@ -37,7 +48,10 @@ export const surveyAlertsRouter = router({
         // Obtener encuestas a verificar
         let surveysToCheck: any;
         if (input.surveyId) {
-          surveysToCheck = await db.select().from(surveys).where(eq(surveys.id, input.surveyId));
+          surveysToCheck = await db
+            .select()
+            .from(surveys)
+            .where(eq(surveys.id, input.surveyId));
         } else {
           // Verificar todas las encuestas activas
           surveysToCheck = await db.select().from(surveys);
@@ -56,24 +70,25 @@ export const surveyAlertsRouter = router({
             .select({ count: sql<number>`count(*)` })
             .from(users);
 
-          const coverage = totalUsers.count > 0 
-            ? (responsesCount.count / totalUsers.count) * 100 
-            : 0;
+          const coverage =
+            totalUsers.count > 0
+              ? (responsesCount.count / totalUsers.count) * 100
+              : 0;
 
           const threshold = input.coverageThreshold || 80;
-          
+
           // Si la cobertura es menor al umbral, verificar si ya se envió alerta reciente
           if (coverage < threshold) {
             // Buscar alertas enviadas en las últimas 24 horas
             const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-            
+
             const recentAlerts = await db
               .select()
               .from(alertLogs)
               .where(
                 and(
                   eq(alertLogs.surveyId, survey.id),
-                  eq(alertLogs.alertType, 'low_coverage'),
+                  eq(alertLogs.alertType, "low_coverage"),
                   eq(alertLogs.notificationSent, true),
                   sql`${alertLogs.triggeredAt} > ${oneDayAgo}`
                 )
@@ -110,38 +125,45 @@ Puedes enviar recordatorios desde: Encuestas NOM-035 → Seguimiento
 
                 // Registrar alerta en la base de datos
                 await (db.insert(alertLogs) as any).values({
-                  alertType: 'low_coverage',
+                  alertType: "low_coverage",
                   surveyId: survey.id,
                   details: JSON.stringify(details),
                   notificationSent,
-                  notificationError: notificationSent ? null : 'Failed to send notification',
+                  notificationError: notificationSent
+                    ? null
+                    : "Failed to send notification",
                 });
 
                 if (notificationSent) {
                   results.alertsSent++;
                 } else {
-                  results.errors.push(`Survey ${survey.id}: Failed to send notification`);
+                  results.errors.push(
+                    `Survey ${survey.id}: Failed to send notification`
+                  );
                 }
               } catch (error) {
-                results.errors.push(`Survey ${survey.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                
+                results.errors.push(
+                  `Survey ${survey.id}: ${error instanceof Error ? error.message : "Unknown error"}`
+                );
+
                 // Registrar error en la base de datos
                 await (db.insert(alertLogs) as any).values({
-                  alertType: 'low_coverage',
+                  alertType: "low_coverage",
                   surveyId: survey.id,
                   details: JSON.stringify(details),
                   notificationSent: false,
-                  notificationError: error instanceof Error ? error.message : 'Unknown error',
+                  notificationError:
+                    error instanceof Error ? error.message : "Unknown error",
                 });
               }
             }
           }
         }
       } catch (error) {
-        console.error('Error checking low coverage alerts:', error);
+        console.error("Error checking low coverage alerts:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : 'Unknown error',
+          message: error instanceof Error ? error.message : "Unknown error",
         });
       }
 
@@ -153,13 +175,19 @@ Puedes enviar recordatorios desde: Encuestas NOM-035 → Seguimiento
    * Se ejecuta periódicamente para detectar trabajadores que no han respondido
    */
   checkPendingWorkersAlerts: publicProcedure
-    .input(z.object({
-      surveyId: z.number().optional(),
-      daysThreshold: z.number().default(2), // Días sin responder
-    }))
+    .input(
+      z.object({
+        surveyId: z.number().optional(),
+        daysThreshold: z.number().default(2), // Días sin responder
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const results = {
         checked: 0,
@@ -172,12 +200,17 @@ Puedes enviar recordatorios desde: Encuestas NOM-035 → Seguimiento
         // Obtener encuestas a verificar
         let surveysToCheck: any;
         if (input.surveyId) {
-          surveysToCheck = await db.select().from(surveys).where(eq(surveys.id, input.surveyId));
+          surveysToCheck = await db
+            .select()
+            .from(surveys)
+            .where(eq(surveys.id, input.surveyId));
         } else {
           surveysToCheck = await db.select().from(surveys);
         }
 
-        const thresholdDate = new Date(Date.now() - input.daysThreshold * 24 * 60 * 60 * 1000);
+        const thresholdDate = new Date(
+          Date.now() - input.daysThreshold * 24 * 60 * 60 * 1000
+        );
 
         for (const survey of surveysToCheck) {
           results.checked++;
@@ -199,11 +232,12 @@ Puedes enviar recordatorios desde: Encuestas NOM-035 → Seguimiento
             );
 
           // Filtrar usuarios pendientes que llevan 2+ días sin responder
-          const pendingUsers = allUsers.filter(user => 
-            user.id && 
-            !respondedUserIds.has(user.id) &&
-            user.email &&
-            user.email.includes('@')
+          const pendingUsers = allUsers.filter(
+            user =>
+              user.id &&
+              !respondedUserIds.has(user.id) &&
+              user.email &&
+              user.email.includes("@")
           );
 
           results.workersFound += pendingUsers.length;
@@ -212,14 +246,14 @@ Puedes enviar recordatorios desde: Encuestas NOM-035 → Seguimiento
           if (pendingUsers.length > 0) {
             // Buscar alertas enviadas en las últimas 24 horas
             const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-            
+
             const recentAlerts = await db
               .select()
               .from(alertLogs)
               .where(
                 and(
                   eq(alertLogs.surveyId, survey.id),
-                  eq(alertLogs.alertType, 'worker_pending'),
+                  eq(alertLogs.alertType, "worker_pending"),
                   eq(alertLogs.notificationSent, true),
                   sql`${alertLogs.triggeredAt} > ${oneDayAgo}`
                 )
@@ -232,28 +266,34 @@ Puedes enviar recordatorios desde: Encuestas NOM-035 → Seguimiento
                 surveyTitle: survey.title,
                 pendingCount: pendingUsers.length,
                 daysThreshold: input.daysThreshold,
-                workers: pendingUsers.slice(0, 10).map(u => ({ // Solo los primeros 10
-                  name: u.name || 'Sin nombre',
+                workers: pendingUsers.slice(0, 10).map(u => ({
+                  // Solo los primeros 10
+                  name: u.name || "Sin nombre",
                   email: u.email,
-                  department: u.departamento || 'Sin departamento',
+                  department: u.departamento || "Sin departamento",
                 })),
               };
 
               try {
                 // Crear lista de trabajadores para la notificación
-                const workersList = pendingUsers.slice(0, 10).map(u => 
-                  `- ${u.name || 'Sin nombre'} (${u.departamento || 'Sin departamento'})`
-                ).join('\n');
+                const workersList = pendingUsers
+                  .slice(0, 10)
+                  .map(
+                    u =>
+                      `- ${u.name || "Sin nombre"} (${u.departamento || "Sin departamento"})`
+                  )
+                  .join("\n");
 
-                const moreWorkersText = pendingUsers.length > 10 
-                  ? `\n\n... y ${pendingUsers.length - 10} trabajadores más.`
-                  : '';
+                const moreWorkersText =
+                  pendingUsers.length > 10
+                    ? `\n\n... y ${pendingUsers.length - 10} trabajadores más.`
+                    : "";
 
                 // Enviar notificación al propietario
                 const notificationSent = await notifyOwner({
                   title: `⏰ Alerta: Trabajadores sin Responder Encuesta NOM-035`,
                   content: `
-Hay ${pendingUsers.length} trabajador${pendingUsers.length === 1 ? '' : 'es'} que no ha${pendingUsers.length === 1 ? '' : 'n'} respondido la encuesta "${survey.title}" después de ${input.daysThreshold} días.
+Hay ${pendingUsers.length} trabajador${pendingUsers.length === 1 ? "" : "es"} que no ha${pendingUsers.length === 1 ? "" : "n"} respondido la encuesta "${survey.title}" después de ${input.daysThreshold} días.
 
 **Trabajadores pendientes:**
 ${workersList}${moreWorkersText}
@@ -264,38 +304,45 @@ Se recomienda enviar recordatorios personalizados desde: Encuestas NOM-035 → S
 
                 // Registrar alerta en la base de datos
                 await (db.insert(alertLogs) as any).values({
-                  alertType: 'worker_pending',
+                  alertType: "worker_pending",
                   surveyId: survey.id,
                   details: JSON.stringify(details),
                   notificationSent,
-                  notificationError: notificationSent ? null : 'Failed to send notification',
+                  notificationError: notificationSent
+                    ? null
+                    : "Failed to send notification",
                 });
 
                 if (notificationSent) {
                   results.alertsSent++;
                 } else {
-                  results.errors.push(`Survey ${survey.id}: Failed to send notification`);
+                  results.errors.push(
+                    `Survey ${survey.id}: Failed to send notification`
+                  );
                 }
               } catch (error) {
-                results.errors.push(`Survey ${survey.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                
+                results.errors.push(
+                  `Survey ${survey.id}: ${error instanceof Error ? error.message : "Unknown error"}`
+                );
+
                 // Registrar error en la base de datos
                 await (db.insert(alertLogs) as any).values({
-                  alertType: 'worker_pending',
+                  alertType: "worker_pending",
                   surveyId: survey.id,
                   details: JSON.stringify(details),
                   notificationSent: false,
-                  notificationError: error instanceof Error ? error.message : 'Unknown error',
+                  notificationError:
+                    error instanceof Error ? error.message : "Unknown error",
                 });
               }
             }
           }
         }
       } catch (error) {
-        console.error('Error checking pending workers alerts:', error);
+        console.error("Error checking pending workers alerts:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : 'Unknown error',
+          message: error instanceof Error ? error.message : "Unknown error",
         });
       }
 
@@ -306,14 +353,20 @@ Se recomienda enviar recordatorios personalizados desde: Encuestas NOM-035 → S
    * Obtener historial de alertas
    */
   getAlertHistory: publicProcedure
-    .input(z.object({
-      surveyId: z.number().optional(),
-      alertType: z.enum(['low_coverage', 'worker_pending']).optional(),
-      limit: z.number().default(50),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number().optional(),
+        alertType: z.enum(["low_coverage", "worker_pending"]).optional(),
+        limit: z.number().default(50),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       let query: any = db.select().from(alertLogs);
 

@@ -9,7 +9,10 @@ const ROOT = join(__dirname, "..");
 
 // ─── 1. executiveReport.ts tiene getBranchComparative ─────────────────────────
 describe("executiveReport.ts — getBranchComparative procedure", () => {
-  const content = readFileSync(join(ROOT, "server/routers/executiveReport.ts"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "server/routers/executiveReport.ts"),
+    "utf-8"
+  );
 
   it("define el procedure getBranchComparative", () => {
     expect(content).toContain("getBranchComparative");
@@ -40,7 +43,10 @@ describe("executiveReport.ts — getBranchComparative procedure", () => {
 
 // ─── 2. BranchComparativeReport.tsx existe y tiene la estructura correcta ──────
 describe("BranchComparativeReport.tsx — página de reporte comparativo", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/BranchComparativeReport.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/BranchComparativeReport.tsx"),
+    "utf-8"
+  );
 
   it("usa trpc.executiveReport.getBranchComparative", () => {
     expect(content).toContain("getBranchComparative");
@@ -85,7 +91,10 @@ describe("App.tsx — ruta /branch-comparative", () => {
 
 // ─── 4. DashboardLayout.tsx tiene el enlace al reporte comparativo ─────────────
 describe("DashboardLayout.tsx — enlace al reporte comparativo", () => {
-  const content = readFileSync(join(ROOT, "client/src/components/DashboardLayout.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/components/DashboardLayout.tsx"),
+    "utf-8"
+  );
 
   it("tiene el enlace /branch-comparative en el sidebar", () => {
     expect(content).toContain("/branch-comparative");
@@ -101,7 +110,10 @@ describe("DashboardLayout.tsx — enlace al reporte comparativo", () => {
 
 // ─── 5. useAuth.ts tiene timeout para evitar skeleton infinito ─────────────────
 describe("useAuth.ts — timeout de seguridad", () => {
-  const content = readFileSync(join(ROOT, "client/src/_core/hooks/useAuth.ts"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/_core/hooks/useAuth.ts"),
+    "utf-8"
+  );
 
   it("tiene un mecanismo de timeout para evitar loading infinito", () => {
     expect(content).toMatch(/timeout|setTimeout|timedOut/i);
@@ -115,7 +127,10 @@ describe("useAuth.ts — timeout de seguridad", () => {
 
 // ─── 6. LandingPage.tsx redirige al dashboard si el usuario está autenticado ───
 describe("LandingPage.tsx — redirección automática", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/LandingPage.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/LandingPage.tsx"),
+    "utf-8"
+  );
 
   it("usa useAuth para verificar si el usuario está autenticado", () => {
     expect(content).toContain("useAuth");
@@ -128,7 +143,10 @@ describe("LandingPage.tsx — redirección automática", () => {
 
 // ─── 7. EmployeeEdit.tsx tiene el selector de sucursal ────────────────────────
 describe("EmployeeEdit.tsx — selector de sucursal", () => {
-  const content = readFileSync(join(ROOT, "client/src/pages/EmployeeEdit.tsx"), "utf-8");
+  const content = readFileSync(
+    join(ROOT, "client/src/pages/EmployeeEdit.tsx"),
+    "utf-8"
+  );
 
   it("tiene el campo branchId en el formulario", () => {
     expect(content).toContain("branchId");

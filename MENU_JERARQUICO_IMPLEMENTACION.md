@@ -3,7 +3,9 @@
 ## Cambios Realizados
 
 ### 1. Imports Actualizados
+
 Se agregaron los siguientes iconos de lucide-react:
+
 - `Building2` (Empresa)
 - `Scale` (Igualdad Laboral)
 - `GraduationCap` (Capacitación)

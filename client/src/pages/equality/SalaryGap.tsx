@@ -1,11 +1,22 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  CheckCircle,
+} from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function SalaryGap() {
@@ -21,7 +32,8 @@ export default function SalaryGap() {
   });
 
   const utils = trpc.useUtils();
-  const { data: gaps = [], isLoading } = trpc.equality.salaryGap.list.useQuery();
+  const { data: gaps = [], isLoading } =
+    trpc.equality.salaryGap.list.useQuery();
 
   const calculateMutation = trpc.equality.salaryGap.calculate.useMutation({
     onSuccess: () => {
@@ -38,7 +50,7 @@ export default function SalaryGap() {
         salarioPromedioMujeres: "",
       });
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -57,9 +69,20 @@ export default function SalaryGap() {
   };
 
   const getRiskBadge = (nivelRiesgo: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive"; icon: any; color: string }> = {
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive";
+        icon: any;
+        color: string;
+      }
+    > = {
       bajo: { variant: "default", icon: CheckCircle, color: "text-green-600" },
-      medio: { variant: "secondary", icon: AlertTriangle, color: "text-yellow-600" },
+      medio: {
+        variant: "secondary",
+        icon: AlertTriangle,
+        color: "text-yellow-600",
+      },
       alto: { variant: "destructive", icon: TrendingUp, color: "text-red-600" },
     };
     const config = variants[nivelRiesgo] || variants.bajo;
@@ -74,9 +97,16 @@ export default function SalaryGap() {
 
   // Calcular estadísticas
   const totalGaps = gaps.length;
-  const avgGap = gaps.length > 0
-    ? (gaps.reduce((sum: any, g: any) => sum + parseFloat(g.brechaPorcentual.toString()), 0) / gaps.length).toFixed(2)
-    : "0.00";
+  const avgGap =
+    gaps.length > 0
+      ? (
+          gaps.reduce(
+            (sum: any, g: any) =>
+              sum + parseFloat(g.brechaPorcentual.toString()),
+            0
+          ) / gaps.length
+        ).toFixed(2)
+      : "0.00";
   const highRiskCount = gaps.filter(g => g.nivelRiesgo === "alto").length;
   const mediumRiskCount = gaps.filter(g => g.nivelRiesgo === "medio").length;
 
@@ -86,15 +116,22 @@ export default function SalaryGap() {
 
   return (
     <div className="p-6 space-y-6">
-      <Breadcrumb items={[
-        { label: "Igualdad Laboral y No Discriminación", href: "/equality/policy" },
-        { label: "Indicadores de Brecha Salarial" }
-      ]} />
-      
+      <Breadcrumb
+        items={[
+          {
+            label: "Igualdad Laboral y No Discriminación",
+            href: "/equality/policy",
+          },
+          { label: "Indicadores de Brecha Salarial" },
+        ]}
+      />
+
       <div className="flex items-center justify-between mt-4">
         <div>
           <h1 className="text-3xl font-bold">Indicadores de Brecha Salarial</h1>
-          <p className="text-muted-foreground">NMX-025-SCFI-2015 - Requisito 4.2.1</p>
+          <p className="text-muted-foreground">
+            NMX-025-SCFI-2015 - Requisito 4.2.1
+          </p>
         </div>
         <Button onClick={() => setIsCalculating(!isCalculating)}>
           {isCalculating ? "Cancelar" : "Calcular Brecha"}
@@ -118,13 +155,17 @@ export default function SalaryGap() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Riesgo Alto</CardDescription>
-            <CardTitle className="text-3xl text-red-600">{highRiskCount}</CardTitle>
+            <CardTitle className="text-3xl text-red-600">
+              {highRiskCount}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Riesgo Medio</CardDescription>
-            <CardTitle className="text-3xl text-yellow-600">{mediumRiskCount}</CardTitle>
+            <CardTitle className="text-3xl text-yellow-600">
+              {mediumRiskCount}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -146,7 +187,9 @@ export default function SalaryGap() {
                   <Input
                     id="periodo"
                     value={formData.periodo}
-                    onChange={(e) => setFormData({ ...formData, periodo: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, periodo: e.target.value })
+                    }
                     placeholder="Ej: 2026-Q1"
                     required
                   />
@@ -157,7 +200,9 @@ export default function SalaryGap() {
                   <Input
                     id="departamento"
                     value={formData.departamento}
-                    onChange={(e) => setFormData({ ...formData, departamento: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, departamento: e.target.value })
+                    }
                     placeholder="Ej: Tecnología"
                     required
                   />
@@ -168,7 +213,9 @@ export default function SalaryGap() {
                   <Input
                     id="puesto"
                     value={formData.puesto}
-                    onChange={(e) => setFormData({ ...formData, puesto: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, puesto: e.target.value })
+                    }
                     placeholder="Ej: Desarrollador"
                     required
                   />
@@ -180,7 +227,9 @@ export default function SalaryGap() {
                     id="totalMujeres"
                     type="number"
                     value={formData.totalMujeres}
-                    onChange={(e) => setFormData({ ...formData, totalMujeres: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, totalMujeres: e.target.value })
+                    }
                     placeholder="Ej: 50"
                     required
                   />
@@ -192,33 +241,49 @@ export default function SalaryGap() {
                     id="totalHombres"
                     type="number"
                     value={formData.totalHombres}
-                    onChange={(e) => setFormData({ ...formData, totalHombres: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, totalHombres: e.target.value })
+                    }
                     placeholder="Ej: 45"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="salarioPromedioHombres">Salario Promedio Hombres *</Label>
+                  <Label htmlFor="salarioPromedioHombres">
+                    Salario Promedio Hombres *
+                  </Label>
                   <Input
                     id="salarioPromedioHombres"
                     type="number"
                     step="0.01"
                     value={formData.salarioPromedioHombres}
-                    onChange={(e) => setFormData({ ...formData, salarioPromedioHombres: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        salarioPromedioHombres: e.target.value,
+                      })
+                    }
                     placeholder="Ej: 25000.00"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="salarioPromedioMujeres">Salario Promedio Mujeres *</Label>
+                  <Label htmlFor="salarioPromedioMujeres">
+                    Salario Promedio Mujeres *
+                  </Label>
                   <Input
                     id="salarioPromedioMujeres"
                     type="number"
                     step="0.01"
                     value={formData.salarioPromedioMujeres}
-                    onChange={(e) => setFormData({ ...formData, salarioPromedioMujeres: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        salarioPromedioMujeres: e.target.value,
+                      })
+                    }
                     placeholder="Ej: 23000.00"
                     required
                   />
@@ -227,9 +292,15 @@ export default function SalaryGap() {
 
               <div className="flex gap-2">
                 <Button type="submit" disabled={calculateMutation.isPending}>
-                  {calculateMutation.isPending ? "Calculando..." : "Calcular Brecha"}
+                  {calculateMutation.isPending
+                    ? "Calculando..."
+                    : "Calcular Brecha"}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setIsCalculating(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCalculating(false)}
+                >
                   Cancelar
                 </Button>
               </div>
@@ -242,7 +313,9 @@ export default function SalaryGap() {
       <Card>
         <CardHeader>
           <CardTitle>Historial de Cálculos</CardTitle>
-          <CardDescription>Brechas salariales calculadas por periodo</CardDescription>
+          <CardDescription>
+            Brechas salariales calculadas por periodo
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {gaps.length === 0 ? (
@@ -273,7 +346,8 @@ export default function SalaryGap() {
                         <TrendingDown className="h-5 w-5 text-green-600" />
                       )}
                       <span className="text-2xl font-bold">
-                        {parseFloat(gap.brechaPorcentual.toString()).toFixed(2)}%
+                        {parseFloat(gap.brechaPorcentual.toString()).toFixed(2)}
+                        %
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">

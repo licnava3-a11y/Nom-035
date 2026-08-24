@@ -1,7 +1,12 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { cases, certificates, nom035EvidenceFolder, surveys } from "../../drizzle/schema";
+import {
+  cases,
+  certificates,
+  nom035EvidenceFolder,
+  surveys,
+} from "../../drizzle/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -16,7 +21,7 @@ const categoryEnum = z.enum([
   "minutes",
   "certificates",
   "position_acceptance",
-  "photographic_evidence"
+  "photographic_evidence",
 ]);
 
 export const evidenceFolderRouter = router({
@@ -34,39 +39,50 @@ export const evidenceFolderRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
       let query: any = db.select().from(nom035EvidenceFolder);
-      
+
       const conditions: any[] = [];
-      
+
       if (input.category) {
         conditions.push(eq(nom035EvidenceFolder.category, input.category));
       }
-      
+
       if (input.startDate) {
-        conditions.push(sql`${nom035EvidenceFolder.generatedDate} >= ${input.startDate}`);
+        conditions.push(
+          sql`${nom035EvidenceFolder.generatedDate} >= ${input.startDate}`
+        );
       }
-      
+
       if (input.endDate) {
-        conditions.push(sql`${nom035EvidenceFolder.generatedDate} <= ${input.endDate}`);
+        conditions.push(
+          sql`${nom035EvidenceFolder.generatedDate} <= ${input.endDate}`
+        );
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
-      const evidences = await query.orderBy(desc(nom035EvidenceFolder.generatedDate));
-      
+
+      const evidences = await query.orderBy(
+        desc(nom035EvidenceFolder.generatedDate)
+      );
+
       // Filter by search term in memory (title + description)
       if (input.searchTerm) {
         const term = input.searchTerm.toLowerCase();
-        return evidences.filter((e: any) => 
-          e.title.toLowerCase().includes(term) || 
-          (e.description && e.description.toLowerCase().includes(term))
+        return evidences.filter(
+          (e: any) =>
+            e.title.toLowerCase().includes(term) ||
+            (e.description && e.description.toLowerCase().includes(term))
         );
       }
-      
+
       return evidences;
     }),
 
@@ -77,8 +93,12 @@ export const evidenceFolderRouter = router({
     .input(z.object({ category: categoryEnum }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
       return await db
         .select()
         .from(nom035EvidenceFolder)
@@ -91,20 +111,25 @@ export const evidenceFolderRouter = router({
    */
   getStats: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database connection failed",
+      });
     const allEvidences = await db.select().from(nom035EvidenceFolder);
-    
+
     const stats = {
       total: allEvidences.length,
       byCategory: {} as Record<string, number>,
       totalSize: 0,
     };
-    
-      allEvidences.forEach((evidence: any) => {
-      stats.byCategory[evidence.category] = (stats.byCategory[evidence.category] || 0) + 1;
+
+    allEvidences.forEach((evidence: any) => {
+      stats.byCategory[evidence.category] =
+        (stats.byCategory[evidence.category] || 0) + 1;
       stats.totalSize += evidence.fileSize || 0;
     });
-    
+
     return stats;
   }),
 
@@ -133,10 +158,14 @@ export const evidenceFolderRouter = router({
           message: "Solo administradores pueden agregar evidencias manualmente",
         });
       }
-      
+
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
       const [result] = await (db.insert(nom035EvidenceFolder) as any).values({
         category: input.category,
         title: input.title,
@@ -150,7 +179,7 @@ export const evidenceFolderRouter = router({
         generatedDate: new Date(input.generatedDate),
         uploadedBy: ctx.user.id,
       });
-      
+
       return { success: true, id: Number(result.insertId) };
     }),
 
@@ -166,12 +195,18 @@ export const evidenceFolderRouter = router({
           message: "Solo administradores pueden eliminar evidencias",
         });
       }
-      
+
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
-      
-      await db.delete(nom035EvidenceFolder).where(eq(nom035EvidenceFolder.id, input.id));
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
+      await db
+        .delete(nom035EvidenceFolder)
+        .where(eq(nom035EvidenceFolder.id, input.id));
+
       return { success: true };
     }),
 });

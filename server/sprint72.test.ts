@@ -13,7 +13,10 @@ function calcularSemaforo(porcentaje: number): "verde" | "amarillo" | "rojo" {
   return "rojo";
 }
 
-function calcularPorcentajeCumplimiento(cumplidas: number, total: number): number {
+function calcularPorcentajeCumplimiento(
+  cumplidas: number,
+  total: number
+): number {
   if (total === 0) return 0;
   return Math.round((cumplidas / total) * 100);
 }
@@ -23,7 +26,14 @@ function calcularPorcentajeCumplimiento(cumplidas: number, total: number): numbe
 function calcularTendencia(datos: Array<{ cumplidas: number; total: number }>) {
   return datos.map(d => ({
     porcentaje: d.total > 0 ? Math.round((d.cumplidas / d.total) * 100) : 0,
-    tendencia: d.total > 0 ? (d.cumplidas / d.total >= 0.8 ? "positiva" : d.cumplidas / d.total >= 0.5 ? "neutral" : "negativa") : "sin_datos",
+    tendencia:
+      d.total > 0
+        ? d.cumplidas / d.total >= 0.8
+          ? "positiva"
+          : d.cumplidas / d.total >= 0.5
+            ? "neutral"
+            : "negativa"
+        : "sin_datos",
   }));
 }
 
@@ -40,26 +50,43 @@ function calcularKpisDerivados(stats: {
   altaPrioridad: number;
   altaVencida: number;
 }) {
-  const porcentajeCumplimiento = calcularPorcentajeCumplimiento(stats.cumplidas, stats.total);
+  const porcentajeCumplimiento = calcularPorcentajeCumplimiento(
+    stats.cumplidas,
+    stats.total
+  );
   const semaforoGlobal = calcularSemaforo(porcentajeCumplimiento);
-  const tasaEvidencia = stats.total > 0 ? Math.round((stats.conEvidencia / stats.total) * 100) : 0;
-  const tasaVencimiento = stats.total > 0 ? Math.round((stats.vencidas / stats.total) * 100) : 0;
-  const riesgoAltaPrioridad = stats.altaPrioridad > 0
-    ? Math.round((stats.altaVencida / stats.altaPrioridad) * 100)
-    : 0;
-  return { porcentajeCumplimiento, semaforoGlobal, tasaEvidencia, tasaVencimiento, riesgoAltaPrioridad };
+  const tasaEvidencia =
+    stats.total > 0 ? Math.round((stats.conEvidencia / stats.total) * 100) : 0;
+  const tasaVencimiento =
+    stats.total > 0 ? Math.round((stats.vencidas / stats.total) * 100) : 0;
+  const riesgoAltaPrioridad =
+    stats.altaPrioridad > 0
+      ? Math.round((stats.altaVencida / stats.altaPrioridad) * 100)
+      : 0;
+  return {
+    porcentajeCumplimiento,
+    semaforoGlobal,
+    tasaEvidencia,
+    tasaVencimiento,
+    riesgoAltaPrioridad,
+  };
 }
 
 // ── Lógica de alertas de vencimiento ─────────────────────────────────────────
 
-function clasificarAccionPorVencimiento(plazo: Date | null, estado: string): "vencida" | "proxima" | "vigente" | "sin_plazo" {
+function clasificarAccionPorVencimiento(
+  plazo: Date | null,
+  estado: string
+): "vencida" | "proxima" | "vigente" | "sin_plazo" {
   if (!plazo) return "sin_plazo";
   if (estado === "cumplida" || estado === "cancelada") return "vigente";
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
   const plazoDate = new Date(plazo);
   plazoDate.setHours(0, 0, 0, 0);
-  const diffDias = Math.floor((plazoDate.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+  const diffDias = Math.floor(
+    (plazoDate.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24)
+  );
   if (diffDias < 0) return "vencida";
   if (diffDias <= 14) return "proxima";
   return "vigente";
@@ -68,7 +95,11 @@ function clasificarAccionPorVencimiento(plazo: Date | null, estado: string): "ve
 // ── Lógica de filtrado de planes ──────────────────────────────────────────────
 
 function filtrarPlanesPorTipo(
-  planes: Array<{ tipoPlan: string; porcentajeCumplimiento: number; semaforo: string }>,
+  planes: Array<{
+    tipoPlan: string;
+    porcentajeCumplimiento: number;
+    semaforo: string;
+  }>,
   tipoPlan: string
 ) {
   if (tipoPlan === "all") return planes;
@@ -182,7 +213,11 @@ describe("3. KPIs derivados", () => {
   });
 
   it("3.6 Riesgo de alta prioridad es 0 cuando no hay acciones de alta prioridad", () => {
-    const kpis = calcularKpisDerivados({ ...statsBase, altaPrioridad: 0, altaVencida: 0 });
+    const kpis = calcularKpisDerivados({
+      ...statsBase,
+      altaPrioridad: 0,
+      altaVencida: 0,
+    });
     expect(kpis.riesgoAltaPrioridad).toBe(0);
   });
 });
@@ -246,11 +281,15 @@ describe("5. Clasificación de acciones por vencimiento", () => {
   it("5.4 Acción con plazo en más de 14 días es vigente", () => {
     const plazo = new Date(hoy);
     plazo.setDate(plazo.getDate() + 30);
-    expect(clasificarAccionPorVencimiento(plazo, "no_iniciada")).toBe("vigente");
+    expect(clasificarAccionPorVencimiento(plazo, "no_iniciada")).toBe(
+      "vigente"
+    );
   });
 
   it("5.5 Acción sin plazo retorna sin_plazo", () => {
-    expect(clasificarAccionPorVencimiento(null, "en_proceso")).toBe("sin_plazo");
+    expect(clasificarAccionPorVencimiento(null, "en_proceso")).toBe(
+      "sin_plazo"
+    );
   });
 
   it("5.6 Acción cancelada con plazo pasado es vigente (no vencida)", () => {
@@ -263,9 +302,21 @@ describe("5. Clasificación de acciones por vencimiento", () => {
 describe("6. Filtrado de planes", () => {
   const planes = [
     { tipoPlan: "intervencion", porcentajeCumplimiento: 80, semaforo: "verde" },
-    { tipoPlan: "violencia_laboral", porcentajeCumplimiento: 60, semaforo: "amarillo" },
-    { tipoPlan: "no_discriminacion", porcentajeCumplimiento: 30, semaforo: "rojo" },
-    { tipoPlan: "intervencion", porcentajeCumplimiento: 50, semaforo: "amarillo" },
+    {
+      tipoPlan: "violencia_laboral",
+      porcentajeCumplimiento: 60,
+      semaforo: "amarillo",
+    },
+    {
+      tipoPlan: "no_discriminacion",
+      porcentajeCumplimiento: 30,
+      semaforo: "rojo",
+    },
+    {
+      tipoPlan: "intervencion",
+      porcentajeCumplimiento: 50,
+      semaforo: "amarillo",
+    },
   ];
 
   it("6.1 Filtro 'all' retorna todos los planes", () => {
@@ -323,7 +374,12 @@ describe("8. Validaciones del input del dashboard", () => {
   });
 
   it("8.2 tipoPlan acepta los valores válidos", () => {
-    const validos = ["intervencion", "violencia_laboral", "no_discriminacion", "consolidado"];
+    const validos = [
+      "intervencion",
+      "violencia_laboral",
+      "no_discriminacion",
+      "consolidado",
+    ];
     validos.forEach(v => expect(validos.includes(v)).toBe(true));
   });
 

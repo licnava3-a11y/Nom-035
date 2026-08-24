@@ -5,15 +5,42 @@
 
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Brain, TrendingUp, AlertTriangle, CheckCircle, Play, Calendar, BarChart3 } from "lucide-react";
+import {
+  Brain,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  Play,
+  Calendar,
+  BarChart3,
+} from "lucide-react";
 import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -44,7 +71,9 @@ ChartJS.register(
 
 export default function SentimentAnalysisDashboard() {
   const [dateRange, setDateRange] = useState("30");
-  const [selectedRiskLevel, setSelectedRiskLevel] = useState<"all" | "low" | "medium" | "high" | "critical">("all");
+  const [selectedRiskLevel, setSelectedRiskLevel] = useState<
+    "all" | "low" | "medium" | "high" | "critical"
+  >("all");
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedAnalysis, setSelectedAnalysis] = useState<any>(null);
   const [reviewNotes, setReviewNotes] = useState("");
@@ -63,21 +92,24 @@ export default function SentimentAnalysisDashboard() {
   }, [dateRange]);
 
   // Queries
-  const { data: stats, isLoading: statsLoading } = trpc.sentimentAnalysis.getStats.useQuery({
-    startDate,
-    endDate,
-  });
+  const { data: stats, isLoading: statsLoading } =
+    trpc.sentimentAnalysis.getStats.useQuery({
+      startDate,
+      endDate,
+    });
 
-  const { data: trends = [], isLoading: trendsLoading } = trpc.sentimentAnalysis.getTrends.useQuery({
-    startDate,
-    endDate,
-    riskLevel: selectedRiskLevel,
-  });
+  const { data: trends = [], isLoading: trendsLoading } =
+    trpc.sentimentAnalysis.getTrends.useQuery({
+      startDate,
+      endDate,
+      riskLevel: selectedRiskLevel,
+    });
 
-  const { data: criticalComments = [], isLoading: criticalLoading } = trpc.sentimentAnalysis.getCriticalComments.useQuery({
-    limit: 20,
-    reviewed: false,
-  });
+  const { data: criticalComments = [], isLoading: criticalLoading } =
+    trpc.sentimentAnalysis.getCriticalComments.useQuery({
+      limit: 20,
+      reviewed: false,
+    });
 
   // Mutations
   const runAnalysis = trpc.sentimentAnalysis.runManualAnalysis.useMutation({
@@ -87,7 +119,7 @@ export default function SentimentAnalysisDashboard() {
       utils.sentimentAnalysis.getStats.invalidate();
       utils.sentimentAnalysis.getCriticalComments.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -100,7 +132,7 @@ export default function SentimentAnalysisDashboard() {
       setReviewNotes("");
       utils.sentimentAnalysis.getCriticalComments.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -110,14 +142,20 @@ export default function SentimentAnalysisDashboard() {
     if (!trends || trends.length === 0) return null;
 
     // Agrupar por fecha
-    const byDate: Record<string, { positive: number; neutral: number; negative: number; critical: number }> = {};
+    const byDate: Record<
+      string,
+      { positive: number; neutral: number; negative: number; critical: number }
+    > = {};
 
     trends.forEach((t: any) => {
-      const date = new Date(t.analyzedAt).toLocaleDateString("es-MX", { month: "short", day: "numeric" });
+      const date = new Date(t.analyzedAt).toLocaleDateString("es-MX", {
+        month: "short",
+        day: "numeric",
+      });
       if (!byDate[date]) {
         byDate[date] = { positive: 0, neutral: 0, negative: 0, critical: 0 };
       }
-      byDate[date][t.sentiment as keyof typeof byDate[string]]++;
+      byDate[date][t.sentiment as keyof (typeof byDate)[string]]++;
     });
 
     const labels = Object.keys(byDate).sort();
@@ -208,7 +246,10 @@ export default function SentimentAnalysisDashboard() {
   }, [stats]);
 
   const getRiskBadge = (riskLevel: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    const variants: Record<
+      string,
+      "default" | "secondary" | "destructive" | "outline"
+    > = {
       low: "secondary",
       medium: "default",
       high: "destructive",
@@ -220,11 +261,18 @@ export default function SentimentAnalysisDashboard() {
       high: "Alto",
       critical: "Crítico",
     };
-    return <Badge variant={variants[riskLevel] || "default"}>{labels[riskLevel] || riskLevel}</Badge>;
+    return (
+      <Badge variant={variants[riskLevel] || "default"}>
+        {labels[riskLevel] || riskLevel}
+      </Badge>
+    );
   };
 
   const getSentimentBadge = (sentiment: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    const variants: Record<
+      string,
+      "default" | "secondary" | "destructive" | "outline"
+    > = {
       positive: "secondary",
       neutral: "default",
       negative: "destructive",
@@ -236,7 +284,11 @@ export default function SentimentAnalysisDashboard() {
       negative: "Negativo",
       critical: "Crítico",
     };
-    return <Badge variant={variants[sentiment] || "default"}>{labels[sentiment] || sentiment}</Badge>;
+    return (
+      <Badge variant={variants[sentiment] || "default"}>
+        {labels[sentiment] || sentiment}
+      </Badge>
+    );
   };
 
   if (statsLoading || trendsLoading) {
@@ -245,7 +297,9 @@ export default function SentimentAnalysisDashboard() {
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Cargando análisis de sentimiento...</p>
+            <p className="text-muted-foreground">
+              Cargando análisis de sentimiento...
+            </p>
           </div>
         </div>
       </div>
@@ -262,7 +316,8 @@ export default function SentimentAnalysisDashboard() {
             Análisis de Sentimiento NOM-035
           </h1>
           <p className="text-muted-foreground mt-2">
-            Detección automática de patrones de riesgo psicosocial con inteligencia artificial
+            Detección automática de patrones de riesgo psicosocial con
+            inteligencia artificial
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -278,7 +333,10 @@ export default function SentimentAnalysisDashboard() {
               <SelectItem value="180">Últimos 6 meses</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={() => runAnalysis.mutate()} disabled={runAnalysis.isPending}>
+          <Button
+            onClick={() => runAnalysis.mutate()}
+            disabled={runAnalysis.isPending}
+          >
             <Play className="h-4 w-4 mr-2" />
             {runAnalysis.isPending ? "Analizando..." : "Ejecutar Análisis"}
           </Button>
@@ -289,34 +347,50 @@ export default function SentimentAnalysisDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Analizado</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Analizado
+            </CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.total || 0}</div>
-            <p className="text-xs text-muted-foreground">Respuestas procesadas</p>
+            <p className="text-xs text-muted-foreground">
+              Respuestas procesadas
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas Críticas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Alertas Críticas
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">{stats?.criticalAlerts || 0}</div>
-            <p className="text-xs text-muted-foreground">Requieren atención inmediata</p>
+            <div className="text-2xl font-bold text-destructive">
+              {stats?.criticalAlerts || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Requieren atención inmediata
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Confianza Promedio</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Confianza Promedio
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.avgConfidence.toFixed(1) || 0}%</div>
-            <p className="text-xs text-muted-foreground">Precisión del análisis</p>
+            <div className="text-2xl font-bold">
+              {stats?.avgConfidence.toFixed(1) || 0}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Precisión del análisis
+            </p>
           </CardContent>
         </Card>
 
@@ -327,9 +401,14 @@ export default function SentimentAnalysisDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats ? Math.round((stats.bySentiment.positive / stats.total) * 100) : 0}%
+              {stats
+                ? Math.round((stats.bySentiment.positive / stats.total) * 100)
+                : 0}
+              %
             </div>
-            <p className="text-xs text-muted-foreground">Sentimiento positivo</p>
+            <p className="text-xs text-muted-foreground">
+              Sentimiento positivo
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -353,7 +432,9 @@ export default function SentimentAnalysisDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Evolución Temporal del Sentimiento</CardTitle>
-              <CardDescription>Tendencia de sentimientos detectados en el periodo seleccionado</CardDescription>
+              <CardDescription>
+                Tendencia de sentimientos detectados en el periodo seleccionado
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {lineChartData ? (
@@ -392,7 +473,9 @@ export default function SentimentAnalysisDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Distribución por Nivel de Riesgo</CardTitle>
-                <CardDescription>Clasificación de riesgo psicosocial detectado</CardDescription>
+                <CardDescription>
+                  Clasificación de riesgo psicosocial detectado
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {doughnutChartData ? (
@@ -422,7 +505,9 @@ export default function SentimentAnalysisDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Distribución por Sentimiento</CardTitle>
-                <CardDescription>Tono emocional general de las respuestas</CardDescription>
+                <CardDescription>
+                  Tono emocional general de las respuestas
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {barChartData ? (
@@ -463,12 +548,15 @@ export default function SentimentAnalysisDashboard() {
             <CardHeader>
               <CardTitle>Comentarios Críticos Pendientes de Revisión</CardTitle>
               <CardDescription>
-                Respuestas con indicadores de riesgo crítico que requieren atención inmediata
+                Respuestas con indicadores de riesgo crítico que requieren
+                atención inmediata
               </CardDescription>
             </CardHeader>
             <CardContent>
               {criticalLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Cargando...</div>
+                <div className="text-center py-8 text-muted-foreground">
+                  Cargando...
+                </div>
               ) : criticalComments.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
@@ -477,27 +565,35 @@ export default function SentimentAnalysisDashboard() {
               ) : (
                 <div className="space-y-4">
                   {criticalComments.map((comment: any) => (
-                    <div key={comment.id} className="border rounded-lg p-4 space-y-3">
+                    <div
+                      key={comment.id}
+                      className="border rounded-lg p-4 space-y-3"
+                    >
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             {getSentimentBadge(comment.sentiment)}
                             {getRiskBadge(comment.riskLevel)}
                             <span className="text-sm text-muted-foreground">
-                              Confianza: {Number(comment.confidence).toFixed(0)}%
+                              Confianza: {Number(comment.confidence).toFixed(0)}
+                              %
                             </span>
                           </div>
                           <p className="text-sm font-medium">
-                            {comment.userName || "Anónimo"} - {comment.userDepartment || "Sin departamento"}
+                            {comment.userName || "Anónimo"} -{" "}
+                            {comment.userDepartment || "Sin departamento"}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(comment.analyzedAt).toLocaleDateString("es-MX", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {new Date(comment.analyzedAt).toLocaleDateString(
+                              "es-MX",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
                           </p>
                         </div>
                         <Button
@@ -514,25 +610,35 @@ export default function SentimentAnalysisDashboard() {
                       <div className="space-y-2">
                         <div>
                           <p className="text-sm font-medium">Resumen:</p>
-                          <p className="text-sm text-muted-foreground">{comment.summary}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {comment.summary}
+                          </p>
                         </div>
 
                         {comment.riskIndicators && (
                           <div>
-                            <p className="text-sm font-medium">Indicadores de Riesgo:</p>
+                            <p className="text-sm font-medium">
+                              Indicadores de Riesgo:
+                            </p>
                             <div className="flex flex-wrap gap-2 mt-1">
-                              {JSON.parse(comment.riskIndicators).map((indicator: string, idx: number) => (
-                                <Badge key={idx} variant="outline">
-                                  {indicator}
-                                </Badge>
-                              ))}
+                              {JSON.parse(comment.riskIndicators).map(
+                                (indicator: string, idx: number) => (
+                                  <Badge key={idx} variant="outline">
+                                    {indicator}
+                                  </Badge>
+                                )
+                              )}
                             </div>
                           </div>
                         )}
 
                         <div>
-                          <p className="text-sm font-medium">Recomendaciones:</p>
-                          <p className="text-sm text-muted-foreground">{comment.recommendations}</p>
+                          <p className="text-sm font-medium">
+                            Recomendaciones:
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {comment.recommendations}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -550,7 +656,8 @@ export default function SentimentAnalysisDashboard() {
           <DialogHeader>
             <DialogTitle>Revisar Análisis Crítico</DialogTitle>
             <DialogDescription>
-              Registra tus observaciones sobre este análisis y marca como revisado
+              Registra tus observaciones sobre este análisis y marca como
+              revisado
             </DialogDescription>
           </DialogHeader>
 
@@ -558,19 +665,25 @@ export default function SentimentAnalysisDashboard() {
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium">Resumen del Análisis:</p>
-                <p className="text-sm text-muted-foreground">{selectedAnalysis.summary}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedAnalysis.summary}
+                </p>
               </div>
 
               <div>
                 <p className="text-sm font-medium">Recomendaciones:</p>
-                <p className="text-sm text-muted-foreground">{selectedAnalysis.recommendations}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedAnalysis.recommendations}
+                </p>
               </div>
 
               <div>
-                <label className="text-sm font-medium">Notas de Revisión (opcional):</label>
+                <label className="text-sm font-medium">
+                  Notas de Revisión (opcional):
+                </label>
                 <Textarea
                   value={reviewNotes}
-                  onChange={(e) => setReviewNotes(e.target.value)}
+                  onChange={e => setReviewNotes(e.target.value)}
                   placeholder="Agrega tus observaciones sobre este caso..."
                   className="mt-2"
                   rows={4}
@@ -580,7 +693,10 @@ export default function SentimentAnalysisDashboard() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setReviewDialogOpen(false)}
+            >
               Cancelar
             </Button>
             <Button
@@ -594,7 +710,9 @@ export default function SentimentAnalysisDashboard() {
               }}
               disabled={markAsReviewed.isPending}
             >
-              {markAsReviewed.isPending ? "Guardando..." : "Marcar como Revisado"}
+              {markAsReviewed.isPending
+                ? "Guardando..."
+                : "Marcar como Revisado"}
             </Button>
           </DialogFooter>
         </DialogContent>

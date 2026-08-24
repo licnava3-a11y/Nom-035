@@ -1,11 +1,19 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { nom035CommitteeMeetings, nom035CommitteeAgreements, employees } from "../../drizzle/schema";
+import {
+  nom035CommitteeMeetings,
+  nom035CommitteeAgreements,
+  employees,
+} from "../../drizzle/schema";
 import { gte, and, isNotNull, eq } from "drizzle-orm";
 
 // ─── Tipos de evento ──────────────────────────────────────────────────────────
-export type CalendarEventType = "meeting" | "contract_expiry" | "action_deadline" | "agreement_deadline";
+export type CalendarEventType =
+  | "meeting"
+  | "contract_expiry"
+  | "action_deadline"
+  | "agreement_deadline";
 
 export interface CalendarEvent {
   id: string;
@@ -31,11 +39,19 @@ function addHours(date: Date, hours: number): Date {
 }
 
 function generateICalEvent(event: CalendarEvent): string {
-  const dtStart = event.startDate.replace(/[-:]/g, "").replace(/\.\d{3}/, "").replace("Z", "Z");
-  const dtEnd = event.endDate.replace(/[-:]/g, "").replace(/\.\d{3}/, "").replace("Z", "Z");
+  const dtStart = event.startDate
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "")
+    .replace("Z", "Z");
+  const dtEnd = event.endDate
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "")
+    .replace("Z", "Z");
   const uid = `${event.id}@nom035.stps.gob.mx`;
   const summary = event.title.replace(/[,;\\]/g, " ");
-  const description = event.description.replace(/[,;\\]/g, " ").replace(/\n/g, "\\n");
+  const description = event.description
+    .replace(/[,;\\]/g, " ")
+    .replace(/\n/g, "\\n");
 
   return [
     "BEGIN:VEVENT",
@@ -72,7 +88,14 @@ export const googleCalendarSyncRouter = router({
       z.object({
         days: z.number().min(1).max(365).default(90),
         types: z
-          .array(z.enum(["meeting", "contract_expiry", "action_deadline", "agreement_deadline"]))
+          .array(
+            z.enum([
+              "meeting",
+              "contract_expiry",
+              "action_deadline",
+              "agreement_deadline",
+            ])
+          )
           .optional(),
       })
     )
@@ -143,7 +166,9 @@ export const googleCalendarSyncRouter = router({
               if (!c.date) continue;
               const expDate = new Date(c.date);
               if (expDate < now || expDate > horizon) continue;
-              const daysLeft = Math.ceil((expDate.getTime() - now.getTime()) / 86_400_000);
+              const daysLeft = Math.ceil(
+                (expDate.getTime() - now.getTime()) / 86_400_000
+              );
               const fullName = `${emp.firstName} ${emp.lastName}`;
               events.push({
                 id: `contract-${emp.id}-${c.type.replace(/\s/g, "")}`,
@@ -152,7 +177,8 @@ export const googleCalendarSyncRouter = router({
                 startDate: toISODate(expDate),
                 endDate: toISODate(addHours(expDate, 1)),
                 type: "contract_expiry",
-                priority: daysLeft <= 15 ? "high" : daysLeft <= 30 ? "medium" : "low",
+                priority:
+                  daysLeft <= 15 ? "high" : daysLeft <= 30 ? "medium" : "low",
               });
             }
           }
@@ -178,7 +204,9 @@ export const googleCalendarSyncRouter = router({
             if (!ag.dueDate) continue;
             const dueDate = new Date(ag.dueDate);
             if (dueDate > horizon) continue;
-            const daysLeft = Math.ceil((dueDate.getTime() - now.getTime()) / 86_400_000);
+            const daysLeft = Math.ceil(
+              (dueDate.getTime() - now.getTime()) / 86_400_000
+            );
             events.push({
               id: `agreement-${ag.id}`,
               title: `Plazo Acuerdo: ${ag.description.substring(0, 60)}`,
@@ -186,7 +214,12 @@ export const googleCalendarSyncRouter = router({
               startDate: toISODate(dueDate),
               endDate: toISODate(addHours(dueDate, 1)),
               type: "agreement_deadline",
-              priority: ag.priority === "alta" ? "high" : ag.priority === "media" ? "medium" : "low",
+              priority:
+                ag.priority === "alta"
+                  ? "high"
+                  : ag.priority === "media"
+                    ? "medium"
+                    : "low",
               folio: ag.folio ?? undefined,
             });
           }
@@ -196,16 +229,23 @@ export const googleCalendarSyncRouter = router({
       }
 
       // Ordenar por fecha
-      events.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+      events.sort(
+        (a, b) =>
+          new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      );
 
       return {
         events,
         total: events.length,
         byType: {
-          meeting: events.filter((e) => e.type === "meeting").length,
-          contract_expiry: events.filter((e) => e.type === "contract_expiry").length,
-          action_deadline: events.filter((e) => e.type === "action_deadline").length,
-          agreement_deadline: events.filter((e) => e.type === "agreement_deadline").length,
+          meeting: events.filter(e => e.type === "meeting").length,
+          contract_expiry: events.filter(e => e.type === "contract_expiry")
+            .length,
+          action_deadline: events.filter(e => e.type === "action_deadline")
+            .length,
+          agreement_deadline: events.filter(
+            e => e.type === "agreement_deadline"
+          ).length,
         },
       };
     }),
@@ -263,7 +303,12 @@ export const googleCalendarSyncRouter = router({
         const meetings = await db
           .select()
           .from(nom035CommitteeMeetings)
-          .where(and(gte(nom035CommitteeMeetings.scheduledAt, now), isNotNull(nom035CommitteeMeetings.scheduledAt)));
+          .where(
+            and(
+              gte(nom035CommitteeMeetings.scheduledAt, now),
+              isNotNull(nom035CommitteeMeetings.scheduledAt)
+            )
+          );
         for (const m of meetings) {
           const start = new Date(m.scheduledAt!);
           if (start > horizon) continue;
@@ -279,13 +324,20 @@ export const googleCalendarSyncRouter = router({
             folio: m.folio ?? undefined,
           });
         }
-      } catch { /* tabla no existe */ }
+      } catch {
+        /* tabla no existe */
+      }
 
       try {
         const agreements = await db
           .select()
           .from(nom035CommitteeAgreements)
-          .where(and(isNotNull(nom035CommitteeAgreements.dueDate), gte(nom035CommitteeAgreements.dueDate, now)));
+          .where(
+            and(
+              isNotNull(nom035CommitteeAgreements.dueDate),
+              gte(nom035CommitteeAgreements.dueDate, now)
+            )
+          );
         for (const ag of agreements) {
           if (!ag.dueDate) continue;
           const dueDate = new Date(ag.dueDate);
@@ -301,7 +353,9 @@ export const googleCalendarSyncRouter = router({
             folio: ag.folio ?? undefined,
           });
         }
-      } catch { /* tabla no existe */ }
+      } catch {
+        /* tabla no existe */
+      }
 
       const ical = [
         "BEGIN:VCALENDAR",
@@ -329,25 +383,48 @@ export const googleCalendarSyncRouter = router({
       const horizon = new Date(now.getTime() + input.days * 86_400_000);
       const urgentHorizon = new Date(now.getTime() + 7 * 86_400_000);
 
-      let meetings = 0, contracts = 0, agreements = 0, urgent = 0;
+      let meetings = 0,
+        contracts = 0,
+        agreements = 0,
+        urgent = 0;
 
       try {
         const rows = await db
           .select()
           .from(nom035CommitteeMeetings)
-          .where(and(gte(nom035CommitteeMeetings.scheduledAt, now), isNotNull(nom035CommitteeMeetings.scheduledAt)));
-        meetings = rows.filter((r) => new Date(r.scheduledAt!) <= horizon).length;
-        urgent += rows.filter((r) => new Date(r.scheduledAt!) <= urgentHorizon).length;
-      } catch { /* tabla no existe */ }
+          .where(
+            and(
+              gte(nom035CommitteeMeetings.scheduledAt, now),
+              isNotNull(nom035CommitteeMeetings.scheduledAt)
+            )
+          );
+        meetings = rows.filter(r => new Date(r.scheduledAt!) <= horizon).length;
+        urgent += rows.filter(
+          r => new Date(r.scheduledAt!) <= urgentHorizon
+        ).length;
+      } catch {
+        /* tabla no existe */
+      }
 
       try {
         const rows = await db
           .select()
           .from(nom035CommitteeAgreements)
-          .where(and(isNotNull(nom035CommitteeAgreements.dueDate), gte(nom035CommitteeAgreements.dueDate, now)));
-        agreements = rows.filter((r) => r.dueDate && new Date(r.dueDate) <= horizon).length;
-        urgent += rows.filter((r) => r.dueDate && new Date(r.dueDate) <= urgentHorizon).length;
-      } catch { /* tabla no existe */ }
+          .where(
+            and(
+              isNotNull(nom035CommitteeAgreements.dueDate),
+              gte(nom035CommitteeAgreements.dueDate, now)
+            )
+          );
+        agreements = rows.filter(
+          r => r.dueDate && new Date(r.dueDate) <= horizon
+        ).length;
+        urgent += rows.filter(
+          r => r.dueDate && new Date(r.dueDate) <= urgentHorizon
+        ).length;
+      } catch {
+        /* tabla no existe */
+      }
 
       try {
         const emps = await db
@@ -360,15 +437,27 @@ export const googleCalendarSyncRouter = router({
           .where(eq(employees.isActive, true));
 
         for (const emp of emps) {
-          for (const d of [emp.contract1ExpirationDate, emp.contract2ExpirationDate, emp.contract3ExpirationDate]) {
+          for (const d of [
+            emp.contract1ExpirationDate,
+            emp.contract2ExpirationDate,
+            emp.contract3ExpirationDate,
+          ]) {
             if (!d) continue;
             const expDate = new Date(d);
             if (expDate >= now && expDate <= horizon) contracts++;
             if (expDate >= now && expDate <= urgentHorizon) urgent++;
           }
         }
-      } catch { /* tabla no existe */ }
+      } catch {
+        /* tabla no existe */
+      }
 
-      return { meetings, contracts, agreements, urgent, total: meetings + contracts + agreements };
+      return {
+        meetings,
+        contracts,
+        agreements,
+        urgent,
+        total: meetings + contracts + agreements,
+      };
     }),
 });

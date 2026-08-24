@@ -72,7 +72,7 @@ export const nom035Router = router({
     )
     .query(async ({ ctx, input }) => {
       const employeeId = input.employeeId || ctx.user.id;
-      
+
       // Solo admin puede ver resultados de otros empleados
       if (employeeId !== ctx.user.id && ctx.user.role !== "admin") {
         throw new Error("No autorizado");

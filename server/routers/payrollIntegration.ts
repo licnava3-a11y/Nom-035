@@ -62,7 +62,8 @@ export const payrollIntegrationRouter = router({
         console.error("Error al obtener datos de nómina del empleado:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error.message || "Error al obtener datos de nómina del empleado",
+          message:
+            error.message || "Error al obtener datos de nómina del empleado",
         });
       }
     }),
@@ -99,8 +100,9 @@ export const payrollIntegrationRouter = router({
         let salaryGapPercentage = null;
         let salaryGapStatus = null;
         if (input.marketRate) {
-          salaryGapPercentage = ((input.salary - input.marketRate) / input.marketRate) * 100;
-          
+          salaryGapPercentage =
+            ((input.salary - input.marketRate) / input.marketRate) * 100;
+
           if (salaryGapPercentage < -10) {
             salaryGapStatus = "below_market";
           } else if (salaryGapPercentage > 10) {
@@ -144,7 +146,9 @@ export const payrollIntegrationRouter = router({
               salary: input.salary.toString(),
               benefits: input.benefits?.toString(),
               totalCompensation: totalCompensation.toString(),
-              lastRaiseDate: input.lastRaiseDate ? new Date(input.lastRaiseDate) : null,
+              lastRaiseDate: input.lastRaiseDate
+                ? new Date(input.lastRaiseDate)
+                : null,
               lastRaisePercentage: input.lastRaisePercentage?.toString(),
               monthsSinceLastRaise,
               marketRate: input.marketRate?.toString(),
@@ -202,7 +206,9 @@ export const payrollIntegrationRouter = router({
           });
         }
 
-        await db.delete(payrollData).where(eq(payrollData.employeeId, input.employeeId));
+        await db
+          .delete(payrollData)
+          .where(eq(payrollData.employeeId, input.employeeId));
         return { success: true };
       } catch (error: any) {
         console.error("Error al eliminar datos de nómina:", error);
@@ -236,7 +242,8 @@ export const payrollIntegrationRouter = router({
       console.error("Error al obtener brechas salariales críticas:", error);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: error.message || "Error al obtener brechas salariales críticas",
+        message:
+          error.message || "Error al obtener brechas salariales críticas",
       });
     }
   }),
@@ -278,16 +285,26 @@ export const payrollIntegrationRouter = router({
       return {
         byRiskLevel: grouped,
         totalEmployees: data.length,
-        criticalCount: data.filter((d: any) => d.compensationRiskLevel === "critical").length,
-        highCount: data.filter((d: any) => d.compensationRiskLevel === "high").length,
-        mediumCount: data.filter((d: any) => d.compensationRiskLevel === "medium").length,
-        lowCount: data.filter((d: any) => d.compensationRiskLevel === "low").length,
+        criticalCount: data.filter(
+          (d: any) => d.compensationRiskLevel === "critical"
+        ).length,
+        highCount: data.filter((d: any) => d.compensationRiskLevel === "high")
+          .length,
+        mediumCount: data.filter(
+          (d: any) => d.compensationRiskLevel === "medium"
+        ).length,
+        lowCount: data.filter((d: any) => d.compensationRiskLevel === "low")
+          .length,
       };
     } catch (error: any) {
-      console.error("Error al analizar correlación compensación-riesgo:", error);
+      console.error(
+        "Error al analizar correlación compensación-riesgo:",
+        error
+      );
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: error.message || "Error al analizar correlación compensación-riesgo",
+        message:
+          error.message || "Error al analizar correlación compensación-riesgo",
       });
     }
   }),

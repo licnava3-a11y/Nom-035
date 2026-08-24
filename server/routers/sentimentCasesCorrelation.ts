@@ -5,7 +5,14 @@
 
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { departments, employees, nom035Cases, sentimentAnalysis, surveyResponses, users } from "../../drizzle/schema";
+import {
+  departments,
+  employees,
+  nom035Cases,
+  sentimentAnalysis,
+  surveyResponses,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, gte, desc, sql, count } from "drizzle-orm";
 import { z } from "zod";
 
@@ -29,7 +36,9 @@ export const sentimentCasesCorrelationRouter = router({
 
       // Rango de fechas por defecto: últimos 90 días
       const end = endDate ? new Date(endDate) : new Date();
-      const start = startDate ? new Date(startDate) : new Date(end.getTime() - 90 * 24 * 60 * 60 * 1000);
+      const start = startDate
+        ? new Date(startDate)
+        : new Date(end.getTime() - 90 * 24 * 60 * 60 * 1000);
 
       // Obtener comentarios críticos por mes
       const criticalComments = await db
@@ -38,13 +47,18 @@ export const sentimentCasesCorrelationRouter = router({
           count: count(),
         })
         .from(sentimentAnalysis)
-        .innerJoin(surveyResponses, eq(sentimentAnalysis.responseId, surveyResponses.id))
+        .innerJoin(
+          surveyResponses,
+          eq(sentimentAnalysis.responseId, surveyResponses.id)
+        )
         .innerJoin(users, eq(surveyResponses.userId, users.id))
         .where(
           and(
             eq(sentimentAnalysis.riskLevel, "critical"),
             gte(sentimentAnalysis.analyzedAt, start),
-            departmentId ? sql`${users.departamento} = ${String(departmentId)}` : sql`1=1`
+            departmentId
+              ? sql`${users.departamento} = ${String(departmentId)}`
+              : sql`1=1`
           )
         )
         .groupBy(sql`DATE_FORMAT(${sentimentAnalysis.analyzedAt}, '%Y-%m')`)
@@ -60,17 +74,25 @@ export const sentimentCasesCorrelationRouter = router({
         .where(
           and(
             gte(nom035Cases.createdAt, start),
-            departmentId ? sql`${nom035Cases.employeeId} IN (SELECT id FROM employees WHERE department_id = ${departmentId})` : sql`1=1`
+            departmentId
+              ? sql`${nom035Cases.employeeId} IN (SELECT id FROM employees WHERE department_id = ${departmentId})`
+              : sql`1=1`
           )
         )
         .groupBy(sql`DATE_FORMAT(${nom035Cases.createdAt}, '%Y-%m')`)
         .orderBy(sql`DATE_FORMAT(${nom035Cases.createdAt}, '%Y-%m')`);
 
       // Combinar datos por mes
-      const months = Array.from(new Set([...criticalComments.map(c => c.month), ...casesOpened.map(c => c.month)])).sort();
-      
+      const months = Array.from(
+        new Set([
+          ...criticalComments.map(c => c.month),
+          ...casesOpened.map(c => c.month),
+        ])
+      ).sort();
+
       const correlationData = months.map(month => {
-        const criticalCount = criticalComments.find(c => c.month === month)?.count || 0;
+        const criticalCount =
+          criticalComments.find(c => c.month === month)?.count || 0;
         const casesCount = casesOpened.find(c => c.month === month)?.count || 0;
         return {
           month,
@@ -161,9 +183,12 @@ export const sentimentCasesCorrelationRouter = router({
       );
 
     // Calcular tasa de resolución
-    const resolutionRate = totalAutoCases[0].count > 0
-      ? ((closedAutoCases[0].count / totalAutoCases[0].count) * 100).toFixed(1)
-      : "0.0";
+    const resolutionRate =
+      totalAutoCases[0].count > 0
+        ? ((closedAutoCases[0].count / totalAutoCases[0].count) * 100).toFixed(
+            1
+          )
+        : "0.0";
 
     // Tiempo promedio de resolución (días) - solo casos cerrados
     const avgResolutionTime = await db
@@ -185,7 +210,9 @@ export const sentimentCasesCorrelationRouter = router({
       inProgressCases: inProgressAutoCases[0].count,
       openCases: openAutoCases[0].count,
       resolutionRate: parseFloat(resolutionRate),
-      avgResolutionDays: avgResolutionTime[0]?.avgDays ? Math.round(avgResolutionTime[0].avgDays) : 0,
+      avgResolutionDays: avgResolutionTime[0]?.avgDays
+        ? Math.round(avgResolutionTime[0].avgDays)
+        : 0,
     };
   }),
 

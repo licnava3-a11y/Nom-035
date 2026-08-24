@@ -9,9 +9,17 @@ export const termsRouter = router({
   // Verificar si el usuario ya aceptó los términos
   hasAccepted: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Base de datos no disponible",
+      });
     const [record] = await db
-      .select({ id: termsAcceptance.id, version: termsAcceptance.version, acceptedAt: termsAcceptance.acceptedAt })
+      .select({
+        id: termsAcceptance.id,
+        version: termsAcceptance.version,
+        acceptedAt: termsAcceptance.acceptedAt,
+      })
       .from(termsAcceptance)
       .where(eq(termsAcceptance.userId, ctx.user.id))
       .orderBy(desc(termsAcceptance.acceptedAt))
@@ -30,7 +38,11 @@ export const termsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Base de datos no disponible",
+        });
       await db.insert(termsAcceptance).values({
         userId: ctx.user.id,
         version: input.version,
@@ -43,7 +55,11 @@ export const termsRouter = router({
   // Obtener historial de aceptaciones (para auditoría)
   getHistory: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Base de datos no disponible",
+      });
     const records = await db
       .select()
       .from(termsAcceptance)

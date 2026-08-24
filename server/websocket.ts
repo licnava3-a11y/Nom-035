@@ -12,9 +12,10 @@ let io: SocketIOServer | null = null;
 export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
   io = new SocketIOServer(httpServer, {
     cors: {
-      origin: process.env.NODE_ENV === "development" 
-        ? ["http://localhost:3000", "http://127.0.0.1:3000"]
-        : true,
+      origin:
+        process.env.NODE_ENV === "development"
+          ? ["http://localhost:3000", "http://127.0.0.1:3000"]
+          : true,
       credentials: true,
     },
     path: "/socket.io/",
@@ -23,13 +24,17 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
   // Middleware de autenticación
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
-    
+
     if (!token) {
       return next(new Error("Authentication error: No token provided"));
     }
 
     try {
-      const decoded = jwt.verify(token, ENV.cookieSecret) as { openId: string; name: string; email: string };
+      const decoded = jwt.verify(token, ENV.cookieSecret) as {
+        openId: string;
+        name: string;
+        email: string;
+      };
       socket.data.user = decoded;
       socket.data.userId = decoded.openId;
       next();
@@ -39,7 +44,7 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
   });
 
   // Manejo de conexiones
-  io.on("connection", (socket) => {
+  io.on("connection", socket => {
     const userId = socket.data.userId;
     console.log(`[WebSocket] Usuario conectado: ${userId}`);
 
@@ -66,7 +71,9 @@ export function initializeWebSocket(httpServer: HTTPServer): SocketIOServer {
  */
 export function getIO(): SocketIOServer {
   if (!io) {
-    throw new Error("Socket.IO no ha sido inicializado. Llama a initializeWebSocket primero.");
+    throw new Error(
+      "Socket.IO no ha sido inicializado. Llama a initializeWebSocket primero."
+    );
   }
   return io;
 }
@@ -76,22 +83,30 @@ export function getIO(): SocketIOServer {
  * @param userId - ID del usuario destinatario
  * @param notification - Objeto de notificación
  */
-export function emitNotification(userId: string, notification: {
-  id: number;
-  type: string;
-  title: string;
-  message: string;
-  relatedEntityType?: string | null;
-  relatedEntityId?: number | null;
-  createdAt: Date;
-}) {
+export function emitNotification(
+  userId: string,
+  notification: {
+    id: number;
+    type: string;
+    title: string;
+    message: string;
+    relatedEntityType?: string | null;
+    relatedEntityId?: number | null;
+    createdAt: Date;
+  }
+) {
   if (!io) {
-    console.warn("[WebSocket] Socket.IO no inicializado, no se puede emitir notificación");
+    console.warn(
+      "[WebSocket] Socket.IO no inicializado, no se puede emitir notificación"
+    );
     return;
   }
 
   io.to(`user:${userId}`).emit("notification", notification);
-  console.log(`[WebSocket] Notificación enviada a usuario ${userId}:`, notification.title);
+  console.log(
+    `[WebSocket] Notificación enviada a usuario ${userId}:`,
+    notification.title
+  );
 }
 
 /**
@@ -108,12 +123,17 @@ export function emitBroadcastNotification(notification: {
   createdAt: Date;
 }) {
   if (!io) {
-    console.warn("[WebSocket] Socket.IO no inicializado, no se puede emitir notificación broadcast");
+    console.warn(
+      "[WebSocket] Socket.IO no inicializado, no se puede emitir notificación broadcast"
+    );
     return;
   }
 
   io.emit("notification", notification);
-  console.log(`[WebSocket] Notificación broadcast enviada:`, notification.title);
+  console.log(
+    `[WebSocket] Notificación broadcast enviada:`,
+    notification.title
+  );
 }
 
 /**

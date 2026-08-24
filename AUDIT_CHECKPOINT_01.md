@@ -12,21 +12,21 @@ Esta situación mezclaba pruebas unitarias e integración en una misma ejecució
 
 ## Corrección aplicada
 
-| Archivo | Cambio |
-|---|---|
-| `vitest.config.ts` | Se definió una lista explícita de pruebas dependientes de base de datos. Se excluyen por defecto y se habilitan únicamente con `RUN_DB_INTEGRATION_TESTS=true`. |
-| `package.json` | `test:ci` quedó como suite unitaria reproducible. `test:integration` activa explícitamente las pruebas que requieren MySQL. |
-| `server/ciQuality.test.ts` | Se actualizó la prueba de calidad para validar la separación explícita y evitar que la lista de exclusiones quede desincronizada. |
+| Archivo                    | Cambio                                                                                                                                                          |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vitest.config.ts`         | Se definió una lista explícita de pruebas dependientes de base de datos. Se excluyen por defecto y se habilitan únicamente con `RUN_DB_INTEGRATION_TESTS=true`. |
+| `package.json`             | `test:ci` quedó como suite unitaria reproducible. `test:integration` activa explícitamente las pruebas que requieren MySQL.                                     |
+| `server/ciQuality.test.ts` | Se actualizó la prueba de calidad para validar la separación explícita y evitar que la lista de exclusiones quede desincronizada.                               |
 
 ## Validación
 
-| Verificación | Resultado |
-|---|---|
-| TypeScript — servidor | Aprobado mediante comprobación segmentada. |
-| TypeScript — cliente | Aprobado mediante comprobación segmentada. |
-| Analizador de seguridad de tipos | Aprobado. |
-| Build del cliente | Aprobado. Se detectaron oportunidades P2 de reducción de chunks grandes. |
-| Suite unitaria de CI | **92 archivos aprobados; 1,460 pruebas aprobadas.** |
+| Verificación                     | Resultado                                                                |
+| -------------------------------- | ------------------------------------------------------------------------ |
+| TypeScript — servidor            | Aprobado mediante comprobación segmentada.                               |
+| TypeScript — cliente             | Aprobado mediante comprobación segmentada.                               |
+| Analizador de seguridad de tipos | Aprobado.                                                                |
+| Build del cliente                | Aprobado. Se detectaron oportunidades P2 de reducción de chunks grandes. |
+| Suite unitaria de CI             | **92 archivos aprobados; 1,460 pruebas aprobadas.**                      |
 
 ## Nota operativa
 

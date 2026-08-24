@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Download, FileSpreadsheet, Upload } from "lucide-react";
@@ -15,14 +21,22 @@ export default function MassiveImport() {
   const [positionsFile, setPositionsFile] = useState<File | null>(null);
   const [employeesFile, setEmployeesFile] = useState<File | null>(null);
 
-  const importDepartmentsMutation = trpc.massiveImport.importDepartments.useMutation();
-  const importPositionsMutation = trpc.massiveImport.importPositions.useMutation();
-  const importEmployeesMutation = trpc.massiveImport.importEmployees.useMutation();
+  const importDepartmentsMutation =
+    trpc.massiveImport.importDepartments.useMutation();
+  const importPositionsMutation =
+    trpc.massiveImport.importPositions.useMutation();
+  const importEmployeesMutation =
+    trpc.massiveImport.importEmployees.useMutation();
 
-  const { data: departments } = trpc.massiveImport.getDepartmentsForImport.useQuery();
-  const { data: positions } = trpc.massiveImport.getPositionsForImport.useQuery();
+  const { data: departments } =
+    trpc.massiveImport.getDepartmentsForImport.useQuery();
+  const { data: positions } =
+    trpc.massiveImport.getPositionsForImport.useQuery();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -34,7 +48,7 @@ export default function MassiveImport() {
   const processExcelFile = async (file: File): Promise<any[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = async (e) => {
+      reader.onload = async e => {
         try {
           const data = e.target?.result;
           const XLSX = await loadXlsx();
@@ -93,13 +107,13 @@ export default function MassiveImport() {
     try {
       const data = await processExcelFile(employeesFile);
       const result = await importEmployeesMutation.mutateAsync(data as any);
-      
+
       if (result.duplicates > 0) {
         toast.warning(`${result.message}. Ver detalles en la consola.`);
       } else {
         toast.success(result.message);
       }
-      
+
       setEmployeesFile(null);
     } catch (error: any) {
       toast.error(error.message || "Error al importar trabajadores");
@@ -118,9 +132,9 @@ export default function MassiveImport() {
     }
 
     // Crear enlace temporal para descargar el archivo
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = templatePath;
-    link.download = templatePath.split('/').pop() || 'template.xlsx';
+    link.download = templatePath.split("/").pop() || "template.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -168,7 +182,7 @@ export default function MassiveImport() {
                 <input
                   type="file"
                   accept=".xlsx,.xls"
-                  onChange={(e) => handleFileChange(e, "departments")}
+                  onChange={e => handleFileChange(e, "departments")}
                   className="hidden"
                   id="departments-file"
                 />
@@ -189,10 +203,14 @@ export default function MassiveImport() {
 
               <Button
                 onClick={handleImportDepartments}
-                disabled={!departmentsFile || importDepartmentsMutation.isPending}
+                disabled={
+                  !departmentsFile || importDepartmentsMutation.isPending
+                }
                 className="w-full"
               >
-                {importDepartmentsMutation.isPending ? "Importando..." : "Importar Departamentos"}
+                {importDepartmentsMutation.isPending
+                  ? "Importando..."
+                  : "Importar Departamentos"}
               </Button>
             </CardContent>
           </Card>
@@ -224,7 +242,7 @@ export default function MassiveImport() {
                 <input
                   type="file"
                   accept=".xlsx,.xls"
-                  onChange={(e) => handleFileChange(e, "positions")}
+                  onChange={e => handleFileChange(e, "positions")}
                   className="hidden"
                   id="positions-file"
                 />
@@ -248,7 +266,9 @@ export default function MassiveImport() {
                 disabled={!positionsFile || importPositionsMutation.isPending}
                 className="w-full"
               >
-                {importPositionsMutation.isPending ? "Importando..." : "Importar Puestos"}
+                {importPositionsMutation.isPending
+                  ? "Importando..."
+                  : "Importar Puestos"}
               </Button>
             </CardContent>
           </Card>
@@ -295,7 +315,7 @@ export default function MassiveImport() {
                 <input
                   type="file"
                   accept=".xlsx,.xls"
-                  onChange={(e) => handleFileChange(e, "employees")}
+                  onChange={e => handleFileChange(e, "employees")}
                   className="hidden"
                   id="employees-file"
                 />
@@ -319,7 +339,9 @@ export default function MassiveImport() {
                 disabled={!employeesFile || importEmployeesMutation.isPending}
                 className="w-full"
               >
-                {importEmployeesMutation.isPending ? "Importando..." : "Importar Trabajadores"}
+                {importEmployeesMutation.isPending
+                  ? "Importando..."
+                  : "Importar Trabajadores"}
               </Button>
             </CardContent>
           </Card>

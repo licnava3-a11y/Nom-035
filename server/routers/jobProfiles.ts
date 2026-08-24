@@ -1,7 +1,17 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { competencies, departments, employeeCompetencies, employees, jobPositions, jobProfiles, organizationalCompetencies, positions, trainingNeeds } from "../../drizzle/schema";
+import {
+  competencies,
+  departments,
+  employeeCompetencies,
+  employees,
+  jobPositions,
+  jobProfiles,
+  organizationalCompetencies,
+  positions,
+  trainingNeeds,
+} from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -64,8 +74,12 @@ export const jobProfilesRouter = router({
       z.object({
         id: z.number(),
         competencyName: z.string().optional(),
-        competencyType: z.enum(["tecnica", "transversal", "conocimiento"]).optional(),
-        requiredLevel: z.enum(["basico", "intermedio", "avanzado", "experto"]).optional(),
+        competencyType: z
+          .enum(["tecnica", "transversal", "conocimiento"])
+          .optional(),
+        requiredLevel: z
+          .enum(["basico", "intermedio", "avanzado", "experto"])
+          .optional(),
         description: z.string().optional(),
       })
     )
@@ -80,7 +94,10 @@ export const jobProfilesRouter = router({
 
       const { id, ...updateData } = input;
 
-      await db.update(jobProfiles).set(updateData).where(eq(jobProfiles.id, id));
+      await db
+        .update(jobProfiles)
+        .set(updateData)
+        .where(eq(jobProfiles.id, id));
 
       return { success: true };
     }),
@@ -128,10 +145,16 @@ export const jobProfilesRouter = router({
         });
       }
 
-      const [competency] = await (db.insert(employeeCompetencies) as any).values({
+      const [competency] = await (
+        db.insert(employeeCompetencies) as any
+      ).values({
         ...input,
-        certificationDate: input.certificationDate ? new Date(input.certificationDate) : undefined,
-        expirationDate: input.expirationDate ? new Date(input.expirationDate) : undefined,
+        certificationDate: input.certificationDate
+          ? new Date(input.certificationDate)
+          : undefined,
+        expirationDate: input.expirationDate
+          ? new Date(input.expirationDate)
+          : undefined,
       });
 
       return { success: true, competencyId: competency.insertId };
@@ -155,7 +178,10 @@ export const jobProfilesRouter = router({
         .select()
         .from(employeeCompetencies)
         .where(eq(employeeCompetencies.employeeId, input.employeeId))
-        .orderBy(employeeCompetencies.competencyType, employeeCompetencies.competencyName);
+        .orderBy(
+          employeeCompetencies.competencyType,
+          employeeCompetencies.competencyName
+        );
 
       return competencies;
     }),
@@ -242,7 +268,7 @@ export const jobProfilesRouter = router({
 
       // Calculate gaps and create training needs
       const needs: any[] = [];
-      
+
       // 1. Process position-specific competencies
       for (const req of requirements) {
         const currentLevel = competencyMap.get(req.competencyName) || "ninguno";
@@ -261,7 +287,12 @@ export const jobProfilesRouter = router({
             competencyName: req.competencyName,
             competencyType: req.competencyType,
             requiredLevel: req.requiredLevel,
-            currentLevel: currentLevel as "ninguno" | "basico" | "intermedio" | "avanzado" | "experto",
+            currentLevel: currentLevel as
+              | "ninguno"
+              | "basico"
+              | "intermedio"
+              | "avanzado"
+              | "experto",
             gap,
             priority,
             status: "pendiente" as const,
@@ -278,15 +309,19 @@ export const jobProfilesRouter = router({
 
       // Filter applicable organizational competencies
       const applicableOrgCompetencies = orgCompetencies.filter((c: any) => {
-        const departments = c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null;
+        const departments = c.appliesToDepartments
+          ? JSON.parse(c.appliesToDepartments)
+          : null;
         // If no department restriction or employee's department is in the list
         return !departments || departments.includes(employee.departmentName);
       });
 
       // Check gaps for organizational competencies
       for (const orgComp of applicableOrgCompetencies) {
-        const currentLevel = competencyMap.get(orgComp.competencyName) || "ninguno";
-        const gap = levelValue[orgComp.requiredLevel] - levelValue[currentLevel];
+        const currentLevel =
+          competencyMap.get(orgComp.competencyName) || "ninguno";
+        const gap =
+          levelValue[orgComp.requiredLevel] - levelValue[currentLevel];
 
         if (gap > 0) {
           // Soft skills and transversal competencies have slightly different priority logic
@@ -314,7 +349,12 @@ export const jobProfilesRouter = router({
             competencyName: orgComp.competencyName,
             competencyType: "transversal" as const, // Mark as transversal
             requiredLevel: orgComp.requiredLevel,
-            currentLevel: currentLevel as "ninguno" | "basico" | "intermedio" | "avanzado" | "experto",
+            currentLevel: currentLevel as
+              | "ninguno"
+              | "basico"
+              | "intermedio"
+              | "avanzado"
+              | "experto",
             gap,
             priority,
             status: "pendiente" as const,
@@ -415,7 +455,9 @@ export const jobProfilesRouter = router({
         .update(trainingNeeds)
         .set({
           ...updateData,
-          completedDate: updateData.completedDate ? new Date(updateData.completedDate) : undefined,
+          completedDate: updateData.completedDate
+            ? new Date(updateData.completedDate)
+            : undefined,
         } as any)
         .where(eq(trainingNeeds.id, id));
 
@@ -487,7 +529,9 @@ export const jobProfilesRouter = router({
         }));
 
       if (competenciesToAdd.length > 0) {
-        await (db.insert(employeeCompetencies) as any).values(competenciesToAdd);
+        await (db.insert(employeeCompetencies) as any).values(
+          competenciesToAdd
+        );
       }
 
       return {
@@ -505,7 +549,11 @@ export const jobProfilesRouter = router({
     .input(z.object({ employeeId: z.number() }))
     .query(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       const [employee] = await db
         .select({
@@ -522,7 +570,11 @@ export const jobProfilesRouter = router({
         .where(eq(employees.id, input.employeeId))
         .limit(1);
 
-      if (!employee) throw new TRPCError({ code: "NOT_FOUND", message: "Empleado no encontrado" });
+      if (!employee)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Empleado no encontrado",
+        });
 
       // Find matching jobPosition by position title
       let positionRequirements: any[] = [];
@@ -552,13 +604,35 @@ export const jobProfilesRouter = router({
         .from(trainingNeeds)
         .where(eq(trainingNeeds.employeeId, input.employeeId));
 
-      const competencyMap = new Map(empCompetencies.map((c: any) => [c.competencyName, c]));
-      const levelValue: Record<string, number> = { ninguno: 0, basico: 1, intermedio: 2, avanzado: 3, experto: 4 };
+      const competencyMap = new Map(
+        empCompetencies.map((c: any) => [c.competencyName, c])
+      );
+      const levelValue: Record<string, number> = {
+        ninguno: 0,
+        basico: 1,
+        intermedio: 2,
+        avanzado: 3,
+        experto: 4,
+      };
 
       // Education level comparison
-      const educationOrder = ["primaria", "secundaria", "preparatoria", "tecnico", "licenciatura", "especialidad", "maestria", "doctorado", "otro"];
-      const empEduIdx = employee.educationLevel ? educationOrder.indexOf(employee.educationLevel) : -1;
-      const reqEduIdx = employee.minimumEducation ? educationOrder.indexOf(employee.minimumEducation) : -1;
+      const educationOrder = [
+        "primaria",
+        "secundaria",
+        "preparatoria",
+        "tecnico",
+        "licenciatura",
+        "especialidad",
+        "maestria",
+        "doctorado",
+        "otro",
+      ];
+      const empEduIdx = employee.educationLevel
+        ? educationOrder.indexOf(employee.educationLevel)
+        : -1;
+      const reqEduIdx = employee.minimumEducation
+        ? educationOrder.indexOf(employee.minimumEducation)
+        : -1;
       const educationCompliant = reqEduIdx < 0 || empEduIdx >= reqEduIdx;
 
       // Build comparison items
@@ -566,24 +640,54 @@ export const jobProfilesRouter = router({
         const empComp = competencyMap.get(req.competencyName);
         const currentLevel = empComp?.currentLevel || "ninguno";
         const gap = levelValue[req.requiredLevel] - levelValue[currentLevel];
-        const hasNeed = existingNeeds.some((n: any) => n.competencyName === req.competencyName && n.status === "pendiente");
+        const hasNeed = existingNeeds.some(
+          (n: any) =>
+            n.competencyName === req.competencyName && n.status === "pendiente"
+        );
         let priority: string | null = null;
         if (gap >= 3) priority = "critica";
         else if (gap === 2) priority = "alta";
         else if (gap === 1) priority = "media";
         else if (gap > 0) priority = "baja";
-        return { competencyName: req.competencyName, competencyType: req.competencyType, requiredLevel: req.requiredLevel, currentLevel, gap, compliant: gap <= 0, priority, hasTrainingNeed: hasNeed };
+        return {
+          competencyName: req.competencyName,
+          competencyType: req.competencyType,
+          requiredLevel: req.requiredLevel,
+          currentLevel,
+          gap,
+          compliant: gap <= 0,
+          priority,
+          hasTrainingNeed: hasNeed,
+        };
       });
 
       const totalCompetencies = comparisonItems.length;
-      const compliantCount = comparisonItems.filter((c: any) => c.compliant).length;
+      const compliantCount = comparisonItems.filter(
+        (c: any) => c.compliant
+      ).length;
       const gapCount = totalCompetencies - compliantCount;
-      const compliancePercentage = totalCompetencies > 0 ? Math.round((compliantCount / totalCompetencies) * 100) : 100;
+      const compliancePercentage =
+        totalCompetencies > 0
+          ? Math.round((compliantCount / totalCompetencies) * 100)
+          : 100;
 
       return {
-        employee: { id: employee.id, name: `${employee.firstName} ${employee.lastName}`, positionTitle: employee.positionTitle, educationLevel: employee.educationLevel, minimumEducation: employee.minimumEducation, educationCompliant },
+        employee: {
+          id: employee.id,
+          name: `${employee.firstName} ${employee.lastName}`,
+          positionTitle: employee.positionTitle,
+          educationLevel: employee.educationLevel,
+          minimumEducation: employee.minimumEducation,
+          educationCompliant,
+        },
         comparison: comparisonItems,
-        summary: { totalCompetencies, compliantCount, gapCount, compliancePercentage, hasPositionProfile: positionRequirements.length > 0 },
+        summary: {
+          totalCompetencies,
+          compliantCount,
+          gapCount,
+          compliancePercentage,
+          hasPositionProfile: positionRequirements.length > 0,
+        },
       };
     }),
 
@@ -602,7 +706,7 @@ export const jobProfilesRouter = router({
     const positions = await db.select().from(jobPositions);
 
     const positionsWithProfiles = await Promise.all(
-      positions.map(async (position) => {
+      positions.map(async position => {
         const profiles = await db
           .select()
           .from(jobProfiles)

@@ -33,3 +33,8 @@ pnpm-lock.yaml
 # OS files
 .DS_Store
 Thumbs.db
+
+# Internal generated artifacts
+.manus/
+playwright-report/
+test-results/

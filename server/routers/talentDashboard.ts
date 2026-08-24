@@ -19,7 +19,7 @@ export const talentDashboardRouter = router({
       // Calcular fecha de inicio según período
       const now = new Date();
       let startDate: Date;
-      
+
       if (period === "month") {
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
       } else if (period === "quarter") {
@@ -53,7 +53,7 @@ export const talentDashboardRouter = router({
         FROM nine_box_evaluations nbe
         JOIN employees e ON nbe.employee_id = e.id
         WHERE (${departmentId} IS NULL OR e.department_id = ${departmentId})
-          AND nbe.evaluation_date >= ${startDate.toISOString().split('T')[0]}
+          AND nbe.evaluation_date >= ${startDate.toISOString().split("T")[0]}
         GROUP BY nbe.performance_rating, nbe.potential_rating
       `);
 
@@ -64,7 +64,7 @@ export const talentDashboardRouter = router({
           COUNT(DISTINCT CASE WHEN rah.status = 'active' THEN rah.id END) as active_alerts,
           COUNT(DISTINCT CASE WHEN rah.severity = 'critical' THEN rah.id END) as critical_alerts
         FROM risk_alert_history rah
-        WHERE rah.triggered_at >= ${startDate.toISOString().split('T')[0]}
+        WHERE rah.triggered_at >= ${startDate.toISOString().split("T")[0]}
           AND (${departmentId} IS NULL OR rah.department_id = ${departmentId})
       `);
 
@@ -101,7 +101,7 @@ export const talentDashboardRouter = router({
           COUNT(CASE WHEN rh.status = 'pending' THEN 1 END) as pending_reports,
           COUNT(CASE WHEN rh.status = 'failed' THEN 1 END) as failed_reports
         FROM report_history rh
-        WHERE rh.sent_at >= ${startDate.toISOString().split('T')[0]}
+        WHERE rh.sent_at >= ${startDate.toISOString().split("T")[0]}
       `);
 
       const reports = reportsQuery[0] as any;
@@ -132,9 +132,12 @@ export const talentDashboardRouter = router({
           criticalRiskCount: Number(kpis.critical_risk_count) || 0,
           highRiskCount: Number(kpis.high_risk_count) || 0,
           avgRetentionScore: Number(kpis.avg_retention_score) || 0,
-          retentionRate: kpis.total_employees > 0 
-            ? ((kpis.active_employees / kpis.total_employees) * 100).toFixed(1)
-            : "0.0",
+          retentionRate:
+            kpis.total_employees > 0
+              ? ((kpis.active_employees / kpis.total_employees) * 100).toFixed(
+                  1
+                )
+              : "0.0",
         },
         nineBoxMatrix: nineBoxQuery.map((row: any) => ({
           performance: Number(row.performance_rating),

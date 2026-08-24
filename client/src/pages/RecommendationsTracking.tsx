@@ -1,29 +1,49 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  AlertCircle, 
-  CheckCircle2, 
-  Clock, 
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
   Target,
   Plus,
   Edit,
   Trash2,
   Calendar,
   User,
-  BarChart3
+  BarChart3,
 } from "lucide-react";
 
 export default function RecommendationsTracking() {
@@ -31,13 +51,20 @@ export default function RecommendationsTracking() {
   const [selectedPriority, setSelectedPriority] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
+  const [selectedRecommendation, setSelectedRecommendation] =
+    useState<any>(null);
 
   // Queries
-  const { data: dashboard, isLoading: loadingDashboard } = trpc.recommendationsTracking.getDashboard.useQuery();
-  const { data: recommendations, isLoading: loadingList, refetch } = trpc.recommendationsTracking.list.useQuery({
-    status: selectedStatus !== "all" ? selectedStatus as any : undefined,
-    priority: selectedPriority !== "all" ? selectedPriority as any : undefined,
+  const { data: dashboard, isLoading: loadingDashboard } =
+    trpc.recommendationsTracking.getDashboard.useQuery();
+  const {
+    data: recommendations,
+    isLoading: loadingList,
+    refetch,
+  } = trpc.recommendationsTracking.list.useQuery({
+    status: selectedStatus !== "all" ? (selectedStatus as any) : undefined,
+    priority:
+      selectedPriority !== "all" ? (selectedPriority as any) : undefined,
   });
 
   // Mutations
@@ -47,7 +74,7 @@ export default function RecommendationsTracking() {
       setIsCreateDialogOpen(false);
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -59,7 +86,7 @@ export default function RecommendationsTracking() {
       setSelectedRecommendation(null);
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -69,20 +96,23 @@ export default function RecommendationsTracking() {
       toast.success("Recomendación eliminada exitosamente");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
 
-  const calculateEffectivenessMutation = trpc.recommendationsTracking.calculateEffectiveness.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Efectividad calculada: ${data.reductionPercentage?.toFixed(2)}% de reducción`);
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const calculateEffectivenessMutation =
+    trpc.recommendationsTracking.calculateEffectiveness.useMutation({
+      onSuccess: data => {
+        toast.success(
+          `Efectividad calculada: ${data.reductionPercentage?.toFixed(2)}% de reducción`
+        );
+        refetch();
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
   const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,11 +122,15 @@ export default function RecommendationsTracking() {
       recommendation: formData.get("recommendation") as string,
       priority: formData.get("priority") as any,
       category: formData.get("category") as string,
-      assignedTo: formData.get("assignedTo") ? parseInt(formData.get("assignedTo") as string) : undefined,
-      dueDate: formData.get("dueDate") as string || undefined,
-      targetCaseType: formData.get("targetCaseType") as string || undefined,
-      baselineCaseCount: formData.get("baselineCaseCount") ? parseInt(formData.get("baselineCaseCount") as string) : undefined,
-      notes: formData.get("notes") as string || undefined,
+      assignedTo: formData.get("assignedTo")
+        ? parseInt(formData.get("assignedTo") as string)
+        : undefined,
+      dueDate: (formData.get("dueDate") as string) || undefined,
+      targetCaseType: (formData.get("targetCaseType") as string) || undefined,
+      baselineCaseCount: formData.get("baselineCaseCount")
+        ? parseInt(formData.get("baselineCaseCount") as string)
+        : undefined,
+      notes: (formData.get("notes") as string) || undefined,
     });
   };
 
@@ -110,11 +144,15 @@ export default function RecommendationsTracking() {
       priority: formData.get("priority") as any,
       category: formData.get("category") as string,
       status: formData.get("status") as any,
-      assignedTo: formData.get("assignedTo") ? parseInt(formData.get("assignedTo") as string) : undefined,
-      dueDate: formData.get("dueDate") as string || undefined,
-      completionDate: formData.get("completionDate") as string || undefined,
-      currentCaseCount: formData.get("currentCaseCount") ? parseInt(formData.get("currentCaseCount") as string) : undefined,
-      notes: formData.get("notes") as string || undefined,
+      assignedTo: formData.get("assignedTo")
+        ? parseInt(formData.get("assignedTo") as string)
+        : undefined,
+      dueDate: (formData.get("dueDate") as string) || undefined,
+      completionDate: (formData.get("completionDate") as string) || undefined,
+      currentCaseCount: formData.get("currentCaseCount")
+        ? parseInt(formData.get("currentCaseCount") as string)
+        : undefined,
+      notes: (formData.get("notes") as string) || undefined,
     });
   };
 
@@ -130,41 +168,61 @@ export default function RecommendationsTracking() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "critical": return "destructive";
-      case "high": return "default";
-      case "medium": return "secondary";
-      case "low": return "outline";
-      default: return "outline";
+      case "critical":
+        return "destructive";
+      case "high":
+        return "default";
+      case "medium":
+        return "secondary";
+      case "low":
+        return "outline";
+      default:
+        return "outline";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed": return "bg-green-100 text-green-800";
-      case "in_progress": return "bg-blue-100 text-blue-800";
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      case "cancelled": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "in_progress":
+        return "bg-blue-100 text-blue-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "completed": return "Completada";
-      case "in_progress": return "En Progreso";
-      case "pending": return "Pendiente";
-      case "cancelled": return "Cancelada";
-      default: return status;
+      case "completed":
+        return "Completada";
+      case "in_progress":
+        return "En Progreso";
+      case "pending":
+        return "Pendiente";
+      case "cancelled":
+        return "Cancelada";
+      default:
+        return status;
     }
   };
 
   const getPriorityLabel = (priority: string) => {
     switch (priority) {
-      case "critical": return "Crítica";
-      case "high": return "Alta";
-      case "medium": return "Media";
-      case "low": return "Baja";
-      default: return priority;
+      case "critical":
+        return "Crítica";
+      case "high":
+        return "Alta";
+      case "medium":
+        return "Media";
+      case "low":
+        return "Baja";
+      default:
+        return priority;
     }
   };
 
@@ -179,7 +237,9 @@ export default function RecommendationsTracking() {
   }
 
   const stats = dashboard?.stats;
-  const completionRate = stats?.total ? ((stats.completed || 0) / stats.total) * 100 : 0;
+  const completionRate = stats?.total
+    ? ((stats.completed || 0) / stats.total) * 100
+    : 0;
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -188,7 +248,8 @@ export default function RecommendationsTracking() {
         <div>
           <h1 className="text-3xl font-bold">Seguimiento de Recomendaciones</h1>
           <p className="text-muted-foreground mt-2">
-            Monitorea la implementación y efectividad de las recomendaciones preventivas
+            Monitorea la implementación y efectividad de las recomendaciones
+            preventivas
           </p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -209,11 +270,21 @@ export default function RecommendationsTracking() {
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="analysisId">ID del Análisis *</Label>
-                  <Input id="analysisId" name="analysisId" type="number" required />
+                  <Input
+                    id="analysisId"
+                    name="analysisId"
+                    type="number"
+                    required
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="recommendation">Recomendación *</Label>
-                  <Textarea id="recommendation" name="recommendation" rows={3} required />
+                  <Textarea
+                    id="recommendation"
+                    name="recommendation"
+                    rows={3}
+                    required
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
@@ -232,7 +303,11 @@ export default function RecommendationsTracking() {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="category">Categoría</Label>
-                    <Input id="category" name="category" placeholder="ej. Capacitación" />
+                    <Input
+                      id="category"
+                      name="category"
+                      placeholder="ej. Capacitación"
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -247,12 +322,22 @@ export default function RecommendationsTracking() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="targetCaseType">Tipo de Caso Objetivo</Label>
-                    <Input id="targetCaseType" name="targetCaseType" placeholder="ej. mobbing" />
+                    <Label htmlFor="targetCaseType">
+                      Tipo de Caso Objetivo
+                    </Label>
+                    <Input
+                      id="targetCaseType"
+                      name="targetCaseType"
+                      placeholder="ej. mobbing"
+                    />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="baselineCaseCount">Casos Baseline</Label>
-                    <Input id="baselineCaseCount" name="baselineCaseCount" type="number" />
+                    <Input
+                      id="baselineCaseCount"
+                      name="baselineCaseCount"
+                      type="number"
+                    />
                   </div>
                 </div>
                 <div className="grid gap-2">
@@ -261,10 +346,20 @@ export default function RecommendationsTracking() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
-                <LoadingButton type="submit" loading={createMutation.isPending} loadingText="Creando...">Crear Recomendación</LoadingButton>
+                <LoadingButton
+                  type="submit"
+                  loading={createMutation.isPending}
+                  loadingText="Creando..."
+                >
+                  Crear Recomendación
+                </LoadingButton>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -275,7 +370,9 @@ export default function RecommendationsTracking() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Recomendaciones</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Recomendaciones
+            </CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -288,11 +385,15 @@ export default function RecommendationsTracking() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Completitud</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Completitud
+            </CardTitle>
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completionRate.toFixed(1)}%</div>
+            <div className="text-2xl font-bold">
+              {completionRate.toFixed(1)}%
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats?.completed || 0} de {stats?.total || 0} completadas
             </p>
@@ -314,12 +415,16 @@ export default function RecommendationsTracking() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Efectividad Promedio</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Efectividad Promedio
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats?.avgReduction ? `${parseFloat(stats.avgReduction.toString()).toFixed(1)}%` : "N/A"}
+              {stats?.avgReduction
+                ? `${parseFloat(stats.avgReduction.toString()).toFixed(1)}%`
+                : "N/A"}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Reducción de casos
@@ -329,45 +434,57 @@ export default function RecommendationsTracking() {
       </div>
 
       {/* Próximas a Vencer */}
-      {dashboard?.upcomingDeadlines && dashboard.upcomingDeadlines.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-orange-500" />
-              Recomendaciones Próximas a Vencer (7 días)
-            </CardTitle>
-            <CardDescription>
-              Recomendaciones que requieren atención urgente
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {dashboard.upcomingDeadlines.map((item: any) => (
-                <div key={item.recommendation.id} className="flex items-start justify-between p-3 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium">{item.recommendation.recommendation}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {item.recommendation.dueDate ? new Date(item.recommendation.dueDate).toLocaleDateString() : "Sin fecha"}
-                      </span>
-                      {item.assignee && (
+      {dashboard?.upcomingDeadlines &&
+        dashboard.upcomingDeadlines.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-orange-500" />
+                Recomendaciones Próximas a Vencer (7 días)
+              </CardTitle>
+              <CardDescription>
+                Recomendaciones que requieren atención urgente
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {dashboard.upcomingDeadlines.map((item: any) => (
+                  <div
+                    key={item.recommendation.id}
+                    className="flex items-start justify-between p-3 border rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">
+                        {item.recommendation.recommendation}
+                      </p>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
-                          <User className="h-4 w-4" />
-                          {item.assignee.name}
+                          <Calendar className="h-4 w-4" />
+                          {item.recommendation.dueDate
+                            ? new Date(
+                                item.recommendation.dueDate
+                              ).toLocaleDateString()
+                            : "Sin fecha"}
                         </span>
-                      )}
+                        {item.assignee && (
+                          <span className="flex items-center gap-1">
+                            <User className="h-4 w-4" />
+                            {item.assignee.name}
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    <Badge
+                      variant={getPriorityColor(item.recommendation.priority)}
+                    >
+                      {getPriorityLabel(item.recommendation.priority)}
+                    </Badge>
                   </div>
-                  <Badge variant={getPriorityColor(item.recommendation.priority)}>
-                    {getPriorityLabel(item.recommendation.priority)}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Top Efectivas */}
       {dashboard?.topEffective && dashboard.topEffective.length > 0 && (
@@ -384,9 +501,14 @@ export default function RecommendationsTracking() {
           <CardContent>
             <div className="space-y-3">
               {dashboard.topEffective.map((item: any) => (
-                <div key={item.recommendation.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={item.recommendation.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="flex-1">
-                    <p className="font-medium">{item.recommendation.recommendation}</p>
+                    <p className="font-medium">
+                      {item.recommendation.recommendation}
+                    </p>
                     {item.department && (
                       <p className="text-sm text-muted-foreground mt-1">
                         Departamento: {item.department.name}
@@ -430,7 +552,10 @@ export default function RecommendationsTracking() {
             </div>
             <div className="flex-1">
               <Label>Prioridad</Label>
-              <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+              <Select
+                value={selectedPriority}
+                onValueChange={setSelectedPriority}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -458,23 +583,36 @@ export default function RecommendationsTracking() {
         <CardContent>
           <div className="space-y-4">
             {recommendations?.map((item: any) => (
-              <div key={item.recommendation.id} className="border rounded-lg p-4 space-y-3">
+              <div
+                key={item.recommendation.id}
+                className="border rounded-lg p-4 space-y-3"
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Badge variant={getPriorityColor(item.recommendation.priority)}>
+                      <Badge
+                        variant={getPriorityColor(item.recommendation.priority)}
+                      >
                         {getPriorityLabel(item.recommendation.priority)}
                       </Badge>
-                      <Badge className={getStatusColor(item.recommendation.status)}>
+                      <Badge
+                        className={getStatusColor(item.recommendation.status)}
+                      >
                         {getStatusLabel(item.recommendation.status)}
                       </Badge>
                       {item.recommendation.category && (
-                        <Badge variant="outline">{item.recommendation.category}</Badge>
+                        <Badge variant="outline">
+                          {item.recommendation.category}
+                        </Badge>
                       )}
                     </div>
-                    <p className="font-medium text-lg">{item.recommendation.recommendation}</p>
+                    <p className="font-medium text-lg">
+                      {item.recommendation.recommendation}
+                    </p>
                     {item.recommendation.notes && (
-                      <p className="text-sm text-muted-foreground mt-2">{item.recommendation.notes}</p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {item.recommendation.notes}
+                      </p>
                     )}
                   </div>
                   <div className="flex gap-2">
@@ -501,20 +639,32 @@ export default function RecommendationsTracking() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   {item.assignee && (
                     <div>
-                      <span className="text-muted-foreground">Responsable:</span>
+                      <span className="text-muted-foreground">
+                        Responsable:
+                      </span>
                       <p className="font-medium">{item.assignee.name}</p>
                     </div>
                   )}
                   {item.recommendation.dueDate && (
                     <div>
-                      <span className="text-muted-foreground">Fecha Límite:</span>
-                      <p className="font-medium">{new Date(item.recommendation.dueDate).toLocaleDateString()}</p>
+                      <span className="text-muted-foreground">
+                        Fecha Límite:
+                      </span>
+                      <p className="font-medium">
+                        {new Date(
+                          item.recommendation.dueDate
+                        ).toLocaleDateString()}
+                      </p>
                     </div>
                   )}
                   {item.recommendation.baselineCaseCount !== null && (
                     <div>
-                      <span className="text-muted-foreground">Casos Baseline:</span>
-                      <p className="font-medium">{item.recommendation.baselineCaseCount}</p>
+                      <span className="text-muted-foreground">
+                        Casos Baseline:
+                      </span>
+                      <p className="font-medium">
+                        {item.recommendation.baselineCaseCount}
+                      </p>
                     </div>
                   )}
                   {item.recommendation.reductionPercentage !== null && (
@@ -533,7 +683,9 @@ export default function RecommendationsTracking() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleCalculateEffectiveness(item.recommendation.id)}
+                      onClick={() =>
+                        handleCalculateEffectiveness(item.recommendation.id)
+                      }
                       disabled={calculateEffectivenessMutation.isPending}
                     >
                       <BarChart3 className="h-4 w-4 mr-2" />
@@ -564,14 +716,22 @@ export default function RecommendationsTracking() {
                   id="edit-recommendation"
                   name="recommendation"
                   rows={3}
-                  defaultValue={selectedRecommendation?.recommendation.recommendation}
+                  defaultValue={
+                    selectedRecommendation?.recommendation.recommendation
+                  }
                   required
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="edit-priority">Prioridad *</Label>
-                  <Select name="priority" defaultValue={selectedRecommendation?.recommendation.priority} required>
+                  <Select
+                    name="priority"
+                    defaultValue={
+                      selectedRecommendation?.recommendation.priority
+                    }
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -585,7 +745,11 @@ export default function RecommendationsTracking() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="edit-status">Estado *</Label>
-                  <Select name="status" defaultValue={selectedRecommendation?.recommendation.status} required>
+                  <Select
+                    name="status"
+                    defaultValue={selectedRecommendation?.recommendation.status}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -604,7 +768,9 @@ export default function RecommendationsTracking() {
                   <Input
                     id="edit-category"
                     name="category"
-                    defaultValue={selectedRecommendation?.recommendation.category || ""}
+                    defaultValue={
+                      selectedRecommendation?.recommendation.category || ""
+                    }
                   />
                 </div>
                 <div className="grid gap-2">
@@ -613,7 +779,9 @@ export default function RecommendationsTracking() {
                     id="edit-assignedTo"
                     name="assignedTo"
                     type="number"
-                    defaultValue={selectedRecommendation?.recommendation.assignedTo || ""}
+                    defaultValue={
+                      selectedRecommendation?.recommendation.assignedTo || ""
+                    }
                   />
                 </div>
               </div>
@@ -624,16 +792,23 @@ export default function RecommendationsTracking() {
                     id="edit-dueDate"
                     name="dueDate"
                     type="date"
-                    defaultValue={selectedRecommendation?.recommendation.dueDate || ""}
+                    defaultValue={
+                      selectedRecommendation?.recommendation.dueDate || ""
+                    }
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="edit-completionDate">Fecha de Completación</Label>
+                  <Label htmlFor="edit-completionDate">
+                    Fecha de Completación
+                  </Label>
                   <Input
                     id="edit-completionDate"
                     name="completionDate"
                     type="date"
-                    defaultValue={selectedRecommendation?.recommendation.completionDate || ""}
+                    defaultValue={
+                      selectedRecommendation?.recommendation.completionDate ||
+                      ""
+                    }
                   />
                 </div>
               </div>
@@ -643,7 +818,10 @@ export default function RecommendationsTracking() {
                   id="edit-currentCaseCount"
                   name="currentCaseCount"
                   type="number"
-                  defaultValue={selectedRecommendation?.recommendation.currentCaseCount || ""}
+                  defaultValue={
+                    selectedRecommendation?.recommendation.currentCaseCount ||
+                    ""
+                  }
                 />
               </div>
               <div className="grid gap-2">
@@ -652,15 +830,27 @@ export default function RecommendationsTracking() {
                   id="edit-notes"
                   name="notes"
                   rows={2}
-                  defaultValue={selectedRecommendation?.recommendation.notes || ""}
+                  defaultValue={
+                    selectedRecommendation?.recommendation.notes || ""
+                  }
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
                 Cancelar
               </Button>
-              <LoadingButton type="submit" loading={updateMutation.isPending} loadingText="Actualizando...">Actualizar</LoadingButton>
+              <LoadingButton
+                type="submit"
+                loading={updateMutation.isPending}
+                loadingText="Actualizando..."
+              >
+                Actualizar
+              </LoadingButton>
             </DialogFooter>
           </form>
         </DialogContent>

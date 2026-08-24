@@ -6,17 +6,19 @@ export default function GuideII() {
   const [anonymousToken, setAnonymousToken] = useState<string | undefined>();
 
   useEffect(() => {
-    const token = sessionStorage.getItem('anonymousToken');
+    const token = sessionStorage.getItem("anonymousToken");
     if (token) {
       setAnonymousToken(token);
     }
   }, []);
   return (
     <div>
-      <Breadcrumb items={[
-        { label: "Encuestas NOM-035", href: "/surveys" },
-        { label: "Guía II - Factores de Riesgo" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Encuestas NOM-035", href: "/surveys" },
+          { label: "Guía II - Factores de Riesgo" },
+        ]}
+      />
       <SurveyForm
         surveyId={2}
         title="Guía de Referencia II"

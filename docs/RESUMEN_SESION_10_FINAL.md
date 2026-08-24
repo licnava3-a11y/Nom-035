@@ -1,4 +1,5 @@
 # Resumen Final - Sesión 10
+
 ## Implementación de Mock de Autenticación E2E
 
 **Fecha**: 20 Feb 2026  
@@ -14,16 +15,17 @@
 **Archivo creado**: `tests/fixtures/mock-auth.ts`
 
 **Implementación**:
+
 ```typescript
 export const test = base.extend<{ mockedAuthPage: Page }>({
   mockedAuthPage: async ({ page }, use) => {
-    await page.goto('/');
-    
+    await page.goto("/");
+
     // Interceptar request a /api/trpc/auth.me
-    await page.route('**/api/trpc/auth.me*', async (route) => {
+    await page.route("**/api/trpc/auth.me*", async route => {
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         body: JSON.stringify({
           result: {
             data: MOCK_USER,
@@ -38,6 +40,7 @@ export const test = base.extend<{ mockedAuthPage: Page }>({
 ```
 
 **Usuario mock**:
+
 - ID: `test-user-001`
 - Nombre: `Usuario de Prueba E2E`
 - Email: `test@example.com`
@@ -48,11 +51,13 @@ export const test = base.extend<{ mockedAuthPage: Page }>({
 ### ✅ Fase 2: Actualizar Tests para Usar Mock
 
 **Archivos actualizados** (3 archivos):
+
 1. `tests/e2e/busqueda-confirmaciones.spec.ts`
 2. `tests/e2e/calendario-graficos.spec.ts`
 3. `tests/e2e/workflow-aprobacion-bases.spec.ts`
 
 **Cambios aplicados**:
+
 ```typescript
 // Antes
 import { test, expect } from '../fixtures/auth';
@@ -70,11 +75,13 @@ test('...', async ({ mockedAuthPage: page }) => { ... });
 **Resultado**: **FALLIDO**
 
 **Test ejecutado**:
+
 ```bash
 pnpm exec playwright test tests/e2e/busqueda-confirmaciones.spec.ts:14 --project=chromium
 ```
 
 **Error**:
+
 ```
 Error: expect(locator).toBeVisible() failed
 Locator: locator('[role="dialog"]:has-text("Buscar"), [class*="search-dialog"]')
@@ -104,10 +111,10 @@ El mock de autenticación **NO funciona** porque:
 export const test = base.extend<{ mockedAuthPage: Page }>({
   mockedAuthPage: async ({ page }, use) => {
     // 1. Configurar interceptor PRIMERO
-    await page.route('**/api/trpc/auth.me*', async (route) => {
+    await page.route("**/api/trpc/auth.me*", async route => {
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
+        contentType: "application/json",
         body: JSON.stringify({
           result: {
             data: MOCK_USER,
@@ -117,10 +124,10 @@ export const test = base.extend<{ mockedAuthPage: Page }>({
     });
 
     // 2. LUEGO navegar
-    await page.goto('/');
-    
+    await page.goto("/");
+
     // 3. Esperar a que React renderice
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
     await use(page);
@@ -136,11 +143,14 @@ export const test = base.extend<{ mockedAuthPage: Page }>({
 
 ```typescript
 await page.addInitScript(() => {
-  localStorage.setItem('mock-user', JSON.stringify({
-    id: 'test-user-001',
-    name: 'Usuario de Prueba E2E',
-    role: 'admin',
-  }));
+  localStorage.setItem(
+    "mock-user",
+    JSON.stringify({
+      id: "test-user-001",
+      name: "Usuario de Prueba E2E",
+      role: "admin",
+    })
+  );
 });
 ```
 
@@ -152,9 +162,9 @@ await page.addInitScript(() => {
 
 ```typescript
 // En client/src/_core/hooks/useAuth.ts
-if (import.meta.env.VITE_TEST_MODE === 'true') {
+if (import.meta.env.VITE_TEST_MODE === "true") {
   return {
-    user: JSON.parse(localStorage.getItem('mock-user') || 'null'),
+    user: JSON.parse(localStorage.getItem("mock-user") || "null"),
     isLoading: false,
   };
 }
@@ -168,12 +178,12 @@ if (import.meta.env.VITE_TEST_MODE === 'true') {
 
 ### Tiempo Invertido en Testing E2E (Total)
 
-| Sesión | Actividad | Tiempo |
-|--------|-----------|--------|
-| 2-5 | Sistema de bypass de autenticación | 8 horas |
-| 6-8 | Depuración de autenticación E2E | 4 horas |
-| 10 | Implementación de mock | 2 horas |
-| **TOTAL** | | **14 horas** |
+| Sesión    | Actividad                          | Tiempo       |
+| --------- | ---------------------------------- | ------------ |
+| 2-5       | Sistema de bypass de autenticación | 8 horas      |
+| 6-8       | Depuración de autenticación E2E    | 4 horas      |
+| 10        | Implementación de mock             | 2 horas      |
+| **TOTAL** |                                    | **14 horas** |
 
 ### Resultados Obtenidos
 
@@ -216,11 +226,13 @@ if (import.meta.env.VITE_TEST_MODE === 'true') {
 ## Archivos Creados/Modificados
 
 ### Nuevos archivos:
+
 - `tests/fixtures/mock-auth.ts` - Fixture de mock (NO funcional)
 - `docs/MOCK_AUTH_FINDINGS.md` - Análisis del problema
 - `docs/RESUMEN_SESION_10_FINAL.md` - Este documento
 
 ### Archivos modificados:
+
 - `tests/e2e/busqueda-confirmaciones.spec.ts` - Actualizado para usar mock
 - `tests/e2e/calendario-graficos.spec.ts` - Actualizado para usar mock
 - `tests/e2e/workflow-aprobacion-bases.spec.ts` - Actualizado para usar mock

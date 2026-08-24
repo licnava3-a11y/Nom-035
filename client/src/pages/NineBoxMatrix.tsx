@@ -1,10 +1,30 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,19 +33,28 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function NineBoxMatrix() {
   const { toast } = useToast();
-  const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
-  const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>(undefined);
+  const [selectedDepartment, setSelectedDepartment] = useState<
+    string | undefined
+  >(undefined);
+  const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>(
+    undefined
+  );
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   // Queries
-  const { data: matrixData, isLoading: isLoadingMatrix, refetch: refetchMatrix } = trpc.nineBox.getMatrix.useQuery({
+  const {
+    data: matrixData,
+    isLoading: isLoadingMatrix,
+    refetch: refetchMatrix,
+  } = trpc.nineBox.getMatrix.useQuery({
     departamento: selectedDepartment,
     includeLatestOnly: true,
   });
 
-  const { data: distributionData, isLoading: isLoadingDistribution } = trpc.nineBox.getDistribution.useQuery({
-    departamento: selectedDepartment,
-  });
+  const { data: distributionData, isLoading: isLoadingDistribution } =
+    trpc.nineBox.getDistribution.useQuery({
+      departamento: selectedDepartment,
+    });
 
   const { data: employeeHistory } = trpc.nineBox.getByEmployee.useQuery(
     { employeeId: selectedEmployee! },
@@ -39,27 +68,35 @@ export default function NineBoxMatrix() {
       setIsCreateDialogOpen(false);
       refetchMatrix();
     },
-    onError: (error) => {
-      toast({ title: "Error al crear evaluación", description: error.message, variant: "destructive" });
+    onError: error => {
+      toast({
+        title: "Error al crear evaluación",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
   // Organizar evaluaciones en matriz 3x3
   const getQuadrantEmployees = (quadrant: number) => {
-    return ((matrixData as any) as any)?.evaluations.filter((e: any) => e.quadrant === quadrant) || [];
+    return (
+      (matrixData as any as any)?.evaluations.filter(
+        (e: any) => e.quadrant === quadrant
+      ) || []
+    );
   };
 
   // Colores por cuadrante
   const getQuadrantColor = (quadrant: number): string => {
     const colors: Record<number, string> = {
-      1: "bg-red-100 border-red-300 text-red-900",      // Bajo-Bajo
+      1: "bg-red-100 border-red-300 text-red-900", // Bajo-Bajo
       2: "bg-orange-100 border-orange-300 text-orange-900", // Bajo-Medio
       3: "bg-yellow-100 border-yellow-300 text-yellow-900", // Bajo-Alto
-      4: "bg-orange-50 border-orange-200 text-orange-800",  // Medio-Bajo
-      5: "bg-blue-100 border-blue-300 text-blue-900",       // Medio-Medio (Core)
-      6: "bg-green-100 border-green-300 text-green-900",    // Medio-Alto
-      7: "bg-yellow-50 border-yellow-200 text-yellow-800",  // Alto-Bajo
-      8: "bg-green-200 border-green-400 text-green-900",    // Alto-Medio
+      4: "bg-orange-50 border-orange-200 text-orange-800", // Medio-Bajo
+      5: "bg-blue-100 border-blue-300 text-blue-900", // Medio-Medio (Core)
+      6: "bg-green-100 border-green-300 text-green-900", // Medio-Alto
+      7: "bg-yellow-50 border-yellow-200 text-yellow-800", // Alto-Bajo
+      8: "bg-green-200 border-green-400 text-green-900", // Alto-Medio
       9: "bg-emerald-200 border-emerald-400 text-emerald-900", // Alto-Alto (High Potential)
     };
     return colors[quadrant] || "bg-gray-100";
@@ -77,7 +114,9 @@ export default function NineBoxMatrix() {
       >
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold text-sm">{quadrantLabel}</h3>
-          <Badge variant="secondary" className="text-xs">{employees.length}</Badge>
+          <Badge variant="secondary" className="text-xs">
+            {employees.length}
+          </Badge>
         </div>
         <div className="space-y-1 max-h-[120px] overflow-y-auto">
           {employees.map((emp: any) => (
@@ -114,7 +153,9 @@ export default function NineBoxMatrix() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Matriz Nine Box</h1>
-          <p className="text-muted-foreground">Evaluación de Talento: Desempeño vs Potencial</p>
+          <p className="text-muted-foreground">
+            Evaluación de Talento: Desempeño vs Potencial
+          </p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
@@ -131,7 +172,7 @@ export default function NineBoxMatrix() {
               </DialogDescription>
             </DialogHeader>
             <form
-              onSubmit={(e) => {
+              onSubmit={e => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
                 createMutation.mutate({
@@ -139,14 +180,19 @@ export default function NineBoxMatrix() {
                   performanceScore: Number(formData.get("performanceScore")),
                   potentialScore: Number(formData.get("potentialScore")),
                   evaluationDate: formData.get("evaluationDate") as string,
-                  notes: formData.get("notes") as string || undefined,
+                  notes: (formData.get("notes") as string) || undefined,
                 });
               }}
             >
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="employeeId">ID del Empleado</Label>
-                  <Input id="employeeId" name="employeeId" type="number" required />
+                  <Input
+                    id="employeeId"
+                    name="employeeId"
+                    type="number"
+                    required
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -178,7 +224,12 @@ export default function NineBoxMatrix() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="evaluationDate">Fecha de Evaluación</Label>
-                  <Input id="evaluationDate" name="evaluationDate" type="date" required />
+                  <Input
+                    id="evaluationDate"
+                    name="evaluationDate"
+                    type="date"
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="notes">Notas (opcional)</Label>
@@ -199,44 +250,60 @@ export default function NineBoxMatrix() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Empleados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Empleados
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{((matrixData as any) as any)?.totalEmployees || 0}</div>
+            <div className="text-2xl font-bold">
+              {(matrixData as any as any)?.totalEmployees || 0}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">High Potential</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              High Potential
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-600">
-              {distributionData?.distribution.find((d: any) => d.quadrant === 9)?.count || 0}
+              {distributionData?.distribution.find((d: any) => d.quadrant === 9)
+                ?.count || 0}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Core Performers</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Core Performers
+            </CardTitle>
             <Award className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              {distributionData?.distribution.find((d: any) => d.quadrant === 5)?.count || 0}
+              {distributionData?.distribution.find((d: any) => d.quadrant === 5)
+                ?.count || 0}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Requieren Atención</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Requieren Atención
+            </CardTitle>
             <AlertCircle className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
-              {(distributionData?.distribution.find((d: any) => d.quadrant === 1)?.count || 0) +
-                (distributionData?.distribution.find((d: any) => d.quadrant === 2)?.count || 0)}
+              {(distributionData?.distribution.find(
+                (d: any) => d.quadrant === 1
+              )?.count || 0) +
+                (distributionData?.distribution.find(
+                  (d: any) => d.quadrant === 2
+                )?.count || 0)}
             </div>
           </CardContent>
         </Card>
@@ -251,13 +318,20 @@ export default function NineBoxMatrix() {
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Departamento</Label>
-              <Select value={selectedDepartment} onValueChange={(value) => setSelectedDepartment(value === "all" ? undefined : value)}>
+              <Select
+                value={selectedDepartment}
+                onValueChange={value =>
+                  setSelectedDepartment(value === "all" ? undefined : value)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los departamentos" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los departamentos</SelectItem>
-                  <SelectItem value="Recursos Humanos">Recursos Humanos</SelectItem>
+                  <SelectItem value="Recursos Humanos">
+                    Recursos Humanos
+                  </SelectItem>
                   <SelectItem value="Operaciones">Operaciones</SelectItem>
                   <SelectItem value="Ventas">Ventas</SelectItem>
                   <SelectItem value="Finanzas">Finanzas</SelectItem>
@@ -316,20 +390,28 @@ export default function NineBoxMatrix() {
           <CardHeader>
             <CardTitle>Historial de Evaluaciones</CardTitle>
             <CardDescription>
-              Empleado ID: {selectedEmployee} ({employeeHistory.totalEvaluations} evaluaciones)
+              Empleado ID: {selectedEmployee} (
+              {employeeHistory.totalEvaluations} evaluaciones)
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {employeeHistory.evaluations.map((evaluation: any) => (
-                <div key={evaluation.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={evaluation.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div>
-                    <div className="font-medium">{evaluation.quadrantLabel}</div>
+                    <div className="font-medium">
+                      {evaluation.quadrantLabel}
+                    </div>
                     <div className="text-sm text-muted-foreground">
-                      Desempeño: {evaluation.performanceScore} | Potencial: {evaluation.potentialScore}
+                      Desempeño: {evaluation.performanceScore} | Potencial:{" "}
+                      {evaluation.potentialScore}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      Evaluado por: {evaluation.evaluatorName} | Fecha: {evaluation.evaluationDate}
+                      Evaluado por: {evaluation.evaluatorName} | Fecha:{" "}
+                      {evaluation.evaluationDate}
                     </div>
                   </div>
                   <Badge className={getQuadrantColor(evaluation.quadrant)}>

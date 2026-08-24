@@ -40,13 +40,16 @@ export const systemRouter = router({
     )
     .mutation(async ({ input }) => {
       // Validar API key interna para evitar llamadas no autorizadas
-      const expectedKey = process.env.BUILT_IN_FORGE_API_KEY ?? '';
+      const expectedKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
       if (!expectedKey || input.apiKey !== expectedKey) {
-        return { success: false, error: 'Unauthorized' } as const;
+        return { success: false, error: "Unauthorized" } as const;
       }
-      const date = new Date().toLocaleDateString('es-MX', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-        timeZone: 'America/Mexico_City',
+      const date = new Date().toLocaleDateString("es-MX", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        timeZone: "America/Mexico_City",
       });
       const delivered = await notifyOwner({
         title: `✅ Respaldo semanal NOM-035 completado — ${date}`,

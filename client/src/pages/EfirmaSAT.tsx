@@ -1,14 +1,43 @@
-import { useState } from 'react';
-import { trpc } from '../lib/trpc';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Shield, Upload, Trash2, CheckCircle, XCircle, FileKey, Calendar, AlertCircle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useState } from "react";
+import { trpc } from "../lib/trpc";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Shield,
+  Upload,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  FileKey,
+  Calendar,
+  AlertCircle,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function EfirmaSAT() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -20,27 +49,32 @@ export default function EfirmaSAT() {
 
   // Form state
   const [formData, setFormData] = useState({
-    certificateName: '',
-    password: '',
-    validFrom: '',
-    validUntil: '',
-    issuer: '',
-    serialNumber: '',
+    certificateName: "",
+    password: "",
+    validFrom: "",
+    validUntil: "",
+    issuer: "",
+    serialNumber: "",
   });
 
   // Queries
-  const { data: certificates, isLoading, refetch } = trpc.digitalCertificates.list.useQuery();
-  const { data: activeCertificate } = trpc.digitalCertificates.getActiveCertificate.useQuery();
+  const {
+    data: certificates,
+    isLoading,
+    refetch,
+  } = trpc.digitalCertificates.list.useQuery();
+  const { data: activeCertificate } =
+    trpc.digitalCertificates.getActiveCertificate.useQuery();
 
   // Mutations
   const uploadCertificate = trpc.digitalCertificates.upload.useMutation({
     onSuccess: () => {
-      alert('Certificado cargado exitosamente');
+      alert("Certificado cargado exitosamente");
       setDialogOpen(false);
       resetForm();
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
       setIsUploading(false);
     },
@@ -48,10 +82,10 @@ export default function EfirmaSAT() {
 
   const deleteCertificate = trpc.digitalCertificates.delete.useMutation({
     onSuccess: () => {
-      alert('Certificado eliminado');
+      alert("Certificado eliminado");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -62,24 +96,30 @@ export default function EfirmaSAT() {
     }
   };
 
-  const validateCertificate = trpc.digitalCertificates.validateWithSAT.useMutation({
-    onSuccess: (data) => {
-      alert(`${data.message}\n\nDetalles:\n- Emisor: ${data.details.issuer || 'N/A'}\n- Serie: ${data.details.serialNumber || 'N/A'}\n- Vigencia: ${new Date(data.details.validFrom).toLocaleDateString()} - ${new Date(data.details.validUntil).toLocaleDateString()}`);
-    },
-    onError: (error) => {
-      alert(`Error: ${error.message}`);
-    },
-  });
+  const validateCertificate =
+    trpc.digitalCertificates.validateWithSAT.useMutation({
+      onSuccess: data => {
+        alert(
+          `${data.message}\n\nDetalles:\n- Emisor: ${data.details.issuer || "N/A"}\n- Serie: ${data.details.serialNumber || "N/A"}\n- Vigencia: ${new Date(data.details.validFrom).toLocaleDateString()} - ${new Date(data.details.validUntil).toLocaleDateString()}`
+        );
+      },
+      onError: error => {
+        alert(`Error: ${error.message}`);
+      },
+    });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'cert' | 'key') => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "cert" | "key"
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = () => {
-      const base64 = reader.result?.toString().split(',')[1];
+      const base64 = reader.result?.toString().split(",")[1];
       if (base64) {
-        if (type === 'cert') {
+        if (type === "cert") {
           setCertificateFile(base64);
         } else {
           setKeyFile(base64);
@@ -91,12 +131,17 @@ export default function EfirmaSAT() {
 
   const handleUpload = () => {
     if (!certificateFile || !keyFile) {
-      alert('Debes seleccionar ambos archivos (.cer y .key)');
+      alert("Debes seleccionar ambos archivos (.cer y .key)");
       return;
     }
 
-    if (!formData.certificateName || !formData.password || !formData.validFrom || !formData.validUntil) {
-      alert('Completa todos los campos obligatorios');
+    if (
+      !formData.certificateName ||
+      !formData.password ||
+      !formData.validFrom ||
+      !formData.validUntil
+    ) {
+      alert("Completa todos los campos obligatorios");
       return;
     }
 
@@ -115,12 +160,12 @@ export default function EfirmaSAT() {
 
   const resetForm = () => {
     setFormData({
-      certificateName: '',
-      password: '',
-      validFrom: '',
-      validUntil: '',
-      issuer: '',
-      serialNumber: '',
+      certificateName: "",
+      password: "",
+      validFrom: "",
+      validUntil: "",
+      issuer: "",
+      serialNumber: "",
     });
     setCertificateFile(null);
     setKeyFile(null);
@@ -129,12 +174,27 @@ export default function EfirmaSAT() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'active':
-        return <Badge className="bg-green-500"><CheckCircle className="h-3 w-3 mr-1" />Activo</Badge>;
-      case 'expired':
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Expirado</Badge>;
-      case 'revoked':
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Revocado</Badge>;
+      case "active":
+        return (
+          <Badge className="bg-green-500">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Activo
+          </Badge>
+        );
+      case "expired":
+        return (
+          <Badge variant="destructive">
+            <XCircle className="h-3 w-3 mr-1" />
+            Expirado
+          </Badge>
+        );
+      case "revoked":
+        return (
+          <Badge variant="destructive">
+            <XCircle className="h-3 w-3 mr-1" />
+            Revocado
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">Desconocido</Badge>;
     }
@@ -148,7 +208,8 @@ export default function EfirmaSAT() {
           Certificados Digitales e.firma SAT
         </h1>
         <p className="text-muted-foreground mt-2">
-          Gestiona tus certificados digitales del SAT para firma electrónica avanzada
+          Gestiona tus certificados digitales del SAT para firma electrónica
+          avanzada
         </p>
       </div>
 
@@ -165,20 +226,29 @@ export default function EfirmaSAT() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-sm text-muted-foreground">Nombre</div>
-                <div className="font-medium">{activeCertificate.certificateName}</div>
+                <div className="font-medium">
+                  {activeCertificate.certificateName}
+                </div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Emisor</div>
-                <div className="font-medium">{activeCertificate.issuer || 'N/A'}</div>
+                <div className="font-medium">
+                  {activeCertificate.issuer || "N/A"}
+                </div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Número de Serie</div>
-                <div className="font-medium font-mono text-sm">{activeCertificate.serialNumber || 'N/A'}</div>
+                <div className="text-sm text-muted-foreground">
+                  Número de Serie
+                </div>
+                <div className="font-medium font-mono text-sm">
+                  {activeCertificate.serialNumber || "N/A"}
+                </div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Vigencia</div>
                 <div className="font-medium">
-                  {new Date(activeCertificate.validFrom).toLocaleDateString()} - {new Date(activeCertificate.validUntil).toLocaleDateString()}
+                  {new Date(activeCertificate.validFrom).toLocaleDateString()} -{" "}
+                  {new Date(activeCertificate.validUntil).toLocaleDateString()}
                 </div>
               </div>
             </div>
@@ -207,17 +277,25 @@ export default function EfirmaSAT() {
                 <DialogHeader>
                   <DialogTitle>Cargar Certificado e.firma SAT</DialogTitle>
                   <DialogDescription>
-                    Completa la información y selecciona los archivos de tu certificado digital
+                    Completa la información y selecciona los archivos de tu
+                    certificado digital
                   </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="certificateName">Nombre del Certificado *</Label>
+                    <Label htmlFor="certificateName">
+                      Nombre del Certificado *
+                    </Label>
                     <Input
                       id="certificateName"
                       value={formData.certificateName}
-                      onChange={(e) => setFormData({ ...formData, certificateName: e.target.value })}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          certificateName: e.target.value,
+                        })
+                      }
                       placeholder="Ej: Certificado SAT 2026"
                     />
                   </div>
@@ -229,10 +307,12 @@ export default function EfirmaSAT() {
                         id="certFile"
                         type="file"
                         accept=".cer"
-                        onChange={(e) => handleFileChange(e, 'cert')}
+                        onChange={e => handleFileChange(e, "cert")}
                       />
                       {certificateFile && (
-                        <div className="text-xs text-green-600 mt-1">✓ Archivo cargado</div>
+                        <div className="text-xs text-green-600 mt-1">
+                          ✓ Archivo cargado
+                        </div>
                       )}
                     </div>
                     <div>
@@ -241,21 +321,27 @@ export default function EfirmaSAT() {
                         id="keyFile"
                         type="file"
                         accept=".key"
-                        onChange={(e) => handleFileChange(e, 'key')}
+                        onChange={e => handleFileChange(e, "key")}
                       />
                       {keyFile && (
-                        <div className="text-xs text-green-600 mt-1">✓ Archivo cargado</div>
+                        <div className="text-xs text-green-600 mt-1">
+                          ✓ Archivo cargado
+                        </div>
                       )}
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="password">Contraseña de la Llave Privada *</Label>
+                    <Label htmlFor="password">
+                      Contraseña de la Llave Privada *
+                    </Label>
                     <Input
                       id="password"
                       type="password"
                       value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      onChange={e =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
                       placeholder="Contraseña del archivo .key"
                     />
                   </div>
@@ -267,7 +353,12 @@ export default function EfirmaSAT() {
                         id="validFrom"
                         type="date"
                         value={formData.validFrom}
-                        onChange={(e) => setFormData({ ...formData, validFrom: e.target.value })}
+                        onChange={e =>
+                          setFormData({
+                            ...formData,
+                            validFrom: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div>
@@ -276,7 +367,12 @@ export default function EfirmaSAT() {
                         id="validUntil"
                         type="date"
                         value={formData.validUntil}
-                        onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })}
+                        onChange={e =>
+                          setFormData({
+                            ...formData,
+                            validUntil: e.target.value,
+                          })
+                        }
                       />
                     </div>
                   </div>
@@ -286,17 +382,26 @@ export default function EfirmaSAT() {
                     <Input
                       id="issuer"
                       value={formData.issuer}
-                      onChange={(e) => setFormData({ ...formData, issuer: e.target.value })}
+                      onChange={e =>
+                        setFormData({ ...formData, issuer: e.target.value })
+                      }
                       placeholder="Ej: SAT"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="serialNumber">Número de Serie (opcional)</Label>
+                    <Label htmlFor="serialNumber">
+                      Número de Serie (opcional)
+                    </Label>
                     <Input
                       id="serialNumber"
                       value={formData.serialNumber}
-                      onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          serialNumber: e.target.value,
+                        })
+                      }
                       placeholder="Número de serie del certificado"
                     />
                   </div>
@@ -305,8 +410,10 @@ export default function EfirmaSAT() {
                     <div className="flex items-start gap-2">
                       <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
                       <div className="text-sm text-blue-800">
-                        <strong>Importante:</strong> La contraseña se almacenará de forma segura y encriptada. 
-                        Asegúrate de que los archivos .cer y .key correspondan al mismo certificado digital.
+                        <strong>Importante:</strong> La contraseña se almacenará
+                        de forma segura y encriptada. Asegúrate de que los
+                        archivos .cer y .key correspondan al mismo certificado
+                        digital.
                       </div>
                     </div>
                   </div>
@@ -332,9 +439,18 @@ export default function EfirmaSAT() {
             <div className="mt-6 space-y-3">
               <div className="text-sm font-medium">Información</div>
               <div className="text-sm text-muted-foreground space-y-2">
-                <p>• Los certificados e.firma del SAT son necesarios para firmar digitalmente documentos oficiales</p>
-                <p>• Debes tener ambos archivos (.cer y .key) y la contraseña de la llave privada</p>
-                <p>• El sistema validará automáticamente la vigencia del certificado</p>
+                <p>
+                  • Los certificados e.firma del SAT son necesarios para firmar
+                  digitalmente documentos oficiales
+                </p>
+                <p>
+                  • Debes tener ambos archivos (.cer y .key) y la contraseña de
+                  la llave privada
+                </p>
+                <p>
+                  • El sistema validará automáticamente la vigencia del
+                  certificado
+                </p>
               </div>
             </div>
           </CardContent>
@@ -350,7 +466,9 @@ export default function EfirmaSAT() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Cargando...</div>
+              <div className="text-center py-8 text-muted-foreground">
+                Cargando...
+              </div>
             ) : certificates && certificates.length > 0 ? (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {certificates.map((cert: any) => (
@@ -366,18 +484,28 @@ export default function EfirmaSAT() {
                         </div>
                         <div className="text-sm text-muted-foreground mt-1">
                           {cert.issuer && <div>Emisor: {cert.issuer}</div>}
-                          {cert.serialNumber && <div className="font-mono text-xs">Serie: {cert.serialNumber}</div>}
+                          {cert.serialNumber && (
+                            <div className="font-mono text-xs">
+                              Serie: {cert.serialNumber}
+                            </div>
+                          )}
                         </div>
                         <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          Vigencia: {new Date(cert.validFrom).toLocaleDateString()} - {new Date(cert.validUntil).toLocaleDateString()}
+                          Vigencia:{" "}
+                          {new Date(cert.validFrom).toLocaleDateString()} -{" "}
+                          {new Date(cert.validUntil).toLocaleDateString()}
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => validateCertificate.mutate({ certificateId: cert.id })}
+                          onClick={() =>
+                            validateCertificate.mutate({
+                              certificateId: cert.id,
+                            })
+                          }
                           disabled={validateCertificate.isPending}
                         >
                           <Shield className="h-4 w-4" />
@@ -413,7 +541,9 @@ export default function EfirmaSAT() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              Cargando...
+            </div>
           ) : certificates && certificates.length > 0 ? (
             <Table>
               <TableHeader>
@@ -429,11 +559,16 @@ export default function EfirmaSAT() {
               <TableBody>
                 {certificates.map((cert: any) => (
                   <TableRow key={cert.id}>
-                    <TableCell className="font-medium">{cert.certificateName}</TableCell>
-                    <TableCell>{cert.issuer || 'N/A'}</TableCell>
-                    <TableCell className="font-mono text-xs">{cert.serialNumber || 'N/A'}</TableCell>
+                    <TableCell className="font-medium">
+                      {cert.certificateName}
+                    </TableCell>
+                    <TableCell>{cert.issuer || "N/A"}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {cert.serialNumber || "N/A"}
+                    </TableCell>
                     <TableCell className="text-sm">
-                      {new Date(cert.validFrom).toLocaleDateString()} - {new Date(cert.validUntil).toLocaleDateString()}
+                      {new Date(cert.validFrom).toLocaleDateString()} -{" "}
+                      {new Date(cert.validUntil).toLocaleDateString()}
                     </TableCell>
                     <TableCell>{getStatusBadge(cert.status)}</TableCell>
                     <TableCell className="text-right">
@@ -441,7 +576,11 @@ export default function EfirmaSAT() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => validateCertificate.mutate({ certificateId: cert.id })}
+                          onClick={() =>
+                            validateCertificate.mutate({
+                              certificateId: cert.id,
+                            })
+                          }
                         >
                           <Shield className="h-4 w-4" />
                         </Button>

@@ -72,9 +72,7 @@
       "compositePrimaryKeys": {
         "alertLogs_id": {
           "name": "alertLogs_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -141,9 +139,7 @@
       "compositePrimaryKeys": {
         "answerOptions_id": {
           "name": "answerOptions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -217,9 +213,7 @@
       "compositePrimaryKeys": {
         "caseAssignments_id": {
           "name": "caseAssignments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -291,9 +285,7 @@
       "compositePrimaryKeys": {
         "caseDocuments_id": {
           "name": "caseDocuments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -351,9 +343,7 @@
       "compositePrimaryKeys": {
         "caseFollowUps_id": {
           "name": "caseFollowUps_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -472,17 +462,13 @@
       "compositePrimaryKeys": {
         "cases_id": {
           "name": "cases_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "cases_caseNumber_unique": {
           "name": "cases_caseNumber_unique",
-          "columns": [
-            "caseNumber"
-          ]
+          "columns": ["caseNumber"]
         }
       },
       "checkConstraint": {}
@@ -547,17 +533,13 @@
       "compositePrimaryKeys": {
         "certificates_id": {
           "name": "certificates_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "certificates_certificateNumber_unique": {
           "name": "certificates_certificateNumber_unique",
-          "columns": [
-            "certificateNumber"
-          ]
+          "columns": ["certificateNumber"]
         }
       },
       "checkConstraint": {}
@@ -639,23 +621,17 @@
       "compositePrimaryKeys": {
         "committeeMembers_id": {
           "name": "committeeMembers_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "committeeMembers_employeeId_unique": {
           "name": "committeeMembers_employeeId_unique",
-          "columns": [
-            "employeeId"
-          ]
+          "columns": ["employeeId"]
         },
         "committeeMembers_userId_unique": {
           "name": "committeeMembers_userId_unique",
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         }
       },
       "checkConstraint": {}
@@ -788,12 +764,8 @@
           "name": "company_digital_signature_user_id_users_id_fk",
           "tableFrom": "company_digital_signature",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -801,12 +773,8 @@
           "name": "company_digital_signature_autorizado_por_users_id_fk",
           "tableFrom": "company_digital_signature",
           "tableTo": "users",
-          "columnsFrom": [
-            "autorizado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["autorizado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -814,9 +782,7 @@
       "compositePrimaryKeys": {
         "company_digital_signature_id": {
           "name": "company_digital_signature_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -925,17 +891,13 @@
       "compositePrimaryKeys": {
         "company_general_data_id": {
           "name": "company_general_data_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "company_general_data_rfc_unique": {
           "name": "company_general_data_rfc_unique",
-          "columns": [
-            "rfc"
-          ]
+          "columns": ["rfc"]
         }
       },
       "checkConstraint": {}
@@ -1086,9 +1048,7 @@
       "compositePrimaryKeys": {
         "company_legal_representative_id": {
           "name": "company_legal_representative_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1163,12 +1123,8 @@
           "name": "company_logo_uploaded_by_users_id_fk",
           "tableFrom": "company_logo",
           "tableTo": "users",
-          "columnsFrom": [
-            "uploaded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["uploaded_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1176,9 +1132,7 @@
       "compositePrimaryKeys": {
         "company_logo_id": {
           "name": "company_logo_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1316,12 +1270,8 @@
           "name": "company_survey_report_created_by_users_id_fk",
           "tableFrom": "company_survey_report",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1329,9 +1279,7 @@
       "compositePrimaryKeys": {
         "company_survey_report_id": {
           "name": "company_survey_report_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1405,9 +1353,7 @@
       "compositePrimaryKeys": {
         "competencies_id": {
           "name": "competencies_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1479,9 +1425,7 @@
       "compositePrimaryKeys": {
         "complianceChecklist_id": {
           "name": "complianceChecklist_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1556,9 +1500,7 @@
       "compositePrimaryKeys": {
         "complianceChecks_id": {
           "name": "complianceChecks_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1623,9 +1565,7 @@
       "compositePrimaryKeys": {
         "complianceEvidence_id": {
           "name": "complianceEvidence_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1735,9 +1675,7 @@
       "compositePrimaryKeys": {
         "correctiveActions_id": {
           "name": "correctiveActions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1819,9 +1757,7 @@
       "compositePrimaryKeys": {
         "courses_id": {
           "name": "courses_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1873,12 +1809,8 @@
           "name": "document_evidence_document_id_documents_id_fk",
           "tableFrom": "document_evidence",
           "tableTo": "documents",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1886,9 +1818,7 @@
       "compositePrimaryKeys": {
         "document_evidence_id": {
           "name": "document_evidence_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1961,12 +1891,8 @@
           "name": "document_participants_document_id_documents_id_fk",
           "tableFrom": "document_participants",
           "tableTo": "documents",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1974,12 +1900,8 @@
           "name": "document_participants_user_id_users_id_fk",
           "tableFrom": "document_participants",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1987,9 +1909,7 @@
       "compositePrimaryKeys": {
         "document_participants_id": {
           "name": "document_participants_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2100,12 +2020,8 @@
           "name": "documents_format_catalog_id_format_catalog_id_fk",
           "tableFrom": "documents",
           "tableTo": "format_catalog",
-          "columnsFrom": [
-            "format_catalog_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["format_catalog_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2113,12 +2029,8 @@
           "name": "documents_created_by_users_id_fk",
           "tableFrom": "documents",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2126,23 +2038,17 @@
       "compositePrimaryKeys": {
         "documents_id": {
           "name": "documents_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "documents_folio_unique": {
           "name": "documents_folio_unique",
-          "columns": [
-            "folio"
-          ]
+          "columns": ["folio"]
         },
         "documents_qr_code_unique": {
           "name": "documents_qr_code_unique",
-          "columns": [
-            "qr_code"
-          ]
+          "columns": ["qr_code"]
         }
       },
       "checkConstraint": {}
@@ -2229,9 +2135,7 @@
       "compositePrimaryKeys": {
         "employeeCompetencies_id": {
           "name": "employeeCompetencies_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2356,9 +2260,7 @@
       "compositePrimaryKeys": {
         "employeeDocuments_id": {
           "name": "employeeDocuments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2511,35 +2413,25 @@
       "compositePrimaryKeys": {
         "employees_id": {
           "name": "employees_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "employees_email_unique": {
           "name": "employees_email_unique",
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "employees_curp_unique": {
           "name": "employees_curp_unique",
-          "columns": [
-            "curp"
-          ]
+          "columns": ["curp"]
         },
         "employees_employeeNumber_unique": {
           "name": "employees_employeeNumber_unique",
-          "columns": [
-            "employeeNumber"
-          ]
+          "columns": ["employeeNumber"]
         },
         "employees_userId_unique": {
           "name": "employees_userId_unique",
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         }
       },
       "checkConstraint": {}
@@ -2625,9 +2517,7 @@
       "compositePrimaryKeys": {
         "evaluationAttempts_id": {
           "name": "evaluationAttempts_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2710,9 +2600,7 @@
       "compositePrimaryKeys": {
         "evaluations_id": {
           "name": "evaluations_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2794,17 +2682,13 @@
       "compositePrimaryKeys": {
         "format_catalog_id": {
           "name": "format_catalog_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "format_catalog_code_unique": {
           "name": "format_catalog_code_unique",
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "checkConstraint": {}
@@ -2877,9 +2761,7 @@
       "compositePrimaryKeys": {
         "jobFunctions_id": {
           "name": "jobFunctions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2953,9 +2835,7 @@
       "compositePrimaryKeys": {
         "jobPositions_id": {
           "name": "jobPositions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3029,9 +2909,7 @@
       "compositePrimaryKeys": {
         "jobProfiles_id": {
           "name": "jobProfiles_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3172,17 +3050,13 @@
       "compositePrimaryKeys": {
         "mailbox_id": {
           "name": "mailbox_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "mailbox_folio_unique": {
           "name": "mailbox_folio_unique",
-          "columns": [
-            "folio"
-          ]
+          "columns": ["folio"]
         }
       },
       "checkConstraint": {}
@@ -3240,9 +3114,7 @@
       "compositePrimaryKeys": {
         "mailboxResponses_id": {
           "name": "mailboxResponses_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3314,9 +3186,7 @@
       "compositePrimaryKeys": {
         "meetingAttachments_id": {
           "name": "meetingAttachments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3447,17 +3317,13 @@
       "compositePrimaryKeys": {
         "meetingMinutes_id": {
           "name": "meetingMinutes_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "meetingMinutes_folio_unique": {
           "name": "meetingMinutes_folio_unique",
-          "columns": [
-            "folio"
-          ]
+          "columns": ["folio"]
         }
       },
       "checkConstraint": {}
@@ -3542,9 +3408,7 @@
       "compositePrimaryKeys": {
         "meetingParticipants_id": {
           "name": "meetingParticipants_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3626,9 +3490,7 @@
       "compositePrimaryKeys": {
         "modules_id": {
           "name": "modules_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3708,9 +3570,7 @@
       "compositePrimaryKeys": {
         "notifications_id": {
           "name": "notifications_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3799,9 +3659,7 @@
       "compositePrimaryKeys": {
         "organizationalCompetencies_id": {
           "name": "organizationalCompetencies_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3889,9 +3747,7 @@
       "compositePrimaryKeys": {
         "performanceEvaluations_id": {
           "name": "performanceEvaluations_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3967,9 +3823,7 @@
       "compositePrimaryKeys": {
         "questions_id": {
           "name": "questions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4065,9 +3919,7 @@
       "compositePrimaryKeys": {
         "resources_id": {
           "name": "resources_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4161,12 +4013,8 @@
           "name": "signatures_document_id_documents_id_fk",
           "tableFrom": "signatures",
           "tableTo": "documents",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4174,12 +4022,8 @@
           "name": "signatures_user_id_users_id_fk",
           "tableFrom": "signatures",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4187,9 +4031,7 @@
       "compositePrimaryKeys": {
         "signatures_id": {
           "name": "signatures_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4270,9 +4112,7 @@
       "compositePrimaryKeys": {
         "skillsMatrix_id": {
           "name": "skillsMatrix_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4344,9 +4184,7 @@
       "compositePrimaryKeys": {
         "skillsMatrixImports_id": {
           "name": "skillsMatrixImports_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4419,9 +4257,7 @@
       "compositePrimaryKeys": {
         "studentAnswers_id": {
           "name": "studentAnswers_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4519,9 +4355,7 @@
       "compositePrimaryKeys": {
         "studentProgress_id": {
           "name": "studentProgress_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4573,12 +4407,8 @@
           "name": "survey_answers_response_id_survey_responses_id_fk",
           "tableFrom": "survey_answers",
           "tableTo": "survey_responses",
-          "columnsFrom": [
-            "response_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["response_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4586,12 +4416,8 @@
           "name": "survey_answers_question_id_survey_questions_id_fk",
           "tableFrom": "survey_answers",
           "tableTo": "survey_questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4599,9 +4425,7 @@
       "compositePrimaryKeys": {
         "survey_answers_id": {
           "name": "survey_answers_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4688,9 +4512,7 @@
       "compositePrimaryKeys": {
         "surveyNotifications_id": {
           "name": "surveyNotifications_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4780,12 +4602,8 @@
           "name": "survey_periods_created_by_users_id_fk",
           "tableFrom": "survey_periods",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4793,9 +4611,7 @@
       "compositePrimaryKeys": {
         "survey_periods_id": {
           "name": "survey_periods_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4890,12 +4706,8 @@
           "name": "survey_questions_survey_id_surveys_id_fk",
           "tableFrom": "survey_questions",
           "tableTo": "surveys",
-          "columnsFrom": [
-            "survey_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["survey_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4903,9 +4715,7 @@
       "compositePrimaryKeys": {
         "survey_questions_id": {
           "name": "survey_questions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4999,12 +4809,8 @@
           "name": "survey_responses_survey_id_surveys_id_fk",
           "tableFrom": "survey_responses",
           "tableTo": "surveys",
-          "columnsFrom": [
-            "survey_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["survey_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5012,12 +4818,8 @@
           "name": "survey_responses_period_id_survey_periods_id_fk",
           "tableFrom": "survey_responses",
           "tableTo": "survey_periods",
-          "columnsFrom": [
-            "period_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["period_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5025,12 +4827,8 @@
           "name": "survey_responses_user_id_users_id_fk",
           "tableFrom": "survey_responses",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5038,17 +4836,13 @@
       "compositePrimaryKeys": {
         "survey_responses_id": {
           "name": "survey_responses_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "survey_responses_token_unique": {
           "name": "survey_responses_token_unique",
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "checkConstraint": {}
@@ -5134,12 +4928,8 @@
           "name": "survey_tokens_period_id_survey_periods_id_fk",
           "tableFrom": "survey_tokens",
           "tableTo": "survey_periods",
-          "columnsFrom": [
-            "period_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["period_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5147,12 +4937,8 @@
           "name": "survey_tokens_user_id_users_id_fk",
           "tableFrom": "survey_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5160,12 +4946,8 @@
           "name": "survey_tokens_survey_id_surveys_id_fk",
           "tableFrom": "survey_tokens",
           "tableTo": "surveys",
-          "columnsFrom": [
-            "survey_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["survey_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5173,17 +4955,13 @@
       "compositePrimaryKeys": {
         "survey_tokens_id": {
           "name": "survey_tokens_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "survey_tokens_token_unique": {
           "name": "survey_tokens_token_unique",
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "checkConstraint": {}
@@ -5250,9 +5028,7 @@
       "compositePrimaryKeys": {
         "surveys_id": {
           "name": "surveys_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -5319,17 +5095,13 @@
       "compositePrimaryKeys": {
         "systemSettings_id": {
           "name": "systemSettings_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "systemSettings_settingKey_unique": {
           "name": "systemSettings_settingKey_unique",
-          "columns": [
-            "settingKey"
-          ]
+          "columns": ["settingKey"]
         }
       },
       "checkConstraint": {}
@@ -5452,9 +5224,7 @@
       "compositePrimaryKeys": {
         "trainingNeeds_id": {
           "name": "trainingNeeds_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -5649,29 +5419,21 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         },
         "users_curp_unique": {
           "name": "users_curp_unique",
-          "columns": [
-            "curp"
-          ]
+          "columns": ["curp"]
         },
         "users_rfc_unique": {
           "name": "users_rfc_unique",
-          "columns": [
-            "rfc"
-          ]
+          "columns": ["rfc"]
         }
       },
       "checkConstraint": {}

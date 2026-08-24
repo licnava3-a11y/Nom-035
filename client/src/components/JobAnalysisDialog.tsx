@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,11 +23,26 @@ interface JobAnalysisDialogProps {
 }
 
 const FACTOR_LABELS: Record<string, { label: string; description: string }> = {
-  workload:        { label: "Carga de Trabajo",           description: "Exigencias que el trabajo impone al trabajador" },
-  control:         { label: "Control sobre el Trabajo",   description: "Autonomía y toma de decisiones en el puesto" },
-  leadership:      { label: "Liderazgo",                  description: "Relación con superiores y estilo de mando" },
-  relationships:   { label: "Relaciones en el Trabajo",   description: "Interacciones con compañeros y clima laboral" },
-  workEnvironment: { label: "Ambiente de Trabajo",        description: "Condiciones físicas y entorno organizacional" },
+  workload: {
+    label: "Carga de Trabajo",
+    description: "Exigencias que el trabajo impone al trabajador",
+  },
+  control: {
+    label: "Control sobre el Trabajo",
+    description: "Autonomía y toma de decisiones en el puesto",
+  },
+  leadership: {
+    label: "Liderazgo",
+    description: "Relación con superiores y estilo de mando",
+  },
+  relationships: {
+    label: "Relaciones en el Trabajo",
+    description: "Interacciones con compañeros y clima laboral",
+  },
+  workEnvironment: {
+    label: "Ambiente de Trabajo",
+    description: "Condiciones físicas y entorno organizacional",
+  },
 };
 
 function factorColor(value: number) {
@@ -35,9 +57,19 @@ function factorBg(value: number) {
   return "bg-green-50 border-green-200";
 }
 
-const LEVEL_LABELS: Record<number, string> = { 1: "Muy Bajo", 2: "Bajo", 3: "Medio", 4: "Alto", 5: "Muy Alto" };
+const LEVEL_LABELS: Record<number, string> = {
+  1: "Muy Bajo",
+  2: "Bajo",
+  3: "Medio",
+  4: "Alto",
+  5: "Muy Alto",
+};
 
-export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysisDialogProps) {
+export function JobAnalysisDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+}: JobAnalysisDialogProps) {
   const [formData, setFormData] = useState({
     positionName: "",
     department: "",
@@ -54,19 +86,38 @@ export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysis
     workEnvironment: 3,
   });
 
-  const avgIndex = Math.round(
-    ((factors.workload + factors.control + factors.leadership + factors.relationships + factors.workEnvironment) / 5) * 10
-  ) / 10;
+  const avgIndex =
+    Math.round(
+      ((factors.workload +
+        factors.control +
+        factors.leadership +
+        factors.relationships +
+        factors.workEnvironment) /
+        5) *
+        10
+    ) / 10;
 
   const createMutation = trpc.jobPositions.create.useMutation({
     onSuccess: () => {
       toast.success("Análisis de puesto creado exitosamente");
-      setFormData({ positionName: "", department: "", description: "", riskLevel: "low", employeeCount: 0 });
-      setFactors({ workload: 2, control: 3, leadership: 3, relationships: 3, workEnvironment: 3 });
+      setFormData({
+        positionName: "",
+        department: "",
+        description: "",
+        riskLevel: "low",
+        employeeCount: 0,
+      });
+      setFactors({
+        workload: 2,
+        control: 3,
+        leadership: 3,
+        relationships: 3,
+        workEnvironment: 3,
+      });
       onOpenChange(false);
       onSuccess?.();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al crear análisis: ${error.message}`);
     },
   });
@@ -86,7 +137,8 @@ export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysis
         <DialogHeader>
           <DialogTitle>Crear Análisis de Puesto</DialogTitle>
           <DialogDescription>
-            Registra un nuevo puesto de trabajo para análisis de factores de riesgo psicosocial según NOM-035-STPS-2018
+            Registra un nuevo puesto de trabajo para análisis de factores de
+            riesgo psicosocial según NOM-035-STPS-2018
           </DialogDescription>
         </DialogHeader>
 
@@ -99,7 +151,9 @@ export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysis
             <Input
               id="positionName"
               value={formData.positionName}
-              onChange={(e) => setFormData({ ...formData, positionName: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, positionName: e.target.value })
+              }
               placeholder="Ej: Gerente de Recursos Humanos"
               required
             />
@@ -112,12 +166,17 @@ export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysis
               <Input
                 id="department"
                 value={formData.department}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, department: e.target.value })
+                }
                 placeholder="Ej: Recursos Humanos"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="employeeCount" className="flex items-center gap-1.5">
+              <Label
+                htmlFor="employeeCount"
+                className="flex items-center gap-1.5"
+              >
                 <Users className="h-3.5 w-3.5 text-blue-500" />
                 Número de Empleados
               </Label>
@@ -126,7 +185,12 @@ export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysis
                 type="number"
                 min={0}
                 value={formData.employeeCount}
-                onChange={(e) => setFormData({ ...formData, employeeCount: Math.max(0, parseInt(e.target.value) || 0) })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    employeeCount: Math.max(0, parseInt(e.target.value) || 0),
+                  })
+                }
                 placeholder="0"
               />
             </div>
@@ -138,7 +202,9 @@ export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysis
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Describe las responsabilidades principales, actividades y objetivos del puesto..."
               rows={3}
             />
@@ -153,7 +219,9 @@ export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysis
             <select
               id="riskLevel"
               value={formData.riskLevel}
-              onChange={(e) => setFormData({ ...formData, riskLevel: e.target.value as any })}
+              onChange={e =>
+                setFormData({ ...formData, riskLevel: e.target.value as any })
+              }
               className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm"
             >
               <option value="low">Bajo</option>
@@ -162,7 +230,8 @@ export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysis
               <option value="very_high">Muy Alto</option>
             </select>
             <p className="text-xs text-muted-foreground">
-              Este nivel puede ajustarse según la evaluación de factores de riesgo
+              Este nivel puede ajustarse según la evaluación de factores de
+              riesgo
             </p>
           </div>
 
@@ -178,36 +247,52 @@ export function JobAnalysisDialog({ open, onOpenChange, onSuccess }: JobAnalysis
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Evalúa cada factor en escala 1 (muy bajo) a 5 (muy alto). Valores ≥ 4 indican riesgo elevado.
+              Evalúa cada factor en escala 1 (muy bajo) a 5 (muy alto). Valores
+              ≥ 4 indican riesgo elevado.
             </p>
 
             <div className="space-y-3">
-              {(Object.keys(factors) as Array<keyof typeof factors>).map((key) => (
-                <div key={key} className={`rounded-lg border p-3 ${factorBg(factors[key])}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="text-sm font-medium">{FACTOR_LABELS[key].label}</p>
-                      <p className="text-xs text-muted-foreground">{FACTOR_LABELS[key].description}</p>
+              {(Object.keys(factors) as Array<keyof typeof factors>).map(
+                key => (
+                  <div
+                    key={key}
+                    className={`rounded-lg border p-3 ${factorBg(factors[key])}`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <p className="text-sm font-medium">
+                          {FACTOR_LABELS[key].label}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {FACTOR_LABELS[key].description}
+                        </p>
+                      </div>
+                      <span
+                        className={`text-sm font-bold min-w-[80px] text-right ${factorColor(factors[key])}`}
+                      >
+                        {factors[key]}/5 — {LEVEL_LABELS[factors[key]]}
+                      </span>
                     </div>
-                    <span className={`text-sm font-bold min-w-[80px] text-right ${factorColor(factors[key])}`}>
-                      {factors[key]}/5 — {LEVEL_LABELS[factors[key]]}
-                    </span>
+                    <Slider
+                      min={1}
+                      max={5}
+                      step={1}
+                      value={[factors[key]]}
+                      onValueChange={([v]) =>
+                        setFactors({ ...factors, [key]: v })
+                      }
+                      className="w-full"
+                    />
+                    <div className="flex justify-between mt-1">
+                      {[1, 2, 3, 4, 5].map(n => (
+                        <span key={n} className="text-xs text-muted-foreground">
+                          {n}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <Slider
-                    min={1}
-                    max={5}
-                    step={1}
-                    value={[factors[key]]}
-                    onValueChange={([v]) => setFactors({ ...factors, [key]: v })}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between mt-1">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <span key={n} className="text-xs text-muted-foreground">{n}</span>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
 

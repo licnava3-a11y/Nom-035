@@ -1,17 +1,34 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, RotateCcw, Save, TrendingUp, AlertCircle } from "lucide-react";
+import {
+  Loader2,
+  RotateCcw,
+  Save,
+  TrendingUp,
+  AlertCircle,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function ModelThresholdsConfig() {
-  const { data: activeConfig, isLoading, refetch } = trpc.modelThresholds.getActiveThresholds.useQuery();
-  const { data: correlationMetrics } = trpc.predictiveCorrelation.getModelAccuracy.useQuery({});
+  const {
+    data: activeConfig,
+    isLoading,
+    refetch,
+  } = trpc.modelThresholds.getActiveThresholds.useQuery();
+  const { data: correlationMetrics } =
+    trpc.predictiveCorrelation.getModelAccuracy.useQuery({});
   const updateMutation = trpc.modelThresholds.updateThresholds.useMutation();
   const resetMutation = trpc.modelThresholds.resetToDefaults.useMutation();
 
@@ -34,7 +51,8 @@ export default function ModelThresholdsConfig() {
     }
   }, [activeConfig]);
 
-  const totalWeight = criticalCommentsWeight + openCasesWeight + highRiskSurveysWeight;
+  const totalWeight =
+    criticalCommentsWeight + openCasesWeight + highRiskSurveysWeight;
   const isValidWeight = totalWeight === 100;
   const isValidThresholds = mediumRiskThreshold < highRiskThreshold;
 
@@ -45,7 +63,9 @@ export default function ModelThresholdsConfig() {
     }
 
     if (!isValidThresholds) {
-      toast.error("El umbral de riesgo medio debe ser menor que el umbral de riesgo alto");
+      toast.error(
+        "El umbral de riesgo medio debe ser menor que el umbral de riesgo alto"
+      );
       return;
     }
 
@@ -86,9 +106,12 @@ export default function ModelThresholdsConfig() {
   return (
     <div className="container mx-auto py-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Configuración de Umbrales del Modelo Predictivo</h1>
+        <h1 className="text-3xl font-bold">
+          Configuración de Umbrales del Modelo Predictivo
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Ajusta los pesos de la fórmula predictiva de rotación para optimizar la precisión del modelo
+          Ajusta los pesos de la fórmula predictiva de rotación para optimizar
+          la precisión del modelo
         </p>
       </div>
 
@@ -97,34 +120,50 @@ export default function ModelThresholdsConfig() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Precisión</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Precisión
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{correlationMetrics.metrics.precision.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">
+                {correlationMetrics.metrics.precision.toFixed(1)}%
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Recall</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Recall
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{correlationMetrics.metrics.recall.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">
+                {correlationMetrics.metrics.recall.toFixed(1)}%
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">F1-Score</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                F1-Score
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{correlationMetrics.metrics.f1Score.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">
+                {correlationMetrics.metrics.f1Score.toFixed(1)}%
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Accuracy</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Accuracy
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{correlationMetrics.metrics.accuracy.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">
+                {correlationMetrics.metrics.accuracy.toFixed(1)}%
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -135,7 +174,8 @@ export default function ModelThresholdsConfig() {
         <CardHeader>
           <CardTitle>Pesos de la Fórmula Predictiva</CardTitle>
           <CardDescription>
-            Los pesos determinan la importancia de cada factor en el cálculo del riesgo de rotación
+            Los pesos determinan la importancia de cada factor en el cálculo del
+            riesgo de rotación
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -144,7 +184,8 @@ export default function ModelThresholdsConfig() {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Los pesos deben sumar exactamente 100%. Suma actual: {totalWeight}%
+                Los pesos deben sumar exactamente 100%. Suma actual:{" "}
+                {totalWeight}%
               </AlertDescription>
             </Alert>
           )}
@@ -152,19 +193,24 @@ export default function ModelThresholdsConfig() {
           {/* Comentarios Críticos */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="criticalComments">Comentarios Críticos (últimos 90 días)</Label>
-              <span className="text-sm font-medium">{criticalCommentsWeight}%</span>
+              <Label htmlFor="criticalComments">
+                Comentarios Críticos (últimos 90 días)
+              </Label>
+              <span className="text-sm font-medium">
+                {criticalCommentsWeight}%
+              </span>
             </div>
             <Slider
               id="criticalComments"
               value={[criticalCommentsWeight]}
-              onValueChange={(value) => setCriticalCommentsWeight(value[0])}
+              onValueChange={value => setCriticalCommentsWeight(value[0])}
               max={100}
               step={5}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Peso de comentarios críticos detectados por análisis de sentimiento
+              Peso de comentarios críticos detectados por análisis de
+              sentimiento
             </p>
           </div>
 
@@ -177,7 +223,7 @@ export default function ModelThresholdsConfig() {
             <Slider
               id="openCases"
               value={[openCasesWeight]}
-              onValueChange={(value) => setOpenCasesWeight(value[0])}
+              onValueChange={value => setOpenCasesWeight(value[0])}
               max={100}
               step={5}
               className="w-full"
@@ -191,12 +237,14 @@ export default function ModelThresholdsConfig() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="highRiskSurveys">Encuestas de Alto Riesgo</Label>
-              <span className="text-sm font-medium">{highRiskSurveysWeight}%</span>
+              <span className="text-sm font-medium">
+                {highRiskSurveysWeight}%
+              </span>
             </div>
             <Slider
               id="highRiskSurveys"
               value={[highRiskSurveysWeight]}
-              onValueChange={(value) => setHighRiskSurveysWeight(value[0])}
+              onValueChange={value => setHighRiskSurveysWeight(value[0])}
               max={100}
               step={5}
               className="w-full"
@@ -221,7 +269,8 @@ export default function ModelThresholdsConfig() {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                El umbral de riesgo medio debe ser menor que el umbral de riesgo alto
+                El umbral de riesgo medio debe ser menor que el umbral de riesgo
+                alto
               </AlertDescription>
             </Alert>
           )}
@@ -230,37 +279,45 @@ export default function ModelThresholdsConfig() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="highRiskThreshold">Umbral de Alto Riesgo</Label>
-              <span className="text-sm font-medium">≥ {highRiskThreshold} puntos</span>
+              <span className="text-sm font-medium">
+                ≥ {highRiskThreshold} puntos
+              </span>
             </div>
             <Slider
               id="highRiskThreshold"
               value={[highRiskThreshold]}
-              onValueChange={(value) => setHighRiskThreshold(value[0])}
+              onValueChange={value => setHighRiskThreshold(value[0])}
               max={100}
               step={5}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Empleados con score igual o superior se clasifican como alto riesgo
+              Empleados con score igual o superior se clasifican como alto
+              riesgo
             </p>
           </div>
 
           {/* Umbral Riesgo Medio */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="mediumRiskThreshold">Umbral de Riesgo Medio</Label>
-              <span className="text-sm font-medium">≥ {mediumRiskThreshold} puntos</span>
+              <Label htmlFor="mediumRiskThreshold">
+                Umbral de Riesgo Medio
+              </Label>
+              <span className="text-sm font-medium">
+                ≥ {mediumRiskThreshold} puntos
+              </span>
             </div>
             <Slider
               id="mediumRiskThreshold"
               value={[mediumRiskThreshold]}
-              onValueChange={(value) => setMediumRiskThreshold(value[0])}
+              onValueChange={value => setMediumRiskThreshold(value[0])}
               max={100}
               step={5}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Empleados con score entre este valor y el umbral alto se clasifican como riesgo medio
+              Empleados con score entre este valor y el umbral alto se
+              clasifican como riesgo medio
             </p>
           </div>
         </CardContent>
@@ -275,7 +332,7 @@ export default function ModelThresholdsConfig() {
           <Textarea
             placeholder="Describe los cambios realizados y el motivo..."
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             rows={3}
           />
         </CardContent>
@@ -285,7 +342,9 @@ export default function ModelThresholdsConfig() {
       <div className="flex gap-4">
         <Button
           onClick={handleSave}
-          disabled={!isValidWeight || !isValidThresholds || updateMutation.isPending}
+          disabled={
+            !isValidWeight || !isValidThresholds || updateMutation.isPending
+          }
           className="flex-1"
         >
           {updateMutation.isPending ? (
@@ -323,8 +382,10 @@ export default function ModelThresholdsConfig() {
       <Alert>
         <TrendingUp className="h-4 w-4" />
         <AlertDescription>
-          <strong>Recomendación:</strong> Después de ajustar los umbrales, monitorea las métricas de precisión
-          en el dashboard de "Evolución del Modelo" para validar que los cambios mejoran el rendimiento predictivo.
+          <strong>Recomendación:</strong> Después de ajustar los umbrales,
+          monitorea las métricas de precisión en el dashboard de "Evolución del
+          Modelo" para validar que los cambios mejoran el rendimiento
+          predictivo.
         </AlertDescription>
       </Alert>
     </div>

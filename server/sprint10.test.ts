@@ -17,8 +17,14 @@ describe("Filtro histórico de getStats (bugReports y featureRequests)", () => {
     const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const mockRecords = [
       { status: "pendiente", createdAt: new Date() },
-      { status: "corregido", createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
-      { status: "pendiente", createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) }, // fuera del período
+      {
+        status: "corregido",
+        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      },
+      {
+        status: "pendiente",
+        createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+      }, // fuera del período
     ];
     const filtered = mockRecords.filter(r => r.createdAt >= cutoff);
     expect(filtered).toHaveLength(2);
@@ -27,7 +33,10 @@ describe("Filtro histórico de getStats (bugReports y featureRequests)", () => {
   it("Sin filtro de días devuelve todos los registros", () => {
     const mockRecords = [
       { status: "pendiente", createdAt: new Date() },
-      { status: "corregido", createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000) },
+      {
+        status: "corregido",
+        createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
+      },
     ];
     // Sin filtro
     const filtered = mockRecords;

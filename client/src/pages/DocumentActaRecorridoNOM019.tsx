@@ -1,5 +1,11 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -84,8 +90,16 @@ export default function DocumentActaRecorridoNOM019() {
     setObservaciones(observaciones.filter((obs: any) => obs.id !== id));
   };
 
-  const actualizarObservacion = (id: string, campo: keyof Observacion, valor: string) => {
-    setObservaciones(observaciones.map((obs: any) => (obs.id === id ? { ...obs, [campo]: valor } : obs)));
+  const actualizarObservacion = (
+    id: string,
+    campo: keyof Observacion,
+    valor: string
+  ) => {
+    setObservaciones(
+      observaciones.map((obs: any) =>
+        obs.id === id ? { ...obs, [campo]: valor } : obs
+      )
+    );
   };
 
   const agregarParticipante = () => {
@@ -104,15 +118,25 @@ export default function DocumentActaRecorridoNOM019() {
     setParticipantes(participantes.filter((part: any) => part.id !== id));
   };
 
-  const actualizarParticipante = (id: string, campo: keyof Participante, valor: string) => {
-    setParticipantes(participantes.map((part: any) => (part.id === id ? { ...part, [campo]: valor } : part)));
+  const actualizarParticipante = (
+    id: string,
+    campo: keyof Participante,
+    valor: string
+  ) => {
+    setParticipantes(
+      participantes.map((part: any) =>
+        part.id === id ? { ...part, [campo]: valor } : part
+      )
+    );
   };
 
   const handleSave = async () => {
     try {
       // Validar campos obligatorios
       if (!formData.organizacion || !formData.fecha || !formData.objetivo) {
-        alert("Por favor complete todos los campos obligatorios: Organización, Fecha y Objetivo");
+        alert(
+          "Por favor complete todos los campos obligatorios: Organización, Fecha y Objetivo"
+        );
         return;
       }
 
@@ -158,10 +182,14 @@ export default function DocumentActaRecorridoNOM019() {
         status: "final",
       });
 
-      alert(`✅ Acta de recorrido guardada exitosamente con folio: ${result.folio}`);
+      alert(
+        `✅ Acta de recorrido guardada exitosamente con folio: ${result.folio}`
+      );
       setLocation("/documents");
     } catch (error: any) {
-      alert(`Error al guardar el acta: ${error.message || "Ocurrió un error inesperado"}`);
+      alert(
+        `Error al guardar el acta: ${error.message || "Ocurrió un error inesperado"}`
+      );
     }
   };
 
@@ -169,9 +197,12 @@ export default function DocumentActaRecorridoNOM019() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Acta de Recorrido NOM-019</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Acta de Recorrido NOM-019
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Registro de recorridos de verificación de condiciones de seguridad e higiene en el centro de trabajo
+          Registro de recorridos de verificación de condiciones de seguridad e
+          higiene en el centro de trabajo
         </p>
       </div>
 
@@ -182,7 +213,9 @@ export default function DocumentActaRecorridoNOM019() {
             <MapPin className="h-5 w-5" />
             Información General del Recorrido
           </CardTitle>
-          <CardDescription>Datos básicos del recorrido de verificación</CardDescription>
+          <CardDescription>
+            Datos básicos del recorrido de verificación
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -190,7 +223,9 @@ export default function DocumentActaRecorridoNOM019() {
             <Input
               id="organizacion"
               value={formData.organizacion}
-              onChange={(e) => setFormData({ ...formData, organizacion: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, organizacion: e.target.value })
+              }
               placeholder="Ingrese el nombre de la organización"
             />
           </div>
@@ -202,7 +237,9 @@ export default function DocumentActaRecorridoNOM019() {
                 id="fecha"
                 type="date"
                 value={formData.fecha}
-                onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, fecha: e.target.value })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -211,7 +248,9 @@ export default function DocumentActaRecorridoNOM019() {
                 id="horaInicio"
                 type="time"
                 value={formData.horaInicio}
-                onChange={(e) => setFormData({ ...formData, horaInicio: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, horaInicio: e.target.value })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -220,7 +259,9 @@ export default function DocumentActaRecorridoNOM019() {
                 id="horaFin"
                 type="time"
                 value={formData.horaFin}
-                onChange={(e) => setFormData({ ...formData, horaFin: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, horaFin: e.target.value })
+                }
               />
             </div>
           </div>
@@ -230,7 +271,9 @@ export default function DocumentActaRecorridoNOM019() {
             <Textarea
               id="objetivo"
               value={formData.objetivo}
-              onChange={(e) => setFormData({ ...formData, objetivo: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, objetivo: e.target.value })
+              }
               placeholder="Describa el objetivo del recorrido de verificación..."
               rows={3}
             />
@@ -241,7 +284,9 @@ export default function DocumentActaRecorridoNOM019() {
             <Textarea
               id="alcance"
               value={formData.alcance}
-              onChange={(e) => setFormData({ ...formData, alcance: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, alcance: e.target.value })
+              }
               placeholder="Liste las áreas o departamentos inspeccionados durante el recorrido..."
               rows={3}
             />
@@ -255,7 +300,9 @@ export default function DocumentActaRecorridoNOM019() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Observaciones y Hallazgos</CardTitle>
-              <CardDescription>Registro detallado de observaciones durante el recorrido</CardDescription>
+              <CardDescription>
+                Registro detallado de observaciones durante el recorrido
+              </CardDescription>
             </div>
             <Button onClick={agregarObservacion} size="sm">
               <Plus className="h-4 w-4 mr-2" />
@@ -265,7 +312,10 @@ export default function DocumentActaRecorridoNOM019() {
         </CardHeader>
         <CardContent className="space-y-6">
           {observaciones.map((obs, index) => (
-            <div key={obs.id} className="p-4 border rounded-lg space-y-4 relative">
+            <div
+              key={obs.id}
+              className="p-4 border rounded-lg space-y-4 relative"
+            >
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold">Observación #{index + 1}</h4>
                 {observaciones.length > 1 && (
@@ -285,7 +335,9 @@ export default function DocumentActaRecorridoNOM019() {
                   <Label>Área o Departamento</Label>
                   <Input
                     value={obs.area}
-                    onChange={(e) => actualizarObservacion(obs.id, "area", e.target.value)}
+                    onChange={e =>
+                      actualizarObservacion(obs.id, "area", e.target.value)
+                    }
                     placeholder="Ej: Producción, Almacén, Oficinas"
                   />
                 </div>
@@ -293,7 +345,9 @@ export default function DocumentActaRecorridoNOM019() {
                   <Label>Tipo de Riesgo Identificado</Label>
                   <Input
                     value={obs.riesgo}
-                    onChange={(e) => actualizarObservacion(obs.id, "riesgo", e.target.value)}
+                    onChange={e =>
+                      actualizarObservacion(obs.id, "riesgo", e.target.value)
+                    }
                     placeholder="Ej: Riesgo ergonómico, psicosocial, químico"
                   />
                 </div>
@@ -303,7 +357,9 @@ export default function DocumentActaRecorridoNOM019() {
                 <Label>Descripción de la Observación</Label>
                 <Textarea
                   value={obs.descripcion}
-                  onChange={(e) => actualizarObservacion(obs.id, "descripcion", e.target.value)}
+                  onChange={e =>
+                    actualizarObservacion(obs.id, "descripcion", e.target.value)
+                  }
                   placeholder="Describa detalladamente la observación o hallazgo..."
                   rows={3}
                 />
@@ -313,7 +369,13 @@ export default function DocumentActaRecorridoNOM019() {
                 <Label>Acción Correctiva Propuesta</Label>
                 <Textarea
                   value={obs.accionCorrectiva}
-                  onChange={(e) => actualizarObservacion(obs.id, "accionCorrectiva", e.target.value)}
+                  onChange={e =>
+                    actualizarObservacion(
+                      obs.id,
+                      "accionCorrectiva",
+                      e.target.value
+                    )
+                  }
                   placeholder="Describa la acción correctiva o preventiva recomendada..."
                   rows={2}
                 />
@@ -324,7 +386,13 @@ export default function DocumentActaRecorridoNOM019() {
                   <Label>Responsable de la Acción</Label>
                   <Input
                     value={obs.responsable}
-                    onChange={(e) => actualizarObservacion(obs.id, "responsable", e.target.value)}
+                    onChange={e =>
+                      actualizarObservacion(
+                        obs.id,
+                        "responsable",
+                        e.target.value
+                      )
+                    }
                     placeholder="Nombre del responsable"
                   />
                 </div>
@@ -333,7 +401,9 @@ export default function DocumentActaRecorridoNOM019() {
                   <Input
                     type="date"
                     value={obs.plazo}
-                    onChange={(e) => actualizarObservacion(obs.id, "plazo", e.target.value)}
+                    onChange={e =>
+                      actualizarObservacion(obs.id, "plazo", e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -349,7 +419,9 @@ export default function DocumentActaRecorridoNOM019() {
             <Camera className="h-5 w-5" />
             Evidencia Fotográfica
           </CardTitle>
-          <CardDescription>Adjunte fotografías que documenten las observaciones realizadas</CardDescription>
+          <CardDescription>
+            Adjunte fotografías que documenten las observaciones realizadas
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -373,7 +445,9 @@ export default function DocumentActaRecorridoNOM019() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Participantes del Recorrido</CardTitle>
-              <CardDescription>Personas que participaron en el recorrido de verificación</CardDescription>
+              <CardDescription>
+                Personas que participaron en el recorrido de verificación
+              </CardDescription>
             </div>
             <Button onClick={agregarParticipante} size="sm">
               <Plus className="h-4 w-4 mr-2" />
@@ -403,7 +477,9 @@ export default function DocumentActaRecorridoNOM019() {
                   <Label>Nombre Completo</Label>
                   <Input
                     value={part.nombre}
-                    onChange={(e) => actualizarParticipante(part.id, "nombre", e.target.value)}
+                    onChange={e =>
+                      actualizarParticipante(part.id, "nombre", e.target.value)
+                    }
                     placeholder="Nombre completo del participante"
                   />
                 </div>
@@ -411,7 +487,9 @@ export default function DocumentActaRecorridoNOM019() {
                   <Label>Cargo o Puesto</Label>
                   <Input
                     value={part.cargo}
-                    onChange={(e) => actualizarParticipante(part.id, "cargo", e.target.value)}
+                    onChange={e =>
+                      actualizarParticipante(part.id, "cargo", e.target.value)
+                    }
                     placeholder="Cargo en la organización"
                   />
                 </div>
@@ -420,7 +498,7 @@ export default function DocumentActaRecorridoNOM019() {
               <div className="space-y-2">
                 <Label>Firma Digital</Label>
                 <SignaturePad
-                  onSave={(signatureData) => {
+                  onSave={signatureData => {
                     actualizarParticipante(part.id, "firma", signatureData);
                   }}
                 />

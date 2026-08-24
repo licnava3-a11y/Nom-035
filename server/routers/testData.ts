@@ -1,7 +1,12 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { sql } from "drizzle-orm";
-import { employees, evaluation360Assignments, reportHistory, scheduledReports } from "../../drizzle/schema";
+import {
+  employees,
+  evaluation360Assignments,
+  reportHistory,
+  scheduledReports,
+} from "../../drizzle/schema";
 
 export const testDataRouter = router({
   seedSession29: protectedProcedure.mutation(async ({ ctx }) => {
@@ -29,25 +34,69 @@ export const testDataRouter = router({
       const employeesResult = await db.execute(sql`
         SELECT id FROM employees ORDER BY id ASC LIMIT 10
       `);
-      const employeesRows = (employeesResult as any)[0] as Array<{ id: number }>;
+      const employeesRows = (employeesResult as any)[0] as Array<{
+        id: number;
+      }>;
       const employeeIds = employeesRows.map((row: any) => row.id);
 
       if (employeeIds.length < 10) {
-        throw new Error(`Solo hay ${employeeIds.length} empleados en la base de datos. Se requieren al menos 10 para generar datos de prueba.`);
+        throw new Error(
+          `Solo hay ${employeeIds.length} empleados en la base de datos. Se requieren al menos 10 para generar datos de prueba.`
+        );
       }
 
       // 2. Insertar 10 asignaciones de empleados a ciclos
       await (db.insert(evaluation360Assignments) as any).values([
-        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[0], status: 'pending' },
-        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[1], status: 'in_progress' },
-        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[2], status: 'pending' },
-        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[3], status: 'in_progress' },
-        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[4], status: 'pending' },
-        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[5], status: 'completed' },
-        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[6], status: 'completed' },
-        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[7], status: 'completed' },
-        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[8], status: 'completed' },
-        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[9], status: 'completed' },
+        {
+          cycleId: cycle1Id,
+          evaluatedEmployeeId: employeeIds[0],
+          status: "pending",
+        },
+        {
+          cycleId: cycle1Id,
+          evaluatedEmployeeId: employeeIds[1],
+          status: "in_progress",
+        },
+        {
+          cycleId: cycle1Id,
+          evaluatedEmployeeId: employeeIds[2],
+          status: "pending",
+        },
+        {
+          cycleId: cycle1Id,
+          evaluatedEmployeeId: employeeIds[3],
+          status: "in_progress",
+        },
+        {
+          cycleId: cycle1Id,
+          evaluatedEmployeeId: employeeIds[4],
+          status: "pending",
+        },
+        {
+          cycleId: cycle2Id,
+          evaluatedEmployeeId: employeeIds[5],
+          status: "completed",
+        },
+        {
+          cycleId: cycle2Id,
+          evaluatedEmployeeId: employeeIds[6],
+          status: "completed",
+        },
+        {
+          cycleId: cycle2Id,
+          evaluatedEmployeeId: employeeIds[7],
+          status: "completed",
+        },
+        {
+          cycleId: cycle2Id,
+          evaluatedEmployeeId: employeeIds[8],
+          status: "completed",
+        },
+        {
+          cycleId: cycle2Id,
+          evaluatedEmployeeId: employeeIds[9],
+          status: "completed",
+        },
       ]);
 
       // 3. Insertar umbrales de alertas tempranas (30% riesgo alto por defecto)
@@ -75,18 +124,18 @@ export const testDataRouter = router({
 
       return {
         success: true,
-        message: 'Datos de prueba de Sesión 29 insertados exitosamente',
+        message: "Datos de prueba de Sesión 29 insertados exitosamente",
         data: {
           cycles: 2,
           assignments: 10,
           thresholds: 3,
           scheduledReports: 2,
-          reportHistory: 3
-        }
+          reportHistory: 3,
+        },
       };
     } catch (error: any) {
-      console.error('Error seeding Session 29 test data:', error);
+      console.error("Error seeding Session 29 test data:", error);
       throw new Error(`Error al insertar datos de prueba: ${error.message}`);
     }
-  })
+  }),
 });

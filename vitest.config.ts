@@ -31,7 +31,8 @@ const databaseIntegrationTests = [
   "server/systemSettings.test.ts",
 ];
 
-const runDatabaseIntegrationTests = process.env.RUN_DB_INTEGRATION_TESTS === "true";
+const runDatabaseIntegrationTests =
+  process.env.RUN_DB_INTEGRATION_TESTS === "true";
 
 export default defineConfig({
   root: templateRoot,

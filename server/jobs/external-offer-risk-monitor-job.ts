@@ -12,11 +12,13 @@ import { sql } from "drizzle-orm";
 export function startExternalOfferRiskMonitorJob() {
   // Ejecutar cada domingo a las 04:00 AM
   cron.schedule("0 4 * * 0", async () => {
-    console.log("[External Offer Risk Monitor Job] Starting weekly risk assessment...");
+    console.log(
+      "[External Offer Risk Monitor Job] Starting weekly risk assessment..."
+    );
 
     try {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Obtener empleados con datos de nómina y rotación
       const employees = await db.execute(sql`
@@ -50,11 +52,17 @@ export function startExternalOfferRiskMonitorJob() {
 
         // Determinar nivel de habilidades (simplificado)
         let skillLevel = "mid";
-        if (emp.position?.toLowerCase().includes("senior") || emp.position?.toLowerCase().includes("lead")) {
+        if (
+          emp.position?.toLowerCase().includes("senior") ||
+          emp.position?.toLowerCase().includes("lead")
+        ) {
           skillLevel = "senior";
         } else if (emp.position?.toLowerCase().includes("junior")) {
           skillLevel = "junior";
-        } else if (emp.position?.toLowerCase().includes("director") || emp.position?.toLowerCase().includes("manager")) {
+        } else if (
+          emp.position?.toLowerCase().includes("director") ||
+          emp.position?.toLowerCase().includes("manager")
+        ) {
           skillLevel = "expert";
         }
 
@@ -62,7 +70,10 @@ export function startExternalOfferRiskMonitorJob() {
         let marketDemand = "medium";
         if (salaryGap < -20 && skillLevel === "expert") {
           marketDemand = "critical";
-        } else if (salaryGap < -15 && (skillLevel === "senior" || skillLevel === "expert")) {
+        } else if (
+          salaryGap < -15 &&
+          (skillLevel === "senior" || skillLevel === "expert")
+        ) {
           marketDemand = "high";
         } else if (salaryGap < -10) {
           marketDemand = "medium";
@@ -72,21 +83,22 @@ export function startExternalOfferRiskMonitorJob() {
 
         // Calcular score de riesgo (0-100)
         let riskScore = 0;
-        
+
         // Factor 1: Brecha salarial (30 puntos máx)
         riskScore += Math.min(30, Math.abs(salaryGap) * 1.5);
-        
+
         // Factor 2: Tiempo sin aumento (25 puntos máx)
         riskScore += Math.min(25, monthsSinceRaise * 2);
-        
+
         // Factor 3: Nivel de habilidades (20 puntos máx)
         const skillPoints = { junior: 5, mid: 10, senior: 15, expert: 20 };
         riskScore += skillPoints[skillLevel as keyof typeof skillPoints] || 10;
-        
+
         // Factor 4: Demanda de mercado (15 puntos máx)
         const demandPoints = { low: 0, medium: 5, high: 10, critical: 15 };
-        riskScore += demandPoints[marketDemand as keyof typeof demandPoints] || 5;
-        
+        riskScore +=
+          demandPoints[marketDemand as keyof typeof demandPoints] || 5;
+
         // Factor 5: Probabilidad de rotación (10 puntos máx)
         riskScore += Math.min(10, turnoverProb / 10);
 
@@ -151,7 +163,9 @@ export function startExternalOfferRiskMonitorJob() {
         }
       }
 
-      console.log(`[External Offer Risk Monitor Job] Risk assessment completed. Alerts generated: ${alertsGenerated}`);
+      console.log(
+        `[External Offer Risk Monitor Job] Risk assessment completed. Alerts generated: ${alertsGenerated}`
+      );
 
       // Notificar al owner si se generaron alertas críticas
       if (alertsGenerated > 0) {
@@ -165,5 +179,7 @@ export function startExternalOfferRiskMonitorJob() {
     }
   });
 
-  console.log("[External Offer Risk Monitor Job] Scheduled to run every Sunday at 04:00 AM");
+  console.log(
+    "[External Offer Risk Monitor Job] Scheduled to run every Sunday at 04:00 AM"
+  );
 }

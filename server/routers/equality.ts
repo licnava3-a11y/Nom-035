@@ -35,7 +35,9 @@ const policyRouter = router({
         documentoBase64: z.string().optional(),
         documentoMimeType: z.string().optional(),
         aprobadoPor: z.number().optional(),
-        estado: z.enum(["borrador", "vigente", "archivado"]).default("borrador"),
+        estado: z
+          .enum(["borrador", "vigente", "archivado"])
+          .default("borrador"),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -47,7 +49,11 @@ const policyRouter = router({
         const buffer = Buffer.from(input.documentoBase64, "base64");
         const timestamp = Date.now();
         const key = `equality/policies/policy-${timestamp}.pdf`;
-        const { url, key: uploadedKey } = await storagePut(key, buffer, input.documentoMimeType);
+        const { url, key: uploadedKey } = await storagePut(
+          key,
+          buffer,
+          input.documentoMimeType
+        );
         documentoUrl = url;
         documentoKey = uploadedKey;
       }
@@ -92,7 +98,11 @@ const policyRouter = router({
         const buffer = Buffer.from(input.documentoBase64, "base64");
         const timestamp = Date.now();
         const key = `equality/policies/policy-${timestamp}.pdf`;
-        const { url, key: uploadedKey } = await storagePut(key, buffer, input.documentoMimeType);
+        const { url, key: uploadedKey } = await storagePut(
+          key,
+          buffer,
+          input.documentoMimeType
+        );
         updateData.documentoUrl = url;
         updateData.documentoKey = uploadedKey;
       }
@@ -111,11 +121,13 @@ const policyRouter = router({
 const salaryGapRouter = router({
   list: protectedProcedure
     .input(
-      z.object({
-        periodo: z.string().optional(),
-        departamento: z.string().optional(),
-        puesto: z.string().optional(),
-      }).optional()
+      z
+        .object({
+          periodo: z.string().optional(),
+          departamento: z.string().optional(),
+          puesto: z.string().optional(),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       return equalityDb.listSalaryGaps(input);
@@ -148,7 +160,9 @@ const salaryGapRouter = router({
     .mutation(async ({ input, ctx }) => {
       // Calcular brecha porcentual
       const brechaPorcentual =
-        ((input.salarioPromedioHombres - input.salarioPromedioMujeres) / input.salarioPromedioHombres) * 100;
+        ((input.salarioPromedioHombres - input.salarioPromedioMujeres) /
+          input.salarioPromedioHombres) *
+        100;
 
       // Determinar nivel de riesgo
       let nivelRiesgo: "bajo" | "medio" | "alto" = "bajo";
@@ -162,7 +176,7 @@ const salaryGapRouter = router({
       const gapId = await equalityDb.createSalaryGap({
         periodo: input.periodo,
         fechaCalculo: new Date().toISOString().split("T")[0] as any,
-        departamento: input.departamento || 'Administración',
+        departamento: input.departamento || "Administración",
         puesto: input.puesto,
         totalMujeres: input.totalMujeres,
         totalHombres: input.totalHombres,
@@ -197,11 +211,13 @@ const salaryGapRouter = router({
 const affirmativeActionsRouter = router({
   list: protectedProcedure
     .input(
-      z.object({
-        tipo: z.string().optional(),
-        estado: z.string().optional(),
-        departamento: z.string().optional(),
-      }).optional()
+      z
+        .object({
+          tipo: z.string().optional(),
+          estado: z.string().optional(),
+          departamento: z.string().optional(),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       return equalityDb.listAffirmativeActions(input);
@@ -232,7 +248,9 @@ const affirmativeActionsRouter = router({
         responsable: z.string().min(1, "El responsable es requerido"),
         departamento: z.string().optional(),
         presupuesto: z.string().optional(),
-        estado: z.enum(["planeada", "en_progreso", "completada", "cancelada"]).default("planeada"),
+        estado: z
+          .enum(["planeada", "en_progreso", "completada", "cancelada"])
+          .default("planeada"),
         resultadosEsperados: z.string().optional(),
       })
     )
@@ -245,7 +263,7 @@ const affirmativeActionsRouter = router({
         fechaInicio: input.fechaInicio as any,
         fechaFin: input.fechaFin as any,
         responsable: input.responsable,
-        departamento: input.departamento || 'Administración',
+        departamento: input.departamento || "Administración",
         presupuesto: input.presupuesto as any,
         estado: input.estado,
         resultadosEsperados: input.resultadosEsperados,
@@ -259,14 +277,16 @@ const affirmativeActionsRouter = router({
       z.object({
         id: z.number(),
         titulo: z.string().optional(),
-        tipo: z.enum([
-          "capacitacion",
-          "promocion",
-          "contratacion",
-          "conciliacion",
-          "infraestructura",
-          "otro",
-        ]).optional(),
+        tipo: z
+          .enum([
+            "capacitacion",
+            "promocion",
+            "contratacion",
+            "conciliacion",
+            "infraestructura",
+            "otro",
+          ])
+          .optional(),
         descripcion: z.string().optional(),
         objetivo: z.string().optional(),
         fechaInicio: z.string().optional(),
@@ -274,7 +294,9 @@ const affirmativeActionsRouter = router({
         responsable: z.string().optional(),
         departamento: z.string().optional(),
         presupuesto: z.string().optional(),
-        estado: z.enum(["planeada", "en_progreso", "completada", "cancelada"]).optional(),
+        estado: z
+          .enum(["planeada", "en_progreso", "completada", "cancelada"])
+          .optional(),
         resultadosEsperados: z.string().optional(),
         resultadosObtenidos: z.string().optional(),
       })
@@ -283,9 +305,11 @@ const affirmativeActionsRouter = router({
       const { id, ...rest } = input;
       const updateData: any = { ...rest };
       // Convertir fechas de string a Date si están presentes
-      if (updateData.fechaInicio) updateData.fechaInicio = updateData.fechaInicio as any;
+      if (updateData.fechaInicio)
+        updateData.fechaInicio = updateData.fechaInicio as any;
       if (updateData.fechaFin) updateData.fechaFin = updateData.fechaFin as any;
-      if (updateData.presupuesto) updateData.presupuesto = updateData.presupuesto as any;
+      if (updateData.presupuesto)
+        updateData.presupuesto = updateData.presupuesto as any;
       await equalityDb.updateAffirmativeAction(id, updateData);
       return { success: true };
     }),
@@ -307,11 +331,13 @@ const affirmativeActionsRouter = router({
 const complaintsRouter = router({
   list: protectedProcedure
     .input(
-      z.object({
-        tipo: z.string().optional(),
-        estado: z.string().optional(),
-        prioridad: z.string().optional(),
-      }).optional()
+      z
+        .object({
+          tipo: z.string().optional(),
+          estado: z.string().optional(),
+          prioridad: z.string().optional(),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       return equalityDb.listComplaints(input);
@@ -340,7 +366,9 @@ const complaintsRouter = router({
         denuncianteEmail: z.string().email().optional(),
         denuncianteTelefono: z.string().optional(),
         esAnonima: z.boolean().default(false),
-        prioridad: z.enum(["baja", "media", "alta", "urgente"]).default("media"),
+        prioridad: z
+          .enum(["baja", "media", "alta", "urgente"])
+          .default("media"),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -370,7 +398,13 @@ const complaintsRouter = router({
     .input(
       z.object({
         id: z.number(),
-        estado: z.enum(["recibida", "en_investigacion", "resuelta", "cerrada", "desestimada"]),
+        estado: z.enum([
+          "recibida",
+          "en_investigacion",
+          "resuelta",
+          "cerrada",
+          "desestimada",
+        ]),
         investigadorAsignado: z.number().optional(),
         resolucion: z.string().optional(),
         accionesCorrectivas: z.string().optional(),
@@ -448,7 +482,9 @@ const committeeRouter = router({
     .input(
       z.object({
         id: z.number(),
-        cargo: z.enum(["presidente", "secretario", "vocal", "asesor"]).optional(),
+        cargo: z
+          .enum(["presidente", "secretario", "vocal", "asesor"])
+          .optional(),
         fechaTermino: z.string().optional(),
         observaciones: z.string().optional(),
       })
@@ -456,7 +492,8 @@ const committeeRouter = router({
     .mutation(async ({ input }) => {
       const { id, ...rest } = input;
       const updateData: any = { ...rest };
-      if (updateData.fechaTermino) updateData.fechaTermino = updateData.fechaTermino as any;
+      if (updateData.fechaTermino)
+        updateData.fechaTermino = updateData.fechaTermino as any;
       await equalityDb.updateCommitteeMember(id, updateData);
       return { success: true };
     }),

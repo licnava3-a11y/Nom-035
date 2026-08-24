@@ -1,7 +1,13 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -30,7 +36,13 @@ import { Label } from "@/components/ui/label";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function statusBadge(status: string) {
-  const map: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  const map: Record<
+    string,
+    {
+      label: string;
+      variant: "default" | "secondary" | "destructive" | "outline";
+    }
+  > = {
     pending: { label: "Pendiente", variant: "secondary" },
     approved: { label: "Aprobada", variant: "default" },
     rejected: { label: "Rechazada", variant: "destructive" },
@@ -64,17 +76,33 @@ function addBusinessDays(dateStr: string, _days: number): string {
 export default function VacationManagement() {
   const { user } = useAuth();
   const utils = trpc.useUtils();
-  const isRH = ["admin", "rh", "recursos_humanos", "auxiliar_rh"].includes(user?.role ?? "");
+  const isRH = ["admin", "rh", "recursos_humanos", "auxiliar_rh"].includes(
+    user?.role ?? ""
+  );
   const isAdmin = user?.role === "admin";
-  const isSupervisor = ["admin", "rh", "recursos_humanos", "auxiliar_rh", "jefe_area", "gerente", "supervisor"].includes(user?.role ?? "");
+  const isSupervisor = [
+    "admin",
+    "rh",
+    "recursos_humanos",
+    "auxiliar_rh",
+    "jefe_area",
+    "gerente",
+    "supervisor",
+  ].includes(user?.role ?? "");
 
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected" | "cancelled">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "pending" | "approved" | "rejected" | "cancelled"
+  >("all");
   const [searchText, setSearchText] = useState("");
   const [showNewRequest, setShowNewRequest] = useState(false);
-  const [activeTab, setActiveTab] = useState<"requests" | "supervisor" | "balance">("requests");
+  const [activeTab, setActiveTab] = useState<
+    "requests" | "supervisor" | "balance"
+  >("requests");
 
   // Form state
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [notes, setNotes] = useState("");
@@ -84,11 +112,15 @@ export default function VacationManagement() {
   const [rejectionReason, setRejectionReason] = useState("");
 
   // Balance report state
-  const [balanceDeptFilter, setBalanceDeptFilter] = useState<number | undefined>(undefined);
+  const [balanceDeptFilter, setBalanceDeptFilter] = useState<
+    number | undefined
+  >(undefined);
 
   // Seniority table edit state
   const [editingSeniority, setEditingSeniority] = useState(false);
-  const [seniorityDraft, setSeniorityDraft] = useState<Array<{ yearsMin: number; yearsMax: number | null; vacationDays: number }>>([]);
+  const [seniorityDraft, setSeniorityDraft] = useState<
+    Array<{ yearsMin: number; yearsMax: number | null; vacationDays: number }>
+  >([]);
 
   const DEFAULT_LFT_TABLE = [
     { yearsMin: 1, yearsMax: 1, vacationDays: 12 },
@@ -103,15 +135,27 @@ export default function VacationManagement() {
   ];
 
   // Queries
-  const { data: allRequests, isLoading: allLoading, refetch: refetchAll } = trpc.vacations.listAll.useQuery(
+  const {
+    data: allRequests,
+    isLoading: allLoading,
+    refetch: refetchAll,
+  } = trpc.vacations.listAll.useQuery(
     { status: statusFilter },
     { enabled: isRH }
   );
-  const { data: teamRequests, isLoading: teamLoading, refetch: refetchTeam } = trpc.vacations.listByManager.useQuery(
+  const {
+    data: teamRequests,
+    isLoading: teamLoading,
+    refetch: refetchTeam,
+  } = trpc.vacations.listByManager.useQuery(
     { status: "pending" },
     { enabled: isSupervisor && !isRH }
   );
-  const { data: balanceReport, isLoading: balanceLoading, refetch: refetchBalance } = trpc.vacations.getBalanceReport.useQuery(
+  const {
+    data: balanceReport,
+    isLoading: balanceLoading,
+    refetch: refetchBalance,
+  } = trpc.vacations.getBalanceReport.useQuery(
     { departmentId: balanceDeptFilter },
     { enabled: isSupervisor && activeTab === "balance" }
   );
@@ -127,10 +171,11 @@ export default function VacationManagement() {
   const { data: seniorityTable } = trpc.vacations.getSeniorityTable.useQuery();
 
   // Balance for selected employee
-  const { data: balance, isLoading: balanceEmpLoading } = trpc.vacations.getBalance.useQuery(
-    { employeeId: selectedEmployeeId! },
-    { enabled: !!selectedEmployeeId }
-  );
+  const { data: balance, isLoading: balanceEmpLoading } =
+    trpc.vacations.getBalance.useQuery(
+      { employeeId: selectedEmployeeId! },
+      { enabled: !!selectedEmployeeId }
+    );
 
   // Computed days
   const requestedDays = useMemo(() => {
@@ -146,7 +191,9 @@ export default function VacationManagement() {
   // Mutations
   const createMutation = trpc.vacations.create.useMutation({
     onSuccess: () => {
-      toast.success("Solicitud de vacaciones enviada. RH recibirá notificación.");
+      toast.success(
+        "Solicitud de vacaciones enviada. RH recibirá notificación."
+      );
       setShowNewRequest(false);
       setSelectedEmployeeId(null);
       setStartDate("");
@@ -157,22 +204,34 @@ export default function VacationManagement() {
     onError: (e: any) => toast.error(`Error: ${e.message}`),
   });
 
-  const updateSeniorityMutation = trpc.vacations.updateSeniorityTable.useMutation({
-    onSuccess: () => {
-      toast.success("Tabla de antigüedad actualizada correctamente.");
-      setEditingSeniority(false);
-      utils.vacations.getSeniorityTable.invalidate();
-    },
-    onError: (e: any) => toast.error(`Error: ${e.message}`),
-  });
+  const updateSeniorityMutation =
+    trpc.vacations.updateSeniorityTable.useMutation({
+      onSuccess: () => {
+        toast.success("Tabla de antigüedad actualizada correctamente.");
+        setEditingSeniority(false);
+        utils.vacations.getSeniorityTable.invalidate();
+      },
+      onError: (e: any) => toast.error(`Error: ${e.message}`),
+    });
 
   const handleStartEditSeniority = () => {
-    setSeniorityDraft(seniorityTable ? seniorityTable.map((r: any) => ({ yearsMin: r.yearsMin, yearsMax: r.yearsMax, vacationDays: r.vacationDays })) : [...DEFAULT_LFT_TABLE]);
+    setSeniorityDraft(
+      seniorityTable
+        ? seniorityTable.map((r: any) => ({
+            yearsMin: r.yearsMin,
+            yearsMax: r.yearsMax,
+            vacationDays: r.vacationDays,
+          }))
+        : [...DEFAULT_LFT_TABLE]
+    );
     setEditingSeniority(true);
   };
 
   const handleSaveSeniority = () => {
-    if (seniorityDraft.length === 0) { toast.error("La tabla no puede estar vacía."); return; }
+    if (seniorityDraft.length === 0) {
+      toast.error("La tabla no puede estar vacía.");
+      return;
+    }
     updateSeniorityMutation.mutate(seniorityDraft);
   };
 
@@ -181,18 +240,41 @@ export default function VacationManagement() {
     toast.info("Tabla restaurada a valores LFT. Guarda para aplicar.");
   };
 
-  const updateSeniorityRow = (i: number, field: "yearsMin" | "yearsMax" | "vacationDays", value: string) => {
-    setSeniorityDraft((prev) => prev.map((row, idx) => idx === i ? { ...row, [field]: field === "yearsMax" && value === "" ? null : parseInt(value) || 0 } : row));
+  const updateSeniorityRow = (
+    i: number,
+    field: "yearsMin" | "yearsMax" | "vacationDays",
+    value: string
+  ) => {
+    setSeniorityDraft(prev =>
+      prev.map((row, idx) =>
+        idx === i
+          ? {
+              ...row,
+              [field]:
+                field === "yearsMax" && value === ""
+                  ? null
+                  : parseInt(value) || 0,
+            }
+          : row
+      )
+    );
   };
 
   const addSeniorityRow = () => {
     const last = seniorityDraft[seniorityDraft.length - 1];
-    const newMin = last ? (last.yearsMax !== null ? last.yearsMax + 1 : last.yearsMin + 5) : 1;
-    setSeniorityDraft((prev) => [...prev, { yearsMin: newMin, yearsMax: null, vacationDays: 6 }]);
+    const newMin = last
+      ? last.yearsMax !== null
+        ? last.yearsMax + 1
+        : last.yearsMin + 5
+      : 1;
+    setSeniorityDraft(prev => [
+      ...prev,
+      { yearsMin: newMin, yearsMax: null, vacationDays: 6 },
+    ]);
   };
 
   const removeSeniorityRow = (i: number) => {
-    setSeniorityDraft((prev) => prev.filter((_, idx) => idx !== i));
+    setSeniorityDraft(prev => prev.filter((_, idx) => idx !== i));
   };
 
   const updateStatusMutation = trpc.vacations.updateStatus.useMutation({
@@ -218,13 +300,23 @@ export default function VacationManagement() {
     );
   }, [allRequests, searchText]);
 
-  const pendingCount = allRequests?.filter((r: any) => r.status === "pending").length ?? 0;
+  const pendingCount =
+    allRequests?.filter((r: any) => r.status === "pending").length ?? 0;
   const teamPendingCount = teamRequests?.length ?? 0;
 
   // ── Export requests to CSV ─────────────────────────────────────────────────
   const handleExportCSV = () => {
     if (!filteredRequests.length) return;
-    const headers = ["Empleado", "Departamento", "Inicio", "Fin", "Regreso", "Días", "Estado", "Fecha Solicitud"];
+    const headers = [
+      "Empleado",
+      "Departamento",
+      "Inicio",
+      "Fin",
+      "Regreso",
+      "Días",
+      "Estado",
+      "Fecha Solicitud",
+    ];
     const rows = filteredRequests.map((r: any) => [
       r.employeeName,
       r.department,
@@ -235,8 +327,12 @@ export default function VacationManagement() {
       r.status,
       new Date(r.createdAt).toLocaleDateString("es-MX"),
     ]);
-    const csv = [headers, ...rows].map((row) => row.map((c: any) => `"${c ?? ""}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const csv = [headers, ...rows]
+      .map(row => row.map((c: any) => `"${c ?? ""}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -257,10 +353,12 @@ export default function VacationManagement() {
 
     // Sheet 1: Detalle por empleado
     const detailData = balanceReport.map((r: any) => ({
-      "Departamento": r.department,
-      "Empleado": r.name,
-      "Puesto": r.position,
-      "Fecha Ingreso": r.hireDate ? new Date(r.hireDate).toLocaleDateString("es-MX") : "—",
+      Departamento: r.department,
+      Empleado: r.name,
+      Puesto: r.position,
+      "Fecha Ingreso": r.hireDate
+        ? new Date(r.hireDate).toLocaleDateString("es-MX")
+        : "—",
       "Antigüedad (años)": r.yearsOfService,
       "Días Ganados (LFT)": r.earnedDays,
       "Días Usados": r.usedDays,
@@ -269,15 +367,38 @@ export default function VacationManagement() {
     }));
     const ws1 = XLSX.utils.json_to_sheet(detailData);
     ws1["!cols"] = [
-      { wch: 22 }, { wch: 28 }, { wch: 22 }, { wch: 14 },
-      { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 16 }, { wch: 16 },
+      { wch: 22 },
+      { wch: 28 },
+      { wch: 22 },
+      { wch: 14 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 12 },
+      { wch: 16 },
+      { wch: 16 },
     ];
     XLSX.utils.book_append_sheet(wb, ws1, "Saldo por Empleado");
 
     // Sheet 2: Resumen por departamento
-    const deptMap: Record<string, { total: number; used: number; pending: number; available: number; count: number }> = {};
+    const deptMap: Record<
+      string,
+      {
+        total: number;
+        used: number;
+        pending: number;
+        available: number;
+        count: number;
+      }
+    > = {};
     for (const r of balanceReport as any[]) {
-      if (!deptMap[r.department]) deptMap[r.department] = { total: 0, used: 0, pending: 0, available: 0, count: 0 };
+      if (!deptMap[r.department])
+        deptMap[r.department] = {
+          total: 0,
+          used: 0,
+          pending: 0,
+          available: 0,
+          count: 0,
+        };
       deptMap[r.department].total += r.earnedDays;
       deptMap[r.department].used += r.usedDays;
       deptMap[r.department].pending += r.pendingDays;
@@ -285,18 +406,28 @@ export default function VacationManagement() {
       deptMap[r.department].count++;
     }
     const summaryData = Object.entries(deptMap).map(([dept, v]) => ({
-      "Departamento": dept,
-      "Empleados": v.count,
+      Departamento: dept,
+      Empleados: v.count,
       "Total Días Ganados": v.total,
       "Total Días Usados": v.used,
       "Total Días Pendientes": v.pending,
       "Total Días Disponibles": v.available,
     }));
     const ws2 = XLSX.utils.json_to_sheet(summaryData);
-    ws2["!cols"] = [{ wch: 24 }, { wch: 12 }, { wch: 18 }, { wch: 16 }, { wch: 18 }, { wch: 20 }];
+    ws2["!cols"] = [
+      { wch: 24 },
+      { wch: 12 },
+      { wch: 18 },
+      { wch: 16 },
+      { wch: 18 },
+      { wch: 20 },
+    ];
     XLSX.utils.book_append_sheet(wb, ws2, "Resumen por Departamento");
 
-    XLSX.writeFile(wb, `saldo_vacaciones_${new Date().toISOString().split("T")[0]}.xlsx`);
+    XLSX.writeFile(
+      wb,
+      `saldo_vacaciones_${new Date().toISOString().split("T")[0]}.xlsx`
+    );
     toast.success("Reporte exportado correctamente");
   };
 
@@ -304,10 +435,15 @@ export default function VacationManagement() {
   const renderApprovalRow = (req: any) => (
     <tr key={req.id} className="border-b hover:bg-muted/30">
       <td className="py-2 px-3 font-medium">{req.employeeName}</td>
-      <td className="py-2 px-3 text-muted-foreground text-sm">{req.department}</td>
+      <td className="py-2 px-3 text-muted-foreground text-sm">
+        {req.department}
+      </td>
       <td className="py-2 px-3 text-sm">{req.position}</td>
       <td className="py-2 px-3 text-sm">
-        {req.startDate ? new Date(req.startDate).toLocaleDateString("es-MX") : "—"} —{" "}
+        {req.startDate
+          ? new Date(req.startDate).toLocaleDateString("es-MX")
+          : "—"}{" "}
+        —{" "}
         {req.endDate ? new Date(req.endDate).toLocaleDateString("es-MX") : "—"}
       </td>
       <td className="py-2 px-3 text-center font-medium">{req.requestedDays}</td>
@@ -319,7 +455,12 @@ export default function VacationManagement() {
               size="sm"
               variant="outline"
               className="h-7 text-xs text-green-600 border-green-300 hover:bg-green-50"
-              onClick={() => updateStatusMutation.mutate({ requestId: req.id, status: "approved" })}
+              onClick={() =>
+                updateStatusMutation.mutate({
+                  requestId: req.id,
+                  status: "approved",
+                })
+              }
               disabled={updateStatusMutation.isPending}
             >
               <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Aprobar
@@ -369,20 +510,29 @@ export default function VacationManagement() {
             Gestión de Vacaciones
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Saldo calculado automáticamente según tabla LFT · Flujo de aprobación con notificación por correo
+            Saldo calculado automáticamente según tabla LFT · Flujo de
+            aprobación con notificación por correo
           </p>
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => { refetchAll(); refetchTeam(); refetchBalance(); }}
+            onClick={() => {
+              refetchAll();
+              refetchTeam();
+              refetchBalance();
+            }}
             className="gap-1"
           >
             <RefreshCw className="h-4 w-4" /> Actualizar
           </Button>
           {isRH && (
-            <Button size="sm" onClick={() => setShowNewRequest(!showNewRequest)} className="gap-1">
+            <Button
+              size="sm"
+              onClick={() => setShowNewRequest(!showNewRequest)}
+              className="gap-1"
+            >
               <Plus className="h-4 w-4" /> Nueva Solicitud
             </Button>
           )}
@@ -394,29 +544,44 @@ export default function VacationManagement() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Solicitudes</p>
-              <p className="text-2xl font-bold mt-1">{allRequests?.length ?? 0}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Pendientes</p>
-              <p className="text-2xl font-bold mt-1 text-amber-600">{pendingCount || teamPendingCount}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Aprobadas</p>
-              <p className="text-2xl font-bold mt-1 text-green-600">
-                {allRequests?.filter((r: any) => r.status === "approved").length ?? 0}
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                Total Solicitudes
+              </p>
+              <p className="text-2xl font-bold mt-1">
+                {allRequests?.length ?? 0}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Días Aprobados</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                Pendientes
+              </p>
+              <p className="text-2xl font-bold mt-1 text-amber-600">
+                {pendingCount || teamPendingCount}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                Aprobadas
+              </p>
+              <p className="text-2xl font-bold mt-1 text-green-600">
+                {allRequests?.filter((r: any) => r.status === "approved")
+                  .length ?? 0}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                Días Aprobados
+              </p>
               <p className="text-2xl font-bold mt-1 text-primary">
-                {allRequests?.filter((r: any) => r.status === "approved").reduce((s: number, r: any) => s + r.requestedDays, 0) ?? 0}
+                {allRequests
+                  ?.filter((r: any) => r.status === "approved")
+                  .reduce((s: number, r: any) => s + r.requestedDays, 0) ?? 0}
               </p>
             </CardContent>
           </Card>
@@ -427,16 +592,26 @@ export default function VacationManagement() {
       {showNewRequest && isRH && (
         <Card className="border-primary/30">
           <CardHeader>
-            <CardTitle className="text-base">Nueva Solicitud de Vacaciones</CardTitle>
-            <CardDescription>Registrar solicitud en nombre de un empleado</CardDescription>
+            <CardTitle className="text-base">
+              Nueva Solicitud de Vacaciones
+            </CardTitle>
+            <CardDescription>
+              Registrar solicitud en nombre de un empleado
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Empleado *</label>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Empleado *
+                </label>
                 <select
                   value={selectedEmployeeId ?? ""}
-                  onChange={(e) => setSelectedEmployeeId(e.target.value ? parseInt(e.target.value) : null)}
+                  onChange={e =>
+                    setSelectedEmployeeId(
+                      e.target.value ? parseInt(e.target.value) : null
+                    )
+                  }
                   className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
                   <option value="">Seleccionar empleado...</option>
@@ -451,24 +626,43 @@ export default function VacationManagement() {
               {selectedEmployeeId && (
                 <div className="col-span-2 p-3 rounded-lg bg-muted/40 border">
                   {balanceEmpLoading ? (
-                    <p className="text-sm text-muted-foreground">Calculando saldo...</p>
+                    <p className="text-sm text-muted-foreground">
+                      Calculando saldo...
+                    </p>
                   ) : balance ? (
                     <div className="flex gap-6 text-sm flex-wrap">
                       <div>
-                        <span className="text-muted-foreground">Antigüedad:</span>{" "}
-                        <strong>{balance.yearsOfService} año{balance.yearsOfService !== 1 ? "s" : ""}</strong>
+                        <span className="text-muted-foreground">
+                          Antigüedad:
+                        </span>{" "}
+                        <strong>
+                          {balance.yearsOfService} año
+                          {balance.yearsOfService !== 1 ? "s" : ""}
+                        </strong>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Días ganados (LFT):</span>{" "}
+                        <span className="text-muted-foreground">
+                          Días ganados (LFT):
+                        </span>{" "}
                         <strong>{balance.earnedDays}</strong>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Usados:</span>{" "}
-                        <strong className="text-red-600">{balance.usedDays}</strong>
+                        <strong className="text-red-600">
+                          {balance.usedDays}
+                        </strong>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Disponibles:</span>{" "}
-                        <strong className={balance.availableDays <= 0 ? "text-red-600" : "text-green-600"}>
+                        <span className="text-muted-foreground">
+                          Disponibles:
+                        </span>{" "}
+                        <strong
+                          className={
+                            balance.availableDays <= 0
+                              ? "text-red-600"
+                              : "text-green-600"
+                          }
+                        >
                           {balance.availableDays}
                         </strong>
                       </div>
@@ -478,20 +672,24 @@ export default function VacationManagement() {
               )}
 
               <div>
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Fecha Inicio *</label>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Fecha Inicio *
+                </label>
                 <input
                   type="date"
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={e => setStartDate(e.target.value)}
                   className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Fecha Fin *</label>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Fecha Fin *
+                </label>
                 <input
                   type="date"
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={e => setEndDate(e.target.value)}
                   min={startDate}
                   className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
@@ -500,30 +698,49 @@ export default function VacationManagement() {
               {startDate && endDate && (
                 <div className="col-span-2 flex gap-6 text-sm p-3 rounded-lg bg-primary/5 border border-primary/20 flex-wrap">
                   <div>
-                    <span className="text-muted-foreground">Días hábiles solicitados:</span>{" "}
-                    <strong className={requestedDays > (balance?.availableDays ?? 0) ? "text-red-600" : "text-primary"}>
+                    <span className="text-muted-foreground">
+                      Días hábiles solicitados:
+                    </span>{" "}
+                    <strong
+                      className={
+                        requestedDays > (balance?.availableDays ?? 0)
+                          ? "text-red-600"
+                          : "text-primary"
+                      }
+                    >
                       {requestedDays}
                     </strong>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Fecha de regreso:</span>{" "}
-                    <strong>{returnDate ? new Date(returnDate).toLocaleDateString("es-MX") : "—"}</strong>
+                    <span className="text-muted-foreground">
+                      Fecha de regreso:
+                    </span>{" "}
+                    <strong>
+                      {returnDate
+                        ? new Date(returnDate).toLocaleDateString("es-MX")
+                        : "—"}
+                    </strong>
                   </div>
                   {requestedDays > (balance?.availableDays ?? 0) && (
                     <div className="flex items-center gap-1 text-red-600">
                       <AlertTriangle className="h-4 w-4" />
-                      <span>Saldo insuficiente ({balance?.availableDays ?? 0} días disponibles)</span>
+                      <span>
+                        Saldo insuficiente ({balance?.availableDays ?? 0} días
+                        disponibles)
+                      </span>
                     </div>
                   )}
                 </div>
               )}
 
               <div className="col-span-2">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Notas (opcional)</label>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Notas (opcional)
+                </label>
                 <input
                   type="text"
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={e => setNotes(e.target.value)}
                   placeholder="Motivo o comentarios adicionales"
                   className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
@@ -533,9 +750,18 @@ export default function VacationManagement() {
             <div className="flex gap-2">
               <Button
                 onClick={() => {
-                  if (!selectedEmployeeId) { toast.error("Seleccione un empleado"); return; }
-                  if (!startDate || !endDate) { toast.error("Ingrese las fechas"); return; }
-                  if (requestedDays <= 0) { toast.error("Las fechas no generan días hábiles"); return; }
+                  if (!selectedEmployeeId) {
+                    toast.error("Seleccione un empleado");
+                    return;
+                  }
+                  if (!startDate || !endDate) {
+                    toast.error("Ingrese las fechas");
+                    return;
+                  }
+                  if (requestedDays <= 0) {
+                    toast.error("Las fechas no generan días hábiles");
+                    return;
+                  }
                   createMutation.mutate({
                     employeeId: selectedEmployeeId,
                     startDate,
@@ -549,7 +775,12 @@ export default function VacationManagement() {
               >
                 {createMutation.isPending ? "Enviando..." : "Enviar Solicitud"}
               </Button>
-              <Button variant="outline" onClick={() => setShowNewRequest(false)}>Cancelar</Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowNewRequest(false)}
+              >
+                Cancelar
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -570,7 +801,9 @@ export default function VacationManagement() {
               <Calendar className="h-4 w-4" />
               Todas las Solicitudes
               {pendingCount > 0 && (
-                <span className="bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-xs">{pendingCount}</span>
+                <span className="bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-xs">
+                  {pendingCount}
+                </span>
               )}
             </span>
           </button>
@@ -586,7 +819,9 @@ export default function VacationManagement() {
               <Users className="h-4 w-4" />
               Aprobación de Equipo
               {teamPendingCount > 0 && !isRH && (
-                <span className="bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-xs">{teamPendingCount}</span>
+                <span className="bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-xs">
+                  {teamPendingCount}
+                </span>
               )}
             </span>
           </button>
@@ -617,13 +852,21 @@ export default function VacationManagement() {
                 <input
                   type="text"
                   value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
+                  onChange={e => setSearchText(e.target.value)}
                   placeholder="Buscar empleado o departamento..."
                   className="pl-9 pr-4 py-2 rounded-md border border-input bg-background text-sm w-64"
                 />
               </div>
               <div className="flex gap-1 flex-wrap">
-                {(["all", "pending", "approved", "rejected", "cancelled"] as const).map((s) => (
+                {(
+                  [
+                    "all",
+                    "pending",
+                    "approved",
+                    "rejected",
+                    "cancelled",
+                  ] as const
+                ).map(s => (
                   <button
                     key={s}
                     onClick={() => setStatusFilter(s)}
@@ -633,14 +876,29 @@ export default function VacationManagement() {
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
-                    {s === "all" ? "Todas" : s === "pending" ? "Pendientes" : s === "approved" ? "Aprobadas" : s === "rejected" ? "Rechazadas" : "Canceladas"}
+                    {s === "all"
+                      ? "Todas"
+                      : s === "pending"
+                        ? "Pendientes"
+                        : s === "approved"
+                          ? "Aprobadas"
+                          : s === "rejected"
+                            ? "Rechazadas"
+                            : "Canceladas"}
                     {s === "pending" && pendingCount > 0 && (
-                      <span className="ml-1 bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-xs">{pendingCount}</span>
+                      <span className="ml-1 bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-xs">
+                        {pendingCount}
+                      </span>
                     )}
                   </button>
                 ))}
               </div>
-              <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-1 ml-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCSV}
+                className="gap-1 ml-auto"
+              >
                 <Download className="h-4 w-4" /> Exportar CSV
               </Button>
             </div>
@@ -653,46 +911,102 @@ export default function VacationManagement() {
                 Solicitudes de Vacaciones
               </CardTitle>
               <CardDescription>
-                {filteredRequests.length} solicitud{filteredRequests.length !== 1 ? "es" : ""} encontrada{filteredRequests.length !== 1 ? "s" : ""}
+                {filteredRequests.length} solicitud
+                {filteredRequests.length !== 1 ? "es" : ""} encontrada
+                {filteredRequests.length !== 1 ? "s" : ""}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {allLoading ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">Cargando solicitudes...</p>
+                <p className="text-sm text-muted-foreground py-8 text-center">
+                  Cargando solicitudes...
+                </p>
               ) : filteredRequests.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Calendar className="h-12 w-12 mx-auto mb-3 opacity-30" />
                   <p className="text-sm">No hay solicitudes de vacaciones</p>
-                  {isRH && <p className="text-xs mt-1">Use el botón "Nueva Solicitud" para registrar la primera</p>}
+                  {isRH && (
+                    <p className="text-xs mt-1">
+                      Use el botón "Nueva Solicitud" para registrar la primera
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Empleado</th>
-                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Departamento</th>
-                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Inicio</th>
-                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Fin</th>
-                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Regreso</th>
-                        <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Días</th>
-                        <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Estado</th>
-                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Solicitud</th>
-                        {isRH && <th className="py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Acciones</th>}
+                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                          Empleado
+                        </th>
+                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                          Departamento
+                        </th>
+                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                          Inicio
+                        </th>
+                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                          Fin
+                        </th>
+                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                          Regreso
+                        </th>
+                        <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                          Días
+                        </th>
+                        <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                          Estado
+                        </th>
+                        <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                          Solicitud
+                        </th>
+                        {isRH && (
+                          <th className="py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                            Acciones
+                          </th>
+                        )}
                       </tr>
                     </thead>
                     <tbody>
                       {filteredRequests.map((req: any) => (
                         <tr key={req.id} className="border-b hover:bg-muted/30">
-                          <td className="py-2 px-3 font-medium">{req.employeeName}</td>
-                          <td className="py-2 px-3 text-muted-foreground">{req.department}</td>
-                          <td className="py-2 px-3">{req.startDate ? new Date(req.startDate).toLocaleDateString("es-MX") : "—"}</td>
-                          <td className="py-2 px-3">{req.endDate ? new Date(req.endDate).toLocaleDateString("es-MX") : "—"}</td>
-                          <td className="py-2 px-3">{req.returnDate ? new Date(req.returnDate).toLocaleDateString("es-MX") : "—"}</td>
-                          <td className="py-2 px-3 text-center font-medium">{req.requestedDays}</td>
-                          <td className="py-2 px-3 text-center">{statusBadge(req.status)}</td>
+                          <td className="py-2 px-3 font-medium">
+                            {req.employeeName}
+                          </td>
+                          <td className="py-2 px-3 text-muted-foreground">
+                            {req.department}
+                          </td>
+                          <td className="py-2 px-3">
+                            {req.startDate
+                              ? new Date(req.startDate).toLocaleDateString(
+                                  "es-MX"
+                                )
+                              : "—"}
+                          </td>
+                          <td className="py-2 px-3">
+                            {req.endDate
+                              ? new Date(req.endDate).toLocaleDateString(
+                                  "es-MX"
+                                )
+                              : "—"}
+                          </td>
+                          <td className="py-2 px-3">
+                            {req.returnDate
+                              ? new Date(req.returnDate).toLocaleDateString(
+                                  "es-MX"
+                                )
+                              : "—"}
+                          </td>
+                          <td className="py-2 px-3 text-center font-medium">
+                            {req.requestedDays}
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {statusBadge(req.status)}
+                          </td>
                           <td className="py-2 px-3 text-xs text-muted-foreground">
-                            {new Date(req.createdAt).toLocaleDateString("es-MX")}
+                            {new Date(req.createdAt).toLocaleDateString(
+                              "es-MX"
+                            )}
                           </td>
                           {isRH && (
                             <td className="py-2 px-3">
@@ -703,11 +1017,15 @@ export default function VacationManagement() {
                                     variant="outline"
                                     className="h-7 text-xs text-green-600 border-green-300 hover:bg-green-50"
                                     onClick={() =>
-                                      updateStatusMutation.mutate({ requestId: req.id, status: "approved" })
+                                      updateStatusMutation.mutate({
+                                        requestId: req.id,
+                                        status: "approved",
+                                      })
                                     }
                                     disabled={updateStatusMutation.isPending}
                                   >
-                                    <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Aprobar
+                                    <CheckCircle2 className="h-3.5 w-3.5 mr-1" />{" "}
+                                    Aprobar
                                   </Button>
                                   <Button
                                     size="sm"
@@ -715,13 +1033,15 @@ export default function VacationManagement() {
                                     className="h-7 text-xs text-red-600 border-red-300 hover:bg-red-50"
                                     onClick={() => setRejectingId(req.id)}
                                   >
-                                    <XCircle className="h-3.5 w-3.5 mr-1" /> Rechazar
+                                    <XCircle className="h-3.5 w-3.5 mr-1" />{" "}
+                                    Rechazar
                                   </Button>
                                 </div>
                               )}
                               {req.status === "approved" && (
                                 <span className="text-xs text-green-600 flex items-center gap-1">
-                                  <CheckCircle2 className="h-3.5 w-3.5" /> Aprobada
+                                  <CheckCircle2 className="h-3.5 w-3.5" />{" "}
+                                  Aprobada
                                 </span>
                               )}
                             </td>
@@ -748,43 +1068,74 @@ export default function VacationManagement() {
                   Solicitudes Pendientes — Mi Equipo
                 </CardTitle>
                 <CardDescription>
-                  Solicitudes de vacaciones de empleados bajo su supervisión que requieren aprobación
+                  Solicitudes de vacaciones de empleados bajo su supervisión que
+                  requieren aprobación
                 </CardDescription>
               </div>
               {(teamPendingCount > 0 || pendingCount > 0) && (
-                <Badge variant="secondary" className="text-amber-700 bg-amber-100">
+                <Badge
+                  variant="secondary"
+                  className="text-amber-700 bg-amber-100"
+                >
                   <AlertTriangle className="h-3.5 w-3.5 mr-1" />
-                  {isRH ? pendingCount : teamPendingCount} pendiente{(isRH ? pendingCount : teamPendingCount) !== 1 ? "s" : ""}
+                  {isRH ? pendingCount : teamPendingCount} pendiente
+                  {(isRH ? pendingCount : teamPendingCount) !== 1 ? "s" : ""}
                 </Badge>
               )}
             </div>
           </CardHeader>
           <CardContent>
             {(isRH ? allLoading : teamLoading) ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">Cargando solicitudes del equipo...</p>
-            ) : (isRH ? (allRequests?.filter((r: any) => r.status === "pending") ?? []) : (teamRequests ?? [])).length === 0 ? (
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                Cargando solicitudes del equipo...
+              </p>
+            ) : (isRH
+                ? (allRequests?.filter((r: any) => r.status === "pending") ??
+                  [])
+                : (teamRequests ?? [])
+              ).length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <CheckCircle2 className="h-12 w-12 mx-auto mb-3 opacity-30 text-green-500" />
-                <p className="text-sm font-medium">No hay solicitudes pendientes</p>
-                <p className="text-xs mt-1">Todas las solicitudes de su equipo han sido procesadas</p>
+                <p className="text-sm font-medium">
+                  No hay solicitudes pendientes
+                </p>
+                <p className="text-xs mt-1">
+                  Todas las solicitudes de su equipo han sido procesadas
+                </p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Empleado</th>
-                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Departamento</th>
-                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Puesto</th>
-                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Período</th>
-                      <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Días</th>
-                      <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Estado</th>
-                      <th className="py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Acciones</th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                        Empleado
+                      </th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                        Departamento
+                      </th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                        Puesto
+                      </th>
+                      <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                        Período
+                      </th>
+                      <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                        Días
+                      </th>
+                      <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                        Estado
+                      </th>
+                      <th className="py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                        Acciones
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {(isRH
-                      ? (allRequests?.filter((r: any) => r.status === "pending") ?? [])
+                      ? (allRequests?.filter(
+                          (r: any) => r.status === "pending"
+                        ) ?? [])
                       : (teamRequests ?? [])
                     ).map((req: any) => renderApprovalRow(req))}
                   </tbody>
@@ -806,19 +1157,26 @@ export default function VacationManagement() {
                   Reporte de Saldo de Vacaciones
                 </CardTitle>
                 <CardDescription>
-                  Saldo disponible por empleado agrupado por departamento — calculado según tabla LFT
+                  Saldo disponible por empleado agrupado por departamento —
+                  calculado según tabla LFT
                 </CardDescription>
               </div>
               <div className="flex gap-2 items-center">
                 {departmentsData && (
                   <select
                     value={balanceDeptFilter ?? ""}
-                    onChange={(e) => setBalanceDeptFilter(e.target.value ? parseInt(e.target.value) : undefined)}
+                    onChange={e =>
+                      setBalanceDeptFilter(
+                        e.target.value ? parseInt(e.target.value) : undefined
+                      )
+                    }
                     className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
                   >
                     <option value="">Todos los departamentos</option>
                     {(departmentsData?.data ?? []).map((d: any) => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
+                      <option key={d.id} value={d.id}>
+                        {d.name}
+                      </option>
                     ))}
                   </select>
                 )}
@@ -836,7 +1194,9 @@ export default function VacationManagement() {
           </CardHeader>
           <CardContent>
             {balanceLoading ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">Calculando saldos...</p>
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                Calculando saldos...
+              </p>
             ) : !balanceReport || balanceReport.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Building2 className="h-12 w-12 mx-auto mb-3 opacity-30" />
@@ -846,51 +1206,106 @@ export default function VacationManagement() {
               <div className="space-y-6">
                 {Object.entries(balanceByDept).map(([dept, emps]) => {
                   const deptEmps = emps as any[];
-                  const totalAvailable = deptEmps.reduce((s, e) => s + e.availableDays, 0);
-                  const totalUsed = deptEmps.reduce((s, e) => s + e.usedDays, 0);
+                  const totalAvailable = deptEmps.reduce(
+                    (s, e) => s + e.availableDays,
+                    0
+                  );
+                  const totalUsed = deptEmps.reduce(
+                    (s, e) => s + e.usedDays,
+                    0
+                  );
                   return (
                     <div key={dept}>
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-semibold text-sm flex items-center gap-2">
                           <Building2 className="h-4 w-4 text-primary" />
                           {dept}
-                          <span className="text-muted-foreground font-normal">({deptEmps.length} empleado{deptEmps.length !== 1 ? "s" : ""})</span>
+                          <span className="text-muted-foreground font-normal">
+                            ({deptEmps.length} empleado
+                            {deptEmps.length !== 1 ? "s" : ""})
+                          </span>
                         </h3>
                         <div className="flex gap-4 text-xs text-muted-foreground">
-                          <span>Usados: <strong className="text-foreground">{totalUsed}</strong></span>
-                          <span>Disponibles: <strong className="text-green-600">{totalAvailable}</strong></span>
+                          <span>
+                            Usados:{" "}
+                            <strong className="text-foreground">
+                              {totalUsed}
+                            </strong>
+                          </span>
+                          <span>
+                            Disponibles:{" "}
+                            <strong className="text-green-600">
+                              {totalAvailable}
+                            </strong>
+                          </span>
                         </div>
                       </div>
                       <div className="overflow-x-auto rounded-lg border">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="bg-muted/50 border-b">
-                              <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Empleado</th>
-                              <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Puesto</th>
-                              <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Ingreso</th>
-                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Antigüedad</th>
-                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Ganados</th>
-                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Usados</th>
-                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Pendientes</th>
-                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Disponibles</th>
+                              <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                                Empleado
+                              </th>
+                              <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                                Puesto
+                              </th>
+                              <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                                Ingreso
+                              </th>
+                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                                Antigüedad
+                              </th>
+                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                                Ganados
+                              </th>
+                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                                Usados
+                              </th>
+                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                                Pendientes
+                              </th>
+                              <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">
+                                Disponibles
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
                             {deptEmps.map((emp: any) => (
-                              <tr key={emp.employeeId} className="border-b hover:bg-muted/20">
-                                <td className="py-2 px-3 font-medium">{emp.name}</td>
-                                <td className="py-2 px-3 text-muted-foreground text-xs">{emp.position}</td>
+                              <tr
+                                key={emp.employeeId}
+                                className="border-b hover:bg-muted/20"
+                              >
+                                <td className="py-2 px-3 font-medium">
+                                  {emp.name}
+                                </td>
+                                <td className="py-2 px-3 text-muted-foreground text-xs">
+                                  {emp.position}
+                                </td>
                                 <td className="py-2 px-3 text-xs">
-                                  {emp.hireDate ? new Date(emp.hireDate).toLocaleDateString("es-MX") : "—"}
+                                  {emp.hireDate
+                                    ? new Date(emp.hireDate).toLocaleDateString(
+                                        "es-MX"
+                                      )
+                                    : "—"}
                                 </td>
                                 <td className="py-2 px-3 text-center text-xs">
-                                  {emp.yearsOfService} año{emp.yearsOfService !== 1 ? "s" : ""}
+                                  {emp.yearsOfService} año
+                                  {emp.yearsOfService !== 1 ? "s" : ""}
                                 </td>
-                                <td className="py-2 px-3 text-center font-medium">{emp.earnedDays}</td>
-                                <td className="py-2 px-3 text-center text-red-600">{emp.usedDays}</td>
-                                <td className="py-2 px-3 text-center text-amber-600">{emp.pendingDays}</td>
+                                <td className="py-2 px-3 text-center font-medium">
+                                  {emp.earnedDays}
+                                </td>
+                                <td className="py-2 px-3 text-center text-red-600">
+                                  {emp.usedDays}
+                                </td>
+                                <td className="py-2 px-3 text-center text-amber-600">
+                                  {emp.pendingDays}
+                                </td>
                                 <td className="py-2 px-3 text-center">
-                                  <span className={`font-bold ${emp.availableDays <= 0 ? "text-red-600" : emp.availableDays <= 3 ? "text-amber-600" : "text-green-600"}`}>
+                                  <span
+                                    className={`font-bold ${emp.availableDays <= 0 ? "text-red-600" : emp.availableDays <= 3 ? "text-amber-600" : "text-green-600"}`}
+                                  >
                                     {emp.availableDays}
                                   </span>
                                 </td>
@@ -913,13 +1328,18 @@ export default function VacationManagement() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="w-full max-w-md mx-4">
             <CardHeader>
-              <CardTitle className="text-base text-red-600">Rechazar Solicitud</CardTitle>
-              <CardDescription>Ingrese el motivo del rechazo (se notificará al empleado por correo)</CardDescription>
+              <CardTitle className="text-base text-red-600">
+                Rechazar Solicitud
+              </CardTitle>
+              <CardDescription>
+                Ingrese el motivo del rechazo (se notificará al empleado por
+                correo)
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <textarea
                 value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
+                onChange={e => setRejectionReason(e.target.value)}
                 placeholder="Motivo del rechazo..."
                 rows={3}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
@@ -938,7 +1358,13 @@ export default function VacationManagement() {
                 >
                   Confirmar Rechazo
                 </Button>
-                <Button variant="outline" onClick={() => { setRejectingId(null); setRejectionReason(""); }}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setRejectingId(null);
+                    setRejectionReason("");
+                  }}
+                >
                   Cancelar
                 </Button>
               </div>
@@ -953,12 +1379,22 @@ export default function VacationManagement() {
           <div className="flex items-start justify-between gap-3">
             <div>
               <CardTitle className="text-base flex items-center gap-2">
-                <Clock className="h-4 w-4 text-primary" /> Tabla de Antigüedad — Días de Vacaciones
+                <Clock className="h-4 w-4 text-primary" /> Tabla de Antigüedad —
+                Días de Vacaciones
               </CardTitle>
-              <CardDescription>Días de vacaciones según años de servicio. {isAdmin ? "Como administrador puedes personalizar esta tabla." : "Ley Federal del Trabajo Art. 76."}</CardDescription>
+              <CardDescription>
+                Días de vacaciones según años de servicio.{" "}
+                {isAdmin
+                  ? "Como administrador puedes personalizar esta tabla."
+                  : "Ley Federal del Trabajo Art. 76."}
+              </CardDescription>
             </div>
             {isAdmin && !editingSeniority && (
-              <Button size="sm" variant="outline" onClick={handleStartEditSeniority}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleStartEditSeniority}
+              >
                 <Edit3 className="h-4 w-4 mr-2" /> Editar tabla
               </Button>
             )}
@@ -967,11 +1403,22 @@ export default function VacationManagement() {
                 <Button size="sm" variant="outline" onClick={handleRestoreLFT}>
                   <RotateCcw className="h-4 w-4 mr-2" /> Restaurar LFT
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setEditingSeniority(false)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEditingSeniority(false)}
+                >
                   <X className="h-4 w-4 mr-2" /> Cancelar
                 </Button>
-                <Button size="sm" onClick={handleSaveSeniority} disabled={updateSeniorityMutation.isPending}>
-                  <Save className="h-4 w-4 mr-2" /> {updateSeniorityMutation.isPending ? "Guardando..." : "Guardar"}
+                <Button
+                  size="sm"
+                  onClick={handleSaveSeniority}
+                  disabled={updateSeniorityMutation.isPending}
+                >
+                  <Save className="h-4 w-4 mr-2" />{" "}
+                  {updateSeniorityMutation.isPending
+                    ? "Guardando..."
+                    : "Guardar"}
                 </Button>
               </div>
             )}
@@ -982,11 +1429,18 @@ export default function VacationManagement() {
             seniorityTable ? (
               <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
                 {seniorityTable.map((row: any, i: number) => (
-                  <div key={i} className="text-center p-3 rounded-lg bg-muted/40 border">
+                  <div
+                    key={i}
+                    className="text-center p-3 rounded-lg bg-muted/40 border"
+                  >
                     <p className="text-xs text-muted-foreground">
-                      {row.yearsMax ? `${row.yearsMin}–${row.yearsMax} años` : `${row.yearsMin}+ años`}
+                      {row.yearsMax
+                        ? `${row.yearsMin}–${row.yearsMax} años`
+                        : `${row.yearsMin}+ años`}
                     </p>
-                    <p className="text-xl font-bold text-primary mt-1">{row.vacationDays}</p>
+                    <p className="text-xl font-bold text-primary mt-1">
+                      {row.vacationDays}
+                    </p>
                     <p className="text-xs text-muted-foreground">días</p>
                   </div>
                 ))}
@@ -1003,38 +1457,58 @@ export default function VacationManagement() {
                 <span></span>
               </div>
               {seniorityDraft.map((row, i) => (
-                <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+                <div
+                  key={i}
+                  className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center"
+                >
                   <Input
                     type="number"
                     min={0}
                     value={row.yearsMin}
-                    onChange={(e) => updateSeniorityRow(i, "yearsMin", e.target.value)}
+                    onChange={e =>
+                      updateSeniorityRow(i, "yearsMin", e.target.value)
+                    }
                     placeholder="Año mín."
                   />
                   <Input
                     type="number"
                     min={1}
                     value={row.yearsMax ?? ""}
-                    onChange={(e) => updateSeniorityRow(i, "yearsMax", e.target.value)}
+                    onChange={e =>
+                      updateSeniorityRow(i, "yearsMax", e.target.value)
+                    }
                     placeholder="Sin límite"
                   />
                   <Input
                     type="number"
                     min={1}
                     value={row.vacationDays}
-                    onChange={(e) => updateSeniorityRow(i, "vacationDays", e.target.value)}
+                    onChange={e =>
+                      updateSeniorityRow(i, "vacationDays", e.target.value)
+                    }
                     placeholder="Días"
                   />
-                  <Button size="icon" variant="ghost" onClick={() => removeSeniorityRow(i)} className="text-destructive hover:text-destructive">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => removeSeniorityRow(i)}
+                    className="text-destructive hover:text-destructive"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
-              <Button size="sm" variant="outline" onClick={addSeniorityRow} className="w-full mt-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={addSeniorityRow}
+                className="w-full mt-2"
+              >
                 <Plus className="h-4 w-4 mr-2" /> Agregar fila
               </Button>
               <p className="text-xs text-muted-foreground mt-2">
-                * Los cambios afectarán el cálculo de saldo de vacaciones de todos los empleados al guardar.
+                * Los cambios afectarán el cálculo de saldo de vacaciones de
+                todos los empleados al guardar.
               </p>
             </div>
           )}

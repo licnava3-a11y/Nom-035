@@ -5,47 +5,86 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, Download, CheckCircle2, AlertCircle, Clock, Upload, X, Plus } from "lucide-react";
+import {
+  FileText,
+  Download,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  Upload,
+  X,
+  Plus,
+} from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function EvidencesFolder() {
-
-  const [companySize, setCompanySize] = useState<'small' | 'medium' | 'large'>('large');
+  const [companySize, setCompanySize] = useState<"small" | "medium" | "large">(
+    "large"
+  );
   const [isExporting, setIsExporting] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-  const [selectedNumeral, setSelectedNumeral] = useState<string>('5.1');
-  const [uploadTitle, setUploadTitle] = useState('');
-  const [uploadDescription, setUploadDescription] = useState('');
+  const [selectedNumeral, setSelectedNumeral] = useState<string>("5.1");
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadDescription, setUploadDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; title: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
 
   // Query para obtener evidencias
-  const { data: evidences, isLoading } = trpc.evidencesFolder.getEvidences.useQuery({
-    companySize,
-  });
+  const { data: evidences, isLoading } =
+    trpc.evidencesFolder.getEvidences.useQuery({
+      companySize,
+    });
 
   // Mutation para exportar PDF (pendiente implementación)
   const exportPDF = trpc.evidencesFolder.generatePDF.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Descargar PDF
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = `data:application/pdf;base64,${data.pdfBase64}`;
-      link.download = `carpeta-evidencias-nom035-${new Date().toISOString().split('T')[0]}.pdf`;
+      link.download = `carpeta-evidencias-nom035-${new Date().toISOString().split("T")[0]}.pdf`;
       link.click();
-      
+
       toast.success("Carpeta exportada", {
         description: "La carpeta de evidencias se ha generado exitosamente",
       });
@@ -72,13 +111,13 @@ export default function EvidencesFolder() {
         description: "La evidencia se ha subido exitosamente",
       });
       setIsUploadDialogOpen(false);
-      setUploadTitle('');
-      setUploadDescription('');
+      setUploadTitle("");
+      setUploadDescription("");
       setSelectedFile(null);
       setIsUploading(false);
       utils.evidencesFolder.getEvidences.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error("Error", {
         description: error.message || "No se pudo subir la evidencia",
       });
@@ -94,7 +133,7 @@ export default function EvidencesFolder() {
       });
       utils.evidencesFolder.getEvidences.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error("Error", {
         description: error.message || "No se pudo eliminar la evidencia",
       });
@@ -129,7 +168,7 @@ export default function EvidencesFolder() {
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
-      const base64Data = base64.split(',')[1]; // Remover prefijo data:...
+      const base64Data = base64.split(",")[1]; // Remover prefijo data:...
 
       uploadEvidence.mutate({
         numeral: selectedNumeral,
@@ -149,11 +188,11 @@ export default function EvidencesFolder() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'complete':
+      case "complete":
         return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-      case 'partial':
+      case "partial":
         return <Clock className="h-5 w-5 text-yellow-600" />;
-      case 'pending':
+      case "pending":
         return <AlertCircle className="h-5 w-5 text-red-600" />;
       default:
         return <FileText className="h-5 w-5 text-gray-400" />;
@@ -161,12 +200,15 @@ export default function EvidencesFolder() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    const variants: Record<
+      string,
+      "default" | "secondary" | "destructive" | "outline"
+    > = {
       complete: "default",
       partial: "secondary",
       pending: "destructive",
     };
-    
+
     const labels: Record<string, string> = {
       complete: "Completo",
       partial: "Parcial",
@@ -184,7 +226,9 @@ export default function EvidencesFolder() {
     return (
       <div className="container mx-auto py-8">
         <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Cargando carpeta de evidencias...</p>
+          <p className="text-muted-foreground">
+            Cargando carpeta de evidencias...
+          </p>
         </div>
       </div>
     );
@@ -194,7 +238,9 @@ export default function EvidencesFolder() {
     return (
       <div className="container mx-auto py-8">
         <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">No se pudo cargar la carpeta de evidencias</p>
+          <p className="text-muted-foreground">
+            No se pudo cargar la carpeta de evidencias
+          </p>
         </div>
       </div>
     );
@@ -202,9 +248,11 @@ export default function EvidencesFolder() {
 
   // Extraer información de la empresa
   const companyInfo = evidences.companyInfo;
-  
+
   // Extraer numerales (excluir companyInfo)
-  const numerals = Object.entries(evidences).filter(([key]) => key !== 'companyInfo');
+  const numerals = Object.entries(evidences).filter(
+    ([key]) => key !== "companyInfo"
+  );
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -217,7 +265,10 @@ export default function EvidencesFolder() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+          <Dialog
+            open={isUploadDialogOpen}
+            onOpenChange={setIsUploadDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button variant="outline">
                 <Plus className="mr-2 h-4 w-4" />
@@ -228,24 +279,40 @@ export default function EvidencesFolder() {
               <DialogHeader>
                 <DialogTitle>Cargar Evidencia Manual</DialogTitle>
                 <DialogDescription>
-                  Sube documentos adicionales para complementar la carpeta de evidencias
+                  Sube documentos adicionales para complementar la carpeta de
+                  evidencias
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 {/* Selector de numeral */}
                 <div className="space-y-2">
                   <Label htmlFor="numeral">Numeral NOM-035</Label>
-                  <Select value={selectedNumeral} onValueChange={setSelectedNumeral}>
+                  <Select
+                    value={selectedNumeral}
+                    onValueChange={setSelectedNumeral}
+                  >
                     <SelectTrigger id="numeral">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="5.1">5.1 - Política de Prevención</SelectItem>
-                      <SelectItem value="5.2">5.2 - Identificación de Factores de Riesgo</SelectItem>
-                      <SelectItem value="5.3">5.3 - Acontecimientos Traumáticos</SelectItem>
-                      <SelectItem value="5.4">5.4 - Difusión de Información</SelectItem>
-                      <SelectItem value="5.5">5.5 - Evaluaciones NOM-035</SelectItem>
-                      <SelectItem value="5.6">5.6 - Medidas de Control</SelectItem>
+                      <SelectItem value="5.1">
+                        5.1 - Política de Prevención
+                      </SelectItem>
+                      <SelectItem value="5.2">
+                        5.2 - Identificación de Factores de Riesgo
+                      </SelectItem>
+                      <SelectItem value="5.3">
+                        5.3 - Acontecimientos Traumáticos
+                      </SelectItem>
+                      <SelectItem value="5.4">
+                        5.4 - Difusión de Información
+                      </SelectItem>
+                      <SelectItem value="5.5">
+                        5.5 - Evaluaciones NOM-035
+                      </SelectItem>
+                      <SelectItem value="5.6">
+                        5.6 - Medidas de Control
+                      </SelectItem>
                       <SelectItem value="5.7">5.7 - Difusión</SelectItem>
                       <SelectItem value="5.8">5.8 - Registros</SelectItem>
                     </SelectContent>
@@ -259,7 +326,7 @@ export default function EvidencesFolder() {
                     id="title"
                     placeholder="Ej: Política firmada por dirección"
                     value={uploadTitle}
-                    onChange={(e) => setUploadTitle(e.target.value)}
+                    onChange={e => setUploadTitle(e.target.value)}
                   />
                 </div>
 
@@ -270,7 +337,7 @@ export default function EvidencesFolder() {
                     id="description"
                     placeholder="Describe brevemente el contenido del documento"
                     value={uploadDescription}
-                    onChange={(e) => setUploadDescription(e.target.value)}
+                    onChange={e => setUploadDescription(e.target.value)}
                     rows={3}
                   />
                 </div>
@@ -290,7 +357,9 @@ export default function EvidencesFolder() {
                   {selectedFile && (
                     <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
                       <FileText className="h-4 w-4" />
-                      <span className="text-sm flex-1">{selectedFile.name}</span>
+                      <span className="text-sm flex-1">
+                        {selectedFile.name}
+                      </span>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -348,12 +417,14 @@ export default function EvidencesFolder() {
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Tamaño de Empresa</p>
-            <p className="text-2xl font-bold capitalize">{companyInfo.companySize}</p>
+            <p className="text-2xl font-bold capitalize">
+              {companyInfo.companySize}
+            </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Fecha de Generación</p>
             <p className="text-2xl font-bold">
-              {new Date(companyInfo.generatedAt).toLocaleDateString('es-MX')}
+              {new Date(companyInfo.generatedAt).toLocaleDateString("es-MX")}
             </p>
           </div>
         </CardContent>
@@ -368,14 +439,25 @@ export default function EvidencesFolder() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Select value={companySize} onValueChange={(value: 'small' | 'medium' | 'large') => setCompanySize(value)}>
+          <Select
+            value={companySize}
+            onValueChange={(value: "small" | "medium" | "large") =>
+              setCompanySize(value)
+            }
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Selecciona tamaño de empresa" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="small">Pequeña (hasta 15 trabajadores)</SelectItem>
-              <SelectItem value="medium">Mediana (16-50 trabajadores)</SelectItem>
-              <SelectItem value="large">Grande (más de 50 trabajadores)</SelectItem>
+              <SelectItem value="small">
+                Pequeña (hasta 15 trabajadores)
+              </SelectItem>
+              <SelectItem value="medium">
+                Mediana (16-50 trabajadores)
+              </SelectItem>
+              <SelectItem value="large">
+                Grande (más de 50 trabajadores)
+              </SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -398,8 +480,12 @@ export default function EvidencesFolder() {
                     <div className="flex items-center gap-3">
                       {getStatusIcon(numeral.status)}
                       <div className="text-left">
-                        <p className="font-semibold">{key} - {numeral.title}</p>
-                        <p className="text-sm text-muted-foreground">{numeral.description}</p>
+                        <p className="font-semibold">
+                          {key} - {numeral.title}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {numeral.description}
+                        </p>
                       </div>
                     </div>
                     {getStatusBadge(numeral.status)}
@@ -418,13 +504,20 @@ export default function EvidencesFolder() {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <p className="font-medium">{evidence.name}</p>
-                                <p className="text-sm text-muted-foreground">{evidence.description}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {evidence.description}
+                                </p>
                               </div>
-                              {evidence.type === 'manual' && evidence.id && (
+                              {evidence.type === "manual" && evidence.id && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleDeleteEvidence(evidence.id, evidence.title)}
+                                  onClick={() =>
+                                    handleDeleteEvidence(
+                                      evidence.id,
+                                      evidence.title
+                                    )
+                                  }
                                   className="text-destructive hover:text-destructive"
                                 >
                                   <X className="h-4 w-4" />
@@ -436,7 +529,9 @@ export default function EvidencesFolder() {
                                 {evidence.type}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
-                                {new Date(evidence.date).toLocaleDateString('es-MX')}
+                                {new Date(evidence.date).toLocaleDateString(
+                                  "es-MX"
+                                )}
                               </span>
                               {evidence.fileUrl && (
                                 <a
@@ -456,7 +551,10 @@ export default function EvidencesFolder() {
                       <div className="text-center py-8 text-muted-foreground">
                         <AlertCircle className="h-12 w-12 mx-auto mb-2 opacity-50" />
                         <p>No hay evidencias registradas para este numeral</p>
-                        <p className="text-sm mt-1">Sube documentos manualmente o genera evidencias automáticas</p>
+                        <p className="text-sm mt-1">
+                          Sube documentos manualmente o genera evidencias
+                          automáticas
+                        </p>
                       </div>
                     )}
                   </div>
@@ -469,7 +567,7 @@ export default function EvidencesFolder() {
 
       <ConfirmDialog
         open={deleteConfirm !== null}
-        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onOpenChange={open => !open && setDeleteConfirm(null)}
         onConfirm={() => {
           if (deleteConfirm) {
             deleteEvidence.mutate({ evidenceId: deleteConfirm.id });
