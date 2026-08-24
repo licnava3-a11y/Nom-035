@@ -1844,3 +1844,8 @@
 
 ## Rendimiento e integridad — Auditoría histórica priorizada (2026-08-23)
 - [x] Auditar y, si faltan, declarar y aplicar índices para las relaciones de alta consulta. La auditoría confirmó índices existentes —incluidos los FK— para empleados, casos y respuestas de encuesta; se declararon y aplicaron cinco índices faltantes para `correctiveActions` (`status,dueDate`, responsable, respuesta, periodo y ámbito), verificados en la base de datos.
+
+## Validación de protección e integración (2026-08-24)
+- [ ] Configurar un workflow independiente de integración con MySQL aislado y credenciales de prueba no productivas.
+- [ ] Crear un Pull Request de prueba contra `main` y confirmar que exige la comprobación `Types and tests`.
+- [ ] Validar los flujos, actualizar el seguimiento y guardar checkpoint.

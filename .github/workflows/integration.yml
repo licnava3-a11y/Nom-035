@@ -1,0 +1,70 @@
+name: Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_external_services:
+        description: Ejecutar pruebas que consumen almacenamiento e IA con secretos del repositorio
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    name: Database and external services
+    if: github.event.inputs.run_external_services == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nom035_integration
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      CI: true
+      NODE_ENV: test
+      NODE_OPTIONS: --max-old-space-size=2048
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/nom035_integration
+      BUILT_IN_FORGE_API_URL: ${{ secrets.BUILT_IN_FORGE_API_URL }}
+      BUILT_IN_FORGE_API_KEY: ${{ secrets.BUILT_IN_FORGE_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Synchronize isolated integration schema
+        run: pnpm drizzle-kit push --force
+
+      - name: Verify external integration secrets
+        run: |
+          test -n "$BUILT_IN_FORGE_API_URL" || (echo "Missing BUILT_IN_FORGE_API_URL GitHub secret" && exit 1)
+          test -n "$BUILT_IN_FORGE_API_KEY" || (echo "Missing BUILT_IN_FORGE_API_KEY GitHub secret" && exit 1)
+          test -n "$OPENAI_API_KEY" || (echo "Missing OPENAI_API_KEY GitHub secret" && exit 1)
+
+      - name: Run integration suite sequentially
+        run: pnpm test:integration --pool=forks --maxWorkers=1 --minWorkers=1
