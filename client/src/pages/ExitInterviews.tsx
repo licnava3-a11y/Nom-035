@@ -2,6 +2,8 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { EmployeeAutofillSelector } from "@/components/EmployeeAutofillSelector";
+import type { EmployeeAutofillData } from "@/lib/employeeAutofill";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -135,7 +137,6 @@ function RegisterTerminationDialog({ onSuccess }: { onSuccess: () => void }) {
   const [details, setDetails] = useState("");
   const [notes, setNotes] = useState("");
 
-  const { data: employeesData } = trpc.employees.list.useQuery({ page: 1, pageSize: 100 });
   const registerMutation = trpc.exitInterviews.registerTermination.useMutation({
     onSuccess: () => {
       toast.success("Baja registrada y entrevista de salida creada");
@@ -144,6 +145,10 @@ function RegisterTerminationDialog({ onSuccess }: { onSuccess: () => void }) {
     },
     onError: (e) => toast.error(e.message),
   });
+
+  const handleEmployeeSelect = (data: EmployeeAutofillData | null) => {
+    setEmployeeId(data ? String(data.employeeId) : "");
+  };
 
   const handleSubmit = () => {
     if (!employeeId || !terminationDate || !reason) {
@@ -176,19 +181,13 @@ function RegisterTerminationDialog({ onSuccess }: { onSuccess: () => void }) {
         </DialogHeader>
         <div className="space-y-4 mt-2">
           <div>
-            <Label>Empleado *</Label>
-            <Select value={employeeId} onValueChange={setEmployeeId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar empleado..." />
-              </SelectTrigger>
-              <SelectContent>
-                {(employeesData?.employees ?? []).map((emp: any) => (
-                  <SelectItem key={emp.id} value={String(emp.id)}>
-                    {emp.firstName} {emp.lastName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <EmployeeAutofillSelector
+              value={employeeId || undefined}
+              onSelect={handleEmployeeSelect}
+              label="Empleado *"
+              helperText="Selecciona a la persona desde el catálogo de empleados activos"
+              placeholder="Seleccionar empleado..."
+            />
           </div>
           <div>
             <Label>Fecha de baja *</Label>

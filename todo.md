@@ -1866,6 +1866,7 @@
 - [x] P1: Crear un adaptador único de prellenado empleado → empresa, centro, departamento y puesto. `employeeAutofill` centraliza el mapeo, el selector usa hasta 100 empleados activos y la consulta entrega empresa/sucursal reales; validado con 17 pruebas focalizadas.
 - [ ] P2: Extender gradualmente el adaptador de prellenado a formularios y reportes que aún capturan esos datos de manera manual, incluyendo responsable cuando esté definido en datos maestros.
 - [x] P2-A: Integrar el selector de empleado en felicitaciones del Buzón, además de quejas y DNC, para prellenar nombre y departamento de la persona reconocida.
+- [x] P2-E: Reutilizar el selector centralizado al registrar bajas, eliminando la consulta local duplicada de empleados en Entrevistas de Salida.
 - [ ] P2: Modularizar el registro de rutas de `App.tsx` y los routers de encuestas sin alterar contratos públicos.
 - [x] P2-A: Consolidar las rutas duplicadas de alertas en `/alerts-central`; los enlaces históricos se preservan con `legacyRedirects` y prueba de regresión.
 - [x] P2-B: Eliminar la consulta N+1 en `calculateGuideII`; respuestas y orden de preguntas se recuperan ahora con un solo join.
