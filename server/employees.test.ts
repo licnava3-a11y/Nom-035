@@ -95,7 +95,9 @@ describe("Employees Module", () => {
       expect(result.employees).toBeDefined();
       expect(Array.isArray(result.employees)).toBe(true);
       if (result.employees.length > 0) {
-        expect(result.employees.every((emp) => emp.departmentId === 1)).toBe(true);
+        expect(result.employees.every(emp => emp.departmentId === 1)).toBe(
+          true
+        );
       }
     });
 
@@ -148,7 +150,9 @@ describe("Employees Module", () => {
       expect(deactivated.success).toBe(true);
 
       // Verify deactivated via getById
-      const deactivatedEmployee = await caller.employees.getById({ id: createdEmployeeId });
+      const deactivatedEmployee = await caller.employees.getById({
+        id: createdEmployeeId,
+      });
       expect(deactivatedEmployee.isActive).toBe(false);
 
       // Reactivate
@@ -159,7 +163,9 @@ describe("Employees Module", () => {
       expect(reactivated.success).toBe(true);
 
       // Verify reactivated via getById
-      const reactivatedEmployee = await caller.employees.getById({ id: createdEmployeeId });
+      const reactivatedEmployee = await caller.employees.getById({
+        id: createdEmployeeId,
+      });
       expect(reactivatedEmployee.isActive).toBe(true);
     });
 
@@ -187,7 +193,9 @@ describe("Employees Module", () => {
         const db = await getDb();
         if (db) {
           try {
-            await db.delete(employees).where(eq(employees.id, createdEmployeeId));
+            await db
+              .delete(employees)
+              .where(eq(employees.id, createdEmployeeId));
           } catch (e) {
             console.warn("Cleanup failed:", e);
           }
@@ -226,9 +234,7 @@ describe("Employees Module", () => {
     it("should deny non-admin users from deactivating employees", async () => {
       const caller = appRouter.createCaller(userContext);
 
-      await expect(
-        caller.employees.deactivate({ id: 1 })
-      ).rejects.toThrow();
+      await expect(caller.employees.deactivate({ id: 1 })).rejects.toThrow();
     });
   });
 

@@ -1,5 +1,10 @@
 import { getDb } from "../db";
-import { cases, certificates, nom035EvidenceFolder, surveys } from "../../drizzle/schema";
+import {
+  cases,
+  certificates,
+  nom035EvidenceFolder,
+  surveys,
+} from "../../drizzle/schema";
 
 export type EvidenceCategory =
   | "policies"
@@ -50,7 +55,9 @@ export async function logEvidence(params: LogEvidenceParams): Promise<void> {
       uploadedBy: params.uploadedBy,
     });
 
-    console.log(`[Evidence Logger] Registered: ${params.title} (${params.category})`);
+    console.log(
+      `[Evidence Logger] Registered: ${params.title} (${params.category})`
+    );
   } catch (error) {
     console.error("[Evidence Logger] Failed to register evidence:", error);
     // No lanzamos el error para no interrumpir el flujo principal

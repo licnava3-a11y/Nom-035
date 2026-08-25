@@ -5,7 +5,11 @@
  * Se ejecuta en Node.js usando el paquete jspdf + jspdf-autotable.
  */
 import { getDb } from "./db";
-import { minuteDispatches, minuteRecipients, meetingMinutes } from "../drizzle/schema";
+import {
+  minuteDispatches,
+  minuteRecipients,
+  meetingMinutes,
+} from "../drizzle/schema";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 
 interface DispatchReportOptions {
@@ -18,7 +22,11 @@ interface DispatchReportOptions {
 
 function fmtDate(d: Date | string | null | undefined): string {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(d).toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function fmtDateTime(d: Date | string | null | undefined): string {
@@ -75,7 +83,10 @@ export async function generateDispatchesReportPDF(
     })
     .from(minuteDispatches)
     .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
-    .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
+    .leftJoin(
+      minuteRecipients,
+      eq(minuteDispatches.recipientId, minuteRecipients.id)
+    )
     .where(whereClause)
     .orderBy(desc(minuteDispatches.sentAt))
     .limit(500); // máximo 500 registros en el reporte
@@ -84,7 +95,7 @@ export async function generateDispatchesReportPDF(
   if (options.search && options.search.trim()) {
     const term = options.search.toLowerCase().trim();
     rows = rows.filter(
-      (r) =>
+      r =>
         (r.recipientName ?? "").toLowerCase().includes(term) ||
         (r.minuteTitle ?? "").toLowerCase().includes(term) ||
         (r.minuteFolio ?? "").toLowerCase().includes(term) ||
@@ -94,9 +105,9 @@ export async function generateDispatchesReportPDF(
 
   // ── Calcular estadísticas ───────────────────────────────────────────────────
   const total = rows.length;
-  const read = rows.filter((r) => r.status === "read" || r.readAt).length;
-  const sent = rows.filter((r) => r.status === "sent").length;
-  const bounced = rows.filter((r) => r.status === "bounced").length;
+  const read = rows.filter(r => r.status === "read" || r.readAt).length;
+  const sent = rows.filter(r => r.status === "sent").length;
+  const bounced = rows.filter(r => r.status === "bounced").length;
   const unread = total - read - bounced;
   const readRate = total > 0 ? Math.round((read / total) * 100) : 0;
 
@@ -141,7 +152,7 @@ export async function generateDispatchesReportPDF(
 
   const tableRows = rows
     .map(
-      (r) => `
+      r => `
     <tr>
       <td class="mono">${r.minuteFolio ?? "—"}</td>
       <td>${r.minuteTitle ?? "Sin título"}</td>
@@ -156,7 +167,7 @@ export async function generateDispatchesReportPDF(
 
   const recipientRows = recipientStats
     .map(
-      (s) => `
+      s => `
     <tr>
       <td>${s.name}</td>
       <td class="center">${s.total}</td>
@@ -299,15 +310,22 @@ export async function generateDispatchesReportPDF(
 
   // ── Generar PDF con Puppeteer (ya disponible en el proyecto) ────────────────
   const { generatePDFFromHTML } = await import("./_core/pdfGenerator");
-  const pdfUrl = await generatePDFFromHTML(html, `despachos-minutas-${Date.now()}`, {
-    format: "A4",
-    orientation: "landscape",
-    margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
-  });
+  const pdfUrl = await generatePDFFromHTML(
+    html,
+    `despachos-minutas-${Date.now()}`,
+    {
+      format: "A4",
+      orientation: "landscape",
+      margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
+    }
+  );
 
   // Descargar el PDF desde S3 y devolver como Buffer
   const response = await fetch(pdfUrl);
-  if (!response.ok) throw new Error(`Error al descargar el PDF generado: ${response.statusText}`);
+  if (!response.ok)
+    throw new Error(
+      `Error al descargar el PDF generado: ${response.statusText}`
+    );
   const arrayBuffer = await response.arrayBuffer();
   return Buffer.from(arrayBuffer);
 }

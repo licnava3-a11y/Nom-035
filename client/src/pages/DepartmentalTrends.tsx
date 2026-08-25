@@ -5,12 +5,30 @@
 
 import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, TrendingUp, AlertCircle, CheckCircle2, Building2 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertTriangle,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
+  Building2,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Chart, registerables } from "chart.js";
 
@@ -18,9 +36,14 @@ import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
 
 export default function DepartmentalTrends() {
-  const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
-  const [selectedBranchId, setSelectedBranchId] = useState<number | undefined>(undefined);
-  
+  const [dateRange, setDateRange] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+  const [selectedBranchId, setSelectedBranchId] = useState<number | undefined>(
+    undefined
+  );
+
   const heatMapRef = useRef<HTMLCanvasElement>(null);
   const heatMapChartRef = useRef<Chart | null>(null);
 
@@ -28,12 +51,15 @@ export default function DepartmentalTrends() {
   const { data: branches } = trpc.branches.list.useQuery();
 
   // Query para obtener métricas departamentales
-  const { data: metrics, isLoading } = trpc.departmentalTrends.getDepartmentalRiskMetrics.useQuery(
-    { ...dateRange, branchId: selectedBranchId }
-  );
+  const { data: metrics, isLoading } =
+    trpc.departmentalTrends.getDepartmentalRiskMetrics.useQuery({
+      ...dateRange,
+      branchId: selectedBranchId,
+    });
 
   // Query para obtener alertas
-  const { data: alerts } = trpc.departmentalTrends.getDepartmentalAlerts.useQuery();
+  const { data: alerts } =
+    trpc.departmentalTrends.getDepartmentalAlerts.useQuery();
 
   // Renderizar heat map cuando los datos estén disponibles
   useEffect(() => {
@@ -71,7 +97,9 @@ export default function DepartmentalTrends() {
             label: "Score de Riesgo",
             data: riskScores,
             backgroundColor: backgroundColors,
-            borderColor: backgroundColors.map((c: any) => c.replace("0.8", "1")),
+            borderColor: backgroundColors.map((c: any) =>
+              c.replace("0.8", "1")
+            ),
             borderWidth: 2,
           },
         ],
@@ -91,7 +119,7 @@ export default function DepartmentalTrends() {
           },
           tooltip: {
             callbacks: {
-              afterLabel: (context) => {
+              afterLabel: context => {
                 const index = context.dataIndex;
                 const dept = departments[index];
                 return [
@@ -143,7 +171,10 @@ export default function DepartmentalTrends() {
   };
 
   const getAlertBadge = (severity: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    const variants: Record<
+      string,
+      "default" | "secondary" | "destructive" | "outline"
+    > = {
       critical: "destructive",
       high: "destructive",
       medium: "secondary",
@@ -168,7 +199,9 @@ export default function DepartmentalTrends() {
     return (
       <div className="container mx-auto py-8">
         <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Cargando tendencias departamentales...</p>
+          <p className="text-muted-foreground">
+            Cargando tendencias departamentales...
+          </p>
         </div>
       </div>
     );
@@ -180,7 +213,9 @@ export default function DepartmentalTrends() {
         <Card>
           <CardHeader>
             <CardTitle>Error</CardTitle>
-            <CardDescription>No se pudieron cargar las métricas departamentales</CardDescription>
+            <CardDescription>
+              No se pudieron cargar las métricas departamentales
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -191,9 +226,12 @@ export default function DepartmentalTrends() {
     <div className="container mx-auto py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Tendencias Departamentales</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Tendencias Departamentales
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Análisis de concentración de casos y niveles de riesgo por departamento
+          Análisis de concentración de casos y niveles de riesgo por
+          departamento
         </p>
       </div>
 
@@ -205,11 +243,18 @@ export default function DepartmentalTrends() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Fecha inicio</Label>
+              <Label className="text-xs text-muted-foreground">
+                Fecha inicio
+              </Label>
               <Input
                 type="date"
                 value={dateRange.startDate || ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateRange(prev => ({ ...prev, startDate: e.target.value || undefined }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setDateRange(prev => ({
+                    ...prev,
+                    startDate: e.target.value || undefined,
+                  }))
+                }
               />
             </div>
             <div className="space-y-1">
@@ -217,7 +262,12 @@ export default function DepartmentalTrends() {
               <Input
                 type="date"
                 value={dateRange.endDate || ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateRange(prev => ({ ...prev, endDate: e.target.value || undefined }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setDateRange(prev => ({
+                    ...prev,
+                    endDate: e.target.value || undefined,
+                  }))
+                }
               />
             </div>
             <div className="space-y-1">
@@ -226,7 +276,9 @@ export default function DepartmentalTrends() {
               </Label>
               <Select
                 value={selectedBranchId ? String(selectedBranchId) : "all"}
-                onValueChange={val => setSelectedBranchId(val === "all" ? undefined : Number(val))}
+                onValueChange={val =>
+                  setSelectedBranchId(val === "all" ? undefined : Number(val))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todas las sucursales" />
@@ -234,7 +286,9 @@ export default function DepartmentalTrends() {
                 <SelectContent>
                   <SelectItem value="all">Todas las sucursales</SelectItem>
                   {branches?.map(b => (
-                    <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>
+                    <SelectItem key={b.id} value={String(b.id)}>
+                      {b.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -252,7 +306,9 @@ export default function DepartmentalTrends() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{metrics.summary.totalDepartments}</p>
+            <p className="text-3xl font-bold">
+              {metrics.summary.totalDepartments}
+            </p>
           </CardContent>
         </Card>
 
@@ -266,9 +322,7 @@ export default function DepartmentalTrends() {
             <p className="text-3xl font-bold text-orange-600">
               {metrics.summary.departmentsInAlert}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Alto/Crítico
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Alto/Crítico</p>
           </CardContent>
         </Card>
 
@@ -280,9 +334,7 @@ export default function DepartmentalTrends() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{metrics.summary.avgRiskScore}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              De 100 puntos
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">De 100 puntos</p>
           </CardContent>
         </Card>
 
@@ -314,7 +366,12 @@ export default function DepartmentalTrends() {
           </CardHeader>
           <CardContent className="space-y-3">
             {alerts.map((alert, index) => (
-              <Alert key={index} variant={alert.severity === "critical" ? "destructive" : "default"}>
+              <Alert
+                key={index}
+                variant={
+                  alert.severity === "critical" ? "destructive" : "default"
+                }
+              >
                 <div className="flex items-start gap-3">
                   {getAlertIcon(alert.severity)}
                   <div className="flex-1">
@@ -394,7 +451,10 @@ export default function DepartmentalTrends() {
               </thead>
               <tbody>
                 {metrics.departments.map((dept: any) => (
-                  <tr key={dept.departmentId} className="border-b hover:bg-muted/50">
+                  <tr
+                    key={dept.departmentId}
+                    className="border-b hover:bg-muted/50"
+                  >
                     <td className="p-2 font-medium">{dept.departmentName}</td>
                     <td className="text-center p-2">
                       <span className="font-bold">{dept.riskScore}</span>
@@ -407,7 +467,9 @@ export default function DepartmentalTrends() {
                     <td className="text-center p-2 text-red-600 font-semibold">
                       {dept.criticalCases}
                     </td>
-                    <td className="text-center p-2">{dept.avgResolutionDays} días</td>
+                    <td className="text-center p-2">
+                      {dept.avgResolutionDays} días
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -423,7 +485,8 @@ export default function DepartmentalTrends() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
-            • <strong>Score de Riesgo (0-100):</strong> Fórmula ponderada que considera:
+            • <strong>Score de Riesgo (0-100):</strong> Fórmula ponderada que
+            considera:
           </p>
           <ul className="list-disc list-inside ml-4 space-y-1">
             <li>40% - Proporción de casos críticos</li>
@@ -441,7 +504,9 @@ export default function DepartmentalTrends() {
             <li>Crítico: 75-100 puntos</li>
           </ul>
           <p className="mt-4">
-            • <strong>Alertas Automáticas:</strong> Se generan cuando un departamento tiene 3+ casos críticos o 5+ casos abiertos en los últimos 30 días.
+            • <strong>Alertas Automáticas:</strong> Se generan cuando un
+            departamento tiene 3+ casos críticos o 5+ casos abiertos en los
+            últimos 30 días.
           </p>
         </CardContent>
       </Card>

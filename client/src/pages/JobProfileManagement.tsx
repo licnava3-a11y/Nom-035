@@ -10,14 +10,19 @@ import { Plus, Trash2, Save } from "lucide-react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function JobProfileManagement() {
-  const [selectedPositionId, setSelectedPositionId] = useState<number | null>(null);
+  const [selectedPositionId, setSelectedPositionId] = useState<number | null>(
+    null
+  );
   const [newCompetency, setNewCompetency] = useState({
     competencyName: "",
     competencyType: "tecnica" as "tecnica" | "transversal" | "conocimiento",
     requiredLevel: "basico" as "basico" | "intermedio" | "avanzado" | "experto",
     description: "",
   });
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   const { data: positionsData } = trpc.employees.getPositions.useQuery();
   const { data: profiles, refetch } = trpc.jobProfiles.getByPosition.useQuery(
@@ -36,7 +41,7 @@ export default function JobProfileManagement() {
         description: "",
       });
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -46,7 +51,7 @@ export default function JobProfileManagement() {
       toast.success("Competencia eliminada");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -86,7 +91,7 @@ export default function JobProfileManagement() {
         <h2 className="text-xl font-semibold mb-4">Seleccionar Puesto</h2>
         <Select
           value={selectedPositionId?.toString() || ""}
-          onValueChange={(value) => setSelectedPositionId(parseInt(value))}
+          onValueChange={value => setSelectedPositionId(parseInt(value))}
         >
           <option value="">Seleccionar puesto...</option>
           {positionsData?.map((pos: any) => (
@@ -111,8 +116,11 @@ export default function JobProfileManagement() {
                   type="text"
                   className="w-full px-3 py-2 border rounded-md"
                   value={newCompetency.competencyName}
-                  onChange={(e) =>
-                    setNewCompetency({ ...newCompetency, competencyName: e.target.value })
+                  onChange={e =>
+                    setNewCompetency({
+                      ...newCompetency,
+                      competencyName: e.target.value,
+                    })
                   }
                   placeholder="Ej: Manejo de Excel"
                 />
@@ -123,7 +131,10 @@ export default function JobProfileManagement() {
                 <Select
                   value={newCompetency.competencyType}
                   onValueChange={(value: any) =>
-                    setNewCompetency({ ...newCompetency, competencyType: value })
+                    setNewCompetency({
+                      ...newCompetency,
+                      competencyType: value,
+                    })
                   }
                 >
                   <option value="tecnica">Técnica</option>
@@ -133,7 +144,9 @@ export default function JobProfileManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Nivel Requerido</label>
+                <label className="block text-sm font-medium mb-2">
+                  Nivel Requerido
+                </label>
                 <Select
                   value={newCompetency.requiredLevel}
                   onValueChange={(value: any) =>
@@ -148,20 +161,28 @@ export default function JobProfileManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Descripción</label>
+                <label className="block text-sm font-medium mb-2">
+                  Descripción
+                </label>
                 <input
                   type="text"
                   className="w-full px-3 py-2 border rounded-md"
                   value={newCompetency.description}
-                  onChange={(e) =>
-                    setNewCompetency({ ...newCompetency, description: e.target.value })
+                  onChange={e =>
+                    setNewCompetency({
+                      ...newCompetency,
+                      description: e.target.value,
+                    })
                   }
                   placeholder="Descripción opcional"
                 />
               </div>
             </div>
 
-            <Button onClick={handleAddCompetency} disabled={createMutation.isPending}>
+            <Button
+              onClick={handleAddCompetency}
+              disabled={createMutation.isPending}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Agregar Competencia
             </Button>
@@ -187,15 +208,20 @@ export default function JobProfileManagement() {
                   </thead>
                   <tbody>
                     {profiles.map((profile: any) => (
-                      <tr key={profile.id} className="border-b hover:bg-muted/50">
-                        <td className="p-3 font-medium">{profile.competencyName}</td>
+                      <tr
+                        key={profile.id}
+                        className="border-b hover:bg-muted/50"
+                      >
+                        <td className="p-3 font-medium">
+                          {profile.competencyName}
+                        </td>
                         <td className="p-3">
                           <span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-800">
                             {profile.competencyType === "tecnica"
                               ? "Técnica"
                               : profile.competencyType === "transversal"
-                              ? "Transversal"
-                              : "Conocimiento"}
+                                ? "Transversal"
+                                : "Conocimiento"}
                           </span>
                         </td>
                         <td className="p-3">
@@ -204,10 +230,10 @@ export default function JobProfileManagement() {
                               profile.requiredLevel === "experto"
                                 ? "bg-purple-100 text-purple-800"
                                 : profile.requiredLevel === "avanzado"
-                                ? "bg-green-100 text-green-800"
-                                : profile.requiredLevel === "intermedio"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-gray-100 text-gray-800"
+                                  ? "bg-green-100 text-green-800"
+                                  : profile.requiredLevel === "intermedio"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-gray-100 text-gray-800"
                             }`}
                           >
                             {profile.requiredLevel.charAt(0).toUpperCase() +
@@ -222,7 +248,9 @@ export default function JobProfileManagement() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDelete(profile.id, profile.competencyName)}
+                              onClick={() =>
+                                handleDelete(profile.id, profile.competencyName)
+                              }
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -248,7 +276,7 @@ export default function JobProfileManagement() {
 
       <ConfirmDialog
         open={deleteConfirm !== null}
-        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onOpenChange={open => !open && setDeleteConfirm(null)}
         onConfirm={() => {
           if (deleteConfirm) {
             deleteMutation.mutate({ id: deleteConfirm.id });

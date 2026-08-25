@@ -41,8 +41,7 @@ async function seedTestData() {
       {
         positionName: "Coordinador de Producción",
         department: "Producción",
-        description:
-          "Supervisión de procesos productivos y control de calidad",
+        description: "Supervisión de procesos productivos y control de calidad",
         createdBy: 1,
       },
     ];
@@ -128,7 +127,7 @@ async function seedTestData() {
     for (const profile of profiles) {
       await db.insert(jobProfiles).values(profile);
       console.log(
-        `  ✅ ${insertedPositions.find((p) => p.id === profile.positionId)?.positionName}: ${profile.competencyName}`
+        `  ✅ ${insertedPositions.find(p => p.id === profile.positionId)?.positionName}: ${profile.competencyName}`
       );
     }
 
@@ -332,7 +331,9 @@ async function seedTestData() {
     console.log(
       `  - Total de competencias asignadas: ${4 + mariaComps.length + carlosComps.length + anaComps.length}`
     );
-    console.log("\n✅ Ahora puedes probar las funcionalidades de DNC y perfiles de puesto");
+    console.log(
+      "\n✅ Ahora puedes probar las funcionalidades de DNC y perfiles de puesto"
+    );
 
     process.exit(0);
   } catch (error) {

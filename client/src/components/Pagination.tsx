@@ -1,6 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface PaginationMetadata {
   currentPage?: number;
@@ -28,7 +39,14 @@ export function Pagination({
   showPageSizeSelector = false,
   pageSizeOptions = [10, 20, 50, 100],
 }: PaginationProps) {
-  const { pageSize, totalCount, totalPages, hasNextPage, hasPreviousPage, hasPrevPage } = pagination;
+  const {
+    pageSize,
+    totalCount,
+    totalPages,
+    hasNextPage,
+    hasPreviousPage,
+    hasPrevPage,
+  } = pagination;
   const currentPage = pagination.currentPage ?? pagination.page ?? 1;
   const hasPrev = hasPreviousPage ?? hasPrevPage ?? false;
   const hasNext = hasNextPage ?? false;
@@ -47,7 +65,7 @@ export function Pagination({
             <span className="text-sm text-muted-foreground">Mostrar:</span>
             <Select
               value={pageSize.toString()}
-              onValueChange={(value) => onPageSizeChange(parseInt(value))}
+              onValueChange={value => onPageSizeChange(parseInt(value))}
             >
               <SelectTrigger className="h-8 w-[70px]">
                 <SelectValue />
@@ -85,7 +103,7 @@ export function Pagination({
           <ChevronLeft className="h-4 w-4" />
           <span className="sr-only">Página anterior</span>
         </Button>
-        
+
         <div className="flex items-center gap-1">
           <span className="text-sm text-muted-foreground">
             Página {currentPage} de {totalPages}

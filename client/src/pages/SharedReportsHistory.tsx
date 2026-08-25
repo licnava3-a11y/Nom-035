@@ -1,15 +1,44 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { History, Mail, Linkedin, FileDown, FileSpreadsheet, Calendar, User, Filter, Download } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  History,
+  Mail,
+  Linkedin,
+  FileDown,
+  FileSpreadsheet,
+  Calendar,
+  User,
+  Filter,
+  Download,
+} from "lucide-react";
 
 export default function SharedReportsHistory() {
   const [shareChannel, setShareChannel] = useState<string>("all");
@@ -30,16 +59,17 @@ export default function SharedReportsHistory() {
 
   const { data: stats } = trpc.sharedReports.getStats.useQuery();
 
-  const exportToExcelMutation = trpc.sharedReports.exportHistoryToExcel.useMutation({
-    onSuccess: (result) => {
-      // Descargar archivo automáticamente
-      window.open(result.url, "_blank");
-      alert(`Exportación exitosa\nHistorial exportado a ${result.fileName}`);
-    },
-    onError: (error) => {
-      alert(`Error al exportar\n${error.message}`);
-    },
-  });
+  const exportToExcelMutation =
+    trpc.sharedReports.exportHistoryToExcel.useMutation({
+      onSuccess: result => {
+        // Descargar archivo automáticamente
+        window.open(result.url, "_blank");
+        alert(`Exportación exitosa\nHistorial exportado a ${result.fileName}`);
+      },
+      onError: error => {
+        alert(`Error al exportar\n${error.message}`);
+      },
+    });
 
   const handleExportToExcel = () => {
     exportToExcelMutation.mutate({
@@ -108,7 +138,8 @@ export default function SharedReportsHistory() {
             Historial de Reportes Compartidos
           </h1>
           <p className="text-muted-foreground mt-1">
-            Rastreo completo de reportes compartidos por canal, fecha y destinatarios
+            Rastreo completo de reportes compartidos por canal, fecha y
+            destinatarios
           </p>
         </div>
         <Button
@@ -134,7 +165,9 @@ export default function SharedReportsHistory() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Compartidos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Compartidos
+            </CardTitle>
             <History className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -150,7 +183,8 @@ export default function SharedReportsHistory() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats?.byChannel?.find((c: any) => c.channel === "email")?.count || 0}
+              {stats?.byChannel?.find((c: any) => c.channel === "email")
+                ?.count || 0}
             </div>
             <p className="text-xs text-muted-foreground">Envíos directos</p>
           </CardContent>
@@ -158,15 +192,21 @@ export default function SharedReportsHistory() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Redes Sociales</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Redes Sociales
+            </CardTitle>
             <Linkedin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {(stats?.byChannel?.find((c: any) => c.channel === "linkedin")?.count || 0) +
-                (stats?.byChannel?.find((c: any) => c.channel === "twitter")?.count || 0)}
+              {(stats?.byChannel?.find((c: any) => c.channel === "linkedin")
+                ?.count || 0) +
+                (stats?.byChannel?.find((c: any) => c.channel === "twitter")
+                  ?.count || 0)}
             </div>
-            <p className="text-xs text-muted-foreground">LinkedIn + Twitter/X</p>
+            <p className="text-xs text-muted-foreground">
+              LinkedIn + Twitter/X
+            </p>
           </CardContent>
         </Card>
 
@@ -177,9 +217,15 @@ export default function SharedReportsHistory() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats?.byReportType?.find((t: any) => t.type === "pdf")?.count || 0}
+              {stats?.byReportType?.find((t: any) => t.type === "pdf")?.count ||
+                0}
             </div>
-            <p className="text-xs text-muted-foreground">vs {stats?.byReportType?.find((t: any) => t.type === "excel")?.count || 0} Excel</p>
+            <p className="text-xs text-muted-foreground">
+              vs{" "}
+              {stats?.byReportType?.find((t: any) => t.type === "excel")
+                ?.count || 0}{" "}
+              Excel
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -191,7 +237,9 @@ export default function SharedReportsHistory() {
             <Filter className="h-5 w-5" />
             Filtros de Búsqueda
           </CardTitle>
-          <CardDescription>Filtra el historial por canal, tipo de reporte y rango de fechas</CardDescription>
+          <CardDescription>
+            Filtra el historial por canal, tipo de reporte y rango de fechas
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-5">
@@ -230,7 +278,7 @@ export default function SharedReportsHistory() {
                 id="startDate"
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={e => setStartDate(e.target.value)}
               />
             </div>
 
@@ -240,13 +288,17 @@ export default function SharedReportsHistory() {
                 id="endDate"
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={e => setEndDate(e.target.value)}
               />
             </div>
 
             <div className="grid gap-2">
               <Label>&nbsp;</Label>
-              <Button variant="outline" onClick={handleClearFilters} className="w-full">
+              <Button
+                variant="outline"
+                onClick={handleClearFilters}
+                className="w-full"
+              >
                 Limpiar Filtros
               </Button>
             </div>
@@ -297,13 +349,19 @@ export default function SharedReportsHistory() {
                         <div className="flex items-center gap-2">
                           <User className="h-4 w-4 text-muted-foreground" />
                           <div>
-                            <div className="font-medium">{log.sharedByName}</div>
-                            <div className="text-xs text-muted-foreground">{log.sharedByEmail}</div>
+                            <div className="font-medium">
+                              {log.sharedByName}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {log.sharedByEmail}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`${getChannelBadgeColor(log.shareChannel)} flex items-center gap-1 w-fit`}>
+                        <Badge
+                          className={`${getChannelBadgeColor(log.shareChannel)} flex items-center gap-1 w-fit`}
+                        >
                           {getChannelIcon(log.shareChannel)}
                           {log.shareChannel === "email" && "Email"}
                           {log.shareChannel === "linkedin" && "LinkedIn"}
@@ -311,7 +369,10 @@ export default function SharedReportsHistory() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                        <Badge
+                          variant="outline"
+                          className="flex items-center gap-1 w-fit"
+                        >
                           {log.reportType === "pdf" ? (
                             <FileDown className="h-3 w-3" />
                           ) : (
@@ -323,12 +384,17 @@ export default function SharedReportsHistory() {
                       <TableCell>
                         {log.shareChannel === "email" ? (
                           <div>
-                            <div className="font-medium">{log.recipientCount} destinatario(s)</div>
+                            <div className="font-medium">
+                              {log.recipientCount} destinatario(s)
+                            </div>
                             <div className="text-xs text-muted-foreground">
-                              {log.recipients && Array.isArray(log.recipients) 
+                              {log.recipients && Array.isArray(log.recipients)
                                 ? log.recipients.slice(0, 2).join(", ")
                                 : "N/A"}
-                              {log.recipients && Array.isArray(log.recipients) && log.recipients.length > 2 && "..."}
+                              {log.recipients &&
+                                Array.isArray(log.recipients) &&
+                                log.recipients.length > 2 &&
+                                "..."}
                             </div>
                           </div>
                         ) : (
@@ -338,9 +404,13 @@ export default function SharedReportsHistory() {
                       <TableCell>
                         {log.emailSubject ? (
                           <div className="max-w-xs">
-                            <div className="font-medium truncate">{log.emailSubject}</div>
+                            <div className="font-medium truncate">
+                              {log.emailSubject}
+                            </div>
                             {log.emailMessage && (
-                              <div className="text-xs text-muted-foreground truncate">{log.emailMessage}</div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {log.emailMessage}
+                              </div>
                             )}
                           </div>
                         ) : (
@@ -360,8 +430,12 @@ export default function SharedReportsHistory() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                      No se encontraron reportes compartidos con los filtros aplicados
+                    <TableCell
+                      colSpan={7}
+                      className="text-center text-muted-foreground py-8"
+                    >
+                      No se encontraron reportes compartidos con los filtros
+                      aplicados
                     </TableCell>
                   </TableRow>
                 )}

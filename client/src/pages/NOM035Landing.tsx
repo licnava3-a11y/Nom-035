@@ -1,11 +1,24 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WhatsAppDemoButton } from "@/components/WhatsAppButton";
-import { CheckCircle2, Shield, Users, FileCheck, AlertTriangle, TrendingUp } from "lucide-react";
+import {
+  CheckCircle2,
+  Shield,
+  Users,
+  FileCheck,
+  AlertTriangle,
+  TrendingUp,
+} from "lucide-react";
 
 export default function NOM035Landing() {
   const [formData, setFormData] = useState({
@@ -29,22 +42,26 @@ export default function NOM035Landing() {
     {
       icon: Shield,
       title: "Cumplimiento Normativo",
-      description: "Asegura el cumplimiento total de la NOM-035-STPS-2018 y evita sanciones de hasta 5,000 veces la UMA.",
+      description:
+        "Asegura el cumplimiento total de la NOM-035-STPS-2018 y evita sanciones de hasta 5,000 veces la UMA.",
     },
     {
       icon: Users,
       title: "Ambiente Laboral Saludable",
-      description: "Identifica y previene factores de riesgo psicosocial, mejorando el bienestar de tus colaboradores.",
+      description:
+        "Identifica y previene factores de riesgo psicosocial, mejorando el bienestar de tus colaboradores.",
     },
     {
       icon: TrendingUp,
       title: "Productividad Mejorada",
-      description: "Reduce el ausentismo y aumenta la productividad al crear un entorno de trabajo favorable.",
+      description:
+        "Reduce el ausentismo y aumenta la productividad al crear un entorno de trabajo favorable.",
     },
     {
       icon: FileCheck,
       title: "Documentación Completa",
-      description: "Genera toda la documentación requerida: políticas, cuestionarios, informes y planes de acción.",
+      description:
+        "Genera toda la documentación requerida: políticas, cuestionarios, informes y planes de acción.",
     },
   ];
 
@@ -61,22 +78,26 @@ export default function NOM035Landing() {
     {
       number: "1",
       title: "Diagnóstico Inicial",
-      description: "Evaluamos el estado actual de tu organización y definimos el alcance del proyecto.",
+      description:
+        "Evaluamos el estado actual de tu organización y definimos el alcance del proyecto.",
     },
     {
       number: "2",
       title: "Aplicación de Cuestionarios",
-      description: "Implementamos los cuestionarios digitales a todos los trabajadores de manera confidencial.",
+      description:
+        "Implementamos los cuestionarios digitales a todos los trabajadores de manera confidencial.",
     },
     {
       number: "3",
       title: "Análisis de Resultados",
-      description: "Procesamos los datos y generamos reportes detallados con identificación de riesgos.",
+      description:
+        "Procesamos los datos y generamos reportes detallados con identificación de riesgos.",
     },
     {
       number: "4",
       title: "Plan de Acción",
-      description: "Desarrollamos e implementamos medidas preventivas y correctivas personalizadas.",
+      description:
+        "Desarrollamos e implementamos medidas preventivas y correctivas personalizadas.",
     },
   ];
 
@@ -93,24 +114,26 @@ export default function NOM035Landing() {
               Prevención de Factores de Riesgo Psicosocial en el Trabajo
             </p>
             <p className="text-lg mb-10 text-blue-200">
-              Protege a tus colaboradores, cumple con la normativa y mejora el ambiente laboral
-              con nuestra plataforma integral de gestión.
+              Protege a tus colaboradores, cumple con la normativa y mejora el
+              ambiente laboral con nuestra plataforma integral de gestión.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <WhatsAppDemoButton
-              nombre={formData.nombre}
-              email={formData.email}
-              empresa={formData.empresa}
-              normativasSeleccionadas={["NOM-035"]}
-              size="lg"
-              className="bg-green-500 hover:bg-green-600 text-white"
-            />
+                nombre={formData.nombre}
+                email={formData.email}
+                empresa={formData.empresa}
+                normativasSeleccionadas={["NOM-035"]}
+                size="lg"
+                className="bg-green-500 hover:bg-green-600 text-white"
+              />
               <Button
                 size="lg"
                 variant="outline"
                 className="bg-white text-blue-900 hover:bg-blue-50"
                 onClick={() => {
-                  document.getElementById("solicitar-demo")?.scrollIntoView({ behavior: "smooth" });
+                  document
+                    .getElementById("solicitar-demo")
+                    ?.scrollIntoView({ behavior: "smooth" });
                 }}
               >
                 Solicitar Demo Gratuita
@@ -124,10 +147,12 @@ export default function NOM035Landing() {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">¿Por qué implementar la NOM-035?</h2>
+            <h2 className="text-3xl font-bold mb-4">
+              ¿Por qué implementar la NOM-035?
+            </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              La NOM-035 es obligatoria para todos los centros de trabajo en México.
-              Descubre los beneficios de cumplirla correctamente.
+              La NOM-035 es obligatoria para todos los centros de trabajo en
+              México. Descubre los beneficios de cumplirla correctamente.
             </p>
           </div>
 
@@ -141,7 +166,9 @@ export default function NOM035Landing() {
                   <CardTitle className="text-lg">{benefit.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{benefit.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {benefit.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -154,9 +181,12 @@ export default function NOM035Landing() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Nuestra Solución Integral</h2>
+              <h2 className="text-3xl font-bold mb-4">
+                Nuestra Solución Integral
+              </h2>
               <p className="text-lg text-muted-foreground">
-                Todo lo que necesitas para cumplir con la NOM-035 en una sola plataforma
+                Todo lo que necesitas para cumplir con la NOM-035 en una sola
+                plataforma
               </p>
             </div>
 
@@ -176,7 +206,9 @@ export default function NOM035Landing() {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Proceso de Implementación</h2>
+            <h2 className="text-3xl font-bold mb-4">
+              Proceso de Implementación
+            </h2>
             <p className="text-lg text-muted-foreground">
               Te acompañamos en cada paso del cumplimiento normativo
             </p>
@@ -192,7 +224,9 @@ export default function NOM035Landing() {
                   <CardTitle className="text-lg">{step.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{step.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {step.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -210,7 +244,8 @@ export default function NOM035Landing() {
                   Solicita una Demo Gratuita
                 </CardTitle>
                 <CardDescription className="text-center">
-                  Descubre cómo nuestra plataforma puede ayudarte a cumplir con la NOM-035
+                  Descubre cómo nuestra plataforma puede ayudarte a cumplir con
+                  la NOM-035
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -229,7 +264,15 @@ export default function NOM035Landing() {
 
                     <div className="space-y-2">
                       <Label htmlFor="email">Correo electrónico</Label>
-                      <InputWithValidation id="email" type="email" value={formData.email} onValueChange={handleChange("email")} placeholder="juan@empresa.com" validationRules={{ email: true }} showValidationIcon={true} />
+                      <InputWithValidation
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onValueChange={handleChange("email")}
+                        placeholder="juan@empresa.com"
+                        validationRules={{ email: true }}
+                        showValidationIcon={true}
+                      />
                     </div>
                   </div>
 
@@ -247,7 +290,15 @@ export default function NOM035Landing() {
 
                     <div className="space-y-2">
                       <Label htmlFor="telefono">Teléfono</Label>
-                      <InputWithValidation id="telefono" type="tel" value={formData.telefono} onValueChange={handleChange("telefono")} placeholder="+52 55 1234 5678" validationRules={{ phone: true }} showValidationIcon={true} />
+                      <InputWithValidation
+                        id="telefono"
+                        type="tel"
+                        value={formData.telefono}
+                        onValueChange={handleChange("telefono")}
+                        placeholder="+52 55 1234 5678"
+                        validationRules={{ phone: true }}
+                        showValidationIcon={true}
+                      />
                     </div>
                   </div>
 
@@ -263,7 +314,8 @@ export default function NOM035Landing() {
                   </div>
 
                   <p className="text-xs text-center text-muted-foreground">
-                    Al solicitar la demo, aceptas nuestros términos y condiciones y política de privacidad.
+                    Al solicitar la demo, aceptas nuestros términos y
+                    condiciones y política de privacidad.
                   </p>
                 </div>
               </CardContent>
@@ -278,11 +330,15 @@ export default function NOM035Landing() {
           <div className="max-w-4xl mx-auto flex items-start gap-4">
             <AlertTriangle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-semibold text-amber-900 mb-2">Importante: Cumplimiento Obligatorio</h3>
+              <h3 className="font-semibold text-amber-900 mb-2">
+                Importante: Cumplimiento Obligatorio
+              </h3>
               <p className="text-sm text-amber-800">
-                La NOM-035-STPS-2018 es de cumplimiento obligatorio para todos los centros de trabajo en México.
-                El incumplimiento puede resultar en multas de hasta 5,000 veces la Unidad de Medida y Actualización (UMA).
-                Protege a tu empresa y a tus colaboradores implementando las medidas necesarias hoy mismo.
+                La NOM-035-STPS-2018 es de cumplimiento obligatorio para todos
+                los centros de trabajo en México. El incumplimiento puede
+                resultar en multas de hasta 5,000 veces la Unidad de Medida y
+                Actualización (UMA). Protege a tu empresa y a tus colaboradores
+                implementando las medidas necesarias hoy mismo.
               </p>
             </div>
           </div>

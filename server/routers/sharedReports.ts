@@ -9,7 +9,9 @@ export const sharedReportsRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        shareChannel: z.enum(["email", "linkedin", "twitter", "whatsapp", "other"]).optional(),
+        shareChannel: z
+          .enum(["email", "linkedin", "twitter", "whatsapp", "other"])
+          .optional(),
         reportType: z.enum(["pdf", "excel"]).optional(),
         reportCategory: z.string().optional(),
         startDate: z.string().optional(),
@@ -23,15 +25,24 @@ export const sharedReportsRouter = router({
       if (!db) throw new Error("Database connection failed");
 
       const conditions = [];
-      if (input.shareChannel) conditions.push(eq(sharedReportsLog.shareChannel, input.shareChannel));
-      if (input.reportType) conditions.push(eq(sharedReportsLog.reportType, input.reportType));
-      if (input.reportCategory) conditions.push(eq(sharedReportsLog.reportCategory, input.reportCategory));
-      
+      if (input.shareChannel)
+        conditions.push(eq(sharedReportsLog.shareChannel, input.shareChannel));
+      if (input.reportType)
+        conditions.push(eq(sharedReportsLog.reportType, input.reportType));
+      if (input.reportCategory)
+        conditions.push(
+          eq(sharedReportsLog.reportCategory, input.reportCategory)
+        );
+
       if (input.startDate) {
-        conditions.push(gte(sharedReportsLog.createdAt, new Date(input.startDate)));
+        conditions.push(
+          gte(sharedReportsLog.createdAt, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
-        conditions.push(lte(sharedReportsLog.createdAt, new Date(input.endDate)));
+        conditions.push(
+          lte(sharedReportsLog.createdAt, new Date(input.endDate))
+        );
       }
 
       const offset = (input.page - 1) * input.pageSize;
@@ -66,7 +77,13 @@ export const sharedReportsRouter = router({
         reportUrl: z.string().url(),
         reportType: z.enum(["pdf", "excel"]),
         reportCategory: z.string(),
-        shareChannel: z.enum(["email", "linkedin", "twitter", "whatsapp", "other"]),
+        shareChannel: z.enum([
+          "email",
+          "linkedin",
+          "twitter",
+          "whatsapp",
+          "other",
+        ]),
         recipients: z.array(z.string()).optional(),
         emailSubject: z.string().optional(),
         emailMessage: z.string().optional(),
@@ -100,28 +117,29 @@ export const sharedReportsRouter = router({
     const db = await getDb();
     if (!db) throw new Error("Database connection failed");
 
-    const [totalShares, byChannel, byReportType, recentShares] = await Promise.all([
-      db.select({ count: sql<number>`count(*)` }).from(sharedReportsLog),
-      db
-        .select({
-          channel: sharedReportsLog.shareChannel,
-          count: sql<number>`count(*)`,
-        })
-        .from(sharedReportsLog)
-        .groupBy(sharedReportsLog.shareChannel),
-      db
-        .select({
-          type: sharedReportsLog.reportType,
-          count: sql<number>`count(*)`,
-        })
-        .from(sharedReportsLog)
-        .groupBy(sharedReportsLog.reportType),
-      db
-        .select()
-        .from(sharedReportsLog)
-        .orderBy(desc(sharedReportsLog.createdAt))
-        .limit(10),
-    ]);
+    const [totalShares, byChannel, byReportType, recentShares] =
+      await Promise.all([
+        db.select({ count: sql<number>`count(*)` }).from(sharedReportsLog),
+        db
+          .select({
+            channel: sharedReportsLog.shareChannel,
+            count: sql<number>`count(*)`,
+          })
+          .from(sharedReportsLog)
+          .groupBy(sharedReportsLog.shareChannel),
+        db
+          .select({
+            type: sharedReportsLog.reportType,
+            count: sql<number>`count(*)`,
+          })
+          .from(sharedReportsLog)
+          .groupBy(sharedReportsLog.reportType),
+        db
+          .select()
+          .from(sharedReportsLog)
+          .orderBy(desc(sharedReportsLog.createdAt))
+          .limit(10),
+      ]);
 
     return {
       totalShares: totalShares[0]?.count || 0,
@@ -135,7 +153,9 @@ export const sharedReportsRouter = router({
   exportHistoryToExcel: protectedProcedure
     .input(
       z.object({
-        shareChannel: z.enum(["email", "linkedin", "twitter", "whatsapp", "other"]).optional(),
+        shareChannel: z
+          .enum(["email", "linkedin", "twitter", "whatsapp", "other"])
+          .optional(),
         reportType: z.enum(["pdf", "excel"]).optional(),
         reportCategory: z.string().optional(),
         startDate: z.string().optional(),
@@ -152,11 +172,22 @@ export const sharedReportsRouter = router({
 
       // Aplicar filtros
       const conditions = [];
-      if (input.shareChannel) conditions.push(eq(sharedReportsLog.shareChannel, input.shareChannel));
-      if (input.reportType) conditions.push(eq(sharedReportsLog.reportType, input.reportType));
-      if (input.reportCategory) conditions.push(eq(sharedReportsLog.reportCategory, input.reportCategory));
-      if (input.startDate) conditions.push(gte(sharedReportsLog.createdAt, new Date(input.startDate)));
-      if (input.endDate) conditions.push(lte(sharedReportsLog.createdAt, new Date(input.endDate)));
+      if (input.shareChannel)
+        conditions.push(eq(sharedReportsLog.shareChannel, input.shareChannel));
+      if (input.reportType)
+        conditions.push(eq(sharedReportsLog.reportType, input.reportType));
+      if (input.reportCategory)
+        conditions.push(
+          eq(sharedReportsLog.reportCategory, input.reportCategory)
+        );
+      if (input.startDate)
+        conditions.push(
+          gte(sharedReportsLog.createdAt, new Date(input.startDate))
+        );
+      if (input.endDate)
+        conditions.push(
+          lte(sharedReportsLog.createdAt, new Date(input.endDate))
+        );
 
       // Obtener datos filtrados
       const allLogs = await db
@@ -204,7 +235,9 @@ export const sharedReportsRouter = router({
           category: log.reportCategory,
           recipients: log.recipientCount || 0,
           recipientsList:
-            log.recipients && Array.isArray(log.recipients) ? log.recipients.join(", ") : "N/A",
+            log.recipients && Array.isArray(log.recipients)
+              ? log.recipients.join(", ")
+              : "N/A",
           subject: log.emailSubject || "N/A",
           message: log.emailMessage || "N/A",
           reportUrl: log.reportUrl,
@@ -221,7 +254,10 @@ export const sharedReportsRouter = router({
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .groupBy(sharedReportsLog.shareChannel);
 
-      const totalCount = channelStats.reduce((sum: any, stat: any) => sum + (stat.count || 0), 0);
+      const totalCount = channelStats.reduce(
+        (sum: any, stat: any) => sum + (stat.count || 0),
+        0
+      );
 
       const channelSheet = workbook.addWorksheet("Estadísticas por Canal");
       channelSheet.columns = [
@@ -239,7 +275,8 @@ export const sharedReportsRouter = router({
       channelSheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
 
       channelStats.forEach((stat: any) => {
-        const percentage = totalCount > 0 ? ((stat.count || 0) / totalCount) * 100 : 0;
+        const percentage =
+          totalCount > 0 ? ((stat.count || 0) / totalCount) * 100 : 0;
         channelSheet.addRow({
           channel: stat.channel,
           count: stat.count,
@@ -276,7 +313,8 @@ export const sharedReportsRouter = router({
       userSheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
 
       userStats.forEach((stat: any) => {
-        const percentage = totalCount > 0 ? ((stat.count || 0) / totalCount) * 100 : 0;
+        const percentage =
+          totalCount > 0 ? ((stat.count || 0) / totalCount) * 100 : 0;
         userSheet.addRow({
           userName: stat.userName || "N/A",
           userEmail: stat.userEmail || "N/A",
@@ -309,9 +347,20 @@ export const sharedReportsRouter = router({
         pattern: "solid",
         fgColor: { argb: "FFF59E0B" },
       };
-      temporalSheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
+      temporalSheet.getRow(1).font = {
+        bold: true,
+        color: { argb: "FFFFFFFF" },
+      };
 
-      const daysOfWeek = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+      const daysOfWeek = [
+        "Domingo",
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes",
+        "Sábado",
+      ];
 
       temporalStats.forEach((stat: any) => {
         const date = new Date(stat.date);

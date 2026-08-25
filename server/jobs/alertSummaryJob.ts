@@ -40,9 +40,14 @@ async function generateAlertSummary(startDate: Date): Promise<AlertSummary> {
     warningAlerts: alerts.filter((a: any) => a.priority === "warning").length,
     infoAlerts: alerts.filter((a: any) => a.priority === "info").length,
     alertsByType: {
-      critical_cases: alerts.filter((a: any) => a.alertType === "critical_cases").length,
-      low_coverage: alerts.filter((a: any) => a.alertType === "low_coverage").length,
-      excellent_compliance: alerts.filter((a: any) => a.alertType === "excellent_compliance").length,
+      critical_cases: alerts.filter(
+        (a: any) => a.alertType === "critical_cases"
+      ).length,
+      low_coverage: alerts.filter((a: any) => a.alertType === "low_coverage")
+        .length,
+      excellent_compliance: alerts.filter(
+        (a: any) => a.alertType === "excellent_compliance"
+      ).length,
     },
   };
 
@@ -50,7 +55,15 @@ async function generateAlertSummary(startDate: Date): Promise<AlertSummary> {
 }
 
 function generateSummaryHTML(summary: AlertSummary, period: string): string {
-  const { totalAlerts, activeAlerts, resolvedAlerts, criticalAlerts, warningAlerts, infoAlerts, alertsByType } = summary;
+  const {
+    totalAlerts,
+    activeAlerts,
+    resolvedAlerts,
+    criticalAlerts,
+    warningAlerts,
+    infoAlerts,
+    alertsByType,
+  } = summary;
 
   return `
     <!DOCTYPE html>
@@ -221,7 +234,7 @@ function generateSummaryHTML(summary: AlertSummary, period: string): string {
       </div>
 
       <div style="text-align: center;">
-        <a href="${process.env.VITE_FRONTEND_FORGE_API_URL || 'https://app.manus.im'}/alert-history" class="cta-button">
+        <a href="${process.env.VITE_FRONTEND_FORGE_API_URL || "https://app.manus.im"}/alert-history" class="cta-button">
           Ver Histórico Completo de Alertas
         </a>
       </div>
@@ -235,14 +248,18 @@ function generateSummaryHTML(summary: AlertSummary, period: string): string {
   `;
 }
 
-export async function sendAlertSummary(frequency: "weekly" | "monthly"): Promise<void> {
+export async function sendAlertSummary(
+  frequency: "weekly" | "monthly"
+): Promise<void> {
   try {
-    console.log(`[Alert Summary Job] Iniciando envío de resumen ${frequency}...`);
+    console.log(
+      `[Alert Summary Job] Iniciando envío de resumen ${frequency}...`
+    );
 
     // Calcular fecha de inicio según frecuencia
     const now = new Date();
     const startDate = new Date();
-    
+
     if (frequency === "weekly") {
       // Últimos 7 días
       startDate.setDate(now.getDate() - 7);
@@ -253,16 +270,18 @@ export async function sendAlertSummary(frequency: "weekly" | "monthly"): Promise
 
     // Generar resumen
     const summary = await generateAlertSummary(startDate);
-    
+
     // Generar HTML
     const periodLabel = frequency === "weekly" ? "Semanal" : "Mensual";
     const htmlContent = generateSummaryHTML(summary, periodLabel);
 
     // Obtener email del administrador desde variables de entorno
     const adminEmail = process.env.ADMIN_EMAIL || process.env.OWNER_EMAIL;
-    
+
     if (!adminEmail) {
-      console.error("[Alert Summary Job] No se encontró email del administrador");
+      console.error(
+        "[Alert Summary Job] No se encontró email del administrador"
+      );
       return;
     }
 
@@ -273,16 +292,23 @@ export async function sendAlertSummary(frequency: "weekly" | "monthly"): Promise
       html: htmlContent,
     });
 
-    console.log(`[Alert Summary Job] Resumen ${frequency} enviado exitosamente a ${adminEmail}`);
+    console.log(
+      `[Alert Summary Job] Resumen ${frequency} enviado exitosamente a ${adminEmail}`
+    );
   } catch (error) {
-    console.error(`[Alert Summary Job] Error al enviar resumen ${frequency}:`, error);
+    console.error(
+      `[Alert Summary Job] Error al enviar resumen ${frequency}:`,
+      error
+    );
   }
 }
 
 /**
  * Función para envío manual de resumen (llamada desde tRPC)
  */
-export async function sendManualAlertSummary(frequency: "weekly" | "monthly" = "weekly"): Promise<{ success: boolean; message: string }> {
+export async function sendManualAlertSummary(
+  frequency: "weekly" | "monthly" = "weekly"
+): Promise<{ success: boolean; message: string }> {
   try {
     await sendAlertSummary(frequency);
     return {

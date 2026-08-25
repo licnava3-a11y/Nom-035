@@ -14,12 +14,12 @@ interface HeatmapExportProps {
    * ID del elemento DOM que contiene el heatmap/matriz a exportar
    */
   targetElementId: string;
-  
+
   /**
    * Nombre base del archivo (sin extensión)
    */
   filename?: string;
-  
+
   /**
    * Nombre de la empresa para marca de agua
    */
@@ -28,35 +28,36 @@ interface HeatmapExportProps {
 
 /**
  * Componente reutilizable para exportar heatmaps/matrices a PNG o SVG
- * 
+ *
  * @example
  * ```tsx
- * <HeatmapExport 
- *   targetElementId="skills-matrix-table" 
+ * <HeatmapExport
+ *   targetElementId="skills-matrix-table"
  *   filename="matriz_habilidades"
  *   companyName="Mi Empresa S.A."
  * />
  * ```
  */
-export function HeatmapExport({ 
-  targetElementId, 
+export function HeatmapExport({
+  targetElementId,
   filename = "heatmap_export",
-  companyName 
+  companyName,
 }: HeatmapExportProps) {
-  
   /**
    * Exporta el elemento como PNG usando html2canvas
    */
   const exportToPNG = async () => {
     const element = document.getElementById(targetElementId);
     if (!element) {
-      toast.error("Error", { description: "No se encontró el elemento a exportar" });
+      toast.error("Error", {
+        description: "No se encontró el elemento a exportar",
+      });
       return;
     }
 
     try {
       toast.info("Generando imagen...", { description: "Por favor espera" });
-      
+
       // Capturar el elemento como canvas con alta calidad
       const canvas = await html2canvas(element, {
         scale: 2, // 2x resolution para mejor calidad
@@ -76,21 +77,29 @@ export function HeatmapExport({
             month: "long",
             day: "numeric",
           });
-          
+
           // Configurar marca de agua
           ctx.font = "14px Arial";
           ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
           ctx.textAlign = "right";
-          
+
           // Agregar fecha y empresa en la esquina inferior derecha
           const padding = 20;
-          ctx.fillText(companyName, canvas.width - padding, canvas.height - padding - 20);
-          ctx.fillText(dateStr, canvas.width - padding, canvas.height - padding);
+          ctx.fillText(
+            companyName,
+            canvas.width - padding,
+            canvas.height - padding - 20
+          );
+          ctx.fillText(
+            dateStr,
+            canvas.width - padding,
+            canvas.height - padding
+          );
         }
       }
 
       // Convertir canvas a blob y descargar
-      canvas.toBlob((blob) => {
+      canvas.toBlob(blob => {
         if (!blob) {
           toast.error("Error", { description: "No se pudo generar la imagen" });
           return;
@@ -103,8 +112,8 @@ export function HeatmapExport({
         link.click();
         URL.revokeObjectURL(url);
 
-        toast.success("Imagen exportada", { 
-          description: "El archivo PNG se descargó correctamente" 
+        toast.success("Imagen exportada", {
+          description: "El archivo PNG se descargó correctamente",
         });
       }, "image/png");
     } catch (error) {
@@ -120,7 +129,9 @@ export function HeatmapExport({
   const exportToSVG = async () => {
     const element = document.getElementById(targetElementId);
     if (!element) {
-      toast.error("Error", { description: "No se encontró el elemento a exportar" });
+      toast.error("Error", {
+        description: "No se encontró el elemento a exportar",
+      });
       return;
     }
 
@@ -144,7 +155,9 @@ export function HeatmapExport({
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
      width="${canvas.width}" height="${canvas.height}" viewBox="0 0 ${canvas.width} ${canvas.height}">
   <image xlink:href="${dataURL}" width="${canvas.width}" height="${canvas.height}"/>
-  ${companyName ? `
+  ${
+    companyName
+      ? `
   <text x="${canvas.width - 20}" y="${canvas.height - 40}" 
         font-family="Arial" font-size="14" fill="rgba(0,0,0,0.3)" text-anchor="end">
     ${companyName}
@@ -153,7 +166,9 @@ export function HeatmapExport({
         font-family="Arial" font-size="14" fill="rgba(0,0,0,0.3)" text-anchor="end">
     ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}
   </text>
-  ` : ""}
+  `
+      : ""
+  }
 </svg>`;
 
       // Descargar SVG
@@ -165,8 +180,8 @@ export function HeatmapExport({
       link.click();
       URL.revokeObjectURL(url);
 
-      toast.success("SVG exportado", { 
-        description: "El archivo SVG se descargó correctamente" 
+      toast.success("SVG exportado", {
+        description: "El archivo SVG se descargó correctamente",
       });
     } catch (error) {
       console.error("Error al exportar SVG:", error);

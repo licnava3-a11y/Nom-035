@@ -5,37 +5,64 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, CheckCircle2, XCircle, TrendingUp, FileDown, Loader2 } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  TrendingUp,
+  FileDown,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export default function PredictiveCorrelationDashboard() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [dateFilter, setDateFilter] = useState<{ startDate?: string; endDate?: string }>({});
+  const [dateFilter, setDateFilter] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
 
   // Mutation: generar reporte PDF
   const generatePDF = trpc.predictiveReports.generatePredictivePDF.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success("Reporte PDF generado exitosamente");
       window.open(data.pdfUrl, "_blank");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || "Error al generar reporte PDF");
     },
   });
 
-  const { data: accuracy, isLoading: loadingAccuracy } = trpc.predictiveCorrelation.getModelAccuracy.useQuery(dateFilter);
-  const { data: truePositives, isLoading: loadingTP } = trpc.predictiveCorrelation.getTruePositives.useQuery();
-  const { data: falsePositives, isLoading: loadingFP } = trpc.predictiveCorrelation.getFalsePositives.useQuery();
-  const { data: falseNegatives, isLoading: loadingFN } = trpc.predictiveCorrelation.getFalseNegatives.useQuery();
+  const { data: accuracy, isLoading: loadingAccuracy } =
+    trpc.predictiveCorrelation.getModelAccuracy.useQuery(dateFilter);
+  const { data: truePositives, isLoading: loadingTP } =
+    trpc.predictiveCorrelation.getTruePositives.useQuery();
+  const { data: falsePositives, isLoading: loadingFP } =
+    trpc.predictiveCorrelation.getFalsePositives.useQuery();
+  const { data: falseNegatives, isLoading: loadingFN } =
+    trpc.predictiveCorrelation.getFalseNegatives.useQuery();
 
   const handleApplyFilter = () => {
     if (startDate && endDate) {
@@ -55,13 +82,22 @@ export default function PredictiveCorrelationDashboard() {
     <div className="container mx-auto py-8">
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Dashboard de Correlación Predictiva</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            Dashboard de Correlación Predictiva
+          </h1>
           <p className="text-muted-foreground">
-            Evalúa la precisión del modelo predictivo de rotación comparando predicciones vs rotación real
+            Evalúa la precisión del modelo predictivo de rotación comparando
+            predicciones vs rotación real
           </p>
         </div>
         <Button
-          onClick={() => generatePDF.mutate({ includeConfusionMatrix: true, includeEvolution: true, includeRecommendations: true })}
+          onClick={() =>
+            generatePDF.mutate({
+              includeConfusionMatrix: true,
+              includeEvolution: true,
+              includeRecommendations: true,
+            })
+          }
           disabled={generatePDF.isPending}
           variant="outline"
         >
@@ -83,7 +119,9 @@ export default function PredictiveCorrelationDashboard() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Filtrar por Periodo</CardTitle>
-          <CardDescription>Analiza la precisión del modelo en un rango de fechas específico</CardDescription>
+          <CardDescription>
+            Analiza la precisión del modelo en un rango de fechas específico
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -93,7 +131,7 @@ export default function PredictiveCorrelationDashboard() {
                 id="startDate"
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={e => setStartDate(e.target.value)}
               />
             </div>
             <div>
@@ -102,11 +140,14 @@ export default function PredictiveCorrelationDashboard() {
                 id="endDate"
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={e => setEndDate(e.target.value)}
               />
             </div>
             <div className="flex items-end gap-2">
-              <Button onClick={handleApplyFilter} disabled={!startDate || !endDate}>
+              <Button
+                onClick={handleApplyFilter}
+                disabled={!startDate || !endDate}
+              >
                 Aplicar Filtro
               </Button>
               <Button variant="outline" onClick={handleClearFilter}>
@@ -121,13 +162,17 @@ export default function PredictiveCorrelationDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Precisión</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Precisión
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {loadingAccuracy ? (
               <Skeleton className="h-8 w-20" />
             ) : (
-              <div className="text-3xl font-bold">{accuracy?.metrics.precision.toFixed(1)}%</div>
+              <div className="text-3xl font-bold">
+                {accuracy?.metrics.precision.toFixed(1)}%
+              </div>
             )}
             <p className="text-xs text-muted-foreground mt-1">
               De los identificados como alto riesgo, cuántos rotaron
@@ -137,13 +182,17 @@ export default function PredictiveCorrelationDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Recall</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Recall
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {loadingAccuracy ? (
               <Skeleton className="h-8 w-20" />
             ) : (
-              <div className="text-3xl font-bold">{accuracy?.metrics.recall.toFixed(1)}%</div>
+              <div className="text-3xl font-bold">
+                {accuracy?.metrics.recall.toFixed(1)}%
+              </div>
             )}
             <p className="text-xs text-muted-foreground mt-1">
               De los que rotaron, cuántos fueron identificados
@@ -153,13 +202,17 @@ export default function PredictiveCorrelationDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">F1-Score</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              F1-Score
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {loadingAccuracy ? (
               <Skeleton className="h-8 w-20" />
             ) : (
-              <div className="text-3xl font-bold">{accuracy?.metrics.f1Score.toFixed(1)}%</div>
+              <div className="text-3xl font-bold">
+                {accuracy?.metrics.f1Score.toFixed(1)}%
+              </div>
             )}
             <p className="text-xs text-muted-foreground mt-1">
               Balance entre precisión y recall
@@ -169,13 +222,17 @@ export default function PredictiveCorrelationDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Accuracy</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Accuracy
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {loadingAccuracy ? (
               <Skeleton className="h-8 w-20" />
             ) : (
-              <div className="text-3xl font-bold">{accuracy?.metrics.accuracy.toFixed(1)}%</div>
+              <div className="text-3xl font-bold">
+                {accuracy?.metrics.accuracy.toFixed(1)}%
+              </div>
             )}
             <p className="text-xs text-muted-foreground mt-1">
               Precisión global del modelo
@@ -188,7 +245,9 @@ export default function PredictiveCorrelationDashboard() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Matriz de Confusión</CardTitle>
-          <CardDescription>Visualización de la precisión del modelo predictivo</CardDescription>
+          <CardDescription>
+            Visualización de la precisión del modelo predictivo
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {loadingAccuracy ? (
@@ -198,45 +257,61 @@ export default function PredictiveCorrelationDashboard() {
               <div className="bg-green-50 border-2 border-green-500 rounded-lg p-6 text-center">
                 <div className="flex items-center justify-center mb-2">
                   <CheckCircle2 className="h-6 w-6 text-green-600 mr-2" />
-                  <span className="font-semibold text-green-900">Verdaderos Positivos</span>
+                  <span className="font-semibold text-green-900">
+                    Verdaderos Positivos
+                  </span>
                 </div>
                 <div className="text-4xl font-bold text-green-700">
                   {accuracy?.confusionMatrix.truePositives || 0}
                 </div>
-                <p className="text-sm text-green-600 mt-2">Alto riesgo + Rotaron</p>
+                <p className="text-sm text-green-600 mt-2">
+                  Alto riesgo + Rotaron
+                </p>
               </div>
 
               <div className="bg-red-50 border-2 border-red-500 rounded-lg p-6 text-center">
                 <div className="flex items-center justify-center mb-2">
                   <XCircle className="h-6 w-6 text-red-600 mr-2" />
-                  <span className="font-semibold text-red-900">Falsos Positivos</span>
+                  <span className="font-semibold text-red-900">
+                    Falsos Positivos
+                  </span>
                 </div>
                 <div className="text-4xl font-bold text-red-700">
                   {accuracy?.confusionMatrix.falsePositives || 0}
                 </div>
-                <p className="text-sm text-red-600 mt-2">Alto riesgo + No rotaron</p>
+                <p className="text-sm text-red-600 mt-2">
+                  Alto riesgo + No rotaron
+                </p>
               </div>
 
               <div className="bg-orange-50 border-2 border-orange-500 rounded-lg p-6 text-center">
                 <div className="flex items-center justify-center mb-2">
                   <AlertCircle className="h-6 w-6 text-orange-600 mr-2" />
-                  <span className="font-semibold text-orange-900">Falsos Negativos</span>
+                  <span className="font-semibold text-orange-900">
+                    Falsos Negativos
+                  </span>
                 </div>
                 <div className="text-4xl font-bold text-orange-700">
                   {accuracy?.confusionMatrix.falseNegatives || 0}
                 </div>
-                <p className="text-sm text-orange-600 mt-2">Bajo riesgo + Rotaron</p>
+                <p className="text-sm text-orange-600 mt-2">
+                  Bajo riesgo + Rotaron
+                </p>
               </div>
 
               <div className="bg-blue-50 border-2 border-blue-500 rounded-lg p-6 text-center">
                 <div className="flex items-center justify-center mb-2">
                   <TrendingUp className="h-6 w-6 text-blue-600 mr-2" />
-                  <span className="font-semibold text-blue-900">Verdaderos Negativos</span>
+                  <span className="font-semibold text-blue-900">
+                    Verdaderos Negativos
+                  </span>
                 </div>
                 <div className="text-4xl font-bold text-blue-700">
                   {accuracy?.confusionMatrix.trueNegatives || 0}
                 </div>
-                <p className="text-sm text-blue-600 mt-2">Bajo riesgo + No rotaron</p>
+                <p className="text-sm text-blue-600 mt-2">
+                  Bajo riesgo + No rotaron
+                </p>
               </div>
             </div>
           )}
@@ -262,7 +337,8 @@ export default function PredictiveCorrelationDashboard() {
             <CardHeader>
               <CardTitle>Verdaderos Positivos</CardTitle>
               <CardDescription>
-                Empleados identificados como alto riesgo que efectivamente rotaron
+                Empleados identificados como alto riesgo que efectivamente
+                rotaron
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -286,14 +362,24 @@ export default function PredictiveCorrelationDashboard() {
                           {emp.nombre} {emp.apellido}
                         </TableCell>
                         <TableCell>{emp.departamento}</TableCell>
-                        <TableCell>{new Date(emp.exitDate).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Badge variant={emp.exitReason === "voluntary" ? "default" : "destructive"}>
+                          {new Date(emp.exitDate).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              emp.exitReason === "voluntary"
+                                ? "default"
+                                : "destructive"
+                            }
+                          >
                             {emp.exitReason}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{emp.riskScoreAtExit || "N/A"}</Badge>
+                          <Badge variant="outline">
+                            {emp.riskScoreAtExit || "N/A"}
+                          </Badge>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -382,14 +468,24 @@ export default function PredictiveCorrelationDashboard() {
                           {emp.nombre} {emp.apellido}
                         </TableCell>
                         <TableCell>{emp.departamento}</TableCell>
-                        <TableCell>{new Date(emp.exitDate).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Badge variant={emp.exitReason === "voluntary" ? "default" : "destructive"}>
+                          {new Date(emp.exitDate).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              emp.exitReason === "voluntary"
+                                ? "default"
+                                : "destructive"
+                            }
+                          >
                             {emp.exitReason}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{emp.riskScoreAtExit || "N/A"}</Badge>
+                          <Badge variant="outline">
+                            {emp.riskScoreAtExit || "N/A"}
+                          </Badge>
                         </TableCell>
                       </TableRow>
                     ))}

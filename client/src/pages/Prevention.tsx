@@ -1,7 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, FileText, Users, AlertTriangle, CheckCircle2, TrendingUp } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Shield,
+  FileText,
+  Users,
+  AlertTriangle,
+  CheckCircle2,
+  TrendingUp,
+} from "lucide-react";
 import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 
@@ -10,20 +23,22 @@ export default function Prevention() {
     {
       id: 1,
       title: "Identificación de Riesgos",
-      description: "Aplicación de cuestionarios NOM-035 para identificar factores de riesgo psicosocial",
+      description:
+        "Aplicación de cuestionarios NOM-035 para identificar factores de riesgo psicosocial",
       icon: AlertTriangle,
       color: "bg-orange-500",
       route: "/surveys-admin-panel",
-      status: "Activo"
+      status: "Activo",
     },
     {
       id: 2,
       title: "Análisis de Resultados",
-      description: "Evaluación y análisis de riesgos psicosociales identificados",
+      description:
+        "Evaluación y análisis de riesgos psicosociales identificados",
       icon: TrendingUp,
       color: "bg-blue-500",
       route: "/trends-charts",
-      status: "Activo"
+      status: "Activo",
     },
     {
       id: 3,
@@ -32,7 +47,7 @@ export default function Prevention() {
       icon: Users,
       color: "bg-green-500",
       route: "/committee",
-      status: "Activo"
+      status: "Activo",
     },
     {
       id: 4,
@@ -41,7 +56,7 @@ export default function Prevention() {
       icon: Shield,
       color: "bg-red-500",
       route: "/early-warnings",
-      status: "Activo"
+      status: "Activo",
     },
     {
       id: 5,
@@ -50,7 +65,7 @@ export default function Prevention() {
       icon: CheckCircle2,
       color: "bg-purple-500",
       route: "/compliance-dashboard",
-      status: "Activo"
+      status: "Activo",
     },
     {
       id: 6,
@@ -59,17 +74,20 @@ export default function Prevention() {
       icon: FileText,
       color: "bg-indigo-500",
       route: "/meeting-minutes",
-      status: "Activo"
-    }
+      status: "Activo",
+    },
   ];
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Prevención de Riesgos Psicosociales</h1>
+          <h1 className="text-3xl font-bold">
+            Prevención de Riesgos Psicosociales
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Gestión integral de la prevención y atención de factores de riesgo psicosocial según NOM-035-STPS-2018
+            Gestión integral de la prevención y atención de factores de riesgo
+            psicosocial según NOM-035-STPS-2018
           </p>
         </div>
 
@@ -105,7 +123,9 @@ export default function Prevention() {
         <Card>
           <CardHeader>
             <CardTitle>Recursos y Herramientas</CardTitle>
-            <CardDescription>Documentos y guías para la prevención de riesgos psicosociales</CardDescription>
+            <CardDescription>
+              Documentos y guías para la prevención de riesgos psicosociales
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">

@@ -1,8 +1,21 @@
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +37,17 @@ import {
 import ProtectedButton from "@/components/ProtectedButton";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Shield, Users, Check, X, Search, Edit, FileDown, FileText, Download } from "lucide-react";
+import {
+  Shield,
+  Users,
+  Check,
+  X,
+  Search,
+  Edit,
+  FileDown,
+  FileText,
+  Download,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Chart, registerables } from "chart.js";
 
@@ -41,12 +64,15 @@ export default function RolesPermissions() {
   const pieChartInstanceRef = useRef<Chart | null>(null);
 
   // Función para descargar gráfico como PNG
-  const downloadChartAsPNG = (canvas: HTMLCanvasElement | null, filename: string) => {
+  const downloadChartAsPNG = (
+    canvas: HTMLCanvasElement | null,
+    filename: string
+  ) => {
     if (!canvas) return;
-    canvas.toBlob((blob) => {
+    canvas.toBlob(blob => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = filename;
       link.click();
@@ -57,22 +83,25 @@ export default function RolesPermissions() {
   const utils = trpc.useUtils();
 
   // Fetch roles and permissions matrix
-  const { data: roles = [], isLoading: rolesLoading } = trpc.rolesPermissions.getAllRoles.useQuery();
+  const { data: roles = [], isLoading: rolesLoading } =
+    trpc.rolesPermissions.getAllRoles.useQuery();
 
   // Fetch users with pagination
-  const { data: usersData, isLoading: usersLoading } = trpc.rolesPermissions.getUsersByRole.useQuery({
-    role: selectedRole === "all" ? undefined : selectedRole,
-    search: searchTerm || undefined,
-    page,
-    limit: 20,
-  });
+  const { data: usersData, isLoading: usersLoading } =
+    trpc.rolesPermissions.getUsersByRole.useQuery({
+      role: selectedRole === "all" ? undefined : selectedRole,
+      search: searchTerm || undefined,
+      page,
+      limit: 20,
+    });
 
   // Fetch role distribution for stats
-  const { data: distribution = [], isLoading: distributionLoading } = trpc.rolesPermissions.getRoleDistribution.useQuery();
+  const { data: distribution = [], isLoading: distributionLoading } =
+    trpc.rolesPermissions.getRoleDistribution.useQuery();
 
   // Update user role mutation
   const updateRoleMutation = trpc.rolesPermissions.updateUserRole.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
       utils.rolesPermissions.getUsersByRole.invalidate();
       utils.rolesPermissions.getRoleDistribution.invalidate();
@@ -81,7 +110,7 @@ export default function RolesPermissions() {
       setSelectedUser(null);
       setNewRole("");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || "Error al cambiar rol");
     },
   });
@@ -102,7 +131,8 @@ export default function RolesPermissions() {
 
   // Renderizar pie chart de distribución de roles
   useEffect(() => {
-    if (!distribution || distribution.length === 0 || !pieChartRef.current) return;
+    if (!distribution || distribution.length === 0 || !pieChartRef.current)
+      return;
 
     // Destruir gráfico anterior si existe
     if (pieChartInstanceRef.current) {
@@ -114,17 +144,26 @@ export default function RolesPermissions() {
 
     // Tomar top 5 roles + agrupar el resto como "Otros"
     const top5 = distribution.slice(0, 5);
-    const othersCount = distribution.slice(5).reduce((sum: any, item: any) => sum + Number(item.count), 0);
-    
+    const othersCount = distribution
+      .slice(5)
+      .reduce((sum: any, item: any) => sum + Number(item.count), 0);
+
     const labels = top5.map((item: any) => getRoleName(item.role));
     const data = top5.map((item: any) => Number(item.count));
-    
+
     if (othersCount > 0) {
       labels.push("Otros");
       data.push(othersCount);
     }
 
-    const colors = ["#10b981", "#1e3a8a", "#dc2626", "#f59e0b", "#8b5cf6", "#6b7280"];
+    const colors = [
+      "#10b981",
+      "#1e3a8a",
+      "#dc2626",
+      "#f59e0b",
+      "#8b5cf6",
+      "#6b7280",
+    ];
 
     pieChartInstanceRef.current = new Chart(ctx, {
       type: "pie",
@@ -134,7 +173,9 @@ export default function RolesPermissions() {
           {
             data,
             backgroundColor: colors,
-            borderWidth: top5.map((item: any) => (selectedRole === item.role ? 4 : 2)).concat(othersCount > 0 ? [2] : []),
+            borderWidth: top5
+              .map((item: any) => (selectedRole === item.role ? 4 : 2))
+              .concat(othersCount > 0 ? [2] : []),
             borderColor: "#ffffff",
             hoverBorderWidth: 4,
           },
@@ -151,7 +192,7 @@ export default function RolesPermissions() {
           if (elements.length > 0) {
             const index = elements[0].index;
             let clickedRole: string;
-            
+
             // Si el índice es menor que top5, es uno de los roles principales
             if (index < top5.length) {
               clickedRole = top5[index].role;
@@ -159,7 +200,7 @@ export default function RolesPermissions() {
               // Si es "Otros", no filtrar (o podríamos mostrar todos los roles menores)
               return;
             }
-            
+
             // Si ya está filtrado por este rol, limpiar filtro
             if (selectedRole === clickedRole) {
               setSelectedRole("all");
@@ -181,16 +222,17 @@ export default function RolesPermissions() {
           },
           tooltip: {
             callbacks: {
-              title: function(context) {
+              title: function (context) {
                 return context[0].label || "";
               },
-              label: function(context) {
+              label: function (context) {
                 const value = context.parsed;
                 const total = data.reduce((sum: any, d: any) => sum + d, 0);
-                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
+                const percentage =
+                  total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
                 return `${value} usuarios (${percentage}%)`;
               },
-              afterLabel: function(context) {
+              afterLabel: function (context) {
                 // No mostrar "Haz clic para filtrar" en "Otros"
                 if (context.label === "Otros") {
                   return "";
@@ -289,7 +331,9 @@ export default function RolesPermissions() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Cargando roles y permisos...</p>
+            <p className="text-muted-foreground">
+              Cargando roles y permisos...
+            </p>
           </div>
         </div>
       </div>
@@ -301,9 +345,12 @@ export default function RolesPermissions() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">Administración de Roles y Permisos</h1>
+          <h1 className="text-3xl font-bold">
+            Administración de Roles y Permisos
+          </h1>
           <p className="text-muted-foreground">
-            Gestiona los roles de usuario y visualiza la matriz de permisos del sistema
+            Gestiona los roles de usuario y visualiza la matriz de permisos del
+            sistema
           </p>
         </div>
         <div className="flex gap-2">
@@ -352,11 +399,18 @@ export default function RolesPermissions() {
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Distribución de Roles</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Distribución de Roles
+              </CardTitle>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => downloadChartAsPNG(pieChartRef.current, 'distribucion-roles.png')}
+                onClick={() =>
+                  downloadChartAsPNG(
+                    pieChartRef.current,
+                    "distribucion-roles.png"
+                  )
+                }
               >
                 <Download className="h-4 w-4 mr-2" />
                 Descargar PNG
@@ -372,7 +426,10 @@ export default function RolesPermissions() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <canvas ref={pieChartRef} style={{ maxHeight: "250px", cursor: "pointer" }}></canvas>
+            <canvas
+              ref={pieChartRef}
+              style={{ maxHeight: "250px", cursor: "pointer" }}
+            ></canvas>
           </CardContent>
         </Card>
       </div>
@@ -460,7 +517,7 @@ export default function RolesPermissions() {
                   id="search"
                   placeholder="Nombre o correo electrónico..."
                   value={searchTerm}
-                  onChange={(e) => {
+                  onChange={e => {
                     setSearchTerm(e.target.value);
                     setPage(1);
                   }}
@@ -472,7 +529,7 @@ export default function RolesPermissions() {
               <Label htmlFor="roleFilter">Filtrar por rol</Label>
               <Select
                 value={selectedRole}
-                onValueChange={(value) => {
+                onValueChange={value => {
                   setSelectedRole(value);
                   setPage(1);
                 }}
@@ -497,7 +554,9 @@ export default function RolesPermissions() {
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                <p className="text-sm text-muted-foreground">Cargando usuarios...</p>
+                <p className="text-sm text-muted-foreground">
+                  Cargando usuarios...
+                </p>
               </div>
             </div>
           ) : usersData && usersData.users.length > 0 ? (
@@ -517,12 +576,16 @@ export default function RolesPermissions() {
                   <TableBody>
                     {usersData.users.map((user: any) => (
                       <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.name || "Sin nombre"}</TableCell>
+                        <TableCell className="font-medium">
+                          {user.name || "Sin nombre"}
+                        </TableCell>
                         <TableCell>{user.email || "Sin correo"}</TableCell>
                         <TableCell>{user.departamento || "-"}</TableCell>
                         <TableCell>{user.puesto || "-"}</TableCell>
                         <TableCell>
-                          <Badge variant="outline">{getRoleName(user.role)}</Badge>
+                          <Badge variant="outline">
+                            {getRoleName(user.role)}
+                          </Badge>
                         </TableCell>
                         <TableCell className="text-right">
                           <ProtectedButton
@@ -545,14 +608,15 @@ export default function RolesPermissions() {
               {/* Pagination */}
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  Mostrando {(page - 1) * 20 + 1} a {Math.min(page * 20, usersData.totalCount)} de{" "}
+                  Mostrando {(page - 1) * 20 + 1} a{" "}
+                  {Math.min(page * 20, usersData.totalCount)} de{" "}
                   {usersData.totalCount} usuarios
                 </p>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
                   >
                     Anterior
@@ -560,7 +624,9 @@ export default function RolesPermissions() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPage((p) => Math.min(usersData.totalPages, p + 1))}
+                    onClick={() =>
+                      setPage(p => Math.min(usersData.totalPages, p + 1))
+                    }
                     disabled={page === usersData.totalPages}
                   >
                     Siguiente
@@ -571,7 +637,9 @@ export default function RolesPermissions() {
           ) : (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-lg font-medium mb-2">No se encontraron usuarios</p>
+              <p className="text-lg font-medium mb-2">
+                No se encontraron usuarios
+              </p>
               <p className="text-sm text-muted-foreground">
                 Intenta ajustar los filtros de búsqueda
               </p>
@@ -620,9 +688,15 @@ export default function RolesPermissions() {
             </Button>
             <Button
               onClick={handleSaveRole}
-              disabled={!newRole || newRole === selectedUser?.role || updateRoleMutation.isPending}
+              disabled={
+                !newRole ||
+                newRole === selectedUser?.role ||
+                updateRoleMutation.isPending
+              }
             >
-              {updateRoleMutation.isPending ? "Guardando..." : "Guardar Cambios"}
+              {updateRoleMutation.isPending
+                ? "Guardando..."
+                : "Guardar Cambios"}
             </Button>
           </DialogFooter>
         </DialogContent>

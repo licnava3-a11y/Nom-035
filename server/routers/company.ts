@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { emailValidatorOptional, phoneValidatorMXOptional } from "../validators/contact";
+import {
+  emailValidatorOptional,
+  phoneValidatorMXOptional,
+} from "../validators/contact";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as companyDb from "../db-company";
 import { TRPCError } from "@trpc/server";
@@ -24,7 +27,9 @@ export const companyRouter = router({
       .input(
         z.object({
           razonSocial: z.string().min(1, "Razón social es requerida"),
-          rfc: z.string().regex(/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/, "RFC inválido"),
+          rfc: z
+            .string()
+            .regex(/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/, "RFC inválido"),
           direccionFiscal: z.string().min(1, "Dirección fiscal es requerida"),
           giro: z.string().optional(),
           actividadesPreponderantes: z.string().optional(),
@@ -32,7 +37,11 @@ export const companyRouter = router({
           representanteLegal: z.string().optional(),
           telefonoContacto: phoneValidatorMXOptional,
           emailContacto: emailValidatorOptional,
-          paginaWeb: z.string().url("URL inválida").optional().or(z.literal("")),
+          paginaWeb: z
+            .string()
+            .url("URL inválida")
+            .optional()
+            .or(z.literal("")),
           notificationEmail: emailValidatorOptional,
           noreplyEmail: emailValidatorOptional,
         })
@@ -41,7 +50,8 @@ export const companyRouter = router({
         if (ctx.user.role !== "admin") {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "Solo administradores pueden actualizar datos de la empresa",
+            message:
+              "Solo administradores pueden actualizar datos de la empresa",
           });
         }
 
@@ -140,8 +150,14 @@ export const companyRouter = router({
           cargo: z.string().min(1, "Cargo es requerido"),
           email: emailValidatorOptional,
           telefono: phoneValidatorMXOptional,
-          rfc: z.string().regex(/^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/, "RFC inválido").optional(),
-          curp: z.string().length(18, "CURP debe tener 18 caracteres").optional(),
+          rfc: z
+            .string()
+            .regex(/^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/, "RFC inválido")
+            .optional(),
+          curp: z
+            .string()
+            .length(18, "CURP debe tener 18 caracteres")
+            .optional(),
           domicilio: z.string().optional(),
           actaConstitutiva: z.string().optional(),
           poderNotarial: z.string().optional(),
@@ -173,11 +189,16 @@ export const companyRouter = router({
 
         // Subir certificado si existe
         if (input.certificadoData) {
-          const base64Data = input.certificadoData.split(",")[1] || input.certificadoData;
+          const base64Data =
+            input.certificadoData.split(",")[1] || input.certificadoData;
           const fileBuffer = Buffer.from(base64Data, "base64");
           const timestamp = Date.now();
           certificadoKey = `company/certificado-${timestamp}.pdf`;
-          const result = await storagePut(certificadoKey, fileBuffer, "application/pdf");
+          const result = await storagePut(
+            certificadoKey,
+            fileBuffer,
+            "application/pdf"
+          );
           certificadoUrl = result.url;
         }
 
@@ -195,8 +216,12 @@ export const companyRouter = router({
           firmaKey,
           certificadoUrl,
           certificadoKey,
-          vigenciaInicio: input.vigenciaInicio ? new Date(input.vigenciaInicio) : undefined,
-          vigenciaFin: input.vigenciaFin ? new Date(input.vigenciaFin) : undefined,
+          vigenciaInicio: input.vigenciaInicio
+            ? new Date(input.vigenciaInicio)
+            : undefined,
+          vigenciaFin: input.vigenciaFin
+            ? new Date(input.vigenciaFin)
+            : undefined,
         });
 
         return { success: true, id };
@@ -217,7 +242,8 @@ export const companyRouter = router({
         if (ctx.user.role !== "admin") {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "Solo administradores pueden actualizar representantes legales",
+            message:
+              "Solo administradores pueden actualizar representantes legales",
           });
         }
 
@@ -232,7 +258,8 @@ export const companyRouter = router({
         if (ctx.user.role !== "admin") {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "Solo administradores pueden eliminar representantes legales",
+            message:
+              "Solo administradores pueden eliminar representantes legales",
           });
         }
 
@@ -275,38 +302,54 @@ export const companyRouter = router({
         const fileBuffer = Buffer.from(base64Data, "base64");
         const timestamp = Date.now();
         const firmaKey = `signatures/firma-${timestamp}.png`;
-        const { url: firmaUrl } = await storagePut(firmaKey, fileBuffer, "image/png");
+        const { url: firmaUrl } = await storagePut(
+          firmaKey,
+          fileBuffer,
+          "image/png"
+        );
 
         let certificadoUrl, certificadoKey;
 
         // Subir certificado si existe
         if (input.certificadoData) {
-          const certBase64 = input.certificadoData.split(",")[1] || input.certificadoData;
+          const certBase64 =
+            input.certificadoData.split(",")[1] || input.certificadoData;
           const certBuffer = Buffer.from(certBase64, "base64");
           certificadoKey = `signatures/certificado-${timestamp}.pdf`;
-          const result = await storagePut(certificadoKey, certBuffer, "application/pdf");
+          const result = await storagePut(
+            certificadoKey,
+            certBuffer,
+            "application/pdf"
+          );
           certificadoUrl = result.url;
         }
 
         // Si es firmante externo, requiere autorización del admin
-        const estadoAutorizacion = input.tipoFirmante === "externo" ? "pendiente" : "autorizado";
+        const estadoAutorizacion =
+          input.tipoFirmante === "externo" ? "pendiente" : "autorizado";
 
         const id = await companyDb.createDigitalSignature({
           userId: input.userId,
           nombreFirmante: input.nombreFirmante,
           cargo: input.cargo,
-          departamento: input.departamento ?? '',
+          departamento: input.departamento ?? "",
           firmaUrl,
           firmaKey,
           certificadoUrl,
           certificadoKey,
           tipoFirmante: input.tipoFirmante,
           estadoAutorizacion,
-          autorizadoPor: input.tipoFirmante === "interno" ? ctx.user.id : undefined,
-          fechaAutorizacion: input.tipoFirmante === "interno" ? new Date() : undefined,
+          autorizadoPor:
+            input.tipoFirmante === "interno" ? ctx.user.id : undefined,
+          fechaAutorizacion:
+            input.tipoFirmante === "interno" ? new Date() : undefined,
         });
 
-        return { success: true, id, requiresAuthorization: input.tipoFirmante === "externo" };
+        return {
+          success: true,
+          id,
+          requiresAuthorization: input.tipoFirmante === "externo",
+        };
       }),
 
     authorize: protectedProcedure
@@ -324,7 +367,11 @@ export const companyRouter = router({
           });
         }
 
-        await companyDb.authorizeDigitalSignature(input.id, input.approved, ctx.user.id);
+        await companyDb.authorizeDigitalSignature(
+          input.id,
+          input.approved,
+          ctx.user.id
+        );
         return { success: true };
       }),
 
@@ -381,7 +428,9 @@ export const companyRouter = router({
           actividadesRealizadas: z.string().optional(),
           metodoUtilizado: z.string().optional(),
           resultadosObtenidos: z.string().optional(),
-          nivelRiesgoGeneral: z.enum(["bajo", "medio", "alto", "muy_alto"]).optional(),
+          nivelRiesgoGeneral: z
+            .enum(["bajo", "medio", "alto", "muy_alto"])
+            .optional(),
           conclusiones: z.string().optional(),
           recomendaciones: z.string().optional(),
           accionesIntervencion: z.string().optional(),
@@ -405,7 +454,8 @@ export const companyRouter = router({
           tamañoMuestra: input.tamañoMuestra || 0,
           cobertura: input.cobertura?.toString(),
           numeroTrabajadoresTotal: input.numeroTrabajadoresTotal || 0,
-          numeroTrabajadoresEncuestados: input.numeroTrabajadoresEncuestados || 0,
+          numeroTrabajadoresEncuestados:
+            input.numeroTrabajadoresEncuestados || 0,
           metodologiaAplicacion: input.metodologiaAplicacion,
           observaciones: input.observaciones,
           responsableAplicacion: input.responsableAplicacion,
@@ -451,7 +501,9 @@ export const companyRouter = router({
           actividadesRealizadas: z.string().optional(),
           metodoUtilizado: z.string().optional(),
           resultadosObtenidos: z.string().optional(),
-          nivelRiesgoGeneral: z.enum(["bajo", "medio", "alto", "muy_alto"]).optional(),
+          nivelRiesgoGeneral: z
+            .enum(["bajo", "medio", "alto", "muy_alto"])
+            .optional(),
           conclusiones: z.string().optional(),
           recomendaciones: z.string().optional(),
           accionesIntervencion: z.string().optional(),

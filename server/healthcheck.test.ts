@@ -36,11 +36,11 @@ describe("Health Check — Endpoint /api/health", () => {
     const oauthIndex = content.indexOf("registerOAuthRoutes(app)");
     // Buscar la llamada a registerLocalAuthRoutes (no el import)
     const localAuthIndex = content.indexOf("registerLocalAuthRoutes(app)");
-    
+
     expect(healthIndex).toBeGreaterThan(-1);
     expect(oauthIndex).toBeGreaterThan(-1);
     expect(localAuthIndex).toBeGreaterThan(-1);
-    
+
     // El health check debe aparecer antes de la autenticación
     expect(healthIndex).toBeLessThan(oauthIndex);
     expect(healthIndex).toBeLessThan(localAuthIndex);
@@ -75,7 +75,7 @@ describe("Health Check — Endpoint /api/health", () => {
     const healthHandlerStart = content.indexOf('app.get("/api/health"');
     const healthHandlerEnd = content.indexOf("});", healthHandlerStart);
     const handlerCode = content.substring(healthHandlerStart, healthHandlerEnd);
-    
+
     expect(handlerCode).not.toContain("cookie");
     expect(handlerCode).not.toContain("authenticate");
     expect(handlerCode).not.toContain("jwt");

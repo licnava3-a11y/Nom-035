@@ -6,15 +6,44 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
-const CATEGORY_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  sugerencia: { label: "Sugerencia", color: "text-blue-700", bg: "bg-blue-50 border-blue-200" },
-  queja: { label: "Queja", color: "text-red-700", bg: "bg-red-50 border-red-200" },
-  felicitacion: { label: "Felicitación", color: "text-green-700", bg: "bg-green-50 border-green-200" },
-  capacitacion: { label: "Capacitación", color: "text-purple-700", bg: "bg-purple-50 border-purple-200" },
-  otro: { label: "Otro", color: "text-gray-700", bg: "bg-gray-50 border-gray-200" },
+const CATEGORY_CONFIG: Record<
+  string,
+  { label: string; color: string; bg: string }
+> = {
+  sugerencia: {
+    label: "Sugerencia",
+    color: "text-blue-700",
+    bg: "bg-blue-50 border-blue-200",
+  },
+  queja: {
+    label: "Queja",
+    color: "text-red-700",
+    bg: "bg-red-50 border-red-200",
+  },
+  felicitacion: {
+    label: "Felicitación",
+    color: "text-green-700",
+    bg: "bg-green-50 border-green-200",
+  },
+  capacitacion: {
+    label: "Capacitación",
+    color: "text-purple-700",
+    bg: "bg-purple-50 border-purple-200",
+  },
+  otro: {
+    label: "Otro",
+    color: "text-gray-700",
+    bg: "bg-gray-50 border-gray-200",
+  },
 };
 
-const STATUS_CONFIG: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+const STATUS_CONFIG: Record<
+  string,
+  {
+    label: string;
+    variant: "default" | "secondary" | "destructive" | "outline";
+  }
+> = {
   nuevo: { label: "Nuevo", variant: "default" },
   en_proceso: { label: "En Proceso", variant: "secondary" },
   resuelto: { label: "Resuelto", variant: "outline" },
@@ -32,7 +61,8 @@ export default function MyMailbox() {
   const { toast } = useToast();
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const { data: messages = [], refetch } = trpc.internalMailbox.myMessages.useQuery({ limit: 100 });
+  const { data: messages = [], refetch } =
+    trpc.internalMailbox.myMessages.useQuery({ limit: 100 });
   const markReadMut = trpc.internalMailbox.markResponseRead.useMutation({
     onSuccess: () => refetch(),
   });
@@ -43,7 +73,7 @@ export default function MyMailbox() {
 
   const selectedMsg = messages.find(m => m.id === selectedId) ?? null;
 
-  function handleOpen(msg: typeof messages[0]) {
+  function handleOpen(msg: (typeof messages)[0]) {
     setSelectedId(msg.id);
     // Mark as read if there's an unread response
     if (msg.responseBody && !msg.responseReadAt) {
@@ -59,7 +89,8 @@ export default function MyMailbox() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Mis Mensajes</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Historial de tus mensajes enviados al Buzón de Comunicación Interna
+              Historial de tus mensajes enviados al Buzón de Comunicación
+              Interna
             </p>
           </div>
           {unreadCount > 0 && (
@@ -76,9 +107,12 @@ export default function MyMailbox() {
           <Card>
             <CardContent className="py-16 text-center">
               <div className="text-4xl mb-3">📭</div>
-              <p className="text-muted-foreground font-medium">No has enviado mensajes aún</p>
+              <p className="text-muted-foreground font-medium">
+                No has enviado mensajes aún
+              </p>
               <p className="text-sm text-muted-foreground mt-1">
-                Usa el Buzón de Comunicación Interna para enviar sugerencias, quejas o felicitaciones.
+                Usa el Buzón de Comunicación Interna para enviar sugerencias,
+                quejas o felicitaciones.
               </p>
             </CardContent>
           </Card>
@@ -87,7 +121,8 @@ export default function MyMailbox() {
             {/* Message list */}
             <div className="lg:col-span-1 space-y-2">
               {messages.map(msg => {
-                const cat = CATEGORY_CONFIG[msg.category] ?? CATEGORY_CONFIG.otro;
+                const cat =
+                  CATEGORY_CONFIG[msg.category] ?? CATEGORY_CONFIG.otro;
                 const hasUnread = !!(msg.responseBody && !msg.responseReadAt);
                 const isSelected = selectedId === msg.id;
                 return (
@@ -98,8 +133,8 @@ export default function MyMailbox() {
                       isSelected
                         ? "border-blue-500 bg-blue-50 shadow-sm"
                         : hasUnread
-                        ? "border-blue-300 bg-blue-50/50 hover:border-blue-400"
-                        : "border-border hover:border-muted-foreground/40"
+                          ? "border-blue-300 bg-blue-50/50 hover:border-blue-400"
+                          : "border-border hover:border-muted-foreground/40"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -108,20 +143,31 @@ export default function MyMailbox() {
                           {hasUnread && (
                             <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
                           )}
-                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${cat.bg} ${cat.color}`}>
+                          <span
+                            className={`text-xs font-medium px-1.5 py-0.5 rounded ${cat.bg} ${cat.color}`}
+                          >
                             {cat.label}
                           </span>
                         </div>
-                        <p className={`text-sm truncate ${hasUnread ? "font-semibold" : "font-medium"}`}>
+                        <p
+                          className={`text-sm truncate ${hasUnread ? "font-semibold" : "font-medium"}`}
+                        >
                           {msg.subject}
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {new Date(msg.createdAt).toLocaleDateString("es-MX", {
-                            day: "2-digit", month: "short", year: "numeric"
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
                           })}
                         </p>
                       </div>
-                      <Badge variant={STATUS_CONFIG[msg.status]?.variant ?? "default"} className="text-xs flex-shrink-0">
+                      <Badge
+                        variant={
+                          STATUS_CONFIG[msg.status]?.variant ?? "default"
+                        }
+                        className="text-xs flex-shrink-0"
+                      >
                         {STATUS_CONFIG[msg.status]?.label ?? msg.status}
                       </Badge>
                     </div>
@@ -137,29 +183,68 @@ export default function MyMailbox() {
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <CardTitle className="text-base">{selectedMsg.subject}</CardTitle>
+                        <CardTitle className="text-base">
+                          {selectedMsg.subject}
+                        </CardTitle>
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                          <span className={`text-xs font-medium px-2 py-0.5 rounded border ${
-                            (CATEGORY_CONFIG[selectedMsg.category] ?? CATEGORY_CONFIG.otro).bg
-                          } ${(CATEGORY_CONFIG[selectedMsg.category] ?? CATEGORY_CONFIG.otro).color}`}>
-                            {(CATEGORY_CONFIG[selectedMsg.category] ?? CATEGORY_CONFIG.otro).label}
+                          <span
+                            className={`text-xs font-medium px-2 py-0.5 rounded border ${
+                              (
+                                CATEGORY_CONFIG[selectedMsg.category] ??
+                                CATEGORY_CONFIG.otro
+                              ).bg
+                            } ${(CATEGORY_CONFIG[selectedMsg.category] ?? CATEGORY_CONFIG.otro).color}`}
+                          >
+                            {
+                              (
+                                CATEGORY_CONFIG[selectedMsg.category] ??
+                                CATEGORY_CONFIG.otro
+                              ).label
+                            }
                           </span>
-                          <Badge variant={STATUS_CONFIG[selectedMsg.status]?.variant ?? "default"}>
-                            {STATUS_CONFIG[selectedMsg.status]?.label ?? selectedMsg.status}
+                          <Badge
+                            variant={
+                              STATUS_CONFIG[selectedMsg.status]?.variant ??
+                              "default"
+                            }
+                          >
+                            {STATUS_CONFIG[selectedMsg.status]?.label ??
+                              selectedMsg.status}
                           </Badge>
-                          <span className={`text-xs font-medium ${
-                            (PRIORITY_CONFIG[selectedMsg.priority] ?? PRIORITY_CONFIG.normal).color
-                          }`}>
-                            Prioridad: {(PRIORITY_CONFIG[selectedMsg.priority] ?? PRIORITY_CONFIG.normal).label}
+                          <span
+                            className={`text-xs font-medium ${
+                              (
+                                PRIORITY_CONFIG[selectedMsg.priority] ??
+                                PRIORITY_CONFIG.normal
+                              ).color
+                            }`}
+                          >
+                            Prioridad:{" "}
+                            {
+                              (
+                                PRIORITY_CONFIG[selectedMsg.priority] ??
+                                PRIORITY_CONFIG.normal
+                              ).label
+                            }
                           </span>
                           {selectedMsg.isAnonymous && (
-                            <span className="text-xs text-muted-foreground italic">Enviado anónimamente</span>
+                            <span className="text-xs text-muted-foreground italic">
+                              Enviado anónimamente
+                            </span>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Enviado el {new Date(selectedMsg.createdAt).toLocaleString("es-MX", {
-                            day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"
-                          })}
+                          Enviado el{" "}
+                          {new Date(selectedMsg.createdAt).toLocaleString(
+                            "es-MX",
+                            {
+                              day: "2-digit",
+                              month: "long",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
                         </p>
                       </div>
                     </div>
@@ -184,9 +269,14 @@ export default function MyMailbox() {
                           </h4>
                           <span className="text-xs text-muted-foreground">
                             {selectedMsg.respondedAt
-                              ? new Date(selectedMsg.respondedAt).toLocaleString("es-MX", {
-                                  day: "2-digit", month: "short", year: "numeric",
-                                  hour: "2-digit", minute: "2-digit"
+                              ? new Date(
+                                  selectedMsg.respondedAt
+                                ).toLocaleString("es-MX", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
                                 })
                               : ""}
                           </span>
@@ -197,7 +287,10 @@ export default function MyMailbox() {
                       </div>
                     ) : (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
-                        <span className="font-medium">En espera de respuesta.</span> El responsable revisará tu mensaje a la brevedad.
+                        <span className="font-medium">
+                          En espera de respuesta.
+                        </span>{" "}
+                        El responsable revisará tu mensaje a la brevedad.
                       </div>
                     )}
                   </CardContent>
@@ -206,7 +299,9 @@ export default function MyMailbox() {
                 <Card>
                   <CardContent className="py-16 text-center">
                     <div className="text-4xl mb-3">👈</div>
-                    <p className="text-muted-foreground">Selecciona un mensaje para ver el detalle</p>
+                    <p className="text-muted-foreground">
+                      Selecciona un mensaje para ver el detalle
+                    </p>
                   </CardContent>
                 </Card>
               )}

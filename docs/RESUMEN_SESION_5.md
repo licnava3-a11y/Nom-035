@@ -17,13 +17,14 @@
 **Estado**: ✅ Completado
 
 - Navegadores instalados correctamente:
-  * chromium
-  * chromium_headless_shell
-  * firefox
-  * webkit
-  * ffmpeg
+  - chromium
+  - chromium_headless_shell
+  - firefox
+  - webkit
+  - ffmpeg
 
 **Verificación**:
+
 ```bash
 ls -la /home/ubuntu/.cache/ms-playwright/
 ```
@@ -37,22 +38,26 @@ ls -la /home/ubuntu/.cache/ms-playwright/
 - **Tiempo de ejecución**: ~5 minutos
 
 **Causa de fallos**:
+
 ```
 SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
 ```
 
 **Diagnóstico**:
+
 - El endpoint `/api/test/auth/token` devuelve HTML en lugar de JSON
 - El servidor actual NO tiene `TEST_MODE=true` activado
 - Playwright inicia su propio servidor con `TEST_MODE=true`, pero la configuración no se aplica correctamente
 
 **Archivos involucrados**:
+
 - `server/_core/test-auth.ts` - Endpoints de autenticación de testing
 - `server/_core/index.ts` - Registro de endpoints (líneas 104-111)
 - `playwright.config.ts` - Configuración con TEST_MODE (líneas 119, 124)
 - `tests/fixtures/auth.ts` - Fixture de autenticación
 
 **Prueba manual**:
+
 ```bash
 curl -X POST http://localhost:3000/api/test/auth/token
 # Devuelve: HTML (página de inicio) en lugar de JSON
@@ -67,6 +72,7 @@ curl -X POST http://localhost:3000/api/test/auth/token
 **Total**: 726 errores (sin cambios)
 
 **Categorías principales**:
+
 1. **67 errores 'db possibly null'**: Requiere guards de null
 2. **Errores de campos obsoletos**: riskLevel, employeeId, severity no existen en schema
 3. **Errores de enum columns**: MySqlEnumColumn no asignable a Aliased<string>
@@ -79,11 +85,11 @@ curl -X POST http://localhost:3000/api/test/auth/token
 **Estado**: ✅ Disponibles
 
 - 32 registros creados en sesión anterior:
-  * 5 departamentos
-  * 10 empleados
-  * 2 usuarios
-  * 10 casos NOM-035
-  * 5 minutas del comité
+  - 5 departamentos
+  - 10 empleados
+  - 2 usuarios
+  - 10 casos NOM-035
+  - 5 minutas del comité
 
 ### Confirmaciones en Acciones Destructivas
 

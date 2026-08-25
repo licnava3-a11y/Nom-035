@@ -7,21 +7,25 @@ El sistema de versionado de bases de funcionamiento del comité NOM-035 permite 
 ## Características Principales
 
 ### 1. Versionado Automático
+
 - **Creación de versiones**: Cada vez que se edita una base de funcionamiento, se crea automáticamente una nueva versión
 - **Numeración secuencial**: Las versiones se numeran automáticamente (V1, V2, V3, etc.)
 - **Snapshot completo**: Cada versión almacena una copia completa del contenido en ese momento
 
 ### 2. Historial de Versiones
+
 - **Visualización cronológica**: Lista de todas las versiones ordenadas de más reciente a más antigua
 - **Metadatos completos**: Fecha, autor, número de versión y descripción de cambios
 - **Versión actual**: Indicador visual de la versión actualmente activa
 
 ### 3. Comparación de Versiones
+
 - **Comparación lado a lado**: Visualización de dos versiones en paralelo
 - **Detección de diferencias**: Highlighting automático de campos modificados
 - **Resumen de cambios**: Lista de todos los campos que fueron modificados
 
 ### 4. Restauración de Versiones
+
 - **Restauración con confirmación**: Proceso seguro con solicitud de confirmación
 - **Nueva versión al restaurar**: La restauración crea una nueva versión (no sobrescribe)
 - **Descripción obligatoria**: Documentación del motivo de la restauración
@@ -29,6 +33,7 @@ El sistema de versionado de bases de funcionamiento del comité NOM-035 permite 
 ## Estructura de Datos
 
 ### Tabla Principal: `committee_operating_rules`
+
 Almacena la versión actual de cada base de funcionamiento:
 
 ```sql
@@ -55,6 +60,7 @@ Almacena la versión actual de cada base de funcionamiento:
 ```
 
 ### Tabla de Versiones: `committee_operating_rules_versions`
+
 Almacena el historial completo de versiones:
 
 ```sql
@@ -150,9 +156,11 @@ Almacena el historial completo de versiones:
 ### Procedures Disponibles
 
 #### `committeeOperatingRules.create`
+
 Crear nueva base de funcionamiento.
 
 **Input:**
+
 ```typescript
 {
   version: string,
@@ -174,6 +182,7 @@ Crear nueva base de funcionamiento.
 ```
 
 **Output:**
+
 ```typescript
 {
   success: boolean,
@@ -182,9 +191,11 @@ Crear nueva base de funcionamiento.
 ```
 
 #### `committeeOperatingRules.update`
+
 Actualizar base de funcionamiento (crea nueva versión automáticamente).
 
 **Input:**
+
 ```typescript
 {
   id: number,
@@ -194,6 +205,7 @@ Actualizar base de funcionamiento (crea nueva versión automáticamente).
 ```
 
 **Output:**
+
 ```typescript
 {
   success: boolean,
@@ -202,82 +214,95 @@ Actualizar base de funcionamiento (crea nueva versión automáticamente).
 ```
 
 #### `committeeOperatingRules.list`
+
 Listar todas las bases de funcionamiento.
 
 **Output:**
+
 ```typescript
 Array<{
-  id: number,
-  version: string,
-  effectiveDate: string,
-  reviewDate: string,
-  nextReviewDate: string,
-  status: string,
-  createdBy: number,
-  createdAt: Date,
-  updatedAt: Date,
-  creatorName: string
-}>
+  id: number;
+  version: string;
+  effectiveDate: string;
+  reviewDate: string;
+  nextReviewDate: string;
+  status: string;
+  createdBy: number;
+  createdAt: Date;
+  updatedAt: Date;
+  creatorName: string;
+}>;
 ```
 
 #### `committeeOperatingRules.getById`
+
 Obtener base de funcionamiento específica.
 
 **Input:**
+
 ```typescript
 {
-  id: number
+  id: number;
 }
 ```
 
 **Output:**
+
 ```typescript
-CommitteeOperatingRules
+CommitteeOperatingRules;
 ```
 
 #### `committeeOperatingRules.listVersions`
+
 Listar historial de versiones.
 
 **Input:**
+
 ```typescript
 {
-  operatingRuleId: number
+  operatingRuleId: number;
 }
 ```
 
 **Output:**
+
 ```typescript
 Array<{
-  id: number,
-  versionNumber: number,
-  version: string,
-  effectiveDate: string,
-  changeDescription: string,
-  createdBy: number,
-  createdAt: Date,
-  creatorName: string
-}>
+  id: number;
+  versionNumber: number;
+  version: string;
+  effectiveDate: string;
+  changeDescription: string;
+  createdBy: number;
+  createdAt: Date;
+  creatorName: string;
+}>;
 ```
 
 #### `committeeOperatingRules.getVersion`
+
 Obtener versión específica.
 
 **Input:**
+
 ```typescript
 {
-  versionId: number
+  versionId: number;
 }
 ```
 
 **Output:**
+
 ```typescript
-CommitteeOperatingRulesVersion
+CommitteeOperatingRulesVersion;
 ```
 
 #### `committeeOperatingRules.restoreVersion`
+
 Restaurar versión anterior.
 
 **Input:**
+
 ```typescript
 {
   operatingRuleId: number,
@@ -287,6 +312,7 @@ Restaurar versión anterior.
 ```
 
 **Output:**
+
 ```typescript
 {
   success: boolean,
@@ -295,9 +321,11 @@ Restaurar versión anterior.
 ```
 
 #### `committeeOperatingRules.compareVersions`
+
 Comparar dos versiones.
 
 **Input:**
+
 ```typescript
 {
   versionId1: number,
@@ -306,6 +334,7 @@ Comparar dos versiones.
 ```
 
 **Output:**
+
 ```typescript
 {
   version1: CommitteeOperatingRulesVersion,
@@ -317,46 +346,54 @@ Comparar dos versiones.
 ```
 
 #### `committeeOperatingRules.approve`
+
 Aprobar base de funcionamiento.
 
 **Input:**
+
 ```typescript
 {
-  id: number
+  id: number;
 }
 ```
 
 **Output:**
+
 ```typescript
 {
-  success: boolean
+  success: boolean;
 }
 ```
 
 ## Mejores Prácticas
 
 ### 1. Descripciones de Cambios
+
 - **Siempre agregar descripción**: Documentar el motivo de cada cambio
 - **Ser específico**: Indicar qué se modificó y por qué
 - **Incluir referencias**: Mencionar acuerdos de reunión o documentos relacionados
 
 **Ejemplos:**
+
 - ✅ "Actualización de quórum mínimo de 50% a 60% según acuerdo de reunión del 15/01/2024"
 - ✅ "Modificación de procedimiento de atención de casos para incluir seguimiento post-cierre"
 - ❌ "Actualización" (muy vago)
 - ❌ "Cambios varios" (no específico)
 
 ### 2. Revisiones Periódicas
+
 - **Establecer calendario**: Definir fechas de revisión periódica
 - **Usar campo nextReviewDate**: Programar próxima revisión
 - **Revisar antes de aprobar**: Validar contenido completo antes de activar
 
 ### 3. Restauraciones
+
 - **Usar con precaución**: Solo restaurar cuando sea absolutamente necesario
 - **Documentar motivo**: Explicar claramente por qué se restaura
 - **Notificar al comité**: Informar a todos los miembros sobre la restauración
 
 ### 4. Comparaciones
+
 - **Antes de aprobar**: Comparar con versión anterior para validar cambios
 - **Documentación de cambios**: Usar comparación para generar resumen de cambios
 - **Auditorías**: Facilita revisiones de auditoría y cumplimiento
@@ -364,18 +401,22 @@ Aprobar base de funcionamiento.
 ## Troubleshooting
 
 ### Problema: No se puede crear nueva versión
+
 **Causa**: Falta descripción de cambios o campos obligatorios vacíos
 **Solución**: Completar todos los campos obligatorios y agregar descripción de cambios
 
 ### Problema: No aparece botón de "Comparar Versiones"
+
 **Causa**: Solo existe una versión
 **Solución**: Se requieren al menos 2 versiones para comparar
 
 ### Problema: Error al restaurar versión
+
 **Causa**: Versión no encontrada o permisos insuficientes
 **Solución**: Verificar que la versión existe y que el usuario tiene permisos de edición
 
 ### Problema: No se puede aprobar base de funcionamiento
+
 **Causa**: Usuario sin permisos de aprobación
 **Solución**: Solo administradores y miembros del comité pueden aprobar
 
@@ -390,15 +431,18 @@ Aprobar base de funcionamiento.
 ## Integración con Otros Módulos
 
 ### Generación de PDFs
+
 - Las bases de funcionamiento pueden exportarse a PDF
 - El PDF incluye la versión actual y fecha de vigencia
 - Se puede generar PDF de versiones históricas para archivo
 
 ### Actas de Reunión
+
 - Las modificaciones a las bases de funcionamiento pueden referenciarse en actas
 - Las actas pueden incluir aprobación de nuevas versiones
 
 ### Auditoría
+
 - Todas las operaciones quedan registradas con usuario y fecha
 - El historial de versiones sirve como evidencia de cumplimiento
 - Las comparaciones facilitan auditorías de cambios

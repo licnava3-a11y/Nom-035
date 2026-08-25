@@ -1,33 +1,52 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { committeeTrainings, evaluations, trainingAssignments, trainingCosts, trainingEvaluations, workplaceViolenceCases } from "../../drizzle/schema";
+import {
+  committeeTrainings,
+  evaluations,
+  trainingAssignments,
+  trainingCosts,
+  trainingEvaluations,
+  workplaceViolenceCases,
+} from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 
 export const trainingROIRouter = router({
   // Crear o actualizar costos de una capacitación
   upsertCosts: protectedProcedure
-    .input(z.object({
-      trainingId: z.number(),
-      instructorCost: z.number(),
-      materialsCost: z.number(),
-      facilitiesCost: z.number(),
-      laborHoursCost: z.number(),
-      otherCosts: z.number(),
-      notes: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        trainingId: z.number(),
+        instructorCost: z.number(),
+        materialsCost: z.number(),
+        facilitiesCost: z.number(),
+        laborHoursCost: z.number(),
+        otherCosts: z.number(),
+        notes: z.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const totalCost = input.instructorCost + input.materialsCost + input.facilitiesCost + input.laborHoursCost + input.otherCosts;
+      const totalCost =
+        input.instructorCost +
+        input.materialsCost +
+        input.facilitiesCost +
+        input.laborHoursCost +
+        input.otherCosts;
 
       // Verificar si ya existe un registro de costos
-      const existing = await db.select().from(trainingCosts).where(eq(trainingCosts.trainingId, input.trainingId)).limit(1);
+      const existing = await db
+        .select()
+        .from(trainingCosts)
+        .where(eq(trainingCosts.trainingId, input.trainingId))
+        .limit(1);
 
       if (existing.length > 0) {
         // Actualizar
-        await db.update(trainingCosts)
+        await db
+          .update(trainingCosts)
           .set({
             instructorCost: input.instructorCost.toString(),
             materialsCost: input.materialsCost.toString(),
@@ -64,47 +83,68 @@ export const trainingROIRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const costs = await db.select().from(trainingCosts).where(eq(trainingCosts.trainingId, input.trainingId)).limit(1);
+      const costs = await db
+        .select()
+        .from(trainingCosts)
+        .where(eq(trainingCosts.trainingId, input.trainingId))
+        .limit(1);
       return costs[0] || null;
     }),
 
   // Calcular ROI de una capacitación específica
   calculateROI: protectedProcedure
-    .input(z.object({
-      trainingId: z.number(),
-      periodMonths: z.number().default(6), // Período de análisis (meses)
-    }))
+    .input(
+      z.object({
+        trainingId: z.number(),
+        periodMonths: z.number().default(6), // Período de análisis (meses)
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
       // 1. Obtener costos
-      const costsData = await db.select().from(trainingCosts).where(eq(trainingCosts.trainingId, input.trainingId)).limit(1);
+      const costsData = await db
+        .select()
+        .from(trainingCosts)
+        .where(eq(trainingCosts.trainingId, input.trainingId))
+        .limit(1);
       if (!costsData.length) {
-        return { error: "No se encontraron costos registrados para esta capacitación" };
+        return {
+          error: "No se encontraron costos registrados para esta capacitación",
+        };
       }
       const costs = costsData[0];
       const totalCost = parseFloat(costs.totalCost);
 
       // 2. Obtener información de la capacitación
-      const training = await db.select().from(committeeTrainings).where(eq(committeeTrainings.id, input.trainingId)).limit(1);
+      const training = await db
+        .select()
+        .from(committeeTrainings)
+        .where(eq(committeeTrainings.id, input.trainingId))
+        .limit(1);
       if (!training.length) {
         return { error: "Capacitación no encontrada" };
       }
 
       // 3. Obtener asignaciones completadas
-      const assignments = await db.select()
+      const assignments = await db
+        .select()
         .from(trainingAssignments)
-        .where(and(
-          eq(trainingAssignments.trainingId, input.trainingId),
-          sql`${trainingAssignments.status} = 'completed'`
-        ));
+        .where(
+          and(
+            eq(trainingAssignments.trainingId, input.trainingId),
+            sql`${trainingAssignments.status} = 'completed'`
+          )
+        );
 
       const completedCount = assignments.length;
 
       // 4. Calcular reducción de casos (comparar antes/después de la capacitación)
       // Obtener fecha promedio de completitud
-      const completedDates = assignments.map((a: any) => a.completedAt).filter(Boolean) as Date[];
+      const completedDates = assignments
+        .map((a: any) => a.completedAt)
+        .filter(Boolean) as Date[];
       if (completedDates.length === 0) {
         return {
           totalCost,
@@ -114,11 +154,16 @@ export const trainingROIRouter = router({
           certificatesObtained: completedCount,
           totalBenefits: 0,
           roi: 0,
-          message: "No hay asignaciones completadas para calcular ROI"
+          message: "No hay asignaciones completadas para calcular ROI",
         };
       }
 
-      const avgCompletionDate = new Date(completedDates.reduce((sum: any, date: any) => sum + date.getTime(), 0) / completedDates.length);
+      const avgCompletionDate = new Date(
+        completedDates.reduce(
+          (sum: any, date: any) => sum + date.getTime(),
+          0
+        ) / completedDates.length
+      );
 
       // Casos ANTES de la capacitación (6 meses antes de la fecha promedio de completitud)
       const beforeDate = new Date(avgCompletionDate);
@@ -127,8 +172,8 @@ export const trainingROIRouter = router({
       const casesBeforeRaw = await db.execute(sql`
         SELECT COUNT(*) as count 
         FROM workplace_violence_cases 
-        WHERE DATE(created_at) >= DATE(${beforeDate.toISOString().split('T')[0]}) 
-        AND DATE(created_at) < DATE(${avgCompletionDate.toISOString().split('T')[0]})
+        WHERE DATE(created_at) >= DATE(${beforeDate.toISOString().split("T")[0]}) 
+        AND DATE(created_at) < DATE(${avgCompletionDate.toISOString().split("T")[0]})
       `);
       const casesBefore = ((casesBeforeRaw as any).rows[0] as any).count || 0;
 
@@ -140,24 +185,31 @@ export const trainingROIRouter = router({
       const casesAfterRaw = await db.execute(sql`
         SELECT COUNT(*) as count 
         FROM workplace_violence_cases 
-        WHERE DATE(created_at) >= DATE(${avgCompletionDate.toISOString().split('T')[0]}) 
-        AND DATE(created_at) < DATE(${afterEndDate.toISOString().split('T')[0]})
+        WHERE DATE(created_at) >= DATE(${avgCompletionDate.toISOString().split("T")[0]}) 
+        AND DATE(created_at) < DATE(${afterEndDate.toISOString().split("T")[0]})
       `);
       const casesAfter = ((casesAfterRaw as any).rows[0] as any).count || 0;
 
       const casesReduction = Math.max(0, casesBefore - casesAfter);
-      const casesReductionPercent = casesBefore > 0 ? ((casesReduction / casesBefore) * 100) : 0;
+      const casesReductionPercent =
+        casesBefore > 0 ? (casesReduction / casesBefore) * 100 : 0;
 
       // 5. Calcular mejora en evaluaciones
-      const evaluations = await db.select()
+      const evaluations = await db
+        .select()
         .from(trainingEvaluations)
         .where(eq(trainingEvaluations.assignmentId, input.trainingId));
 
-      const avgRating = evaluations.length > 0
-        ? evaluations.reduce((sum: number, ev: any) => sum + (ev.overallRating || 0), 0) / evaluations.length
-        : 0;
+      const avgRating =
+        evaluations.length > 0
+          ? evaluations.reduce(
+              (sum: number, ev: any) => sum + (ev.overallRating || 0),
+              0
+            ) / evaluations.length
+          : 0;
 
-      const evaluationImprovement = avgRating >= 4 ? 10 : avgRating >= 3.5 ? 5 : 0; // % de mejora estimada
+      const evaluationImprovement =
+        avgRating >= 4 ? 10 : avgRating >= 3.5 ? 5 : 0; // % de mejora estimada
 
       // 6. Certificados obtenidos
       const certificatesObtained = completedCount;
@@ -168,15 +220,18 @@ export const trainingROIRouter = router({
       const casesBenefit = casesReduction * costPerCase;
 
       // Beneficio por mejora en evaluaciones (estimación: 2% de productividad por cada 10% de mejora)
-      const productivityBenefit = (evaluationImprovement / 10) * 0.02 * totalCost;
+      const productivityBenefit =
+        (evaluationImprovement / 10) * 0.02 * totalCost;
 
       // Beneficio por certificaciones (estimación: $1,000 MXN por certificado)
       const certificationsBenefit = certificatesObtained * 1000;
 
-      const totalBenefits = casesBenefit + productivityBenefit + certificationsBenefit;
+      const totalBenefits =
+        casesBenefit + productivityBenefit + certificationsBenefit;
 
       // 8. Calcular ROI
-      const roi = totalCost > 0 ? ((totalBenefits - totalCost) / totalCost) * 100 : 0;
+      const roi =
+        totalCost > 0 ? ((totalBenefits - totalCost) / totalCost) * 100 : 0;
 
       return {
         totalCost,
@@ -198,24 +253,33 @@ export const trainingROIRouter = router({
 
   // Dashboard de ROI general
   getDashboard: protectedProcedure
-    .input(z.object({
-      periodMonths: z.number().default(6),
-    }))
+    .input(
+      z.object({
+        periodMonths: z.number().default(6),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
       // Obtener todas las capacitaciones con costos
-      const allCosts = await db.select({
-        id: trainingCosts.id,
-        trainingId: trainingCosts.trainingId,
-        totalCost: trainingCosts.totalCost,
-        trainingTitle: committeeTrainings.title,
-      })
+      const allCosts = await db
+        .select({
+          id: trainingCosts.id,
+          trainingId: trainingCosts.trainingId,
+          totalCost: trainingCosts.totalCost,
+          trainingTitle: committeeTrainings.title,
+        })
         .from(trainingCosts)
-        .leftJoin(committeeTrainings, eq(trainingCosts.trainingId, committeeTrainings.id));
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingCosts.trainingId, committeeTrainings.id)
+        );
 
-      const totalInvestment = allCosts.reduce((sum: number, c: any) => sum + parseFloat(c.totalCost), 0);
+      const totalInvestment = allCosts.reduce(
+        (sum: number, c: any) => sum + parseFloat(c.totalCost),
+        0
+      );
 
       // Calcular ROI para cada capacitación
       const roiPromises = allCosts.map(async (cost: any) => {
@@ -234,8 +298,14 @@ export const trainingROIRouter = router({
         const avgRating = row.avgRating || 0;
 
         // Estimación simple de beneficios
-        const estimatedBenefits = (completedAssignments * 1000) + (avgRating >= 4 ? 5000 : 0);
-        const roi = parseFloat(cost.totalCost) > 0 ? ((estimatedBenefits - parseFloat(cost.totalCost)) / parseFloat(cost.totalCost)) * 100 : 0;
+        const estimatedBenefits =
+          completedAssignments * 1000 + (avgRating >= 4 ? 5000 : 0);
+        const roi =
+          parseFloat(cost.totalCost) > 0
+            ? ((estimatedBenefits - parseFloat(cost.totalCost)) /
+                parseFloat(cost.totalCost)) *
+              100
+            : 0;
 
         return {
           trainingId: cost.trainingId,
@@ -250,11 +320,20 @@ export const trainingROIRouter = router({
 
       const roiData = await Promise.all(roiPromises);
 
-      const totalBenefits = roiData.reduce((sum: number, r: any) => sum + r.estimatedBenefits, 0);
-      const avgROI = roiData.length > 0 ? roiData.reduce((sum: number, r: any) => sum + r.roi, 0) / roiData.length : 0;
+      const totalBenefits = roiData.reduce(
+        (sum: number, r: any) => sum + r.estimatedBenefits,
+        0
+      );
+      const avgROI =
+        roiData.length > 0
+          ? roiData.reduce((sum: number, r: any) => sum + r.roi, 0) /
+            roiData.length
+          : 0;
 
       // Top 5 capacitaciones con mejor ROI
-      const topROI = roiData.sort((a: any, b: any) => b.roi - a.roi).slice(0, 5);
+      const topROI = roiData
+        .sort((a: any, b: any) => b.roi - a.roi)
+        .slice(0, 5);
 
       return {
         totalInvestment: Math.round(totalInvestment * 100) / 100,
@@ -267,12 +346,12 @@ export const trainingROIRouter = router({
     }),
 
   // Listar todas las capacitaciones con sus costos
-  listWithCosts: protectedProcedure
-    .query(async () => {
-      const db = await getDb();
-      if (!db) throw new Error("Database not available");
+  listWithCosts: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
 
-      const trainingsWithCosts = await db.select({
+    const trainingsWithCosts = await db
+      .select({
         trainingId: committeeTrainings.id,
         title: committeeTrainings.title,
         type: committeeTrainings.type,
@@ -285,18 +364,21 @@ export const trainingROIRouter = router({
         laborHoursCost: trainingCosts.laborHoursCost,
         otherCosts: trainingCosts.otherCosts,
       })
-        .from(committeeTrainings)
-        .leftJoin(trainingCosts, eq(committeeTrainings.id, trainingCosts.trainingId));
+      .from(committeeTrainings)
+      .leftJoin(
+        trainingCosts,
+        eq(committeeTrainings.id, trainingCosts.trainingId)
+      );
 
-      return trainingsWithCosts.map((t: any) => ({
-        ...t,
-        totalCost: t.totalCost ? parseFloat(t.totalCost) : 0,
-        instructorCost: t.instructorCost ? parseFloat(t.instructorCost) : 0,
-        materialsCost: t.materialsCost ? parseFloat(t.materialsCost) : 0,
-        facilitiesCost: t.facilitiesCost ? parseFloat(t.facilitiesCost) : 0,
-        laborHoursCost: t.laborHoursCost ? parseFloat(t.laborHoursCost) : 0,
-        otherCosts: t.otherCosts ? parseFloat(t.otherCosts) : 0,
-        hasCosts: t.costId !== null,
-      }));
-    }),
+    return trainingsWithCosts.map((t: any) => ({
+      ...t,
+      totalCost: t.totalCost ? parseFloat(t.totalCost) : 0,
+      instructorCost: t.instructorCost ? parseFloat(t.instructorCost) : 0,
+      materialsCost: t.materialsCost ? parseFloat(t.materialsCost) : 0,
+      facilitiesCost: t.facilitiesCost ? parseFloat(t.facilitiesCost) : 0,
+      laborHoursCost: t.laborHoursCost ? parseFloat(t.laborHoursCost) : 0,
+      otherCosts: t.otherCosts ? parseFloat(t.otherCosts) : 0,
+      hasCosts: t.costId !== null,
+    }));
+  }),
 });

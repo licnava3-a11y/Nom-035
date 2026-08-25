@@ -1,11 +1,28 @@
 import { useState } from "react";
 import { trpc } from "../lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { Badge } from "../components/ui/badge";
 import { Loader2, Calendar, Send, FileText, Clock, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -13,55 +30,64 @@ import { Checkbox } from "../components/ui/checkbox";
 
 export default function ScheduledReports() {
   const [reportName, setReportName] = useState("");
-  const [frequency, setFrequency] = useState<"daily" | "weekly" | "monthly">("monthly");
+  const [frequency, setFrequency] = useState<"daily" | "weekly" | "monthly">(
+    "monthly"
+  );
   const [recipientEmail, setRecipientEmail] = useState("");
   const [includeNMX025, setIncludeNMX025] = useState(true);
   const [includeNOM035, setIncludeNOM035] = useState(true);
 
   // Queries
-  const { data: scheduledReports, isLoading: reportsLoading } = trpc.scheduledReports.getScheduledReports.useQuery();
-  const { data: reportHistory, isLoading: historyLoading } = trpc.scheduledReports.getReportHistory.useQuery({
-    limit: 50,
-  });
+  const { data: scheduledReports, isLoading: reportsLoading } =
+    trpc.scheduledReports.getScheduledReports.useQuery();
+  const { data: reportHistory, isLoading: historyLoading } =
+    trpc.scheduledReports.getReportHistory.useQuery({
+      limit: 50,
+    });
 
   // Mutations
-  const createReportMutation = trpc.scheduledReports.createScheduledReport.useMutation({
-    onSuccess: () => {
-      toast.success("Reporte programado creado exitosamente");
-      setReportName("");
-      setRecipientEmail("");
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const createReportMutation =
+    trpc.scheduledReports.createScheduledReport.useMutation({
+      onSuccess: () => {
+        toast.success("Reporte programado creado exitosamente");
+        setReportName("");
+        setRecipientEmail("");
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
-  const sendReportNowMutation = trpc.scheduledReports.sendReportNow.useMutation({
-    onSuccess: () => {
-      toast.success("Reporte enviado exitosamente");
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const sendReportNowMutation = trpc.scheduledReports.sendReportNow.useMutation(
+    {
+      onSuccess: () => {
+        toast.success("Reporte enviado exitosamente");
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    }
+  );
 
-  const deleteReportMutation = trpc.scheduledReports.deleteScheduledReport.useMutation({
-    onSuccess: () => {
-      toast.success("Reporte eliminado exitosamente");
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const deleteReportMutation =
+    trpc.scheduledReports.deleteScheduledReport.useMutation({
+      onSuccess: () => {
+        toast.success("Reporte eliminado exitosamente");
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
-  const updateConfigMutation = trpc.scheduledReports.updateReportConfig.useMutation({
-    onSuccess: () => {
-      toast.success("Configuración actualizada exitosamente");
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const updateConfigMutation =
+    trpc.scheduledReports.updateReportConfig.useMutation({
+      onSuccess: () => {
+        toast.success("Configuración actualizada exitosamente");
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
   // Render Scheduled Reports
   const renderScheduledReports = () => {
@@ -70,7 +96,9 @@ export default function ScheduledReports() {
     return (
       <div className="space-y-4">
         {scheduledReports.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">No hay reportes programados</p>
+          <p className="text-center text-muted-foreground py-8">
+            No hay reportes programados
+          </p>
         ) : (
           scheduledReports.map((report: any) => (
             <Card key={report.id}>
@@ -86,14 +114,22 @@ export default function ScheduledReports() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Frecuencia</p>
-                    <p className="text-base font-medium capitalize">{report.frequency}</p>
+                    <p className="text-base font-medium capitalize">
+                      {report.frequency}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Destinatario</p>
-                    <p className="text-base font-medium">{report.recipientEmail}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Destinatario
+                    </p>
+                    <p className="text-base font-medium">
+                      {report.recipientEmail}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Próximo Envío</p>
+                    <p className="text-sm text-muted-foreground">
+                      Próximo Envío
+                    </p>
                     <p className="text-base font-medium">
                       {report.nextRunDate
                         ? new Date(report.nextRunDate).toLocaleString("es-MX")
@@ -102,17 +138,25 @@ export default function ScheduledReports() {
                   </div>
                 </div>
                 <div className="mt-4 flex items-center gap-2">
-                  {report.includeNMX025 && <Badge variant="outline">NMX-025</Badge>}
-                  {report.includeNOM035 && <Badge variant="outline">NOM-035</Badge>}
+                  {report.includeNMX025 && (
+                    <Badge variant="outline">NMX-025</Badge>
+                  )}
+                  {report.includeNOM035 && (
+                    <Badge variant="outline">NOM-035</Badge>
+                  )}
                 </div>
                 <div className="mt-4 flex items-center gap-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => sendReportNowMutation.mutate({ reportId: report.id })}
+                    onClick={() =>
+                      sendReportNowMutation.mutate({ reportId: report.id })
+                    }
                     disabled={sendReportNowMutation.isPending}
                   >
-                    {sendReportNowMutation.isPending && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                    {sendReportNowMutation.isPending && (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    )}
                     <Send className="h-4 w-4 mr-2" />
                     Enviar Ahora
                   </Button>
@@ -120,7 +164,10 @@ export default function ScheduledReports() {
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      const newEmail = prompt("Nuevo email destinatario:", report.recipientEmail);
+                      const newEmail = prompt(
+                        "Nuevo email destinatario:",
+                        report.recipientEmail
+                      );
                       if (newEmail) {
                         updateConfigMutation.mutate({
                           reportId: report.id,
@@ -158,7 +205,9 @@ export default function ScheduledReports() {
     return (
       <div className="space-y-3">
         {reportHistory.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">No hay historial de envíos</p>
+          <p className="text-center text-muted-foreground py-8">
+            No hay historial de envíos
+          </p>
         ) : (
           reportHistory.map((entry: any) => (
             <Card key={entry.id}>
@@ -168,7 +217,11 @@ export default function ScheduledReports() {
                     <div className="flex items-center gap-2 mb-2">
                       <FileText className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">{entry.reportName}</span>
-                      <Badge variant={entry.status === "sent" ? "default" : "destructive"}>
+                      <Badge
+                        variant={
+                          entry.status === "sent" ? "default" : "destructive"
+                        }
+                      >
                         {entry.status === "sent" ? "Enviado" : "Error"}
                       </Badge>
                     </div>
@@ -179,14 +232,21 @@ export default function ScheduledReports() {
                       {new Date(entry.sentAt).toLocaleString("es-MX")}
                     </p>
                     {entry.errorMessage && (
-                      <p className="text-xs text-red-600 mt-2">Error: {entry.errorMessage}</p>
+                      <p className="text-xs text-red-600 mt-2">
+                        Error: {entry.errorMessage}
+                      </p>
                     )}
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground">Período</p>
                     <p className="text-sm font-medium">
-                      {new Date(entry.reportPeriodStart).toLocaleDateString("es-MX")} -{" "}
-                      {new Date(entry.reportPeriodEnd).toLocaleDateString("es-MX")}
+                      {new Date(entry.reportPeriodStart).toLocaleDateString(
+                        "es-MX"
+                      )}{" "}
+                      -{" "}
+                      {new Date(entry.reportPeriodEnd).toLocaleDateString(
+                        "es-MX"
+                      )}
                     </p>
                   </div>
                 </div>
@@ -212,7 +272,8 @@ export default function ScheduledReports() {
         <div>
           <h1 className="text-3xl font-bold">Reportes Automáticos</h1>
           <p className="text-muted-foreground">
-            Programación de dashboards ejecutivos con métricas NMX-025 y cumplimiento NOM-035
+            Programación de dashboards ejecutivos con métricas NMX-025 y
+            cumplimiento NOM-035
           </p>
         </div>
       </div>
@@ -225,7 +286,8 @@ export default function ScheduledReports() {
             Crear Nuevo Reporte Programado
           </CardTitle>
           <CardDescription>
-            Configura reportes automáticos que se enviarán por email según la frecuencia seleccionada
+            Configura reportes automáticos que se enviarán por email según la
+            frecuencia seleccionada
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -236,12 +298,15 @@ export default function ScheduledReports() {
                 id="reportName"
                 placeholder="Ej: Reporte Ejecutivo Mensual"
                 value={reportName}
-                onChange={(e) => setReportName(e.target.value)}
+                onChange={e => setReportName(e.target.value)}
               />
             </div>
             <div>
               <Label htmlFor="frequency">Frecuencia</Label>
-              <Select value={frequency} onValueChange={(value: any) => setFrequency(value)}>
+              <Select
+                value={frequency}
+                onValueChange={(value: any) => setFrequency(value)}
+              >
                 <SelectTrigger id="frequency">
                   <SelectValue />
                 </SelectTrigger>
@@ -259,7 +324,7 @@ export default function ScheduledReports() {
                 type="email"
                 placeholder="director@empresa.com"
                 value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
+                onChange={e => setRecipientEmail(e.target.value)}
               />
             </div>
           </div>
@@ -271,7 +336,9 @@ export default function ScheduledReports() {
                 <Checkbox
                   id="includeNMX025"
                   checked={includeNMX025}
-                  onCheckedChange={(checked) => setIncludeNMX025(checked as boolean)}
+                  onCheckedChange={checked =>
+                    setIncludeNMX025(checked as boolean)
+                  }
                 />
                 <label
                   htmlFor="includeNMX025"
@@ -284,7 +351,9 @@ export default function ScheduledReports() {
                 <Checkbox
                   id="includeNOM035"
                   checked={includeNOM035}
-                  onCheckedChange={(checked) => setIncludeNOM035(checked as boolean)}
+                  onCheckedChange={checked =>
+                    setIncludeNOM035(checked as boolean)
+                  }
                 />
                 <label
                   htmlFor="includeNOM035"
@@ -312,7 +381,9 @@ export default function ScheduledReports() {
             }}
             disabled={createReportMutation.isPending}
           >
-            {createReportMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {createReportMutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             <Mail className="mr-2 h-4 w-4" />
             Crear Reporte Programado
           </Button>

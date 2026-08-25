@@ -1,29 +1,65 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Shield, 
-  AlertTriangle, 
-  TrendingUp, 
+import {
+  Shield,
+  AlertTriangle,
+  TrendingUp,
   Download,
   Search,
   RefreshCw,
   CheckCircle,
   XCircle,
-  Eye
+  Eye,
 } from "lucide-react";
-import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Pie, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Pie, Bar } from "react-chartjs-2";
 
 // Registrar componentes de Chart.js
-ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 /**
  * Página de administración de violaciones CSRF
@@ -35,103 +71,134 @@ export default function CSRFViolationsPage() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
   const [ipFilter, setIpFilter] = useState("");
-  const [reasonFilter, setReasonFilter] = useState<string | undefined>(undefined);
+  const [reasonFilter, setReasonFilter] = useState<string | undefined>(
+    undefined
+  );
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
   // Queries de tRPC
-  const { data: violationsData, isLoading: loadingViolations, refetch: refetchViolations } = trpc.csrfViolations.getViolations.useQuery({
+  const {
+    data: violationsData,
+    isLoading: loadingViolations,
+    refetch: refetchViolations,
+  } = trpc.csrfViolations.getViolations.useQuery({
     page,
     pageSize,
     ipAddress: ipFilter || undefined,
-    reason: reasonFilter as "missing_token" | "invalid_token" | "expired_token" | "user_mismatch" | "malformed_token" | undefined,
+    reason: reasonFilter as
+      | "missing_token"
+      | "invalid_token"
+      | "expired_token"
+      | "user_mismatch"
+      | "malformed_token"
+      | undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
   });
 
-  const { data: statsData, isLoading: loadingStats } = trpc.csrfViolations.getStatistics.useQuery({} as any);
-  const { data: recentData, isLoading: loadingRecent } = trpc.csrfViolations.getRecentViolations.useQuery({} as any);
+  const { data: statsData, isLoading: loadingStats } =
+    trpc.csrfViolations.getStatistics.useQuery({} as any);
+  const { data: recentData, isLoading: loadingRecent } =
+    trpc.csrfViolations.getRecentViolations.useQuery({} as any);
 
   // Datos para gráficas
   const violationsByReasonData = {
     labels: statsData?.violationsByReason.map(v => v.reason) || [],
-    datasets: [{
-      label: 'Violaciones por Razón',
-      data: statsData?.violationsByReason.map(v => v.count) || [],
-      backgroundColor: [
-        '#dc2626', // rojo - missing_token
-        '#ea580c', // naranja - invalid_token
-        '#ca8a04', // amarillo - expired_token
-        '#16a34a', // verde - user_mismatch
-        '#0284c7', // azul - malformed_token
-      ],
-      borderColor: '#1e293b',
-      borderWidth: 2,
-    }],
+    datasets: [
+      {
+        label: "Violaciones por Razón",
+        data: statsData?.violationsByReason.map(v => v.count) || [],
+        backgroundColor: [
+          "#dc2626", // rojo - missing_token
+          "#ea580c", // naranja - invalid_token
+          "#ca8a04", // amarillo - expired_token
+          "#16a34a", // verde - user_mismatch
+          "#0284c7", // azul - malformed_token
+        ],
+        borderColor: "#1e293b",
+        borderWidth: 2,
+      },
+    ],
   };
 
   const topIPsData = {
     labels: statsData?.topAttackerIPs.slice(0, 10).map(v => v.ipAddress) || [],
-    datasets: [{
-      label: 'Intentos Fallidos',
-      data: statsData?.topAttackerIPs.slice(0, 10).map(v => v.count) || [],
-      backgroundColor: '#dc2626',
-      borderColor: '#1e293b',
-      borderWidth: 2,
-    }],
+    datasets: [
+      {
+        label: "Intentos Fallidos",
+        data: statsData?.topAttackerIPs.slice(0, 10).map(v => v.count) || [],
+        backgroundColor: "#dc2626",
+        borderColor: "#1e293b",
+        borderWidth: 2,
+      },
+    ],
   };
 
   const topEndpointsData = {
-    labels: statsData?.topTargetedEndpoints.slice(0, 10).map(v => v.endpoint || 'unknown') || [],
-    datasets: [{
-      label: 'Ataques',
-      data: statsData?.topTargetedEndpoints.slice(0, 10).map(v => v.count) || [],
-      backgroundColor: '#0f172a', // azul marino oscuro
-      borderColor: '#1e293b',
-      borderWidth: 2,
-    }],
+    labels:
+      statsData?.topTargetedEndpoints
+        .slice(0, 10)
+        .map(v => v.endpoint || "unknown") || [],
+    datasets: [
+      {
+        label: "Ataques",
+        data:
+          statsData?.topTargetedEndpoints.slice(0, 10).map(v => v.count) || [],
+        backgroundColor: "#0f172a", // azul marino oscuro
+        borderColor: "#1e293b",
+        borderWidth: 2,
+      },
+    ],
   };
 
   // Función para exportar a Excel (simplificada - en producción usar librería como xlsx)
   const handleExport = () => {
     if (!violationsData?.violations) return;
-    
-    const csv = [
-      ['ID', 'IP Address', 'Razón', 'Endpoint', 'User Agent', 'Fecha'].join(','),
-      ...(violationsData.violations as any[]).map((v: any) => [
-        v.id,
-        v.ipAddress,
-        v.reason,
-        v.endpoint || '',
-        `"${v.userAgent || ''}"`,
-        new Date(v.attemptedAt).toLocaleString('es-MX')
-      ].join(','))
-    ].join('\n');
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const csv = [
+      ["ID", "IP Address", "Razón", "Endpoint", "User Agent", "Fecha"].join(
+        ","
+      ),
+      ...(violationsData.violations as any[]).map((v: any) =>
+        [
+          v.id,
+          v.ipAddress,
+          v.reason,
+          v.endpoint || "",
+          `"${v.userAgent || ""}"`,
+          new Date(v.attemptedAt).toLocaleString("es-MX"),
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `csrf-violations-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `csrf-violations-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
   // Mapeo de razones a etiquetas legibles
   const reasonLabels: Record<string, string> = {
-    missing_token: 'Token Faltante',
-    invalid_token: 'Token Inválido',
-    expired_token: 'Token Expirado',
-    user_mismatch: 'Usuario No Coincide',
-    malformed_token: 'Token Malformado',
+    missing_token: "Token Faltante",
+    invalid_token: "Token Inválido",
+    expired_token: "Token Expirado",
+    user_mismatch: "Usuario No Coincide",
+    malformed_token: "Token Malformado",
   };
 
   // Mapeo de razones a colores de badge
-  const reasonColors: Record<string, "destructive" | "default" | "secondary" | "outline"> = {
-    missing_token: 'destructive',
-    invalid_token: 'destructive',
-    expired_token: 'secondary',
-    user_mismatch: 'default',
-    malformed_token: 'destructive',
+  const reasonColors: Record<
+    string,
+    "destructive" | "default" | "secondary" | "outline"
+  > = {
+    missing_token: "destructive",
+    invalid_token: "destructive",
+    expired_token: "secondary",
+    user_mismatch: "default",
+    malformed_token: "destructive",
   };
 
   if (loadingViolations || loadingStats) {
@@ -172,10 +239,12 @@ export default function CSRFViolationsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{statsData?.totalViolations || 0}</div>
+            <div className="text-3xl font-bold">
+              {statsData?.totalViolations || 0}
+            </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -219,7 +288,9 @@ export default function CSRFViolationsPage() {
       {/* Tabs */}
       <Tabs defaultValue="violationsData?.violations" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="violationsData?.violations">Violaciones</TabsTrigger>
+          <TabsTrigger value="violationsData?.violations">
+            Violaciones
+          </TabsTrigger>
           <TabsTrigger value="statistics">Estadísticas</TabsTrigger>
           <TabsTrigger value="alerts">Alertas Activas</TabsTrigger>
         </TabsList>
@@ -239,7 +310,7 @@ export default function CSRFViolationsPage() {
                   <Input
                     placeholder="192.168.1.1"
                     value={ipFilter}
-                    onChange={(e) => setIpFilter(e.target.value)}
+                    onChange={e => setIpFilter(e.target.value)}
                     className="pl-8"
                   />
                 </div>
@@ -253,11 +324,21 @@ export default function CSRFViolationsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todas</SelectItem>
-                    <SelectItem value="missing_token">Token Faltante</SelectItem>
-                    <SelectItem value="invalid_token">Token Inválido</SelectItem>
-                    <SelectItem value="expired_token">Token Expirado</SelectItem>
-                    <SelectItem value="user_mismatch">Usuario No Coincide</SelectItem>
-                    <SelectItem value="malformed_token">Token Malformado</SelectItem>
+                    <SelectItem value="missing_token">
+                      Token Faltante
+                    </SelectItem>
+                    <SelectItem value="invalid_token">
+                      Token Inválido
+                    </SelectItem>
+                    <SelectItem value="expired_token">
+                      Token Expirado
+                    </SelectItem>
+                    <SelectItem value="user_mismatch">
+                      Usuario No Coincide
+                    </SelectItem>
+                    <SelectItem value="malformed_token">
+                      Token Malformado
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -267,7 +348,7 @@ export default function CSRFViolationsPage() {
                 <Input
                   type="date"
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={e => setStartDate(e.target.value)}
                 />
               </div>
 
@@ -276,7 +357,7 @@ export default function CSRFViolationsPage() {
                 <Input
                   type="date"
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={e => setEndDate(e.target.value)}
                 />
               </div>
             </CardContent>
@@ -287,7 +368,8 @@ export default function CSRFViolationsPage() {
             <CardHeader>
               <CardTitle>Violaciones Registradas</CardTitle>
               <CardDescription>
-                {violationsData?.pagination?.totalCount || 0} violaciones encontradas
+                {violationsData?.pagination?.totalCount || 0} violaciones
+                encontradas
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -302,30 +384,39 @@ export default function CSRFViolationsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(violationsData?.violations as any[])?.map((violation: any) => (
-                    <TableRow key={violation.id}>
-                      <TableCell className="font-mono text-sm">{violation.id}</TableCell>
-                      <TableCell className="font-mono">{(violation as any).ipAddress}</TableCell>
-                      <TableCell>
-                        <Badge variant={reasonColors[violation.reason]}>
-                          {reasonLabels[violation.reason]}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {violation.endpoint || 'N/A'}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {new Date(violation.attemptedAt).toLocaleString('es-MX')}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {(violationsData?.violations as any[])?.map(
+                    (violation: any) => (
+                      <TableRow key={violation.id}>
+                        <TableCell className="font-mono text-sm">
+                          {violation.id}
+                        </TableCell>
+                        <TableCell className="font-mono">
+                          {(violation as any).ipAddress}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={reasonColors[violation.reason]}>
+                            {reasonLabels[violation.reason]}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">
+                          {violation.endpoint || "N/A"}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {new Date(violation.attemptedAt).toLocaleString(
+                            "es-MX"
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  )}
                 </TableBody>
               </Table>
 
               {/* Paginación */}
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-muted-foreground">
-                  Página {page} de {(violationsData as any)?.pagination?.totalPages || 1}
+                  Página {page} de{" "}
+                  {(violationsData as any)?.pagination?.totalPages || 1}
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -340,7 +431,10 @@ export default function CSRFViolationsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setPage(p => p + 1)}
-                    disabled={page >= ((violationsData as any)?.pagination?.totalPages || 1)}
+                    disabled={
+                      page >=
+                      ((violationsData as any)?.pagination?.totalPages || 1)
+                    }
                   >
                     Siguiente
                   </Button>
@@ -357,19 +451,24 @@ export default function CSRFViolationsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Violaciones por Razón</CardTitle>
-                <CardDescription>Distribución de tipos de violaciones</CardDescription>
+                <CardDescription>
+                  Distribución de tipos de violaciones
+                </CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center">
-                <div style={{ maxWidth: '400px', maxHeight: '400px' }}>
-                  <Pie data={violationsByReasonData} options={{
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                      legend: {
-                        position: 'bottom',
+                <div style={{ maxWidth: "400px", maxHeight: "400px" }}>
+                  <Pie
+                    data={violationsByReasonData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: true,
+                      plugins: {
+                        legend: {
+                          position: "bottom",
+                        },
                       },
-                    },
-                  }} />
+                    }}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -381,20 +480,23 @@ export default function CSRFViolationsPage() {
                 <CardDescription>IPs con más intentos fallidos</CardDescription>
               </CardHeader>
               <CardContent>
-                <Bar data={topIPsData} options={{
-                  responsive: true,
-                  indexAxis: 'y',
-                  plugins: {
-                    legend: {
-                      display: false,
+                <Bar
+                  data={topIPsData}
+                  options={{
+                    responsive: true,
+                    indexAxis: "y",
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
                     },
-                  },
-                  scales: {
-                    x: {
-                      beginAtZero: true,
+                    scales: {
+                      x: {
+                        beginAtZero: true,
+                      },
                     },
-                  },
-                }} />
+                  }}
+                />
               </CardContent>
             </Card>
 
@@ -402,22 +504,27 @@ export default function CSRFViolationsPage() {
             <Card className="md:col-span-2">
               <CardHeader>
                 <CardTitle>Endpoints Más Atacados</CardTitle>
-                <CardDescription>Top 10 endpoints con más violaciones</CardDescription>
+                <CardDescription>
+                  Top 10 endpoints con más violaciones
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Bar data={topEndpointsData} options={{
-                  responsive: true,
-                  plugins: {
-                    legend: {
-                      display: false,
+                <Bar
+                  data={topEndpointsData}
+                  options={{
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
                     },
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                      },
                     },
-                  },
-                }} />
+                  }}
+                />
               </CardContent>
             </Card>
           </div>
@@ -428,7 +535,8 @@ export default function CSRFViolationsPage() {
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Las alertas se generan automáticamente cuando una IP tiene más de 10 intentos fallidos en 1 hora.
+              Las alertas se generan automáticamente cuando una IP tiene más de
+              10 intentos fallidos en 1 hora.
             </AlertDescription>
           </Alert>
 

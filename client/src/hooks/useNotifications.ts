@@ -40,10 +40,10 @@ export function useNotifications() {
 
     newSocket.on("connect", () => {
       console.log("[WebSocket] Conectado");
-      
+
       // Unirse a sala de usuario
       newSocket.emit("join-user-room", user.id);
-      
+
       // Si es admin, unirse a sala de administradores
       if (user.role === "admin") {
         newSocket.emit("join-admin-room");
@@ -53,11 +53,11 @@ export function useNotifications() {
     // Escuchar nuevas notificaciones
     newSocket.on("new-notification", (notification: Notification) => {
       console.log("[WebSocket] Nueva notificación:", notification);
-      
+
       // Agregar a lista
       setNotifications(prev => [notification, ...prev]);
       setUnreadCount(prev => prev + 1);
-      
+
       // Mostrar toast
       toast.info(notification.title, {
         description: notification.message,
@@ -69,7 +69,7 @@ export function useNotifications() {
     if (user.role === "admin") {
       newSocket.on("critical-alert", (alert: CriticalAlert) => {
         console.log("[WebSocket] Alerta crítica:", alert);
-        
+
         // Mostrar toast con prioridad alta
         toast.error(alert.title, {
           description: alert.message,

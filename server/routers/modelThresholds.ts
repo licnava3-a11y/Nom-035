@@ -12,8 +12,12 @@ export const modelThresholdsRouter = router({
   getActiveThresholds: protectedProcedure.query(async () => {
     try {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       const activeConfig = await db
         .select()
         .from(modelThresholds)
@@ -58,8 +62,12 @@ export const modelThresholdsRouter = router({
   getThresholdsHistory: protectedProcedure.query(async () => {
     try {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       const history = await db
         .select()
         .from(modelThresholds)
@@ -115,8 +123,12 @@ export const modelThresholdsRouter = router({
         }
 
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-        
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
         // Desactivar configuración actual
         await db
           .update(modelThresholds)
@@ -163,8 +175,12 @@ export const modelThresholdsRouter = router({
   resetToDefaults: protectedProcedure.mutation(async ({ ctx }) => {
     try {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       // Desactivar configuración actual
       await db
         .update(modelThresholds)
@@ -210,8 +226,12 @@ export const modelThresholdsRouter = router({
     .mutation(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-        
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
         // Verificar que la configuración existe
         const [config] = await db
           .select()

@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -22,7 +28,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Check, CheckCheck, Search, Trash2, Filter, X } from "lucide-react";
+import {
+  Bell,
+  Check,
+  CheckCheck,
+  Search,
+  Trash2,
+  Filter,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -107,7 +121,13 @@ export default function NotificationsHistory() {
   };
 
   const getTypeBadge = (type: string) => {
-    const badges: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
+    const badges: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        label: string;
+      }
+    > = {
       new_case: { variant: "default", label: "Nuevo Caso" },
       case_status_change: { variant: "secondary", label: "Cambio de Estado" },
       case_assigned: { variant: "default", label: "Caso Asignado" },
@@ -117,7 +137,10 @@ export default function NotificationsHistory() {
       employee_hire: { variant: "default", label: "Nueva Contratación" },
       employee_termination: { variant: "destructive", label: "Baja" },
       department_change: { variant: "secondary", label: "Cambio Depto" },
-      survey_expiring: { variant: "destructive", label: "Encuesta por Expirar" },
+      survey_expiring: {
+        variant: "destructive",
+        label: "Encuesta por Expirar",
+      },
       training_due: { variant: "destructive", label: "Capacitación Pendiente" },
       recognition: { variant: "default", label: "Reconocimiento" },
       system: { variant: "outline", label: "Sistema" },
@@ -155,7 +178,9 @@ export default function NotificationsHistory() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data?.length || 0}</div>
-            <p className="text-xs text-muted-foreground">Notificaciones totales</p>
+            <p className="text-xs text-muted-foreground">
+              Notificaciones totales
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -205,9 +230,15 @@ export default function NotificationsHistory() {
                   <SelectItem value="all">Todos los tipos</SelectItem>
                   <SelectItem value="new_case">Nuevo Caso</SelectItem>
                   <SelectItem value="case_assigned">Caso Asignado</SelectItem>
-                  <SelectItem value="case_status_change">Cambio de Estado</SelectItem>
-                  <SelectItem value="survey_expiring">Encuesta por Expirar</SelectItem>
-                  <SelectItem value="deadline_approaching">Fecha Límite</SelectItem>
+                  <SelectItem value="case_status_change">
+                    Cambio de Estado
+                  </SelectItem>
+                  <SelectItem value="survey_expiring">
+                    Encuesta por Expirar
+                  </SelectItem>
+                  <SelectItem value="deadline_approaching">
+                    Fecha Límite
+                  </SelectItem>
                   <SelectItem value="system">Sistema</SelectItem>
                 </SelectContent>
               </Select>
@@ -232,7 +263,7 @@ export default function NotificationsHistory() {
               <Input
                 type="date"
                 value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
+                onChange={e => setDateFrom(e.target.value)}
               />
             </div>
 
@@ -241,7 +272,7 @@ export default function NotificationsHistory() {
               <Input
                 type="date"
                 value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
+                onChange={e => setDateTo(e.target.value)}
               />
             </div>
           </div>
@@ -253,7 +284,7 @@ export default function NotificationsHistory() {
               <Input
                 placeholder="Buscar notificaciones..."
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                onChange={e => setSearchText(e.target.value)}
                 className="pl-9"
               />
             </div>

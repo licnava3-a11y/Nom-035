@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,7 +57,9 @@ export default function AlertAdminDashboard() {
   const { data: thresholds = [], isLoading: loadingThresholds } =
     trpc.alertThresholds.getAll.useQuery();
 
-  const [thresholdValues, setThresholdValues] = useState<Record<string, number>>({});
+  const [thresholdValues, setThresholdValues] = useState<
+    Record<string, number>
+  >({});
 
   useEffect(() => {
     if (thresholds.length > 0) {
@@ -68,15 +76,16 @@ export default function AlertAdminDashboard() {
       toast.success("Umbral actualizado correctamente");
       utils.alertThresholds.getAll.invalidate();
     },
-    onError: (err) => toast.error(`Error: ${err.message}`),
+    onError: err => toast.error(`Error: ${err.message}`),
   });
 
   const handleSaveThresholds = () => {
-    const updates = Object.entries(thresholdValues).map(([alertType, threshold]) =>
-      updateThreshold.mutateAsync({
-        alertType: alertType as any,
-        threshold,
-      })
+    const updates = Object.entries(thresholdValues).map(
+      ([alertType, threshold]) =>
+        updateThreshold.mutateAsync({
+          alertType: alertType as any,
+          threshold,
+        })
     );
     Promise.all(updates).catch(() => {});
   };
@@ -93,13 +102,16 @@ export default function AlertAdminDashboard() {
     }
   }, [freqSetting]);
 
-  const updateFrequency = trpc.systemSettings.updateAlertSummaryFrequency.useMutation({
-    onSuccess: () => {
-      toast.success("Frecuencia actualizada correctamente");
-      utils.systemSettings.getSetting.invalidate({ key: "alert_summary_frequency" });
-    },
-    onError: (err) => toast.error(`Error: ${err.message}`),
-  });
+  const updateFrequency =
+    trpc.systemSettings.updateAlertSummaryFrequency.useMutation({
+      onSuccess: () => {
+        toast.success("Frecuencia actualizada correctamente");
+        utils.systemSettings.getSetting.invalidate({
+          key: "alert_summary_frequency",
+        });
+      },
+      onError: err => toast.error(`Error: ${err.message}`),
+    });
 
   // ─── Destinatarios ───────────────────────────────────────────────────────────
   const { data: recipientsSetting } = trpc.systemSettings.getSetting.useQuery({
@@ -121,9 +133,11 @@ export default function AlertAdminDashboard() {
   const updateRecipients = trpc.systemSettings.updateSetting.useMutation({
     onSuccess: () => {
       toast.success("Destinatarios actualizados correctamente");
-      utils.systemSettings.getSetting.invalidate({ key: "alert_email_recipients" });
+      utils.systemSettings.getSetting.invalidate({
+        key: "alert_email_recipients",
+      });
     },
-    onError: (err) => toast.error(`Error: ${err.message}`),
+    onError: err => toast.error(`Error: ${err.message}`),
   });
 
   const handleAddEmail = () => {
@@ -147,7 +161,7 @@ export default function AlertAdminDashboard() {
   };
 
   const handleRemoveEmail = (email: string) => {
-    const updated = recipients.filter((r) => r !== email);
+    const updated = recipients.filter(r => r !== email);
     setRecipients(updated);
     updateRecipients.mutate({
       key: "alert_email_recipients",
@@ -157,29 +171,50 @@ export default function AlertAdminDashboard() {
   };
 
   // ─── Configuración SMTP ──────────────────────────────────────────────────────
-  const [smtpForm, setSmtpForm] = useState({ host: "", port: 587, user: "", pass: "", from: "", secure: false });
+  const [smtpForm, setSmtpForm] = useState({
+    host: "",
+    port: 587,
+    user: "",
+    pass: "",
+    from: "",
+    secure: false,
+  });
   const [smtpSaved, setSmtpSaved] = useState(false);
   const smtpConfigQuery = trpc.systemSettings.getSMTPConfig.useQuery(undefined);
   useEffect(() => {
     if (smtpConfigQuery.data) {
       const data = smtpConfigQuery.data as any;
-      setSmtpForm({ host: data.host, port: data.port, user: data.user, pass: data.pass, from: data.from, secure: data.secure });
+      setSmtpForm({
+        host: data.host,
+        port: data.port,
+        user: data.user,
+        pass: data.pass,
+        from: data.from,
+        secure: data.secure,
+      });
     }
   }, [smtpConfigQuery.data]);
   const saveSMTPConfig = trpc.systemSettings.saveSMTPConfig.useMutation({
-    onSuccess: () => { toast.success("Configuración SMTP guardada correctamente"); setSmtpSaved(true); setTimeout(() => setSmtpSaved(false), 3000); smtpConfigQuery.refetch(); },
-    onError: (err) => toast.error(err.message),
+    onSuccess: () => {
+      toast.success("Configuración SMTP guardada correctamente");
+      setSmtpSaved(true);
+      setTimeout(() => setSmtpSaved(false), 3000);
+      smtpConfigQuery.refetch();
+    },
+    onError: err => toast.error(err.message),
   });
   // ─── Prueba SMTP ─────────────────────────────────────────────────────────────
   const [smtpTestEmail, setSmtpTestEmail] = useState("");
-  const [smtpTestResult, setSmtpTestResult] = useState<"idle" | "success" | "error">("idle");
+  const [smtpTestResult, setSmtpTestResult] = useState<
+    "idle" | "success" | "error"
+  >("idle");
   const testSMTP = trpc.systemSettings.testSMTP.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
       setSmtpTestResult("success");
       setTimeout(() => setSmtpTestResult("idle"), 5000);
     },
-    onError: (err) => {
+    onError: err => {
       toast.error(err.message);
       setSmtpTestResult("error");
       setTimeout(() => setSmtpTestResult("idle"), 8000);
@@ -200,10 +235,14 @@ export default function AlertAdminDashboard() {
 
   const updateInterval = trpc.systemSettings.updateSetting.useMutation({
     onSuccess: () => {
-      toast.success("Intervalo actualizado. Requiere reinicio del servidor para aplicarse.");
-      utils.systemSettings.getSetting.invalidate({ key: "realtime_alert_interval_minutes" });
+      toast.success(
+        "Intervalo actualizado. Requiere reinicio del servidor para aplicarse."
+      );
+      utils.systemSettings.getSetting.invalidate({
+        key: "realtime_alert_interval_minutes",
+      });
     },
-    onError: (err) => toast.error(`Error: ${err.message}`),
+    onError: err => toast.error(`Error: ${err.message}`),
   });
 
   return (
@@ -223,7 +262,8 @@ export default function AlertAdminDashboard() {
         <div>
           <h1 className="text-2xl font-bold">Administración de Alertas</h1>
           <p className="text-muted-foreground text-sm">
-            Configure umbrales, frecuencias y destinatarios de todas las alertas del sistema
+            Configure umbrales, frecuencias y destinatarios de todas las alertas
+            del sistema
           </p>
         </div>
       </div>
@@ -242,12 +282,17 @@ export default function AlertAdminDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             {loadingThresholds ? (
-              <p className="text-sm text-muted-foreground">Cargando umbrales...</p>
+              <p className="text-sm text-muted-foreground">
+                Cargando umbrales...
+              </p>
             ) : (
               <>
                 {Object.entries(ALERT_TYPE_LABELS).map(([key, label]) => (
                   <div key={key} className="space-y-1">
-                    <Label htmlFor={`threshold-${key}`} className="text-sm font-medium">
+                    <Label
+                      htmlFor={`threshold-${key}`}
+                      className="text-sm font-medium"
+                    >
                       {label}
                     </Label>
                     <Input
@@ -256,8 +301,8 @@ export default function AlertAdminDashboard() {
                       min={0}
                       max={100}
                       value={thresholdValues[key] ?? ""}
-                      onChange={(e) =>
-                        setThresholdValues((prev) => ({
+                      onChange={e =>
+                        setThresholdValues(prev => ({
                           ...prev,
                           [key]: parseInt(e.target.value) || 0,
                         }))
@@ -273,7 +318,9 @@ export default function AlertAdminDashboard() {
                   size="sm"
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {updateThreshold.isPending ? "Guardando..." : "Guardar umbrales"}
+                  {updateThreshold.isPending
+                    ? "Guardando..."
+                    : "Guardar umbrales"}
                 </Button>
               </>
             )}
@@ -286,7 +333,9 @@ export default function AlertAdminDashboard() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-base">Frecuencia de Resumen por Correo</CardTitle>
+                <CardTitle className="text-base">
+                  Frecuencia de Resumen por Correo
+                </CardTitle>
               </div>
               <CardDescription>
                 Con qué periodicidad se envía el resumen consolidado de alertas
@@ -298,7 +347,7 @@ export default function AlertAdminDashboard() {
                   <SelectValue placeholder="Seleccionar frecuencia" />
                 </SelectTrigger>
                 <SelectContent>
-                  {FREQUENCY_OPTIONS.map((opt) => (
+                  {FREQUENCY_OPTIONS.map(opt => (
                     <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
                     </SelectItem>
@@ -306,13 +355,17 @@ export default function AlertAdminDashboard() {
                 </SelectContent>
               </Select>
               <Button
-                onClick={() => updateFrequency.mutate({ frequency: frequency as any })}
+                onClick={() =>
+                  updateFrequency.mutate({ frequency: frequency as any })
+                }
                 disabled={updateFrequency.isPending}
                 size="sm"
                 className="w-full"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {updateFrequency.isPending ? "Guardando..." : "Guardar frecuencia"}
+                {updateFrequency.isPending
+                  ? "Guardando..."
+                  : "Guardar frecuencia"}
               </Button>
             </CardContent>
           </Card>
@@ -321,10 +374,13 @@ export default function AlertAdminDashboard() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-green-500" />
-                <CardTitle className="text-base">Alertas en Tiempo Real (WebSocket)</CardTitle>
+                <CardTitle className="text-base">
+                  Alertas en Tiempo Real (WebSocket)
+                </CardTitle>
               </div>
               <CardDescription>
-                Intervalo de verificación de tareas vencidas y contratos próximos a vencer
+                Intervalo de verificación de tareas vencidas y contratos
+                próximos a vencer
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -338,11 +394,12 @@ export default function AlertAdminDashboard() {
                   min={5}
                   max={60}
                   value={alertInterval}
-                  onChange={(e) => setAlertInterval(e.target.value)}
+                  onChange={e => setAlertInterval(e.target.value)}
                   className="h-9"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Mínimo 5 minutos. Requiere reinicio del servidor para aplicarse.
+                  Mínimo 5 minutos. Requiere reinicio del servidor para
+                  aplicarse.
                 </p>
               </div>
               <Button
@@ -350,7 +407,8 @@ export default function AlertAdminDashboard() {
                   updateInterval.mutate({
                     key: "realtime_alert_interval_minutes",
                     value: alertInterval,
-                    description: "Intervalo en minutos para el job de alertas en tiempo real",
+                    description:
+                      "Intervalo en minutos para el job de alertas en tiempo real",
                   })
                 }
                 disabled={updateInterval.isPending}
@@ -358,7 +416,9 @@ export default function AlertAdminDashboard() {
                 className="w-full"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {updateInterval.isPending ? "Guardando..." : "Guardar intervalo"}
+                {updateInterval.isPending
+                  ? "Guardando..."
+                  : "Guardar intervalo"}
               </Button>
             </CardContent>
           </Card>
@@ -370,11 +430,13 @@ export default function AlertAdminDashboard() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-purple-500" />
-            <CardTitle className="text-base">Destinatarios de Alertas por Correo</CardTitle>
+            <CardTitle className="text-base">
+              Destinatarios de Alertas por Correo
+            </CardTitle>
           </div>
           <CardDescription>
-            Correos electrónicos que recibirán las alertas automáticas del sistema (contratos,
-            PAC, dictámenes, etc.)
+            Correos electrónicos que recibirán las alertas automáticas del
+            sistema (contratos, PAC, dictámenes, etc.)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -384,8 +446,8 @@ export default function AlertAdminDashboard() {
               type="email"
               placeholder="correo@empresa.com"
               value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              onKeyDown={(e) => {
+              onChange={e => setNewEmail(e.target.value)}
+              onKeyDown={e => {
                 if (e.key === "Enter") {
                   e.preventDefault();
                   handleAddEmail();
@@ -403,11 +465,13 @@ export default function AlertAdminDashboard() {
           {recipients.length === 0 ? (
             <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
               <Mail className="h-4 w-4" />
-              <span>No hay destinatarios configurados. Agrega al menos un correo.</span>
+              <span>
+                No hay destinatarios configurados. Agrega al menos un correo.
+              </span>
             </div>
           ) : (
             <div className="space-y-2">
-              {recipients.map((email) => (
+              {recipients.map(email => (
                 <div
                   key={email}
                   className="flex items-center justify-between px-3 py-2 rounded-md bg-muted/50 border"
@@ -427,7 +491,8 @@ export default function AlertAdminDashboard() {
                 </div>
               ))}
               <p className="text-xs text-muted-foreground pt-1">
-                {recipients.length} destinatario{recipients.length !== 1 ? "s" : ""} configurado
+                {recipients.length} destinatario
+                {recipients.length !== 1 ? "s" : ""} configurado
                 {recipients.length !== 1 ? "s" : ""}
               </p>
             </div>
@@ -444,35 +509,86 @@ export default function AlertAdminDashboard() {
             <CardTitle className="text-base">Configuración SMTP</CardTitle>
           </div>
           <CardDescription>
-            Configura el servidor de correo para el envío de alertas automáticas. Los cambios se guardan en la base de datos.
+            Configura el servidor de correo para el envío de alertas
+            automáticas. Los cambios se guardan en la base de datos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label className="text-sm">Servidor SMTP (Host)</Label>
-              <Input placeholder="smtp.gmail.com" value={smtpForm.host} onChange={(e) => setSmtpForm((p) => ({ ...p, host: e.target.value }))} className="h-9" />
+              <Input
+                placeholder="smtp.gmail.com"
+                value={smtpForm.host}
+                onChange={e =>
+                  setSmtpForm(p => ({ ...p, host: e.target.value }))
+                }
+                className="h-9"
+              />
             </div>
             <div className="space-y-1">
               <Label className="text-sm">Puerto</Label>
-              <Input type="number" placeholder="587" value={smtpForm.port} onChange={(e) => setSmtpForm((p) => ({ ...p, port: parseInt(e.target.value) || 587 }))} className="h-9" />
+              <Input
+                type="number"
+                placeholder="587"
+                value={smtpForm.port}
+                onChange={e =>
+                  setSmtpForm(p => ({
+                    ...p,
+                    port: parseInt(e.target.value) || 587,
+                  }))
+                }
+                className="h-9"
+              />
             </div>
             <div className="space-y-1">
               <Label className="text-sm">Usuario / Email</Label>
-              <Input placeholder="alertas@empresa.com" value={smtpForm.user} onChange={(e) => setSmtpForm((p) => ({ ...p, user: e.target.value }))} className="h-9" />
+              <Input
+                placeholder="alertas@empresa.com"
+                value={smtpForm.user}
+                onChange={e =>
+                  setSmtpForm(p => ({ ...p, user: e.target.value }))
+                }
+                className="h-9"
+              />
             </div>
             <div className="space-y-1">
               <Label className="text-sm">Contraseña</Label>
-              <Input type="password" placeholder="••••••••" value={smtpForm.pass} onChange={(e) => setSmtpForm((p) => ({ ...p, pass: e.target.value }))} className="h-9" />
+              <Input
+                type="password"
+                placeholder="••••••••"
+                value={smtpForm.pass}
+                onChange={e =>
+                  setSmtpForm(p => ({ ...p, pass: e.target.value }))
+                }
+                className="h-9"
+              />
             </div>
             <div className="space-y-1 md:col-span-2">
               <Label className="text-sm">Dirección "De" (From)</Label>
-              <Input placeholder="NOM-035 STPS &lt;alertas@empresa.com&gt;" value={smtpForm.from} onChange={(e) => setSmtpForm((p) => ({ ...p, from: e.target.value }))} className="h-9" />
+              <Input
+                placeholder="NOM-035 STPS &lt;alertas@empresa.com&gt;"
+                value={smtpForm.from}
+                onChange={e =>
+                  setSmtpForm(p => ({ ...p, from: e.target.value }))
+                }
+                className="h-9"
+              />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="smtp-secure" checked={smtpForm.secure} onChange={(e) => setSmtpForm((p) => ({ ...p, secure: e.target.checked }))} className="h-4 w-4" />
-            <Label htmlFor="smtp-secure" className="text-sm cursor-pointer">Usar TLS/SSL (puerto 465)</Label>
+            <input
+              type="checkbox"
+              id="smtp-secure"
+              checked={smtpForm.secure}
+              onChange={e =>
+                setSmtpForm(p => ({ ...p, secure: e.target.checked }))
+              }
+              className="h-4 w-4"
+            />
+            <Label htmlFor="smtp-secure" className="text-sm cursor-pointer">
+              Usar TLS/SSL (puerto 465)
+            </Label>
           </div>
           <Button
             onClick={() => saveSMTPConfig.mutate(smtpForm)}
@@ -481,7 +597,11 @@ export default function AlertAdminDashboard() {
             className="w-full"
           >
             <Save className="h-4 w-4 mr-2" />
-            {saveSMTPConfig.isPending ? "Guardando..." : smtpSaved ? "✅ Guardado" : "Guardar configuración SMTP"}
+            {saveSMTPConfig.isPending
+              ? "Guardando..."
+              : smtpSaved
+                ? "✅ Guardado"
+                : "Guardar configuración SMTP"}
           </Button>
         </CardContent>
       </Card>
@@ -493,8 +613,9 @@ export default function AlertAdminDashboard() {
             <CardTitle className="text-base">Probar Conexión SMTP</CardTitle>
           </div>
           <CardDescription>
-            Envía un correo de prueba para verificar que la configuración SMTP está funcionando
-            correctamente antes de que el sistema envíe alertas reales.
+            Envía un correo de prueba para verificar que la configuración SMTP
+            está funcionando correctamente antes de que el sistema envíe alertas
+            reales.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -503,18 +624,22 @@ export default function AlertAdminDashboard() {
               type="email"
               placeholder="correo@empresa.com"
               value={smtpTestEmail}
-              onChange={(e) => setSmtpTestEmail(e.target.value)}
-              onKeyDown={(e) => {
+              onChange={e => setSmtpTestEmail(e.target.value)}
+              onKeyDown={e => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  if (smtpTestEmail.trim()) testSMTP.mutate({ toEmail: smtpTestEmail.trim() });
+                  if (smtpTestEmail.trim())
+                    testSMTP.mutate({ toEmail: smtpTestEmail.trim() });
                 }
               }}
               className="h-9"
             />
             <Button
               onClick={() => {
-                if (!smtpTestEmail.trim()) { toast.error("Ingresa un correo de destino"); return; }
+                if (!smtpTestEmail.trim()) {
+                  toast.error("Ingresa un correo de destino");
+                  return;
+                }
                 testSMTP.mutate({ toEmail: smtpTestEmail.trim() });
               }}
               disabled={testSMTP.isPending}
@@ -528,19 +653,27 @@ export default function AlertAdminDashboard() {
           {smtpTestResult === "success" && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span>Correo de prueba enviado exitosamente. Revisa la bandeja de entrada del destinatario.</span>
+              <span>
+                Correo de prueba enviado exitosamente. Revisa la bandeja de
+                entrada del destinatario.
+              </span>
             </div>
           )}
           {smtpTestResult === "error" && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm">
               <XCircle className="h-4 w-4 shrink-0" />
-              <span>No se pudo enviar el correo. Verifica las variables SMTP_HOST, SMTP_USER y SMTP_PASS en la configuración del servidor.</span>
+              <span>
+                No se pudo enviar el correo. Verifica las variables SMTP_HOST,
+                SMTP_USER y SMTP_PASS en la configuración del servidor.
+              </span>
             </div>
           )}
           <p className="text-xs text-muted-foreground">
-            Si el correo no llega, configura las variables de entorno <code className="bg-muted px-1 rounded">SMTP_HOST</code>,{" "}
+            Si el correo no llega, configura las variables de entorno{" "}
+            <code className="bg-muted px-1 rounded">SMTP_HOST</code>,{" "}
             <code className="bg-muted px-1 rounded">SMTP_USER</code> y{" "}
-            <code className="bg-muted px-1 rounded">SMTP_PASS</code> en el panel de Secrets del proyecto.
+            <code className="bg-muted px-1 rounded">SMTP_PASS</code> en el panel
+            de Secrets del proyecto.
           </p>
         </CardContent>
       </Card>
@@ -550,27 +683,47 @@ export default function AlertAdminDashboard() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-gray-500" />
-            <CardTitle className="text-base">Estado del Sistema de Alertas</CardTitle>
+            <CardTitle className="text-base">
+              Estado del Sistema de Alertas
+            </CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Alertas en tiempo real", status: "activo", color: "green" },
-              { label: "Resumen por correo", status: frequency === "disabled" ? "inactivo" : frequency, color: frequency === "disabled" ? "gray" : "blue" },
-              { label: "Alertas de contratos", status: "activo", color: "green" },
+              {
+                label: "Alertas en tiempo real",
+                status: "activo",
+                color: "green",
+              },
+              {
+                label: "Resumen por correo",
+                status: frequency === "disabled" ? "inactivo" : frequency,
+                color: frequency === "disabled" ? "gray" : "blue",
+              },
+              {
+                label: "Alertas de contratos",
+                status: "activo",
+                color: "green",
+              },
               { label: "Alertas PAC", status: "activo", color: "green" },
-            ].map((item) => (
+            ].map(item => (
               <div key={item.label} className="space-y-1">
                 <p className="text-xs text-muted-foreground">{item.label}</p>
                 <Badge
-                  variant={item.color === "green" ? "default" : item.color === "blue" ? "secondary" : "outline"}
+                  variant={
+                    item.color === "green"
+                      ? "default"
+                      : item.color === "blue"
+                        ? "secondary"
+                        : "outline"
+                  }
                   className={
                     item.color === "green"
                       ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-200"
                       : item.color === "blue"
-                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200"
-                      : ""
+                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200"
+                        : ""
                   }
                 >
                   {item.status}

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * Hook para debounce de valores
  * Útil para auto-guardado y búsquedas en tiempo real
- * 
+ *
  * @param value - Valor a hacer debounce
  * @param delay - Delay en milisegundos (default: 500ms)
  * @returns Valor con debounce aplicado

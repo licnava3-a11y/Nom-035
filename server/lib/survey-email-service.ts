@@ -1,6 +1,6 @@
-import { isEmailEnabled } from '../_core/email';
-import nodemailer from 'nodemailer';
-import type { Transporter } from 'nodemailer';
+import { isEmailEnabled } from "../_core/email";
+import nodemailer from "nodemailer";
+import type { Transporter } from "nodemailer";
 
 /**
  * Servicio de envío de correos electrónicos para encuestas NOM-035
@@ -12,12 +12,12 @@ const createTransporter = (): Transporter => {
   // TODO: Configurar variables de entorno SMTP
   // Por ahora usamos un transportador de prueba (ethereal.email)
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
+    host: process.env.SMTP_HOST || "smtp.ethereal.email",
+    port: parseInt(process.env.SMTP_PORT || "587"),
+    secure: process.env.SMTP_SECURE === "true",
     auth: {
-      user: process.env.SMTP_USER || 'test@example.com',
-      pass: process.env.SMTP_PASS || 'password',
+      user: process.env.SMTP_USER || "test@example.com",
+      pass: process.env.SMTP_PASS || "password",
     },
   });
 };
@@ -163,11 +163,15 @@ export const getSurveyInvitationTemplate = (data: {
     
     <p>Su participación es <strong>confidencial y anónima</strong>. Los resultados serán utilizados únicamente para identificar áreas de mejora en el ambiente laboral.</p>
     
-    ${data.dueDate ? `
+    ${
+      data.dueDate
+        ? `
     <div class="warning-box">
       <p style="margin: 0;"><strong>Fecha límite:</strong> ${data.dueDate}</p>
     </div>
-    ` : ''}
+    `
+        : ""
+    }
     
     <div style="text-align: center;">
       <a href="${data.surveyUrl}" class="button">Responder Encuesta</a>
@@ -177,8 +181,8 @@ export const getSurveyInvitationTemplate = (data: {
       Si tiene alguna duda o problema técnico, por favor contacte al área de Recursos Humanos.
     </p>
   `;
-  
-  return getEmailTemplate(content, 'Invitación a Encuesta NOM-035');
+
+  return getEmailTemplate(content, "Invitación a Encuesta NOM-035");
 };
 
 /**
@@ -199,13 +203,17 @@ export const getSurveyReminderTemplate = (data: {
       <h3 style="margin-top: 0; color: #1e40af;">${data.surveyTitle}</h3>
     </div>
     
-    ${data.daysRemaining !== undefined ? `
+    ${
+      data.daysRemaining !== undefined
+        ? `
     <div class="warning-box">
       <p style="margin: 0;">
-        <strong>⏰ Tiempo restante:</strong> ${data.daysRemaining} ${data.daysRemaining === 1 ? 'día' : 'días'}
+        <strong>⏰ Tiempo restante:</strong> ${data.daysRemaining} ${data.daysRemaining === 1 ? "día" : "días"}
       </p>
     </div>
-    ` : ''}
+    `
+        : ""
+    }
     
     <p>Su participación es importante para cumplir con la normativa <strong>NOM-035-STPS-2018</strong> y mejorar el ambiente laboral de nuestra organización.</p>
     
@@ -217,8 +225,8 @@ export const getSurveyReminderTemplate = (data: {
       Este es un recordatorio automático. Si ya completó la encuesta, por favor ignore este mensaje.
     </p>
   `;
-  
-  return getEmailTemplate(content, 'Recordatorio: Encuesta NOM-035 Pendiente');
+
+  return getEmailTemplate(content, "Recordatorio: Encuesta NOM-035 Pendiente");
 };
 
 /**
@@ -247,10 +255,9 @@ export const getSurveyCompletionTemplate = (data: {
       Si tiene alguna pregunta sobre los resultados o el proceso, por favor contacte al área de Recursos Humanos.
     </p>
   `;
-  
-  return getEmailTemplate(content, 'Encuesta NOM-035 Completada');
-};
 
+  return getEmailTemplate(content, "Encuesta NOM-035 Completada");
+};
 
 /**
  * Enviar correo electrónico
@@ -273,25 +280,28 @@ export async function sendEmail(options: {
   // ────────────────────────────────────────────────────────────────────────
   try {
     const transporter = createTransporter();
-    
+
     const info = await transporter.sendMail({
-      from: options.from || process.env.SMTP_FROM || '"Plataforma NOM-035" <noreply@nom035.com>',
-      to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
+      from:
+        options.from ||
+        process.env.SMTP_FROM ||
+        '"Plataforma NOM-035" <noreply@nom035.com>',
+      to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
       subject: options.subject,
       html: options.html,
     });
-    
-    console.log('Email sent:', info.messageId);
-    
+
+    console.log("Email sent:", info.messageId);
+
     return {
       success: true,
       messageId: info.messageId,
     };
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -308,7 +318,7 @@ export async function sendSurveyInvitation(data: {
   dueDate?: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const html = getSurveyInvitationTemplate(data);
-  
+
   return sendEmail({
     to: data.to,
     subject: `Invitación: ${data.surveyTitle}`,
@@ -327,7 +337,7 @@ export async function sendSurveyReminder(data: {
   daysRemaining?: number;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const html = getSurveyReminderTemplate(data);
-  
+
   return sendEmail({
     to: data.to,
     subject: `Recordatorio: ${data.surveyTitle}`,
@@ -345,7 +355,7 @@ export async function sendSurveyCompletion(data: {
   completedAt: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const html = getSurveyCompletionTemplate(data);
-  
+
   return sendEmail({
     to: data.to,
     subject: `Confirmación: ${data.surveyTitle} completada`,

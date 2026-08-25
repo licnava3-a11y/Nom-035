@@ -9,29 +9,47 @@ export const branchesRouter = router({
   // List all active branches
   list: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-    return db.select().from(branches).where(eq(branches.isActive, true)).orderBy(branches.name);
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
+    return db
+      .select()
+      .from(branches)
+      .where(eq(branches.isActive, true))
+      .orderBy(branches.name);
   }),
 
   // Get all branches including inactive (admin)
   listAll: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
     return db.select().from(branches).orderBy(branches.name);
   }),
 
   // Create a new branch
   create: protectedProcedure
-    .input(z.object({
-      name: z.string().min(1).max(150),
-      address: z.string().max(300).optional(),
-      city: z.string().max(100).optional(),
-      state: z.string().max(100).optional(),
-      phone: z.string().max(20).optional(),
-    }))
+    .input(
+      z.object({
+        name: z.string().min(1).max(150),
+        address: z.string().max(300).optional(),
+        city: z.string().max(100).optional(),
+        state: z.string().max(100).optional(),
+        phone: z.string().max(20).optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       const [result] = await db.insert(branches).values({
         name: input.name,
         address: input.address ?? null,
@@ -45,18 +63,24 @@ export const branchesRouter = router({
 
   // Update a branch
   update: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      name: z.string().min(1).max(150).optional(),
-      address: z.string().max(300).optional().nullable(),
-      city: z.string().max(100).optional().nullable(),
-      state: z.string().max(100).optional().nullable(),
-      phone: z.string().max(20).optional().nullable(),
-      isActive: z.boolean().optional(),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).max(150).optional(),
+        address: z.string().max(300).optional().nullable(),
+        city: z.string().max(100).optional().nullable(),
+        state: z.string().max(100).optional().nullable(),
+        phone: z.string().max(20).optional().nullable(),
+        isActive: z.boolean().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
       const { id, ...data } = input;
       const updateData: Record<string, unknown> = {};
       if (data.name !== undefined) updateData.name = data.name;
@@ -74,8 +98,15 @@ export const branchesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      await db.update(branches).set({ isActive: false }).where(eq(branches.id, input.id));
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+      await db
+        .update(branches)
+        .set({ isActive: false })
+        .where(eq(branches.id, input.id));
       return { success: true };
     }),
 });

@@ -2,9 +2,9 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
-import { 
-  users, 
-  companyLegalRepresentative, 
+import {
+  users,
+  companyLegalRepresentative,
   companyDigitalSignature,
   cases,
   surveyResponses,
@@ -14,7 +14,7 @@ import {
   manualEvidences,
   nmx025ManualEvidences,
   postCaseSurveys,
-  courses
+  courses,
 } from "../../drizzle/schema";
 import { eq, and, sql, gte, lte, count, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -24,10 +24,14 @@ export const executiveDashboardRouter = router({
    * Obtener métricas consolidadas del dashboard ejecutivo
    */
   getMetrics: protectedProcedure
-    .input(z.object({
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }).optional())
+    .input(
+      z
+        .object({
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+        .optional()
+    )
     .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) {
@@ -38,26 +42,26 @@ export const executiveDashboardRouter = router({
       }
 
       // === MÉTRICAS DE EMPLEADOS Y ESTRUCTURA ===
-      
+
       // Total de empleados
       const [employeesResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(users);
-      
+
       const totalEmployees = Number(employeesResult?.count || 0);
 
       // Representantes legales activos
       const [legalRepsResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(companyLegalRepresentative);
-      
+
       const activeLegalReps = Number(legalRepsResult?.count || 0);
 
       // Firmantes autorizados
       const [signaturesResult] = await db
         .select({ count: sql<number>`COUNT(DISTINCT user_id)` })
         .from(companyDigitalSignature);
-      
+
       const authorizedSigners = Number(signaturesResult?.count || 0);
 
       // Distribución por departamento
@@ -93,18 +97,26 @@ export const executiveDashboardRouter = router({
         .from(surveyResponses)
         .where(sql`${surveyResponses.completedAt} IS NOT NULL`);
 
-      const surveyCoverage = totalSurveysSent?.count 
-        ? (Number(completedSurveys?.count || 0) / Number(totalSurveysSent.count)) * 100
+      const surveyCoverage = totalSurveysSent?.count
+        ? (Number(completedSurveys?.count || 0) /
+            Number(totalSurveysSent.count)) *
+          100
         : 0;
 
       // Tendencia de factores de riesgo (últimas 3 encuestas)
       // Construir condiciones de filtro temporal para riskTrend
-      const riskTrendConditions = [sql`${surveyResponses.completedAt} IS NOT NULL`];
+      const riskTrendConditions = [
+        sql`${surveyResponses.completedAt} IS NOT NULL`,
+      ];
       if (input?.startDate) {
-        riskTrendConditions.push(sql`${surveyResponses.completedAt} >= ${input.startDate}`);
+        riskTrendConditions.push(
+          sql`${surveyResponses.completedAt} >= ${input.startDate}`
+        );
       }
       if (input?.endDate) {
-        riskTrendConditions.push(sql`${surveyResponses.completedAt} <= ${input.endDate}`);
+        riskTrendConditions.push(
+          sql`${surveyResponses.completedAt} <= ${input.endDate}`
+        );
       }
 
       const riskTrend = await db
@@ -166,15 +178,21 @@ export const executiveDashboardRouter = router({
       const [totalDirectives] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(users)
-        .where(sql`${users.nivelJerarquico} IN ('Directivo', 'Gerencial', 'Alta Dirección')`);
+        .where(
+          sql`${users.nivelJerarquico} IN ('Directivo', 'Gerencial', 'Alta Dirección')`
+        );
 
       const [femaleDirectives] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(users)
-        .where(sql`${users.nivelJerarquico} IN ('Directivo', 'Gerencial', 'Alta Dirección') AND ${users.sexo} = 'Femenino'`);
+        .where(
+          sql`${users.nivelJerarquico} IN ('Directivo', 'Gerencial', 'Alta Dirección') AND ${users.sexo} = 'Femenino'`
+        );
 
       const femaleDirectivesPercentage = totalDirectives?.count
-        ? (Number(femaleDirectives?.count || 0) / Number(totalDirectives.count)) * 100
+        ? (Number(femaleDirectives?.count || 0) /
+            Number(totalDirectives.count)) *
+          100
         : 0;
 
       return {
@@ -184,7 +202,7 @@ export const executiveDashboardRouter = router({
           activeLegalReps,
           authorizedSigners,
           departmentDistribution: departmentDistribution.map(d => ({
-            department: d.department || 'Sin departamento',
+            department: d.department || "Sin departamento",
             count: Number(d.count),
           })),
         },
@@ -195,7 +213,7 @@ export const executiveDashboardRouter = router({
           casesClosed: Number(casesClosed?.count || 0),
           surveyCoverage: Math.round(surveyCoverage * 10) / 10,
           riskTrend: riskTrend.map(r => ({
-            surveyTitle: r.surveyTitle || 'Encuesta',
+            surveyTitle: r.surveyTitle || "Encuesta",
             avgScore: Number(r.avgScore) || 0,
             completedAt: r.completedAt,
           })),
@@ -204,20 +222,21 @@ export const executiveDashboardRouter = router({
         // NMX-025
         nmx025Equality: {
           genderDistribution: genderDistribution.map(g => ({
-            sexo: g.sexo || 'No especificado',
+            sexo: g.sexo || "No especificado",
             count: Number(g.count),
           })),
           salaryGapByGender: salaryGapByGender.map(s => ({
-            sexo: s.sexo || 'No especificado',
+            sexo: s.sexo || "No especificado",
             avgSalary: Number(s.avgSalary) || 0,
             count: Number(s.count),
           })),
           hierarchyDistribution: hierarchyDistribution.map(h => ({
-            nivelJerarquico: h.nivelJerarquico || 'No especificado',
-            sexo: h.sexo || 'No especificado',
+            nivelJerarquico: h.nivelJerarquico || "No especificado",
+            sexo: h.sexo || "No especificado",
             count: Number(h.count),
           })),
-          femaleDirectivesPercentage: Math.round(femaleDirectivesPercentage * 10) / 10,
+          femaleDirectivesPercentage:
+            Math.round(femaleDirectivesPercentage * 10) / 10,
           totalComplaints: Number(totalComplaints?.count || 0),
         },
       };
@@ -228,11 +247,22 @@ export const executiveDashboardRouter = router({
    * Con filtros temporales (día/semana/mes/año actual y anterior)
    */
   getTrendsData: protectedProcedure
-    .input(z.object({
-      period: z.enum(['today', 'this_week', 'this_month', 'this_year', 'last_week', 'last_month', 'last_year', 'custom']),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        period: z.enum([
+          "today",
+          "this_week",
+          "this_month",
+          "this_year",
+          "last_week",
+          "last_month",
+          "last_year",
+          "custom",
+        ]),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) {
@@ -248,22 +278,22 @@ export const executiveDashboardRouter = router({
       let endDate: Date = now;
 
       switch (input.period) {
-        case 'today':
+        case "today":
           startDate = new Date(now.setHours(0, 0, 0, 0));
           endDate = new Date(now.setHours(23, 59, 59, 999));
           break;
-        case 'this_week':
+        case "this_week":
           const startOfWeek = new Date(now);
           startOfWeek.setDate(now.getDate() - now.getDay());
           startDate = new Date(startOfWeek.setHours(0, 0, 0, 0));
           break;
-        case 'this_month':
+        case "this_month":
           startDate = new Date(now.getFullYear(), now.getMonth(), 1);
           break;
-        case 'this_year':
+        case "this_year":
           startDate = new Date(now.getFullYear(), 0, 1);
           break;
-        case 'last_week':
+        case "last_week":
           const lastWeekEnd = new Date(now);
           lastWeekEnd.setDate(now.getDate() - now.getDay() - 1);
           const lastWeekStart = new Date(lastWeekEnd);
@@ -271,24 +301,26 @@ export const executiveDashboardRouter = router({
           startDate = lastWeekStart;
           endDate = lastWeekEnd;
           break;
-        case 'last_month':
+        case "last_month":
           startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
           endDate = new Date(now.getFullYear(), now.getMonth(), 0);
           break;
-        case 'last_year':
+        case "last_year":
           startDate = new Date(now.getFullYear() - 1, 0, 1);
           endDate = new Date(now.getFullYear() - 1, 11, 31);
           break;
-        case 'custom':
-          startDate = input.startDate ? new Date(input.startDate) : new Date(now.getFullYear(), 0, 1);
+        case "custom":
+          startDate = input.startDate
+            ? new Date(input.startDate)
+            : new Date(now.getFullYear(), 0, 1);
           endDate = input.endDate ? new Date(input.endDate) : now;
           break;
         default:
           startDate = new Date(now.getFullYear(), 0, 1);
       }
 
-      const startDateStr = startDate.toISOString().split('T')[0];
-      const endDateStr = endDate.toISOString().split('T')[0];
+      const startDateStr = startDate.toISOString().split("T")[0];
+      const endDateStr = endDate.toISOString().split("T")[0];
 
       // === TENDENCIA DE CASOS (Abiertos vs Cerrados) ===
       const casesCreated = await db
@@ -368,7 +400,7 @@ export const executiveDashboardRouter = router({
           completed: Number(s.completed),
         })),
         riskDistribution: casesByRisk.map((r: any) => ({
-          level: r.riskLevel || 'No especificado',
+          level: r.riskLevel || "No especificado",
           count: Number(r.count),
         })),
       };
@@ -390,20 +422,20 @@ export const executiveDashboardRouter = router({
       }
 
       const now = new Date();
-      
+
       // Mes actual
       const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const currentMonthEnd = now;
-      
+
       // Mes anterior
       const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
       // Formatear fechas
-      const currentStartStr = currentMonthStart.toISOString().split('T')[0];
-      const currentEndStr = currentMonthEnd.toISOString().split('T')[0];
-      const lastStartStr = lastMonthStart.toISOString().split('T')[0];
-      const lastEndStr = lastMonthEnd.toISOString().split('T')[0];
+      const currentStartStr = currentMonthStart.toISOString().split("T")[0];
+      const currentEndStr = currentMonthEnd.toISOString().split("T")[0];
+      const lastStartStr = lastMonthStart.toISOString().split("T")[0];
+      const lastEndStr = lastMonthEnd.toISOString().split("T")[0];
 
       // === CASOS MES ACTUAL ===
       const [currentCasesOpen] = await db
@@ -521,11 +553,15 @@ export const executiveDashboardRouter = router({
 
       // Calcular coberturas
       const currentCoverage = currentSurveysSent?.count
-        ? (Number(currentSurveysCompleted?.count || 0) / Number(currentSurveysSent.count)) * 100
+        ? (Number(currentSurveysCompleted?.count || 0) /
+            Number(currentSurveysSent.count)) *
+          100
         : 0;
 
       const lastCoverage = lastSurveysSent?.count
-        ? (Number(lastSurveysCompleted?.count || 0) / Number(lastSurveysSent.count)) * 100
+        ? (Number(lastSurveysCompleted?.count || 0) /
+            Number(lastSurveysSent.count)) *
+          100
         : 0;
 
       // Calcular diferencias porcentuales
@@ -570,48 +606,111 @@ export const executiveDashboardRouter = router({
    */
   getConsolidatedKPIs: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     // KPIs NOM-035
-    const [totalCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases);
-    const [openCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(sql`${cases.status} = 'open'`);
-    const [criticalCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(sql`${cases.priority} = 'critical'`);
-    const [nom035Evidences] = await db.select({ count: sql<number>`COUNT(*)` }).from(manualEvidences);
+    const [totalCases] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(cases);
+    const [openCases] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(cases)
+      .where(sql`${cases.status} = 'open'`);
+    const [criticalCases] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(cases)
+      .where(sql`${cases.priority} = 'critical'`);
+    const [nom035Evidences] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(manualEvidences);
 
     // KPIs NMX-025
-    const [nmx025Evidences] = await db.select({ count: sql<number>`COUNT(*)` }).from(nmx025ManualEvidences);
-    const [totalEmployees] = await db.select({ count: sql<number>`COUNT(*)` }).from(employees);
-    const [femaleEmployeesResult] = await db.select({ count: sql<number>`COUNT(*)` }).from(employees).where(eq(employees.gender, 'female'));
+    const [nmx025Evidences] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(nmx025ManualEvidences);
+    const [totalEmployees] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(employees);
+    const [femaleEmployeesResult] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(employees)
+      .where(eq(employees.gender, "female"));
     const femaleEmployees = (femaleEmployeesResult as any)[0]?.count || 0;
-    const genderParityScore = (totalEmployees as any)[0]?.count ? (femaleEmployees / (totalEmployees as any)[0].count * 100).toFixed(1) : '0.0';
+    const genderParityScore = (totalEmployees as any)[0]?.count
+      ? ((femaleEmployees / (totalEmployees as any)[0].count) * 100).toFixed(1)
+      : "0.0";
 
     // KPIs Encuestas Post-Caso
-    const [totalSurveys] = await db.select({ count: sql<number>`COUNT(*)` }).from(postCaseSurveys);
-    const [completedSurveys] = await db.select({ count: sql<number>`COUNT(*)` }).from(postCaseSurveys).where(eq(postCaseSurveys.status, 'completed'));
-    const completionRate = (totalSurveys as any)[0]?.count ? (((completedSurveys as any)[0]?.count || 0) / (totalSurveys as any)[0].count * 100).toFixed(1) : '0.0';
+    const [totalSurveys] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(postCaseSurveys);
+    const [completedSurveys] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(postCaseSurveys)
+      .where(eq(postCaseSurveys.status, "completed"));
+    const completionRate = (totalSurveys as any)[0]?.count
+      ? (
+          (((completedSurveys as any)[0]?.count || 0) /
+            (totalSurveys as any)[0].count) *
+          100
+        ).toFixed(1)
+      : "0.0";
 
-    const completedSurveysData = await db.select({
-      improvementRating: postCaseSurveys.improvementRating,
-      satisfactionRating: postCaseSurveys.satisfactionRating,
-      supportRating: postCaseSurveys.supportRating,
-      recommendationRating: postCaseSurveys.recommendationRating,
-    }).from(postCaseSurveys).where(eq(postCaseSurveys.status, 'completed'));
+    const completedSurveysData = await db
+      .select({
+        improvementRating: postCaseSurveys.improvementRating,
+        satisfactionRating: postCaseSurveys.satisfactionRating,
+        supportRating: postCaseSurveys.supportRating,
+        recommendationRating: postCaseSurveys.recommendationRating,
+      })
+      .from(postCaseSurveys)
+      .where(eq(postCaseSurveys.status, "completed"));
 
     let avgScore = 0;
     if (completedSurveysData.length > 0) {
       const totalScore = completedSurveysData.reduce((sum: any, s: any) => {
-        return sum + ((s.improvementRating || 0) + (s.satisfactionRating || 0) + (s.supportRating || 0) + (s.recommendationRating || 0)) / 4;
+        return (
+          sum +
+          ((s.improvementRating || 0) +
+            (s.satisfactionRating || 0) +
+            (s.supportRating || 0) +
+            (s.recommendationRating || 0)) /
+            4
+        );
       }, 0);
-      avgScore = parseFloat((totalScore / completedSurveysData.length).toFixed(2));
+      avgScore = parseFloat(
+        (totalScore / completedSurveysData.length).toFixed(2)
+      );
     }
 
     // KPIs Capacitación
-    const [totalCourses] = await db.select({ count: sql<number>`COUNT(*)` }).from(courses);
+    const [totalCourses] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(courses);
 
     return {
-      nom035: { totalCases: (totalCases as any)[0]?.count || 0, openCases: (openCases as any)[0]?.count || 0, criticalCases: (criticalCases as any)[0]?.count || 0, evidences: (nom035Evidences as any)[0]?.count || 0 },
-      nmx025: { evidences: (nmx025Evidences as any)[0]?.count || 0, totalEmployees: (totalEmployees as any)[0]?.count || 0, femaleEmployees, genderParityScore: parseFloat(genderParityScore) },
-      surveys: { total: (totalSurveys as any)[0]?.count || 0, completed: (completedSurveys as any)[0]?.count || 0, completionRate: parseFloat(completionRate), avgScore },
+      nom035: {
+        totalCases: (totalCases as any)[0]?.count || 0,
+        openCases: (openCases as any)[0]?.count || 0,
+        criticalCases: (criticalCases as any)[0]?.count || 0,
+        evidences: (nom035Evidences as any)[0]?.count || 0,
+      },
+      nmx025: {
+        evidences: (nmx025Evidences as any)[0]?.count || 0,
+        totalEmployees: (totalEmployees as any)[0]?.count || 0,
+        femaleEmployees,
+        genderParityScore: parseFloat(genderParityScore),
+      },
+      surveys: {
+        total: (totalSurveys as any)[0]?.count || 0,
+        completed: (completedSurveys as any)[0]?.count || 0,
+        completionRate: parseFloat(completionRate),
+        avgScore,
+      },
       training: { totalCourses: (totalCourses as any)[0]?.count || 0 },
     };
   }),
@@ -621,32 +720,77 @@ export const executiveDashboardRouter = router({
    */
   getComplianceTrends: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
     const months: string[] = [];
-    const monthData: Record<string, { cases: number; evidences: number; surveys: number }> = {};
+    const monthData: Record<
+      string,
+      { cases: number; evidences: number; surveys: number }
+    > = {};
 
     for (let i = 5; i >= 0; i--) {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       months.push(monthKey);
       monthData[monthKey] = { cases: 0, evidences: 0, surveys: 0 };
     }
 
-    const casesData = await db.select({ month: sql<string>`DATE_FORMAT(${cases.createdAt}, '%Y-%m')`, count: sql<number>`COUNT(*)` }).from(cases).where(gte(cases.createdAt, sixMonthsAgo)).groupBy(sql`DATE_FORMAT(${cases.createdAt}, '%Y-%m')`);
-    casesData.forEach(row => { if (monthData[row.month]) monthData[row.month].cases = row.count; });
+    const casesData = await db
+      .select({
+        month: sql<string>`DATE_FORMAT(${cases.createdAt}, '%Y-%m')`,
+        count: sql<number>`COUNT(*)`,
+      })
+      .from(cases)
+      .where(gte(cases.createdAt, sixMonthsAgo))
+      .groupBy(sql`DATE_FORMAT(${cases.createdAt}, '%Y-%m')`);
+    casesData.forEach(row => {
+      if (monthData[row.month]) monthData[row.month].cases = row.count;
+    });
 
-    const evidencesData = await db.select({ month: sql<string>`DATE_FORMAT(${manualEvidences.uploadedAt}, '%Y-%m')`, count: sql<number>`COUNT(*)` }).from(manualEvidences).where(gte(manualEvidences.uploadedAt, sixMonthsAgo)).groupBy(sql`DATE_FORMAT(${manualEvidences.uploadedAt}, '%Y-%m')`);
-    evidencesData.forEach(row => { if (monthData[row.month]) monthData[row.month].evidences = row.count; });
+    const evidencesData = await db
+      .select({
+        month: sql<string>`DATE_FORMAT(${manualEvidences.uploadedAt}, '%Y-%m')`,
+        count: sql<number>`COUNT(*)`,
+      })
+      .from(manualEvidences)
+      .where(gte(manualEvidences.uploadedAt, sixMonthsAgo))
+      .groupBy(sql`DATE_FORMAT(${manualEvidences.uploadedAt}, '%Y-%m')`);
+    evidencesData.forEach(row => {
+      if (monthData[row.month]) monthData[row.month].evidences = row.count;
+    });
 
-    const surveysData = await db.select({ month: sql<string>`DATE_FORMAT(${postCaseSurveys.completedAt}, '%Y-%m')`, count: sql<number>`COUNT(*)` }).from(postCaseSurveys).where(and(eq(postCaseSurveys.status, 'completed'), sql`${postCaseSurveys.completedAt} IS NOT NULL`, gte(postCaseSurveys.completedAt, sixMonthsAgo))).groupBy(sql`DATE_FORMAT(${postCaseSurveys.completedAt}, '%Y-%m')`);
-    surveysData.forEach(row => { if (monthData[row.month]) monthData[row.month].surveys = row.count; });
+    const surveysData = await db
+      .select({
+        month: sql<string>`DATE_FORMAT(${postCaseSurveys.completedAt}, '%Y-%m')`,
+        count: sql<number>`COUNT(*)`,
+      })
+      .from(postCaseSurveys)
+      .where(
+        and(
+          eq(postCaseSurveys.status, "completed"),
+          sql`${postCaseSurveys.completedAt} IS NOT NULL`,
+          gte(postCaseSurveys.completedAt, sixMonthsAgo)
+        )
+      )
+      .groupBy(sql`DATE_FORMAT(${postCaseSurveys.completedAt}, '%Y-%m')`);
+    surveysData.forEach(row => {
+      if (monthData[row.month]) monthData[row.month].surveys = row.count;
+    });
 
-    return { months, cases: months.map(m => monthData[m].cases), evidences: months.map(m => monthData[m].evidences), surveys: months.map(m => monthData[m].surveys) };
+    return {
+      months,
+      cases: months.map(m => monthData[m].cases),
+      evidences: months.map(m => monthData[m].evidences),
+      surveys: months.map(m => monthData[m].surveys),
+    };
   }),
 
   /**
@@ -654,31 +798,115 @@ export const executiveDashboardRouter = router({
    */
   getConsolidatedAlerts: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
-    const alerts: Array<{ id: string; type: 'critical' | 'warning' | 'info'; category: 'NOM-035' | 'NMX-025' | 'Encuestas' | 'Capacitación'; title: string; description: string; count?: number }> = [];
+    const alerts: Array<{
+      id: string;
+      type: "critical" | "warning" | "info";
+      category: "NOM-035" | "NMX-025" | "Encuestas" | "Capacitación";
+      title: string;
+      description: string;
+      count?: number;
+    }> = [];
 
-    const [criticalCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(and(sql`${cases.status} = 'open'`, sql`${cases.priority} = 'critical'`));
-    if (((criticalCases as any)[0]?.count || 0) > 0) alerts.push({ id: 'nom035-critical-cases', type: 'critical', category: 'NOM-035', title: 'Casos Críticos Abiertos', description: `${(criticalCases as any)[0].count} casos críticos requieren atención inmediata`, count: (criticalCases as any)[0].count });
+    const [criticalCases] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(cases)
+      .where(
+        and(sql`${cases.status} = 'open'`, sql`${cases.priority} = 'critical'`)
+      );
+    if (((criticalCases as any)[0]?.count || 0) > 0)
+      alerts.push({
+        id: "nom035-critical-cases",
+        type: "critical",
+        category: "NOM-035",
+        title: "Casos Críticos Abiertos",
+        description: `${(criticalCases as any)[0].count} casos críticos requieren atención inmediata`,
+        count: (criticalCases as any)[0].count,
+      });
 
-    const [unassignedCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(and(sql`${cases.status} = 'open'`, sql`${cases.assignedTo} IS NULL`));
-    if (((unassignedCases as any)[0]?.count || 0) > 3) alerts.push({ id: 'nom035-unassigned-cases', type: 'warning', category: 'NOM-035', title: 'Casos Sin Asignar', description: `${(unassignedCases as any)[0].count} casos abiertos sin responsable asignado`, count: (unassignedCases as any)[0].count });
+    const [unassignedCases] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(cases)
+      .where(
+        and(sql`${cases.status} = 'open'`, sql`${cases.assignedTo} IS NULL`)
+      );
+    if (((unassignedCases as any)[0]?.count || 0) > 3)
+      alerts.push({
+        id: "nom035-unassigned-cases",
+        type: "warning",
+        category: "NOM-035",
+        title: "Casos Sin Asignar",
+        description: `${(unassignedCases as any)[0].count} casos abiertos sin responsable asignado`,
+        count: (unassignedCases as any)[0].count,
+      });
 
-    const [totalEmployees] = await db.select({ count: sql<number>`COUNT(*)` }).from(employees);
-    const [femaleEmployeesResult] = await db.select({ count: sql<number>`COUNT(*)` }).from(employees).where(eq(employees.gender, 'female'));
+    const [totalEmployees] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(employees);
+    const [femaleEmployeesResult] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(employees)
+      .where(eq(employees.gender, "female"));
     const femaleEmployees = (femaleEmployeesResult as any)[0]?.count || 0;
-    const genderParity = (totalEmployees as any)[0]?.count ? (femaleEmployees / (totalEmployees as any)[0].count * 100) : 0;
-    if (genderParity < 40 || genderParity > 60) alerts.push({ id: 'nmx025-gender-parity', type: 'warning', category: 'NMX-025', title: 'Brecha de Género', description: `Paridad actual: ${genderParity.toFixed(1)}% (objetivo: 40-60%)` });
+    const genderParity = (totalEmployees as any)[0]?.count
+      ? (femaleEmployees / (totalEmployees as any)[0].count) * 100
+      : 0;
+    if (genderParity < 40 || genderParity > 60)
+      alerts.push({
+        id: "nmx025-gender-parity",
+        type: "warning",
+        category: "NMX-025",
+        title: "Brecha de Género",
+        description: `Paridad actual: ${genderParity.toFixed(1)}% (objetivo: 40-60%)`,
+      });
 
     const threeDaysFromNow = new Date();
     threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
-    const [expiringSurveys] = await db.select({ count: sql<number>`COUNT(*)` }).from(postCaseSurveys).where(and(eq(postCaseSurveys.status, 'sent'), sql`${postCaseSurveys.expiresAt} IS NOT NULL`, lte(postCaseSurveys.expiresAt, threeDaysFromNow)));
-    if (((expiringSurveys as any)[0]?.count || 0) > 0) alerts.push({ id: 'surveys-expiring', type: 'warning', category: 'Encuestas', title: 'Encuestas Próximas a Expirar', description: `${(expiringSurveys as any)[0].count} encuestas expiran en los próximos 3 días`, count: (expiringSurveys as any)[0].count });
+    const [expiringSurveys] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(postCaseSurveys)
+      .where(
+        and(
+          eq(postCaseSurveys.status, "sent"),
+          sql`${postCaseSurveys.expiresAt} IS NOT NULL`,
+          lte(postCaseSurveys.expiresAt, threeDaysFromNow)
+        )
+      );
+    if (((expiringSurveys as any)[0]?.count || 0) > 0)
+      alerts.push({
+        id: "surveys-expiring",
+        type: "warning",
+        category: "Encuestas",
+        title: "Encuestas Próximas a Expirar",
+        description: `${(expiringSurveys as any)[0].count} encuestas expiran en los próximos 3 días`,
+        count: (expiringSurveys as any)[0].count,
+      });
 
-    const [totalSurveys] = await db.select({ count: sql<number>`COUNT(*)` }).from(postCaseSurveys);
-    const [completedSurveys] = await db.select({ count: sql<number>`COUNT(*)` }).from(postCaseSurveys).where(eq(postCaseSurveys.status, 'completed'));
-    const completionRate = (totalSurveys as any)[0]?.count ? (((completedSurveys as any)[0]?.count || 0) / (totalSurveys as any)[0].count * 100) : 0;
-    if (completionRate < 50 && (totalSurveys as any)[0]?.count > 10) alerts.push({ id: 'surveys-low-completion', type: 'info', category: 'Encuestas', title: 'Baja Tasa de Completitud', description: `Solo ${completionRate.toFixed(1)}% de encuestas completadas` });
+    const [totalSurveys] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(postCaseSurveys);
+    const [completedSurveys] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(postCaseSurveys)
+      .where(eq(postCaseSurveys.status, "completed"));
+    const completionRate = (totalSurveys as any)[0]?.count
+      ? (((completedSurveys as any)[0]?.count || 0) /
+          (totalSurveys as any)[0].count) *
+        100
+      : 0;
+    if (completionRate < 50 && (totalSurveys as any)[0]?.count > 10)
+      alerts.push({
+        id: "surveys-low-completion",
+        type: "info",
+        category: "Encuestas",
+        title: "Baja Tasa de Completitud",
+        description: `Solo ${completionRate.toFixed(1)}% de encuestas completadas`,
+      });
 
     // Alertas de riesgo psicosocial alto/muy alto (NOM-035)
     const highRiskSurveys = await db
@@ -700,26 +928,30 @@ export const executiveDashboardRouter = router({
       .limit(5);
 
     if (highRiskSurveys.length > 0) {
-      const veryHighRisk = highRiskSurveys.filter(s => Number(s.finalScore) >= 0.81);
-      const highRisk = highRiskSurveys.filter(s => Number(s.finalScore) >= 0.61 && Number(s.finalScore) < 0.81);
-      
+      const veryHighRisk = highRiskSurveys.filter(
+        s => Number(s.finalScore) >= 0.81
+      );
+      const highRisk = highRiskSurveys.filter(
+        s => Number(s.finalScore) >= 0.61 && Number(s.finalScore) < 0.81
+      );
+
       if (veryHighRisk.length > 0) {
         alerts.push({
-          id: 'nom035-very-high-risk',
-          type: 'critical',
-          category: 'NOM-035',
-          title: 'Riesgo Psicosocial MUY ALTO Detectado',
+          id: "nom035-very-high-risk",
+          type: "critical",
+          category: "NOM-035",
+          title: "Riesgo Psicosocial MUY ALTO Detectado",
           description: `${veryHighRisk.length} encuesta(s) con puntuación ≥0.81 requieren medidas inmediatas + análisis + programa + campaña`,
           count: veryHighRisk.length,
         });
       }
-      
+
       if (highRisk.length > 0) {
         alerts.push({
-          id: 'nom035-high-risk',
-          type: 'warning',
-          category: 'NOM-035',
-          title: 'Riesgo Psicosocial ALTO Detectado',
+          id: "nom035-high-risk",
+          type: "warning",
+          category: "NOM-035",
+          title: "Riesgo Psicosocial ALTO Detectado",
           description: `${highRisk.length} encuesta(s) con puntuación ≥0.61 requieren análisis por categoría + programa de intervención`,
           count: highRisk.length,
         });
@@ -733,10 +965,14 @@ export const executiveDashboardRouter = router({
    * Exportar dashboard ejecutivo a Excel
    */
   exportToExcel: protectedProcedure
-    .input(z.object({
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }).optional())
+    .input(
+      z
+        .object({
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+        .optional()
+    )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) {
@@ -747,114 +983,161 @@ export const executiveDashboardRouter = router({
       }
 
       // Importar exceljs dinámicamente
-      const ExcelJS = await import('exceljs');
+      const ExcelJS = await import("exceljs");
 
       // Obtener métricas del dashboard
-      const metrics = await executiveDashboardRouter.createCaller(ctx as any).getMetrics(input);
+      const metrics = await executiveDashboardRouter
+        .createCaller(ctx as any)
+        .getMetrics(input);
 
       // Crear workbook con exceljs
       const workbook = new ExcelJS.Workbook();
-      workbook.creator = 'Sistema NOM-035';
+      workbook.creator = "Sistema NOM-035";
       workbook.created = new Date();
 
       // Paleta de colores corporativa
       const colors = {
-        primary: '1E3A8A',    // Azul marino
-        success: '16A34A',    // Verde
-        danger: 'DC2626',     // Rojo
-        dark: '1F2937',       // Negro/gris oscuro
-        light: 'F3F4F6',      // Gris claro
+        primary: "1E3A8A", // Azul marino
+        success: "16A34A", // Verde
+        danger: "DC2626", // Rojo
+        dark: "1F2937", // Negro/gris oscuro
+        light: "F3F4F6", // Gris claro
       };
 
       // === HOJA 1: KPIs PRINCIPALES ===
-      const ws1 = workbook.addWorksheet('KPIs');
-      
+      const ws1 = workbook.addWorksheet("KPIs");
+
       // Título principal
-      ws1.mergeCells('A1:B1');
-      ws1.getCell('A1').value = 'Dashboard Ejecutivo NOM-035 STPS 2018';
-      ws1.getCell('A1').font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' } };
-      ws1.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.primary } };
-      ws1.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      ws1.mergeCells("A1:B1");
+      ws1.getCell("A1").value = "Dashboard Ejecutivo NOM-035 STPS 2018";
+      ws1.getCell("A1").font = {
+        bold: true,
+        size: 16,
+        color: { argb: "FFFFFFFF" },
+      };
+      ws1.getCell("A1").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colors.primary },
+      };
+      ws1.getCell("A1").alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
       ws1.getRow(1).height = 30;
 
       // Fecha de generación
-      ws1.getCell('A2').value = 'Fecha de Generación:';
-      ws1.getCell('B2').value = new Date().toLocaleDateString('es-MX');
+      ws1.getCell("A2").value = "Fecha de Generación:";
+      ws1.getCell("B2").value = new Date().toLocaleDateString("es-MX");
       ws1.getRow(2).font = { italic: true };
 
       // Encabezados de KPIs
-      ws1.getCell('A4').value = 'KPI';
-      ws1.getCell('B4').value = 'Valor';
-      ws1.getRow(4).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      ws1.getRow(4).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.dark } };
-      ws1.getRow(4).alignment = { horizontal: 'center' };
+      ws1.getCell("A4").value = "KPI";
+      ws1.getCell("B4").value = "Valor";
+      ws1.getRow(4).font = { bold: true, color: { argb: "FFFFFFFF" } };
+      ws1.getRow(4).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colors.dark },
+      };
+      ws1.getRow(4).alignment = { horizontal: "center" };
 
       // Datos de KPIs
       const kpisRows = [
-        ['Tasa de Cumplimiento NOM-035', `${(metrics as any)?.complianceRate || 0}%`],
-        ['Casos Críticos Abiertos', (metrics as any)?.criticalCases || 0],
-        ['Total de Empleados', metrics?.employeesAndStructure?.totalEmployees || 0],
-        ['Casos Cerrados (Mes Actual)', metrics?.nom035Compliance?.casesClosed || 0],
+        [
+          "Tasa de Cumplimiento NOM-035",
+          `${(metrics as any)?.complianceRate || 0}%`,
+        ],
+        ["Casos Críticos Abiertos", (metrics as any)?.criticalCases || 0],
+        [
+          "Total de Empleados",
+          metrics?.employeesAndStructure?.totalEmployees || 0,
+        ],
+        [
+          "Casos Cerrados (Mes Actual)",
+          metrics?.nom035Compliance?.casesClosed || 0,
+        ],
       ];
-      
+
       kpisRows.forEach((row: any, idx: number) => {
         const rowNum = idx + 5;
         ws1.getCell(`A${rowNum}`).value = row[0];
         ws1.getCell(`B${rowNum}`).value = row[1];
-        ws1.getCell(`B${rowNum}`).alignment = { horizontal: 'right' };
+        ws1.getCell(`B${rowNum}`).alignment = { horizontal: "right" };
       });
 
       // Sección NMX-025
-      ws1.getCell('A9').value = 'Métricas NMX-025';
-      ws1.getCell('A9').font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      ws1.getCell('A9').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.success } };
-      ws1.mergeCells('A9:B9');
-      ws1.getCell('A9').alignment = { horizontal: 'center' };
+      ws1.getCell("A9").value = "Métricas NMX-025";
+      ws1.getCell("A9").font = { bold: true, color: { argb: "FFFFFFFF" } };
+      ws1.getCell("A9").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colors.success },
+      };
+      ws1.mergeCells("A9:B9");
+      ws1.getCell("A9").alignment = { horizontal: "center" };
 
-      ws1.getCell('A10').value = 'Brecha Salarial de Género';
-      ws1.getCell('B10').value = `${(metrics as any)?.nmx025?.genderPayGap || 0}%`;
-      ws1.getCell('B10').alignment = { horizontal: 'right' };
+      ws1.getCell("A10").value = "Brecha Salarial de Género";
+      ws1.getCell("B10").value =
+        `${(metrics as any)?.nmx025?.genderPayGap || 0}%`;
+      ws1.getCell("B10").alignment = { horizontal: "right" };
 
-      ws1.getCell('A11').value = 'Mujeres en Puestos Directivos';
-      ws1.getCell('B11').value = `${metrics?.nmx025Equality?.femaleDirectivesPercentage || 0}%`;
-      ws1.getCell('B11').alignment = { horizontal: 'right' };
+      ws1.getCell("A11").value = "Mujeres en Puestos Directivos";
+      ws1.getCell("B11").value =
+        `${metrics?.nmx025Equality?.femaleDirectivesPercentage || 0}%`;
+      ws1.getCell("B11").alignment = { horizontal: "right" };
 
       // Aplicar bordes y ajustar anchos
       ws1.columns = [
-        { key: 'kpi', width: 35 },
-        { key: 'valor', width: 20 },
+        { key: "kpi", width: 35 },
+        { key: "valor", width: 20 },
       ];
 
       // Bordes a todas las celdas con datos
       for (let row = 4; row <= 11; row++) {
-        ['A', 'B'].forEach(col => {
+        ["A", "B"].forEach(col => {
           ws1.getCell(`${col}${row}`).border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' },
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
           };
         });
       }
 
       // === HOJA 2: TENDENCIAS DE CASOS ===
-      const ws2 = workbook.addWorksheet('Tendencias');
-      
+      const ws2 = workbook.addWorksheet("Tendencias");
+
       // Título
-      ws2.mergeCells('A1:C1');
-      ws2.getCell('A1').value = 'Tendencias de Casos por Mes';
-      ws2.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
-      ws2.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.primary } };
-      ws2.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      ws2.mergeCells("A1:C1");
+      ws2.getCell("A1").value = "Tendencias de Casos por Mes";
+      ws2.getCell("A1").font = {
+        bold: true,
+        size: 14,
+        color: { argb: "FFFFFFFF" },
+      };
+      ws2.getCell("A1").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colors.primary },
+      };
+      ws2.getCell("A1").alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
       ws2.getRow(1).height = 25;
 
       // Encabezados
-      ws2.getCell('A3').value = 'Mes';
-      ws2.getCell('B3').value = 'Casos Abiertos';
-      ws2.getCell('C3').value = 'Casos Cerrados';
-      ws2.getRow(3).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      ws2.getRow(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.dark } };
-      ws2.getRow(3).alignment = { horizontal: 'center' };
+      ws2.getCell("A3").value = "Mes";
+      ws2.getCell("B3").value = "Casos Abiertos";
+      ws2.getCell("C3").value = "Casos Cerrados";
+      ws2.getRow(3).font = { bold: true, color: { argb: "FFFFFFFF" } };
+      ws2.getRow(3).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colors.dark },
+      };
+      ws2.getRow(3).alignment = { horizontal: "center" };
 
       // Datos
       ((metrics as any)?.casesTrends || []).forEach((t: any, idx: number) => {
@@ -866,27 +1149,27 @@ export const executiveDashboardRouter = router({
 
       // Ajustar anchos
       ws2.columns = [
-        { key: 'mes', width: 20 },
-        { key: 'abiertos', width: 18 },
-        { key: 'cerrados', width: 18 },
+        { key: "mes", width: 20 },
+        { key: "abiertos", width: 18 },
+        { key: "cerrados", width: 18 },
       ];
 
       // Gráfica de barras para tendencias
       const chartDataRows = ((metrics as any)?.casesTrends || []).length;
       (ws2 as any).addChart({
-        name: 'Tendencias de Casos',
-        chartType: 'bar',
+        name: "Tendencias de Casos",
+        chartType: "bar",
         categories: {
           formula: `Tendencias!$A$4:$A$${3 + chartDataRows}`,
         },
         values: [
           {
             formula: `Tendencias!$B$4:$B$${3 + chartDataRows}`,
-            name: 'Casos Abiertos',
+            name: "Casos Abiertos",
           },
           {
             formula: `Tendencias!$C$4:$C$${3 + chartDataRows}`,
-            name: 'Casos Cerrados',
+            name: "Casos Cerrados",
           },
         ],
         position: { x: 350, y: 50 },
@@ -895,49 +1178,66 @@ export const executiveDashboardRouter = router({
       } as any);
 
       // === HOJA 3: DISTRIBUCIÓN DE RIESGO ===
-      const ws3 = workbook.addWorksheet('Riesgo');
-      
+      const ws3 = workbook.addWorksheet("Riesgo");
+
       // Título
-      ws3.mergeCells('A1:B1');
-      ws3.getCell('A1').value = 'Distribución de Riesgo Psicosocial';
-      ws3.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
-      ws3.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.danger } };
-      ws3.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      ws3.mergeCells("A1:B1");
+      ws3.getCell("A1").value = "Distribución de Riesgo Psicosocial";
+      ws3.getCell("A1").font = {
+        bold: true,
+        size: 14,
+        color: { argb: "FFFFFFFF" },
+      };
+      ws3.getCell("A1").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colors.danger },
+      };
+      ws3.getCell("A1").alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
       ws3.getRow(1).height = 25;
 
       // Encabezados
-      ws3.getCell('A3').value = 'Nivel de Riesgo';
-      ws3.getCell('B3').value = 'Cantidad';
-      ws3.getRow(3).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      ws3.getRow(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.dark } };
-      ws3.getRow(3).alignment = { horizontal: 'center' };
+      ws3.getCell("A3").value = "Nivel de Riesgo";
+      ws3.getCell("B3").value = "Cantidad";
+      ws3.getRow(3).font = { bold: true, color: { argb: "FFFFFFFF" } };
+      ws3.getRow(3).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colors.dark },
+      };
+      ws3.getRow(3).alignment = { horizontal: "center" };
 
       // Datos
-      ((metrics as any)?.riskDistribution || []).forEach((r: any, idx: number) => {
-        const rowNum = idx + 4;
-        ws3.getCell(`A${rowNum}`).value = r.level;
-        ws3.getCell(`B${rowNum}`).value = r.count;
-        ws3.getCell(`B${rowNum}`).alignment = { horizontal: 'right' };
-      });
+      ((metrics as any)?.riskDistribution || []).forEach(
+        (r: any, idx: number) => {
+          const rowNum = idx + 4;
+          ws3.getCell(`A${rowNum}`).value = r.level;
+          ws3.getCell(`B${rowNum}`).value = r.count;
+          ws3.getCell(`B${rowNum}`).alignment = { horizontal: "right" };
+        }
+      );
 
       // Ajustar anchos
       ws3.columns = [
-        { key: 'nivel', width: 25 },
-        { key: 'cantidad', width: 15 },
+        { key: "nivel", width: 25 },
+        { key: "cantidad", width: 15 },
       ];
 
       // Gráfica de pie para distribución de riesgo
       const riskDataRows = ((metrics as any)?.riskDistribution || []).length;
       (ws3 as any).addChart({
-        name: 'Distribución de Riesgo',
-        chartType: 'pie',
+        name: "Distribución de Riesgo",
+        chartType: "pie",
         categories: {
           formula: `Riesgo!$A$4:$A$${3 + riskDataRows}`,
         },
         values: [
           {
             formula: `Riesgo!$B$4:$B$${3 + riskDataRows}`,
-            name: 'Cantidad',
+            name: "Cantidad",
           },
         ],
         position: { x: 250, y: 50 },
@@ -946,49 +1246,68 @@ export const executiveDashboardRouter = router({
       } as any);
 
       // === HOJA 4: DISTRIBUCIÓN POR DEPARTAMENTO ===
-      const ws4 = workbook.addWorksheet('Departamentos');
-      
+      const ws4 = workbook.addWorksheet("Departamentos");
+
       // Título
-      ws4.mergeCells('A1:B1');
-      ws4.getCell('A1').value = 'Distribución por Departamento';
-      ws4.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
-      ws4.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.success } };
-      ws4.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      ws4.mergeCells("A1:B1");
+      ws4.getCell("A1").value = "Distribución por Departamento";
+      ws4.getCell("A1").font = {
+        bold: true,
+        size: 14,
+        color: { argb: "FFFFFFFF" },
+      };
+      ws4.getCell("A1").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colors.success },
+      };
+      ws4.getCell("A1").alignment = {
+        horizontal: "center",
+        vertical: "middle",
+      };
       ws4.getRow(1).height = 25;
 
       // Encabezados
-      ws4.getCell('A3').value = 'Departamento';
-      ws4.getCell('B3').value = 'Empleados';
-      ws4.getRow(3).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      ws4.getRow(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.dark } };
-      ws4.getRow(3).alignment = { horizontal: 'center' };
+      ws4.getCell("A3").value = "Departamento";
+      ws4.getCell("B3").value = "Empleados";
+      ws4.getRow(3).font = { bold: true, color: { argb: "FFFFFFFF" } };
+      ws4.getRow(3).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colors.dark },
+      };
+      ws4.getRow(3).alignment = { horizontal: "center" };
 
       // Datos
-      ((metrics.employeesAndStructure?.departmentDistribution || []) as any[]).forEach((d: any, idx: number) => {
+      (
+        (metrics.employeesAndStructure?.departmentDistribution || []) as any[]
+      ).forEach((d: any, idx: number) => {
         const rowNum = idx + 4;
         ws4.getCell(`A${rowNum}`).value = d.department;
         ws4.getCell(`B${rowNum}`).value = d.count;
-        ws4.getCell(`B${rowNum}`).alignment = { horizontal: 'right' };
+        ws4.getCell(`B${rowNum}`).alignment = { horizontal: "right" };
       });
 
       // Ajustar anchos
       ws4.columns = [
-        { key: 'departamento', width: 30 },
-        { key: 'empleados', width: 15 },
+        { key: "departamento", width: 30 },
+        { key: "empleados", width: 15 },
       ];
 
       // Gráfica de columnas para departamentos
-      const deptDataRows = (metrics.employeesAndStructure?.departmentDistribution || []).length;
+      const deptDataRows = (
+        metrics.employeesAndStructure?.departmentDistribution || []
+      ).length;
       (ws4 as any).addChart({
-        name: 'Distribución por Departamento',
-        chartType: 'column',
+        name: "Distribución por Departamento",
+        chartType: "column",
         categories: {
           formula: `Departamentos!$A$4:$A$${3 + deptDataRows}`,
         },
         values: [
           {
             formula: `Departamentos!$B$4:$B$${3 + deptDataRows}`,
-            name: 'Empleados',
+            name: "Empleados",
           },
         ],
         position: { x: 300, y: 50 },
@@ -998,10 +1317,10 @@ export const executiveDashboardRouter = router({
 
       // Generar buffer
       const excelBuffer = await workbook.xlsx.writeBuffer();
-      const base64 = Buffer.from(excelBuffer).toString('base64');
+      const base64 = Buffer.from(excelBuffer).toString("base64");
 
       return {
-        filename: `Dashboard-Ejecutivo-${new Date().toISOString().split('T')[0]}.xlsx`,
+        filename: `Dashboard-Ejecutivo-${new Date().toISOString().split("T")[0]}.xlsx`,
         data: base64,
       };
     }),

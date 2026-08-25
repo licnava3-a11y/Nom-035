@@ -155,13 +155,13 @@ describe("cases router - committee assignment", () => {
 
     const workload = await caller.cases.getCommitteeWorkload();
     expect(Array.isArray(workload)).toBe(true);
-    
+
     // Verificar estructura de datos
     if (workload.length > 0) {
-      expect(workload[0]).toHaveProperty('userId');
-      expect(workload[0]).toHaveProperty('userName');
-      expect(workload[0]).toHaveProperty('activeCases');
-      expect(typeof workload[0].activeCases).toBe('number');
+      expect(workload[0]).toHaveProperty("userId");
+      expect(workload[0]).toHaveProperty("userName");
+      expect(workload[0]).toHaveProperty("activeCases");
+      expect(typeof workload[0].activeCases).toBe("number");
     }
   });
 
@@ -193,7 +193,7 @@ describe("cases router - committee assignment", () => {
       caller.cases.assignCaseToCommittee({
         caseId: 1,
         userId: 4,
-        role: 'investigador_principal',
+        role: "investigador_principal",
       })
     ).rejects.toThrow(TRPCError);
   });

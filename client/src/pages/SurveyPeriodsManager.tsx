@@ -30,83 +30,134 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Plus, Calendar, Users, CheckCircle, Clock, Archive, HelpCircle, Mail, Send } from "lucide-react";
+import {
+  Plus,
+  Calendar,
+  Users,
+  CheckCircle,
+  Clock,
+  Archive,
+  HelpCircle,
+  Mail,
+  Send,
+} from "lucide-react";
 import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function SurveyPeriodsManager() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
-  const [filterType, setFilterType] = useState<"all" | "guia_i" | "guia_ii" | "guia_iii">("all");
-  const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "active" | "closed" | "archived">("all");
+  const [filterType, setFilterType] = useState<
+    "all" | "guia_i" | "guia_ii" | "guia_iii"
+  >("all");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "draft" | "active" | "closed" | "archived"
+  >("all");
   const [isSendEmailDialogOpen, setIsSendEmailDialogOpen] = useState(false);
-  const [selectedPeriodForEmail, setSelectedPeriodForEmail] = useState<number | null>(null);
+  const [selectedPeriodForEmail, setSelectedPeriodForEmail] = useState<
+    number | null
+  >(null);
 
   // Queries
-  const { data: periods, isLoading, refetch: refetchPeriods } = trpc.surveyPeriods.list.useQuery({
+  const {
+    data: periods,
+    isLoading,
+    refetch: refetchPeriods,
+  } = trpc.surveyPeriods.list.useQuery({
     surveyType: filterType === "all" ? undefined : filterType,
     status: filterStatus === "all" ? undefined : filterStatus,
   });
 
-  const { data: periodDetails } = trpc.surveyPeriods.getById.useQuery(selectedPeriod!, {
-    enabled: !!selectedPeriod,
-  });
+  const { data: periodDetails } = trpc.surveyPeriods.getById.useQuery(
+    selectedPeriod!,
+    {
+      enabled: !!selectedPeriod,
+    }
+  );
 
-  const { data: activeEmployees } = trpc.surveyPeriods.getActiveEmployees.useQuery();
+  const { data: activeEmployees } =
+    trpc.surveyPeriods.getActiveEmployees.useQuery();
 
   // Estabilizar opciones de Select para evitar errores de removeChild
-  const surveyTypeOptions = useMemo(() => [
-    { value: "all", label: "Todas las guías" },
-    { value: "guia_i", label: "Guía I" },
-    { value: "guia_ii", label: "Guía II" },
-    { value: "guia_iii", label: "Guía III" },
-  ], []);
+  const surveyTypeOptions = useMemo(
+    () => [
+      { value: "all", label: "Todas las guías" },
+      { value: "guia_i", label: "Guía I" },
+      { value: "guia_ii", label: "Guía II" },
+      { value: "guia_iii", label: "Guía III" },
+    ],
+    []
+  );
 
-  const statusOptions = useMemo(() => [
-    { value: "all", label: "Todos los estados" },
-    { value: "draft", label: "Borrador" },
-    { value: "active", label: "Activo" },
-    { value: "closed", label: "Cerrado" },
-    { value: "archived", label: "Archivado" },
-  ], []);
+  const statusOptions = useMemo(
+    () => [
+      { value: "all", label: "Todos los estados" },
+      { value: "draft", label: "Borrador" },
+      { value: "active", label: "Activo" },
+      { value: "closed", label: "Cerrado" },
+      { value: "archived", label: "Archivado" },
+    ],
+    []
+  );
 
-  const createSurveyTypeOptions = useMemo(() => [
-    { value: "guia_i", label: "Guía I - Identificación y análisis de factores de riesgo psicosocial" },
-    { value: "guia_ii", label: "Guía II - Identificación de trabajadores expuestos a acontecimientos traumáticos severos" },
-    { value: "guia_iii", label: "Guía III - Identificación de trabajadores que fueron sujetos a acontecimientos traumáticos severos" },
-  ], []);
+  const createSurveyTypeOptions = useMemo(
+    () => [
+      {
+        value: "guia_i",
+        label:
+          "Guía I - Identificación y análisis de factores de riesgo psicosocial",
+      },
+      {
+        value: "guia_ii",
+        label:
+          "Guía II - Identificación de trabajadores expuestos a acontecimientos traumáticos severos",
+      },
+      {
+        value: "guia_iii",
+        label:
+          "Guía III - Identificación de trabajadores que fueron sujetos a acontecimientos traumáticos severos",
+      },
+    ],
+    []
+  );
 
   // Mutations
   const createPeriodMutation = trpc.surveyPeriods.create.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success("Periodo creado", {
         description: data.message,
       });
       setIsCreateDialogOpen(false);
       refetchPeriods();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error("Error", {
         description: error.message,
       });
     },
   });
 
-  const sendInvitationsMutation = trpc.publicSurveys.sendSurveyInvitations.useMutation({
-    onSuccess: (data) => {
-      toast.success("Invitaciones enviadas", {
-        description: `Se enviaron ${data.emailsSent} invitaciones por email exitosamente.`,
-      });
-      setIsSendEmailDialogOpen(false);
-      setSelectedPeriodForEmail(null);
-    },
-    onError: (error) => {
-      toast.error("Error al enviar invitaciones", {
-        description: error.message,
-      });
-    },
-  });
+  const sendInvitationsMutation =
+    trpc.publicSurveys.sendSurveyInvitations.useMutation({
+      onSuccess: data => {
+        toast.success("Invitaciones enviadas", {
+          description: `Se enviaron ${data.emailsSent} invitaciones por email exitosamente.`,
+        });
+        setIsSendEmailDialogOpen(false);
+        setSelectedPeriodForEmail(null);
+      },
+      onError: error => {
+        toast.error("Error al enviar invitaciones", {
+          description: error.message,
+        });
+      },
+    });
 
   const updatePeriodMutation = trpc.surveyPeriods.update.useMutation({
     onSuccess: () => {
@@ -115,7 +166,7 @@ export default function SurveyPeriodsManager() {
       });
       refetchPeriods();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error("Error", {
         description: error.message,
       });
@@ -129,7 +180,7 @@ export default function SurveyPeriodsManager() {
       });
       refetchPeriods();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error("Error", {
         description: error.message,
       });
@@ -137,13 +188,13 @@ export default function SurveyPeriodsManager() {
   });
 
   const generateTokensMutation = trpc.surveyPeriods.generateTokens.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success("Tokens generados", {
         description: data.message,
       });
       refetchPeriods();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error("Error", {
         description: error.message,
       });
@@ -154,10 +205,13 @@ export default function SurveyPeriodsManager() {
   const handleCreatePeriod = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
+
     createPeriodMutation.mutate({
       name: formData.get("name") as string,
-      surveyType: formData.get("surveyType") as "guia_i" | "guia_ii" | "guia_iii",
+      surveyType: formData.get("surveyType") as
+        | "guia_i"
+        | "guia_ii"
+        | "guia_iii",
       startDate: formData.get("startDate") as string,
       endDate: formData.get("endDate") as string,
       description: formData.get("description") as string,
@@ -165,7 +219,10 @@ export default function SurveyPeriodsManager() {
     });
   };
 
-  const handleUpdateStatus = (periodId: number, newStatus: "draft" | "active" | "closed" | "archived") => {
+  const handleUpdateStatus = (
+    periodId: number,
+    newStatus: "draft" | "active" | "closed" | "archived"
+  ) => {
     updatePeriodMutation.mutate({
       id: periodId,
       status: newStatus,
@@ -177,7 +234,10 @@ export default function SurveyPeriodsManager() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    const variants: Record<
+      string,
+      "default" | "secondary" | "destructive" | "outline"
+    > = {
       draft: "outline",
       active: "default",
       closed: "secondary",
@@ -191,7 +251,11 @@ export default function SurveyPeriodsManager() {
       archived: "Archivado",
     };
 
-    return <Badge variant={variants[status] || "default"}>{labels[status] || status}</Badge>;
+    return (
+      <Badge variant={variants[status] || "default"}>
+        {labels[status] || status}
+      </Badge>
+    );
   };
 
   const getSurveyTypeLabel = (type: string) => {
@@ -224,7 +288,8 @@ export default function SurveyPeriodsManager() {
               <DialogHeader>
                 <DialogTitle>Crear Nuevo Periodo de Aplicación</DialogTitle>
                 <DialogDescription>
-                  Define un nuevo periodo para aplicar encuestas NOM-035 a los trabajadores activos
+                  Define un nuevo periodo para aplicar encuestas NOM-035 a los
+                  trabajadores activos
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
@@ -246,11 +311,25 @@ export default function SurveyPeriodsManager() {
                           <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
-                          <p className="font-semibold mb-1">Guías de Referencia NOM-035</p>
+                          <p className="font-semibold mb-1">
+                            Guías de Referencia NOM-035
+                          </p>
                           <ul className="text-xs space-y-1">
-                            <li>• <strong>Guía I:</strong> Identificación y análisis de factores de riesgo psicosocial (todos los centros de trabajo)</li>
-                            <li>• <strong>Guía II:</strong> Identificación de trabajadores expuestos a acontecimientos traumáticos severos</li>
-                            <li>• <strong>Guía III:</strong> Evaluación del entorno organizacional (centros con +50 trabajadores)</li>
+                            <li>
+                              • <strong>Guía I:</strong> Identificación y
+                              análisis de factores de riesgo psicosocial (todos
+                              los centros de trabajo)
+                            </li>
+                            <li>
+                              • <strong>Guía II:</strong> Identificación de
+                              trabajadores expuestos a acontecimientos
+                              traumáticos severos
+                            </li>
+                            <li>
+                              • <strong>Guía III:</strong> Evaluación del
+                              entorno organizacional (centros con +50
+                              trabajadores)
+                            </li>
                           </ul>
                         </TooltipContent>
                       </Tooltip>
@@ -262,7 +341,10 @@ export default function SurveyPeriodsManager() {
                     </SelectTrigger>
                     <SelectContent>
                       {createSurveyTypeOptions.map((option: any) => (
-                        <SelectItem key={`create-survey-${option.value}`} value={option.value}>
+                        <SelectItem
+                          key={`create-survey-${option.value}`}
+                          value={option.value}
+                        >
                           {option.label}
                         </SelectItem>
                       ))}
@@ -279,7 +361,11 @@ export default function SurveyPeriodsManager() {
                             <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
-                            <p className="text-xs">Fecha en que inicia el periodo de aplicación de la encuesta. Los trabajadores podrán responder a partir de esta fecha.</p>
+                            <p className="text-xs">
+                              Fecha en que inicia el periodo de aplicación de la
+                              encuesta. Los trabajadores podrán responder a
+                              partir de esta fecha.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -300,17 +386,16 @@ export default function SurveyPeriodsManager() {
                             <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
-                            <p className="text-xs">Fecha límite para responder la encuesta. Después de esta fecha, el periodo se cerrará automáticamente y no se aceptarán más respuestas.</p>
+                            <p className="text-xs">
+                              Fecha límite para responder la encuesta. Después
+                              de esta fecha, el periodo se cerrará
+                              automáticamente y no se aceptarán más respuestas.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <Input
-                      id="endDate"
-                      name="endDate"
-                      type="date"
-                      required
-                    />
+                    <Input id="endDate" name="endDate" type="date" required />
                   </div>
                 </div>
                 <div className="grid gap-2">
@@ -329,16 +414,30 @@ export default function SurveyPeriodsManager() {
                     name="generateTokens"
                     className="h-4 w-4 rounded border-gray-300"
                   />
-                  <Label htmlFor="generateTokens" className="text-sm font-normal">
-                    Generar tokens automáticamente para trabajadores activos ({activeEmployees?.total || 0} trabajadores)
+                  <Label
+                    htmlFor="generateTokens"
+                    className="text-sm font-normal"
+                  >
+                    Generar tokens automáticamente para trabajadores activos (
+                    {activeEmployees?.total || 0} trabajadores)
                   </Label>
                 </div>
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
-                <LoadingButton type="submit" loading={createPeriodMutation.isPending} loadingText="Creando...">Crear Periodo</LoadingButton>
+                <LoadingButton
+                  type="submit"
+                  loading={createPeriodMutation.isPending}
+                  loadingText="Creando..."
+                >
+                  Crear Periodo
+                </LoadingButton>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -354,13 +453,19 @@ export default function SurveyPeriodsManager() {
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label>Tipo de Encuesta</Label>
-              <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
+              <Select
+                value={filterType}
+                onValueChange={(value: any) => setFilterType(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {surveyTypeOptions.map((option: any) => (
-                    <SelectItem key={`filter-type-${option.value}`} value={option.value}>
+                    <SelectItem
+                      key={`filter-type-${option.value}`}
+                      value={option.value}
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -369,13 +474,19 @@ export default function SurveyPeriodsManager() {
             </div>
             <div className="grid gap-2">
               <Label>Estado</Label>
-              <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+              <Select
+                value={filterStatus}
+                onValueChange={(value: any) => setFilterStatus(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {statusOptions.map((option: any) => (
-                    <SelectItem key={`filter-status-${option.value}`} value={option.value}>
+                    <SelectItem
+                      key={`filter-status-${option.value}`}
+                      value={option.value}
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -394,123 +505,149 @@ export default function SurveyPeriodsManager() {
               <TableSkeleton rows={3} columns={4} />
             </CardContent>
           </Card>
-        ) : (periods as any)?.map((period: any) => (
-          <Card key={period.id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    {period.name}
-                    {getStatusBadge(period.status)}
-                  </CardTitle>
-                  <CardDescription className="mt-2">
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(period.startDate).toLocaleDateString()} - {new Date(period.endDate).toLocaleDateString()}
-                      </span>
-                      <Badge variant="outline">{getSurveyTypeLabel(period.surveyType)}</Badge>
+        ) : (
+          (periods as any)?.map((period: any) => (
+            <Card key={period.id}>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      {period.name}
+                      {getStatusBadge(period.status)}
+                    </CardTitle>
+                    <CardDescription className="mt-2">
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          {new Date(
+                            period.startDate
+                          ).toLocaleDateString()} -{" "}
+                          {new Date(period.endDate).toLocaleDateString()}
+                        </span>
+                        <Badge variant="outline">
+                          {getSurveyTypeLabel(period.surveyType)}
+                        </Badge>
+                      </div>
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    {period.status === "draft" && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleUpdateStatus(period.id, "active")}
+                        disabled={updatePeriodMutation.isPending}
+                      >
+                        Activar
+                      </Button>
+                    )}
+                    {period.status === "active" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleUpdateStatus(period.id, "closed")}
+                        disabled={updatePeriodMutation.isPending}
+                      >
+                        Cerrar
+                      </Button>
+                    )}
+                    {period.status === "closed" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          handleUpdateStatus(period.id, "archived")
+                        }
+                        disabled={updatePeriodMutation.isPending}
+                      >
+                        <Archive className="h-4 w-4 mr-1" />
+                        Archivar
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Tokens Generados
+                      </p>
+                      <p className="text-2xl font-bold">{period.totalTokens}</p>
                     </div>
-                  </CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  {period.status === "draft" && (
-                    <Button
-                      size="sm"
-                      onClick={() => handleUpdateStatus(period.id, "active")}
-                      disabled={updatePeriodMutation.isPending}
-                    >
-                      Activar
-                    </Button>
-                  )}
-                  {period.status === "active" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleUpdateStatus(period.id, "closed")}
-                      disabled={updatePeriodMutation.isPending}
-                    >
-                      Cerrar
-                    </Button>
-                  )}
-                  {period.status === "closed" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleUpdateStatus(period.id, "archived")}
-                      disabled={updatePeriodMutation.isPending}
-                    >
-                      <Archive className="h-4 w-4 mr-1" />
-                      Archivar
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Tokens Generados</p>
-                    <p className="text-2xl font-bold">{period.totalTokens}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Respuestas Completadas
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {period.totalResponses}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Tasa de Completitud
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {period.completionRate}%
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Respuestas Completadas</p>
-                    <p className="text-2xl font-bold">{period.totalResponses}</p>
-                  </div>
+                {period.description && (
+                  <p className="text-sm text-muted-foreground mt-4">
+                    {period.description}
+                  </p>
+                )}
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleGenerateTokens(period.id)}
+                    disabled={generateTokensMutation.isPending}
+                  >
+                    Generar Tokens Adicionales
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => {
+                      setSelectedPeriodForEmail(period.id);
+                      setIsSendEmailDialogOpen(true);
+                    }}
+                    disabled={period.totalTokens === 0}
+                  >
+                    <Mail className="mr-2 h-4 w-4" />
+                    Enviar Invitaciones por Email
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedPeriod(period.id)}
+                  >
+                    Ver Detalles
+                  </Button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-blue-600" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Tasa de Completitud</p>
-                    <p className="text-2xl font-bold">{period.completionRate}%</p>
-                  </div>
-                </div>
-              </div>
-              {period.description && (
-                <p className="text-sm text-muted-foreground mt-4">{period.description}</p>
-              )}
-              <div className="flex gap-2 mt-4">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleGenerateTokens(period.id)}
-                  disabled={generateTokensMutation.isPending}
-                >
-                  Generar Tokens Adicionales
-                </Button>
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={() => {
-                    setSelectedPeriodForEmail(period.id);
-                    setIsSendEmailDialogOpen(true);
-                  }}
-                  disabled={period.totalTokens === 0}
-                >
-                  <Mail className="mr-2 h-4 w-4" />
-                  Enviar Invitaciones por Email
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setSelectedPeriod(period.id)}
-                >
-                  Ver Detalles
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
         {(periods as any)?.length === 0 && (
           <Card>
             <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground">No se encontraron periodos de aplicación</p>
-              <Button className="mt-4" onClick={() => setIsCreateDialogOpen(true)}>
+              <p className="text-muted-foreground">
+                No se encontraron periodos de aplicación
+              </p>
+              <Button
+                className="mt-4"
+                onClick={() => setIsCreateDialogOpen(true)}
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Crear Primer Periodo
               </Button>
@@ -520,12 +657,16 @@ export default function SurveyPeriodsManager() {
       </div>
 
       {/* Dialog para enviar invitaciones por email */}
-      <Dialog open={isSendEmailDialogOpen} onOpenChange={setIsSendEmailDialogOpen}>
+      <Dialog
+        open={isSendEmailDialogOpen}
+        onOpenChange={setIsSendEmailDialogOpen}
+      >
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Enviar Invitaciones por Email</DialogTitle>
             <DialogDescription>
-              Se enviarán invitaciones personalizadas por email a todos los empleados con tokens generados para este periodo.
+              Se enviarán invitaciones personalizadas por email a todos los
+              empleados con tokens generados para este periodo.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -533,7 +674,9 @@ export default function SurveyPeriodsManager() {
               <div className="flex items-start gap-3">
                 <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-blue-900 mb-1">Contenido del Email</h4>
+                  <h4 className="font-semibold text-blue-900 mb-1">
+                    Contenido del Email
+                  </h4>
                   <ul className="text-sm text-blue-800 space-y-1">
                     <li>• Link personalizado para responder la encuesta</li>
                     <li>• Instrucción para autenticarse con CURP</li>
@@ -547,7 +690,9 @@ export default function SurveyPeriodsManager() {
               <div className="flex items-start gap-3">
                 <HelpCircle className="h-5 w-5 text-amber-600 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-amber-900 mb-1">Requisitos Previos</h4>
+                  <h4 className="font-semibold text-amber-900 mb-1">
+                    Requisitos Previos
+                  </h4>
                   <ul className="text-sm text-amber-800 space-y-1">
                     <li>• Configuración SMTP activa</li>
                     <li>• Empleados con emails válidos</li>
@@ -568,7 +713,10 @@ export default function SurveyPeriodsManager() {
             <LoadingButton
               onClick={() => {
                 if (selectedPeriodForEmail) {
-                  sendInvitationsMutation.mutate({ surveyPeriodId: selectedPeriodForEmail, surveyType: "guia_i" });
+                  sendInvitationsMutation.mutate({
+                    surveyPeriodId: selectedPeriodForEmail,
+                    surveyType: "guia_i",
+                  });
                 }
               }}
               loading={sendInvitationsMutation.isPending}

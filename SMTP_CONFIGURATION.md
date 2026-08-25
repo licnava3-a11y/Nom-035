@@ -28,6 +28,7 @@ SMTP_SECURE=false
 ```
 
 **Nota:** Para Gmail, necesitas generar una "Contraseña de aplicación" desde tu cuenta de Google:
+
 1. Ve a tu cuenta de Google → Seguridad
 2. Activa la verificación en dos pasos
 3. Genera una contraseña de aplicación para "Correo"
@@ -95,7 +96,8 @@ Una vez configuradas las variables, el sistema podrá:
 
 **Causa:** Credenciales incorrectas o permisos insuficientes.
 
-**Solución:** 
+**Solución:**
+
 - Verifica que el usuario y contraseña sean correctos
 - Para Gmail, asegúrate de usar una "Contraseña de aplicación"
 - Verifica que la cuenta tenga permisos para enviar correos vía SMTP
@@ -105,6 +107,7 @@ Una vez configuradas las variables, el sistema podrá:
 **Causa:** El servidor SMTP no es accesible o el puerto está bloqueado.
 
 **Solución:**
+
 - Verifica que el host y puerto sean correctos
 - Asegúrate de que tu firewall permita conexiones salientes al puerto SMTP
 - Intenta con un puerto alternativo (587 o 465)
@@ -114,6 +117,7 @@ Una vez configuradas las variables, el sistema podrá:
 **Causa:** Los correos pueden estar siendo marcados como spam.
 
 **Solución:**
+
 - Configura registros SPF y DKIM en tu dominio
 - Usa un proveedor SMTP profesional (SendGrid, Mailgun, etc.)
 - Verifica que el email del remitente (SMTP_FROM) sea válido

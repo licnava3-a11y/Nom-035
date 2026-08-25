@@ -7,9 +7,25 @@ import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Card } from "@/components/ui/card";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { toast } from "sonner";
-import { Upload, FileText, Image, FileCheck, AlertCircle, X, Eye, Download, Trash2 } from "lucide-react";
+import {
+  Upload,
+  FileText,
+  Image,
+  FileCheck,
+  AlertCircle,
+  X,
+  Eye,
+  Download,
+  Trash2,
+} from "lucide-react";
 
 const DOCUMENT_TYPES = [
   { value: "ine", label: "INE" },
@@ -36,17 +52,26 @@ export default function EmployeeDocuments() {
   const [, navigate] = useLocation();
   const [selectedType, setSelectedType] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("all");
-  const [viewerDocument, setViewerDocument] = useState<{ url: string; type: string } | null>(null);
+  const [viewerDocument, setViewerDocument] = useState<{
+    url: string;
+    type: string;
+  } | null>(null);
 
-  const { data: documents, isLoading, refetch } = trpc.employeeDocuments.list.useQuery({ employeeId });
-  const { data: missingDocs } = trpc.employeeDocuments.getMissing.useQuery({ employeeId });
+  const {
+    data: documents,
+    isLoading,
+    refetch,
+  } = trpc.employeeDocuments.list.useQuery({ employeeId });
+  const { data: missingDocs } = trpc.employeeDocuments.getMissing.useQuery({
+    employeeId,
+  });
   const uploadMutation = trpc.employeeDocuments.upload.useMutation({
     onSuccess: () => {
       toast.success("Documento subido exitosamente");
       refetch();
       setSelectedType("");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al subir documento: ${error.message}`);
     },
   });
@@ -55,7 +80,7 @@ export default function EmployeeDocuments() {
       toast.success("Documento eliminado");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al eliminar documento: ${error.message}`);
     },
   });
@@ -84,7 +109,23 @@ export default function EmployeeDocuments() {
 
       uploadMutation.mutate({
         employeeId,
-        documentType: selectedType as "ine" | "curp_document" | "rfc_document" | "nss_document" | "birth_certificate" | "proof_of_address" | "contract" | "job_offer" | "resignation" | "termination" | "recommendation" | "diploma" | "certificate" | "medical_exam" | "background_check" | "other",
+        documentType: selectedType as
+          | "ine"
+          | "curp_document"
+          | "rfc_document"
+          | "nss_document"
+          | "birth_certificate"
+          | "proof_of_address"
+          | "contract"
+          | "job_offer"
+          | "resignation"
+          | "termination"
+          | "recommendation"
+          | "diploma"
+          | "certificate"
+          | "medical_exam"
+          | "background_check"
+          | "other",
         fileName: file.name,
         fileData: base64Data,
         mimeType: file.type,
@@ -99,12 +140,16 @@ export default function EmployeeDocuments() {
       "image/*": [".png", ".jpg", ".jpeg", ".gif"],
       "application/pdf": [".pdf"],
       "application/msword": [".doc"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
     },
     maxFiles: 1,
   });
 
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   const handleDelete = (documentId: number, documentName: string) => {
     setDeleteConfirm({ id: documentId, name: documentName });
@@ -138,9 +183,14 @@ export default function EmployeeDocuments() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Expediente Electrónico</h1>
-          <p className="text-muted-foreground">Gestión de documentos del trabajador</p>
+          <p className="text-muted-foreground">
+            Gestión de documentos del trabajador
+          </p>
         </div>
-        <Button variant="outline" onClick={() => navigate(`/employees/${employeeId}`)}>
+        <Button
+          variant="outline"
+          onClick={() => navigate(`/employees/${employeeId}`)}
+        >
           Volver al Trabajador
         </Button>
       </div>
@@ -151,10 +201,18 @@ export default function EmployeeDocuments() {
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-amber-900">Documentos Faltantes</h3>
+              <h3 className="font-semibold text-amber-900">
+                Documentos Faltantes
+              </h3>
               <p className="text-sm text-amber-700 mt-1">
                 Los siguientes documentos no han sido cargados:{" "}
-                {missingDocs.map((doc: any) => DOCUMENT_TYPES.find((t: any) => t.value === doc)?.label || doc).join(", ")}
+                {missingDocs
+                  .map(
+                    (doc: any) =>
+                      DOCUMENT_TYPES.find((t: any) => t.value === doc)?.label ||
+                      doc
+                  )
+                  .join(", ")}
               </p>
             </div>
           </div>
@@ -166,7 +224,9 @@ export default function EmployeeDocuments() {
         <h2 className="text-xl font-semibold mb-4">Subir Documento</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Tipo de Documento</label>
+            <label className="block text-sm font-medium mb-2">
+              Tipo de Documento
+            </label>
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar tipo..." />
@@ -252,20 +312,29 @@ export default function EmployeeDocuments() {
                           <FileText className="h-4 w-4 text-red-600" />
                         )}
                         <span className="font-medium">
-                          {DOCUMENT_TYPES.find((t: any) => t.value === doc.documentType)?.label ||
-                            doc.documentType}
+                          {DOCUMENT_TYPES.find(
+                            (t: any) => t.value === doc.documentType
+                          )?.label || doc.documentType}
                         </span>
                       </div>
                     </td>
                     <td className="p-3">{doc.fileName}</td>
-                    <td className="p-3">{doc.fileSize ? (doc.fileSize / 1024).toFixed(1) + ' KB' : 'N/A'}</td>
-                    <td className="p-3">{new Date(doc.createdAt).toLocaleDateString()}</td>
+                    <td className="p-3">
+                      {doc.fileSize
+                        ? (doc.fileSize / 1024).toFixed(1) + " KB"
+                        : "N/A"}
+                    </td>
+                    <td className="p-3">
+                      {new Date(doc.createdAt).toLocaleDateString()}
+                    </td>
                     <td className="p-3">
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleView(doc.fileUrl, doc.mimeType || "")}
+                          onClick={() =>
+                            handleView(doc.fileUrl, doc.mimeType || "")
+                          }
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -304,14 +373,24 @@ export default function EmployeeDocuments() {
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
           <div className="bg-background rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold">Visualizador de Documentos</h3>
-              <Button variant="ghost" size="sm" onClick={() => setViewerDocument(null)}>
+              <h3 className="text-lg font-semibold">
+                Visualizador de Documentos
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewerDocument(null)}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
             <div className="flex-1 overflow-auto p-4">
               {viewerDocument.type.startsWith("image/") ? (
-                <img src={viewerDocument.url} alt="Documento" className="max-w-full mx-auto" />
+                <img
+                  src={viewerDocument.url}
+                  alt="Documento"
+                  className="max-w-full mx-auto"
+                />
               ) : viewerDocument.type === "application/pdf" ? (
                 <iframe
                   src={viewerDocument.url}
@@ -324,7 +403,9 @@ export default function EmployeeDocuments() {
                   <p className="text-muted-foreground mb-4">
                     No se puede previsualizar este tipo de archivo
                   </p>
-                  <Button onClick={() => window.open(viewerDocument.url, "_blank")}>
+                  <Button
+                    onClick={() => window.open(viewerDocument.url, "_blank")}
+                  >
                     Descargar Archivo
                   </Button>
                 </div>
@@ -336,7 +417,7 @@ export default function EmployeeDocuments() {
 
       <ConfirmDialog
         open={deleteConfirm !== null}
-        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onOpenChange={open => !open && setDeleteConfirm(null)}
         onConfirm={confirmDelete}
         title="Eliminar Documento"
         description={`¿Estás seguro de eliminar el documento "${deleteConfirm?.name}"? Esta acción no se puede deshacer.`}

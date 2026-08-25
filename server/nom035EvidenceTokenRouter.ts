@@ -26,9 +26,13 @@ const upload = multer({
   limits: { fileSize: 16 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const allowed = [
-      "image/jpeg", "image/png", "image/gif", "image/webp",
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
       "application/pdf",
-      "video/mp4", "video/quicktime",
+      "video/mp4",
+      "video/quicktime",
       "application/msword",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "application/vnd.ms-excel",
@@ -47,13 +51,29 @@ evidenceTokenRouter.get("/nom035/evidence-upload/:token", async (req, res) => {
   const { token } = req.params;
 
   if (!token || token.length < 16) {
-    return res.status(400).send(buildResultHtml("Enlace inválido", "El enlace de subida de evidencia no es válido.", false));
+    return res
+      .status(400)
+      .send(
+        buildResultHtml(
+          "Enlace inválido",
+          "El enlace de subida de evidencia no es válido.",
+          false
+        )
+      );
   }
 
   try {
     const db = await getDb();
     if (!db) {
-      return res.status(500).send(buildResultHtml("Error del servidor", "No se pudo conectar a la base de datos.", false));
+      return res
+        .status(500)
+        .send(
+          buildResultHtml(
+            "Error del servidor",
+            "No se pudo conectar a la base de datos.",
+            false
+          )
+        );
     }
 
     const [tokenRow] = await db
@@ -63,25 +83,41 @@ evidenceTokenRouter.get("/nom035/evidence-upload/:token", async (req, res) => {
       .limit(1);
 
     if (!tokenRow) {
-      return res.status(404).send(buildResultHtml("Enlace no encontrado", "El enlace de subida no existe o ya fue eliminado.", false));
+      return res
+        .status(404)
+        .send(
+          buildResultHtml(
+            "Enlace no encontrado",
+            "El enlace de subida no existe o ya fue eliminado.",
+            false
+          )
+        );
     }
 
     // Verificar expiración
     if (new Date() > new Date(tokenRow.expiresAt)) {
-      return res.status(410).send(buildResultHtml(
-        "Enlace expirado",
-        "Este enlace de subida de evidencia ha expirado (vigencia de 72 horas). Solicite un nuevo enlace al administrador.",
-        false
-      ));
+      return res
+        .status(410)
+        .send(
+          buildResultHtml(
+            "Enlace expirado",
+            "Este enlace de subida de evidencia ha expirado (vigencia de 72 horas). Solicite un nuevo enlace al administrador.",
+            false
+          )
+        );
     }
 
     // Verificar usos
     if (tokenRow.useCount >= tokenRow.maxUses) {
-      return res.status(410).send(buildResultHtml(
-        "Enlace ya utilizado",
-        "Este enlace de subida ya fue utilizado. Si necesita subir más evidencias, solicite un nuevo enlace al administrador.",
-        false
-      ));
+      return res
+        .status(410)
+        .send(
+          buildResultHtml(
+            "Enlace ya utilizado",
+            "Este enlace de subida ya fue utilizado. Si necesita subir más evidencias, solicite un nuevo enlace al administrador.",
+            false
+          )
+        );
     }
 
     // Obtener datos de la acción
@@ -99,21 +135,33 @@ evidenceTokenRouter.get("/nom035/evidence-upload/:token", async (req, res) => {
       .where(eq(nom035Actions.id, tokenRow.actionId))
       .limit(1);
 
-    return res.send(buildUploadFormHtml({
-      token,
-      accion: actionRow?.accion ?? "Acción NOM-035",
-      objetivo: actionRow?.objetivo ?? "",
-      responsable: actionRow?.responsable ?? "",
-      planTipo: actionRow?.planTipo ?? "",
-      planNivel: actionRow?.planNivel ?? "",
-      descripcionEsperada: tokenRow.descripcionEsperada ?? "",
-      expiresAt: new Date(tokenRow.expiresAt).toLocaleString("es-MX", {
-        dateStyle: "long", timeStyle: "short", timeZone: "America/Mexico_City",
-      }),
-    }));
+    return res.send(
+      buildUploadFormHtml({
+        token,
+        accion: actionRow?.accion ?? "Acción NOM-035",
+        objetivo: actionRow?.objetivo ?? "",
+        responsable: actionRow?.responsable ?? "",
+        planTipo: actionRow?.planTipo ?? "",
+        planNivel: actionRow?.planNivel ?? "",
+        descripcionEsperada: tokenRow.descripcionEsperada ?? "",
+        expiresAt: new Date(tokenRow.expiresAt).toLocaleString("es-MX", {
+          dateStyle: "long",
+          timeStyle: "short",
+          timeZone: "America/Mexico_City",
+        }),
+      })
+    );
   } catch (error) {
     console.error("[EvidenceToken GET] Error:", error);
-    return res.status(500).send(buildResultHtml("Error", "Ocurrió un error al cargar el formulario.", false));
+    return res
+      .status(500)
+      .send(
+        buildResultHtml(
+          "Error",
+          "Ocurrió un error al cargar el formulario.",
+          false
+        )
+      );
   }
 });
 
@@ -126,24 +174,58 @@ evidenceTokenRouter.post(
     const signerName = (req.body?.signerName ?? "").toString().trim();
     const signerEmail = (req.body?.signerEmail ?? "").toString().trim();
     const descripcion = (req.body?.descripcion ?? "").toString().trim();
-    const tipoEvidencia = (req.body?.tipoEvidencia ?? "documento").toString().trim();
+    const tipoEvidencia = (req.body?.tipoEvidencia ?? "documento")
+      .toString()
+      .trim();
 
     if (!token || token.length < 16) {
-      return res.status(400).send(buildResultHtml("Enlace inválido", "El enlace de subida no es válido.", false));
+      return res
+        .status(400)
+        .send(
+          buildResultHtml(
+            "Enlace inválido",
+            "El enlace de subida no es válido.",
+            false
+          )
+        );
     }
 
     if (!signerName || signerName.length < 2) {
-      return res.status(400).send(buildResultHtml("Nombre requerido", "Debe ingresar su nombre completo.", false));
+      return res
+        .status(400)
+        .send(
+          buildResultHtml(
+            "Nombre requerido",
+            "Debe ingresar su nombre completo.",
+            false
+          )
+        );
     }
 
     if (!req.file) {
-      return res.status(400).send(buildResultHtml("Archivo requerido", "Debe seleccionar un archivo para subir.", false));
+      return res
+        .status(400)
+        .send(
+          buildResultHtml(
+            "Archivo requerido",
+            "Debe seleccionar un archivo para subir.",
+            false
+          )
+        );
     }
 
     try {
       const db = await getDb();
       if (!db) {
-        return res.status(500).send(buildResultHtml("Error del servidor", "No se pudo conectar a la base de datos.", false));
+        return res
+          .status(500)
+          .send(
+            buildResultHtml(
+              "Error del servidor",
+              "No se pudo conectar a la base de datos.",
+              false
+            )
+          );
       }
 
       const [tokenRow] = await db
@@ -153,22 +235,51 @@ evidenceTokenRouter.post(
         .limit(1);
 
       if (!tokenRow) {
-        return res.status(404).send(buildResultHtml("Enlace no encontrado", "El enlace de subida no existe.", false));
+        return res
+          .status(404)
+          .send(
+            buildResultHtml(
+              "Enlace no encontrado",
+              "El enlace de subida no existe.",
+              false
+            )
+          );
       }
 
       if (new Date() > new Date(tokenRow.expiresAt)) {
-        return res.status(410).send(buildResultHtml("Enlace expirado", "Este enlace ha expirado. Solicite un nuevo enlace.", false));
+        return res
+          .status(410)
+          .send(
+            buildResultHtml(
+              "Enlace expirado",
+              "Este enlace ha expirado. Solicite un nuevo enlace.",
+              false
+            )
+          );
       }
 
       if (tokenRow.useCount >= tokenRow.maxUses) {
-        return res.status(410).send(buildResultHtml("Enlace ya utilizado", "Este enlace ya fue utilizado.", false));
+        return res
+          .status(410)
+          .send(
+            buildResultHtml(
+              "Enlace ya utilizado",
+              "Este enlace ya fue utilizado.",
+              false
+            )
+          );
       }
 
       // Subir archivo a S3
-      const ext = req.file.originalname.split(".").pop()?.toLowerCase() ?? "bin";
+      const ext =
+        req.file.originalname.split(".").pop()?.toLowerCase() ?? "bin";
       const suffix = Math.random().toString(36).substring(2, 10);
       const fileKey = `nom035-evidences/token-${tokenRow.id}-${suffix}.${ext}`;
-      const { url } = await storagePut(fileKey, req.file.buffer, req.file.mimetype);
+      const { url } = await storagePut(
+        fileKey,
+        req.file.buffer,
+        req.file.mimetype
+      );
 
       // Registrar evidencia en BD
       await db.insert(nom035Evidences).values({
@@ -191,22 +302,36 @@ evidenceTokenRouter.post(
           useCount: tokenRow.useCount + 1,
           usedAt: tokenRow.usedAt ?? new Date(),
           signerName: tokenRow.signerName ?? signerName,
-          signerEmail: signerEmail ? signerEmail : (tokenRow.signerEmail ?? null),
+          signerEmail: signerEmail
+            ? signerEmail
+            : (tokenRow.signerEmail ?? null),
         })
         .where(eq(nom035EvidenceTokens.id, tokenRow.id));
 
       const nowStr = new Date().toLocaleString("es-MX", {
-        dateStyle: "long", timeStyle: "short", timeZone: "America/Mexico_City",
+        dateStyle: "long",
+        timeStyle: "short",
+        timeZone: "America/Mexico_City",
       });
 
-      return res.send(buildResultHtml(
-        "¡Evidencia registrada exitosamente!",
-        `Estimado/a <strong>${escapeHtml(signerName)}</strong>, su archivo <strong>${escapeHtml(req.file.originalname)}</strong> ha sido registrado como evidencia el ${nowStr}.<br><br>Este archivo quedará vinculado a la acción correspondiente en el sistema NOM-035 STPS 2018.`,
-        true
-      ));
+      return res.send(
+        buildResultHtml(
+          "¡Evidencia registrada exitosamente!",
+          `Estimado/a <strong>${escapeHtml(signerName)}</strong>, su archivo <strong>${escapeHtml(req.file.originalname)}</strong> ha sido registrado como evidencia el ${nowStr}.<br><br>Este archivo quedará vinculado a la acción correspondiente en el sistema NOM-035 STPS 2018.`,
+          true
+        )
+      );
     } catch (error) {
       console.error("[EvidenceToken POST] Error:", error);
-      return res.status(500).send(buildResultHtml("Error", "Ocurrió un error al registrar la evidencia. Por favor intente de nuevo.", false));
+      return res
+        .status(500)
+        .send(
+          buildResultHtml(
+            "Error",
+            "Ocurrió un error al registrar la evidencia. Por favor intente de nuevo.",
+            false
+          )
+        );
     }
   }
 );
@@ -502,7 +627,11 @@ function buildUploadFormHtml(data: UploadFormData): string {
 </html>`;
 }
 
-function buildResultHtml(title: string, message: string, success: boolean): string {
+function buildResultHtml(
+  title: string,
+  message: string,
+  success: boolean
+): string {
   const color = success ? "#059669" : "#dc2626";
   const icon = success ? "✓" : "✗";
   const bgColor = success ? "#f0fdf4" : "#fef2f2";

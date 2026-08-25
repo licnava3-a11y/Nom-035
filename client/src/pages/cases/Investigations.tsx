@@ -1,18 +1,45 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ClipboardList, Send, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import {
+  ClipboardList,
+  Send,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+} from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function Investigations() {
   const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null);
-  const [questionnaireType, setQuestionnaireType] = useState<"mobbing" | "burnout">("mobbing");
+  const [questionnaireType, setQuestionnaireType] = useState<
+    "mobbing" | "burnout"
+  >("mobbing");
   const [notes, setNotes] = useState("");
 
   const utils = trpc.useUtils();
@@ -22,16 +49,17 @@ export default function Investigations() {
     { enabled: !!selectedCaseId }
   );
 
-  const sendQuestionnaireMutation = trpc.investigations.sendQuestionnaire.useMutation({
-    onSuccess: () => {
-      toast.success("Cuestionario enviado exitosamente");
-      setNotes("");
-      utils.investigations.listByCaseId.invalidate();
-    },
-    onError: (error) => {
-      toast.error(`Error al enviar cuestionario: ${error.message}`);
-    },
-  });
+  const sendQuestionnaireMutation =
+    trpc.investigations.sendQuestionnaire.useMutation({
+      onSuccess: () => {
+        toast.success("Cuestionario enviado exitosamente");
+        setNotes("");
+        utils.investigations.listByCaseId.invalidate();
+      },
+      onError: error => {
+        toast.error(`Error al enviar cuestionario: ${error.message}`);
+      },
+    });
 
   const handleSendQuestionnaire = () => {
     if (!selectedCaseId) {
@@ -56,20 +84,47 @@ export default function Investigations() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge variant="default" className="bg-green-600"><CheckCircle2 className="h-3 w-3 mr-1" />Completado</Badge>;
+        return (
+          <Badge variant="default" className="bg-green-600">
+            <CheckCircle2 className="h-3 w-3 mr-1" />
+            Completado
+          </Badge>
+        );
       case "pending":
-        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Pendiente</Badge>;
+        return (
+          <Badge variant="secondary">
+            <Clock className="h-3 w-3 mr-1" />
+            Pendiente
+          </Badge>
+        );
       case "expired":
-        return <Badge variant="destructive"><AlertTriangle className="h-3 w-3 mr-1" />Expirado</Badge>;
+        return (
+          <Badge variant="destructive">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            Expirado
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
   const getTypeBadge = (type: string) => {
-    return type === "mobbing" 
-      ? <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Mobbing</Badge>
-      : <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Burnout</Badge>;
+    return type === "mobbing" ? (
+      <Badge
+        variant="outline"
+        className="bg-purple-50 text-purple-700 border-purple-200"
+      >
+        Mobbing
+      </Badge>
+    ) : (
+      <Badge
+        variant="outline"
+        className="bg-blue-50 text-blue-700 border-blue-200"
+      >
+        Burnout
+      </Badge>
+    );
   };
 
   return (
@@ -77,9 +132,12 @@ export default function Investigations() {
       <div className="flex items-center gap-3">
         <ClipboardList className="h-8 w-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Investigación de Casos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Investigación de Casos
+          </h1>
           <p className="text-muted-foreground">
-            Cuestionarios especializados de mobbing y burnout para investigación de casos de riesgo psicosocial
+            Cuestionarios especializados de mobbing y burnout para investigación
+            de casos de riesgo psicosocial
           </p>
         </div>
       </div>
@@ -93,7 +151,8 @@ export default function Investigations() {
               Enviar Cuestionario
             </CardTitle>
             <CardDescription>
-              Envía un cuestionario de investigación al empleado involucrado en el caso
+              Envía un cuestionario de investigación al empleado involucrado en
+              el caso
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -101,7 +160,7 @@ export default function Investigations() {
               <Label htmlFor="case">Caso</Label>
               <Select
                 value={selectedCaseId?.toString() || ""}
-                onValueChange={(value) => setSelectedCaseId(parseInt(value))}
+                onValueChange={value => setSelectedCaseId(parseInt(value))}
               >
                 <SelectTrigger id="case">
                   <SelectValue placeholder="Selecciona un caso" />
@@ -120,23 +179,32 @@ export default function Investigations() {
               <Label htmlFor="type">Tipo de Cuestionario</Label>
               <Select
                 value={questionnaireType}
-                onValueChange={(value) => setQuestionnaireType(value as "mobbing" | "burnout")}
+                onValueChange={value =>
+                  setQuestionnaireType(value as "mobbing" | "burnout")
+                }
               >
                 <SelectTrigger id="type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mobbing">Mobbing (Acoso Laboral) - 36 preguntas</SelectItem>
-                  <SelectItem value="burnout">Burnout (Síndrome de Desgaste) - 22 preguntas</SelectItem>
+                  <SelectItem value="mobbing">
+                    Mobbing (Acoso Laboral) - 36 preguntas
+                  </SelectItem>
+                  <SelectItem value="burnout">
+                    Burnout (Síndrome de Desgaste) - 22 preguntas
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {selectedCaseId && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-sm text-blue-900 font-medium">Empleado seleccionado:</p>
+                <p className="text-sm text-blue-900 font-medium">
+                  Empleado seleccionado:
+                </p>
                 <p className="text-sm text-blue-700">
-                  {cases?.cases.find((c: any) => c.id === selectedCaseId)?.employeeName || "N/A"}
+                  {cases?.cases.find((c: any) => c.id === selectedCaseId)
+                    ?.employeeName || "N/A"}
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
                   Se enviará el cuestionario por correo electrónico
@@ -150,7 +218,7 @@ export default function Investigations() {
                 id="notes"
                 placeholder="Contexto adicional sobre la investigación..."
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={e => setNotes(e.target.value)}
                 rows={3}
               />
             </div>
@@ -160,7 +228,9 @@ export default function Investigations() {
               disabled={sendQuestionnaireMutation.isPending || !selectedCaseId}
               className="w-full"
             >
-              {sendQuestionnaireMutation.isPending ? "Enviando..." : "Enviar Cuestionario"}
+              {sendQuestionnaireMutation.isPending
+                ? "Enviando..."
+                : "Enviar Cuestionario"}
             </Button>
           </CardContent>
         </Card>
@@ -181,14 +251,23 @@ export default function Investigations() {
                   <span className="font-semibold">Cuestionario de Mobbing</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Evalúa conductas de acoso laboral según la escala de Leymann. Incluye 36 preguntas con escala de 1 a 5.
+                  Evalúa conductas de acoso laboral según la escala de Leymann.
+                  Incluye 36 preguntas con escala de 1 a 5.
                 </p>
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-sm">
-                  <p className="font-medium text-purple-900 mb-1">Niveles de riesgo:</p>
+                  <p className="font-medium text-purple-900 mb-1">
+                    Niveles de riesgo:
+                  </p>
                   <ul className="text-purple-700 space-y-1 ml-4 list-disc">
-                    <li><strong>Bajo:</strong> Puntaje {'<'} 60</li>
-                    <li><strong>Medio:</strong> Puntaje 60-120</li>
-                    <li><strong>Alto:</strong> Puntaje {'>'} 120</li>
+                    <li>
+                      <strong>Bajo:</strong> Puntaje {"<"} 60
+                    </li>
+                    <li>
+                      <strong>Medio:</strong> Puntaje 60-120
+                    </li>
+                    <li>
+                      <strong>Alto:</strong> Puntaje {">"} 120
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -199,14 +278,24 @@ export default function Investigations() {
                   <span className="font-semibold">Cuestionario de Burnout</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Evalúa el síndrome de desgaste profesional según el Maslach Burnout Inventory (MBI). Incluye 22 preguntas con escala de 1 a 7.
+                  Evalúa el síndrome de desgaste profesional según el Maslach
+                  Burnout Inventory (MBI). Incluye 22 preguntas con escala de 1
+                  a 7.
                 </p>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
-                  <p className="font-medium text-blue-900 mb-1">Niveles de riesgo:</p>
+                  <p className="font-medium text-blue-900 mb-1">
+                    Niveles de riesgo:
+                  </p>
                   <ul className="text-blue-700 space-y-1 ml-4 list-disc">
-                    <li><strong>Bajo:</strong> Puntaje {'<'} 44</li>
-                    <li><strong>Medio:</strong> Puntaje 44-88</li>
-                    <li><strong>Alto:</strong> Puntaje {'>'} 88</li>
+                    <li>
+                      <strong>Bajo:</strong> Puntaje {"<"} 44
+                    </li>
+                    <li>
+                      <strong>Medio:</strong> Puntaje 44-88
+                    </li>
+                    <li>
+                      <strong>Alto:</strong> Puntaje {">"} 88
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -242,13 +331,19 @@ export default function Investigations() {
                     <TableRow key={q.id}>
                       <TableCell>{getTypeBadge(q.questionnaireType)}</TableCell>
                       <TableCell>{q.employeeName}</TableCell>
-                      <TableCell>{new Date(q.sentAt).toLocaleDateString('es-MX')}</TableCell>
-                      <TableCell>{new Date(q.expiresAt).toLocaleDateString('es-MX')}</TableCell>
+                      <TableCell>
+                        {new Date(q.sentAt).toLocaleDateString("es-MX")}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(q.expiresAt).toLocaleDateString("es-MX")}
+                      </TableCell>
                       <TableCell>{getStatusBadge(q.status)}</TableCell>
                       <TableCell>
                         {q.status === "completed" ? (
                           <Button variant="outline" size="sm" asChild>
-                            <a href={`/cases/investigations/${q.id}/results`}>Ver Resultados</a>
+                            <a href={`/cases/investigations/${q.id}/results`}>
+                              Ver Resultados
+                            </a>
                           </Button>
                         ) : (
                           <Button variant="ghost" size="sm" disabled>

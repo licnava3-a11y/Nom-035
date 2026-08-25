@@ -1,67 +1,233 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import {
-  stpsInspections,
-  stpsInspectionItems,
-} from "../../drizzle/schema";
+import { stpsInspections, stpsInspectionItems } from "../../drizzle/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { storagePut } from "../storage";
 import { generatePDFFromHTML } from "../_core/pdfGenerator";
 
 // ─── Checklist NOM-035 (35 numerales) ─────────────────────────────────────────
-const NOM035_CHECKLIST: Array<{ numeral: string; requirement: string; category: string }> = [
+const NOM035_CHECKLIST: Array<{
+  numeral: string;
+  requirement: string;
+  category: string;
+}> = [
   // Capítulo 5 — Identificación y análisis de los factores de riesgo psicosocial
-  { numeral: "5.1", requirement: "Identificar y analizar los factores de riesgo psicosocial", category: "Identificación de Riesgos" },
-  { numeral: "5.2", requirement: "Evaluar el entorno organizacional", category: "Identificación de Riesgos" },
-  { numeral: "5.3", requirement: "Utilizar los instrumentos de evaluación de la Guía de Referencia I o II según el tamaño del centro de trabajo", category: "Identificación de Riesgos" },
-  { numeral: "5.4", requirement: "Identificar a los trabajadores expuestos a violencia laboral y a factores de riesgo psicosocial severos", category: "Identificación de Riesgos" },
+  {
+    numeral: "5.1",
+    requirement: "Identificar y analizar los factores de riesgo psicosocial",
+    category: "Identificación de Riesgos",
+  },
+  {
+    numeral: "5.2",
+    requirement: "Evaluar el entorno organizacional",
+    category: "Identificación de Riesgos",
+  },
+  {
+    numeral: "5.3",
+    requirement:
+      "Utilizar los instrumentos de evaluación de la Guía de Referencia I o II según el tamaño del centro de trabajo",
+    category: "Identificación de Riesgos",
+  },
+  {
+    numeral: "5.4",
+    requirement:
+      "Identificar a los trabajadores expuestos a violencia laboral y a factores de riesgo psicosocial severos",
+    category: "Identificación de Riesgos",
+  },
   // Capítulo 6 — Medidas y acciones de control
-  { numeral: "6.1", requirement: "Establecer acciones y programas para la prevención de los factores de riesgo psicosocial", category: "Medidas de Control" },
-  { numeral: "6.2", requirement: "Adoptar medidas para prevenir y controlar los factores de riesgo psicosocial", category: "Medidas de Control" },
-  { numeral: "6.3", requirement: "Difundir y proporcionar información a los trabajadores sobre los factores de riesgo psicosocial", category: "Medidas de Control" },
-  { numeral: "6.4", requirement: "Establecer medidas para prevenir la violencia laboral", category: "Medidas de Control" },
-  { numeral: "6.5", requirement: "Promover el entorno organizacional favorable", category: "Medidas de Control" },
+  {
+    numeral: "6.1",
+    requirement:
+      "Establecer acciones y programas para la prevención de los factores de riesgo psicosocial",
+    category: "Medidas de Control",
+  },
+  {
+    numeral: "6.2",
+    requirement:
+      "Adoptar medidas para prevenir y controlar los factores de riesgo psicosocial",
+    category: "Medidas de Control",
+  },
+  {
+    numeral: "6.3",
+    requirement:
+      "Difundir y proporcionar información a los trabajadores sobre los factores de riesgo psicosocial",
+    category: "Medidas de Control",
+  },
+  {
+    numeral: "6.4",
+    requirement: "Establecer medidas para prevenir la violencia laboral",
+    category: "Medidas de Control",
+  },
+  {
+    numeral: "6.5",
+    requirement: "Promover el entorno organizacional favorable",
+    category: "Medidas de Control",
+  },
   // Capítulo 7 — Prevención de violencia laboral
-  { numeral: "7.1", requirement: "Contar con política de prevención de violencia laboral", category: "Violencia Laboral" },
-  { numeral: "7.2", requirement: "Difundir la política de prevención de violencia laboral", category: "Violencia Laboral" },
-  { numeral: "7.3", requirement: "Establecer mecanismos para denunciar actos de violencia laboral", category: "Violencia Laboral" },
-  { numeral: "7.4", requirement: "Investigar los actos de violencia laboral que se reporten", category: "Violencia Laboral" },
-  { numeral: "7.5", requirement: "Adoptar medidas disciplinarias para los casos de violencia laboral", category: "Violencia Laboral" },
+  {
+    numeral: "7.1",
+    requirement: "Contar con política de prevención de violencia laboral",
+    category: "Violencia Laboral",
+  },
+  {
+    numeral: "7.2",
+    requirement: "Difundir la política de prevención de violencia laboral",
+    category: "Violencia Laboral",
+  },
+  {
+    numeral: "7.3",
+    requirement:
+      "Establecer mecanismos para denunciar actos de violencia laboral",
+    category: "Violencia Laboral",
+  },
+  {
+    numeral: "7.4",
+    requirement: "Investigar los actos de violencia laboral que se reporten",
+    category: "Violencia Laboral",
+  },
+  {
+    numeral: "7.5",
+    requirement:
+      "Adoptar medidas disciplinarias para los casos de violencia laboral",
+    category: "Violencia Laboral",
+  },
   // Capítulo 8 — Información y capacitación
-  { numeral: "8.1", requirement: "Informar a los trabajadores sobre los factores de riesgo psicosocial y sus efectos en la salud", category: "Capacitación" },
-  { numeral: "8.2", requirement: "Proporcionar capacitación para la prevención de factores de riesgo psicosocial", category: "Capacitación" },
-  { numeral: "8.3", requirement: "Capacitar a los jefes inmediatos sobre el entorno organizacional favorable", category: "Capacitación" },
-  { numeral: "8.4", requirement: "Capacitar a los trabajadores sobre la política de prevención de violencia laboral", category: "Capacitación" },
+  {
+    numeral: "8.1",
+    requirement:
+      "Informar a los trabajadores sobre los factores de riesgo psicosocial y sus efectos en la salud",
+    category: "Capacitación",
+  },
+  {
+    numeral: "8.2",
+    requirement:
+      "Proporcionar capacitación para la prevención de factores de riesgo psicosocial",
+    category: "Capacitación",
+  },
+  {
+    numeral: "8.3",
+    requirement:
+      "Capacitar a los jefes inmediatos sobre el entorno organizacional favorable",
+    category: "Capacitación",
+  },
+  {
+    numeral: "8.4",
+    requirement:
+      "Capacitar a los trabajadores sobre la política de prevención de violencia laboral",
+    category: "Capacitación",
+  },
   // Capítulo 9 — Atención de trabajadores
-  { numeral: "9.1", requirement: "Proporcionar atención a los trabajadores que padezcan trastornos mentales o alteraciones en la salud por factores de riesgo psicosocial", category: "Atención a Trabajadores" },
-  { numeral: "9.2", requirement: "Canalizar a los trabajadores con el médico de la empresa o institución de seguridad social", category: "Atención a Trabajadores" },
+  {
+    numeral: "9.1",
+    requirement:
+      "Proporcionar atención a los trabajadores que padezcan trastornos mentales o alteraciones en la salud por factores de riesgo psicosocial",
+    category: "Atención a Trabajadores",
+  },
+  {
+    numeral: "9.2",
+    requirement:
+      "Canalizar a los trabajadores con el médico de la empresa o institución de seguridad social",
+    category: "Atención a Trabajadores",
+  },
   // Capítulo 10 — Registro de resultados
-  { numeral: "10.1", requirement: "Llevar registro de los resultados de la identificación y análisis de factores de riesgo psicosocial", category: "Registros" },
-  { numeral: "10.2", requirement: "Conservar los registros durante al menos 2 años", category: "Registros" },
-  { numeral: "10.3", requirement: "Registrar las medidas adoptadas para prevenir y controlar los factores de riesgo psicosocial", category: "Registros" },
+  {
+    numeral: "10.1",
+    requirement:
+      "Llevar registro de los resultados de la identificación y análisis de factores de riesgo psicosocial",
+    category: "Registros",
+  },
+  {
+    numeral: "10.2",
+    requirement: "Conservar los registros durante al menos 2 años",
+    category: "Registros",
+  },
+  {
+    numeral: "10.3",
+    requirement:
+      "Registrar las medidas adoptadas para prevenir y controlar los factores de riesgo psicosocial",
+    category: "Registros",
+  },
   // Obligaciones del patrón
-  { numeral: "P.1", requirement: "Contar con política de prevención de riesgos psicosociales (centros de trabajo de más de 50 trabajadores)", category: "Obligaciones del Patrón" },
-  { numeral: "P.2", requirement: "Identificar y analizar los factores de riesgo psicosocial de forma anual", category: "Obligaciones del Patrón" },
-  { numeral: "P.3", requirement: "Evaluar el entorno organizacional de forma anual", category: "Obligaciones del Patrón" },
-  { numeral: "P.4", requirement: "Adoptar las medidas para prevenir y controlar los factores de riesgo psicosocial", category: "Obligaciones del Patrón" },
-  { numeral: "P.5", requirement: "Llevar los registros sobre los resultados de la evaluación", category: "Obligaciones del Patrón" },
+  {
+    numeral: "P.1",
+    requirement:
+      "Contar con política de prevención de riesgos psicosociales (centros de trabajo de más de 50 trabajadores)",
+    category: "Obligaciones del Patrón",
+  },
+  {
+    numeral: "P.2",
+    requirement:
+      "Identificar y analizar los factores de riesgo psicosocial de forma anual",
+    category: "Obligaciones del Patrón",
+  },
+  {
+    numeral: "P.3",
+    requirement: "Evaluar el entorno organizacional de forma anual",
+    category: "Obligaciones del Patrón",
+  },
+  {
+    numeral: "P.4",
+    requirement:
+      "Adoptar las medidas para prevenir y controlar los factores de riesgo psicosocial",
+    category: "Obligaciones del Patrón",
+  },
+  {
+    numeral: "P.5",
+    requirement: "Llevar los registros sobre los resultados de la evaluación",
+    category: "Obligaciones del Patrón",
+  },
   // Obligaciones de los trabajadores
-  { numeral: "T.1", requirement: "Participar en la identificación y análisis de factores de riesgo psicosocial", category: "Obligaciones del Trabajador" },
-  { numeral: "T.2", requirement: "Abstenerse de realizar prácticas de violencia laboral", category: "Obligaciones del Trabajador" },
-  { numeral: "T.3", requirement: "Reportar actos de violencia laboral al patrón o a las autoridades", category: "Obligaciones del Trabajador" },
+  {
+    numeral: "T.1",
+    requirement:
+      "Participar en la identificación y análisis de factores de riesgo psicosocial",
+    category: "Obligaciones del Trabajador",
+  },
+  {
+    numeral: "T.2",
+    requirement: "Abstenerse de realizar prácticas de violencia laboral",
+    category: "Obligaciones del Trabajador",
+  },
+  {
+    numeral: "T.3",
+    requirement:
+      "Reportar actos de violencia laboral al patrón o a las autoridades",
+    category: "Obligaciones del Trabajador",
+  },
   // Comité de Seguridad e Higiene
-  { numeral: "CSH.1", requirement: "Participación del Comité de Seguridad e Higiene en la identificación de factores de riesgo psicosocial", category: "Comité de Seguridad" },
-  { numeral: "CSH.2", requirement: "El Comité verifica el cumplimiento de las medidas de control adoptadas", category: "Comité de Seguridad" },
+  {
+    numeral: "CSH.1",
+    requirement:
+      "Participación del Comité de Seguridad e Higiene en la identificación de factores de riesgo psicosocial",
+    category: "Comité de Seguridad",
+  },
+  {
+    numeral: "CSH.2",
+    requirement:
+      "El Comité verifica el cumplimiento de las medidas de control adoptadas",
+    category: "Comité de Seguridad",
+  },
   // Documentación
-  { numeral: "DOC.1", requirement: "Contar con el programa de prevención de factores de riesgo psicosocial documentado", category: "Documentación" },
-  { numeral: "DOC.2", requirement: "Contar con evidencia de las actividades de información y capacitación realizadas", category: "Documentación" },
+  {
+    numeral: "DOC.1",
+    requirement:
+      "Contar con el programa de prevención de factores de riesgo psicosocial documentado",
+    category: "Documentación",
+  },
+  {
+    numeral: "DOC.2",
+    requirement:
+      "Contar con evidencia de las actividades de información y capacitación realizadas",
+    category: "Documentación",
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function generateInspectionFolio(type: string, id: number): string {
   const year = new Date().getFullYear();
-  const typeCode = type === "ordinaria" ? "ORD" : type === "extraordinaria" ? "EXT" : "SEG";
+  const typeCode =
+    type === "ordinaria" ? "ORD" : type === "extraordinaria" ? "EXT" : "SEG";
   return `INSP-${typeCode}-${String(id).padStart(3, "0")}/${year}`;
 }
 
@@ -98,7 +264,7 @@ export const stpsInspectionsRouter = router({
         .from(stpsInspections)
         .orderBy(desc(stpsInspections.createdAt));
       if (input?.status) {
-        return rows.filter((r) => r.status === input.status);
+        return rows.filter(r => r.status === input.status);
       }
       return rows;
     }),
@@ -110,7 +276,9 @@ export const stpsInspectionsRouter = router({
         inspectionDate: z.string(),
         inspectorName: z.string().min(2),
         inspectorId: z.string().optional(),
-        inspectionType: z.enum(["ordinaria", "extraordinaria", "seguimiento"]).default("ordinaria"),
+        inspectionType: z
+          .enum(["ordinaria", "extraordinaria", "seguimiento"])
+          .default("ordinaria"),
         responsibleName: z.string().optional(),
         observations: z.string().optional(),
       })
@@ -129,7 +297,7 @@ export const stpsInspectionsRouter = router({
             sql`YEAR(created_at) = ${year}`
           )
         );
-      const seq = (Number(countRow?.count ?? 0) + 1);
+      const seq = Number(countRow?.count ?? 0) + 1;
       const folio = generateInspectionFolio(input.inspectionType, seq);
 
       const [result] = await db.insert(stpsInspections).values({
@@ -146,7 +314,7 @@ export const stpsInspectionsRouter = router({
       const inspectionId = result.insertId;
 
       // Crear los ítems del checklist automáticamente
-      const items = NOM035_CHECKLIST.map((item) => ({
+      const items = NOM035_CHECKLIST.map(item => ({
         inspectionId,
         numeral: item.numeral,
         requirement: item.requirement,
@@ -185,14 +353,28 @@ export const stpsInspectionsRouter = router({
 
       // Estadísticas
       const total = items.length;
-      const cumple = items.filter((i) => i.status === "cumple").length;
-      const noCumple = items.filter((i) => i.status === "no_cumple").length;
-      const parcial = items.filter((i) => i.status === "parcial").length;
-      const na = items.filter((i) => i.status === "na").length;
+      const cumple = items.filter(i => i.status === "cumple").length;
+      const noCumple = items.filter(i => i.status === "no_cumple").length;
+      const parcial = items.filter(i => i.status === "parcial").length;
+      const na = items.filter(i => i.status === "na").length;
       const evaluated = total - na;
-      const complianceRate = evaluated > 0 ? Math.round((cumple / evaluated) * 100) : 0;
+      const complianceRate =
+        evaluated > 0 ? Math.round((cumple / evaluated) * 100) : 0;
 
-      return { inspection, items, byCategory, stats: { total, cumple, noCumple, parcial, na, evaluated, complianceRate } };
+      return {
+        inspection,
+        items,
+        byCategory,
+        stats: {
+          total,
+          cumple,
+          noCumple,
+          parcial,
+          na,
+          evaluated,
+          complianceRate,
+        },
+      };
     }),
 
   // Actualizar el estado de un ítem del checklist
@@ -219,7 +401,12 @@ export const stpsInspectionsRouter = router({
     .input(
       z.object({
         id: z.number(),
-        status: z.enum(["programada", "en_proceso", "concluida", "con_observaciones"]),
+        status: z.enum([
+          "programada",
+          "en_proceso",
+          "concluida",
+          "con_observaciones",
+        ]),
         observations: z.string().optional(),
       })
     )
@@ -252,13 +439,14 @@ export const stpsInspectionsRouter = router({
         .orderBy(stpsInspectionItems.numeral);
 
       const total = items.length;
-      const cumple = items.filter((i) => i.status === "cumple").length;
-      const noCumple = items.filter((i) => i.status === "no_cumple").length;
-      const parcial = items.filter((i) => i.status === "parcial").length;
-      const na = items.filter((i) => i.status === "na").length;
+      const cumple = items.filter(i => i.status === "cumple").length;
+      const noCumple = items.filter(i => i.status === "no_cumple").length;
+      const parcial = items.filter(i => i.status === "parcial").length;
+      const na = items.filter(i => i.status === "na").length;
       const evaluated = total - na;
       const rate = evaluated > 0 ? Math.round((cumple / evaluated) * 100) : 0;
-      const rateColor = rate >= 80 ? "#16a34a" : rate >= 50 ? "#d97706" : "#dc2626";
+      const rateColor =
+        rate >= 80 ? "#16a34a" : rate >= 50 ? "#d97706" : "#dc2626";
 
       // Agrupar por categoría
       const byCategory: Record<string, typeof items> = {};
@@ -267,7 +455,9 @@ export const stpsInspectionsRouter = router({
         byCategory[item.category].push(item);
       }
 
-      const categorySections = Object.entries(byCategory).map(([cat, catItems]) => `
+      const categorySections = Object.entries(byCategory)
+        .map(
+          ([cat, catItems]) => `
         <div class="category-section">
           <h3 class="category-title">${cat}</h3>
           <table class="checklist-table">
@@ -280,18 +470,24 @@ export const stpsInspectionsRouter = router({
               </tr>
             </thead>
             <tbody>
-              ${catItems.map((item) => `
+              ${catItems
+                .map(
+                  item => `
                 <tr>
                   <td class="numeral">${item.numeral}</td>
                   <td>${item.requirement}</td>
                   <td style="color:${statusColor(item.status)};font-weight:600;text-align:center">${statusLabel(item.status)}</td>
                   <td class="obs">${item.observations ?? ""}</td>
                 </tr>
-              `).join("")}
+              `
+                )
+                .join("")}
             </tbody>
           </table>
         </div>
-      `).join("");
+      `
+        )
+        .join("");
 
       const html = `<!DOCTYPE html>
 <html lang="es">
@@ -404,14 +600,20 @@ export const stpsInspectionsRouter = router({
 </body>
 </html>`;
 
-      const pdfBuffer = await generatePDFFromHTML(html, `expediente-${inspection.folio}.pdf`);
+      const pdfBuffer = await generatePDFFromHTML(
+        html,
+        `expediente-${inspection.folio}.pdf`
+      );
       const key = `stps-expedients/${inspection.folio}-${Date.now()}.pdf`;
       const { url } = await storagePut(key, pdfBuffer, "application/pdf");
 
       // Guardar URL en la inspección
       const db2 = await getDb();
       if (!db2) throw new Error("Database not available");
-      await db2.update(stpsInspections).set({ expedientUrl: url, expedientKey: key }).where(eq(stpsInspections.id, input.id));
+      await db2
+        .update(stpsInspections)
+        .set({ expedientUrl: url, expedientKey: key })
+        .where(eq(stpsInspections.id, input.id));
 
       return { url, folio: inspection.folio };
     }),
@@ -422,10 +624,12 @@ export const stpsInspectionsRouter = router({
     if (!db) throw new Error("Database not available");
     const all = await db.select().from(stpsInspections);
     const total = all.length;
-    const programadas = all.filter((i) => i.status === "programada").length;
-    const enProceso = all.filter((i) => i.status === "en_proceso").length;
-    const concluidas = all.filter((i) => i.status === "concluida").length;
-    const conObservaciones = all.filter((i) => i.status === "con_observaciones").length;
+    const programadas = all.filter(i => i.status === "programada").length;
+    const enProceso = all.filter(i => i.status === "en_proceso").length;
+    const concluidas = all.filter(i => i.status === "concluida").length;
+    const conObservaciones = all.filter(
+      i => i.status === "con_observaciones"
+    ).length;
     return { total, programadas, enProceso, concluidas, conObservaciones };
   }),
 });

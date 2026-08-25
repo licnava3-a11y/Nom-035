@@ -13,7 +13,9 @@ describe("getCompanyInfo", () => {
       { key: "company_address", value: "Av. Reforma 100, CDMX" },
     ];
     const map: Record<string, string> = {};
-    rows.forEach((r) => { map[r.key] = r.value; });
+    rows.forEach(r => {
+      map[r.key] = r.value;
+    });
     expect(map["company_name"]).toBe("Empresa Demo S.A. de C.V.");
     expect(map["company_rfc"]).toBe("EDM010101ABC");
     expect(map["company_address"]).toBe("Av. Reforma 100, CDMX");
@@ -22,9 +24,9 @@ describe("getCompanyInfo", () => {
   it("devuelve strings vacíos cuando no hay settings configurados", () => {
     const rows: { key: string; value: string }[] = [];
     const result = {
-      company_name: rows.find((r) => r.key === "company_name")?.value ?? "",
-      company_rfc: rows.find((r) => r.key === "company_rfc")?.value ?? "",
-      company_address: rows.find((r) => r.key === "company_address")?.value ?? "",
+      company_name: rows.find(r => r.key === "company_name")?.value ?? "",
+      company_rfc: rows.find(r => r.key === "company_rfc")?.value ?? "",
+      company_address: rows.find(r => r.key === "company_address")?.value ?? "",
     };
     expect(result.company_name).toBe("");
     expect(result.company_rfc).toBe("");
@@ -39,9 +41,9 @@ describe("getAllAlertsForExport", () => {
       { id: 2, status: "resolved", alertType: "compliance", priority: "low" },
       { id: 3, status: "active", alertType: "training", priority: "medium" },
     ];
-    const filtered = alerts.filter((a) => a.status === "active");
+    const filtered = alerts.filter(a => a.status === "active");
     expect(filtered).toHaveLength(2);
-    expect(filtered.every((a) => a.status === "active")).toBe(true);
+    expect(filtered.every(a => a.status === "active")).toBe(true);
   });
 
   it("devuelve todos los registros cuando status es 'all'", () => {
@@ -51,7 +53,8 @@ describe("getAllAlertsForExport", () => {
       { id: 3, status: "dismissed" },
     ];
     const status = "all";
-    const filtered = status === "all" ? alerts : alerts.filter((a) => a.status === status);
+    const filtered =
+      status === "all" ? alerts : alerts.filter(a => a.status === status);
     expect(filtered).toHaveLength(3);
   });
 
@@ -61,7 +64,7 @@ describe("getAllAlertsForExport", () => {
       { id: 2, alertType: "compliance", status: "active" },
       { id: 3, alertType: "survey", status: "resolved" },
     ];
-    const filtered = alerts.filter((a) => a.alertType === "survey");
+    const filtered = alerts.filter(a => a.alertType === "survey");
     expect(filtered).toHaveLength(2);
   });
 });
@@ -97,7 +100,10 @@ describe("Paginación de alertas", () => {
 
 // ── 4. Core Web Vitals getRating ─────────────────────────────────────────────
 describe("Core Web Vitals getRating", () => {
-  function getRating(name: string, value: number): "good" | "needs-improvement" | "poor" {
+  function getRating(
+    name: string,
+    value: number
+  ): "good" | "needs-improvement" | "poor" {
     const thresholds: Record<string, [number, number]> = {
       LCP: [2500, 4000],
       FID: [100, 300],
@@ -112,13 +118,27 @@ describe("Core Web Vitals getRating", () => {
     return "poor";
   }
 
-  it("LCP de 1500ms es 'good'", () => { expect(getRating("LCP", 1500)).toBe("good"); });
-  it("LCP de 3000ms es 'needs-improvement'", () => { expect(getRating("LCP", 3000)).toBe("needs-improvement"); });
-  it("LCP de 5000ms es 'poor'", () => { expect(getRating("LCP", 5000)).toBe("poor"); });
-  it("CLS de 0.05 es 'good'", () => { expect(getRating("CLS", 0.05)).toBe("good"); });
-  it("CLS de 0.3 es 'poor'", () => { expect(getRating("CLS", 0.3)).toBe("poor"); });
-  it("INP de 150ms es 'good'", () => { expect(getRating("INP", 150)).toBe("good"); });
-  it("TTFB de 1000ms es 'needs-improvement'", () => { expect(getRating("TTFB", 1000)).toBe("needs-improvement"); });
+  it("LCP de 1500ms es 'good'", () => {
+    expect(getRating("LCP", 1500)).toBe("good");
+  });
+  it("LCP de 3000ms es 'needs-improvement'", () => {
+    expect(getRating("LCP", 3000)).toBe("needs-improvement");
+  });
+  it("LCP de 5000ms es 'poor'", () => {
+    expect(getRating("LCP", 5000)).toBe("poor");
+  });
+  it("CLS de 0.05 es 'good'", () => {
+    expect(getRating("CLS", 0.05)).toBe("good");
+  });
+  it("CLS de 0.3 es 'poor'", () => {
+    expect(getRating("CLS", 0.3)).toBe("poor");
+  });
+  it("INP de 150ms es 'good'", () => {
+    expect(getRating("INP", 150)).toBe("good");
+  });
+  it("TTFB de 1000ms es 'needs-improvement'", () => {
+    expect(getRating("TTFB", 1000)).toBe("needs-improvement");
+  });
 });
 
 // ── 5. Portada PDF — datos de empresa ────────────────────────────────────────
@@ -159,7 +179,8 @@ describe("Cálculo p75 para Web Vitals", () => {
 
   it("devuelve 0 cuando no hay datos", () => {
     const values: number[] = [];
-    const avg = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+    const avg =
+      values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
     expect(avg).toBe(0);
   });
 });

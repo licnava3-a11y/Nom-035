@@ -19,7 +19,7 @@ export function CalendarSkeleton() {
       <div className="border rounded-lg overflow-hidden">
         {/* Days header */}
         <div className="grid grid-cols-7 bg-muted/30">
-          {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day: any) => (
+          {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map((day: any) => (
             <div key={day} className="p-2 text-center border-r last:border-r-0">
               <div className="h-4 w-8 bg-muted rounded mx-auto" />
             </div>
@@ -29,8 +29,8 @@ export function CalendarSkeleton() {
         {/* Calendar days */}
         <div className="grid grid-cols-7">
           {Array.from({ length: 35 }).map((_, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className="min-h-[100px] border-r border-b last:border-r-0 p-2 space-y-1"
               style={{ animationDelay: `${i * 20}ms` }}
             >

@@ -11,12 +11,12 @@ Se realizó una auditoría completa del sistema NOM-035 para identificar y clasi
 
 ### Hallazgos Principales
 
-| Categoría | Cantidad | Estado |
-|-----------|----------|--------|
-| **Errores TypeScript** | 625 | ⚠️ Pendiente |
-| **Errores removeChild** | 0 | ✅ Sin errores |
-| **Errores 404** | 0 | ✅ Sin errores |
-| **Problemas de correlaciones** | 0 | ✅ Sin errores |
+| Categoría                      | Cantidad | Estado         |
+| ------------------------------ | -------- | -------------- |
+| **Errores TypeScript**         | 625      | ⚠️ Pendiente   |
+| **Errores removeChild**        | 0        | ✅ Sin errores |
+| **Errores 404**                | 0        | ✅ Sin errores |
+| **Problemas de correlaciones** | 0        | ✅ Sin errores |
 
 ---
 
@@ -27,8 +27,9 @@ Se realizó una auditoría completa del sistema NOM-035 para identificar y clasi
 **Causa raíz**: Drizzle ORM v0.44.5 tiene una limitación conocida con columnas enum que no pueden usarse directamente en funciones como `eq()` o `inArray()`.
 
 **Ejemplo de error**:
+
 ```
-Argument of type 'MySqlColumn<{ name: "status"; tableName: "nom035_cases"; ... }>' 
+Argument of type 'MySqlColumn<{ name: "status"; tableName: "nom035_cases"; ... }>'
 is not assignable to parameter of type 'Aliased<string>'.
 ```
 
@@ -39,11 +40,13 @@ is not assignable to parameter of type 'Aliased<string>'.
 ### 1.2 Errores de Componentes (~20 errores)
 
 **Problemas identificados**:
+
 - LoadingButton sin prop `children`
 - Componentes sin importar (toast, Download, generateReport)
 - Propiedades faltantes en interfaces
 
 **Ejemplo de error**:
+
 ```
 Type '{ children: string; type: string; loading: boolean; ... }' is not assignable to type 'LoadingButtonProps'.
 Property 'children' does not exist on type 'LoadingButtonProps'.
@@ -56,6 +59,7 @@ Property 'children' does not exist on type 'LoadingButtonProps'.
 ### 1.3 Errores de Tipos (~5 errores)
 
 **Problemas identificados**:
+
 - Propiedades faltantes en interfaces (totalApprovals, telefono)
 - Parámetros implícitos con tipo 'any'
 
@@ -70,6 +74,7 @@ Property 'children' does not exist on type 'LoadingButtonProps'.
 ✅ **Estado**: Sin errores detectados
 
 **Verificación realizada**:
+
 - Revisión de logs del navegador (`browserConsole.log`)
 - Búsqueda de patrones de error de removeChild
 - Análisis de manipulación del DOM en componentes React
@@ -83,6 +88,7 @@ Property 'children' does not exist on type 'LoadingButtonProps'.
 ✅ **Estado**: Sin errores detectados
 
 **Verificación realizada**:
+
 - Revisión de logs de red (`networkRequests.log`)
 - Búsqueda de respuestas HTTP 404
 - Análisis de rutas en App.tsx
@@ -96,6 +102,7 @@ Property 'children' does not exist on type 'LoadingButtonProps'.
 ✅ **Estado**: Sin errores detectados
 
 **Verificación realizada**:
+
 - Revisión de logs del servidor (`devserver.log`)
 - Búsqueda de errores de foreign key y referencias
 - Análisis de queries con joins
@@ -107,14 +114,17 @@ Property 'children' does not exist on type 'LoadingButtonProps'.
 ## 📋 Recomendaciones
 
 ### Prioridad Alta
+
 1. **Actualizar Drizzle ORM** (30 min) - Resolver 600+ errores TypeScript de una vez
 2. **Corregir LoadingButton** (15 min) - Agregar prop `children` a la interfaz
 
 ### Prioridad Media
+
 3. **Agregar importaciones faltantes** (10 min) - toast, Download, generateReport
 4. **Completar interfaces** (10 min) - Agregar propiedades faltantes
 
 ### Prioridad Baja
+
 5. **Tipar parámetros explícitamente** (5 min) - Eliminar tipos implícitos 'any'
 
 ---

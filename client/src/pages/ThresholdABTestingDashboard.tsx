@@ -1,16 +1,52 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { Trophy, Plus, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -22,23 +58,29 @@ export default function ThresholdABTestingDashboard() {
   const [configIdA, setConfigIdA] = useState<number | null>(null);
   const [configIdB, setConfigIdB] = useState<number | null>(null);
 
-  const { data: experiments = [], isLoading: loadingExperiments, refetch } = trpc.thresholdExperiments.getExperiments.useQuery({ limit: 20 });
-  const { data: availableConfigs = [], isLoading: loadingConfigs } = trpc.thresholdExperiments.getAvailableConfigs.useQuery();
+  const {
+    data: experiments = [],
+    isLoading: loadingExperiments,
+    refetch,
+  } = trpc.thresholdExperiments.getExperiments.useQuery({ limit: 20 });
+  const { data: availableConfigs = [], isLoading: loadingConfigs } =
+    trpc.thresholdExperiments.getAvailableConfigs.useQuery();
 
-  const createExperimentMutation = trpc.thresholdExperiments.createExperiment.useMutation({
-    onSuccess: () => {
-      toast.success("Experimento creado exitosamente");
-      setIsDialogOpen(false);
-      setExperimentName("");
-      setExperimentDescription("");
-      setConfigIdA(null);
-      setConfigIdB(null);
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al crear experimento");
-    },
-  });
+  const createExperimentMutation =
+    trpc.thresholdExperiments.createExperiment.useMutation({
+      onSuccess: () => {
+        toast.success("Experimento creado exitosamente");
+        setIsDialogOpen(false);
+        setExperimentName("");
+        setExperimentDescription("");
+        setConfigIdA(null);
+        setConfigIdB(null);
+        refetch();
+      },
+      onError: error => {
+        toast.error(error.message || "Error al crear experimento");
+      },
+    });
 
   const handleCreateExperiment = () => {
     if (!experimentName || !configIdA || !configIdB) {
@@ -59,11 +101,20 @@ export default function ThresholdABTestingDashboard() {
     });
   };
 
-  const getMetricComparison = (metricA: string | null, metricB: string | null) => {
-    if (!metricA || !metricB) return <Minus className="h-4 w-4 text-gray-400" />;
+  const getMetricComparison = (
+    metricA: string | null,
+    metricB: string | null
+  ) => {
+    if (!metricA || !metricB)
+      return <Minus className="h-4 w-4 text-gray-400" />;
     const diff = parseFloat(metricA) - parseFloat(metricB);
-    if (Math.abs(diff) < 0.5) return <Minus className="h-4 w-4 text-gray-400" />;
-    return diff > 0 ? <TrendingUp className="h-4 w-4 text-green-600" /> : <TrendingDown className="h-4 w-4 text-red-600" />;
+    if (Math.abs(diff) < 0.5)
+      return <Minus className="h-4 w-4 text-gray-400" />;
+    return diff > 0 ? (
+      <TrendingUp className="h-4 w-4 text-green-600" />
+    ) : (
+      <TrendingDown className="h-4 w-4 text-red-600" />
+    );
   };
 
   if (loadingExperiments || loadingConfigs) {
@@ -105,9 +156,12 @@ export default function ThresholdABTestingDashboard() {
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold">A/B Testing de Configuraciones de Umbrales</h1>
+          <h1 className="text-3xl font-bold">
+            A/B Testing de Configuraciones de Umbrales
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Compara el rendimiento de diferentes configuraciones de umbrales para optimizar el modelo predictivo
+            Compara el rendimiento de diferentes configuraciones de umbrales
+            para optimizar el modelo predictivo
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -121,7 +175,8 @@ export default function ThresholdABTestingDashboard() {
             <DialogHeader>
               <DialogTitle>Crear Nuevo Experimento A/B</DialogTitle>
               <DialogDescription>
-                Compara dos configuraciones de umbrales para determinar cuál optimiza mejor el modelo predictivo
+                Compara dos configuraciones de umbrales para determinar cuál
+                optimiza mejor el modelo predictivo
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -131,7 +186,7 @@ export default function ThresholdABTestingDashboard() {
                   id="name"
                   placeholder="Ej: Comparación Config Default vs Optimizada"
                   value={experimentName}
-                  onChange={(e) => setExperimentName(e.target.value)}
+                  onChange={e => setExperimentName(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -140,20 +195,26 @@ export default function ThresholdABTestingDashboard() {
                   id="description"
                   placeholder="Describe el objetivo del experimento..."
                   value={experimentDescription}
-                  onChange={(e) => setExperimentDescription(e.target.value)}
+                  onChange={e => setExperimentDescription(e.target.value)}
                   rows={3}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="configA">Configuración A *</Label>
-                <Select value={configIdA?.toString() || ""} onValueChange={(value) => setConfigIdA(parseInt(value))}>
+                <Select
+                  value={configIdA?.toString() || ""}
+                  onValueChange={value => setConfigIdA(parseInt(value))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona configuración A" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableConfigs.map((config: any) => (
                       <SelectItem key={config.id} value={config.id.toString()}>
-                        {config.description || `Config ${config.id}`} - Críticos: {config.criticalCommentsWeight}%, Casos: {config.openCasesWeight}%, Riesgo: {config.highRiskSurveysWeight}%
+                        {config.description || `Config ${config.id}`} -
+                        Críticos: {config.criticalCommentsWeight}%, Casos:{" "}
+                        {config.openCasesWeight}%, Riesgo:{" "}
+                        {config.highRiskSurveysWeight}%
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -161,14 +222,20 @@ export default function ThresholdABTestingDashboard() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="configB">Configuración B *</Label>
-                <Select value={configIdB?.toString() || ""} onValueChange={(value) => setConfigIdB(parseInt(value))}>
+                <Select
+                  value={configIdB?.toString() || ""}
+                  onValueChange={value => setConfigIdB(parseInt(value))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona configuración B" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableConfigs.map((config: any) => (
                       <SelectItem key={config.id} value={config.id.toString()}>
-                        {config.description || `Config ${config.id}`} - Críticos: {config.criticalCommentsWeight}%, Casos: {config.openCasesWeight}%, Riesgo: {config.highRiskSurveysWeight}%
+                        {config.description || `Config ${config.id}`} -
+                        Críticos: {config.criticalCommentsWeight}%, Casos:{" "}
+                        {config.openCasesWeight}%, Riesgo:{" "}
+                        {config.highRiskSurveysWeight}%
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -179,8 +246,13 @@ export default function ThresholdABTestingDashboard() {
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleCreateExperiment} disabled={createExperimentMutation.isPending}>
-                {createExperimentMutation.isPending ? "Creando..." : "Crear Experimento"}
+              <Button
+                onClick={handleCreateExperiment}
+                disabled={createExperimentMutation.isPending}
+              >
+                {createExperimentMutation.isPending
+                  ? "Creando..."
+                  : "Crear Experimento"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -193,7 +265,10 @@ export default function ThresholdABTestingDashboard() {
           <CardHeader>
             <CardTitle>Último Experimento: {latestExperiment.name}</CardTitle>
             <CardDescription>
-              Comparación de métricas entre configuraciones - {format(new Date(latestExperiment.createdAt), "PPP", { locale: es })}
+              Comparación de métricas entre configuraciones -{" "}
+              {format(new Date(latestExperiment.createdAt), "PPP", {
+                locale: es,
+              })}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -202,7 +277,7 @@ export default function ThresholdABTestingDashboard() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="metric" />
                 <YAxis domain={[0, 100]} />
-                <Tooltip formatter={(value) => `${value}%`} />
+                <Tooltip formatter={value => `${value}%`} />
                 <Legend />
                 <Bar dataKey="ConfigA" fill="#3b82f6" name="Configuración A" />
                 <Bar dataKey="ConfigB" fill="#10b981" name="Configuración B" />
@@ -212,7 +287,9 @@ export default function ThresholdABTestingDashboard() {
               <Trophy className="h-5 w-5 text-yellow-600" />
               <span className="font-medium">
                 Configuración Ganadora:{" "}
-                {latestExperiment.winnerConfigId === latestExperiment.configIdA ? "A" : "B"}
+                {latestExperiment.winnerConfigId === latestExperiment.configIdA
+                  ? "A"
+                  : "B"}
               </span>
             </div>
           </CardContent>
@@ -223,13 +300,19 @@ export default function ThresholdABTestingDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Historial de Experimentos</CardTitle>
-          <CardDescription>Resultados de comparaciones A/B anteriores</CardDescription>
+          <CardDescription>
+            Resultados de comparaciones A/B anteriores
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {experiments.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No hay experimentos registrados</p>
-              <p className="text-sm text-muted-foreground mt-2">Crea tu primer experimento para comparar configuraciones</p>
+              <p className="text-muted-foreground">
+                No hay experimentos registrados
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Crea tu primer experimento para comparar configuraciones
+              </p>
             </div>
           ) : (
             <Table>
@@ -249,7 +332,9 @@ export default function ThresholdABTestingDashboard() {
                 {experiments.map((exp: any) => (
                   <TableRow key={exp.id}>
                     <TableCell className="font-medium">{exp.name}</TableCell>
-                    <TableCell className="text-sm">{format(new Date(exp.createdAt), "dd/MM/yyyy")}</TableCell>
+                    <TableCell className="text-sm">
+                      {format(new Date(exp.createdAt), "dd/MM/yyyy")}
+                    </TableCell>
                     <TableCell className="text-sm">
                       {exp.configA?.description || `Config ${exp.configIdA}`}
                     </TableCell>
@@ -258,26 +343,36 @@ export default function ThresholdABTestingDashboard() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">{exp.precisionA}% vs {exp.precisionB}%</span>
+                        <span className="text-sm">
+                          {exp.precisionA}% vs {exp.precisionB}%
+                        </span>
                         {getMetricComparison(exp.precisionA, exp.precisionB)}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">{exp.recallA}% vs {exp.recallB}%</span>
+                        <span className="text-sm">
+                          {exp.recallA}% vs {exp.recallB}%
+                        </span>
                         {getMetricComparison(exp.recallA, exp.recallB)}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">{exp.f1ScoreA}% vs {exp.f1ScoreB}%</span>
+                        <span className="text-sm">
+                          {exp.f1ScoreA}% vs {exp.f1ScoreB}%
+                        </span>
                         {getMetricComparison(exp.f1ScoreA, exp.f1ScoreB)}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                      <Badge
+                        variant="secondary"
+                        className="bg-yellow-100 text-yellow-800"
+                      >
                         <Trophy className="mr-1 h-3 w-3" />
-                        Config {exp.winnerConfigId === exp.configIdA ? "A" : "B"}
+                        Config{" "}
+                        {exp.winnerConfigId === exp.configIdA ? "A" : "B"}
                       </Badge>
                     </TableCell>
                   </TableRow>

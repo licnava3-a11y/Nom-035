@@ -1,24 +1,34 @@
-import { trpc } from '@/lib/trpc';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Link } from 'wouter';
-import { 
-  Users, 
-  TrendingUp, 
-  AlertCircle, 
+import { trpc } from "@/lib/trpc";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+import {
+  Users,
+  TrendingUp,
+  AlertCircle,
   CheckCircle,
   BarChart3,
   Shield,
   Target,
-  ArrowRight
-} from 'lucide-react';
-import { Bar, Line } from 'react-chartjs-2';
+  ArrowRight,
+} from "lucide-react";
+import { Bar, Line } from "react-chartjs-2";
 
 export default function DashboardGerente() {
   const { data: stats, isLoading } = trpc.dashboard.getManagerStats.useQuery();
-  const { data: teamPerformance } = trpc.dashboard.getTeamPerformance.useQuery();
-  const { data: openCases = [] } = trpc.casesManagement.getOpenCases.useQuery({ limit: 5 });
-  const { data: complianceMetrics } = trpc.dashboard.getNOM035Compliance.useQuery();
+  const { data: teamPerformance } =
+    trpc.dashboard.getTeamPerformance.useQuery();
+  const { data: openCases = [] } = trpc.casesManagement.getOpenCases.useQuery({
+    limit: 5,
+  });
+  const { data: complianceMetrics } =
+    trpc.dashboard.getNOM035Compliance.useQuery();
 
   if (isLoading) {
     return (
@@ -40,35 +50,47 @@ export default function DashboardGerente() {
   }
 
   const performanceChartData = {
-    labels: teamPerformance?.labels || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+    labels: teamPerformance?.labels || [
+      "Ene",
+      "Feb",
+      "Mar",
+      "Abr",
+      "May",
+      "Jun",
+    ],
     datasets: [
       {
-        label: 'Cumplimiento de Capacitación (%)',
+        label: "Cumplimiento de Capacitación (%)",
         data: teamPerformance?.trainingCompletion || [75, 80, 85, 88, 90, 92],
-        backgroundColor: 'rgba(59, 130, 246, 0.5)',
-        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: "rgba(59, 130, 246, 0.5)",
+        borderColor: "rgb(59, 130, 246)",
         borderWidth: 2,
       },
     ],
   };
 
   const complianceChartData = {
-    labels: complianceMetrics?.labels || ['Evaluaciones', 'Capacitaciones', 'Casos Atendidos', 'Documentación'],
+    labels: complianceMetrics?.labels || [
+      "Evaluaciones",
+      "Capacitaciones",
+      "Casos Atendidos",
+      "Documentación",
+    ],
     datasets: [
       {
-        label: 'Cumplimiento NOM-035 (%)',
+        label: "Cumplimiento NOM-035 (%)",
         data: complianceMetrics?.values || [95, 88, 92, 97],
         backgroundColor: [
-          'rgba(34, 197, 94, 0.5)',
-          'rgba(59, 130, 246, 0.5)',
-          'rgba(251, 146, 60, 0.5)',
-          'rgba(168, 85, 247, 0.5)',
+          "rgba(34, 197, 94, 0.5)",
+          "rgba(59, 130, 246, 0.5)",
+          "rgba(251, 146, 60, 0.5)",
+          "rgba(168, 85, 247, 0.5)",
         ],
         borderColor: [
-          'rgb(34, 197, 94)',
-          'rgb(59, 130, 246)',
-          'rgb(251, 146, 60)',
-          'rgb(168, 85, 247)',
+          "rgb(34, 197, 94)",
+          "rgb(59, 130, 246)",
+          "rgb(251, 146, 60)",
+          "rgb(168, 85, 247)",
         ],
         borderWidth: 2,
       },
@@ -81,11 +103,15 @@ export default function DashboardGerente() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Empleados Activos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Empleados Activos
+            </CardTitle>
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.activeEmployees || 0}</div>
+            <div className="text-2xl font-bold">
+              {stats?.activeEmployees || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               +{stats?.newEmployeesThisMonth || 0} este mes
             </p>
@@ -94,11 +120,15 @@ export default function DashboardGerente() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cumplimiento NOM-035</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Cumplimiento NOM-035
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.nom035Compliance || 0}%</div>
+            <div className="text-2xl font-bold">
+              {stats?.nom035Compliance || 0}%
+            </div>
             <p className="text-xs text-muted-foreground">
               Comparativo histórico no disponible
             </p>
@@ -107,7 +137,9 @@ export default function DashboardGerente() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Casos Abiertos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Casos Abiertos
+            </CardTitle>
             <AlertCircle className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
@@ -120,11 +152,15 @@ export default function DashboardGerente() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rendimiento General</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Rendimiento General
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.overallPerformance || 0}%</div>
+            <div className="text-2xl font-bold">
+              {stats?.overallPerformance || 0}%
+            </div>
             <p className="text-xs text-muted-foreground">Promedio del equipo</p>
           </CardContent>
         </Card>
@@ -144,8 +180,8 @@ export default function DashboardGerente() {
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
-              <Line 
-                data={performanceChartData} 
+              <Line
+                data={performanceChartData}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
@@ -173,8 +209,8 @@ export default function DashboardGerente() {
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
-              <Bar 
-                data={complianceChartData} 
+              <Bar
+                data={complianceChartData}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
@@ -206,14 +242,29 @@ export default function DashboardGerente() {
           <CardContent>
             <div className="space-y-4">
               {openCases.map((caso: any) => (
-                <div key={caso.id} className="flex items-center justify-between border-b pb-3 last:border-0">
+                <div
+                  key={caso.id}
+                  className="flex items-center justify-between border-b pb-3 last:border-0"
+                >
                   <div className="flex-1">
                     <p className="font-medium">Caso #{caso.caseNumber}</p>
                     <p className="text-sm text-muted-foreground">
-                      {caso.caseType} &bull; <span className={caso.priority === 'critical' ? 'text-red-600 font-semibold' : caso.priority === 'high' ? 'text-orange-500' : 'text-muted-foreground'}>{caso.priority}</span>
+                      {caso.caseType} &bull;{" "}
+                      <span
+                        className={
+                          caso.priority === "critical"
+                            ? "text-red-600 font-semibold"
+                            : caso.priority === "high"
+                              ? "text-orange-500"
+                              : "text-muted-foreground"
+                        }
+                      >
+                        {caso.priority}
+                      </span>
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Abierto: {new Date(caso.createdAt).toLocaleDateString('es-MX')}
+                      Abierto:{" "}
+                      {new Date(caso.createdAt).toLocaleDateString("es-MX")}
                     </p>
                   </div>
                   <Link href={`/cases/${caso.id}`}>

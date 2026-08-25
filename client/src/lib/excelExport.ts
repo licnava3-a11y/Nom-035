@@ -50,14 +50,26 @@ export function exportComparisonToExcel(data: ExportData) {
     const metricsData = [
       ["Métricas de Conversión WhatsApp - Comparación"],
       [],
-      ["Período Actual:", data.dateRange.from && data.dateRange.to 
-        ? `${format(data.dateRange.from, "PPP", { locale: es })} - ${format(data.dateRange.to, "PPP", { locale: es })}`
-        : "N/A"],
-      ["Período de Comparación:", data.comparisonDateRange.from && data.comparisonDateRange.to
-        ? `${format(data.comparisonDateRange.from, "PPP", { locale: es })} - ${format(data.comparisonDateRange.to, "PPP", { locale: es })}`
-        : "N/A"],
+      [
+        "Período Actual:",
+        data.dateRange.from && data.dateRange.to
+          ? `${format(data.dateRange.from, "PPP", { locale: es })} - ${format(data.dateRange.to, "PPP", { locale: es })}`
+          : "N/A",
+      ],
+      [
+        "Período de Comparación:",
+        data.comparisonDateRange.from && data.comparisonDateRange.to
+          ? `${format(data.comparisonDateRange.from, "PPP", { locale: es })} - ${format(data.comparisonDateRange.to, "PPP", { locale: es })}`
+          : "N/A",
+      ],
       [],
-      ["Métrica", "Período Actual", "Período Comparación", "Cambio Absoluto", "Cambio %"],
+      [
+        "Métrica",
+        "Período Actual",
+        "Período Comparación",
+        "Cambio Absoluto",
+        "Cambio %",
+      ],
       [
         "Total de Clics",
         data.comparisonData.current.totalEvents,
@@ -82,7 +94,7 @@ export function exportComparisonToExcel(data: ExportData) {
     ];
 
     const metricsSheet = XLSX.utils.aoa_to_sheet(metricsData);
-    
+
     // Aplicar estilos (ancho de columnas)
     metricsSheet["!cols"] = [
       { wch: 25 },
@@ -92,7 +104,11 @@ export function exportComparisonToExcel(data: ExportData) {
       { wch: 15 },
     ];
 
-    XLSX.utils.book_append_sheet(workbook, metricsSheet, "Métricas Comparativas");
+    XLSX.utils.book_append_sheet(
+      workbook,
+      metricsSheet,
+      "Métricas Comparativas"
+    );
   }
 
   // Hoja 2: Eventos del Período Actual
@@ -121,7 +137,11 @@ export function exportComparisonToExcel(data: ExportData) {
       { wch: 15 },
     ];
 
-    XLSX.utils.book_append_sheet(workbook, currentEventsSheet, "Eventos Actuales");
+    XLSX.utils.book_append_sheet(
+      workbook,
+      currentEventsSheet,
+      "Eventos Actuales"
+    );
   }
 
   // Hoja 3: Eventos del Período de Comparación
@@ -150,32 +170,40 @@ export function exportComparisonToExcel(data: ExportData) {
       { wch: 15 },
     ];
 
-    XLSX.utils.book_append_sheet(workbook, comparisonEventsSheet, "Eventos Comparación");
+    XLSX.utils.book_append_sheet(
+      workbook,
+      comparisonEventsSheet,
+      "Eventos Comparación"
+    );
   }
 
   // Hoja 4: Distribución de Normativas Comparativa
-  if (data.currentNormativas.length > 0 || data.comparisonNormativas.length > 0) {
+  if (
+    data.currentNormativas.length > 0 ||
+    data.comparisonNormativas.length > 0
+  ) {
     // Combinar normativas de ambos períodos
-    const allNormativas = Array.from(new Set([
-      ...data.currentNormativas.map(n => n.normativa),
-      ...data.comparisonNormativas.map(n => n.normativa),
-    ]));
+    const allNormativas = Array.from(
+      new Set([
+        ...data.currentNormativas.map(n => n.normativa),
+        ...data.comparisonNormativas.map(n => n.normativa),
+      ])
+    );
 
     const normativasData = [
       ["Distribución de Normativas - Comparación"],
       [],
       ["Normativa", "Período Actual", "Período Comparación", "Diferencia"],
       ...allNormativas.map(normativa => {
-        const currentCount = data.currentNormativas.find(n => n.normativa === normativa)?.count || 0;
-        const comparisonCount = data.comparisonNormativas.find(n => n.normativa === normativa)?.count || 0;
+        const currentCount =
+          data.currentNormativas.find(n => n.normativa === normativa)?.count ||
+          0;
+        const comparisonCount =
+          data.comparisonNormativas.find(n => n.normativa === normativa)
+            ?.count || 0;
         const difference = currentCount - comparisonCount;
-        
-        return [
-          normativa,
-          currentCount,
-          comparisonCount,
-          difference,
-        ];
+
+        return [normativa, currentCount, comparisonCount, difference];
       }),
     ];
 

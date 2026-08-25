@@ -12,16 +12,19 @@
 **Problema identificado**: Los errores TypeScript NO eran por enum columns, sino por uso incorrecto de `getDb()`.
 
 **Causa raíz**: La función `getDb()` es asíncrona y retorna `Promise<DB | null>`, pero el código no usaba `await`, causando que TypeScript viera:
+
 ```typescript
 const db = getDb(); // ❌ Tipo: Promise<DB | null>
 ```
 
 En lugar de:
+
 ```typescript
 const db = await getDb(); // ✅ Tipo: DB | null
 ```
 
 **Impacto**: 704 errores distribuidos en 49 archivos, principalmente:
+
 - `committeeOperatingRules.ts` - 99 errores
 - `departments.ts` - 60 errores
 - `departmentMetrics.ts` - 39 errores
@@ -37,6 +40,7 @@ find server -name "*.ts" -type f -exec sed -i 's/const db = getDb();/const db = 
 ```
 
 **Validación manual**:
+
 - ✅ committeeOperatingRules.ts: 22 correcciones aplicadas, 0 llamadas sin await
 - ✅ Total del sistema: 891 llamadas corregidas
 
@@ -45,10 +49,12 @@ find server -name "*.ts" -type f -exec sed -i 's/const db = getDb();/const db = 
 ### 3. Estado del Sistema
 
 **Antes de la corrección**:
+
 - 704 errores TypeScript
 - Sistema funcional en runtime (errores no afectaban ejecución)
 
 **Después de la corrección**:
+
 - ✅ 891 correcciones aplicadas exitosamente
 - ✅ Servidor ejecutándose correctamente
 - ⏳ Validación de errores TypeScript pendiente (pnpm check toma >2 minutos)

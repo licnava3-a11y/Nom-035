@@ -28,6 +28,7 @@
 ### 1.2 Configuración para Gmail
 
 **Requisitos previos:**
+
 - Cuenta de Gmail activa
 - Autenticación de dos factores habilitada
 - Contraseña de aplicación generada
@@ -72,6 +73,7 @@ Conexión Segura: TLS (activado)
 ### 1.4 Configuración para SendGrid
 
 **Requisitos previos:**
+
 - Cuenta de SendGrid activa
 - API Key generada con permisos de envío de correo
 
@@ -101,6 +103,7 @@ Conexión Segura: TLS (activado)
 ### 1.5 Configuración para Mailgun
 
 **Requisitos previos:**
+
 - Cuenta de Mailgun activa
 - Dominio verificado
 - Credenciales SMTP obtenidas
@@ -134,6 +137,7 @@ Conexión Segura: TLS (activado)
 6. Si no recibe el correo, revise la carpeta de spam
 
 **Mensaje de éxito esperado:**
+
 ```
 ✓ Configuración guardada exitosamente
 ✓ Email de prueba enviado correctamente
@@ -166,6 +170,7 @@ Conexión Segura: TLS (activado)
 5. El sistema generará tokens únicos para cada empleado
 
 **Proceso automático:**
+
 - Se crea un token UUID único por empleado
 - Se asocia el token con el employeeId y CURP
 - Se envía un email con el link personalizado
@@ -174,11 +179,13 @@ Conexión Segura: TLS (activado)
 ### 2.3 Acceso Público a la Encuesta
 
 **URL de acceso:**
+
 ```
 https://[su-dominio]/survey/public/[token-uuid]
 ```
 
 **Ejemplo:**
+
 ```
 https://plataforma-nom035.manus.space/survey/public/a1b2c3d4-e5f6-7890-abcd-ef1234567890
 ```
@@ -199,6 +206,7 @@ https://plataforma-nom035.manus.space/survey/public/a1b2c3d4-e5f6-7890-abcd-ef12
 ### 2.4 Prueba Manual del Flujo
 
 **Datos de prueba necesarios:**
+
 - Email de un empleado de prueba
 - CURP del empleado de prueba
 - Acceso al correo electrónico del empleado
@@ -240,7 +248,7 @@ https://plataforma-nom035.manus.space/survey/public/a1b2c3d4-e5f6-7890-abcd-ef12
 1. Navegue a **Panel de Administración → Base de Datos**
 2. Consulte la tabla `survey_employee_tokens`:
    ```sql
-   SELECT * FROM survey_employee_tokens 
+   SELECT * FROM survey_employee_tokens
    WHERE surveyPeriodId = [id del periodo de prueba]
    ORDER BY createdAt DESC;
    ```
@@ -251,7 +259,7 @@ https://plataforma-nom035.manus.space/survey/public/a1b2c3d4-e5f6-7890-abcd-ef12
 
 4. Consulte las respuestas:
    ```sql
-   SELECT * FROM survey_responses 
+   SELECT * FROM survey_responses
    WHERE surveyPeriodId = [id del periodo de prueba];
    ```
 
@@ -262,6 +270,7 @@ https://plataforma-nom035.manus.space/survey/public/a1b2c3d4-e5f6-7890-abcd-ef12
 ### 3.1 Notificaciones de Casos Críticos
 
 **Configuración:**
+
 - Las notificaciones se envían automáticamente cuando se crea un caso con prioridad **Crítica** o **Alta**
 - Destinatarios: Administradores y responsables NOM-035
 
@@ -278,6 +287,7 @@ https://plataforma-nom035.manus.space/survey/public/a1b2c3d4-e5f6-7890-abcd-ef12
    - Correo de responsables NOM-035
 
 **Email esperado:**
+
 - Asunto: "🚨 Nuevo Caso Crítico Reportado - [Número de Caso]"
 - Contenido: Detalles del caso, prioridad, reportante
 - Link directo al caso en la plataforma
@@ -293,6 +303,7 @@ https://plataforma-nom035.manus.space/survey/public/a1b2c3d4-e5f6-7890-abcd-ef12
 5. Verifique recepción de email en el correo del responsable asignado
 
 **Email esperado:**
+
 - Asunto: "📋 Caso Asignado - [Número de Caso]"
 - Contenido: Detalles del caso, fecha de asignación
 - Link directo al caso
@@ -300,6 +311,7 @@ https://plataforma-nom035.manus.space/survey/public/a1b2c3d4-e5f6-7890-abcd-ef12
 ### 3.3 Notificaciones de Vencimiento de Contratos
 
 **Configuración:**
+
 - Job automático ejecutado diariamente a las 8:00 AM
 - Envía notificaciones 7 días antes del vencimiento
 - Consolida múltiples vencimientos del mismo día en un solo email
@@ -314,11 +326,13 @@ https://plataforma-nom035.manus.space/survey/public/a1b2c3d4-e5f6-7890-abcd-ef12
 **Prueba inmediata (desarrollo):**
 
 Ejecute manualmente el job desde la consola del servidor:
+
 ```bash
 node server/jobs/contract-expiration-alerts-job.ts
 ```
 
 **Email esperado:**
+
 - Asunto: "⚠️ Alertas de Vencimiento de Contratos - [Fecha]"
 - Contenido: Lista de contratos próximos a vencer
 - Detalles por empleado: nombre, tipo de contrato, fecha de vencimiento
@@ -333,6 +347,7 @@ node server/jobs/contract-expiration-alerts-job.ts
 4. Verifique recepción de email en el correo del empleado
 
 **Email esperado:**
+
 - Asunto: "📚 Recordatorio: Capacitación Pendiente"
 - Contenido: Título de la capacitación, fecha límite
 - Link directo a la capacitación
@@ -344,6 +359,7 @@ node server/jobs/contract-expiration-alerts-job.ts
 3. Verifique recepción de email
 
 **Email esperado:**
+
 - Asunto: "⏰ Alerta: Certificado Próximo a Vencer"
 - Contenido: Detalles del certificado, fecha de vencimiento
 - Link para renovar
@@ -358,6 +374,7 @@ node server/jobs/contract-expiration-alerts-job.ts
 4. Verifique recepción de email en el correo del empleado
 
 **Email esperado:**
+
 - Asunto: "🎓 Certificado de Capacitación Generado"
 - Contenido: Título de la capacitación, número de certificado
 - Link de descarga del PDF
@@ -385,6 +402,7 @@ node server/jobs/contract-expiration-alerts-job.ts
 6. Clic en **Crear Acta**
 
 **Validación:**
+
 - Verificar numeración automática de folio
 - Verificar generación de código QR
 - Verificar formato profesional del PDF
@@ -415,11 +433,11 @@ node server/jobs/contract-expiration-alerts-job.ts
    - Periodo: 01/01/2026 - 31/12/2026
    - Resumen Ejecutivo: [texto descriptivo]
    - Métricas:
-     * Total de Reuniones: 20
-     * Asistencia Promedio: 85%
-     * Casos Atendidos: 15
-     * Capacitaciones Impartidas: 8
-     * Cumplimiento NOM-035: 92%
+     - Total de Reuniones: 20
+     - Asistencia Promedio: 85%
+     - Casos Atendidos: 15
+     - Capacitaciones Impartidas: 8
+     - Cumplimiento NOM-035: 92%
    - Actividades: Agregue 3-5 actividades realizadas
    - Capacitaciones: Agregue 2-3 capacitaciones impartidas
    - Casos Atendidos: Agregue 2-3 categorías de casos
@@ -491,11 +509,13 @@ node server/jobs/contract-expiration-alerts-job.ts
 **Error: "Authentication failed"**
 
 **Causas posibles:**
+
 - Usuario o contraseña incorrectos
 - Autenticación de dos factores no configurada (Gmail)
 - Contraseña de aplicación no generada (Gmail)
 
 **Solución:**
+
 1. Verifique las credenciales
 2. Para Gmail: genere una nueva contraseña de aplicación
 3. Para Office 365: verifique que la cuenta tenga permisos SMTP
@@ -503,11 +523,13 @@ node server/jobs/contract-expiration-alerts-job.ts
 **Error: "Connection timeout"**
 
 **Causas posibles:**
+
 - Puerto SMTP bloqueado por firewall
 - Host SMTP incorrecto
 - Problemas de red
 
 **Solución:**
+
 1. Verifique el puerto (587 para TLS, 465 para SSL)
 2. Verifique el host SMTP
 3. Contacte a su administrador de red
@@ -515,10 +537,12 @@ node server/jobs/contract-expiration-alerts-job.ts
 **Error: "TLS/SSL handshake failed"**
 
 **Causas posibles:**
+
 - Configuración de seguridad incorrecta
 - Certificado SSL inválido
 
 **Solución:**
+
 1. Verifique que TLS esté habilitado
 2. Pruebe con puerto 465 (SSL) en lugar de 587 (TLS)
 
@@ -527,11 +551,13 @@ node server/jobs/contract-expiration-alerts-job.ts
 **Error: "Token inválido o expirado"**
 
 **Causas posibles:**
+
 - Token ya fue usado
 - Token expiró (más de 30 días)
 - Token no existe en la base de datos
 
 **Solución:**
+
 1. Verifique la fecha de generación del token
 2. Genere un nuevo token para el empleado
 3. Envíe nueva invitación por email
@@ -539,10 +565,12 @@ node server/jobs/contract-expiration-alerts-job.ts
 **Error: "CURP no coincide"**
 
 **Causas posibles:**
+
 - CURP ingresado incorrectamente
 - CURP del empleado no coincide con el token
 
 **Solución:**
+
 1. Verifique el CURP del empleado en la base de datos
 2. Solicite al empleado que verifique su CURP
 3. Corrija el CURP en el perfil del empleado si es necesario
@@ -552,11 +580,13 @@ node server/jobs/contract-expiration-alerts-job.ts
 **Error: "Failed to generate PDF"**
 
 **Causas posibles:**
+
 - Dependencias faltantes (pdfkit, qrcode)
 - Datos incompletos en el formulario
 - Error en el servicio de generación
 
 **Solución:**
+
 1. Verifique que todas las dependencias estén instaladas:
    ```bash
    pnpm install pdfkit qrcode
@@ -567,10 +597,12 @@ node server/jobs/contract-expiration-alerts-job.ts
 **Error: "QR code generation failed"**
 
 **Causas posibles:**
+
 - Librería qrcode no instalada
 - URL de validación incorrecta
 
 **Solución:**
+
 1. Instale la dependencia:
    ```bash
    pnpm install qrcode @types/qrcode
@@ -615,6 +647,7 @@ node server/jobs/contract-expiration-alerts-job.ts
 ### 6.4 Formatos del Comité
 
 **Actas de Reunión:**
+
 - [ ] Acta creada con todos los campos
 - [ ] Numeración automática de folio
 - [ ] Firmas digitales agregadas
@@ -624,6 +657,7 @@ node server/jobs/contract-expiration-alerts-job.ts
 - [ ] Formato profesional y legible
 
 **Reportes Anuales:**
+
 - [ ] Reporte creado con todas las secciones
 - [ ] Métricas clave capturadas
 - [ ] Visualizaciones de datos (Chart.js) funcionando
@@ -633,6 +667,7 @@ node server/jobs/contract-expiration-alerts-job.ts
 - [ ] Formato profesional y legible
 
 **Bases de Funcionamiento:**
+
 - [ ] Documento creado con todas las secciones NOM-035
 - [ ] Versionado automático funcionando (V1.0, V1.1, V2.0)
 - [ ] Firmas de aprobación incluidas

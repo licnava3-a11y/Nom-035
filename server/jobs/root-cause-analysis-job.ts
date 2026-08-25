@@ -1,5 +1,10 @@
 import { getDb, createNotification } from "../db";
-import { rootCauseAnalysis, cases, departments, users } from "../../drizzle/schema";
+import {
+  rootCauseAnalysis,
+  cases,
+  departments,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 
@@ -22,10 +27,12 @@ export async function runRootCauseAnalysisJob() {
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
-    const periodStart = lastMonth.toISOString().split('T')[0];
-    const periodEnd = lastMonthEnd.toISOString().split('T')[0];
+    const periodStart = lastMonth.toISOString().split("T")[0];
+    const periodEnd = lastMonthEnd.toISOString().split("T")[0];
 
-    console.log(`[Root Cause Analysis Job] Analyzing period: ${periodStart} to ${periodEnd}`);
+    console.log(
+      `[Root Cause Analysis Job] Analyzing period: ${periodStart} to ${periodEnd}`
+    );
 
     // Verificar si ya existe análisis para este período
     const [existingAnalysis] = await db
@@ -41,7 +48,9 @@ export async function runRootCauseAnalysisJob() {
       .limit(1);
 
     if (existingAnalysis) {
-      console.log("[Root Cause Analysis Job] Analysis already exists for this period, skipping...");
+      console.log(
+        "[Root Cause Analysis Job] Analysis already exists for this period, skipping..."
+      );
       return {
         success: true,
         message: "Analysis already exists for this period",
@@ -72,7 +81,9 @@ export async function runRootCauseAnalysisJob() {
       );
 
     if (closedCases.length === 0) {
-      console.log("[Root Cause Analysis Job] No closed cases found for this period");
+      console.log(
+        "[Root Cause Analysis Job] No closed cases found for this period"
+      );
       return {
         success: true,
         message: "No closed cases to analyze",
@@ -80,7 +91,9 @@ export async function runRootCauseAnalysisJob() {
       };
     }
 
-    console.log(`[Root Cause Analysis Job] Found ${closedCases.length} closed cases`);
+    console.log(
+      `[Root Cause Analysis Job] Found ${closedCases.length} closed cases`
+    );
 
     // Obtener departamentos para mapeo
     const depts = await db.select().from(departments);
@@ -93,31 +106,38 @@ export async function runRootCauseAnalysisJob() {
       priority: c.priority,
       department: deptMap.get(c.departmentId || 0) || "Desconocido",
       description: c.description,
-      daysToResolve: c.closedAt && c.createdAt 
-        ? Math.ceil((new Date(c.closedAt).getTime() - new Date(c.createdAt).getTime()) / (1000 * 60 * 60 * 24))
-        : null,
+      daysToResolve:
+        c.closedAt && c.createdAt
+          ? Math.ceil(
+              (new Date(c.closedAt).getTime() -
+                new Date(c.createdAt).getTime()) /
+                (1000 * 60 * 60 * 24)
+            )
+          : null,
     }));
 
     // Crear análisis pendiente
-    const [analysisRecord] = await (db.insert(rootCauseAnalysis) as any).values({
-      analysisDate: new Date(),
-      periodStart,
-      periodEnd,
-      totalCasesAnalyzed: closedCases.length,
-      rootCauses: [],
-      patterns: [],
-      correlations: [],
-      recommendations: [],
-      departmentInsights: {},
-      analysisStatus: "pending",
-    } as any);
+    const [analysisRecord] = await (db.insert(rootCauseAnalysis) as any).values(
+      {
+        analysisDate: new Date(),
+        periodStart,
+        periodEnd,
+        totalCasesAnalyzed: closedCases.length,
+        rootCauses: [],
+        patterns: [],
+        correlations: [],
+        recommendations: [],
+        departmentInsights: {},
+        analysisStatus: "pending",
+      } as any
+    );
 
     const analysisId = analysisRecord.insertId;
 
     try {
       // Llamar al LLM para análisis
       console.log("[Root Cause Analysis Job] Calling LLM for analysis...");
-      
+
       const response = await invokeLLM({
         messages: [
           {
@@ -156,10 +176,22 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                       cause: { type: "string" },
                       frequency: { type: "number" },
                       percentage: { type: "number" },
-                      affectedDepartments: { type: "array", items: { type: "string" } },
-                      severity: { type: "string", enum: ["low", "medium", "high", "critical"] },
+                      affectedDepartments: {
+                        type: "array",
+                        items: { type: "string" },
+                      },
+                      severity: {
+                        type: "string",
+                        enum: ["low", "medium", "high", "critical"],
+                      },
                     },
-                    required: ["cause", "frequency", "percentage", "affectedDepartments", "severity"],
+                    required: [
+                      "cause",
+                      "frequency",
+                      "percentage",
+                      "affectedDepartments",
+                      "severity",
+                    ],
                     additionalProperties: false,
                   },
                 },
@@ -173,7 +205,12 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                       casesAffected: { type: "number" },
                       departments: { type: "array", items: { type: "string" } },
                     },
-                    required: ["pattern", "description", "casesAffected", "departments"],
+                    required: [
+                      "pattern",
+                      "description",
+                      "casesAffected",
+                      "departments",
+                    ],
                     additionalProperties: false,
                   },
                 },
@@ -187,7 +224,12 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                       correlationStrength: { type: "number" },
                       description: { type: "string" },
                     },
-                    required: ["factor1", "factor2", "correlationStrength", "description"],
+                    required: [
+                      "factor1",
+                      "factor2",
+                      "correlationStrength",
+                      "description",
+                    ],
                     additionalProperties: false,
                   },
                 },
@@ -196,13 +238,25 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                   items: {
                     type: "object",
                     properties: {
-                      priority: { type: "string", enum: ["high", "medium", "low"] },
+                      priority: {
+                        type: "string",
+                        enum: ["high", "medium", "low"],
+                      },
                       recommendation: { type: "string" },
-                      targetDepartments: { type: "array", items: { type: "string" } },
+                      targetDepartments: {
+                        type: "array",
+                        items: { type: "string" },
+                      },
                       expectedImpact: { type: "string" },
                       actionItems: { type: "array", items: { type: "string" } },
                     },
-                    required: ["priority", "recommendation", "targetDepartments", "expectedImpact", "actionItems"],
+                    required: [
+                      "priority",
+                      "recommendation",
+                      "targetDepartments",
+                      "expectedImpact",
+                      "actionItems",
+                    ],
                     additionalProperties: false,
                   },
                 },
@@ -213,15 +267,32 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
                     properties: {
                       totalCases: { type: "number" },
                       topCauses: { type: "array", items: { type: "string" } },
-                      riskLevel: { type: "string", enum: ["low", "medium", "high", "critical"] },
-                      specificRecommendations: { type: "array", items: { type: "string" } },
+                      riskLevel: {
+                        type: "string",
+                        enum: ["low", "medium", "high", "critical"],
+                      },
+                      specificRecommendations: {
+                        type: "array",
+                        items: { type: "string" },
+                      },
                     },
-                    required: ["totalCases", "topCauses", "riskLevel", "specificRecommendations"],
+                    required: [
+                      "totalCases",
+                      "topCauses",
+                      "riskLevel",
+                      "specificRecommendations",
+                    ],
                     additionalProperties: false,
                   },
                 },
               },
-              required: ["rootCauses", "patterns", "correlations", "recommendations", "departmentInsights"],
+              required: [
+                "rootCauses",
+                "patterns",
+                "correlations",
+                "recommendations",
+                "departmentInsights",
+              ],
               additionalProperties: false,
             },
           },
@@ -230,10 +301,13 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
 
       // Parsear respuesta del LLM
       const content = response.choices[0].message.content;
-      const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
+      const contentStr =
+        typeof content === "string" ? content : JSON.stringify(content);
       const analysisResult = JSON.parse(contentStr || "{}");
 
-      console.log("[Root Cause Analysis Job] LLM analysis completed successfully");
+      console.log(
+        "[Root Cause Analysis Job] LLM analysis completed successfully"
+      );
 
       // Actualizar registro con resultados
       await db
@@ -268,7 +342,9 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
         });
       }
 
-      console.log(`[Root Cause Analysis Job] Analysis completed successfully. ID: ${analysisId}`);
+      console.log(
+        `[Root Cause Analysis Job] Analysis completed successfully. ID: ${analysisId}`
+      );
 
       return {
         success: true,
@@ -278,7 +354,10 @@ Responde ÚNICAMENTE con un JSON válido siguiendo exactamente esta estructura.`
         recommendationsGenerated: analysisResult.recommendations.length,
       };
     } catch (error: any) {
-      console.error("[Root Cause Analysis Job] Error during LLM analysis:", error);
+      console.error(
+        "[Root Cause Analysis Job] Error during LLM analysis:",
+        error
+      );
 
       // Marcar análisis como fallido
       await db

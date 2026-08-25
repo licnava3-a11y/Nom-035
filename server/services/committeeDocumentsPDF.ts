@@ -6,10 +6,10 @@
  * - Bases de funcionamiento
  */
 
-import PDFDocument from 'pdfkit';
-import QRCode from 'qrcode';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import PDFDocument from "pdfkit";
+import QRCode from "qrcode";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface PDFOptions {
   title: string;
@@ -38,7 +38,7 @@ export class CommitteePDFGenerator {
 
   constructor() {
     this.doc = new PDFDocument({
-      size: 'LETTER',
+      size: "LETTER",
       margins: {
         top: this.pageMargin,
         bottom: this.pageMargin,
@@ -70,17 +70,17 @@ export class CommitteePDFGenerator {
           height: 80,
         });
       } catch (error) {
-        console.error('Error loading logo:', error);
+        console.error("Error loading logo:", error);
       }
     }
 
     // Título del documento
     this.doc
       .fontSize(18)
-      .font('Helvetica-Bold')
+      .font("Helvetica-Bold")
       .text(title, this.pageMargin + 100, this.currentY, {
         width: this.pageWidth - this.pageMargin * 2 - 100,
-        align: 'center',
+        align: "center",
       });
 
     this.currentY += 30;
@@ -89,10 +89,10 @@ export class CommitteePDFGenerator {
     if (subtitle) {
       this.doc
         .fontSize(12)
-        .font('Helvetica')
+        .font("Helvetica")
         .text(subtitle, this.pageMargin, this.currentY, {
           width: this.pageWidth - this.pageMargin * 2,
-          align: 'center',
+          align: "center",
         });
       this.currentY += 25;
     }
@@ -101,23 +101,27 @@ export class CommitteePDFGenerator {
     const infoY = this.currentY;
     this.doc
       .fontSize(10)
-      .font('Helvetica-Bold')
-      .text('Folio:', this.pageMargin, infoY)
-      .font('Helvetica')
+      .font("Helvetica-Bold")
+      .text("Folio:", this.pageMargin, infoY)
+      .font("Helvetica")
       .text(folio, this.pageMargin + 50, infoY);
 
     this.doc
-      .font('Helvetica-Bold')
-      .text('Fecha:', this.pageWidth - 200, infoY)
-      .font('Helvetica')
-      .text(format(date, 'dd/MM/yyyy', { locale: es }), this.pageWidth - 150, infoY);
+      .font("Helvetica-Bold")
+      .text("Fecha:", this.pageWidth - 200, infoY)
+      .font("Helvetica")
+      .text(
+        format(date, "dd/MM/yyyy", { locale: es }),
+        this.pageWidth - 150,
+        infoY
+      );
 
     if (version) {
       this.currentY += 15;
       this.doc
-        .font('Helvetica-Bold')
-        .text('Versión:', this.pageMargin, this.currentY)
-        .font('Helvetica')
+        .font("Helvetica-Bold")
+        .text("Versión:", this.pageMargin, this.currentY)
+        .font("Helvetica")
         .text(version, this.pageMargin + 50, this.currentY);
     }
 
@@ -145,7 +149,7 @@ export class CommitteePDFGenerator {
     // Título de la sección
     this.doc
       .fontSize(14)
-      .font('Helvetica-Bold')
+      .font("Helvetica-Bold")
       .text(title, this.pageMargin, this.currentY);
 
     this.currentY += 20;
@@ -153,10 +157,10 @@ export class CommitteePDFGenerator {
     // Contenido de la sección
     this.doc
       .fontSize(10)
-      .font('Helvetica')
+      .font("Helvetica")
       .text(content, this.pageMargin, this.currentY, {
         width: this.pageWidth - this.pageMargin * 2,
-        align: 'justify',
+        align: "justify",
       });
 
     this.currentY = this.doc.y + 15;
@@ -175,7 +179,7 @@ export class CommitteePDFGenerator {
     // Título de la lista
     this.doc
       .fontSize(14)
-      .font('Helvetica-Bold')
+      .font("Helvetica-Bold")
       .text(title, this.pageMargin, this.currentY);
 
     this.currentY += 20;
@@ -184,11 +188,11 @@ export class CommitteePDFGenerator {
     items.forEach((item: any) => {
       this.doc
         .fontSize(10)
-        .font('Helvetica')
-        .text('•', this.pageMargin, this.currentY)
+        .font("Helvetica")
+        .text("•", this.pageMargin, this.currentY)
         .text(item, this.pageMargin + 15, this.currentY, {
           width: this.pageWidth - this.pageMargin * 2 - 15,
-          align: 'justify',
+          align: "justify",
         });
 
       this.currentY = this.doc.y + 5;
@@ -212,7 +216,7 @@ export class CommitteePDFGenerator {
     const rowHeight = 25;
 
     // Encabezados
-    this.doc.fontSize(10).font('Helvetica-Bold');
+    this.doc.fontSize(10).font("Helvetica-Bold");
     headers.forEach((header: any, i: number) => {
       this.doc
         .rect(
@@ -228,7 +232,7 @@ export class CommitteePDFGenerator {
         this.currentY + 8,
         {
           width: colWidth - 10,
-          align: 'center',
+          align: "center",
         }
       );
     });
@@ -236,7 +240,7 @@ export class CommitteePDFGenerator {
     this.currentY += rowHeight;
 
     // Filas
-    this.doc.font('Helvetica');
+    this.doc.font("Helvetica");
     rows.forEach((row: any) => {
       row.forEach((cell: any, i: number) => {
         this.doc
@@ -253,7 +257,7 @@ export class CommitteePDFGenerator {
           this.currentY + 8,
           {
             width: colWidth - 10,
-            align: 'center',
+            align: "center",
           }
         );
       });
@@ -273,16 +277,17 @@ export class CommitteePDFGenerator {
 
     this.doc
       .fontSize(14)
-      .font('Helvetica-Bold')
-      .text('Firmas de Aprobación', this.pageMargin, this.currentY, {
+      .font("Helvetica-Bold")
+      .text("Firmas de Aprobación", this.pageMargin, this.currentY, {
         width: this.pageWidth - this.pageMargin * 2,
-        align: 'center',
+        align: "center",
       });
 
     this.currentY += 30;
 
     const signaturesPerRow = 2;
-    const signatureWidth = (this.pageWidth - this.pageMargin * 2 - 40) / signaturesPerRow;
+    const signatureWidth =
+      (this.pageWidth - this.pageMargin * 2 - 40) / signaturesPerRow;
     const signatureHeight = 100;
 
     for (let i = 0; i < signatures.length; i++) {
@@ -304,8 +309,8 @@ export class CommitteePDFGenerator {
       if (signature.signatureImage) {
         try {
           const signatureBuffer = Buffer.from(
-            signature.signatureImage.replace(/^data:image\/\w+;base64,/, ''),
-            'base64'
+            signature.signatureImage.replace(/^data:image\/\w+;base64,/, ""),
+            "base64"
           );
           this.doc.image(signatureBuffer, x, y, {
             width: signatureWidth,
@@ -313,7 +318,7 @@ export class CommitteePDFGenerator {
             fit: [signatureWidth, 60],
           });
         } catch (error) {
-          console.error('Error loading signature image:', error);
+          console.error("Error loading signature image:", error);
         }
       }
 
@@ -326,38 +331,39 @@ export class CommitteePDFGenerator {
       // Nombre y cargo
       this.doc
         .fontSize(10)
-        .font('Helvetica-Bold')
+        .font("Helvetica-Bold")
         .text(signature.name, x, y + 75, {
           width: signatureWidth,
-          align: 'center',
+          align: "center",
         });
 
       this.doc
         .fontSize(9)
-        .font('Helvetica')
+        .font("Helvetica")
         .text(signature.position, x, y + 90, {
           width: signatureWidth,
-          align: 'center',
+          align: "center",
         });
 
       // Fecha de firma (si existe)
       if (signature.signedAt) {
         this.doc
           .fontSize(8)
-          .font('Helvetica')
+          .font("Helvetica")
           .text(
-            format(signature.signedAt, 'dd/MM/yyyy HH:mm', { locale: es }),
+            format(signature.signedAt, "dd/MM/yyyy HH:mm", { locale: es }),
             x,
             y + 105,
             {
               width: signatureWidth,
-              align: 'center',
+              align: "center",
             }
           );
       }
     }
 
-    this.currentY += Math.ceil(signatures.length / signaturesPerRow) * (signatureHeight + 60);
+    this.currentY +=
+      Math.ceil(signatures.length / signaturesPerRow) * (signatureHeight + 60);
   }
 
   /**
@@ -376,8 +382,8 @@ export class CommitteePDFGenerator {
           margin: 1,
         });
         const qrBuffer = Buffer.from(
-          qrCodeDataURL.replace(/^data:image\/\w+;base64,/, ''),
-          'base64'
+          qrCodeDataURL.replace(/^data:image\/\w+;base64,/, ""),
+          "base64"
         );
 
         this.doc.image(qrBuffer, this.pageMargin, this.pageHeight - 100, {
@@ -385,34 +391,34 @@ export class CommitteePDFGenerator {
           height: 60,
         });
       } catch (error) {
-        console.error('Error generating QR code:', error);
+        console.error("Error generating QR code:", error);
       }
 
       // Folio y numeración de página
       this.doc
         .fontSize(8)
-        .font('Helvetica')
+        .font("Helvetica")
         .text(
           `${folio} | Página ${i + 1} de ${pages.count}`,
           this.pageMargin + 80,
           this.pageHeight - 70,
           {
             width: this.pageWidth - this.pageMargin * 2 - 80,
-            align: 'center',
+            align: "center",
           }
         );
 
       // Nota de validez
       this.doc
         .fontSize(7)
-        .font('Helvetica')
+        .font("Helvetica")
         .text(
-          'Este documento es válido únicamente con el código QR de verificación',
+          "Este documento es válido únicamente con el código QR de verificación",
           this.pageMargin,
           this.pageHeight - 50,
           {
             width: this.pageWidth - this.pageMargin * 2,
-            align: 'center',
+            align: "center",
           }
         );
     }
@@ -425,7 +431,6 @@ export class CommitteePDFGenerator {
     this.doc.end();
   }
 }
-
 
 /**
  * Generar PDF de Acta de Comité
@@ -446,44 +451,44 @@ export async function generateCommitteeMinutePDF(data: {
 
   // Encabezado
   await generator.addHeader({
-    title: 'ACTA DE REUNIÓN DEL COMITÉ NOM-035',
+    title: "ACTA DE REUNIÓN DEL COMITÉ NOM-035",
     subtitle: `Reunión ${data.meetingType}`,
     folio: data.folio,
     date: data.meetingDate,
-    version: '1.0',
+    version: "1.0",
   });
 
   // Información de la reunión
   generator.addSection(
-    'Datos de la Reunión',
-    `Fecha: ${format(data.meetingDate, 'dd/MM/yyyy HH:mm', { locale: es })}\n` +
-    `Tipo: ${data.meetingType}\n` +
-    `Lugar: ${data.location}`
+    "Datos de la Reunión",
+    `Fecha: ${format(data.meetingDate, "dd/MM/yyyy HH:mm", { locale: es })}\n` +
+      `Tipo: ${data.meetingType}\n` +
+      `Lugar: ${data.location}`
   );
 
   // Orden del día
-  generator.addBulletList('Orden del Día', data.agenda);
+  generator.addBulletList("Orden del Día", data.agenda);
 
   // Desarrollo de la reunión
-  generator.addSection('Desarrollo de la Reunión', data.discussions);
+  generator.addSection("Desarrollo de la Reunión", data.discussions);
 
   // Acuerdos
-  generator.addBulletList('Acuerdos Tomados', data.agreements);
+  generator.addBulletList("Acuerdos Tomados", data.agreements);
 
   // Asistencia
-  const attendanceHeaders = ['Nombre', 'Cargo', 'Asistencia'];
+  const attendanceHeaders = ["Nombre", "Cargo", "Asistencia"];
   const attendanceRows = data.attendance.map((a: any) => [
     a.name,
     a.position,
-    a.attended ? '✓' : '✗',
+    a.attended ? "✓" : "✗",
   ]);
   generator.addTable(attendanceHeaders, attendanceRows);
 
   // Próxima reunión
   if (data.nextMeetingDate) {
     generator.addSection(
-      'Próxima Reunión',
-      `Fecha programada: ${format(data.nextMeetingDate, 'dd/MM/yyyy HH:mm', { locale: es })}`
+      "Próxima Reunión",
+      `Fecha programada: ${format(data.nextMeetingDate, "dd/MM/yyyy HH:mm", { locale: es })}`
     );
   }
 
@@ -498,7 +503,6 @@ export async function generateCommitteeMinutePDF(data: {
 
   return generator.getDocument();
 }
-
 
 /**
  * Generar PDF de Reporte Anual
@@ -522,33 +526,36 @@ export async function generateAnnualReportPDF(data: {
 
   // Encabezado
   await generator.addHeader({
-    title: 'REPORTE ANUAL DEL COMITÉ NOM-035',
+    title: "REPORTE ANUAL DEL COMITÉ NOM-035",
     subtitle: `Año ${data.reportYear}`,
     folio: data.folio,
     date: new Date(),
-    version: '1.0',
+    version: "1.0",
   });
 
   // Resumen ejecutivo
-  generator.addSection('Resumen Ejecutivo', data.executiveSummary);
+  generator.addSection("Resumen Ejecutivo", data.executiveSummary);
 
   // Métricas clave
   generator.addSection(
-    'Métricas Clave',
+    "Métricas Clave",
     `Total de reuniones realizadas: ${data.metrics.totalMeetings}\n` +
-    `Asistencia promedio: ${data.metrics.averageAttendance}%\n` +
-    `Capacitaciones completadas: ${data.metrics.trainingsCompleted}\n` +
-    `Casos atendidos: ${data.metrics.casesHandled}`
+      `Asistencia promedio: ${data.metrics.averageAttendance}%\n` +
+      `Capacitaciones completadas: ${data.metrics.trainingsCompleted}\n` +
+      `Casos atendidos: ${data.metrics.casesHandled}`
   );
 
   // Actividades realizadas
-  generator.addBulletList('Actividades Realizadas', data.activities);
+  generator.addBulletList("Actividades Realizadas", data.activities);
 
   // Recomendaciones
-  generator.addSection('Recomendaciones', data.recommendations);
+  generator.addSection("Recomendaciones", data.recommendations);
 
   // Plan de acción
-  generator.addSection('Plan de Acción para el Siguiente Periodo', data.actionPlan);
+  generator.addSection(
+    "Plan de Acción para el Siguiente Periodo",
+    data.actionPlan
+  );
 
   // Firmas
   await generator.addSignatures(data.signatures);
@@ -561,7 +568,6 @@ export async function generateAnnualReportPDF(data: {
 
   return generator.getDocument();
 }
-
 
 /**
  * Generar PDF de Bases de Funcionamiento
@@ -581,18 +587,21 @@ export async function generateOperatingRulesPDF(data: {
 
   // Encabezado
   await generator.addHeader({
-    title: 'BASES DE FUNCIONAMIENTO DEL COMITÉ NOM-035',
-    subtitle: 'Reglamento Interno',
+    title: "BASES DE FUNCIONAMIENTO DEL COMITÉ NOM-035",
+    subtitle: "Reglamento Interno",
     folio: `BFC-${data.version}`,
     date: data.effectiveDate,
     version: data.version,
   });
 
   // Objetivos
-  generator.addSection('Objetivos del Comité', data.objectives);
+  generator.addSection("Objetivos del Comité", data.objectives);
 
   // Estructura
-  generator.addSection('Integración y Estructura Organizacional', data.structure);
+  generator.addSection(
+    "Integración y Estructura Organizacional",
+    data.structure
+  );
 
   // Roles y responsabilidades
   data.roles.forEach((role: any) => {
@@ -603,13 +612,16 @@ export async function generateOperatingRulesPDF(data: {
   });
 
   // Periodicidad de reuniones
-  generator.addSection('Periodicidad de Reuniones', data.meetingFrequency);
+  generator.addSection("Periodicidad de Reuniones", data.meetingFrequency);
 
   // Quórum
-  generator.addSection('Quórum Mínimo', data.quorum);
+  generator.addSection("Quórum Mínimo", data.quorum);
 
   // Toma de decisiones
-  generator.addSection('Procedimiento de Toma de Decisiones', data.decisionMaking);
+  generator.addSection(
+    "Procedimiento de Toma de Decisiones",
+    data.decisionMaking
+  );
 
   // Firmas
   await generator.addSignatures(data.signatures);

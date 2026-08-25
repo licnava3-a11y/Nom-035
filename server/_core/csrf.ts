@@ -19,7 +19,10 @@ const CSRF_CONFIG = {
   tokenExpiry: 3600000, // 1 hora en milisegundos
   headerName: "x-csrf-token", // Nombre del header HTTP
   cookieName: "csrf_token", // Nombre de la cookie
-  secretKey: process.env.CSRF_SECRET || process.env.JWT_SECRET || "default-csrf-secret-change-me",
+  secretKey:
+    process.env.CSRF_SECRET ||
+    process.env.JWT_SECRET ||
+    "default-csrf-secret-change-me",
 };
 
 /**
@@ -57,7 +60,7 @@ export function generateCSRFToken(sessionId: string): string {
  * Valida un token CSRF
  */
 export async function validateCSRFToken(
-  sessionId: string, 
+  sessionId: string,
   token: string,
   req?: { ip?: string; headers?: any; url?: string; method?: string }
 ): Promise<{ valid: boolean; reason?: string }> {
@@ -68,14 +71,14 @@ export async function validateCSRFToken(
       await logCSRFViolation({
         token,
         userId: sessionId,
-        ipAddress: req.ip || 'unknown',
-        userAgent: req.headers?.['user-agent'],
+        ipAddress: req.ip || "unknown",
+        userAgent: req.headers?.["user-agent"],
         endpoint: req.url,
         method: req.method,
-        reason: 'invalid_token',
+        reason: "invalid_token",
       });
     }
-    return { valid: false, reason: 'invalid_token' };
+    return { valid: false, reason: "invalid_token" };
   }
 
   if (storedToken.expiresAt < Date.now()) {
@@ -84,14 +87,14 @@ export async function validateCSRFToken(
       await logCSRFViolation({
         token,
         userId: sessionId,
-        ipAddress: req.ip || 'unknown',
-        userAgent: req.headers?.['user-agent'],
+        ipAddress: req.ip || "unknown",
+        userAgent: req.headers?.["user-agent"],
         endpoint: req.url,
         method: req.method,
-        reason: 'expired_token',
+        reason: "expired_token",
       });
     }
-    return { valid: false, reason: 'expired_token' };
+    return { valid: false, reason: "expired_token" };
   }
 
   // Validar longitudes antes de comparación segura
@@ -100,28 +103,31 @@ export async function validateCSRFToken(
       await logCSRFViolation({
         token,
         userId: sessionId,
-        ipAddress: req.ip || 'unknown',
-        userAgent: req.headers?.['user-agent'],
+        ipAddress: req.ip || "unknown",
+        userAgent: req.headers?.["user-agent"],
         endpoint: req.url,
         method: req.method,
-        reason: 'malformed_token',
+        reason: "malformed_token",
       });
     }
-    return { valid: false, reason: 'malformed_token' };
+    return { valid: false, reason: "malformed_token" };
   }
-  
+
   // Comparación segura contra timing attacks
   try {
-    const isValid = crypto.timingSafeEqual(Buffer.from(storedToken.token), Buffer.from(token));
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(storedToken.token),
+      Buffer.from(token)
+    );
     if (!isValid && req) {
       await logCSRFViolation({
         token,
         userId: sessionId,
-        ipAddress: req.ip || 'unknown',
-        userAgent: req.headers?.['user-agent'],
+        ipAddress: req.ip || "unknown",
+        userAgent: req.headers?.["user-agent"],
         endpoint: req.url,
         method: req.method,
-        reason: 'user_mismatch',
+        reason: "user_mismatch",
       });
     }
     return { valid: isValid };
@@ -130,14 +136,14 @@ export async function validateCSRFToken(
       await logCSRFViolation({
         token,
         userId: sessionId,
-        ipAddress: req.ip || 'unknown',
-        userAgent: req.headers?.['user-agent'],
+        ipAddress: req.ip || "unknown",
+        userAgent: req.headers?.["user-agent"],
         endpoint: req.url,
         method: req.method,
-        reason: 'malformed_token',
+        reason: "malformed_token",
       });
     }
-    return { valid: false, reason: 'malformed_token' };
+    return { valid: false, reason: "malformed_token" };
   }
 }
 
@@ -158,21 +164,26 @@ async function logCSRFViolation(violation: {
   userAgent?: string;
   endpoint?: string;
   method?: string;
-  reason: 'missing_token' | 'invalid_token' | 'expired_token' | 'user_mismatch' | 'malformed_token';
+  reason:
+    | "missing_token"
+    | "invalid_token"
+    | "expired_token"
+    | "user_mismatch"
+    | "malformed_token";
 }): Promise<void> {
   try {
     const db = await getDb();
     if (!db) {
-      console.warn('[CSRF] Database not available, skipping violation logging');
+      console.warn("[CSRF] Database not available, skipping violation logging");
       return;
     }
     await db.insert(csrfViolations).values(violation);
-    
+
     // Detectar patrones de ataque después de registrar la violación
     await detectCSRFAttackPattern(violation.ipAddress);
   } catch (error) {
     // No fallar si el logging falla, solo registrar en consola
-    console.error('[CSRF] Error logging violation:', error);
+    console.error("[CSRF] Error logging violation:", error);
   }
 }
 
@@ -180,7 +191,10 @@ async function logCSRFViolation(violation: {
  * Middleware de tRPC para validar CSRF en mutations críticas
  * Uso: .use(requireCSRF)
  */
-export async function requireCSRF<T extends { req: any; user?: any }>(opts: { ctx: T; next: () => any }) {
+export async function requireCSRF<T extends { req: any; user?: any }>(opts: {
+  ctx: T;
+  next: () => any;
+}) {
   const { ctx, next } = opts;
 
   // Obtener token del header
@@ -189,15 +203,15 @@ export async function requireCSRF<T extends { req: any; user?: any }>(opts: { ct
   if (!csrfToken || typeof csrfToken !== "string") {
     // Registrar violación por token faltante
     await logCSRFViolation({
-      token: '',
-      userId: ctx.user?.id?.toString() || 'anonymous',
-      ipAddress: ctx.req.ip || 'unknown',
-      userAgent: ctx.req.headers?.['user-agent'],
+      token: "",
+      userId: ctx.user?.id?.toString() || "anonymous",
+      ipAddress: ctx.req.ip || "unknown",
+      userAgent: ctx.req.headers?.["user-agent"],
       endpoint: ctx.req.url,
       method: ctx.req.method,
-      reason: 'missing_token',
+      reason: "missing_token",
     });
-    
+
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Token CSRF faltante. Por favor recarga la página.",
@@ -244,18 +258,19 @@ export const csrfConfig = {
   cookieName: CSRF_CONFIG.cookieName,
 };
 
-
 /**
  * Detecta patrones de ataque CSRF y genera alertas automáticas
  * Se ejecuta cada vez que se registra una violación
- * 
+ *
  * Lógica: Si una IP tiene >10 intentos fallidos en la última hora, genera una alerta
  */
-export async function detectCSRFAttackPattern(ipAddress: string): Promise<void> {
+export async function detectCSRFAttackPattern(
+  ipAddress: string
+): Promise<void> {
   try {
     const db = await getDb();
     if (!db) {
-      console.warn('[CSRF] Database not available, skipping attack detection');
+      console.warn("[CSRF] Database not available, skipping attack detection");
       return;
     }
 
@@ -295,7 +310,7 @@ export async function detectCSRFAttackPattern(ipAddress: string): Promise<void> 
           .groupBy(csrfViolations.endpoint);
 
         const affectedEndpoints = affectedEndpointsResult
-          .map(r => r.endpoint || 'unknown')
+          .map(r => r.endpoint || "unknown")
           .filter((v, i, a) => a.indexOf(v) === i); // Eliminar duplicados
 
         // Obtener primera y última violación
@@ -324,23 +339,26 @@ export async function detectCSRFAttackPattern(ipAddress: string): Promise<void> 
           firstAttempt: firstViolation.attemptedAt,
           lastAttempt: lastViolation.attemptedAt,
           affectedEndpoints,
-          status: 'pending',
+          status: "pending",
         });
 
         // Enviar notificación al administrador
         await notifyOwner({
-          title: '🚨 Alerta de Seguridad: Posible Ataque CSRF Detectado',
-          content: `Se ha detectado un patrón de ataque CSRF desde la IP ${ipAddress}.\n\n` +
+          title: "🚨 Alerta de Seguridad: Posible Ataque CSRF Detectado",
+          content:
+            `Se ha detectado un patrón de ataque CSRF desde la IP ${ipAddress}.\n\n` +
             `**Estadísticas:**\n` +
             `- Total de intentos fallidos: ${violationCount}\n` +
             `- Período: Última hora\n` +
-            `- Endpoints afectados: ${affectedEndpoints.join(', ')}\n\n` +
+            `- Endpoints afectados: ${affectedEndpoints.join(", ")}\n\n` +
             `**Acción recomendada:**\n` +
             `Revise los logs de seguridad y considere bloquear la IP si el patrón persiste.\n\n` +
             `Puede ver más detalles en el panel de administración > Seguridad > Violaciones CSRF.`,
         });
 
-        console.log(`[CSRF] Alert created for IP ${ipAddress} with ${violationCount} violations`);
+        console.log(
+          `[CSRF] Alert created for IP ${ipAddress} with ${violationCount} violations`
+        );
       } else {
         // Ya existe una alerta activa, actualizar el contador
         const alert = existingAlert[0];
@@ -353,11 +371,13 @@ export async function detectCSRFAttackPattern(ipAddress: string): Promise<void> 
           })
           .where(eq(csrfAlerts.id, alert.id));
 
-        console.log(`[CSRF] Alert updated for IP ${ipAddress}, new count: ${violationCount}`);
+        console.log(
+          `[CSRF] Alert updated for IP ${ipAddress}, new count: ${violationCount}`
+        );
       }
     }
   } catch (error) {
     // No fallar si la detección falla, solo registrar en consola
-    console.error('[CSRF] Error detecting attack pattern:', error);
+    console.error("[CSRF] Error detecting attack pattern:", error);
   }
 }

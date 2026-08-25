@@ -1,7 +1,13 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState } from "react";
 // DashboardLayout is already wrapped by App.tsx route
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { trpc } from "@/lib/trpc";
 import { Line } from "react-chartjs-2";
@@ -16,18 +22,30 @@ import {
   Legend,
 } from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function AlgorithmEffectiveness() {
   const [months] = useState(12);
 
   // Queries
-  const accuracyMetricsQuery = trpc.algorithmEffectiveness.getAccuracyMetrics.useQuery({});
-  const trendsQuery = trpc.algorithmEffectiveness.getPredictionTrends.useQuery({ months });
-  const historyQuery = trpc.algorithmEffectiveness.getPredictionHistory.useQuery({
-    page: 1,
-    pageSize: 10,
+  const accuracyMetricsQuery =
+    trpc.algorithmEffectiveness.getAccuracyMetrics.useQuery({});
+  const trendsQuery = trpc.algorithmEffectiveness.getPredictionTrends.useQuery({
+    months,
   });
+  const historyQuery =
+    trpc.algorithmEffectiveness.getPredictionHistory.useQuery({
+      page: 1,
+      pageSize: 10,
+    });
 
   const accuracyMetrics = accuracyMetricsQuery.data;
   const trends = trendsQuery.data || [];
@@ -84,9 +102,12 @@ export default function AlgorithmEffectiveness() {
     <DashboardLayout>
       <div className="container mx-auto py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Efectividad del Algoritmo Predictivo</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            Efectividad del Algoritmo Predictivo
+          </h1>
           <p className="text-muted-foreground">
-            Análisis de precisión y comparativa entre predicciones y rotación real
+            Análisis de precisión y comparativa entre predicciones y rotación
+            real
           </p>
         </div>
 
@@ -99,7 +120,9 @@ export default function AlgorithmEffectiveness() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{accuracyMetrics?.totalPredictions || 0}</div>
+              <div className="text-3xl font-bold">
+                {accuracyMetrics?.totalPredictions || 0}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">Evaluadas</p>
             </CardContent>
           </Card>
@@ -114,7 +137,9 @@ export default function AlgorithmEffectiveness() {
               <div className="text-3xl font-bold text-green-600">
                 {accuracyMetrics?.averageAccuracy.toFixed(1) || 0}%
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Del algoritmo</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Del algoritmo
+              </p>
             </CardContent>
           </Card>
 
@@ -139,8 +164,12 @@ export default function AlgorithmEffectiveness() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{accuracyMetrics?.highAccuracyCount || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">≥80% precisión</p>
+              <div className="text-3xl font-bold">
+                {accuracyMetrics?.highAccuracyCount || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                ≥80% precisión
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -150,7 +179,8 @@ export default function AlgorithmEffectiveness() {
           <CardHeader>
             <CardTitle>Tendencias de Predicción vs Realidad</CardTitle>
             <CardDescription>
-              Comparación mensual de tasas predichas, reales y precisión del algoritmo
+              Comparación mensual de tasas predichas, reales y precisión del
+              algoritmo
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -170,7 +200,9 @@ export default function AlgorithmEffectiveness() {
         <Card>
           <CardHeader>
             <CardTitle>Histórico de Predicciones</CardTitle>
-            <CardDescription>Últimas 10 predicciones realizadas por el algoritmo</CardDescription>
+            <CardDescription>
+              Últimas 10 predicciones realizadas por el algoritmo
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {history && history.predictions.length > 0 ? (
@@ -192,7 +224,9 @@ export default function AlgorithmEffectiveness() {
                       <tr key={pred.id} className="border-b hover:bg-muted/50">
                         <td className="py-3 px-4">{pred.departmentName}</td>
                         <td className="py-3 px-4">
-                          {new Date(pred.predictionDate).toLocaleDateString("es-MX")}
+                          {new Date(pred.predictionDate).toLocaleDateString(
+                            "es-MX"
+                          )}
                         </td>
                         <td className="text-right py-3 px-4">
                           <span
@@ -200,8 +234,8 @@ export default function AlgorithmEffectiveness() {
                               pred.predictedRiskScore >= 60
                                 ? "text-red-600"
                                 : pred.predictedRiskScore >= 30
-                                ? "text-yellow-600"
-                                : "text-green-600"
+                                  ? "text-yellow-600"
+                                  : "text-green-600"
                             }`}
                           >
                             {pred.predictedRiskScore}
@@ -218,7 +252,9 @@ export default function AlgorithmEffectiveness() {
                             : "-"}
                         </td>
                         <td className="text-right py-3 px-4">
-                          {pred.accuracyScore ? `${Number(pred.accuracyScore).toFixed(1)}%` : "-"}
+                          {pred.accuracyScore
+                            ? `${Number(pred.accuracyScore).toFixed(1)}%`
+                            : "-"}
                         </td>
                         <td className="text-center py-3 px-4">
                           <span
@@ -228,7 +264,9 @@ export default function AlgorithmEffectiveness() {
                                 : "bg-yellow-100 text-yellow-800"
                             }`}
                           >
-                            {pred.status === "evaluated" ? "Evaluado" : "Pendiente"}
+                            {pred.status === "evaluated"
+                              ? "Evaluado"
+                              : "Pendiente"}
                           </span>
                         </td>
                       </tr>

@@ -11,18 +11,18 @@ La mejora solicitada en **JobPositions** quedó aplicada: la página ya diferenc
 
 ## Hallazgos priorizados
 
-| Prioridad | Hallazgo | Evidencia | Impacto | Acción recomendada |
-|---|---|---|---|---|
-| P0 | Dependencias vulnerables | `pnpm audit --prod`: 210 vulnerabilidades, incluyendo 5 críticas y 97 altas | Riesgo de seguridad y cumplimiento | Actualizar por familias, validar lockfile y ejecutar regresión aislada por lote |
-| P0 | Chequeo TypeScript no ejecutable con la memoria disponible | `tsc --noEmit` aborta por OOM con heap de 1.5 GB | Impide validar cambios y puede ocultar regresiones | Introducir `tsconfig` por referencias, límites de alcance y chequeos incrementales en CI |
-| P0 | Rutas duplicadas y enlaces sin registro | `/cases/assignment` está duplicada; 8 enlaces internos no se encuentran en `App.tsx` | Navegación a contenido incorrecto o 404 | Mantener una única fuente de rutas y registrar, redirigir o retirar enlaces |
-| P0 | Correlación frágil de puestos y empleados | `jobPositions.list` cruza `positions.title` con `jobPositions.positionName` | Conteos incorrectos si cambian o se duplican nombres | Agregar `positionId` a `job_positions` y migrar relaciones con clave foránea |
-| P0 | Gráfica PDF de riesgo inconsistente | La UI usa niveles en español; la gráfica compara parte de los niveles en inglés | Distribución de riesgo incorrecta en auditorías | Unificar enum/capa de presentación y probar los cuatro niveles |
-| P1 | Suite completa con fallos heredados | Validación previa: 14 fallos en 8 archivos; `sprint55.test.ts` contiene una expectativa obsoleta | Regresiones no detectadas con claridad | Clasificar, corregir y separar pruebas de infraestructura de pruebas de negocio |
-| P1 | Datos simulados o métricas no implementadas | `JobPositions.tsx`, `Reports.tsx`, `ReportTemplates.tsx`, `dashboard.ts`, `training.ts` | Decisiones operativas sobre información no verificable | Eliminar fallbacks simulados en producción o sustituirlos por estado “sin datos” |
-| P1 | Desplegable Radix inválido | `BuzonComunicacion.tsx:760` usa `<SelectItem value="">` | Posible error de ejecución del selector | Usar un valor centinela no vacío, por ejemplo `all` |
-| P1 | Tipado evasivo y observabilidad dispersa | 1,235 `as any`; 795 `console.*`; 3 `catch {}` | Mayor riesgo de contratos rotos y fallos difíciles de diagnosticar | Establecer tipos de dominio, logger central y manejo explícito de errores |
-| P2 | Archivos de gran tamaño y acoplamiento | `surveys.ts` 2,848 líneas; `App.tsx` 2,168; varios archivos >1,500 | Coste alto de mantenimiento, consumo de memoria y conflictos | Extraer routers, rutas, helpers, diálogos y subcomponentes por dominio |
+| Prioridad | Hallazgo                                                   | Evidencia                                                                                        | Impacto                                                            | Acción recomendada                                                                       |
+| --------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| P0        | Dependencias vulnerables                                   | `pnpm audit --prod`: 210 vulnerabilidades, incluyendo 5 críticas y 97 altas                      | Riesgo de seguridad y cumplimiento                                 | Actualizar por familias, validar lockfile y ejecutar regresión aislada por lote          |
+| P0        | Chequeo TypeScript no ejecutable con la memoria disponible | `tsc --noEmit` aborta por OOM con heap de 1.5 GB                                                 | Impide validar cambios y puede ocultar regresiones                 | Introducir `tsconfig` por referencias, límites de alcance y chequeos incrementales en CI |
+| P0        | Rutas duplicadas y enlaces sin registro                    | `/cases/assignment` está duplicada; 8 enlaces internos no se encuentran en `App.tsx`             | Navegación a contenido incorrecto o 404                            | Mantener una única fuente de rutas y registrar, redirigir o retirar enlaces              |
+| P0        | Correlación frágil de puestos y empleados                  | `jobPositions.list` cruza `positions.title` con `jobPositions.positionName`                      | Conteos incorrectos si cambian o se duplican nombres               | Agregar `positionId` a `job_positions` y migrar relaciones con clave foránea             |
+| P0        | Gráfica PDF de riesgo inconsistente                        | La UI usa niveles en español; la gráfica compara parte de los niveles en inglés                  | Distribución de riesgo incorrecta en auditorías                    | Unificar enum/capa de presentación y probar los cuatro niveles                           |
+| P1        | Suite completa con fallos heredados                        | Validación previa: 14 fallos en 8 archivos; `sprint55.test.ts` contiene una expectativa obsoleta | Regresiones no detectadas con claridad                             | Clasificar, corregir y separar pruebas de infraestructura de pruebas de negocio          |
+| P1        | Datos simulados o métricas no implementadas                | `JobPositions.tsx`, `Reports.tsx`, `ReportTemplates.tsx`, `dashboard.ts`, `training.ts`          | Decisiones operativas sobre información no verificable             | Eliminar fallbacks simulados en producción o sustituirlos por estado “sin datos”         |
+| P1        | Desplegable Radix inválido                                 | `BuzonComunicacion.tsx:760` usa `<SelectItem value="">`                                          | Posible error de ejecución del selector                            | Usar un valor centinela no vacío, por ejemplo `all`                                      |
+| P1        | Tipado evasivo y observabilidad dispersa                   | 1,235 `as any`; 795 `console.*`; 3 `catch {}`                                                    | Mayor riesgo de contratos rotos y fallos difíciles de diagnosticar | Establecer tipos de dominio, logger central y manejo explícito de errores                |
+| P2        | Archivos de gran tamaño y acoplamiento                     | `surveys.ts` 2,848 líneas; `App.tsx` 2,168; varios archivos >1,500                               | Coste alto de mantenimiento, consumo de memoria y conflictos       | Extraer routers, rutas, helpers, diálogos y subcomponentes por dominio                   |
 
 **Remediación aplicada:** el reporte general y el reporte individual de puestos ya usan la normalización española de riesgos (`muy_alto`, `alto`, `medio`, `bajo`). La distribución PDF se cubrió con una prueba unitaria que verifica los cuatro niveles.
 
@@ -48,13 +48,13 @@ La ruta `/cases/assignment` aparece dos veces: una versión renderiza `Cases` y 
 
 ## Validación realizada
 
-| Verificación | Resultado |
-|---|---|
-| Endpoint local `/api/health` | HTTP 200 |
-| Compilación aislada de `JobPositions.tsx` con esbuild | Exitosa en 194 ms |
-| Chequeo TypeScript completo | No concluye: OOM con heap de 1.5 GB |
-| Auditoría de dependencias de producción | 210 hallazgos: 17 bajos, 91 moderados, 97 altos y 5 críticos |
-| Prueba aislada del contrato `jobPositions.update` (checkpoint anterior) | 2/2 aprobadas |
+| Verificación                                                            | Resultado                                                    |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Endpoint local `/api/health`                                            | HTTP 200                                                     |
+| Compilación aislada de `JobPositions.tsx` con esbuild                   | Exitosa en 194 ms                                            |
+| Chequeo TypeScript completo                                             | No concluye: OOM con heap de 1.5 GB                          |
+| Auditoría de dependencias de producción                                 | 210 hallazgos: 17 bajos, 91 moderados, 97 altos y 5 críticos |
+| Prueba aislada del contrato `jobPositions.update` (checkpoint anterior) | 2/2 aprobadas                                                |
 
 ## Actualización de pruebas heredadas
 

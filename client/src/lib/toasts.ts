@@ -3,7 +3,7 @@
  * Proporciona funciones estandarizadas para mostrar notificaciones
  */
 
-import { toast } from 'sonner';
+import { toast } from "sonner";
 
 interface ToastAction {
   label: string;
@@ -21,10 +21,12 @@ export function showSuccessToast(
   toast.success(title, {
     description,
     duration: 4000,
-    action: action ? {
-      label: action.label,
-      onClick: action.onClick
-    } : undefined
+    action: action
+      ? {
+          label: action.label,
+          onClick: action.onClick,
+        }
+      : undefined,
   });
 }
 
@@ -39,10 +41,12 @@ export function showErrorToast(
   toast.error(title, {
     description,
     duration: 5000, // Errores se muestran más tiempo
-    action: action ? {
-      label: action.label,
-      onClick: action.onClick
-    } : undefined
+    action: action
+      ? {
+          label: action.label,
+          onClick: action.onClick,
+        }
+      : undefined,
   });
 }
 
@@ -57,10 +61,12 @@ export function showWarningToast(
   toast.warning(title, {
     description,
     duration: 4500,
-    action: action ? {
-      label: action.label,
-      onClick: action.onClick
-    } : undefined
+    action: action
+      ? {
+          label: action.label,
+          onClick: action.onClick,
+        }
+      : undefined,
   });
 }
 
@@ -75,10 +81,12 @@ export function showInfoToast(
   toast.info(title, {
     description,
     duration: 4000,
-    action: action ? {
-      label: action.label,
-      onClick: action.onClick
-    } : undefined
+    action: action
+      ? {
+          label: action.label,
+          onClick: action.onClick,
+        }
+      : undefined,
   });
 }
 
@@ -98,7 +106,7 @@ export function showLoadingToast<T>(
     loading: messages.loading,
     success: messages.success,
     error: messages.error,
-    duration: 4000
+    duration: 4000,
   });
 }
 
@@ -109,12 +117,18 @@ export function showCustomToast(
   component: React.ReactNode,
   options?: {
     duration?: number;
-    position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+    position?:
+      | "top-left"
+      | "top-center"
+      | "top-right"
+      | "bottom-left"
+      | "bottom-center"
+      | "bottom-right";
   }
 ) {
   toast.custom(() => component as React.ReactElement, {
     duration: options?.duration || 4000,
-    position: options?.position
+    position: options?.position,
   });
 }
 

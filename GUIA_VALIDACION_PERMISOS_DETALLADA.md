@@ -51,13 +51,13 @@ Esta guía cubre la validación de **75 botones protegidos** distribuidos en **1
 
 Los siguientes usuarios han sido creados en la base de datos para pruebas:
 
-| Usuario | Email | Rol | Departamento | Permisos Esperados |
-|---------|-------|-----|--------------|-------------------|
-| **Gerente Test** | gerente.test@example.com | `gerente` | Recursos Humanos | ✅ Todos los permisos (6/6) |
-| **Instructor Test** | instructor.test@example.com | `instructor` | Capacitación | ✅ 4 permisos: view, create, edit, export |
-| **Admin Test** | admin.test@example.com | `administrativo` | Administración | ✅ 4 permisos: view, create, edit, export |
-| **Committee Test** | committee.test@example.com | `committee` | Comité NOM-035 | ✅ 3 permisos: view, create, approve |
-| **Student Test** | student.test@example.com | `student` | Operaciones | ✅ 1 permiso: view |
+| Usuario             | Email                       | Rol              | Departamento     | Permisos Esperados                        |
+| ------------------- | --------------------------- | ---------------- | ---------------- | ----------------------------------------- |
+| **Gerente Test**    | gerente.test@example.com    | `gerente`        | Recursos Humanos | ✅ Todos los permisos (6/6)               |
+| **Instructor Test** | instructor.test@example.com | `instructor`     | Capacitación     | ✅ 4 permisos: view, create, edit, export |
+| **Admin Test**      | admin.test@example.com      | `administrativo` | Administración   | ✅ 4 permisos: view, create, edit, export |
+| **Committee Test**  | committee.test@example.com  | `committee`      | Comité NOM-035   | ✅ 3 permisos: view, create, approve      |
+| **Student Test**    | student.test@example.com    | `student`        | Operaciones      | ✅ 1 permiso: view                        |
 
 ### Contraseñas
 
@@ -77,25 +77,32 @@ Los siguientes usuarios han sido creados en la base de datos para pruebas:
 
 ### Tabla de Permisos
 
-| Permiso | Gerente | Instructor | Administrativo | Committee | Student | Descripción |
-|---------|---------|------------|----------------|-----------|---------|-------------|
-| **can_view** | ✅ | ✅ | ✅ | ✅ | ✅ | Ver información y reportes |
-| **can_create** | ✅ | ✅ | ✅ | ✅ | ❌ | Crear nuevos registros |
-| **can_edit** | ✅ | ✅ | ✅ | ❌ | ❌ | Modificar registros existentes |
-| **can_delete** | ✅ | ❌ | ❌ | ❌ | ❌ | Eliminar registros |
-| **can_approve** | ✅ | ❌ | ❌ | ✅ | ❌ | Aprobar/finalizar documentos |
-| **can_export** | ✅ | ✅ | ✅ | ❌ | ❌ | Exportar datos a Excel/PDF |
+| Permiso         | Gerente | Instructor | Administrativo | Committee | Student | Descripción                    |
+| --------------- | ------- | ---------- | -------------- | --------- | ------- | ------------------------------ |
+| **can_view**    | ✅      | ✅         | ✅             | ✅        | ✅      | Ver información y reportes     |
+| **can_create**  | ✅      | ✅         | ✅             | ✅        | ❌      | Crear nuevos registros         |
+| **can_edit**    | ✅      | ✅         | ✅             | ❌        | ❌      | Modificar registros existentes |
+| **can_delete**  | ✅      | ❌         | ❌             | ❌        | ❌      | Eliminar registros             |
+| **can_approve** | ✅      | ❌         | ❌             | ✅        | ❌      | Aprobar/finalizar documentos   |
+| **can_export**  | ✅      | ✅         | ✅             | ❌        | ❌      | Exportar datos a Excel/PDF     |
 
 ### Implementación en Código
 
 ```typescript
 // client/src/hooks/usePermissions.ts
 const rolePermissions: Record<string, Permission[]> = {
-  gerente: ['can_view', 'can_create', 'can_edit', 'can_delete', 'can_approve', 'can_export'],
-  instructor: ['can_view', 'can_create', 'can_edit', 'can_export'],
-  administrativo: ['can_view', 'can_create', 'can_edit', 'can_export'],
-  committee: ['can_view', 'can_create', 'can_approve'],
-  student: ['can_view'],
+  gerente: [
+    "can_view",
+    "can_create",
+    "can_edit",
+    "can_delete",
+    "can_approve",
+    "can_export",
+  ],
+  instructor: ["can_view", "can_create", "can_edit", "can_export"],
+  administrativo: ["can_view", "can_create", "can_edit", "can_export"],
+  committee: ["can_view", "can_create", "can_approve"],
+  student: ["can_view"],
 };
 ```
 
@@ -159,13 +166,13 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Nuevo Trabajador" | `can_create` | Oculto si no tiene permiso | ✅ Visible | ✅ Visible | ✅ Visible | ✅ Visible | ❌ Oculto |
-| 2 | "Editar" (trabajador) | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 3 | "Eliminar" (trabajador) | `can_delete` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 4 | "Exportar a Excel" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 5 | "Guardar" (formulario) | `can_create` O `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado |
+| #   | Botón                   | Permiso Requerido         | Comportamiento             | Gerente       | Instructor       | Admin            | Committee        | Student          |
+| --- | ----------------------- | ------------------------- | -------------------------- | ------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| 1   | "Nuevo Trabajador"      | `can_create`              | Oculto si no tiene permiso | ✅ Visible    | ✅ Visible       | ✅ Visible       | ✅ Visible       | ❌ Oculto        |
+| 2   | "Editar" (trabajador)   | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 3   | "Eliminar" (trabajador) | `can_delete`              | Deshabilitado              | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| 4   | "Exportar a Excel"      | `can_export`              | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 5   | "Guardar" (formulario)  | `can_create` O `can_edit` | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -182,13 +189,13 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Nuevo Curso" | `can_create` | Oculto si no tiene permiso | ✅ Visible | ✅ Visible | ✅ Visible | ✅ Visible | ❌ Oculto |
-| 2 | "Editar" (curso) | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 3 | "Eliminar" (curso) | `can_delete` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 4 | "Exportar a Excel" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 5 | "Guardar" (formulario) | `can_create` O `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado |
+| #   | Botón                  | Permiso Requerido         | Comportamiento             | Gerente       | Instructor       | Admin            | Committee        | Student          |
+| --- | ---------------------- | ------------------------- | -------------------------- | ------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| 1   | "Nuevo Curso"          | `can_create`              | Oculto si no tiene permiso | ✅ Visible    | ✅ Visible       | ✅ Visible       | ✅ Visible       | ❌ Oculto        |
+| 2   | "Editar" (curso)       | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 3   | "Eliminar" (curso)     | `can_delete`              | Deshabilitado              | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| 4   | "Exportar a Excel"     | `can_export`              | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 5   | "Guardar" (formulario) | `can_create` O `can_edit` | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -205,13 +212,13 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Nuevo Caso" | `can_create` | Oculto si no tiene permiso | ✅ Visible | ✅ Visible | ✅ Visible | ✅ Visible | ❌ Oculto |
-| 2 | "Editar" (caso) | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 3 | "Eliminar" (caso) | `can_delete` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 4 | "Exportar a Excel" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 5 | "Guardar" (formulario) | `can_create` O `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado |
+| #   | Botón                  | Permiso Requerido         | Comportamiento             | Gerente       | Instructor       | Admin            | Committee        | Student          |
+| --- | ---------------------- | ------------------------- | -------------------------- | ------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| 1   | "Nuevo Caso"           | `can_create`              | Oculto si no tiene permiso | ✅ Visible    | ✅ Visible       | ✅ Visible       | ✅ Visible       | ❌ Oculto        |
+| 2   | "Editar" (caso)        | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 3   | "Eliminar" (caso)      | `can_delete`              | Deshabilitado              | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| 4   | "Exportar a Excel"     | `can_export`              | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 5   | "Guardar" (formulario) | `can_create` O `can_edit` | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -228,13 +235,13 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Nuevo Instructor" | `can_create` | Oculto si no tiene permiso | ✅ Visible | ✅ Visible | ✅ Visible | ✅ Visible | ❌ Oculto |
-| 2 | "Editar" (instructor) | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 3 | "Eliminar" (instructor) | `can_delete` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 4 | "Exportar a Excel" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 5 | "Guardar" (formulario) | `can_create` O `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado |
+| #   | Botón                   | Permiso Requerido         | Comportamiento             | Gerente       | Instructor       | Admin            | Committee        | Student          |
+| --- | ----------------------- | ------------------------- | -------------------------- | ------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| 1   | "Nuevo Instructor"      | `can_create`              | Oculto si no tiene permiso | ✅ Visible    | ✅ Visible       | ✅ Visible       | ✅ Visible       | ❌ Oculto        |
+| 2   | "Editar" (instructor)   | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 3   | "Eliminar" (instructor) | `can_delete`              | Deshabilitado              | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| 4   | "Exportar a Excel"      | `can_export`              | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 5   | "Guardar" (formulario)  | `can_create` O `can_edit` | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -251,13 +258,13 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Nueva Capacitación" | `can_create` | Oculto si no tiene permiso | ✅ Visible | ✅ Visible | ✅ Visible | ✅ Visible | ❌ Oculto |
-| 2 | "Editar" (capacitación) | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 3 | "Eliminar" (capacitación) | `can_delete` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 4 | "Exportar a Excel" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 5 | "Guardar" (formulario) | `can_create` O `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado |
+| #   | Botón                     | Permiso Requerido         | Comportamiento             | Gerente       | Instructor       | Admin            | Committee        | Student          |
+| --- | ------------------------- | ------------------------- | -------------------------- | ------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| 1   | "Nueva Capacitación"      | `can_create`              | Oculto si no tiene permiso | ✅ Visible    | ✅ Visible       | ✅ Visible       | ✅ Visible       | ❌ Oculto        |
+| 2   | "Editar" (capacitación)   | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 3   | "Eliminar" (capacitación) | `can_delete`              | Deshabilitado              | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| 4   | "Exportar a Excel"        | `can_export`              | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 5   | "Guardar" (formulario)    | `can_create` O `can_edit` | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -274,13 +281,13 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Nueva Encuesta" | `can_create` | Oculto si no tiene permiso | ✅ Visible | ✅ Visible | ✅ Visible | ✅ Visible | ❌ Oculto |
-| 2 | "Editar" (encuesta) | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 3 | "Eliminar" (encuesta) | `can_delete` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 4 | "Exportar a Excel" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 5 | "Guardar" (formulario) | `can_create` O `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado |
+| #   | Botón                  | Permiso Requerido         | Comportamiento             | Gerente       | Instructor       | Admin            | Committee        | Student          |
+| --- | ---------------------- | ------------------------- | -------------------------- | ------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| 1   | "Nueva Encuesta"       | `can_create`              | Oculto si no tiene permiso | ✅ Visible    | ✅ Visible       | ✅ Visible       | ✅ Visible       | ❌ Oculto        |
+| 2   | "Editar" (encuesta)    | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 3   | "Eliminar" (encuesta)  | `can_delete`              | Deshabilitado              | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| 4   | "Exportar a Excel"     | `can_export`              | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 5   | "Guardar" (formulario) | `can_create` O `can_edit` | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -297,21 +304,21 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Nueva Minuta" | `can_create` | Oculto si no tiene permiso | ✅ Visible | ✅ Visible | ✅ Visible | ✅ Visible | ❌ Oculto |
-| 2 | "Agregar Asistente" | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 3 | "Eliminar Asistente" | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 4 | "Agregar Tema" | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 5 | "Eliminar Tema" | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 6 | "Agregar Acuerdo" | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 7 | "Eliminar Acuerdo" | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 8 | "Capturar Firma" | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 9 | "Guardar Borrador" | `can_create` O `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado |
-| 10 | "Editar" (minuta) | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 11 | "Publicar/Finalizar" | `can_approve` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ✅ Habilitado | ❌ Deshabilitado |
-| 12 | "Descargar PDF" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 13 | "Eliminar" (minuta) | `can_delete` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| #   | Botón                | Permiso Requerido         | Comportamiento             | Gerente       | Instructor       | Admin            | Committee        | Student          |
+| --- | -------------------- | ------------------------- | -------------------------- | ------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| 1   | "Nueva Minuta"       | `can_create`              | Oculto si no tiene permiso | ✅ Visible    | ✅ Visible       | ✅ Visible       | ✅ Visible       | ❌ Oculto        |
+| 2   | "Agregar Asistente"  | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 3   | "Eliminar Asistente" | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 4   | "Agregar Tema"       | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 5   | "Eliminar Tema"      | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 6   | "Agregar Acuerdo"    | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 7   | "Eliminar Acuerdo"   | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 8   | "Capturar Firma"     | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 9   | "Guardar Borrador"   | `can_create` O `can_edit` | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado |
+| 10  | "Editar" (minuta)    | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 11  | "Publicar/Finalizar" | `can_approve`             | Deshabilitado              | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ✅ Habilitado    | ❌ Deshabilitado |
+| 12  | "Descargar PDF"      | `can_export`              | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 13  | "Eliminar" (minuta)  | `can_delete`              | Deshabilitado              | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -329,9 +336,9 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Ver Historial" | `can_view` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
+| #   | Botón           | Permiso Requerido | Comportamiento | Gerente       | Instructor    | Admin         | Committee     | Student       |
+| --- | --------------- | ----------------- | -------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| 1   | "Ver Historial" | `can_view`        | Deshabilitado  | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
 
 #### Instrucciones Específicas
 
@@ -347,12 +354,12 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Nuevo Formato" | `can_create` | Oculto si no tiene permiso | ✅ Visible | ✅ Visible | ✅ Visible | ✅ Visible | ❌ Oculto |
-| 2 | "Editar" (formato) | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 3 | "Eliminar" (formato) | `can_delete` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 4 | "Guardar Formato" | `can_create` O `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado |
+| #   | Botón                | Permiso Requerido         | Comportamiento             | Gerente       | Instructor       | Admin            | Committee        | Student          |
+| --- | -------------------- | ------------------------- | -------------------------- | ------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| 1   | "Nuevo Formato"      | `can_create`              | Oculto si no tiene permiso | ✅ Visible    | ✅ Visible       | ✅ Visible       | ✅ Visible       | ❌ Oculto        |
+| 2   | "Editar" (formato)   | `can_edit`                | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 3   | "Eliminar" (formato) | `can_delete`              | Deshabilitado              | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| 4   | "Guardar Formato"    | `can_create` O `can_edit` | Deshabilitado              | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -369,9 +376,9 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Exportar a Excel" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| #   | Botón              | Permiso Requerido | Comportamiento | Gerente       | Instructor    | Admin         | Committee        | Student          |
+| --- | ------------------ | ----------------- | -------------- | ------------- | ------------- | ------------- | ---------------- | ---------------- |
+| 1   | "Exportar a Excel" | `can_export`      | Deshabilitado  | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -388,10 +395,10 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Exportar a Excel" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 2 | "Exportar a PDF" | `can_export` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| #   | Botón              | Permiso Requerido | Comportamiento | Gerente       | Instructor    | Admin         | Committee        | Student          |
+| --- | ------------------ | ----------------- | -------------- | ------------- | ------------- | ------------- | ---------------- | ---------------- |
+| 1   | "Exportar a Excel" | `can_export`      | Deshabilitado  | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| 2   | "Exportar a PDF"   | `can_export`      | Deshabilitado  | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -409,9 +416,9 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Ver Detalle" | `can_view` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
+| #   | Botón         | Permiso Requerido | Comportamiento | Gerente       | Instructor    | Admin         | Committee     | Student       |
+| --- | ------------- | ----------------- | -------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| 1   | "Ver Detalle" | `can_view`        | Deshabilitado  | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
 
 #### Instrucciones Específicas
 
@@ -428,11 +435,11 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Marcar todas como leídas" | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 2 | "Marcar como leída" (individual) | `can_edit` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado |
-| 3 | "Eliminar" (notificación) | `can_delete` | Deshabilitado | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
+| #   | Botón                            | Permiso Requerido | Comportamiento | Gerente       | Instructor       | Admin            | Committee        | Student          |
+| --- | -------------------------------- | ----------------- | -------------- | ------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| 1   | "Marcar todas como leídas"       | `can_edit`        | Deshabilitado  | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 2   | "Marcar como leída" (individual) | `can_edit`        | Deshabilitado  | ✅ Habilitado | ✅ Habilitado    | ✅ Habilitado    | ❌ Deshabilitado | ❌ Deshabilitado |
+| 3   | "Eliminar" (notificación)        | `can_delete`      | Deshabilitado  | ✅ Habilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado | ❌ Deshabilitado |
 
 #### Instrucciones Específicas
 
@@ -463,12 +470,12 @@ Para botones habilitados, hacer clic y verificar que:
 
 #### Tabla de Casos de Prueba
 
-| # | Botón | Permiso Requerido | Comportamiento | Gerente | Instructor | Admin | Committee | Student |
-|---|-------|-------------------|----------------|---------|------------|-------|-----------|---------|
-| 1 | "Ver Detalle" (casos) | `can_view` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
-| 2 | "Ver Detalle" (encuestas) | `can_view` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
-| 3 | "Ver Detalle" (acciones) | `can_view` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
-| 4 | "Ver Encuesta" (alertas) | `can_view` | Deshabilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
+| #   | Botón                     | Permiso Requerido | Comportamiento | Gerente       | Instructor    | Admin         | Committee     | Student       |
+| --- | ------------------------- | ----------------- | -------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| 1   | "Ver Detalle" (casos)     | `can_view`        | Deshabilitado  | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
+| 2   | "Ver Detalle" (encuestas) | `can_view`        | Deshabilitado  | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
+| 3   | "Ver Detalle" (acciones)  | `can_view`        | Deshabilitado  | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
+| 4   | "Ver Encuesta" (alertas)  | `can_view`        | Deshabilitado  | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado | ✅ Habilitado |
 
 #### Instrucciones Específicas
 
@@ -495,10 +502,10 @@ Usar esta plantilla para cada página evaluada:
 
 ### Resultados
 
-| # | Botón | Esperado | Resultado | ✅/❌ | Observaciones |
-|---|-------|----------|-----------|------|---------------|
-| 1 | [Nombre del botón] | [Visible/Oculto/Deshabilitado] | [Resultado real] | ✅ | [Comentarios] |
-| 2 | [Nombre del botón] | [Visible/Oculto/Deshabilitado] | [Resultado real] | ❌ | [Descripción del error] |
+| #   | Botón              | Esperado                       | Resultado        | ✅/❌ | Observaciones           |
+| --- | ------------------ | ------------------------------ | ---------------- | ----- | ----------------------- |
+| 1   | [Nombre del botón] | [Visible/Oculto/Deshabilitado] | [Resultado real] | ✅    | [Comentarios]           |
+| 2   | [Nombre del botón] | [Visible/Oculto/Deshabilitado] | [Resultado real] | ❌    | [Descripción del error] |
 
 ### Errores Encontrados
 
@@ -526,12 +533,12 @@ Usar esta plantilla para consolidar resultados por usuario:
 
 ### Resumen de Resultados
 
-| Página | Botones Evaluados | Exitosos | Fallidos | % Éxito |
-|--------|-------------------|----------|----------|---------|
-| Workers | 5 | 5 | 0 | 100% |
-| Courses | 5 | 4 | 1 | 80% |
-| ... | ... | ... | ... | ... |
-| **TOTAL** | **75** | **70** | **5** | **93%** |
+| Página    | Botones Evaluados | Exitosos | Fallidos | % Éxito |
+| --------- | ----------------- | -------- | -------- | ------- |
+| Workers   | 5                 | 5        | 0        | 100%    |
+| Courses   | 5                 | 4        | 1        | 80%     |
+| ...       | ...               | ...      | ...      | ...     |
+| **TOTAL** | **75**            | **70**   | **5**    | **93%** |
 
 ### Errores Críticos
 
@@ -566,13 +573,13 @@ Usar esta plantilla para el reporte consolidado final:
 
 ## Resultados por Rol
 
-| Rol | Páginas | Botones | Exitosos | Fallidos | % Éxito |
-|-----|---------|---------|----------|----------|---------|
-| Gerente | 16 | 75 | [N] | [N] | [%] |
-| Instructor | 16 | 75 | [N] | [N] | [%] |
-| Administrativo | 16 | 75 | [N] | [N] | [%] |
-| Committee | 16 | 75 | [N] | [N] | [%] |
-| Student | 16 | 75 | [N] | [N] | [%] |
+| Rol            | Páginas | Botones | Exitosos | Fallidos | % Éxito |
+| -------------- | ------- | ------- | -------- | -------- | ------- |
+| Gerente        | 16      | 75      | [N]      | [N]      | [%]     |
+| Instructor     | 16      | 75      | [N]      | [N]      | [%]     |
+| Administrativo | 16      | 75      | [N]      | [N]      | [%]     |
+| Committee      | 16      | 75      | [N]      | [N]      | [%]     |
+| Student        | 16      | 75      | [N]      | [N]      | [%]     |
 
 ## Errores Encontrados
 
@@ -620,30 +627,36 @@ El sistema de permisos se considera **aprobado** si cumple con los siguientes cr
 ### 7.2. Criterios Específicos por Permiso
 
 #### can_view (Ver)
+
 - ✅ Todos los roles deben poder ver información básica
 - ✅ Los botones de visualización deben estar habilitados para todos
 
 #### can_create (Crear)
+
 - ✅ Botones de creación deben ocultarse para roles sin permiso
 - ✅ Formularios de creación deben ser accesibles solo con permiso
 - ✅ El rol `student` NO debe poder crear ningún registro
 
 #### can_edit (Editar)
+
 - ✅ Botones de edición deben deshabilitarse para roles sin permiso
 - ✅ Formularios de edición deben validar permisos antes de guardar
 - ✅ Los roles `committee` y `student` NO deben poder editar
 
 #### can_delete (Eliminar)
+
 - ✅ Solo el rol `gerente` debe poder eliminar registros
 - ✅ Debe aparecer confirmación antes de eliminar
 - ✅ Todos los demás roles deben ver el botón deshabilitado
 
 #### can_approve (Aprobar)
+
 - ✅ Solo los roles `gerente` y `committee` deben poder aprobar
 - ✅ La aprobación debe cambiar el estado del documento
 - ✅ Los roles `instructor`, `administrativo` y `student` NO deben poder aprobar
 
 #### can_export (Exportar)
+
 - ✅ Los roles `gerente`, `instructor` y `administrativo` deben poder exportar
 - ✅ Los archivos exportados deben contener todos los datos visibles
 - ✅ Los roles `committee` y `student` NO deben poder exportar
@@ -708,9 +721,9 @@ Para preguntas o aclaraciones sobre esta guía de validación:
 
 ## 10. Historial de Versiones
 
-| Versión | Fecha | Autor | Cambios |
-|---------|-------|-------|---------|
-| 1.0 | 12/02/2026 | Sistema | Versión inicial de la guía |
+| Versión | Fecha      | Autor   | Cambios                    |
+| ------- | ---------- | ------- | -------------------------- |
+| 1.0     | 12/02/2026 | Sistema | Versión inicial de la guía |
 
 ---
 

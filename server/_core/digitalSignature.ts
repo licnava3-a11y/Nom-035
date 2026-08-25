@@ -1,5 +1,5 @@
-import crypto from 'crypto';
-import { storageGet } from '../storage';
+import crypto from "crypto";
+import { storageGet } from "../storage";
 
 /**
  * Interfaz para los datos del certificado digital
@@ -26,9 +26,9 @@ export interface DigitalSignatureResult {
  * Genera un hash SHA-256 del contenido del documento
  */
 function generateDocumentHash(content: string | Buffer): string {
-  const hash = crypto.createHash('sha256');
+  const hash = crypto.createHash("sha256");
   hash.update(content);
-  return hash.digest('base64');
+  return hash.digest("base64");
 }
 
 /**
@@ -37,21 +37,25 @@ function generateDocumentHash(content: string | Buffer): string {
  * En producción, se debe usar una biblioteca especializada como node-forge
  * o xmldsig para manejar certificados X.509 y firmas XML correctamente.
  */
-function signHashWithPrivateKey(hash: string, privateKey: string, password: string): string {
+function signHashWithPrivateKey(
+  hash: string,
+  privateKey: string,
+  password: string
+): string {
   try {
     // En producción, aquí se debe:
     // 1. Descifrar la llave privada con la contraseña
     // 2. Crear un objeto de clave privada RSA
     // 3. Firmar el hash con RSA-SHA256
-    
+
     // Por ahora, simulamos la firma
-    const sign = crypto.createSign('RSA-SHA256');
+    const sign = crypto.createSign("RSA-SHA256");
     sign.update(hash);
-    
+
     // En producción, usar la clave privada descifrada del certificado .key
     // Para demostración, generamos una firma simulada
-    const signature = crypto.randomBytes(256).toString('base64');
-    
+    const signature = crypto.randomBytes(256).toString("base64");
+
     return signature;
   } catch (error) {
     throw new Error(`Error al firmar con clave privada: ${error}`);
@@ -69,7 +73,7 @@ function generateSignatureXML(
   signedAt: Date
 ): string {
   const timestamp = signedAt.toISOString();
-  
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
   <SignedInfo>
@@ -104,7 +108,7 @@ function generateSignatureXML(
 
 /**
  * Genera una firma digital XML para un documento
- * 
+ *
  * @param documentContent - Contenido del documento a firmar (puede ser PDF, texto, etc.)
  * @param certificateData - Datos del certificado digital e.firma SAT
  * @returns Resultado de la firma digital con XML y metadatos
@@ -116,7 +120,7 @@ export async function generateDigitalSignature(
   try {
     // 1. Generar hash SHA-256 del documento
     const documentHash = generateDocumentHash(documentContent);
-    
+
     // 2. Obtener archivos del certificado desde S3
     // En producción, aquí se debe:
     // - Descargar el archivo .cer (certificado público)
@@ -124,15 +128,15 @@ export async function generateDigitalSignature(
     // - Validar que el certificado esté vigente
     const certUrl = await storageGet(certificateData.certificatePath);
     const keyUrl = await storageGet(certificateData.keyPath);
-    
+
     // 3. Firmar el hash con la clave privada
     // NOTA: En producción, se debe descargar y procesar el archivo .key real
     const signatureValue = signHashWithPrivateKey(
       documentHash,
-      'privateKeyContent', // En producción, contenido del archivo .key descifrado
+      "privateKeyContent", // En producción, contenido del archivo .key descifrado
       certificateData.password
     );
-    
+
     // 4. Generar XML de firma digital
     const signedAt = new Date();
     const xmlSignature = generateSignatureXML(
@@ -141,7 +145,7 @@ export async function generateDigitalSignature(
       certificateData,
       signedAt
     );
-    
+
     return {
       xmlSignature,
       signatureValue,
@@ -155,7 +159,7 @@ export async function generateDigitalSignature(
 
 /**
  * Verifica una firma digital XML
- * 
+ *
  * @param documentContent - Contenido original del documento
  * @param xmlSignature - XML de la firma digital
  * @returns true si la firma es válida, false en caso contrario
@@ -171,30 +175,30 @@ export async function verifyDigitalSignature(
       return false;
     }
     const storedHash = digestMatch[1];
-    
+
     // 2. Calcular el hash actual del documento
     const currentHash = generateDocumentHash(documentContent);
-    
+
     // 3. Comparar hashes
     if (storedHash !== currentHash) {
       return false;
     }
-    
+
     // 4. En producción, también se debe:
     // - Verificar la firma RSA con el certificado público
     // - Validar que el certificado esté vigente
     // - Verificar la cadena de confianza del certificado
-    
+
     return true;
   } catch (error) {
-    console.error('Error al verificar firma digital:', error);
+    console.error("Error al verificar firma digital:", error);
     return false;
   }
 }
 
 /**
  * Embebe la firma digital XML en un documento PDF
- * 
+ *
  * @param pdfBuffer - Buffer del PDF original
  * @param xmlSignature - XML de la firma digital
  * @returns Buffer del PDF con la firma embebida
@@ -206,9 +210,9 @@ export function embedSignatureInPDF(
   // NOTA: Esta es una implementación simplificada
   // En producción, se debe usar una biblioteca como pdf-lib o node-signpdf
   // para embeber correctamente la firma digital en el PDF según el estándar PAdES
-  
+
   // Por ahora, agregamos la firma como metadata en el PDF
   // En producción, esto debe ser una firma digital embebida real
-  
+
   return pdfBuffer; // Retornar el PDF original por ahora
 }

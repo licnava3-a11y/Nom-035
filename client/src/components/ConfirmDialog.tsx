@@ -23,13 +23,13 @@ interface ConfirmDialogProps {
 
 /**
  * Componente reutilizable para confirmación de acciones
- * 
+ *
  * @example
  * ```tsx
  * const [showConfirm, setShowConfirm] = useState(false);
- * 
+ *
  * <Button onClick={() => setShowConfirm(true)}>Eliminar</Button>
- * 
+ *
  * <ConfirmDialog
  *   open={showConfirm}
  *   onOpenChange={setShowConfirm}

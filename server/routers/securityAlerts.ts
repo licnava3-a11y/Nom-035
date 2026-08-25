@@ -135,10 +135,17 @@ export const securityAlertsRouter = router({
     .input(
       z.object({
         alertType: z
-          .enum(["multiple_downloads", "unknown_ip", "off_hours", "suspicious_pattern"])
+          .enum([
+            "multiple_downloads",
+            "unknown_ip",
+            "off_hours",
+            "suspicious_pattern",
+          ])
           .optional(),
         severity: z.enum(["low", "medium", "high", "critical"]).optional(),
-        status: z.enum(["pending", "reviewed", "resolved", "false_positive"]).optional(),
+        status: z
+          .enum(["pending", "reviewed", "resolved", "false_positive"])
+          .optional(),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
         page: z.number().default(1),
@@ -161,7 +168,9 @@ export const securityAlertsRouter = router({
         conditions.push(eq(securityAlerts.status, input.status));
       }
       if (input.startDate) {
-        conditions.push(gte(securityAlerts.createdAt, new Date(input.startDate)));
+        conditions.push(
+          gte(securityAlerts.createdAt, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
         conditions.push(gte(securityAlerts.createdAt, new Date(input.endDate)));
@@ -235,7 +244,9 @@ export const securityAlertsRouter = router({
       const conditions: any[] = [];
 
       if (input.startDate) {
-        conditions.push(gte(securityAlerts.createdAt, new Date(input.startDate)));
+        conditions.push(
+          gte(securityAlerts.createdAt, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
         conditions.push(gte(securityAlerts.createdAt, new Date(input.endDate)));
@@ -246,10 +257,18 @@ export const securityAlertsRouter = router({
       const allAlerts = await db.select().from(securityAlerts).where(where);
 
       const totalAlerts = allAlerts.length;
-      const pendingAlerts = allAlerts.filter((a: any) => a.status === "pending").length;
-      const criticalAlerts = allAlerts.filter((a: any) => a.severity === "critical").length;
-      const highAlerts = allAlerts.filter((a: any) => a.severity === "high").length;
-      const resolvedAlerts = allAlerts.filter((a: any) => a.status === "resolved").length;
+      const pendingAlerts = allAlerts.filter(
+        (a: any) => a.status === "pending"
+      ).length;
+      const criticalAlerts = allAlerts.filter(
+        (a: any) => a.severity === "critical"
+      ).length;
+      const highAlerts = allAlerts.filter(
+        (a: any) => a.severity === "high"
+      ).length;
+      const resolvedAlerts = allAlerts.filter(
+        (a: any) => a.status === "resolved"
+      ).length;
 
       return {
         totalAlerts,

@@ -39,7 +39,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Search, Briefcase, Users, Download, Upload, FileSpreadsheet } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  Briefcase,
+  Users,
+  Download,
+  Upload,
+  FileSpreadsheet,
+} from "lucide-react";
 import ProtectedButton from "@/components/ProtectedButton";
 import { toast } from "sonner";
 import { loadXlsx } from "@/lib/loadXlsx";
@@ -56,9 +66,16 @@ export default function Positions() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [isImporting, setIsImporting] = useState(false);
-  const [importResults, setImportResults] = useState<{ created: number; updated: number; errors: string[]; total: number } | null>(null);
+  const [importResults, setImportResults] = useState<{
+    created: number;
+    updated: number;
+    errors: string[];
+    total: number;
+  } | null>(null);
   const [isImportResultsOpen, setIsImportResultsOpen] = useState(false);
-  const [filterDepartment, setFilterDepartment] = useState<number | undefined>();
+  const [filterDepartment, setFilterDepartment] = useState<
+    number | undefined
+  >();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -68,12 +85,26 @@ export default function Positions() {
     description: "",
     code: "",
     departmentId: 0,
-    level: "specialist" as "executive" | "management" | "supervisor" | "specialist" | "entry",
-    minimumEducation: "" as "primaria" | "secundaria" | "preparatoria" | "tecnico" | "licenciatura" | "especialidad" | "maestria" | "doctorado" | "",
+    level: "specialist" as
+      | "executive"
+      | "management"
+      | "supervisor"
+      | "specialist"
+      | "entry",
+    minimumEducation: "" as
+      | "primaria"
+      | "secundaria"
+      | "preparatoria"
+      | "tecnico"
+      | "licenciatura"
+      | "especialidad"
+      | "maestria"
+      | "doctorado"
+      | "",
   });
 
   const bulkImportMutation = trpc.positions.bulkImport.useMutation({
-    onSuccess: (result) => {
+    onSuccess: result => {
       setImportResults(result);
       setIsImportResultsOpen(true);
       setIsImporting(false);
@@ -88,16 +119,46 @@ export default function Positions() {
   const handleDownloadTemplate = async () => {
     const XLSX = await loadXlsx();
     const template = [
-      ["Codigo", "Titulo", "Departamento", "Nivel", "EscolaridadMinima", "Descripcion"],
-      ["GTE-001", "Gerente de Tecnología", "Tecnología", "management", "licenciatura", "Responsable del área de TI"],
-      ["OPE-001", "Operador de Producción", "Operaciones", "entry", "preparatoria", "Operación de maquinaria"],
+      [
+        "Codigo",
+        "Titulo",
+        "Departamento",
+        "Nivel",
+        "EscolaridadMinima",
+        "Descripcion",
+      ],
+      [
+        "GTE-001",
+        "Gerente de Tecnología",
+        "Tecnología",
+        "management",
+        "licenciatura",
+        "Responsable del área de TI",
+      ],
+      [
+        "OPE-001",
+        "Operador de Producción",
+        "Operaciones",
+        "entry",
+        "preparatoria",
+        "Operación de maquinaria",
+      ],
     ];
     const ws = XLSX.utils.aoa_to_sheet(template);
-    ws["!cols"] = [{ wch: 12 }, { wch: 35 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 50 }];
+    ws["!cols"] = [
+      { wch: 12 },
+      { wch: 35 },
+      { wch: 25 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 50 },
+    ];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Plantilla Puestos");
     XLSX.writeFile(wb, "plantilla_importar_puestos.xlsx");
-    toast.info("Plantilla descargada. Niveles válidos: executive, management, supervisor, specialist, entry");
+    toast.info(
+      "Plantilla descargada. Niveles válidos: executive, management, supervisor, specialist, entry"
+    );
   };
 
   const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +166,7 @@ export default function Positions() {
     if (!file) return;
     setIsImporting(true);
     const reader = new FileReader();
-    reader.onload = async (evt) => {
+    reader.onload = async evt => {
       try {
         const XLSX = await loadXlsx();
         const data = new Uint8Array(evt.target?.result as ArrayBuffer);
@@ -113,28 +174,61 @@ export default function Positions() {
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json<any>(ws);
         const LEVEL_MAP: Record<string, string> = {
-          ejecutivo: "executive", executive: "executive",
-          gerencial: "management", management: "management",
+          ejecutivo: "executive",
+          executive: "executive",
+          gerencial: "management",
+          management: "management",
           supervisor: "supervisor",
-          especialista: "specialist", specialist: "specialist",
-          operativo: "entry", entry: "entry",
+          especialista: "specialist",
+          specialist: "specialist",
+          operativo: "entry",
+          entry: "entry",
         };
         const EDU_MAP: Record<string, string> = {
-          primaria: "primaria", secundaria: "secundaria", preparatoria: "preparatoria",
-          tecnico: "tecnico", técnico: "tecnico", licenciatura: "licenciatura",
-          especialidad: "especialidad", maestria: "maestria", maestría: "maestria",
+          primaria: "primaria",
+          secundaria: "secundaria",
+          preparatoria: "preparatoria",
+          tecnico: "tecnico",
+          técnico: "tecnico",
+          licenciatura: "licenciatura",
+          especialidad: "especialidad",
+          maestria: "maestria",
+          maestría: "maestria",
           doctorado: "doctorado",
         };
-        const parsed = rows.map((r: any) => ({
-          code: String(r.Codigo || r.Código || r.code || "").trim(),
-          title: String(r.Titulo || r.Título || r.title || "").trim(),
-          departmentName: String(r.Departamento || r.departmentName || "").trim() || undefined,
-          level: LEVEL_MAP[(r.Nivel || r.level || "").toString().toLowerCase().trim()] as any || undefined,
-          minimumEducation: EDU_MAP[(r.EscolaridadMinima || r.Escolaridad || r.minimumEducation || "").toString().toLowerCase().trim()] as any || undefined,
-          description: String(r.Descripcion || r.Descripción || r.description || "").trim() || undefined,
-        })).filter((r: any) => r.code && r.title);
+        const parsed = rows
+          .map((r: any) => ({
+            code: String(r.Codigo || r.Código || r.code || "").trim(),
+            title: String(r.Titulo || r.Título || r.title || "").trim(),
+            departmentName:
+              String(r.Departamento || r.departmentName || "").trim() ||
+              undefined,
+            level:
+              (LEVEL_MAP[
+                (r.Nivel || r.level || "").toString().toLowerCase().trim()
+              ] as any) || undefined,
+            minimumEducation:
+              (EDU_MAP[
+                (
+                  r.EscolaridadMinima ||
+                  r.Escolaridad ||
+                  r.minimumEducation ||
+                  ""
+                )
+                  .toString()
+                  .toLowerCase()
+                  .trim()
+              ] as any) || undefined,
+            description:
+              String(
+                r.Descripcion || r.Descripción || r.description || ""
+              ).trim() || undefined,
+          }))
+          .filter((r: any) => r.code && r.title);
         if (parsed.length === 0) {
-          toast.error("No se encontraron filas válidas. Verifica las columnas del archivo.");
+          toast.error(
+            "No se encontraron filas válidas. Verifica las columnas del archivo."
+          );
           setIsImporting(false);
           return;
         }
@@ -210,7 +304,11 @@ export default function Positions() {
   };
 
   const handleCreate = () => {
-    if (!formData.title.trim() || !formData.code.trim() || !formData.departmentId) {
+    if (
+      !formData.title.trim() ||
+      !formData.code.trim() ||
+      !formData.departmentId
+    ) {
       toast.error("El título, código y departamento son obligatorios");
       return;
     }
@@ -266,13 +364,19 @@ export default function Positions() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleDownloadTemplate} title="Descargar plantilla Excel para importar">
+          <Button
+            variant="outline"
+            onClick={handleDownloadTemplate}
+            title="Descargar plantilla Excel para importar"
+          >
             <FileSpreadsheet className="mr-2 h-4 w-4" />
             Plantilla
           </Button>
           <Button
             variant="outline"
-            onClick={() => document.getElementById("import-positions-file")?.click()}
+            onClick={() =>
+              document.getElementById("import-positions-file")?.click()
+            }
             disabled={isImporting}
             title="Importar puestos desde Excel"
           >
@@ -289,23 +393,37 @@ export default function Positions() {
           <Button
             variant="outline"
             onClick={async () => {
-              if (!data?.data?.length) { toast.error("No hay puestos para exportar"); return; }
+              if (!data?.data?.length) {
+                toast.error("No hay puestos para exportar");
+                return;
+              }
               const XLSX = await loadXlsx();
               const rows = data.data.map((p: any) => ({
-                "Código": p.code,
-                "Título": p.title,
-                "Departamento": p.departmentName || "",
-                "Nivel": p.level ? (LEVEL_LABELS[p.level] ?? p.level) : "",
+                Código: p.code,
+                Título: p.title,
+                Departamento: p.departmentName || "",
+                Nivel: p.level ? (LEVEL_LABELS[p.level] ?? p.level) : "",
                 "Escolaridad mínima": p.minimumEducation || "",
                 "Empleados asignados": p.employeeCount ?? 0,
-                "Descripción": p.description || "",
+                Descripción: p.description || "",
               }));
               const ws = XLSX.utils.json_to_sheet(rows);
               // Ajustar ancho de columnas
-              ws["!cols"] = [{ wch: 12 }, { wch: 35 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 12 }, { wch: 50 }];
+              ws["!cols"] = [
+                { wch: 12 },
+                { wch: 35 },
+                { wch: 25 },
+                { wch: 15 },
+                { wch: 20 },
+                { wch: 12 },
+                { wch: 50 },
+              ];
               const wb = XLSX.utils.book_new();
               XLSX.utils.book_append_sheet(wb, ws, "Catálogo de Puestos");
-              XLSX.writeFile(wb, `catalogo_puestos_${new Date().toISOString().slice(0, 10)}.xlsx`);
+              XLSX.writeFile(
+                wb,
+                `catalogo_puestos_${new Date().toISOString().slice(0, 10)}.xlsx`
+              );
               toast.success("Catálogo exportado correctamente");
             }}
           >
@@ -331,7 +449,7 @@ export default function Positions() {
           <Input
             placeholder="Buscar puestos..."
             value={search}
-            onChange={(e) => {
+            onChange={e => {
               setSearch(e.target.value);
               setPage(1);
             }}
@@ -340,7 +458,7 @@ export default function Positions() {
         </div>
         <Select
           value={filterDepartment?.toString() || "all"}
-          onValueChange={(value) => {
+          onValueChange={value => {
             setFilterDepartment(value === "all" ? undefined : Number(value));
             setPage(1);
           }}
@@ -387,7 +505,10 @@ export default function Positions() {
               </TableRow>
             ) : data?.data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-8 text-muted-foreground"
+                >
                   No se encontraron puestos
                 </TableCell>
               </TableRow>
@@ -439,7 +560,7 @@ export default function Positions() {
         <div className="flex justify-center gap-2 mt-6">
           <Button
             variant="outline"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             Anterior
@@ -449,7 +570,7 @@ export default function Positions() {
           </span>
           <Button
             variant="outline"
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() => setPage(p => p + 1)}
             disabled={page >= data.pagination.totalPages}
           >
             Siguiente
@@ -473,7 +594,7 @@ export default function Positions() {
                 id="code"
                 placeholder="Ej: GER-001"
                 value={formData.code}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, code: e.target.value })
                 }
               />
@@ -484,7 +605,7 @@ export default function Positions() {
                 id="title"
                 placeholder="Ej: Gerente de Recursos Humanos"
                 value={formData.title}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, title: e.target.value })
                 }
               />
@@ -493,7 +614,7 @@ export default function Positions() {
               <Label htmlFor="department">Departamento *</Label>
               <Select
                 value={formData.departmentId.toString()}
-                onValueChange={(value) =>
+                onValueChange={value =>
                   setFormData({ ...formData, departmentId: Number(value) })
                 }
               >
@@ -534,7 +655,10 @@ export default function Positions() {
               <Select
                 value={formData.minimumEducation || ""}
                 onValueChange={(value: any) =>
-                  setFormData({ ...formData, minimumEducation: value === "_none" ? "" : value })
+                  setFormData({
+                    ...formData,
+                    minimumEducation: value === "_none" ? "" : value,
+                  })
                 }
               >
                 <SelectTrigger id="minimumEducation">
@@ -544,8 +668,12 @@ export default function Positions() {
                   <SelectItem value="_none">Sin requisito</SelectItem>
                   <SelectItem value="primaria">Primaria</SelectItem>
                   <SelectItem value="secundaria">Secundaria</SelectItem>
-                  <SelectItem value="preparatoria">Preparatoria / Bachillerato</SelectItem>
-                  <SelectItem value="tecnico">Técnico / Carrera Técnica</SelectItem>
+                  <SelectItem value="preparatoria">
+                    Preparatoria / Bachillerato
+                  </SelectItem>
+                  <SelectItem value="tecnico">
+                    Técnico / Carrera Técnica
+                  </SelectItem>
                   <SelectItem value="licenciatura">Licenciatura</SelectItem>
                   <SelectItem value="especialidad">Especialidad</SelectItem>
                   <SelectItem value="maestria">Maestría</SelectItem>
@@ -559,7 +687,7 @@ export default function Positions() {
                 id="description"
                 placeholder="Descripción del puesto"
                 value={formData.description}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, description: e.target.value })
                 }
               />
@@ -569,9 +697,13 @@ export default function Positions() {
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
               Cancelar
             </Button>
-            <LoadingButton onClick={handleCreate}
-              loading={createMutation.isPending} loadingText="Creando..."
-            >Crear</LoadingButton>
+            <LoadingButton
+              onClick={handleCreate}
+              loading={createMutation.isPending}
+              loadingText="Creando..."
+            >
+              Crear
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -581,9 +713,7 @@ export default function Positions() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Editar Puesto</DialogTitle>
-            <DialogDescription>
-              Modifica los datos del puesto
-            </DialogDescription>
+            <DialogDescription>Modifica los datos del puesto</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -591,7 +721,7 @@ export default function Positions() {
               <Input
                 id="edit-code"
                 value={formData.code}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, code: e.target.value })
                 }
               />
@@ -601,7 +731,7 @@ export default function Positions() {
               <Input
                 id="edit-title"
                 value={formData.title}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, title: e.target.value })
                 }
               />
@@ -610,7 +740,7 @@ export default function Positions() {
               <Label htmlFor="edit-department">Departamento *</Label>
               <Select
                 value={formData.departmentId.toString()}
-                onValueChange={(value) =>
+                onValueChange={value =>
                   setFormData({ ...formData, departmentId: Number(value) })
                 }
               >
@@ -651,7 +781,10 @@ export default function Positions() {
               <Select
                 value={formData.minimumEducation || ""}
                 onValueChange={(value: any) =>
-                  setFormData({ ...formData, minimumEducation: value === "_none" ? "" : value })
+                  setFormData({
+                    ...formData,
+                    minimumEducation: value === "_none" ? "" : value,
+                  })
                 }
               >
                 <SelectTrigger id="edit-minimumEducation">
@@ -661,8 +794,12 @@ export default function Positions() {
                   <SelectItem value="_none">Sin requisito</SelectItem>
                   <SelectItem value="primaria">Primaria</SelectItem>
                   <SelectItem value="secundaria">Secundaria</SelectItem>
-                  <SelectItem value="preparatoria">Preparatoria / Bachillerato</SelectItem>
-                  <SelectItem value="tecnico">Técnico / Carrera Técnica</SelectItem>
+                  <SelectItem value="preparatoria">
+                    Preparatoria / Bachillerato
+                  </SelectItem>
+                  <SelectItem value="tecnico">
+                    Técnico / Carrera Técnica
+                  </SelectItem>
                   <SelectItem value="licenciatura">Licenciatura</SelectItem>
                   <SelectItem value="especialidad">Especialidad</SelectItem>
                   <SelectItem value="maestria">Maestría</SelectItem>
@@ -675,7 +812,7 @@ export default function Positions() {
               <Textarea
                 id="edit-description"
                 value={formData.description}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({ ...formData, description: e.target.value })
                 }
               />
@@ -685,9 +822,13 @@ export default function Positions() {
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>
               Cancelar
             </Button>
-            <LoadingButton onClick={handleUpdate}
-              loading={updateMutation.isPending} loadingText="Guardando..."
-            >Guardar</LoadingButton>
+            <LoadingButton
+              onClick={handleUpdate}
+              loading={updateMutation.isPending}
+              loadingText="Guardando..."
+            >
+              Guardar
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -697,37 +838,55 @@ export default function Positions() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Resultados de Importación</DialogTitle>
-            <DialogDescription>Resumen del proceso de importación de puestos</DialogDescription>
+            <DialogDescription>
+              Resumen del proceso de importación de puestos
+            </DialogDescription>
           </DialogHeader>
           {importResults && (
             <div className="space-y-3">
               <div className="grid grid-cols-3 gap-3">
                 <div className="text-center p-3 bg-green-50 dark:bg-green-950 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{importResults.created}</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {importResults.created}
+                  </div>
                   <div className="text-xs text-muted-foreground">Creados</div>
                 </div>
                 <div className="text-center p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{importResults.updated}</div>
-                  <div className="text-xs text-muted-foreground">Actualizados</div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {importResults.updated}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Actualizados
+                  </div>
                 </div>
                 <div className="text-center p-3 bg-red-50 dark:bg-red-950 rounded-lg">
-                  <div className="text-2xl font-bold text-red-600">{importResults.errors.length}</div>
+                  <div className="text-2xl font-bold text-red-600">
+                    {importResults.errors.length}
+                  </div>
                   <div className="text-xs text-muted-foreground">Errores</div>
                 </div>
               </div>
               {importResults.errors.length > 0 && (
                 <div className="border rounded p-3 max-h-40 overflow-y-auto">
-                  <p className="text-sm font-medium text-destructive mb-2">Errores:</p>
+                  <p className="text-sm font-medium text-destructive mb-2">
+                    Errores:
+                  </p>
                   {importResults.errors.map((err, i) => (
-                    <p key={i} className="text-xs text-muted-foreground">{err}</p>
+                    <p key={i} className="text-xs text-muted-foreground">
+                      {err}
+                    </p>
                   ))}
                 </div>
               )}
-              <p className="text-sm text-muted-foreground text-center">Total procesado: {importResults.total} filas</p>
+              <p className="text-sm text-muted-foreground text-center">
+                Total procesado: {importResults.total} filas
+              </p>
             </div>
           )}
           <DialogFooter>
-            <Button onClick={() => setIsImportResultsOpen(false)}>Cerrar</Button>
+            <Button onClick={() => setIsImportResultsOpen(false)}>
+              Cerrar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -742,7 +901,8 @@ export default function Positions() {
               {selectedPosition?.title}" permanentemente.
               {selectedPosition?.employeeCount > 0 && (
                 <span className="block mt-2 text-destructive font-semibold">
-                  Advertencia: Este puesto tiene {selectedPosition.employeeCount} empleado(s) asignado(s).
+                  Advertencia: Este puesto tiene{" "}
+                  {selectedPosition.employeeCount} empleado(s) asignado(s).
                 </span>
               )}
             </AlertDialogDescription>

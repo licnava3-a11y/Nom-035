@@ -14,7 +14,8 @@ const router = express.Router();
 // ── Reporte ejecutivo PDF de despachos de minutas ─────────────────────────────────────────────────────
 router.get("/export/dispatches/pdf", async (req, res) => {
   try {
-    const { status, recipientId, dateFrom, dateTo, search } = req.query as Record<string, string>;
+    const { status, recipientId, dateFrom, dateTo, search } =
+      req.query as Record<string, string>;
     const pdfBuffer = await generateDispatchesReportPDF({
       status: (status as any) || "all",
       recipientId: recipientId ? parseInt(recipientId, 10) : undefined,
@@ -30,7 +31,10 @@ router.get("/export/dispatches/pdf", async (req, res) => {
     res.send(pdfBuffer);
   } catch (error: any) {
     console.error("Error generating dispatches PDF:", error);
-    res.status(500).json({ error: "Error al generar el reporte PDF", detail: error.message });
+    res.status(500).json({
+      error: "Error al generar el reporte PDF",
+      detail: error.message,
+    });
   }
 });
 
@@ -39,7 +43,10 @@ router.get("/export/training/pdf", async (req, res) => {
   try {
     const pdfBuffer = await generateTrainingReportPDF();
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="reporte-capacitacion-${Date.now()}.pdf"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="reporte-capacitacion-${Date.now()}.pdf"`
+    );
     res.send(pdfBuffer);
   } catch (error) {
     console.error("Error generating training PDF:", error);
@@ -51,8 +58,14 @@ router.get("/export/training/pdf", async (req, res) => {
 router.get("/export/training/excel", async (req, res) => {
   try {
     const excelBuffer = await generateTrainingReportExcel();
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", `attachment; filename="reporte-capacitacion-${Date.now()}.xlsx"`);
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="reporte-capacitacion-${Date.now()}.xlsx"`
+    );
     res.send(excelBuffer);
   } catch (error) {
     console.error("Error generating training Excel:", error);
@@ -65,7 +78,10 @@ router.get("/export/cases/pdf", async (req, res) => {
   try {
     const pdfBuffer = await generateCasesReportPDF();
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="reporte-casos-${Date.now()}.pdf"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="reporte-casos-${Date.now()}.pdf"`
+    );
     res.send(pdfBuffer);
   } catch (error) {
     console.error("Error generating cases PDF:", error);
@@ -77,8 +93,14 @@ router.get("/export/cases/pdf", async (req, res) => {
 router.get("/export/cases/excel", async (req, res) => {
   try {
     const excelBuffer = await generateCasesReportExcel();
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", `attachment; filename="reporte-casos-${Date.now()}.xlsx"`);
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="reporte-casos-${Date.now()}.xlsx"`
+    );
     res.send(excelBuffer);
   } catch (error) {
     console.error("Error generating cases Excel:", error);
@@ -91,7 +113,10 @@ router.get("/export/compliance/pdf", async (req, res) => {
   try {
     const pdfBuffer = await generateComplianceReportPDF();
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="reporte-cumplimiento-${Date.now()}.pdf"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="reporte-cumplimiento-${Date.now()}.pdf"`
+    );
     res.send(pdfBuffer);
   } catch (error) {
     console.error("Error generating compliance PDF:", error);
@@ -103,8 +128,14 @@ router.get("/export/compliance/pdf", async (req, res) => {
 router.get("/export/compliance/excel", async (req, res) => {
   try {
     const excelBuffer = await generateComplianceReportExcel();
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", `attachment; filename="reporte-cumplimiento-${Date.now()}.xlsx"`);
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="reporte-cumplimiento-${Date.now()}.xlsx"`
+    );
     res.send(excelBuffer);
   } catch (error) {
     console.error("Error generating compliance Excel:", error);

@@ -1,7 +1,7 @@
 /**
  * Script de demostración: DC1Generator
  * Genera ejemplos de DC-1 HTML y SIRCE XML con datos de muestra
- * 
+ *
  * Uso: node server/dc1Generator.demo.js
  */
 
@@ -40,7 +40,8 @@ const sampleCourses = [
   {
     id: 2,
     name: "Prevención de Violencia Laboral",
-    description: "Protocolo de prevención y atención de violencia en el trabajo",
+    description:
+      "Protocolo de prevención y atención de violencia en el trabajo",
     hours: 8,
   },
   {
@@ -53,10 +54,10 @@ const sampleCourses = [
 
 // Función para generar DC-1 HTML
 function generateDC1(employee, course, completedDate, percentage) {
-  const formattedDate = completedDate.toLocaleDateString('es-MX', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  const formattedDate = completedDate.toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   return `<!DOCTYPE html>
@@ -143,7 +144,7 @@ function generateDC1(employee, course, completedDate, percentage) {
     </div>
     <div class="field">
       <span class="label">Resultado:</span>
-      <span class="value">${percentage >= 80 ? 'APROBADO' : 'EN PROCESO'}</span>
+      <span class="value">${percentage >= 80 ? "APROBADO" : "EN PROCESO"}</span>
     </div>
   </div>
 </body>
@@ -152,10 +153,10 @@ function generateDC1(employee, course, completedDate, percentage) {
 
 // Función para generar SIRCE XML
 function generateSIRCEXml(employee, course, completedDate, percentage) {
-  const isoDate = completedDate.toISOString().split('T')[0];
-  const apellidos = employee.lastName.split(' ');
-  const apellidoPaterno = apellidos[0] || '';
-  const apellidoMaterno = apellidos[1] || '';
+  const isoDate = completedDate.toISOString().split("T")[0];
+  const apellidos = employee.lastName.split(" ");
+  const apellidoPaterno = apellidos[0] || "";
+  const apellidoMaterno = apellidos[1] || "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <RegistroCapacitacion>
@@ -171,7 +172,7 @@ function generateSIRCEXml(employee, course, completedDate, percentage) {
     <Descripcion>${course.description}</Descripcion>
     <Horas>${course.hours}</Horas>
     <FechaConclusion>${isoDate}</FechaConclusion>
-    <Resultado>${percentage >= 80 ? 'APROBADO' : 'EN PROCESO'}</Resultado>
+    <Resultado>${percentage >= 80 ? "APROBADO" : "EN PROCESO"}</Resultado>
     <Porcentaje>${percentage}</Porcentaje>
   </Capacitacion>
 </RegistroCapacitacion>`;
@@ -179,8 +180,8 @@ function generateSIRCEXml(employee, course, completedDate, percentage) {
 
 // Función para generar exportación masiva SIRCE
 function generateSIRCEBatch(records, startDate, endDate) {
-  const startDateStr = startDate.toISOString().split('T')[0];
-  const endDateStr = endDate.toISOString().split('T')[0];
+  const startDateStr = startDate.toISOString().split("T")[0];
+  const endDateStr = endDate.toISOString().split("T")[0];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <RegistrosCapacitacion>
@@ -200,7 +201,7 @@ function generateSIRCEBatch(records, startDate, endDate) {
       </Trabajador>
       <Capacitacion>
         <NombreCurso>${record.course.name}</NombreCurso>
-        <Resultado>${record.percentage >= 80 ? 'APROBADO' : 'EN PROCESO'}</Resultado>
+        <Resultado>${record.percentage >= 80 ? "APROBADO" : "EN PROCESO"}</Resultado>
       </Capacitacion>
     </RegistroCapacitacion>
 `;
@@ -258,7 +259,9 @@ const startDate = new Date("2026-05-01");
 const endDate = new Date("2026-05-31");
 const sirceXmlBatch = generateSIRCEBatch(batchRecords, startDate, endDate);
 console.log("✅ Exportación masiva SIRCE generada exitosamente");
-console.log(`   Período: ${startDate.toLocaleDateString('es-MX')} - ${endDate.toLocaleDateString('es-MX')}`);
+console.log(
+  `   Período: ${startDate.toLocaleDateString("es-MX")} - ${endDate.toLocaleDateString("es-MX")}`
+);
 console.log(`   Total de registros: ${batchRecords.length}`);
 console.log(`   Tamaño: ${(sirceXmlBatch.length / 1024).toFixed(2)} KB`);
 console.log("");
@@ -281,7 +284,9 @@ console.log("-".repeat(80));
 console.log(`Empleados de muestra: ${sampleEmployees.length}`);
 console.log(`Cursos de muestra: ${sampleCourses.length}`);
 console.log(`Registros procesados: ${batchRecords.length}`);
-console.log(`Tamaño total generado: ${((dc1Html.length + sirceXml.length + sirceXmlBatch.length) / 1024).toFixed(2)} KB`);
+console.log(
+  `Tamaño total generado: ${((dc1Html.length + sirceXml.length + sirceXmlBatch.length) / 1024).toFixed(2)} KB`
+);
 console.log("");
 
 // 6. Ejemplos de salida

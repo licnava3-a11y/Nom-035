@@ -10,11 +10,14 @@ interface BulkHeatmapExportProps {
   companyName?: string;
 }
 
-export function BulkHeatmapExport({ companyName = "Empresa" }: BulkHeatmapExportProps) {
+export function BulkHeatmapExport({
+  companyName = "Empresa",
+}: BulkHeatmapExportProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
-  const { data: departments } = trpc.skillsMatrix.getActiveDepartments.useQuery();
+  const { data: departments } =
+    trpc.skillsMatrix.getActiveDepartments.useQuery();
 
   const generateHeatmapForDepartment = async (
     departmentId: number,
@@ -87,7 +90,7 @@ export function BulkHeatmapExport({ companyName = "Empresa" }: BulkHeatmapExport
       container.innerHTML = tableHTML;
 
       // Wait for rendering
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Capture as canvas
       const canvas = await html2canvas(container, {
@@ -100,8 +103,8 @@ export function BulkHeatmapExport({ companyName = "Empresa" }: BulkHeatmapExport
       document.body.removeChild(container);
 
       // Convert canvas to blob
-      return new Promise((resolve) => {
-        canvas.toBlob((blob) => {
+      return new Promise(resolve => {
+        canvas.toBlob(blob => {
           resolve(blob);
         }, "image/png");
       });
@@ -149,7 +152,9 @@ Total de departamentos: ${departments.length}
 
         try {
           // Fetch matrix data for this department
-          const response = await fetch(`/api/trpc/skillsMatrix.getMatrixByDepartment?input=${encodeURIComponent(JSON.stringify({ departmentId: dept.id }))}`);          
+          const response = await fetch(
+            `/api/trpc/skillsMatrix.getMatrixByDepartment?input=${encodeURIComponent(JSON.stringify({ departmentId: dept.id }))}`
+          );
           if (!response.ok) {
             console.error(`Failed to fetch data for ${dept.name}`);
             continue;
@@ -163,7 +168,11 @@ Total de departamentos: ${departments.length}
           }
 
           // Generate PNG
-          const blob = await generateHeatmapForDepartment(dept.id, dept.name, matrixData);
+          const blob = await generateHeatmapForDepartment(
+            dept.id,
+            dept.name,
+            matrixData
+          );
 
           if (blob) {
             const sanitizedName = dept.name.replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -183,7 +192,9 @@ Total de departamentos: ${departments.length}
       link.download = `matrices_habilidades_${new Date().toISOString().split("T")[0]}.zip`;
       link.click();
 
-      toast.success(`Exportación completada: ${departments.length} departamentos`);
+      toast.success(
+        `Exportación completada: ${departments.length} departamentos`
+      );
     } catch (error) {
       console.error("Error during bulk export:", error);
       toast.error("Error al exportar matrices masivamente");
@@ -195,7 +206,10 @@ Total de departamentos: ${departments.length}
 
   return (
     <div className="flex items-center gap-2">
-      <Button onClick={handleBulkExport} disabled={isExporting || !departments || departments.length === 0}>
+      <Button
+        onClick={handleBulkExport}
+        disabled={isExporting || !departments || departments.length === 0}
+      >
         {isExporting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -209,7 +223,9 @@ Total de departamentos: ${departments.length}
         )}
       </Button>
       {!departments || departments.length === 0 ? (
-        <span className="text-sm text-muted-foreground">No hay departamentos activos</span>
+        <span className="text-sm text-muted-foreground">
+          No hay departamentos activos
+        </span>
       ) : null}
     </div>
   );

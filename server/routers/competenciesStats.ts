@@ -1,7 +1,14 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { departments, employeeCompetencies, employees, jobPositions, jobProfiles, positions } from "../../drizzle/schema";
+import {
+  departments,
+  employeeCompetencies,
+  employees,
+  jobPositions,
+  jobProfiles,
+  positions,
+} from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -18,31 +25,34 @@ const LEVEL_VALUE: Record<string, number> = {
  * Carga masiva de datos para evitar N+1:
  * Ejecuta 4 queries en paralelo y construye mapas en memoria.
  */
-async function loadBulkData(db: NonNullable<Awaited<ReturnType<typeof getDb>>>) {
-  const [activeEmployees, allCompetencies, allJobPositions, allJobProfiles] = await Promise.all([
-    db
-      .select({
-        id: employees.id,
-        firstName: employees.firstName,
-        lastName: employees.lastName,
-        email: employees.email,
-        departmentId: employees.departmentId,
-        positionId: employees.positionId,
-        departmentName: departments.name,
-        positionTitle: positions.title,
-      })
-      .from(employees)
-      .leftJoin(departments, eq(employees.departmentId, departments.id))
-      .leftJoin(positions, eq(employees.positionId, positions.id))
-      .where(eq(employees.isActive, true)),
-    db.select().from(employeeCompetencies),
-    db.select().from(jobPositions),
-    db.select().from(jobProfiles),
-  ]);
+async function loadBulkData(
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>
+) {
+  const [activeEmployees, allCompetencies, allJobPositions, allJobProfiles] =
+    await Promise.all([
+      db
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          departmentId: employees.departmentId,
+          positionId: employees.positionId,
+          departmentName: departments.name,
+          positionTitle: positions.title,
+        })
+        .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
+        .where(eq(employees.isActive, true)),
+      db.select().from(employeeCompetencies),
+      db.select().from(jobPositions),
+      db.select().from(jobProfiles),
+    ]);
 
   // Mapa: positionTitle → jobPositionId
   const positionNameToId = new Map<string, number>(
-    allJobPositions.map((p) => [p.positionName, p.id])
+    allJobPositions.map(p => [p.positionName, p.id])
   );
 
   // Mapa: jobPositionId → requerimientos[]
@@ -63,9 +73,14 @@ async function loadBulkData(db: NonNullable<Awaited<ReturnType<typeof getDb>>>) 
 
   return {
     activeEmployees: activeEmployees as Array<{
-      id: number; firstName: string; lastName: string; email: string;
-      departmentId: number | null; positionId: number | null;
-      departmentName: string | null; positionTitle: string | null;
+      id: number;
+      firstName: string;
+      lastName: string;
+      email: string;
+      departmentId: number | null;
+      positionId: number | null;
+      departmentName: string | null;
+      positionTitle: string | null;
     }>,
     allCompetencies,
     positionNameToId,
@@ -79,29 +94,59 @@ export const competenciesStatsRouter = router({
    * Estadísticas de competencias por departamento — sin N+1
    */
   getByDepartment: protectedProcedure
-    .input(z.object({ startDate: z.string().optional(), endDate: z.string().optional() }).optional())
+    .input(
+      z
+        .object({
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+        .optional()
+    )
     .query(async ({ ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
-      const { activeEmployees, positionNameToId, profilesByPositionId, competenciesByEmployee } =
-        await loadBulkData(db);
+      const {
+        activeEmployees,
+        positionNameToId,
+        profilesByPositionId,
+        competenciesByEmployee,
+      } = await loadBulkData(db);
 
       const departmentStats: Record<
         string,
-        { department: string; employeeCount: number; totalLevel: number; competenciesCount: number; criticalGaps: number }
+        {
+          department: string;
+          employeeCount: number;
+          totalLevel: number;
+          competenciesCount: number;
+          criticalGaps: number;
+        }
       > = {};
 
       for (const emp of activeEmployees) {
         const dept = emp.departmentName ?? "Sin Departamento";
         if (!departmentStats[dept]) {
-          departmentStats[dept] = { department: dept, employeeCount: 0, totalLevel: 0, competenciesCount: 0, criticalGaps: 0 };
+          departmentStats[dept] = {
+            department: dept,
+            employeeCount: 0,
+            totalLevel: 0,
+            competenciesCount: 0,
+            criticalGaps: 0,
+          };
         }
         departmentStats[dept].employeeCount++;
 
         const empComps = competenciesByEmployee.get(emp.id) ?? [];
         if (empComps.length > 0) {
-          const levelSum = empComps.reduce((sum, c) => sum + (LEVEL_VALUE[c.currentLevel] ?? 0), 0);
+          const levelSum = empComps.reduce(
+            (sum, c) => sum + (LEVEL_VALUE[c.currentLevel] ?? 0),
+            0
+          );
           departmentStats[dept].totalLevel += levelSum / empComps.length;
           departmentStats[dept].competenciesCount += empComps.length;
         }
@@ -110,20 +155,25 @@ export const competenciesStatsRouter = router({
           const posId = positionNameToId.get(emp.positionTitle);
           if (posId !== undefined) {
             const requirements = profilesByPositionId.get(posId) ?? [];
-            const compMap = new Map(empComps.map((c) => [c.competencyName, c.currentLevel]));
+            const compMap = new Map(
+              empComps.map(c => [c.competencyName, c.currentLevel])
+            );
             for (const req of requirements) {
               const current = compMap.get(req.competencyName) ?? "ninguno";
-              const gap = (LEVEL_VALUE[req.requiredLevel] ?? 0) - (LEVEL_VALUE[current] ?? 0);
+              const gap =
+                (LEVEL_VALUE[req.requiredLevel] ?? 0) -
+                (LEVEL_VALUE[current] ?? 0);
               if (gap >= 3) departmentStats[dept].criticalGaps++;
             }
           }
         }
       }
 
-      const result = Object.values(departmentStats).map((d) => ({
+      const result = Object.values(departmentStats).map(d => ({
         department: d.department,
         employeeCount: d.employeeCount,
-        avgCompetencyLevel: d.employeeCount > 0 ? d.totalLevel / d.employeeCount : 0,
+        avgCompetencyLevel:
+          d.employeeCount > 0 ? d.totalLevel / d.employeeCount : 0,
         competenciesCount: d.competenciesCount,
         criticalGaps: d.criticalGaps,
       }));
@@ -135,14 +185,28 @@ export const competenciesStatsRouter = router({
    * Estadísticas de competencias por tipo
    */
   getByType: protectedProcedure
-    .input(z.object({ startDate: z.string().optional(), endDate: z.string().optional() }).optional())
+    .input(
+      z
+        .object({
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+        .optional()
+    )
     .query(async ({ ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       const allCompetencies = await db.select().from(employeeCompetencies);
 
-      const typeStats: Record<string, { type: string; count: number; totalLevel: number }> = {
+      const typeStats: Record<
+        string,
+        { type: string; count: number; totalLevel: number }
+      > = {
         tecnica: { type: "Técnica", count: 0, totalLevel: 0 },
         transversal: { type: "Transversal", count: 0, totalLevel: 0 },
         conocimiento: { type: "Conocimiento", count: 0, totalLevel: 0 },
@@ -156,7 +220,7 @@ export const competenciesStatsRouter = router({
         }
       }
 
-      return Object.values(typeStats).map((stat) => ({
+      return Object.values(typeStats).map(stat => ({
         type: stat.type,
         count: stat.count,
         avgLevel: stat.count > 0 ? stat.totalLevel / stat.count : 0,
@@ -167,17 +231,37 @@ export const competenciesStatsRouter = router({
    * Top brechas de competencias en la organización — sin N+1
    */
   getTopGaps: protectedProcedure
-    .input(z.object({ limit: z.number().default(10), startDate: z.string().optional(), endDate: z.string().optional() }))
+    .input(
+      z.object({
+        limit: z.number().default(10),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
-      const { activeEmployees, positionNameToId, profilesByPositionId, competenciesByEmployee } =
-        await loadBulkData(db);
+      const {
+        activeEmployees,
+        positionNameToId,
+        profilesByPositionId,
+        competenciesByEmployee,
+      } = await loadBulkData(db);
 
       const gapsByCompetency: Record<
         string,
-        { competencyName: string; competencyType: string; totalGap: number; employeesAffected: number; criticalCount: number }
+        {
+          competencyName: string;
+          competencyType: string;
+          totalGap: number;
+          employeesAffected: number;
+          criticalCount: number;
+        }
       > = {};
 
       for (const emp of activeEmployees) {
@@ -187,11 +271,14 @@ export const competenciesStatsRouter = router({
 
         const requirements = profilesByPositionId.get(posId) ?? [];
         const empComps = competenciesByEmployee.get(emp.id) ?? [];
-        const compMap = new Map(empComps.map((c) => [c.competencyName, c.currentLevel]));
+        const compMap = new Map(
+          empComps.map(c => [c.competencyName, c.currentLevel])
+        );
 
         for (const req of requirements) {
           const current = compMap.get(req.competencyName) ?? "ninguno";
-          const gap = (LEVEL_VALUE[req.requiredLevel] ?? 0) - (LEVEL_VALUE[current] ?? 0);
+          const gap =
+            (LEVEL_VALUE[req.requiredLevel] ?? 0) - (LEVEL_VALUE[current] ?? 0);
           if (gap > 0) {
             if (!gapsByCompetency[req.competencyName]) {
               gapsByCompetency[req.competencyName] = {
@@ -218,20 +305,43 @@ export const competenciesStatsRouter = router({
    * Estadísticas globales de la organización
    */
   getOverallStats: protectedProcedure
-    .input(z.object({ startDate: z.string().optional(), endDate: z.string().optional() }).optional())
+    .input(
+      z
+        .object({
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+        .optional()
+    )
     .query(async ({ ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
-      const [[employeesResult], [competenciesResult], [profilesResult], allCompetencies] = await Promise.all([
-        db.select({ count: sql<number>`count(*)` }).from(employees).where(eq(employees.isActive, true)),
+      const [
+        [employeesResult],
+        [competenciesResult],
+        [profilesResult],
+        allCompetencies,
+      ] = await Promise.all([
+        db
+          .select({ count: sql<number>`count(*)` })
+          .from(employees)
+          .where(eq(employees.isActive, true)),
         db.select({ count: sql<number>`count(*)` }).from(employeeCompetencies),
         db.select({ count: sql<number>`count(*)` }).from(jobProfiles),
         db.select().from(employeeCompetencies),
       ]);
 
-      const totalLevel = allCompetencies.reduce((sum, c) => sum + (LEVEL_VALUE[c.currentLevel] ?? 0), 0);
-      const avgLevel = allCompetencies.length > 0 ? totalLevel / allCompetencies.length : 0;
+      const totalLevel = allCompetencies.reduce(
+        (sum, c) => sum + (LEVEL_VALUE[c.currentLevel] ?? 0),
+        0
+      );
+      const avgLevel =
+        allCompetencies.length > 0 ? totalLevel / allCompetencies.length : 0;
 
       return {
         totalEmployees: Number(employeesResult?.count ?? 0),

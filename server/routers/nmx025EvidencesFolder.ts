@@ -1,7 +1,12 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { cases, nmx025ManualEvidences, recognitions, users } from "../../drizzle/schema";
+import {
+  cases,
+  nmx025ManualEvidences,
+  recognitions,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, gte, lte, sql } from "drizzle-orm";
 import { storagePut, storageDelete } from "../storage";
 import PDFDocument from "pdfkit";
@@ -9,7 +14,7 @@ import PDFDocument from "pdfkit";
 /**
  * Router para gestionar carpeta de evidencias NMX-R-025-SCFI-2015
  * Norma Mexicana de Igualdad Laboral y No Discriminación
- * 
+ *
  * Estructura por 5 ejes temáticos:
  * 1. Incorporación al trabajo (incorporacion)
  * 2. Igualdad y no discriminación (igualdad)
@@ -142,7 +147,9 @@ export const nmx025EvidencesFolder = router({
       const avgMale = parseFloat(salaryData?.avg_male || 0);
       const avgFemale = parseFloat(salaryData?.avg_female || 0);
       const gapPercentage =
-        avgMale > 0 ? (((avgMale - avgFemale) / avgMale) * 100).toFixed(2) : "0";
+        avgMale > 0
+          ? (((avgMale - avgFemale) / avgMale) * 100).toFixed(2)
+          : "0";
 
       evidences.igualdad.evidences.push({
         type: "analysis",
@@ -165,14 +172,17 @@ export const nmx025EvidencesFolder = router({
       const womenLeaders = parseInt(leadershipData?.women_leaders || 0);
       const totalLeaders = parseInt(leadershipData?.total_leaders || 0);
       const womenLeadershipPercentage =
-        totalLeaders > 0 ? ((womenLeaders / totalLeaders) * 100).toFixed(1) : "0";
+        totalLeaders > 0
+          ? ((womenLeaders / totalLeaders) * 100).toFixed(1)
+          : "0";
 
       evidences.igualdad.evidences.push({
         type: "metrics",
         name: "Participación de Mujeres en Puestos Directivos",
         description: `${womenLeadershipPercentage}% de puestos directivos ocupados por mujeres (${womenLeaders}/${totalLeaders})`,
         date: new Date().toISOString(),
-        status: parseFloat(womenLeadershipPercentage) >= 30 ? "complete" : "partial",
+        status:
+          parseFloat(womenLeadershipPercentage) >= 30 ? "complete" : "partial",
       });
 
       evidences.igualdad.evidences.push({
@@ -185,7 +195,8 @@ export const nmx025EvidencesFolder = router({
       });
 
       evidences.igualdad.status =
-        parseFloat(gapPercentage) < 10 && parseFloat(womenLeadershipPercentage) >= 30
+        parseFloat(gapPercentage) < 10 &&
+        parseFloat(womenLeadershipPercentage) >= 30
           ? "complete"
           : "partial";
 
@@ -202,7 +213,8 @@ export const nmx025EvidencesFolder = router({
       evidences.hostigamiento.evidences.push({
         type: "protocol",
         name: "Protocolo de Atención a Casos de Hostigamiento",
-        description: "Procedimiento documentado para recibir, investigar y resolver denuncias",
+        description:
+          "Procedimiento documentado para recibir, investigar y resolver denuncias",
         date: new Date().toISOString(),
         status: "active",
       });
@@ -218,12 +230,14 @@ export const nmx025EvidencesFolder = router({
       evidences.hostigamiento.evidences.push({
         type: "training",
         name: "Capacitación en Prevención de Hostigamiento",
-        description: "Constancias de capacitación al personal sobre prevención y detección",
+        description:
+          "Constancias de capacitación al personal sobre prevención y detección",
         date: new Date().toISOString(),
         status: "pending",
       });
 
-      evidences.hostigamiento.status = hostigamientoCases > 0 ? "complete" : "partial";
+      evidences.hostigamiento.status =
+        hostigamientoCases > 0 ? "complete" : "partial";
 
       // 4. Accesibilidad y Ergonomía (si aplica)
       if (companySize !== "small") {
@@ -260,7 +274,8 @@ export const nmx025EvidencesFolder = router({
         evidences.libertad_sindical.evidences.push({
           type: "document",
           name: "Acuerdos Colectivos Vigentes",
-          description: "Contratos colectivos de trabajo registrados ante autoridades",
+          description:
+            "Contratos colectivos de trabajo registrados ante autoridades",
           date: new Date().toISOString(),
           status: "pending",
         });
@@ -408,7 +423,8 @@ export const nmx025EvidencesFolder = router({
         incorporacion: {
           eje: "incorporacion",
           title: "1. Incorporación al Trabajo",
-          description: "Procesos de reclutamiento, selección y contratación libres de discriminación",
+          description:
+            "Procesos de reclutamiento, selección y contratación libres de discriminación",
           evidences: [],
           status: "pending",
           required: true,
@@ -416,7 +432,8 @@ export const nmx025EvidencesFolder = router({
         igualdad: {
           eje: "igualdad",
           title: "2. Igualdad y No Discriminación",
-          description: "Igualdad salarial, oportunidades de desarrollo y promoción sin discriminación",
+          description:
+            "Igualdad salarial, oportunidades de desarrollo y promoción sin discriminación",
           evidences: [],
           status: "pending",
           required: true,
@@ -424,7 +441,8 @@ export const nmx025EvidencesFolder = router({
         hostigamiento: {
           eje: "hostigamiento",
           title: "3. Prevención de Hostigamiento y Acoso",
-          description: "Protocolos de prevención, atención y sanción de hostigamiento sexual y acoso laboral",
+          description:
+            "Protocolos de prevención, atención y sanción de hostigamiento sexual y acoso laboral",
           evidences: [],
           status: "pending",
           required: true,
@@ -432,7 +450,8 @@ export const nmx025EvidencesFolder = router({
         accesibilidad: {
           eje: "accesibilidad",
           title: "4. Accesibilidad y Ergonomía",
-          description: "Instalaciones accesibles y condiciones ergonómicas para todas las personas",
+          description:
+            "Instalaciones accesibles y condiciones ergonómicas para todas las personas",
           evidences: [],
           status: "pending",
           required: companySize !== "small",
@@ -440,7 +459,8 @@ export const nmx025EvidencesFolder = router({
         libertad_sindical: {
           eje: "libertad_sindical",
           title: "5. Libertad Sindical y Negociación Colectiva",
-          description: "Respeto a la libertad de asociación y negociación colectiva",
+          description:
+            "Respeto a la libertad de asociación y negociación colectiva",
           evidences: [],
           status: "pending",
           required: companySize === "large",
@@ -473,7 +493,7 @@ export const nmx025EvidencesFolder = router({
       const doc = new PDFDocument({ size: "LETTER", margin: 50 });
       const chunks: Buffer[] = [];
 
-      doc.on("data", (chunk) => chunks.push(chunk));
+      doc.on("data", chunk => chunks.push(chunk));
 
       // Portada
       doc.fontSize(24).font("Helvetica-Bold").text("CARPETA DE EVIDENCIAS", {
@@ -492,14 +512,20 @@ export const nmx025EvidencesFolder = router({
 
       doc.fontSize(12).text(`Empresa: ${companyName}`, { align: "center" });
       doc
-        .text(`Tamaño: ${companySize === "small" ? "Pequeña (≤15)" : companySize === "medium" ? "Mediana (16-50)" : "Grande (>50)"}`, {
-          align: "center",
-        })
+        .text(
+          `Tamaño: ${companySize === "small" ? "Pequeña (≤15)" : companySize === "medium" ? "Mediana (16-50)" : "Grande (>50)"}`,
+          {
+            align: "center",
+          }
+        )
         .moveDown(0.5);
       doc
-        .text(`Fecha de generación: ${new Date().toLocaleDateString("es-MX")}`, {
-          align: "center",
-        })
+        .text(
+          `Fecha de generación: ${new Date().toLocaleDateString("es-MX")}`,
+          {
+            align: "center",
+          }
+        )
         .moveDown(0.5);
 
       const folio = `CARP-NMX025-${Date.now()}`;
@@ -515,14 +541,19 @@ export const nmx025EvidencesFolder = router({
 
       // Nueva página: Índice
       doc.addPage();
-      doc.fontSize(18).font("Helvetica-Bold").text("ÍNDICE", { align: "center" });
+      doc
+        .fontSize(18)
+        .font("Helvetica-Bold")
+        .text("ÍNDICE", { align: "center" });
       doc.moveDown(2);
 
       doc.fontSize(11).font("Helvetica");
       let pageNumber = 3;
       Object.values(evidencesData).forEach((eje: any) => {
         if (eje.required) {
-          doc.text(`${eje.title} ................................ Pág. ${pageNumber}`);
+          doc.text(
+            `${eje.title} ................................ Pág. ${pageNumber}`
+          );
           doc.moveDown(0.5);
           pageNumber++;
         }
@@ -541,7 +572,9 @@ export const nmx025EvidencesFolder = router({
         doc
           .fontSize(11)
           .font("Helvetica-Bold")
-          .text(`Estado: ${eje.status === "complete" ? "Completo ✓" : eje.status === "partial" ? "Parcial ⚠" : "Pendiente ✗"}`);
+          .text(
+            `Estado: ${eje.status === "complete" ? "Completo ✓" : eje.status === "partial" ? "Parcial ⚠" : "Pendiente ✗"}`
+          );
         doc.moveDown(1);
 
         if (eje.evidences.length > 0) {
@@ -558,7 +591,10 @@ export const nmx025EvidencesFolder = router({
             doc.moveDown(0.5);
           });
         } else {
-          doc.fontSize(10).font("Helvetica-Oblique").text("Sin evidencias registradas");
+          doc
+            .fontSize(10)
+            .font("Helvetica-Oblique")
+            .text("Sin evidencias registradas");
         }
       });
 
@@ -580,7 +616,7 @@ export const nmx025EvidencesFolder = router({
       doc.end();
 
       // Esperar a que termine
-      const pdfBuffer = await new Promise<Buffer>((resolve) => {
+      const pdfBuffer = await new Promise<Buffer>(resolve => {
         doc.on("end", () => {
           resolve(Buffer.concat(chunks));
         });

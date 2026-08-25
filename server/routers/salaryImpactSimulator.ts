@@ -15,25 +15,37 @@ export const salaryImpactSimulatorRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       // Obtener datos del empleado
-      const [employee] = await db.select().from(employees).where(eq(employees.id, input.employeeId)).limit(1);
+      const [employee] = await db
+        .select()
+        .from(employees)
+        .where(eq(employees.id, input.employeeId))
+        .limit(1);
 
       if (!employee) {
         throw new Error("Empleado no encontrado");
       }
 
       // Obtener datos de nómina
-      const [payroll] = await db.select().from(payrollData).where(eq(payrollData.employeeId, input.employeeId)).limit(1);
+      const [payroll] = await db
+        .select()
+        .from(payrollData)
+        .where(eq(payrollData.employeeId, input.employeeId))
+        .limit(1);
 
       if (!payroll) {
         throw new Error("Datos de nómina no encontrados");
       }
 
       const currentSalary = parseFloat(payroll.salary);
-      const marketRate = payroll.marketRate ? parseFloat(payroll.marketRate) : currentSalary;
-      const currentGap = payroll.salaryGapPercentage ? parseFloat(payroll.salaryGapPercentage) : 0;
+      const marketRate = payroll.marketRate
+        ? parseFloat(payroll.marketRate)
+        : currentSalary;
+      const currentGap = payroll.salaryGapPercentage
+        ? parseFloat(payroll.salaryGapPercentage)
+        : 0;
 
       // Calcular nuevo salario según tipo de ajuste
       let newSalary = currentSalary;
@@ -68,7 +80,10 @@ export const salaryImpactSimulatorRouter = router({
       const turnoverCost = currentSalary * 12 * 1.5;
       const riskReductionDecimal = riskReduction / 100;
       const expectedSavings = turnoverCost * riskReductionDecimal;
-      const estimatedROI = adjustmentCost > 0 ? ((expectedSavings - adjustmentCost) / adjustmentCost) * 100 : 0;
+      const estimatedROI =
+        adjustmentCost > 0
+          ? ((expectedSavings - adjustmentCost) / adjustmentCost) * 100
+          : 0;
 
       // Generar análisis
       let analysis = "";

@@ -1,6 +1,6 @@
 /**
  * Webhook para recepción de correos electrónicos del buzón
- * 
+ *
  * Este endpoint recibe correos entrantes de servicios como:
  * - SendGrid Inbound Parse
  * - AWS SES
@@ -8,10 +8,13 @@
  * - Otros servicios de correo con webhooks
  */
 
-import { Router } from 'express';
-import { getDb } from '../db';
-import { mailbox } from '../../drizzle/schema';
-import { parseIncomingEmail, sendStatusChangeNotification } from '../lib/email-service';
+import { Router } from "express";
+import { getDb } from "../db";
+import { mailbox } from "../../drizzle/schema";
+import {
+  parseIncomingEmail,
+  sendStatusChangeNotification,
+} from "../lib/email-service";
 
 const router = Router();
 
@@ -26,13 +29,13 @@ function generateFolio(): string {
 
 /**
  * POST /api/mailbox-webhook
- * 
+ *
  * Recibe correos entrantes y crea solicitudes en el buzón
- * 
+ *
  * NOTA: La estructura del body dependerá del servicio de correo que uses.
  * Ajusta el parser según tu proveedor.
  */
-router.post('/mailbox-webhook', async (req, res) => {
+router.post("/mailbox-webhook", async (req, res) => {
   try {
     // Parsear el correo entrante
     const parsedEmail = parseIncomingEmail(req.body);
@@ -41,13 +44,16 @@ router.post('/mailbox-webhook', async (req, res) => {
     if (!parsedEmail.from || !parsedEmail.subject) {
       return res.status(400).json({
         success: false,
-        error: 'Correo inválido: falta remitente o asunto',
+        error: "Correo inválido: falta remitente o asunto",
       });
     }
 
     // Extraer nombre y email del remitente
     // Formato típico: "Nombre <email@ejemplo.com>" o solo "email@ejemplo.com"
-    const emailMatch = parsedEmail.from.match(/<(.+?)>/) || [null, parsedEmail.from];
+    const emailMatch = parsedEmail.from.match(/<(.+?)>/) || [
+      null,
+      parsedEmail.from,
+    ];
     const senderEmail = emailMatch[1] || parsedEmail.from;
     const nameMatch = parsedEmail.from.match(/^(.+?)\s*</);
     const senderName = nameMatch ? nameMatch[1].trim() : null;
@@ -56,33 +62,68 @@ router.post('/mailbox-webhook', async (req, res) => {
     const folio = generateFolio();
 
     // Determinar tipo de solicitud basado en palabras clave en el asunto
-    let requestType: 'queja' | 'sugerencia' | 'felicitacion' | 'solicitud_capacitacion' = 'queja';
-    let complaintType: 'liderazgo_negativo' | 'entorno_organizacional_desfavorable' | 'conductas_contrarias_ambiente_laboral' | 'carga_trabajo' | 'falta_control_trabajo' | 'jornadas_trabajo_extensas' | 'interferencia_relacion_trabajo_familia' | 'acoso_laboral' | 'acoso_sexual' | 'hostigamiento_sexual' | 'mobbing' | 'burnout' | 'violencia_laboral' | 'otros' | null = null;
+    let requestType:
+      | "queja"
+      | "sugerencia"
+      | "felicitacion"
+      | "solicitud_capacitacion" = "queja";
+    let complaintType:
+      | "liderazgo_negativo"
+      | "entorno_organizacional_desfavorable"
+      | "conductas_contrarias_ambiente_laboral"
+      | "carga_trabajo"
+      | "falta_control_trabajo"
+      | "jornadas_trabajo_extensas"
+      | "interferencia_relacion_trabajo_familia"
+      | "acoso_laboral"
+      | "acoso_sexual"
+      | "hostigamiento_sexual"
+      | "mobbing"
+      | "burnout"
+      | "violencia_laboral"
+      | "otros"
+      | null = null;
 
     const subjectLower = parsedEmail.subject.toLowerCase();
 
-    if (subjectLower.includes('sugerencia')) {
-      requestType = 'sugerencia';
-    } else if (subjectLower.includes('felicitacion') || subjectLower.includes('felicitación')) {
-      requestType = 'felicitacion';
-    } else if (subjectLower.includes('capacitacion') || subjectLower.includes('capacitación') || subjectLower.includes('curso')) {
-      requestType = 'solicitud_capacitacion';
+    if (subjectLower.includes("sugerencia")) {
+      requestType = "sugerencia";
+    } else if (
+      subjectLower.includes("felicitacion") ||
+      subjectLower.includes("felicitación")
+    ) {
+      requestType = "felicitacion";
+    } else if (
+      subjectLower.includes("capacitacion") ||
+      subjectLower.includes("capacitación") ||
+      subjectLower.includes("curso")
+    ) {
+      requestType = "solicitud_capacitacion";
     } else {
       // Es una queja, intentar determinar el tipo
-      if (subjectLower.includes('acoso')) {
-        complaintType = 'acoso_laboral';
-      } else if (subjectLower.includes('mobbing') || subjectLower.includes('hostigamiento')) {
-        complaintType = 'mobbing';
-      } else if (subjectLower.includes('burnout') || subjectLower.includes('agotamiento')) {
-        complaintType = 'burnout';
-      } else if (subjectLower.includes('carga') && subjectLower.includes('trabajo')) {
-        complaintType = 'carga_trabajo';
-      } else if (subjectLower.includes('liderazgo')) {
-        complaintType = 'liderazgo_negativo';
-      } else if (subjectLower.includes('violencia')) {
-        complaintType = 'violencia_laboral';
+      if (subjectLower.includes("acoso")) {
+        complaintType = "acoso_laboral";
+      } else if (
+        subjectLower.includes("mobbing") ||
+        subjectLower.includes("hostigamiento")
+      ) {
+        complaintType = "mobbing";
+      } else if (
+        subjectLower.includes("burnout") ||
+        subjectLower.includes("agotamiento")
+      ) {
+        complaintType = "burnout";
+      } else if (
+        subjectLower.includes("carga") &&
+        subjectLower.includes("trabajo")
+      ) {
+        complaintType = "carga_trabajo";
+      } else if (subjectLower.includes("liderazgo")) {
+        complaintType = "liderazgo_negativo";
+      } else if (subjectLower.includes("violencia")) {
+        complaintType = "violencia_laboral";
       } else {
-        complaintType = 'otros';
+        complaintType = "otros";
       }
     }
 
@@ -91,7 +132,7 @@ router.post('/mailbox-webhook', async (req, res) => {
     if (!db) {
       return res.status(500).json({
         success: false,
-        error: 'Base de datos no disponible',
+        error: "Base de datos no disponible",
       });
     }
 
@@ -105,10 +146,10 @@ router.post('/mailbox-webhook', async (req, res) => {
       isAnonymous: false,
       subject: parsedEmail.subject,
       message: parsedEmail.body,
-      status: 'recibido',
+      status: "recibido",
       assignedTo: null,
-      priority: 'medium',
-      receivedVia: 'email',
+      priority: "medium",
+      receivedVia: "email",
       createdAt: parsedEmail.receivedAt,
     });
 
@@ -117,7 +158,7 @@ router.post('/mailbox-webhook', async (req, res) => {
       senderEmail,
       folio,
       parsedEmail.subject,
-      'recibido'
+      "recibido"
     );
 
     console.log(`📬 Nueva solicitud recibida por correo: ${folio}`);
@@ -125,26 +166,26 @@ router.post('/mailbox-webhook', async (req, res) => {
     res.json({
       success: true,
       folio,
-      message: 'Solicitud recibida correctamente',
+      message: "Solicitud recibida correctamente",
     });
   } catch (error) {
-    console.error('❌ Error procesando correo entrante:', error);
+    console.error("❌ Error procesando correo entrante:", error);
     res.status(500).json({
       success: false,
-      error: 'Error procesando el correo',
+      error: "Error procesando el correo",
     });
   }
 });
 
 /**
  * GET /api/mailbox-webhook/test
- * 
+ *
  * Endpoint de prueba para verificar que el webhook está funcionando
  */
-router.get('/mailbox-webhook/test', (req, res) => {
+router.get("/mailbox-webhook/test", (req, res) => {
   res.json({
     success: true,
-    message: 'Webhook del buzón funcionando correctamente',
+    message: "Webhook del buzón funcionando correctamente",
     timestamp: new Date().toISOString(),
   });
 });

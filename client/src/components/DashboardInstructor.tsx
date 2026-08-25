@@ -1,21 +1,30 @@
-import { trpc } from '@/lib/trpc';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Link } from 'wouter';
-import { 
-  Calendar, 
-  BookOpen, 
-  CheckCircle, 
-  Clock, 
+import { trpc } from "@/lib/trpc";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+import {
+  Calendar,
+  BookOpen,
+  CheckCircle,
+  Clock,
   Star,
   ArrowRight,
-  Award
-} from 'lucide-react';
+  Award,
+} from "lucide-react";
 
 export default function DashboardInstructor() {
-  const { data: stats, isLoading } = trpc.training.getInstructorStats.useQuery();
-  const { data: upcomingCourses } = trpc.training.getInstructorUpcomingCourses.useQuery();
-  const { data: pendingConfirmations } = trpc.training.getInstructorPendingConfirmations.useQuery();
+  const { data: stats, isLoading } =
+    trpc.training.getInstructorStats.useQuery();
+  const { data: upcomingCourses } =
+    trpc.training.getInstructorUpcomingCourses.useQuery();
+  const { data: pendingConfirmations } =
+    trpc.training.getInstructorPendingConfirmations.useQuery();
 
   if (isLoading) {
     return (
@@ -42,45 +51,63 @@ export default function DashboardInstructor() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cursos Completados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Cursos Completados
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.completedCourses || 0}</div>
+            <div className="text-2xl font-bold">
+              {stats?.completedCourses || 0}
+            </div>
             <p className="text-xs text-muted-foreground">Este año</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cursos Pendientes</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Cursos Pendientes
+            </CardTitle>
             <Clock className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.pendingCourses || 0}</div>
+            <div className="text-2xl font-bold">
+              {stats?.pendingCourses || 0}
+            </div>
             <p className="text-xs text-muted-foreground">Por impartir</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Confirmaciones Pendientes</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Confirmaciones Pendientes
+            </CardTitle>
             <Calendar className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.pendingConfirmations || 0}</div>
+            <div className="text-2xl font-bold">
+              {stats?.pendingConfirmations || 0}
+            </div>
             <p className="text-xs text-muted-foreground">Requieren acción</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Calificación Promedio</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Calificación Promedio
+            </CardTitle>
             <Star className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.averageRating ?? 'N/D'}</div>
-            <p className="text-xs text-muted-foreground">Disponible al registrar evaluaciones</p>
+            <div className="text-2xl font-bold">
+              {stats?.averageRating ?? "N/D"}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Disponible al registrar evaluaciones
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -100,19 +127,23 @@ export default function DashboardInstructor() {
           {upcomingCourses && upcomingCourses.length > 0 ? (
             <div className="space-y-4">
               {upcomingCourses.slice(0, 5).map((course: any) => (
-                <div key={course.id} className="flex items-center justify-between border-b pb-3 last:border-0">
+                <div
+                  key={course.id}
+                  className="flex items-center justify-between border-b pb-3 last:border-0"
+                >
                   <div className="flex-1">
                     <p className="font-medium">{course.courseName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(course.startDate).toLocaleDateString('es-MX', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
+                      {new Date(course.startDate).toLocaleDateString("es-MX", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {course.participants || 0} participantes • {course.duration || 'N/A'} horas
+                      {course.participants || 0} participantes •{" "}
+                      {course.duration || "N/A"} horas
                     </p>
                   </div>
                   <Link href={`/training/course/${course.id}`}>
@@ -147,15 +178,26 @@ export default function DashboardInstructor() {
           <CardContent>
             <div className="space-y-4">
               {pendingConfirmations.map((course: any) => (
-                <div key={course.id} className="flex items-center justify-between border-b border-orange-200 pb-3 last:border-0">
+                <div
+                  key={course.id}
+                  className="flex items-center justify-between border-b border-orange-200 pb-3 last:border-0"
+                >
                   <div className="flex-1">
-                    <p className="font-medium text-orange-900">{course.courseName}</p>
+                    <p className="font-medium text-orange-900">
+                      {course.courseName}
+                    </p>
                     <p className="text-sm text-orange-700">
-                      Propuesto para: {new Date(course.proposedDate).toLocaleDateString('es-MX')}
+                      Propuesto para:{" "}
+                      {new Date(course.proposedDate).toLocaleDateString(
+                        "es-MX"
+                      )}
                     </p>
                   </div>
                   <Link href={`/training/confirm/${course.id}`}>
-                    <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                    <Button
+                      size="sm"
+                      className="bg-orange-600 hover:bg-orange-700"
+                    >
                       Confirmar Disponibilidad
                     </Button>
                   </Link>
@@ -181,16 +223,23 @@ export default function DashboardInstructor() {
           <div className="space-y-3">
             {stats?.recentEvaluations && stats.recentEvaluations.length > 0 ? (
               stats.recentEvaluations.map((evaluation: any, index: number) => (
-                <div key={index} className="flex items-start gap-3 border-b pb-3 last:border-0">
+                <div
+                  key={index}
+                  className="flex items-start gap-3 border-b pb-3 last:border-0"
+                >
                   <div className="flex items-center gap-1 mt-1">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                     <span className="font-semibold">{evaluation.rating}</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{evaluation.courseName}</p>
-                    <p className="text-xs text-muted-foreground">{evaluation.comment}</p>
+                    <p className="text-sm font-medium">
+                      {evaluation.courseName}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {evaluation.comment}
+                    </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(evaluation.date).toLocaleDateString('es-MX')}
+                      {new Date(evaluation.date).toLocaleDateString("es-MX")}
                     </p>
                   </div>
                 </div>

@@ -1,5 +1,12 @@
 import { useState, useCallback } from "react";
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Download, X } from "lucide-react";
+import {
+  Upload,
+  FileSpreadsheet,
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -81,7 +88,10 @@ export function ImportMassiveData({
           const value = row[column.key];
 
           // Check required fields
-          if (column.required && (value === undefined || value === null || value === "")) {
+          if (
+            column.required &&
+            (value === undefined || value === null || value === "")
+          ) {
             errors.push({
               row: index + 2, // +2 because Excel is 1-indexed and has header row
               column: column.label,
@@ -130,7 +140,12 @@ export function ImportMassiveData({
           }
 
           // Custom validator
-          if (column.validator && value !== undefined && value !== null && value !== "") {
+          if (
+            column.validator &&
+            value !== undefined &&
+            value !== null &&
+            value !== ""
+          ) {
             const validationError = column.validator(value);
             if (validationError) {
               warnings.push({
@@ -151,7 +166,10 @@ export function ImportMassiveData({
 
   const handleFileChange = useCallback(
     async (selectedFile: File) => {
-      if (!selectedFile.name.endsWith(".xlsx") && !selectedFile.name.endsWith(".xls")) {
+      if (
+        !selectedFile.name.endsWith(".xlsx") &&
+        !selectedFile.name.endsWith(".xls")
+      ) {
         setErrors([
           {
             row: 0,
@@ -169,9 +187,9 @@ export function ImportMassiveData({
       try {
         // Dynamic import to avoid loading xlsx library until needed
         const XLSX = await import("xlsx");
-        
+
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = e => {
           try {
             const data = e.target?.result;
             const workbook = XLSX.read(data, { type: "binary" });
@@ -352,7 +370,7 @@ export function ImportMassiveData({
                   const input = document.createElement("input");
                   input.type = "file";
                   input.accept = ".xlsx,.xls";
-                  input.onchange = (e) => {
+                  input.onchange = e => {
                     const file = (e.target as HTMLInputElement).files?.[0];
                     if (file) handleFileChange(file);
                   };
@@ -400,7 +418,8 @@ export function ImportMassiveData({
                   <ul className="text-sm space-y-1">
                     {warnings.map((warning, index) => (
                       <li key={index}>
-                        Fila {warning.row}, <strong>{warning.column}:</strong> {warning.message}
+                        Fila {warning.row}, <strong>{warning.column}:</strong>{" "}
+                        {warning.message}
                       </li>
                     ))}
                   </ul>
@@ -437,7 +456,8 @@ export function ImportMassiveData({
                   <CheckCircle2 className="h-4 w-4" />
                   <AlertTitle>Validación exitosa</AlertTitle>
                   <AlertDescription>
-                    Todos los datos son válidos. Puedes proceder con la importación.
+                    Todos los datos son válidos. Puedes proceder con la
+                    importación.
                   </AlertDescription>
                 </Alert>
               )}
@@ -462,7 +482,9 @@ export function ImportMassiveData({
                   <TableBody>
                     {previewData.slice(0, 50).map((row, index) => (
                       <TableRow key={index}>
-                        <TableCell className="font-medium">{index + 1}</TableCell>
+                        <TableCell className="font-medium">
+                          {index + 1}
+                        </TableCell>
                         {columns.map((column: any) => (
                           <TableCell key={column.key}>
                             {row[column.key]?.toString() || "-"}
@@ -484,7 +506,11 @@ export function ImportMassiveData({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleCancel} disabled={isProcessing}>
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isProcessing}
+          >
             Cancelar
           </Button>
           {showPreview && (
@@ -492,7 +518,9 @@ export function ImportMassiveData({
               onClick={handleConfirmImport}
               disabled={isProcessing || errors.length > 0}
             >
-              {isProcessing ? "Importando..." : `Confirmar Importación (${previewData.length} registros)`}
+              {isProcessing
+                ? "Importando..."
+                : `Confirmar Importación (${previewData.length} registros)`}
             </Button>
           )}
         </DialogFooter>

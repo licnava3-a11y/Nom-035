@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'wouter';
-import { trpc } from '@/lib/trpc';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useParams, useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 
 /**
  * Página de acceso público para responder encuestas mediante token
  * Ruta: /survey/public/:token
- * 
+ *
  * Permite a empleados responder encuestas sin autenticación
  * utilizando un token único generado por CURP
  */
@@ -16,34 +16,38 @@ import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 export default function PublicSurvey() {
   const params = useParams();
   const [, setLocation] = useLocation();
-  const token = params.token || '';
+  const token = params.token || "";
   const [surveyId, setSurveyId] = useState<number | null>(null);
   const [completed, setCompleted] = useState(false);
 
   // Validar token al cargar
-  const { data: tokenData, isLoading: validating, error: tokenError } = trpc.surveys.validateSurveyToken.useQuery(
+  const {
+    data: tokenData,
+    isLoading: validating,
+    error: tokenError,
+  } = trpc.surveys.validateSurveyToken.useQuery(
     { token, surveyId: surveyId || 0 },
     { enabled: !!token && !!surveyId }
   );
 
   // Obtener encuesta
-  const { data: survey, isLoading: loadingSurvey } = trpc.surveys.getById.useQuery(
-    surveyId!,
-    { enabled: !!surveyId && !!tokenData }
-  );
+  const { data: survey, isLoading: loadingSurvey } =
+    trpc.surveys.getById.useQuery(surveyId!, {
+      enabled: !!surveyId && !!tokenData,
+    });
 
   // Obtener preguntas
-  const { data: questions, isLoading: loadingQuestions } = trpc.surveys.getQuestions.useQuery(
-    surveyId!,
-    { enabled: !!surveyId && !!tokenData }
-  );
+  const { data: questions, isLoading: loadingQuestions } =
+    trpc.surveys.getQuestions.useQuery(surveyId!, {
+      enabled: !!surveyId && !!tokenData,
+    });
 
   // Detectar surveyId del token (simulado, en producción vendría del backend)
   useEffect(() => {
     // Por ahora asumimos que el surveyId está en la URL o se obtiene del token
     // En producción, el backend debería retornar el surveyId al validar el token
     const urlParams = new URLSearchParams(window.location.search);
-    const sid = urlParams.get('surveyId');
+    const sid = urlParams.get("surveyId");
     if (sid) {
       setSurveyId(parseInt(sid));
     }
@@ -60,7 +64,9 @@ export default function PublicSurvey() {
 
   const markTokenMutation = trpc.surveys.markTokenAsUsed.useMutation();
 
-  const handleSubmit = (answers: Array<{ questionId: number; answerValue: string }>) => {
+  const handleSubmit = (
+    answers: Array<{ questionId: number; answerValue: string }>
+  ) => {
     if (!surveyId || !tokenData) return;
 
     submitMutation.mutate({
@@ -114,7 +120,8 @@ export default function PublicSurvey() {
           <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Acceso denegado</h2>
           <p className="text-muted-foreground mb-4">
-            {tokenError?.message || 'El token de acceso no es válido o ha expirado.'}
+            {tokenError?.message ||
+              "El token de acceso no es válido o ha expirado."}
           </p>
         </Card>
       </div>
@@ -128,7 +135,8 @@ export default function PublicSurvey() {
           <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">¡Encuesta completada!</h2>
           <p className="text-muted-foreground mb-6">
-            Gracias por completar la encuesta. Tus respuestas han sido registradas exitosamente.
+            Gracias por completar la encuesta. Tus respuestas han sido
+            registradas exitosamente.
           </p>
           <p className="text-sm text-muted-foreground">
             Puedes cerrar esta ventana.
@@ -194,7 +202,9 @@ function PublicSurveyForm({
   surveyId,
 }: {
   questions: any[];
-  onSubmit: (answers: Array<{ questionId: number; answerValue: string }>) => void;
+  onSubmit: (
+    answers: Array<{ questionId: number; answerValue: string }>
+  ) => void;
   isSubmitting: boolean;
   token: string;
   surveyId: number;
@@ -210,7 +220,7 @@ function PublicSurveyForm({
 
   const handleAnswerChange = (questionId: number, value: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
-    
+
     // Auto-guardar (se implementará en la siguiente fase)
     // savePartialResponse({ surveyId, token, questionId, answerValue: value });
   };
@@ -218,22 +228,24 @@ function PublicSurveyForm({
   const handleNext = () => {
     if (currentPage < totalPages - 1) {
       setCurrentPage(prev => prev + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handlePrevious = () => {
     if (currentPage > 0) {
       setCurrentPage(prev => prev - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handleSubmit = () => {
-    const answerArray = Object.entries(answers).map(([questionId, answerValue]) => ({
-      questionId: parseInt(questionId),
-      answerValue,
-    }));
+    const answerArray = Object.entries(answers).map(
+      ([questionId, answerValue]) => ({
+        questionId: parseInt(questionId),
+        answerValue,
+      })
+    );
 
     onSubmit(answerArray);
   };
@@ -264,17 +276,22 @@ function PublicSurveyForm({
             <label className="font-medium block">
               {startIdx + idx + 1}. {question.questionText}
             </label>
-            
-            {question.questionType === 'multiple_choice' && (
+
+            {question.questionType === "multiple_choice" && (
               <div className="space-y-2">
                 {question.options?.map((option: string) => (
-                  <label key={option} className="flex items-center gap-2 cursor-pointer">
+                  <label
+                    key={option}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <input
                       type="radio"
                       name={`question-${question.id}`}
                       value={option}
                       checked={answers[question.id] === option}
-                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                      onChange={e =>
+                        handleAnswerChange(question.id, e.target.value)
+                      }
                       className="w-4 h-4"
                     />
                     <span>{option}</span>
@@ -283,15 +300,17 @@ function PublicSurveyForm({
               </div>
             )}
 
-            {question.questionType === 'yes_no' && (
+            {question.questionType === "yes_no" && (
               <div className="space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
                     name={`question-${question.id}`}
                     value="Sí"
-                    checked={answers[question.id] === 'Sí'}
-                    onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                    checked={answers[question.id] === "Sí"}
+                    onChange={e =>
+                      handleAnswerChange(question.id, e.target.value)
+                    }
                     className="w-4 h-4"
                   />
                   <span>Sí</span>
@@ -301,8 +320,10 @@ function PublicSurveyForm({
                     type="radio"
                     name={`question-${question.id}`}
                     value="No"
-                    checked={answers[question.id] === 'No'}
-                    onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                    checked={answers[question.id] === "No"}
+                    onChange={e =>
+                      handleAnswerChange(question.id, e.target.value)
+                    }
                     className="w-4 h-4"
                   />
                   <span>No</span>
@@ -310,10 +331,10 @@ function PublicSurveyForm({
               </div>
             )}
 
-            {question.questionType === 'text' && (
+            {question.questionType === "text" && (
               <textarea
-                value={answers[question.id] || ''}
-                onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                value={answers[question.id] || ""}
+                onChange={e => handleAnswerChange(question.id, e.target.value)}
                 className="w-full p-3 border rounded-md min-h-[100px]"
                 placeholder="Escribe tu respuesta aquí..."
               />
@@ -337,9 +358,7 @@ function PublicSurveyForm({
         </span>
 
         {currentPage < totalPages - 1 ? (
-          <Button onClick={handleNext}>
-            Siguiente
-          </Button>
+          <Button onClick={handleNext}>Siguiente</Button>
         ) : (
           <Button
             onClick={handleSubmit}
@@ -351,7 +370,7 @@ function PublicSurveyForm({
                 Enviando...
               </>
             ) : (
-              'Enviar encuesta'
+              "Enviar encuesta"
             )}
           </Button>
         )}

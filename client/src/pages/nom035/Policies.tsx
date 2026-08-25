@@ -1,56 +1,97 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Plus, Download, Edit, Trash2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  FileText,
+  Plus,
+  Download,
+  Edit,
+  Trash2,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
 import PDFViewer from "@/components/PDFViewer";
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 export default function Policies() {
-
   const utils = trpc.useUtils();
-  
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [selectedPolicy, setSelectedPolicy] = useState<any>(null);
   const [selectedPolicyId, setSelectedPolicyId] = useState<number | null>(null);
-  
+
   const [isPDFViewerOpen, setIsPDFViewerOpen] = useState(false);
   const [pdfViewerUrl, setPdfViewerUrl] = useState<string>("");
   const [pdfViewerTitle, setPdfViewerTitle] = useState<string>("");
-  
+
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
-    fechaPublicacion: new Date().toISOString().split('T')[0],
+    fechaPublicacion: new Date().toISOString().split("T")[0],
     representanteLegalId: undefined as number | undefined,
   });
 
-  const [uploadMode, setUploadMode] = useState<'generate' | 'upload'>('generate');
+  const [uploadMode, setUploadMode] = useState<"generate" | "upload">(
+    "generate"
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  
-  const [editUploadMode, setEditUploadMode] = useState<'keep' | 'upload'>('keep');
+
+  const [editUploadMode, setEditUploadMode] = useState<"keep" | "upload">(
+    "keep"
+  );
   const [editSelectedFile, setEditSelectedFile] = useState<File | null>(null);
   const [changeDescription, setChangeDescription] = useState("");
 
   // Queries
   const { data: policies, isLoading } = trpc.nom035Policies.list.useQuery();
-  const { data: activeRepresentatives, isLoading: isLoadingReps } = trpc.company.legalRepresentative.listActive.useQuery();
-  const { data: policyVersions, isLoading: isLoadingVersions } = trpc.nom035Policies.getPolicyVersions.useQuery(
-    { policyId: selectedPolicyId! },
-    { enabled: !!selectedPolicyId && isHistoryDialogOpen }
-  );
+  const { data: activeRepresentatives, isLoading: isLoadingReps } =
+    trpc.company.legalRepresentative.listActive.useQuery();
+  const { data: policyVersions, isLoading: isLoadingVersions } =
+    trpc.nom035Policies.getPolicyVersions.useQuery(
+      { policyId: selectedPolicyId! },
+      { enabled: !!selectedPolicyId && isHistoryDialogOpen }
+    );
 
   // Mutations
   const uploadFileMutation = trpc.nom035Policies.uploadPolicyFile.useMutation({
@@ -62,7 +103,7 @@ export default function Policies() {
       resetForm();
       setIsUploading(false);
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error al cargar archivo: ${error.message}`);
       setIsUploading(false);
     },
@@ -75,7 +116,7 @@ export default function Policies() {
       setIsCreateDialogOpen(false);
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -88,7 +129,7 @@ export default function Policies() {
       setSelectedPolicy(null);
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -98,31 +139,32 @@ export default function Policies() {
       alert("Política eliminada exitosamente");
       utils.nom035Policies.list.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
 
-  const restoreVersionMutation = trpc.nom035Policies.restorePolicyVersion.useMutation({
-    onSuccess: () => {
-      alert("Versión restaurada exitosamente");
-      utils.nom035Policies.list.invalidate();
-      utils.nom035Policies.getPolicyVersions.invalidate();
-      setIsHistoryDialogOpen(false);
-    },
-    onError: (error) => {
-      alert(`Error al restaurar versión: ${error.message}`);
-    },
-  });
+  const restoreVersionMutation =
+    trpc.nom035Policies.restorePolicyVersion.useMutation({
+      onSuccess: () => {
+        alert("Versión restaurada exitosamente");
+        utils.nom035Policies.list.invalidate();
+        utils.nom035Policies.getPolicyVersions.invalidate();
+        setIsHistoryDialogOpen(false);
+      },
+      onError: error => {
+        alert(`Error al restaurar versión: ${error.message}`);
+      },
+    });
 
   const generatePDFMutation = trpc.nom035Policies.generatePDF.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       alert("PDF generado exitosamente");
       // Abrir PDF en nueva ventana
-      window.open(data.pdfUrl, '_blank');
+      window.open(data.pdfUrl, "_blank");
       utils.nom035Policies.list.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -131,13 +173,13 @@ export default function Policies() {
     setFormData({
       nombre: "",
       descripcion: "",
-      fechaPublicacion: new Date().toISOString().split('T')[0],
+      fechaPublicacion: new Date().toISOString().split("T")[0],
       representanteLegalId: undefined,
     });
-    setUploadMode('generate');
+    setUploadMode("generate");
     setSelectedFile(null);
     setIsUploading(false);
-    setEditUploadMode('keep');
+    setEditUploadMode("keep");
     setEditSelectedFile(null);
     setChangeDescription("");
   };
@@ -147,15 +189,15 @@ export default function Policies() {
     if (!file) return;
 
     // Validar tipo
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      alert('Solo se permiten archivos PDF');
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+      alert("Solo se permiten archivos PDF");
       return;
     }
 
     // Validar tamaño (10MB)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert('El archivo excede el tamaño máximo permitido de 10MB');
+      alert("El archivo excede el tamaño máximo permitido de 10MB");
       return;
     }
 
@@ -164,9 +206,9 @@ export default function Policies() {
 
   const handleUploadFile = async (policyId: number) => {
     const fileToUpload = editSelectedFile || selectedFile;
-    
+
     if (!fileToUpload) {
-      alert('Por favor seleccione un archivo PDF');
+      alert("Por favor seleccione un archivo PDF");
       return;
     }
 
@@ -175,9 +217,9 @@ export default function Policies() {
     try {
       // Convertir archivo a base64
       const reader = new FileReader();
-      reader.onload = async (e) => {
+      reader.onload = async e => {
         const base64 = e.target?.result as string;
-        const base64Data = base64.split(',')[1]; // Remover prefijo data:application/pdf;base64,
+        const base64Data = base64.split(",")[1]; // Remover prefijo data:application/pdf;base64,
 
         await uploadFileMutation.mutateAsync({
           id: policyId,
@@ -193,16 +235,16 @@ export default function Policies() {
   };
 
   const handleCreate = async () => {
-    if (uploadMode === 'upload') {
+    if (uploadMode === "upload") {
       // Modo: Subir PDF propio
       if (!selectedFile) {
-        alert('Por favor seleccione un archivo PDF');
+        alert("Por favor seleccione un archivo PDF");
         return;
       }
 
       // Crear política primero
       const result = await createMutation.mutateAsync(formData);
-      
+
       // Luego subir el archivo
       if (result.id) {
         await handleUploadFile(result.id);
@@ -215,22 +257,22 @@ export default function Policies() {
 
   const handleUpdate = async () => {
     if (!selectedPolicy) return;
-    
-    if (editUploadMode === 'upload') {
+
+    if (editUploadMode === "upload") {
       // Validar que se haya seleccionado un archivo
       if (!editSelectedFile) {
         alert("Por favor seleccione un archivo PDF");
         return;
       }
-      
+
       // Validar descripción del cambio
       if (!changeDescription.trim()) {
         alert("Por favor ingrese una descripción del cambio");
         return;
       }
-      
+
       setIsUploading(true);
-      
+
       try {
         // Actualizar política con descripción del cambio
         await updateMutation.mutateAsync({
@@ -238,7 +280,7 @@ export default function Policies() {
           ...formData,
           changeDescription,
         });
-        
+
         // Subir nuevo archivo
         await handleUploadFile(selectedPolicy.id);
       } catch (error) {
@@ -259,7 +301,7 @@ export default function Policies() {
     setFormData({
       nombre: policy.nombre,
       descripcion: policy.descripcion,
-      fechaPublicacion: format(new Date(policy.fechaPublicacion), 'yyyy-MM-dd'),
+      fechaPublicacion: format(new Date(policy.fechaPublicacion), "yyyy-MM-dd"),
       representanteLegalId: policy.representanteLegalId || undefined,
     });
     setIsEditDialogOpen(true);
@@ -296,7 +338,8 @@ export default function Policies() {
             <DialogHeader>
               <DialogTitle>Crear Nueva Política</DialogTitle>
               <DialogDescription>
-                Complete los datos de la política de prevención de riesgos psicosociales
+                Complete los datos de la política de prevención de riesgos
+                psicosociales
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -309,8 +352,10 @@ export default function Policies() {
                       type="radio"
                       name="uploadMode"
                       value="generate"
-                      checked={uploadMode === 'generate'}
-                      onChange={(e) => setUploadMode(e.target.value as 'generate' | 'upload')}
+                      checked={uploadMode === "generate"}
+                      onChange={e =>
+                        setUploadMode(e.target.value as "generate" | "upload")
+                      }
                       className="w-4 h-4"
                     />
                     <span>Generar desde texto</span>
@@ -320,8 +365,10 @@ export default function Policies() {
                       type="radio"
                       name="uploadMode"
                       value="upload"
-                      checked={uploadMode === 'upload'}
-                      onChange={(e) => setUploadMode(e.target.value as 'generate' | 'upload')}
+                      checked={uploadMode === "upload"}
+                      onChange={e =>
+                        setUploadMode(e.target.value as "generate" | "upload")
+                      }
                       className="w-4 h-4"
                     />
                     <span>Subir PDF propio</span>
@@ -334,18 +381,22 @@ export default function Policies() {
                 <Input
                   id="nombre"
                   value={formData.nombre}
-                  onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, nombre: e.target.value })
+                  }
                   placeholder="Ej: Política de Prevención del Acoso Laboral"
                 />
               </div>
               {/* Campo Descripción - Solo visible en modo generar */}
-              {uploadMode === 'generate' && (
+              {uploadMode === "generate" && (
                 <div className="space-y-2">
                   <Label htmlFor="descripcion">Descripción *</Label>
                   <Textarea
                     id="descripcion"
                     value={formData.descripcion}
-                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, descripcion: e.target.value })
+                    }
                     placeholder="Describa el contenido de la política..."
                     rows={8}
                   />
@@ -353,7 +404,7 @@ export default function Policies() {
               )}
 
               {/* Campo Carga de Archivo - Solo visible en modo subir */}
-              {uploadMode === 'upload' && (
+              {uploadMode === "upload" && (
                 <div className="space-y-2">
                   <Label htmlFor="pdfFile">Archivo PDF *</Label>
                   <Input
@@ -367,7 +418,8 @@ export default function Policies() {
                     <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md">
                       <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                       <span className="text-sm text-green-700 dark:text-green-300">
-                        {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                        {selectedFile.name} (
+                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
                       </span>
                     </div>
                   )}
@@ -383,24 +435,38 @@ export default function Policies() {
                   id="fechaPublicacion"
                   type="date"
                   value={formData.fechaPublicacion}
-                  onChange={(e) => setFormData({ ...formData, fechaPublicacion: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      fechaPublicacion: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="representante">Representante Legal</Label>
                 {isLoadingReps ? (
-                  <div className="text-sm text-muted-foreground">Cargando representantes...</div>
-                ) : !activeRepresentatives || activeRepresentatives.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">
+                    Cargando representantes...
+                  </div>
+                ) : !activeRepresentatives ||
+                  activeRepresentatives.length === 0 ? (
                   <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md">
                     <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                     <p className="text-sm text-amber-700 dark:text-amber-300">
-                      No hay representantes legales activos con firma digital. Por favor, registre uno en la sección de Empresa.
+                      No hay representantes legales activos con firma digital.
+                      Por favor, registre uno en la sección de Empresa.
                     </p>
                   </div>
                 ) : (
                   <Select
                     value={formData.representanteLegalId?.toString()}
-                    onValueChange={(value) => setFormData({ ...formData, representanteLegalId: parseInt(value) })}
+                    onValueChange={value =>
+                      setFormData({
+                        ...formData,
+                        representanteLegalId: parseInt(value),
+                      })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione un representante legal" />
@@ -417,14 +483,23 @@ export default function Policies() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsCreateDialogOpen(false)}
+              >
                 Cancelar
               </Button>
-              <Button 
-                onClick={handleCreate} 
+              <Button
+                onClick={handleCreate}
                 disabled={createMutation.isPending || isUploading}
               >
-                {isUploading ? "Subiendo archivo..." : createMutation.isPending ? "Creando..." : uploadMode === 'upload' ? "Crear y Subir PDF" : "Crear Política"}
+                {isUploading
+                  ? "Subiendo archivo..."
+                  : createMutation.isPending
+                    ? "Creando..."
+                    : uploadMode === "upload"
+                      ? "Crear y Subir PDF"
+                      : "Crear Política"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -441,10 +516,13 @@ export default function Policies() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando políticas...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              Cargando políticas...
+            </div>
           ) : !policies || policies.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No hay políticas registradas. Cree una nueva política para comenzar.
+              No hay políticas registradas. Cree una nueva política para
+              comenzar.
             </div>
           ) : (
             <Table>
@@ -460,9 +538,15 @@ export default function Policies() {
               <TableBody>
                 {policies.map((policy: any) => (
                   <TableRow key={policy.id}>
-                    <TableCell className="font-medium">{policy.nombre}</TableCell>
+                    <TableCell className="font-medium">
+                      {policy.nombre}
+                    </TableCell>
                     <TableCell>
-                      {format(new Date(policy.fechaPublicacion), "d 'de' MMMM 'de' yyyy", { locale: es })}
+                      {format(
+                        new Date(policy.fechaPublicacion),
+                        "d 'de' MMMM 'de' yyyy",
+                        { locale: es }
+                      )}
                     </TableCell>
                     <TableCell>
                       {policy.activo ? (
@@ -546,7 +630,8 @@ export default function Policies() {
           <DialogHeader>
             <DialogTitle>Editar Política</DialogTitle>
             <DialogDescription>
-              Modifique los datos de la política de prevención de riesgos psicosociales
+              Modifique los datos de la política de prevención de riesgos
+              psicosociales
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -555,7 +640,9 @@ export default function Policies() {
               <Input
                 id="edit-nombre"
                 value={formData.nombre}
-                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, nombre: e.target.value })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -563,24 +650,35 @@ export default function Policies() {
               <Textarea
                 id="edit-descripcion"
                 value={formData.descripcion}
-                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, descripcion: e.target.value })
+                }
                 rows={8}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-fechaPublicacion">Fecha de Publicación *</Label>
+              <Label htmlFor="edit-fechaPublicacion">
+                Fecha de Publicación *
+              </Label>
               <Input
                 id="edit-fechaPublicacion"
                 type="date"
                 value={formData.fechaPublicacion}
-                onChange={(e) => setFormData({ ...formData, fechaPublicacion: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, fechaPublicacion: e.target.value })
+                }
               />
             </div>
-            
+
             {/* Selector de modo de PDF */}
             <div className="space-y-2">
               <Label>Archivo PDF</Label>
-              <Select value={editUploadMode} onValueChange={(value: 'keep' | 'upload') => setEditUploadMode(value)}>
+              <Select
+                value={editUploadMode}
+                onValueChange={(value: "keep" | "upload") =>
+                  setEditUploadMode(value)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -590,26 +688,28 @@ export default function Policies() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             {/* Campo de carga de archivo (solo si modo = upload) */}
-            {editUploadMode === 'upload' && (
+            {editUploadMode === "upload" && (
               <div className="space-y-2">
-                <Label htmlFor="edit-file-upload">Archivo PDF * (máximo 10MB)</Label>
+                <Label htmlFor="edit-file-upload">
+                  Archivo PDF * (máximo 10MB)
+                </Label>
                 <Input
                   id="edit-file-upload"
                   type="file"
                   accept=".pdf,application/pdf"
-                  onChange={(e) => {
+                  onChange={e => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      if (file.type !== 'application/pdf') {
-                        alert('Solo se permiten archivos PDF');
-                        e.target.value = '';
+                      if (file.type !== "application/pdf") {
+                        alert("Solo se permiten archivos PDF");
+                        e.target.value = "";
                         return;
                       }
                       if (file.size > 10 * 1024 * 1024) {
-                        alert('El archivo no debe superar los 10MB');
-                        e.target.value = '';
+                        alert("El archivo no debe superar los 10MB");
+                        e.target.value = "";
                         return;
                       }
                       setEditSelectedFile(file);
@@ -618,32 +718,38 @@ export default function Policies() {
                 />
                 {editSelectedFile && (
                   <p className="text-sm text-muted-foreground">
-                    Archivo seleccionado: {editSelectedFile.name} ({(editSelectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                    Archivo seleccionado: {editSelectedFile.name} (
+                    {(editSelectedFile.size / 1024 / 1024).toFixed(2)} MB)
                   </p>
                 )}
               </div>
             )}
-            
+
             {/* Campo de descripción del cambio */}
             <div className="space-y-2">
               <Label htmlFor="edit-changeDescription">
-                Descripción del cambio {editUploadMode === 'upload' && '*'}
+                Descripción del cambio {editUploadMode === "upload" && "*"}
               </Label>
               <Textarea
                 id="edit-changeDescription"
                 value={changeDescription}
-                onChange={(e) => setChangeDescription(e.target.value)}
+                onChange={e => setChangeDescription(e.target.value)}
                 placeholder="Describa brevemente los cambios realizados..."
                 rows={3}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+            >
               Cancelar
             </Button>
             <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Actualizando..." : "Actualizar Política"}
+              {updateMutation.isPending
+                ? "Actualizando..."
+                : "Actualizar Política"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -655,12 +761,15 @@ export default function Policies() {
           <DialogHeader>
             <DialogTitle>Historial de Versiones</DialogTitle>
             <DialogDescription>
-              Versiones anteriores de la política. Puede restaurar cualquier versión anterior.
+              Versiones anteriores de la política. Puede restaurar cualquier
+              versión anterior.
             </DialogDescription>
           </DialogHeader>
-          
+
           {isLoadingVersions ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando historial...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              Cargando historial...
+            </div>
           ) : !policyVersions || policyVersions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               No hay versiones anteriores de esta política.
@@ -683,7 +792,11 @@ export default function Policies() {
                       <Badge variant="outline">v{version.versionNumber}</Badge>
                     </TableCell>
                     <TableCell>
-                      {format(new Date(version.createdAt), "d 'de' MMMM 'de' yyyy, HH:mm", { locale: es })}
+                      {format(
+                        new Date(version.createdAt),
+                        "d 'de' MMMM 'de' yyyy, HH:mm",
+                        { locale: es }
+                      )}
                     </TableCell>
                     <TableCell>
                       {version.changeDescription || "Sin descripción"}
@@ -695,7 +808,9 @@ export default function Policies() {
                           size="sm"
                           onClick={() => {
                             setPdfViewerUrl(version.pdfUrl!);
-                            setPdfViewerTitle(`${selectedPolicy?.nombre || 'Política'} - Versión ${version.versionNumber}`);
+                            setPdfViewerTitle(
+                              `${selectedPolicy?.nombre || "Política"} - Versión ${version.versionNumber}`
+                            );
                             setIsPDFViewerOpen(true);
                           }}
                         >
@@ -703,7 +818,9 @@ export default function Policies() {
                           Ver PDF
                         </Button>
                       ) : (
-                        <span className="text-muted-foreground text-sm">Sin PDF</span>
+                        <span className="text-muted-foreground text-sm">
+                          Sin PDF
+                        </span>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -711,13 +828,21 @@ export default function Policies() {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          if (confirm(`¿Está seguro de restaurar la versión ${version.versionNumber}? La versión actual se guardará como una nueva versión.`)) {
-                            restoreVersionMutation.mutate({ versionId: version.id });
+                          if (
+                            confirm(
+                              `¿Está seguro de restaurar la versión ${version.versionNumber}? La versión actual se guardará como una nueva versión.`
+                            )
+                          ) {
+                            restoreVersionMutation.mutate({
+                              versionId: version.id,
+                            });
                           }
                         }}
                         disabled={restoreVersionMutation.isPending}
                       >
-                        {restoreVersionMutation.isPending ? "Restaurando..." : "Restaurar"}
+                        {restoreVersionMutation.isPending
+                          ? "Restaurando..."
+                          : "Restaurar"}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -727,7 +852,10 @@ export default function Policies() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsHistoryDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsHistoryDialogOpen(false)}
+            >
               Cerrar
             </Button>
           </DialogFooter>

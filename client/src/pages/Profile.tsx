@@ -1,17 +1,39 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { User, Mail, Shield, Calendar, Award, Bell, Clock, CalendarDays, CheckCircle2 } from "lucide-react";
+import {
+  User,
+  Mail,
+  Shield,
+  Calendar,
+  Award,
+  Bell,
+  Clock,
+  CalendarDays,
+  CheckCircle2,
+} from "lucide-react";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -26,7 +48,8 @@ export default function Profile() {
   const [prefsSaved, setPrefsSaved] = useState(false);
 
   // Fetch existing preferences
-  const { data: prefsData, isLoading: prefsLoading } = trpc.notificationPreferences.getPreferences.useQuery();
+  const { data: prefsData, isLoading: prefsLoading } =
+    trpc.notificationPreferences.getPreferences.useQuery();
   useEffect(() => {
     if (prefsData) {
       setRealtimeEnabled(prefsData.realtimeEnabled ?? true);
@@ -37,16 +60,25 @@ export default function Profile() {
     }
   }, [prefsData]);
 
-  const updatePrefsMutation = trpc.notificationPreferences.updatePreferences.useMutation({
-    onSuccess: () => {
-      setPrefsSaved(true);
-      setTimeout(() => setPrefsSaved(false), 3000);
-      toast({ title: "Preferencias guardadas", description: "Tus preferencias de notificación han sido actualizadas." });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "No se pudieron guardar las preferencias.", variant: "destructive" });
-    },
-  });
+  const updatePrefsMutation =
+    trpc.notificationPreferences.updatePreferences.useMutation({
+      onSuccess: () => {
+        setPrefsSaved(true);
+        setTimeout(() => setPrefsSaved(false), 3000);
+        toast({
+          title: "Preferencias guardadas",
+          description:
+            "Tus preferencias de notificación han sido actualizadas.",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "No se pudieron guardar las preferencias.",
+          variant: "destructive",
+        });
+      },
+    });
 
   const handleSavePrefs = () => {
     updatePrefsMutation.mutate({
@@ -60,7 +92,12 @@ export default function Profile() {
 
   const getInitials = (name: string) => {
     if (!name) return "U";
-    return name.split(" ").map((n: any) => n[0]).join("").toUpperCase().slice(0, 2);
+    return name
+      .split(" ")
+      .map((n: any) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const getRoleLabel = (role: string) => {
@@ -115,24 +152,35 @@ export default function Profile() {
                 </AvatarFallback>
               </Avatar>
               <div className="text-center space-y-1">
-                <h3 className="font-semibold text-lg">{user?.name || "Usuario"}</h3>
-                <Badge variant="secondary">{getRoleLabel(user?.role || "student")}</Badge>
+                <h3 className="font-semibold text-lg">
+                  {user?.name || "Usuario"}
+                </h3>
+                <Badge variant="secondary">
+                  {getRoleLabel(user?.role || "student")}
+                </Badge>
               </div>
             </div>
 
             <div className="space-y-4 pt-4 border-t">
               <div className="flex items-center gap-3 text-sm">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground truncate">{user?.email || "No disponible"}</span>
+                <span className="text-muted-foreground truncate">
+                  {user?.email || "No disponible"}
+                </span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Shield className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{getRoleLabel(user?.role || "student")}</span>
+                <span className="text-muted-foreground">
+                  {getRoleLabel(user?.role || "student")}
+                </span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
-                  Miembro desde {user?.createdAt ? new Date(user.createdAt).toLocaleDateString("es-MX") : "N/A"}
+                  Miembro desde{" "}
+                  {user?.createdAt
+                    ? new Date(user.createdAt).toLocaleDateString("es-MX")
+                    : "N/A"}
                 </span>
               </div>
             </div>
@@ -155,7 +203,11 @@ export default function Profile() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Correo Electrónico</Label>
-                <Input id="email" type="email" defaultValue={user?.email || ""} />
+                <Input
+                  id="email"
+                  type="email"
+                  defaultValue={user?.email || ""}
+                />
               </div>
             </div>
 
@@ -172,7 +224,10 @@ export default function Profile() {
 
             <div className="space-y-2">
               <Label htmlFor="position">Puesto</Label>
-              <Input id="position" placeholder="Ej: Gerente de Recursos Humanos" />
+              <Input
+                id="position"
+                placeholder="Ej: Gerente de Recursos Humanos"
+              />
             </div>
 
             <div className="flex gap-2 pt-4">
@@ -191,12 +246,15 @@ export default function Profile() {
             <CardTitle>Preferencias de Notificaciones</CardTitle>
           </div>
           <CardDescription>
-            Elige cómo y cuándo deseas recibir notificaciones del sistema NOM-035
+            Elige cómo y cuándo deseas recibir notificaciones del sistema
+            NOM-035
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {prefsLoading ? (
-            <div className="text-sm text-muted-foreground">Cargando preferencias...</div>
+            <div className="text-sm text-muted-foreground">
+              Cargando preferencias...
+            </div>
           ) : (
             <>
               {/* Tiempo real */}
@@ -206,9 +264,12 @@ export default function Profile() {
                     <Bell className="h-4 w-4 text-blue-500" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm">Notificaciones en tiempo real</p>
+                    <p className="font-medium text-sm">
+                      Notificaciones en tiempo real
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      Recibe alertas instantáneas dentro de la plataforma cuando ocurran eventos importantes
+                      Recibe alertas instantáneas dentro de la plataforma cuando
+                      ocurran eventos importantes
                     </p>
                   </div>
                 </div>
@@ -228,9 +289,12 @@ export default function Profile() {
                       <Clock className="h-4 w-4 text-green-500" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm">Resumen diario por correo</p>
+                      <p className="font-medium text-sm">
+                        Resumen diario por correo
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        Recibe un correo con el resumen de actividades del día a la hora que elijas
+                        Recibe un correo con el resumen de actividades del día a
+                        la hora que elijas
                       </p>
                     </div>
                   </div>
@@ -241,13 +305,18 @@ export default function Profile() {
                 </div>
                 {dailyEmailEnabled && (
                   <div className="ml-12 flex items-center gap-3">
-                    <Label className="text-sm text-muted-foreground whitespace-nowrap">Hora de envío:</Label>
-                    <Select value={dailyEmailHour} onValueChange={setDailyEmailHour}>
+                    <Label className="text-sm text-muted-foreground whitespace-nowrap">
+                      Hora de envío:
+                    </Label>
+                    <Select
+                      value={dailyEmailHour}
+                      onValueChange={setDailyEmailHour}
+                    >
                       <SelectTrigger className="w-40">
                         <SelectValue placeholder="Seleccionar hora" />
                       </SelectTrigger>
                       <SelectContent>
-                        {hourOptions.map((opt) => (
+                        {hourOptions.map(opt => (
                           <SelectItem key={opt.value} value={opt.value}>
                             {opt.label}
                           </SelectItem>
@@ -268,9 +337,12 @@ export default function Profile() {
                       <CalendarDays className="h-4 w-4 text-purple-500" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm">Resumen semanal por correo</p>
+                      <p className="font-medium text-sm">
+                        Resumen semanal por correo
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        Recibe un correo con el resumen semanal de actividades el día que elijas
+                        Recibe un correo con el resumen semanal de actividades
+                        el día que elijas
                       </p>
                     </div>
                   </div>
@@ -281,13 +353,18 @@ export default function Profile() {
                 </div>
                 {weeklyEmailEnabled && (
                   <div className="ml-12 flex items-center gap-3">
-                    <Label className="text-sm text-muted-foreground whitespace-nowrap">Día de envío:</Label>
-                    <Select value={weeklyEmailDay} onValueChange={setWeeklyEmailDay}>
+                    <Label className="text-sm text-muted-foreground whitespace-nowrap">
+                      Día de envío:
+                    </Label>
+                    <Select
+                      value={weeklyEmailDay}
+                      onValueChange={setWeeklyEmailDay}
+                    >
                       <SelectTrigger className="w-40">
                         <SelectValue placeholder="Seleccionar día" />
                       </SelectTrigger>
                       <SelectContent>
-                        {dayOptions.map((opt) => (
+                        {dayOptions.map(opt => (
                           <SelectItem key={opt.value} value={opt.value}>
                             {opt.label}
                           </SelectItem>
@@ -306,7 +383,9 @@ export default function Profile() {
                   disabled={updatePrefsMutation.isPending}
                   className="min-w-[160px]"
                 >
-                  {updatePrefsMutation.isPending ? "Guardando..." : "Guardar preferencias"}
+                  {updatePrefsMutation.isPending
+                    ? "Guardando..."
+                    : "Guardar preferencias"}
                 </Button>
                 {prefsSaved && (
                   <div className="flex items-center gap-1 text-sm text-green-600">
@@ -325,12 +404,16 @@ export default function Profile() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Cursos Completados</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Cursos Completados
+              </CardTitle>
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">5</div>
-              <p className="text-xs text-muted-foreground">Certificaciones obtenidas</p>
+              <p className="text-xs text-muted-foreground">
+                Certificaciones obtenidas
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -350,7 +433,9 @@ export default function Profile() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">85%</div>
-              <p className="text-xs text-muted-foreground">Calificación promedio</p>
+              <p className="text-xs text-muted-foreground">
+                Calificación promedio
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -369,7 +454,8 @@ export default function Profile() {
             <div>
               <h4 className="font-medium">Cambiar Contraseña</h4>
               <p className="text-sm text-muted-foreground">
-                Actualiza tu contraseña periódicamente para mantener tu cuenta segura
+                Actualiza tu contraseña periódicamente para mantener tu cuenta
+                segura
               </p>
             </div>
             <Button variant="outline">Cambiar</Button>

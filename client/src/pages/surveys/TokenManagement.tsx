@@ -1,11 +1,30 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Download, QrCode, Plus, Trash2, Copy, Check } from "lucide-react";
 import QRCode from "qrcode";
@@ -23,32 +42,34 @@ export default function TokenManagement() {
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
 
   // Queries
-  const { data: tokensData, refetch: refetchTokens } = trpc.surveyAnonymousTokens.getAll.useQuery({
-    page: 1,
-    pageSize: 50,
-  });
+  const { data: tokensData, refetch: refetchTokens } =
+    trpc.surveyAnonymousTokens.getAll.useQuery({
+      page: 1,
+      pageSize: 50,
+    });
 
   const { data: statsData } = trpc.surveyAnonymousTokens.getStats.useQuery();
 
   // Mutations
-  const generateBulkMutation = trpc.surveyAnonymousTokens.generateBatch.useMutation({
-    onSuccess: () => {
-      alert(`✅ ${quantity} tokens generados exitosamente`);
-      refetchTokens();
-      setQuantity(1);
-      setNotes("");
-    },
-    onError: (error) => {
-      alert(`❌ Error al generar tokens: ${error.message}`);
-    },
-  });
+  const generateBulkMutation =
+    trpc.surveyAnonymousTokens.generateBatch.useMutation({
+      onSuccess: () => {
+        alert(`✅ ${quantity} tokens generados exitosamente`);
+        refetchTokens();
+        setQuantity(1);
+        setNotes("");
+      },
+      onError: error => {
+        alert(`❌ Error al generar tokens: ${error.message}`);
+      },
+    });
 
   const revokeMutation = trpc.surveyAnonymousTokens.revokeToken.useMutation({
     onSuccess: () => {
       alert("✅ Token revocado exitosamente");
       refetchTokens();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`❌ Error al revocar token: ${error.message}`);
     },
   });
@@ -106,12 +127,29 @@ export default function TokenManagement() {
 
     const exportData = tokensData.tokens.map((token: any) => ({
       Token: token.token,
-      "Tipo de Encuesta": token.surveyType === "guia_i" ? "Guía I" : token.surveyType === "guia_ii" ? "Guía II" : "Guía III",
+      "Tipo de Encuesta":
+        token.surveyType === "guia_i"
+          ? "Guía I"
+          : token.surveyType === "guia_ii"
+            ? "Guía II"
+            : "Guía III",
       "URL de Acceso": `${window.location.origin}/survey/anonymous/${token.token}`,
-      Estado: token.isRevoked ? "Revocado" : token.usedAt ? "Usado" : token.expiresAt && new Date(token.expiresAt) < new Date() ? "Expirado" : "Activo",
-      "Fecha de Creación": new Date(token.createdAt).toLocaleDateString("es-MX"),
-      "Fecha de Expiración": token.expiresAt ? new Date(token.expiresAt).toLocaleDateString("es-MX") : "Sin expiración",
-      "Usado el": token.usedAt ? new Date(token.usedAt).toLocaleDateString("es-MX") : "No usado",
+      Estado: token.isRevoked
+        ? "Revocado"
+        : token.usedAt
+          ? "Usado"
+          : token.expiresAt && new Date(token.expiresAt) < new Date()
+            ? "Expirado"
+            : "Activo",
+      "Fecha de Creación": new Date(token.createdAt).toLocaleDateString(
+        "es-MX"
+      ),
+      "Fecha de Expiración": token.expiresAt
+        ? new Date(token.expiresAt).toLocaleDateString("es-MX")
+        : "Sin expiración",
+      "Usado el": token.usedAt
+        ? new Date(token.usedAt).toLocaleDateString("es-MX")
+        : "No usado",
       Notas: token.notes || "",
     }));
 
@@ -132,11 +170,18 @@ export default function TokenManagement() {
       { wch: maxWidth }, // Notas
     ];
 
-    XLSX.writeFile(workbook, `tokens-anonimos-${new Date().toISOString().split("T")[0]}.xlsx`);
+    XLSX.writeFile(
+      workbook,
+      `tokens-anonimos-${new Date().toISOString().split("T")[0]}.xlsx`
+    );
   };
 
   const handleRevokeToken = (tokenId: number) => {
-    if (confirm("¿Estás seguro de que deseas revocar este token? Esta acción no se puede deshacer.")) {
+    if (
+      confirm(
+        "¿Estás seguro de que deseas revocar este token? Esta acción no se puede deshacer."
+      )
+    ) {
       revokeMutation.mutate({ tokenId });
     }
   };
@@ -155,18 +200,23 @@ export default function TokenManagement() {
   };
 
   const getTokenStatus = (token: any) => {
-    if (token.isRevoked) return { label: "Revocado", variant: "destructive" as const };
+    if (token.isRevoked)
+      return { label: "Revocado", variant: "destructive" as const };
     if (token.usedAt) return { label: "Usado", variant: "secondary" as const };
-    if (token.expiresAt && new Date(token.expiresAt) < new Date()) return { label: "Expirado", variant: "outline" as const };
+    if (token.expiresAt && new Date(token.expiresAt) < new Date())
+      return { label: "Expirado", variant: "outline" as const };
     return { label: "Activo", variant: "default" as const };
   };
 
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Gestión de Tokens de Acceso Anónimo</h1>
+        <h1 className="text-3xl font-bold">
+          Gestión de Tokens de Acceso Anónimo
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Genera y administra tokens para que los empleados respondan encuestas sin necesidad de iniciar sesión
+          Genera y administra tokens para que los empleados respondan encuestas
+          sin necesidad de iniciar sesión
         </p>
       </div>
 
@@ -175,7 +225,9 @@ export default function TokenManagement() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total de Tokens</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total de Tokens
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{statsData.total}</div>
@@ -183,34 +235,50 @@ export default function TokenManagement() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Activos</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Activos
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{statsData.active}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {statsData.active}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Usados</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Usados
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{statsData.used}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {statsData.used}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Expirados</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Expirados
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{statsData.expired}</div>
+              <div className="text-2xl font-bold text-orange-600">
+                {statsData.expired}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Revocados</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Revocados
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{statsData.revoked}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {statsData.revoked}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -220,20 +288,31 @@ export default function TokenManagement() {
       <Card>
         <CardHeader>
           <CardTitle>Generar Tokens</CardTitle>
-          <CardDescription>Crea tokens de acceso anónimo para encuestas NOM-035</CardDescription>
+          <CardDescription>
+            Crea tokens de acceso anónimo para encuestas NOM-035
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="surveyType">Tipo de Encuesta</Label>
-              <Select value={surveyType} onValueChange={(value) => setSurveyType(value as SurveyType)}>
+              <Select
+                value={surveyType}
+                onValueChange={value => setSurveyType(value as SurveyType)}
+              >
                 <SelectTrigger id="surveyType">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="guia_i">Guía I - Factores de Riesgo</SelectItem>
-                  <SelectItem value="guia_ii">Guía II - Identificación de Trabajadores</SelectItem>
-                  <SelectItem value="guia_iii">Guía III - Evaluación del Entorno</SelectItem>
+                  <SelectItem value="guia_i">
+                    Guía I - Factores de Riesgo
+                  </SelectItem>
+                  <SelectItem value="guia_ii">
+                    Guía II - Identificación de Trabajadores
+                  </SelectItem>
+                  <SelectItem value="guia_iii">
+                    Guía III - Evaluación del Entorno
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -246,7 +325,7 @@ export default function TokenManagement() {
                 min={1}
                 max={1000}
                 value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                onChange={e => setQuantity(parseInt(e.target.value) || 1)}
                 placeholder="1-1000"
               />
             </div>
@@ -259,7 +338,9 @@ export default function TokenManagement() {
                 min={1}
                 max={365}
                 value={expirationDays}
-                onChange={(e) => setExpirationDays(parseInt(e.target.value) || 30)}
+                onChange={e =>
+                  setExpirationDays(parseInt(e.target.value) || 30)
+                }
                 placeholder="30"
               />
             </div>
@@ -269,18 +350,28 @@ export default function TokenManagement() {
               <Input
                 id="notes"
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={e => setNotes(e.target.value)}
                 placeholder="Ej: Tokens para Depto. RH"
               />
             </div>
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={handleGenerateTokens} disabled={generateBulkMutation.isPending} className="gap-2">
+            <Button
+              onClick={handleGenerateTokens}
+              disabled={generateBulkMutation.isPending}
+              className="gap-2"
+            >
               <Plus className="w-4 h-4" />
-              {generateBulkMutation.isPending ? "Generando..." : "Generar Tokens"}
+              {generateBulkMutation.isPending
+                ? "Generando..."
+                : "Generar Tokens"}
             </Button>
-            <Button variant="outline" onClick={handleExportToExcel} className="gap-2">
+            <Button
+              variant="outline"
+              onClick={handleExportToExcel}
+              className="gap-2"
+            >
               <Download className="w-4 h-4" />
               Exportar a Excel
             </Button>
@@ -292,7 +383,9 @@ export default function TokenManagement() {
       <Card>
         <CardHeader>
           <CardTitle>Tokens Generados</CardTitle>
-          <CardDescription>Lista de todos los tokens de acceso anónimo</CardDescription>
+          <CardDescription>
+            Lista de todos los tokens de acceso anónimo
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {tokensData && tokensData.tokens.length > 0 ? (
@@ -315,19 +408,35 @@ export default function TokenManagement() {
                     const status = getTokenStatus(token);
                     return (
                       <TableRow key={token.id}>
-                        <TableCell className="font-mono text-xs">{token.token.substring(0, 12)}...</TableCell>
-                        <TableCell>{getSurveyTypeLabel(token.surveyType)}</TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {token.token.substring(0, 12)}...
+                        </TableCell>
+                        <TableCell>
+                          {getSurveyTypeLabel(token.surveyType)}
+                        </TableCell>
                         <TableCell>
                           <Badge variant={status.variant}>{status.label}</Badge>
                         </TableCell>
-                        <TableCell>{new Date(token.createdAt).toLocaleDateString("es-MX")}</TableCell>
                         <TableCell>
-                          {token.expiresAt ? new Date(token.expiresAt).toLocaleDateString("es-MX") : "Sin expiración"}
+                          {new Date(token.createdAt).toLocaleDateString(
+                            "es-MX"
+                          )}
                         </TableCell>
                         <TableCell>
-                          {token.usedAt ? new Date(token.usedAt).toLocaleDateString("es-MX") : "-"}
+                          {token.expiresAt
+                            ? new Date(token.expiresAt).toLocaleDateString(
+                                "es-MX"
+                              )
+                            : "Sin expiración"}
                         </TableCell>
-                        <TableCell className="max-w-[200px] truncate">{token.notes || "-"}</TableCell>
+                        <TableCell>
+                          {token.usedAt
+                            ? new Date(token.usedAt).toLocaleDateString("es-MX")
+                            : "-"}
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {token.notes || "-"}
+                        </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
                             <Button
@@ -373,7 +482,8 @@ export default function TokenManagement() {
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              No hay tokens generados. Genera tu primer token usando el formulario de arriba.
+              No hay tokens generados. Genera tu primer token usando el
+              formulario de arriba.
             </div>
           )}
         </CardContent>
@@ -381,8 +491,14 @@ export default function TokenManagement() {
 
       {/* Modal de QR Code */}
       {qrModalToken && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setQrModalToken(null)}>
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setQrModalToken(null)}
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+            onClick={e => e.stopPropagation()}
+          >
             <h3 className="text-lg font-semibold mb-4">Código QR del Token</h3>
             <div className="flex justify-center mb-4">
               <img src={qrDataUrl} alt="QR Code" className="w-64 h-64" />
@@ -395,7 +511,11 @@ export default function TokenManagement() {
                 <Download className="w-4 h-4" />
                 Descargar QR
               </Button>
-              <Button variant="outline" onClick={() => setQrModalToken(null)} className="flex-1">
+              <Button
+                variant="outline"
+                onClick={() => setQrModalToken(null)}
+                className="flex-1"
+              >
                 Cerrar
               </Button>
             </div>

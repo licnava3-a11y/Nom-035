@@ -3,14 +3,14 @@
  * Router tRPC para gestión de reportes anuales del comité NOM-035
  */
 
-import { z } from 'zod';
-import { router, protectedProcedure } from '../_core/trpc';
-import { getDb } from '../db';
-import { committeeAnnualReports, signatures } from '../../drizzle/schema';
-import { eq, desc } from 'drizzle-orm';
-import { TRPCError } from '@trpc/server';
-import { generateAnnualReportPDF } from '../services/committeeDocumentsPDF';
-import { storagePut } from '../storage';
+import { z } from "zod";
+import { router, protectedProcedure } from "../_core/trpc";
+import { getDb } from "../db";
+import { committeeAnnualReports, signatures } from "../../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+import { generateAnnualReportPDF } from "../services/committeeDocumentsPDF";
+import { storagePut } from "../storage";
 
 /**
  * Router de reportes anuales del comité
@@ -24,16 +24,22 @@ export const committeeAnnualReportsRouter = router({
       z.object({
         limit: z.number().min(1).max(100).default(20),
         offset: z.number().min(0).default(0),
-        status: z.enum(['draft', 'final', 'approved']).optional(),
+        status: z.enum(["draft", "final", "approved"]).optional(),
       })
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       const { limit, offset, status } = input;
 
-      const where = status ? eq(committeeAnnualReports.status, status) : undefined;
+      const where = status
+        ? eq(committeeAnnualReports.status, status)
+        : undefined;
 
       const reports = await db
         .select()
@@ -56,7 +62,11 @@ export const committeeAnnualReportsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       const report = await db
         .select()
@@ -65,7 +75,10 @@ export const committeeAnnualReportsRouter = router({
         .limit(1);
 
       if (!report.length) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Reporte no encontrado' });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Reporte no encontrado",
+        });
       }
 
       return report[0];
@@ -90,12 +103,16 @@ export const committeeAnnualReportsRouter = router({
         actionPlan: z.string().min(1),
         attachments: z.string().optional(), // JSON string
         signatures: z.string(), // JSON string
-        status: z.enum(['draft', 'final', 'approved']).default('draft'),
+        status: z.enum(["draft", "final", "approved"]).default("draft"),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       // Obtener el último número de folio del año del reporte
       const lastReport = await db
@@ -105,13 +122,15 @@ export const committeeAnnualReportsRouter = router({
         .orderBy(desc(committeeAnnualReports.folioNumber))
         .limit(1);
 
-      const nextFolioNumber = lastReport.length ? lastReport[0].folioNumber + 1 : 1;
+      const nextFolioNumber = lastReport.length
+        ? lastReport[0].folioNumber + 1
+        : 1;
 
       const result = await (db.insert(committeeAnnualReports) as any).values({
         folioNumber: nextFolioNumber,
         folioYear: input.reportYear,
-        folioCode: 'ARF',
-        folioVersion: '1.0',
+        folioCode: "ARF",
+        folioVersion: "1.0",
         reportYear: input.reportYear,
         startDate: new Date(input.startDate),
         endDate: new Date(input.endDate),
@@ -134,7 +153,7 @@ export const committeeAnnualReportsRouter = router({
         id: Number(result.insertId),
         folioNumber: nextFolioNumber,
         folioYear: input.reportYear,
-        message: 'Reporte anual creado exitosamente',
+        message: "Reporte anual creado exitosamente",
       };
     }),
 
@@ -155,20 +174,27 @@ export const committeeAnnualReportsRouter = router({
         actionPlan: z.string().optional(),
         attachments: z.string().optional(),
         signatures: z.string().optional(),
-        status: z.enum(['draft', 'final', 'approved']).optional(),
+        status: z.enum(["draft", "final", "approved"]).optional(),
       })
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       const { id, ...updates } = input;
 
-      await db.update(committeeAnnualReports).set(updates).where(eq(committeeAnnualReports.id, id));
+      await db
+        .update(committeeAnnualReports)
+        .set(updates)
+        .where(eq(committeeAnnualReports.id, id));
 
       return {
         success: true,
-        message: 'Reporte anual actualizado exitosamente',
+        message: "Reporte anual actualizado exitosamente",
       };
     }),
 
@@ -179,13 +205,19 @@ export const committeeAnnualReportsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
-      await db.delete(committeeAnnualReports).where(eq(committeeAnnualReports.id, input.id));
+      await db
+        .delete(committeeAnnualReports)
+        .where(eq(committeeAnnualReports.id, input.id));
 
       return {
         success: true,
-        message: 'Reporte anual eliminado exitosamente',
+        message: "Reporte anual eliminado exitosamente",
       };
     }),
 
@@ -196,7 +228,11 @@ export const committeeAnnualReportsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       const report = await db
         .select()
@@ -205,11 +241,14 @@ export const committeeAnnualReportsRouter = router({
         .limit(1);
 
       if (!report.length) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Reporte no encontrado' });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Reporte no encontrado",
+        });
       }
 
       const data = report[0];
-      const folio = `${data.folioCode}-${String(data.folioNumber).padStart(3, '0')}/${data.folioYear}`;
+      const folio = `${data.folioCode}-${String(data.folioNumber).padStart(3, "0")}/${data.folioYear}`;
 
       const pdfDoc = await generateAnnualReportPDF({
         folio,
@@ -224,28 +263,28 @@ export const committeeAnnualReportsRouter = router({
 
       // Convertir el stream del PDF a buffer
       const chunks: Buffer[] = [];
-      pdfDoc.on('data', (chunk) => chunks.push(chunk));
+      pdfDoc.on("data", chunk => chunks.push(chunk));
 
       await new Promise<void>((resolve, reject) => {
-        pdfDoc.on('end', () => resolve());
-        pdfDoc.on('error', reject);
+        pdfDoc.on("end", () => resolve());
+        pdfDoc.on("error", reject);
       });
 
       const pdfBuffer = Buffer.concat(chunks);
 
       // Subir PDF a S3
       const { url: pdfUrl, key: pdfKey } = await storagePut(
-        `committee-annual-reports/${folio.replace('/', '-')}.pdf`,
+        `committee-annual-reports/${folio.replace("/", "-")}.pdf`,
         pdfBuffer,
-        'application/pdf'
+        "application/pdf"
       );
 
       return {
         success: true,
         pdfUrl,
         pdfKey,
-        filename: `${folio.replace('/', '-')}.pdf`,
-        message: 'PDF generado exitosamente',
+        filename: `${folio.replace("/", "-")}.pdf`,
+        message: "PDF generado exitosamente",
       };
     }),
 
@@ -256,16 +295,20 @@ export const committeeAnnualReportsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       await db
         .update(committeeAnnualReports)
-        .set({ status: 'final' } as any)
+        .set({ status: "final" } as any)
         .where(eq(committeeAnnualReports.id, input.id));
 
       return {
         success: true,
-        message: 'Reporte publicado exitosamente',
+        message: "Reporte publicado exitosamente",
       };
     }),
 
@@ -276,12 +319,16 @@ export const committeeAnnualReportsRouter = router({
     .input(z.object({ id: z.number(), approvedBy: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
       await db
         .update(committeeAnnualReports)
         .set({
-          status: 'approved',
+          status: "approved",
           approvedBy: input.approvedBy,
           approvedAt: new Date(),
         } as any)
@@ -289,7 +336,7 @@ export const committeeAnnualReportsRouter = router({
 
       return {
         success: true,
-        message: 'Reporte aprobado exitosamente',
+        message: "Reporte aprobado exitosamente",
       };
     }),
 });

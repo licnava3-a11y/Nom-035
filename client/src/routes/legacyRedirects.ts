@@ -5,7 +5,10 @@ export type LegacyRedirect = {
 
 /** Rutas históricas conservadas para evitar 404 en enlaces guardados o correos previos. */
 export const legacyRedirects: LegacyRedirect[] = [
-  { path: "/administrative/expenses/:id", to: "/administrative/expense-requests" },
+  {
+    path: "/administrative/expenses/:id",
+    to: "/administrative/expense-requests",
+  },
   { path: "/administrative/expenses", to: "/administrative/expense-requests" },
   { path: "/compliance/checklist", to: "/compliance-checklist" },
   { path: "/documents/history", to: "/documents-history" },

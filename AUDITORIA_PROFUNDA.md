@@ -1,4 +1,5 @@
 # Auditoría Profunda del Sistema NOM-035
+
 **Fecha:** 2026-02-07
 **Versión:** b77a7d41
 
@@ -13,11 +14,13 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 ### 1.1 Errores removeChild Identificados
 
 **✅ CORREGIDOS:**
+
 - `/surveys/tracking` - Select de departamentos (FASE 77)
 - `/surveys/periods` - 3 Selects de filtros y creación (FASE 80)
 - `/cases` - Select de tipo de caso en CaseDialog (FASE 76)
 
 **⚠️ POTENCIALES (Requieren Revisión):**
+
 1. **DocumentAceptacionCargo.tsx** (línea 103)
    - Select con `cargos.map()` - Opciones dinámicas sin useMemo
    - Riesgo: MEDIO
@@ -57,6 +60,7 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 ### 2.2 Tareas Críticas Pendientes
 
 #### FASE 69: Panel de Acciones Correctivas
+
 - [ ] Implementar filtros por nivel de riesgo
 - [ ] Implementar paginación
 - [ ] Implementar gráficas de distribución y cumplimiento
@@ -66,6 +70,7 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 - [ ] Probar flujo completo
 
 #### FASE 71: Sistema de Tokens Anónimos
+
 - [ ] Crear tabla survey_tokens
 - [ ] Implementar generación y validación de tokens
 - [ ] Crear página de acceso con token
@@ -73,15 +78,18 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 - [ ] Probar flujo completo de acceso anónimo
 
 #### FASE 72: Corrección de Errores TypeScript
+
 - [ ] Revisar fragmentos React
 - [ ] Validar props opcionales
 - [ ] Corregir problemas de keys en listas
 - [ ] Agregar validaciones para datos opcionales
 
 #### FASE 73: Pruebas Exhaustivas de Módulos
+
 - [ ] Probar 8 módulos principales (Casos, Encuestas, Buzón, Comité, Trabajadores, Documentos, Reportes, Acciones Correctivas)
 
 #### FASE 74: Exportación de Resultados de Encuestas
+
 - [ ] Implementar exportación a Excel de resultados agregados
 - [ ] Crear componente SurveyAdmin.tsx
 - [ ] Agregar gráficas estadísticas (Chart.js)
@@ -101,8 +109,10 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 ### 3.1 Oportunidades de Correlación Identificadas
 
 #### 3.1.1 Trabajadores → Casos
+
 **Estado Actual:** Los casos NO prellenan información del trabajador
 **Oportunidad:**
+
 - Cuando se crea un caso para un trabajador específico, prellenar:
   - Nombre del reportante
   - Email del reportante
@@ -112,8 +122,10 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 **Impacto:** Reduce 4 campos de captura manual
 
 #### 3.1.2 Trabajadores → Encuestas
+
 **Estado Actual:** Las encuestas requieren token o login
 **Oportunidad:**
+
 - Cuando un trabajador autenticado accede a una encuesta, prellenar:
   - Nombre completo
   - Departamento
@@ -123,8 +135,10 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 **Impacto:** Reduce 4 campos de captura manual
 
 #### 3.1.3 Trabajadores → Comité
+
 **Estado Actual:** Al agregar miembro al comité, se captura manualmente
 **Oportunidad:**
+
 - Usar selector de trabajadores existentes con:
   - Nombre completo (prellenado)
   - Email (prellenado)
@@ -134,8 +148,10 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 **Impacto:** Reduce 3 campos de captura manual
 
 #### 3.1.4 Trabajadores → Documentos
+
 **Estado Actual:** Los documentos requieren captura manual de firmantes
 **Oportunidad:**
+
 - Selector de trabajadores para firmantes con:
   - Nombre (prellenado)
   - Puesto (prellenado)
@@ -144,8 +160,10 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 **Impacto:** Reduce 2 campos de captura manual por firmante
 
 #### 3.1.5 Cursos → Evaluaciones
+
 **Estado Actual:** Las evaluaciones no están vinculadas a cursos
 **Oportunidad:**
+
 - Al crear evaluación desde un curso, prellenar:
   - Nombre del curso
   - Instructor
@@ -155,8 +173,10 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 **Impacto:** Reduce 4 campos de captura manual
 
 #### 3.1.6 Encuestas → Acciones Correctivas
+
 **Estado Actual:** Las acciones correctivas se crean manualmente
 **Oportunidad:**
+
 - Al detectar riesgo alto en encuesta, sugerir acción correctiva con:
   - Descripción basada en resultados
   - Nivel de riesgo (prellenado)
@@ -168,7 +188,9 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 ### 3.2 Campos Duplicados Identificados
 
 #### 3.2.1 Información de Trabajadores
+
 **Duplicado en:**
+
 - Módulo de Trabajadores
 - Módulo de Casos (reportante)
 - Módulo de Comité (miembros)
@@ -178,7 +200,9 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 **Solución:** Crear componente `WorkerSelector` reutilizable
 
 #### 3.2.2 Información de Departamentos
+
 **Duplicado en:**
+
 - Módulo de Trabajadores
 - Módulo de Casos
 - Módulo de Acciones Correctivas
@@ -187,7 +211,9 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 **Solución:** Crear hook `useDepartments()` centralizado
 
 #### 3.2.3 Fechas y Períodos
+
 **Duplicado en:**
+
 - Múltiples módulos con filtros de fecha
 - Formatos inconsistentes (YYYY-MM-DD, DD/MM/YYYY, timestamps)
 
@@ -200,29 +226,37 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 ### 4.1 Flujos Confusos o Repetitivos
 
 #### 4.1.1 Creación de Casos
+
 **Problema:** Formulario largo con 8 campos obligatorios
 **Mejora Sugerida:**
+
 - Dividir en 2 pasos: (1) Información básica, (2) Detalles adicionales
 - Agregar opción "Caso rápido" con solo 3 campos esenciales
 - Prellenar información si el usuario está autenticado
 
 #### 4.1.2 Seguimiento de Encuestas
+
 **Problema:** No hay indicador visual de progreso
 **Mejora Sugerida:**
+
 - Agregar barra de progreso en encuestas largas
 - Mostrar "X de Y preguntas respondidas"
 - Permitir guardar progreso y continuar después
 
 #### 4.1.3 Gestión de Documentos
+
 **Problema:** No hay vista previa de documentos
 **Mejora Sugerida:**
+
 - Agregar vista previa en modal antes de descargar
 - Mostrar miniatura del documento en la lista
 - Permitir firma digital directamente en la plataforma
 
 #### 4.1.4 Dashboard Principal
+
 **Problema:** Información estática, no personalizada
 **Mejora Sugerida:**
+
 - Mostrar alertas personalizadas según rol del usuario
 - Agregar widget de "Tareas pendientes"
 - Mostrar encuestas asignadas al usuario actual
@@ -237,20 +271,26 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 ### 4.3 Mejoras de Navegación
 
 #### 4.3.1 Menú Lateral
+
 **Problema:** Menú muy largo (18 opciones)
 **Mejora Sugerida:**
+
 - Agrupar opciones relacionadas en submenús colapsables
 - Ejemplo: "Encuestas NOM-035" → "Períodos", "Seguimiento", "Resultados", "Acciones Correctivas"
 
 #### 4.3.2 Breadcrumbs
+
 **Problema:** No todas las páginas tienen breadcrumbs
 **Mejora Sugerida:**
+
 - Agregar breadcrumbs consistentes en todas las páginas
 - Formato: Dashboard > Encuestas NOM-035 > Seguimiento
 
 #### 4.3.3 Acciones Rápidas
+
 **Problema:** Acciones importantes requieren muchos clics
 **Mejora Sugerida:**
+
 - Agregar botones de acción rápida en dashboard
 - Ejemplo: "Registrar Caso", "Ver Encuestas Pendientes", "Generar Reporte"
 
@@ -309,17 +349,20 @@ Esta auditoría profunda identifica errores críticos, tareas pendientes, oportu
 ## 7. PLAN DE ACCIÓN SUGERIDO
 
 ### Semana 1 (Crítico)
+
 1. Corregir EmployeeDocuments.tsx (2 horas)
 2. Estabilizar DocumentAceptacionCargo.tsx (1 hora)
 3. Completar FASE 69 - Panel de Acciones Correctivas (8 horas)
 
 ### Semana 2-3 (Alto)
+
 1. Crear componente WorkerSelector (4 horas)
 2. Implementar prellenado en Casos (3 horas)
 3. Implementar prellenado en Comité (2 horas)
 4. Completar FASE 71 - Tokens anónimos (12 horas)
 
 ### Semana 4 (Medio)
+
 1. Reorganizar menú lateral (4 horas)
 2. Agregar breadcrumbs consistentes (3 horas)
 3. Agregar barra de progreso en encuestas (2 horas)

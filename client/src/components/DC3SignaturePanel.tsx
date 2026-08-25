@@ -62,7 +62,14 @@ interface SignatureSectionProps {
 
 // ─── Sección individual de firma ─────────────────────────────────────────────
 
-function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved }: SignatureSectionProps) {
+function SignatureSection({
+  dc3Id,
+  role,
+  label,
+  signerName,
+  currentUrl,
+  onSaved,
+}: SignatureSectionProps) {
   const { toast } = useToast();
   const [showCapture, setShowCapture] = useState(false);
   const [showCatalog, setShowCatalog] = useState(false);
@@ -85,29 +92,42 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
 
   // Queries
   const { data: signers } = trpc.dc3.listSigners.useQuery();
-  const { data: remoteTokens, refetch: refetchTokens } = trpc.dc3RemoteSign.listTokens.useQuery(
-    { dc3RecordId: dc3Id },
-    { enabled: dc3Id > 0 }
-  );
+  const { data: remoteTokens, refetch: refetchTokens } =
+    trpc.dc3RemoteSign.listTokens.useQuery(
+      { dc3RecordId: dc3Id },
+      { enabled: dc3Id > 0 }
+    );
 
   // Token más reciente para este rol
   const latestToken = remoteTokens
-    ?.filter((t) => t.role === role)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    ?.filter(t => t.role === role)
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )[0];
 
-  const hasExpiredOrUsedToken = latestToken && (latestToken.isExpired || latestToken.isUsed);
-  const hasActiveToken = latestToken && !latestToken.isExpired && !latestToken.isUsed;
+  const hasExpiredOrUsedToken =
+    latestToken && (latestToken.isExpired || latestToken.isUsed);
+  const hasActiveToken =
+    latestToken && !latestToken.isExpired && !latestToken.isUsed;
 
   // Mutations
   const saveMutation = trpc.dc3.saveSignature.useMutation({
     onSuccess: () => {
-      toast({ title: "Firma guardada", description: `Firma de ${label} guardada correctamente.` });
+      toast({
+        title: "Firma guardada",
+        description: `Firma de ${label} guardada correctamente.`,
+      });
       setShowCapture(false);
       setShowCatalog(false);
       onSaved();
     },
-    onError: (err) => {
-      toast({ title: "Error al guardar firma", description: err.message, variant: "destructive" });
+    onError: err => {
+      toast({
+        title: "Error al guardar firma",
+        description: err.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -116,50 +136,74 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
       toast({ title: "Firma eliminada" });
       onSaved();
     },
-    onError: (err) => {
-      toast({ title: "Error al eliminar firma", description: err.message, variant: "destructive" });
+    onError: err => {
+      toast({
+        title: "Error al eliminar firma",
+        description: err.message,
+        variant: "destructive",
+      });
     },
   });
 
   const createTokenMutation = trpc.dc3RemoteSign.createToken.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setGeneratedUrl(data.signUrl);
       refetchTokens();
-      toast({ title: "Enlace generado", description: "El enlace de firma remota fue creado." });
+      toast({
+        title: "Enlace generado",
+        description: "El enlace de firma remota fue creado.",
+      });
     },
-    onError: (err) => {
-      toast({ title: "Error al generar enlace", description: err.message, variant: "destructive" });
+    onError: err => {
+      toast({
+        title: "Error al generar enlace",
+        description: err.message,
+        variant: "destructive",
+      });
     },
   });
 
   const renewTokenMutation = trpc.dc3RemoteSign.renewToken.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setRenewedUrl(data.signUrl);
       refetchTokens();
-      toast({ title: "Enlace renovado", description: "Se generó un nuevo enlace de firma." });
+      toast({
+        title: "Enlace renovado",
+        description: "Se generó un nuevo enlace de firma.",
+      });
     },
-    onError: (err) => {
-      toast({ title: "Error al renovar enlace", description: err.message, variant: "destructive" });
+    onError: err => {
+      toast({
+        title: "Error al renovar enlace",
+        description: err.message,
+        variant: "destructive",
+      });
     },
   });
 
-  const handleSignatureCaptured = useCallback((dataUrl: string) => {
-    saveMutation.mutate({ id: dc3Id, role, signatureDataUrl: dataUrl });
-  }, [dc3Id, role, saveMutation]);
+  const handleSignatureCaptured = useCallback(
+    (dataUrl: string) => {
+      saveMutation.mutate({ id: dc3Id, role, signatureDataUrl: dataUrl });
+    },
+    [dc3Id, role, saveMutation]
+  );
 
   const handleUseCatalogSignature = () => {
     if (!selectedSignerId) {
       toast({ title: "Seleccione un firmante", variant: "destructive" });
       return;
     }
-    const signer = signers?.find((s) => String(s.id) === selectedSignerId);
+    const signer = signers?.find(s => String(s.id) === selectedSignerId);
     if (!signer?.firmaUrl) {
-      toast({ title: "El firmante no tiene firma registrada", variant: "destructive" });
+      toast({
+        title: "El firmante no tiene firma registrada",
+        variant: "destructive",
+      });
       return;
     }
     fetch(signer.firmaUrl)
-      .then((r) => r.blob())
-      .then((blob) => {
+      .then(r => r.blob())
+      .then(blob => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const dataUrl = reader.result as string;
@@ -168,7 +212,10 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
         reader.readAsDataURL(blob);
       })
       .catch(() => {
-        toast({ title: "Error al cargar la firma del catálogo", variant: "destructive" });
+        toast({
+          title: "Error al cargar la firma del catálogo",
+          variant: "destructive",
+        });
       });
   };
 
@@ -215,12 +262,17 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
           <PenLine className="w-4 h-4 text-muted-foreground" />
           <span className="font-medium text-sm">{label}</span>
           {signerName && (
-            <span className="text-xs text-muted-foreground">— {signerName}</span>
+            <span className="text-xs text-muted-foreground">
+              — {signerName}
+            </span>
           )}
         </div>
         <div className="flex items-center gap-2">
           {hasActiveToken && (
-            <Badge variant="outline" className="text-xs gap-1 text-amber-600 border-amber-300 bg-amber-50">
+            <Badge
+              variant="outline"
+              className="text-xs gap-1 text-amber-600 border-amber-300 bg-amber-50"
+            >
               <Clock className="w-3 h-3" /> Enlace activo
             </Badge>
           )}
@@ -282,7 +334,8 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
           /* Sin firma: opciones de captura */
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">
-              Capture la firma directamente en pantalla, seleccione una del catálogo o envíe un enlace remoto al firmante.
+              Capture la firma directamente en pantalla, seleccione una del
+              catálogo o envíe un enlace remoto al firmante.
             </p>
             <div className="flex gap-2 flex-wrap">
               <Button
@@ -308,7 +361,10 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
                 size="sm"
                 variant="outline"
                 className="gap-1.5 text-blue-600 border-blue-300 hover:bg-blue-50"
-                onClick={() => { setGeneratedUrl(null); setShowRemote(true); }}
+                onClick={() => {
+                  setGeneratedUrl(null);
+                  setShowRemote(true);
+                }}
               >
                 <Link2 className="w-3.5 h-3.5" />
                 Enviar enlace remoto
@@ -369,33 +425,44 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Seleccione un firmante autorizado del catálogo para usar su firma registrada.
+              Seleccione un firmante autorizado del catálogo para usar su firma
+              registrada.
             </p>
-            <Select value={selectedSignerId} onValueChange={setSelectedSignerId}>
+            <Select
+              value={selectedSignerId}
+              onValueChange={setSelectedSignerId}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar firmante..." />
               </SelectTrigger>
               <SelectContent>
-                {signers?.map((s) => (
+                {signers?.map(s => (
                   <SelectItem key={s.id} value={String(s.id)}>
                     <div className="flex items-center gap-2">
                       <UserCheck className="w-3.5 h-3.5 text-green-600" />
                       <span>{s.nombreFirmante}</span>
-                      <span className="text-muted-foreground text-xs">— {s.cargo}</span>
+                      <span className="text-muted-foreground text-xs">
+                        — {s.cargo}
+                      </span>
                     </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {selectedSignerId && signers?.find((s) => String(s.id) === selectedSignerId)?.firmaUrl && (
-              <div className="border rounded bg-white p-3">
-                <img
-                  src={signers?.find((s) => String(s.id) === selectedSignerId)?.firmaUrl}
-                  alt="Vista previa"
-                  className="max-h-16 w-auto object-contain mx-auto"
-                />
-              </div>
-            )}
+            {selectedSignerId &&
+              signers?.find(s => String(s.id) === selectedSignerId)
+                ?.firmaUrl && (
+                <div className="border rounded bg-white p-3">
+                  <img
+                    src={
+                      signers?.find(s => String(s.id) === selectedSignerId)
+                        ?.firmaUrl
+                    }
+                    alt="Vista previa"
+                    className="max-h-16 w-auto object-contain mx-auto"
+                  />
+                </div>
+              )}
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowCatalog(false)}>
                 Cancelar
@@ -405,7 +472,10 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
                 disabled={!selectedSignerId || saveMutation.isPending}
               >
                 {saveMutation.isPending ? (
-                  <><Loader2 className="w-4 h-4 animate-spin mr-2" />Aplicando...</>
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Aplicando...
+                  </>
                 ) : (
                   "Usar esta firma"
                 )}
@@ -416,7 +486,13 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
       </Dialog>
 
       {/* ─── Diálogo: Generar enlace de firma remota ──────────────────────── */}
-      <Dialog open={showRemote} onOpenChange={(open) => { setShowRemote(open); if (!open) setGeneratedUrl(null); }}>
+      <Dialog
+        open={showRemote}
+        onOpenChange={open => {
+          setShowRemote(open);
+          if (!open) setGeneratedUrl(null);
+        }}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -427,19 +503,33 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
           {generatedUrl ? (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Enlace generado. Compártalo con el firmante para que pueda firmar desde su dispositivo.
+                Enlace generado. Compártalo con el firmante para que pueda
+                firmar desde su dispositivo.
               </p>
               <div className="flex items-center gap-2 bg-muted rounded-lg p-3">
-                <span className="text-xs font-mono flex-1 break-all text-foreground">{generatedUrl}</span>
-                <Button size="icon" variant="ghost" className="shrink-0" onClick={() => copyToClipboard(generatedUrl)}>
+                <span className="text-xs font-mono flex-1 break-all text-foreground">
+                  {generatedUrl}
+                </span>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="shrink-0"
+                  onClick={() => copyToClipboard(generatedUrl)}
+                >
                   <Copy className="w-4 h-4" />
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                El enlace expira en {remoteHours} horas y solo puede usarse una vez.
+                El enlace expira en {remoteHours} horas y solo puede usarse una
+                vez.
               </p>
               <DialogFooter>
-                <Button onClick={() => { setShowRemote(false); setGeneratedUrl(null); }}>
+                <Button
+                  onClick={() => {
+                    setShowRemote(false);
+                    setGeneratedUrl(null);
+                  }}
+                >
                   Cerrar
                 </Button>
               </DialogFooter>
@@ -447,30 +537,37 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
           ) : (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Se generará un enlace único para que el firmante pueda firmar desde su dispositivo móvil.
+                Se generará un enlace único para que el firmante pueda firmar
+                desde su dispositivo móvil.
               </p>
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor={`remote-name-${role}`}>Nombre del firmante</Label>
+                  <Label htmlFor={`remote-name-${role}`}>
+                    Nombre del firmante
+                  </Label>
                   <Input
                     id={`remote-name-${role}`}
                     value={remoteName}
-                    onChange={(e) => setRemoteName(e.target.value)}
+                    onChange={e => setRemoteName(e.target.value)}
                     placeholder="Nombre completo..."
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor={`remote-email-${role}`}>Correo electrónico (opcional)</Label>
+                  <Label htmlFor={`remote-email-${role}`}>
+                    Correo electrónico (opcional)
+                  </Label>
                   <Input
                     id={`remote-email-${role}`}
                     type="email"
                     value={remoteEmail}
-                    onChange={(e) => setRemoteEmail(e.target.value)}
+                    onChange={e => setRemoteEmail(e.target.value)}
                     placeholder="correo@empresa.com"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor={`remote-hours-${role}`}>Expiración del enlace</Label>
+                  <Label htmlFor={`remote-hours-${role}`}>
+                    Expiración del enlace
+                  </Label>
                   <Select value={remoteHours} onValueChange={setRemoteHours}>
                     <SelectTrigger id={`remote-hours-${role}`}>
                       <SelectValue />
@@ -486,16 +583,24 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setShowRemote(false)}>Cancelar</Button>
+                <Button variant="outline" onClick={() => setShowRemote(false)}>
+                  Cancelar
+                </Button>
                 <Button
                   onClick={handleCreateRemoteToken}
                   disabled={createTokenMutation.isPending}
                   className="gap-2"
                 >
                   {createTokenMutation.isPending ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" />Generando...</>
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Generando...
+                    </>
                   ) : (
-                    <><Link2 className="w-4 h-4" />Generar enlace</>
+                    <>
+                      <Link2 className="w-4 h-4" />
+                      Generar enlace
+                    </>
                   )}
                 </Button>
               </DialogFooter>
@@ -505,7 +610,13 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
       </Dialog>
 
       {/* ─── Diálogo: Renovar token expirado ─────────────────────────────── */}
-      <Dialog open={showRenew} onOpenChange={(open) => { setShowRenew(open); if (!open) setRenewedUrl(null); }}>
+      <Dialog
+        open={showRenew}
+        onOpenChange={open => {
+          setShowRenew(open);
+          if (!open) setRenewedUrl(null);
+        }}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -519,16 +630,29 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
                 Nuevo enlace generado. El enlace anterior ya no es válido.
               </p>
               <div className="flex items-center gap-2 bg-muted rounded-lg p-3">
-                <span className="text-xs font-mono flex-1 break-all text-foreground">{renewedUrl}</span>
-                <Button size="icon" variant="ghost" className="shrink-0" onClick={() => copyToClipboard(renewedUrl)}>
+                <span className="text-xs font-mono flex-1 break-all text-foreground">
+                  {renewedUrl}
+                </span>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="shrink-0"
+                  onClick={() => copyToClipboard(renewedUrl)}
+                >
                   <Copy className="w-4 h-4" />
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                El enlace expira en {renewHours} horas y solo puede usarse una vez.
+                El enlace expira en {renewHours} horas y solo puede usarse una
+                vez.
               </p>
               <DialogFooter>
-                <Button onClick={() => { setShowRenew(false); setRenewedUrl(null); }}>
+                <Button
+                  onClick={() => {
+                    setShowRenew(false);
+                    setRenewedUrl(null);
+                  }}
+                >
                   Cerrar
                 </Button>
               </DialogFooter>
@@ -536,30 +660,37 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
           ) : (
             <div className="space-y-4">
               <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
-                El enlace anterior expiró o ya fue utilizado. Se generará un nuevo enlace de un solo uso.
+                El enlace anterior expiró o ya fue utilizado. Se generará un
+                nuevo enlace de un solo uso.
               </p>
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor={`renew-name-${role}`}>Nombre del firmante</Label>
+                  <Label htmlFor={`renew-name-${role}`}>
+                    Nombre del firmante
+                  </Label>
                   <Input
                     id={`renew-name-${role}`}
                     value={renewName}
-                    onChange={(e) => setRenewName(e.target.value)}
+                    onChange={e => setRenewName(e.target.value)}
                     placeholder="Nombre completo..."
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor={`renew-email-${role}`}>Correo electrónico (opcional)</Label>
+                  <Label htmlFor={`renew-email-${role}`}>
+                    Correo electrónico (opcional)
+                  </Label>
                   <Input
                     id={`renew-email-${role}`}
                     type="email"
                     value={renewEmail}
-                    onChange={(e) => setRenewEmail(e.target.value)}
+                    onChange={e => setRenewEmail(e.target.value)}
                     placeholder="correo@empresa.com"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor={`renew-hours-${role}`}>Nueva expiración del enlace</Label>
+                  <Label htmlFor={`renew-hours-${role}`}>
+                    Nueva expiración del enlace
+                  </Label>
                   <Select value={renewHours} onValueChange={setRenewHours}>
                     <SelectTrigger id={`renew-hours-${role}`}>
                       <SelectValue />
@@ -575,16 +706,24 @@ function SignatureSection({ dc3Id, role, label, signerName, currentUrl, onSaved 
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setShowRenew(false)}>Cancelar</Button>
+                <Button variant="outline" onClick={() => setShowRenew(false)}>
+                  Cancelar
+                </Button>
                 <Button
                   onClick={handleRenewToken}
                   disabled={renewTokenMutation.isPending || !expiredTokenId}
                   className="gap-2 bg-amber-600 hover:bg-amber-700 text-white"
                 >
                   {renewTokenMutation.isPending ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" />Renovando...</>
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Renovando...
+                    </>
                   ) : (
-                    <><RefreshCw className="w-4 h-4" />Reenviar enlace</>
+                    <>
+                      <RefreshCw className="w-4 h-4" />
+                      Reenviar enlace
+                    </>
                   )}
                 </Button>
               </DialogFooter>
@@ -648,7 +787,8 @@ export default function DC3SignaturePanel({
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Las firmas se incrustarán automáticamente en el PDF al exportar la constancia DC-3.
+          Las firmas se incrustarán automáticamente en el PDF al exportar la
+          constancia DC-3.
         </p>
       </CardHeader>
       <CardContent className="space-y-3">

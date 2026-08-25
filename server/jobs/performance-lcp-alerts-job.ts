@@ -14,7 +14,11 @@
  */
 
 import { getDb } from "../db";
-import { alertHistory, webVitalsMetrics, systemSettings } from "../../drizzle/schema";
+import {
+  alertHistory,
+  webVitalsMetrics,
+  systemSettings,
+} from "../../drizzle/schema";
 import { and, gte, lte, eq, sql } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 
@@ -43,7 +47,7 @@ async function getLcpP75ForDay(
   if (rows.length === 0) return null;
 
   // Calcular P75
-  const values = rows.map((r) => Number(r.value));
+  const values = rows.map(r => Number(r.value));
   const p75Index = Math.floor(values.length * 0.75);
   return values[Math.min(p75Index, values.length - 1)];
 }
@@ -77,7 +81,9 @@ async function getHrEmail(
   if (!db) return null;
   try {
     const [settings] = await db.select().from(systemSettings).limit(1);
-    return (settings as Record<string, unknown>)?.hrEmail as string | null ?? null;
+    return (
+      ((settings as Record<string, unknown>)?.hrEmail as string | null) ?? null
+    );
   } catch {
     return null;
   }
@@ -116,29 +122,46 @@ export async function runPerformanceLcpAlertsJob(): Promise<{
         console.log(
           `[Performance LCP Alerts Job] No hay datos de LCP para ${dayStart.toISOString().split("T")[0]}. Saltando.`
         );
-        return { success: true, alertCreated: false, reason: "insufficient_data", p75Values };
+        return {
+          success: true,
+          alertCreated: false,
+          reason: "insufficient_data",
+          p75Values,
+        };
       }
       p75Values.push(p75);
     }
 
     console.log(
-      `[Performance LCP Alerts Job] P75 LCP últimos ${CONSECUTIVE_DAYS} días: ${p75Values.map((v) => `${v.toFixed(0)}ms`).join(", ")}`
+      `[Performance LCP Alerts Job] P75 LCP últimos ${CONSECUTIVE_DAYS} días: ${p75Values.map(v => `${v.toFixed(0)}ms`).join(", ")}`
     );
 
     // Verificar si todos los días superan el umbral
-    const allPoor = p75Values.every((v) => v > LCP_THRESHOLD_MS);
+    const allPoor = p75Values.every(v => v > LCP_THRESHOLD_MS);
     if (!allPoor) {
       console.log(
         `[Performance LCP Alerts Job] No todos los días superan ${LCP_THRESHOLD_MS}ms. No se crea alerta.`
       );
-      return { success: true, alertCreated: false, reason: "threshold_not_exceeded", p75Values };
+      return {
+        success: true,
+        alertCreated: false,
+        reason: "threshold_not_exceeded",
+        p75Values,
+      };
     }
 
     // Verificar si ya existe alerta hoy
     const alreadyAlerted = await existsAlertToday(db);
     if (alreadyAlerted) {
-      console.log("[Performance LCP Alerts Job] Ya existe una alerta activa de hoy. Saltando.");
-      return { success: true, alertCreated: false, reason: "already_alerted_today", p75Values };
+      console.log(
+        "[Performance LCP Alerts Job] Ya existe una alerta activa de hoy. Saltando."
+      );
+      return {
+        success: true,
+        alertCreated: false,
+        reason: "already_alerted_today",
+        p75Values,
+      };
     }
 
     // Crear la alerta en BD
@@ -171,7 +194,10 @@ export async function runPerformanceLcpAlertsJob(): Promise<{
     const hrEmail = await getHrEmail(db);
     if (hrEmail) {
       const tableRows = dayLabels
-        .map((label) => `<tr><td style="padding:4px 8px;border:1px solid #e5e7eb;">${label}</td></tr>`)
+        .map(
+          label =>
+            `<tr><td style="padding:4px 8px;border:1px solid #e5e7eb;">${label}</td></tr>`
+        )
         .join("");
 
       emailSent = await sendEmail({
@@ -208,17 +234,26 @@ export async function runPerformanceLcpAlertsJob(): Promise<{
       });
 
       if (emailSent) {
-        console.log(`[Performance LCP Alerts Job] Email de alerta enviado a: ${hrEmail}`);
+        console.log(
+          `[Performance LCP Alerts Job] Email de alerta enviado a: ${hrEmail}`
+        );
       } else {
-        console.warn(`[Performance LCP Alerts Job] No se pudo enviar email a: ${hrEmail}`);
+        console.warn(
+          `[Performance LCP Alerts Job] No se pudo enviar email a: ${hrEmail}`
+        );
       }
     } else {
-      console.warn("[Performance LCP Alerts Job] No hay hrEmail configurado en systemSettings. Email no enviado.");
+      console.warn(
+        "[Performance LCP Alerts Job] No hay hrEmail configurado en systemSettings. Email no enviado."
+      );
     }
 
     return { success: true, alertCreated: true, emailSent, p75Values };
   } catch (err) {
-    console.error("[Performance LCP Alerts Job] Error:", err instanceof Error ? err.message : err);
+    console.error(
+      "[Performance LCP Alerts Job] Error:",
+      err instanceof Error ? err.message : err
+    );
     return { success: false, alertCreated: false, reason: "error" };
   }
 }
@@ -228,9 +263,13 @@ export function startPerformanceLcpAlertsJob(): void {
   setInterval(() => {
     const now = new Date();
     if (now.getHours() === 6 && now.getMinutes() === 0) {
-      console.log("[Performance LCP Alerts Job] Triggering daily LCP performance check");
+      console.log(
+        "[Performance LCP Alerts Job] Triggering daily LCP performance check"
+      );
       runPerformanceLcpAlertsJob().catch(console.error);
     }
   }, 60_000); // Check every minute
-  console.log("[Performance LCP Alerts Job] Scheduled to run daily at 06:00 AM");
+  console.log(
+    "[Performance LCP Alerts Job] Scheduled to run daily at 06:00 AM"
+  );
 }

@@ -5,9 +5,28 @@ import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Save, CheckCircle2, XCircle, HelpCircle, Loader2, UserCheck } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  ArrowLeft,
+  Save,
+  CheckCircle2,
+  XCircle,
+  HelpCircle,
+  Loader2,
+  UserCheck,
+} from "lucide-react";
 import { useValidation } from "@/hooks/useValidation";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { validateRFC, validateNSS } from "../../../shared/validators";
@@ -53,21 +72,29 @@ export default function EmployeeNew() {
   } | null>(null);
 
   // Hook de validaciones en tiempo real
-  const { validations, validateCURPField, validateRFCField, validateNSSField } = useValidation();
+  const { validations, validateCURPField, validateRFCField, validateNSSField } =
+    useValidation();
 
   // Fetch departments for dropdown
   const { data: departments } = trpc.employees.getDepartments.useQuery();
-  
+
   // Fetch positions filtered by selected department
   const { data: positions } = trpc.employees.getPositionsByDepartment.useQuery(
-    { department: typeof formData.department === 'number' ? formData.department : 0 },
-    { enabled: typeof formData.department === 'number' && formData.department > 0 } // Only fetch when department is selected
+    {
+      department:
+        typeof formData.department === "number" ? formData.department : 0,
+    },
+    {
+      enabled:
+        typeof formData.department === "number" && formData.department > 0,
+    } // Only fetch when department is selected
   );
 
-  const generateCredentialsMutation = trpc.hiring.createEmployeeAccount.useMutation();
+  const generateCredentialsMutation =
+    trpc.hiring.createEmployeeAccount.useMutation();
 
   const createMutation = trpc.employees.create.useMutation({
-    onSuccess: async (data) => {
+    onSuccess: async data => {
       // Si se seleccionó generar credenciales, llamar al procedimiento
       if (generateCredentials && data?.employeeId) {
         try {
@@ -77,23 +104,26 @@ export default function EmployeeNew() {
             sendToPersonalEmail: !formData.email && !!formData.personalEmail,
           });
           toast.success("Trabajador creado exitosamente", {
-            description: "Las credenciales de acceso han sido enviadas por correo electrónico."
+            description:
+              "Las credenciales de acceso han sido enviadas por correo electrónico.",
           });
         } catch (error: any) {
           toast.warning("Trabajador creado con advertencia", {
-            description: `Hubo un error al enviar las credenciales: ${error.message}`
+            description: `Hubo un error al enviar las credenciales: ${error.message}`,
           });
         }
       } else {
         toast.success("Trabajador creado exitosamente", {
-          description: "El trabajador ha sido registrado en el sistema."
+          description: "El trabajador ha sido registrado en el sistema.",
         });
       }
       setLocation("/employees");
     },
     onError: (error: any) => {
       toast.error("Error al crear trabajador", {
-        description: error.message || "No se pudo crear el trabajador. Por favor, verifica los datos e intenta nuevamente."
+        description:
+          error.message ||
+          "No se pudo crear el trabajador. Por favor, verifica los datos e intenta nuevamente.",
       });
     },
   });
@@ -137,23 +167,27 @@ export default function EmployeeNew() {
     // Convert department and position to number before submitting
     const dataToSubmit = {
       ...formData,
-      department: typeof formData.department === 'number' ? formData.department : undefined,
-      position: typeof formData.position === 'number' ? formData.position : undefined,
+      department:
+        typeof formData.department === "number"
+          ? formData.department
+          : undefined,
+      position:
+        typeof formData.position === "number" ? formData.position : undefined,
     };
     createMutation.mutate(dataToSubmit as any);
   };
 
   const handleChange = (field: string, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    
+    setFormData(prev => ({ ...prev, [field]: value }));
+
     // Validaciones en tiempo real
-    if (field === 'curp' && typeof value === 'string' && value.length === 18) {
+    if (field === "curp" && typeof value === "string" && value.length === 18) {
       validateCURPField(value);
     }
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors((prev) => {
+      setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
         return newErrors;
@@ -165,9 +199,12 @@ export default function EmployeeNew() {
 
   // Mutación lookupCurp: valida + busca en empleados + llama API externa si hay token
   const lookupCurpMutation = trpc.dc3.lookupCurp.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       if (!data.found) {
-        setCurpValidation({ valid: false, message: "✗ CURP inválida: " + (data.error ?? "Formato incorrecto") });
+        setCurpValidation({
+          valid: false,
+          message: "✗ CURP inválida: " + (data.error ?? "Formato incorrecto"),
+        });
         return;
       }
       const local = data.localData;
@@ -181,7 +218,9 @@ export default function EmployeeNew() {
       let autoLastName = "";
       if (api?.nombres) {
         autoFirstName = api.nombres;
-        autoLastName = [api.apellidoPaterno, api.apellidoMaterno].filter(Boolean).join(" ");
+        autoLastName = [api.apellidoPaterno, api.apellidoMaterno]
+          .filter(Boolean)
+          .join(" ");
       } else if (emp?.workerName) {
         // workerName = "APELLIDOS NOMBRE" — intentar separar
         const parts = emp.workerName.split(" ");
@@ -205,20 +244,31 @@ export default function EmployeeNew() {
           genero: local?.genero,
           estado: local?.estado,
           edad: local?.edad,
-          autocompletado: autoName ? `Nombre autocompletado: ${autoName}` : null,
+          autocompletado: autoName
+            ? `Nombre autocompletado: ${autoName}`
+            : null,
           source: data.source,
-        }
+        },
       });
 
-      const source = data.source === "api" ? "API RENAPO" : emp ? "empleado registrado" : "validación local";
+      const source =
+        data.source === "api"
+          ? "API RENAPO"
+          : emp
+            ? "empleado registrado"
+            : "validación local";
       toast.success("CURP válida", {
         description: [
           autoName ? `Nombre: ${autoName}` : null,
           local?.genero ? `Género: ${local.genero}` : null,
-          local?.fechaNacimiento ? `Nacimiento: ${local.fechaNacimiento}` : null,
+          local?.fechaNacimiento
+            ? `Nacimiento: ${local.fechaNacimiento}`
+            : null,
           local?.estado ? `Estado: ${local.estado}` : null,
           `Fuente: ${source}`,
-        ].filter(Boolean).join(" · "),
+        ]
+          .filter(Boolean)
+          .join(" · "),
       });
     },
     onError: () => {
@@ -256,9 +306,7 @@ export default function EmployeeNew() {
         <Card>
           <CardHeader>
             <CardTitle>Información Personal</CardTitle>
-            <CardDescription>
-              Datos básicos del trabajador
-            </CardDescription>
+            <CardDescription>Datos básicos del trabajador</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -269,7 +317,7 @@ export default function EmployeeNew() {
                 <Input
                   id="firstName"
                   value={formData.firstName}
-                  onChange={(e) => handleChange("firstName", e.target.value)}
+                  onChange={e => handleChange("firstName", e.target.value)}
                   required
                   placeholder="Juan"
                   className={errors.firstName ? "border-destructive" : ""}
@@ -286,7 +334,7 @@ export default function EmployeeNew() {
                 <Input
                   id="lastName"
                   value={formData.lastName}
-                  onChange={(e) => handleChange("lastName", e.target.value)}
+                  onChange={e => handleChange("lastName", e.target.value)}
                   required
                   placeholder="Pérez García"
                   className={errors.lastName ? "border-destructive" : ""}
@@ -320,7 +368,9 @@ export default function EmployeeNew() {
                   label="Correo Personal"
                   type="email"
                   value={formData.personalEmail}
-                  onValueChange={(value: any) => handleChange("personalEmail", value)}
+                  onValueChange={(value: any) =>
+                    handleChange("personalEmail", value)
+                  }
                   placeholder="juan.perez@gmail.com"
                   validationRules={{ email: true }}
                   showValidationIcon={true}
@@ -351,10 +401,19 @@ export default function EmployeeNew() {
                         <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
-                        <p className="font-semibold mb-1">Clave Única de Registro de Población</p>
-                        <p className="text-xs">Formato: 18 caracteres alfanuméricos</p>
-                        <p className="text-xs mt-1">Ejemplo: PEGG850101HCHRRN09</p>
-                        <p className="text-xs mt-1">El sistema valida automáticamente el formato y extrae fecha de nacimiento, género y estado.</p>
+                        <p className="font-semibold mb-1">
+                          Clave Única de Registro de Población
+                        </p>
+                        <p className="text-xs">
+                          Formato: 18 caracteres alfanuméricos
+                        </p>
+                        <p className="text-xs mt-1">
+                          Ejemplo: PEGG850101HCHRRN09
+                        </p>
+                        <p className="text-xs mt-1">
+                          El sistema valida automáticamente el formato y extrae
+                          fecha de nacimiento, género y estado.
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -386,10 +445,14 @@ export default function EmployeeNew() {
                         <UserCheck className="h-3 w-3" />
                         {curpValidation.data.autocompletado}
                         {curpValidation.data.source === "api" && " (RENAPO)"}
-                        {curpValidation.data.source === "local" && " (empleado registrado)"}
+                        {curpValidation.data.source === "local" &&
+                          " (empleado registrado)"}
                       </p>
                     )}
-                    <p>• Fecha de nacimiento: {curpValidation.data.fechaNacimiento}</p>
+                    <p>
+                      • Fecha de nacimiento:{" "}
+                      {curpValidation.data.fechaNacimiento}
+                    </p>
                     <p>• Género: {curpValidation.data.genero}</p>
                     <p>• Estado: {curpValidation.data.estado}</p>
                     <p>• Edad: {curpValidation.data.edad} años</p>
@@ -408,7 +471,7 @@ export default function EmployeeNew() {
                 <select
                   id="sexo"
                   value={formData.sexo}
-                  onChange={(e) => handleChange("sexo", e.target.value)}
+                  onChange={e => handleChange("sexo", e.target.value)}
                   required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
@@ -435,76 +498,130 @@ export default function EmployeeNew() {
                   id="rfc"
                   label="RFC"
                   value={formData.rfc}
-                  onValueChange={(v: string) => handleChange("rfc", v.toUpperCase())}
+                  onValueChange={(v: string) =>
+                    handleChange("rfc", v.toUpperCase())
+                  }
                   placeholder="Ej: PEGJ850101ABC"
                   maxLength={13}
                   validationRules={{
-                    custom: (v) => {
-                      if (!v) return { isValid: true, message: "", type: "idle" };
-                      const r = validateRFC(v, 'fisica');
+                    custom: v => {
+                      if (!v)
+                        return { isValid: true, message: "", type: "idle" };
+                      const r = validateRFC(v, "fisica");
                       return r.valid
-                        ? { isValid: true, message: "RFC válido", type: "success" }
-                        : { isValid: false, message: r.error || "RFC inválido", type: "error" };
-                    }
+                        ? {
+                            isValid: true,
+                            message: "RFC válido",
+                            type: "success",
+                          }
+                        : {
+                            isValid: false,
+                            message: r.error || "RFC inválido",
+                            type: "error",
+                          };
+                    },
                   }}
                   showValidationIcon={true}
                 />
-                {formData.rfc && formData.rfc.length >= 12 && (() => {
-                  const r = validateRFC(formData.rfc, 'fisica');
-                  if (!r.valid) return null;
-                  const rfc = formData.rfc.toUpperCase();
-                  const year = rfc.substring(4, 6);
-                  const month = rfc.substring(6, 8);
-                  const day = rfc.substring(8, 10);
-                  const yearFull = parseInt(year) > 30 ? `19${year}` : `20${year}`;
-                  return (
-                    <div className="mt-1 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800 space-y-0.5">
-                      <p className="font-semibold">✓ RFC válido — Desglose:</p>
-                      <p>Iniciales nombre: <span className="font-mono">{rfc.substring(0, 4)}</span></p>
-                      <p>Fecha nacimiento: <span className="font-mono">{day}/{month}/{yearFull}</span></p>
-                      <p>Homoclave: <span className="font-mono">{rfc.substring(10, 12)}</span> · Dígito verificador: <span className="font-mono">{rfc.charAt(12)}</span></p>
-                    </div>
-                  );
-                })()}
-                <p className="text-xs text-muted-foreground">Registro Federal de Contribuyentes (12-13 caracteres)</p>
+                {formData.rfc &&
+                  formData.rfc.length >= 12 &&
+                  (() => {
+                    const r = validateRFC(formData.rfc, "fisica");
+                    if (!r.valid) return null;
+                    const rfc = formData.rfc.toUpperCase();
+                    const year = rfc.substring(4, 6);
+                    const month = rfc.substring(6, 8);
+                    const day = rfc.substring(8, 10);
+                    const yearFull =
+                      parseInt(year) > 30 ? `19${year}` : `20${year}`;
+                    return (
+                      <div className="mt-1 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800 space-y-0.5">
+                        <p className="font-semibold">
+                          ✓ RFC válido — Desglose:
+                        </p>
+                        <p>
+                          Iniciales nombre:{" "}
+                          <span className="font-mono">
+                            {rfc.substring(0, 4)}
+                          </span>
+                        </p>
+                        <p>
+                          Fecha nacimiento:{" "}
+                          <span className="font-mono">
+                            {day}/{month}/{yearFull}
+                          </span>
+                        </p>
+                        <p>
+                          Homoclave:{" "}
+                          <span className="font-mono">
+                            {rfc.substring(10, 12)}
+                          </span>{" "}
+                          · Dígito verificador:{" "}
+                          <span className="font-mono">{rfc.charAt(12)}</span>
+                        </p>
+                      </div>
+                    );
+                  })()}
+                <p className="text-xs text-muted-foreground">
+                  Registro Federal de Contribuyentes (12-13 caracteres)
+                </p>
               </div>
               <div className="space-y-2">
                 <InputWithValidation
                   id="nss"
                   label="NSS — Número de Seguridad Social"
                   value={formData.nss}
-                  onValueChange={(v: string) => handleChange("nss", v.replace(/\D/g, ''))}
+                  onValueChange={(v: string) =>
+                    handleChange("nss", v.replace(/\D/g, ""))
+                  }
                   placeholder="Ej: 12345678901"
                   maxLength={11}
                   validationRules={{
-                    custom: (v) => {
-                      if (!v) return { isValid: true, message: "", type: "idle" };
+                    custom: v => {
+                      if (!v)
+                        return { isValid: true, message: "", type: "idle" };
                       const r = validateNSS(v);
                       return r.valid
-                        ? { isValid: true, message: "NSS válido", type: "success" }
-                        : { isValid: false, message: r.error || "NSS inválido", type: "error" };
-                    }
+                        ? {
+                            isValid: true,
+                            message: "NSS válido",
+                            type: "success",
+                          }
+                        : {
+                            isValid: false,
+                            message: r.error || "NSS inválido",
+                            type: "error",
+                          };
+                    },
                   }}
                   showValidationIcon={true}
                 />
-                <p className="text-xs text-muted-foreground">Número IMSS de 11 dígitos</p>
+                <p className="text-xs text-muted-foreground">
+                  Número IMSS de 11 dígitos
+                </p>
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="cedulaProfesional">
                 Cédula Profesional
-                <span className="ml-1 text-xs text-muted-foreground font-normal">(para responsables técnicos / personal clínico)</span>
+                <span className="ml-1 text-xs text-muted-foreground font-normal">
+                  (para responsables técnicos / personal clínico)
+                </span>
               </Label>
               <Input
                 id="cedulaProfesional"
                 value={formData.cedulaProfesional}
-                onChange={(e) => handleChange("cedulaProfesional", e.target.value)}
+                onChange={e =>
+                  handleChange("cedulaProfesional", e.target.value)
+                }
                 placeholder="Ej: 12345678"
                 maxLength={20}
               />
               <p className="text-xs text-muted-foreground">
-                Número de cédula emitido por la SEP / DGP. Se auto-rellena en documentos NOM-035 al seleccionar este empleado como responsable clínico.
+                Número de cédula emitido por la SEP / DGP. Se auto-rellena en
+                documentos NOM-035 al seleccionar este empleado como responsable
+                clínico.
               </p>
             </div>
 
@@ -512,7 +629,7 @@ export default function EmployeeNew() {
               <Label htmlFor="educationLevel">Nivel de Estudios</Label>
               <Select
                 value={formData.educationLevel || ""}
-                onValueChange={(val) => handleChange("educationLevel", val)}
+                onValueChange={val => handleChange("educationLevel", val)}
               >
                 <SelectTrigger id="educationLevel">
                   <SelectValue placeholder="Seleccionar nivel..." />
@@ -520,8 +637,12 @@ export default function EmployeeNew() {
                 <SelectContent>
                   <SelectItem value="primaria">Primaria</SelectItem>
                   <SelectItem value="secundaria">Secundaria</SelectItem>
-                  <SelectItem value="preparatoria">Preparatoria / Bachillerato</SelectItem>
-                  <SelectItem value="tecnico">Técnico / Carrera Técnica</SelectItem>
+                  <SelectItem value="preparatoria">
+                    Preparatoria / Bachillerato
+                  </SelectItem>
+                  <SelectItem value="tecnico">
+                    Técnico / Carrera Técnica
+                  </SelectItem>
                   <SelectItem value="licenciatura">Licenciatura</SelectItem>
                   <SelectItem value="especialidad">Especialidad</SelectItem>
                   <SelectItem value="maestria">Maestría</SelectItem>
@@ -529,7 +650,9 @@ export default function EmployeeNew() {
                   <SelectItem value="otro">Otro</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">Último grado de estudios concluido.</p>
+              <p className="text-xs text-muted-foreground">
+                Último grado de estudios concluido.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -537,9 +660,7 @@ export default function EmployeeNew() {
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>Información Laboral</CardTitle>
-            <CardDescription>
-              Datos del puesto y contrato
-            </CardDescription>
+            <CardDescription>Datos del puesto y contrato</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -548,7 +669,7 @@ export default function EmployeeNew() {
                 <Input
                   id="employeeNumber"
                   value={formData.employeeNumber}
-                  onChange={(e) => handleChange("employeeNumber", e.target.value)}
+                  onChange={e => handleChange("employeeNumber", e.target.value)}
                   required
                   placeholder="EMP-001"
                 />
@@ -563,9 +684,17 @@ export default function EmployeeNew() {
                         <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
-                        <p className="font-semibold mb-1">Fecha de Contratación</p>
-                        <p className="text-xs">Fecha en que el empleado inició su relación laboral con la empresa.</p>
-                        <p className="text-xs mt-1">Esta fecha se usa para calcular antigüedad, prestaciones y periodos de evaluación.</p>
+                        <p className="font-semibold mb-1">
+                          Fecha de Contratación
+                        </p>
+                        <p className="text-xs">
+                          Fecha en que el empleado inició su relación laboral
+                          con la empresa.
+                        </p>
+                        <p className="text-xs mt-1">
+                          Esta fecha se usa para calcular antigüedad,
+                          prestaciones y periodos de evaluación.
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -575,7 +704,7 @@ export default function EmployeeNew() {
                   type="date"
                   value={formData.hireDate}
                   required
-                  onChange={(e) => handleChange("hireDate", e.target.value)}
+                  onChange={e => handleChange("hireDate", e.target.value)}
                 />
               </div>
             </div>
@@ -599,23 +728,28 @@ export default function EmployeeNew() {
                 <select
                   id="position"
                   value={formData.position}
-                  onChange={(e) => {
-                    const value = e.target.value ? parseInt(e.target.value) : "";
+                  onChange={e => {
+                    const value = e.target.value
+                      ? parseInt(e.target.value)
+                      : "";
                     handleChange("position", value);
                   }}
                   disabled={!formData.department}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">
-                    {formData.department 
-                      ? "Seleccionar puesto" 
+                    {formData.department
+                      ? "Seleccionar puesto"
                       : "Seleccione departamento primero"}
                   </option>
-                  {positions?.map((pos: any) => pos && (
-                    <option key={pos.id} value={pos.id}>
-                      {pos.title}
-                    </option>
-                  ))}
+                  {positions?.map(
+                    (pos: any) =>
+                      pos && (
+                        <option key={pos.id} value={pos.id}>
+                          {pos.title}
+                        </option>
+                      )
+                  )}
                 </select>
                 {formData.department && positions && positions.length === 0 && (
                   <p className="text-xs text-muted-foreground">
@@ -630,7 +764,12 @@ export default function EmployeeNew() {
               <select
                 id="contractType"
                 value={formData.contractType}
-                onChange={(e) => handleChange("contractType", e.target.value as "permanent" | "temporary" | "contract")}
+                onChange={e =>
+                  handleChange(
+                    "contractType",
+                    e.target.value as "permanent" | "temporary" | "contract"
+                  )
+                }
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="permanent">Permanente</option>
@@ -654,7 +793,7 @@ export default function EmployeeNew() {
                 type="checkbox"
                 id="generateCredentials"
                 checked={generateCredentials}
-                onChange={(e) => setGenerateCredentials(e.target.checked)}
+                onChange={e => setGenerateCredentials(e.target.checked)}
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="generateCredentials" className="cursor-pointer">
@@ -663,13 +802,18 @@ export default function EmployeeNew() {
             </div>
             {generateCredentials && (
               <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm">
-                <p className="font-medium text-blue-900 mb-2">ℹ️ Información importante:
+                <p className="font-medium text-blue-900 mb-2">
+                  ℹ️ Información importante:
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-blue-800">
                   <li>Se generará un usuario y contraseña aleatorios</li>
                   <li>Las credenciales se enviarán al correo empresarial</li>
-                  <li>Si no hay correo empresarial, se enviarán al correo personal</li>
-                  <li>El empleado recibirá instrucciones para acceder al sistema</li>
+                  <li>
+                    Si no hay correo empresarial, se enviarán al correo personal
+                  </li>
+                  <li>
+                    El empleado recibirá instrucciones para acceder al sistema
+                  </li>
                 </ul>
               </div>
             )}
@@ -684,8 +828,8 @@ export default function EmployeeNew() {
           >
             Cancelar
           </Button>
-          <LoadingButton 
-            type="submit" 
+          <LoadingButton
+            type="submit"
             loading={createMutation.isPending}
             loadingText="Guardando trabajador..."
           >

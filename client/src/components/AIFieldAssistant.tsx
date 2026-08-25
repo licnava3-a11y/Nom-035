@@ -50,12 +50,12 @@ export function AIFieldAssistant({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const suggestMutation = trpc.clinicalRecords.suggestFieldContent.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setSuggestions(data.suggestions);
       setSelectedIndex(null);
       setIsOpen(true);
     },
-    onError: (err) => {
+    onError: err => {
       toast.error("Error al generar sugerencias: " + err.message);
     },
   });
@@ -109,7 +109,8 @@ export function AIFieldAssistant({
               </>
             ) : (
               <>
-                <ChevronDown className="h-3 w-3" /> Ver {suggestions.length} sugerencias
+                <ChevronDown className="h-3 w-3" /> Ver {suggestions.length}{" "}
+                sugerencias
               </>
             )}
           </button>
@@ -121,7 +122,8 @@ export function AIFieldAssistant({
         <div className="mt-2 border border-purple-100 rounded-lg bg-purple-50/40 p-3 space-y-2">
           <p className="text-xs font-medium text-purple-700 mb-2 flex items-center gap-1">
             <Sparkles className="h-3 w-3" />
-            Sugerencias de IA para "{fieldLabels[fieldType]}" — Selecciona una para aplicar
+            Sugerencias de IA para "{fieldLabels[fieldType]}" — Selecciona una
+            para aplicar
           </p>
           {suggestions.map((suggestion, i) => (
             <div
@@ -139,14 +141,16 @@ export function AIFieldAssistant({
                   <span className="text-xs font-semibold text-purple-500 block mb-1">
                     Opción {i + 1}
                   </span>
-                  <p className="text-gray-700 leading-relaxed text-xs">{suggestion}</p>
+                  <p className="text-gray-700 leading-relaxed text-xs">
+                    {suggestion}
+                  </p>
                 </div>
                 <Button
                   type="button"
                   size="sm"
                   variant="outline"
                   className="shrink-0 h-7 text-xs gap-1 text-purple-600 border-purple-200 hover:bg-purple-100"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     handleApply(i);
                   }}
@@ -158,7 +162,8 @@ export function AIFieldAssistant({
             </div>
           ))}
           <p className="text-xs text-muted-foreground pt-1">
-            💡 Las sugerencias son un punto de partida — edítalas según el caso específico del paciente.
+            💡 Las sugerencias son un punto de partida — edítalas según el caso
+            específico del paciente.
           </p>
         </div>
       )}

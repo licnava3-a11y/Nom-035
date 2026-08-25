@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import { isEmailEnabled } from '../_core/email';
+import nodemailer from "nodemailer";
+import { isEmailEnabled } from "../_core/email";
 /**
  * Helper para envío de correos electrónicos usando SMTP
  * Guard centralizado: lee emailEnabled desde la BD (con caché 30s).
@@ -17,12 +17,14 @@ interface EmailOptions {
  */
 function createTransporter() {
   const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT || '587');
+  const port = parseInt(process.env.SMTP_PORT || "587");
   const user = process.env.SMTP_USER;
   const password = process.env.SMTP_PASSWORD;
 
   if (!host || !user || !password) {
-    throw new Error('Configuración SMTP incompleta. Verifica las variables de entorno SMTP_*');
+    throw new Error(
+      "Configuración SMTP incompleta. Verifica las variables de entorno SMTP_*"
+    );
   }
 
   return nodemailer.createTransport({
@@ -35,7 +37,6 @@ function createTransporter() {
     },
   });
 }
-
 
 /**
  * Envía un correo electrónico
@@ -52,13 +53,13 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   }
   try {
     const transporter = createTransporter();
-    
+
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
-    const fromName = process.env.SMTP_FROM_NAME || 'Sistema NOM-035';
+    const fromName = process.env.SMTP_FROM_NAME || "Sistema NOM-035";
 
     await transporter.sendMail({
       from: `"${fromName}" <${fromEmail}>`,
-      to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
+      to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
       subject: options.subject,
       text: options.text,
       html: options.html,
@@ -66,7 +67,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('Error al enviar correo:', error);
+    console.error("Error al enviar correo:", error);
     return false;
   }
 }
@@ -179,13 +180,17 @@ export async function sendCriticalGapsNotification(
   to: string | string[],
   gaps: Array<{ competency: string; avgGap: number; affectedEmployees: number }>
 ): Promise<boolean> {
-  const gapsList = gaps.map(g => `
+  const gapsList = gaps
+    .map(
+      g => `
     <li>
       <strong>${g.competency}</strong>: 
       Brecha promedio de ${g.avgGap.toFixed(1)}%, 
       afecta a ${g.affectedEmployees} empleados
     </li>
-  `).join('');
+  `
+    )
+    .join("");
 
   const content = `
     <h2>⚠️ Brechas Críticas Detectadas</h2>
@@ -200,7 +205,7 @@ export async function sendCriticalGapsNotification(
     </ul>
     
     <p>Accede al sistema para ver el análisis completo y generar el plan de acción:</p>
-    <a href="${process.env.VITE_APP_URL || 'https://app.example.com'}/competencies-dashboard" class="button">
+    <a href="${process.env.VITE_APP_URL || "https://app.example.com"}/competencies-dashboard" class="button">
       Ver Dashboard de Competencias
     </a>
     
@@ -215,7 +220,7 @@ export async function sendCriticalGapsNotification(
 
   return sendEmail({
     to,
-    subject: '⚠️ Alerta: Brechas Críticas Detectadas en Competencias',
+    subject: "⚠️ Alerta: Brechas Críticas Detectadas en Competencias",
     html: getEmailTemplate(content),
     text: `Se han detectado brechas críticas en ${gaps.length} competencias. Accede al sistema para más detalles.`,
   });
@@ -240,16 +245,19 @@ export async function sendSurveyTokensNotification(
     <ul>
       <li><strong>Encuesta:</strong> ${surveyName}</li>
       <li><strong>Tokens generados:</strong> ${tokensGenerated}</li>
-      <li><strong>Fecha de expiración:</strong> ${expirationDate.toLocaleDateString('es-MX', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })}</li>
+      <li><strong>Fecha de expiración:</strong> ${expirationDate.toLocaleDateString(
+        "es-MX",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      )}</li>
     </ul>
     
     <p>Los tokens han sido generados y están listos para ser enviados a los empleados.</p>
     
-    <a href="${process.env.VITE_APP_URL || 'https://app.example.com'}/surveys" class="button">
+    <a href="${process.env.VITE_APP_URL || "https://app.example.com"}/surveys" class="button">
       Ver Encuestas
     </a>
     
@@ -266,7 +274,7 @@ export async function sendSurveyTokensNotification(
     to,
     subject: `📋 Tokens Generados: ${surveyName} (${tokensGenerated} empleados)`,
     html: getEmailTemplate(content),
-    text: `Se han generado ${tokensGenerated} tokens para la encuesta "${surveyName}". Expiran el ${expirationDate.toLocaleDateString('es-MX')}.`,
+    text: `Se han generado ${tokensGenerated} tokens para la encuesta "${surveyName}". Expiran el ${expirationDate.toLocaleDateString("es-MX")}.`,
   });
 }
 
@@ -280,8 +288,8 @@ export async function sendSurveyTokenToEmployee(
   token: string,
   expirationDate: Date
 ): Promise<boolean> {
-  const surveyUrl = `${process.env.VITE_APP_URL || 'https://app.example.com'}/survey/public/${token}`;
-  
+  const surveyUrl = `${process.env.VITE_APP_URL || "https://app.example.com"}/survey/public/${token}`;
+
   const content = `
     <h2>Hola ${employeeName},</h2>
     <p>Has sido seleccionado para participar en la encuesta <strong>"${surveyName}"</strong> como parte del programa de evaluación del entorno organizacional según la NOM-035-STPS-2018.</p>
@@ -298,11 +306,14 @@ export async function sendSurveyTokenToEmployee(
     
     <p><strong>Información importante:</strong></p>
     <ul>
-      <li><strong>Fecha límite:</strong> ${expirationDate.toLocaleDateString('es-MX', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })}</li>
+      <li><strong>Fecha límite:</strong> ${expirationDate.toLocaleDateString(
+        "es-MX",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      )}</li>
       <li><strong>Tiempo estimado:</strong> 15-20 minutos</li>
       <li><strong>Guardado automático:</strong> Puedes pausar y continuar después</li>
     </ul>

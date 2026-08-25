@@ -1,15 +1,50 @@
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
-import { AlertCircle, CheckCircle, Download, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
+import {
+  AlertCircle,
+  CheckCircle,
+  Download,
+  RefreshCw,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 
 export default function SalaryEquityDashboard() {
-  const { data: latestAnalysis, refetch, isLoading } = trpc.salaryEquity.getLatestAnalysis.useQuery();
+  const {
+    data: latestAnalysis,
+    refetch,
+    isLoading,
+  } = trpc.salaryEquity.getLatestAnalysis.useQuery();
   const { data: history } = trpc.salaryEquity.getAnalysisHistory.useQuery();
 
   const generateAnalysis = trpc.salaryEquity.generateAnalysis.useMutation({
@@ -17,13 +52,13 @@ export default function SalaryEquityDashboard() {
       toast.success("Análisis de equidad generado exitosamente");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al generar análisis: ${error.message}`);
     },
   });
 
   const generateReport = trpc.salaryEquity.generateEquityReport.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success("Reporte generado exitosamente");
       window.open(data.url, "_blank");
     },
@@ -52,7 +87,8 @@ export default function SalaryEquityDashboard() {
             <div className="text-center space-y-4">
               <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" />
               <p className="text-sm text-muted-foreground">
-                No hay análisis de equidad disponibles. Genera el primer análisis para comenzar.
+                No hay análisis de equidad disponibles. Genera el primer
+                análisis para comenzar.
               </p>
               <Button
                 onClick={() => generateAnalysis.mutate()}
@@ -105,7 +141,9 @@ export default function SalaryEquityDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Análisis de Equidad Salarial</h1>
-          <p className="text-muted-foreground">NMX-R-025-SCFI-2015 - Igualdad Laboral y No Discriminación</p>
+          <p className="text-muted-foreground">
+            NMX-R-025-SCFI-2015 - Igualdad Laboral y No Discriminación
+          </p>
         </div>
 
         <div className="flex gap-2">
@@ -128,7 +166,9 @@ export default function SalaryEquityDashboard() {
           </Button>
 
           <Button
-            onClick={() => generateReport.mutate({ analysisId: latestAnalysis.id })}
+            onClick={() =>
+              generateReport.mutate({ analysisId: latestAnalysis.id })
+            }
             disabled={generateReport.isPending}
           >
             {generateReport.isPending ? (
@@ -150,22 +190,36 @@ export default function SalaryEquityDashboard() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Índice de Equidad Global</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Índice de Equidad Global
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{(latestAnalysis.globalEquityIndex ?? 0)}/100</div>
+            <div className="text-3xl font-bold">
+              {latestAnalysis.globalEquityIndex ?? 0}/100
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {(latestAnalysis.globalEquityIndex ?? 0) >= 80 ? "Excelente" : (latestAnalysis.globalEquityIndex ?? 0) >= 60 ? "Bueno" : "Requiere Atención"}
+              {(latestAnalysis.globalEquityIndex ?? 0) >= 80
+                ? "Excelente"
+                : (latestAnalysis.globalEquityIndex ?? 0) >= 60
+                  ? "Bueno"
+                  : "Requiere Atención"}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Cumplimiento NMX-R-025</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Cumplimiento NMX-R-025
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <Badge className={getComplianceColor(latestAnalysis.nmxComplianceStatus ?? "")}>
+            <Badge
+              className={getComplianceColor(
+                latestAnalysis.nmxComplianceStatus ?? ""
+              )}
+            >
               {getComplianceLabel(latestAnalysis.nmxComplianceStatus ?? "")}
             </Badge>
             <p className="text-xs text-muted-foreground mt-2">
@@ -176,12 +230,17 @@ export default function SalaryEquityDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Brecha Salarial de Género</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Brecha Salarial de Género
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <span className="text-3xl font-bold">
-                {parseFloat(latestAnalysis.genderPayGapPercentage ?? "0").toFixed(1)}%
+                {parseFloat(
+                  latestAnalysis.genderPayGapPercentage ?? "0"
+                ).toFixed(1)}
+                %
               </span>
               {parseFloat(latestAnalysis.genderPayGapPercentage ?? "0") > 10 ? (
                 <TrendingDown className="h-5 w-5 text-red-500" />
@@ -190,17 +249,25 @@ export default function SalaryEquityDashboard() {
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {Math.abs(parseFloat(latestAnalysis.genderPayGapPercentage ?? "0")) < 5 ? "Equidad Aceptable" : "Requiere Ajuste"}
+              {Math.abs(
+                parseFloat(latestAnalysis.genderPayGapPercentage ?? "0")
+              ) < 5
+                ? "Equidad Aceptable"
+                : "Requiere Ajuste"}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Casos Críticos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Casos Críticos
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{latestAnalysis.criticalCases.length}</div>
+            <div className="text-3xl font-bold">
+              {latestAnalysis.criticalCases.length}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Brechas salariales &gt;20%
             </p>
@@ -222,7 +289,9 @@ export default function SalaryEquityDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Distribución Salarial por Género</CardTitle>
-              <CardDescription>Comparación de salarios promedio entre hombres y mujeres</CardDescription>
+              <CardDescription>
+                Comparación de salarios promedio entre hombres y mujeres
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -230,35 +299,63 @@ export default function SalaryEquityDashboard() {
                   data={[
                     {
                       gender: "Hombres",
-                      salary: parseFloat(latestAnalysis.maleAverageSalary ?? "0"),
+                      salary: parseFloat(
+                        latestAnalysis.maleAverageSalary ?? "0"
+                      ),
                     },
                     {
                       gender: "Mujeres",
-                      salary: parseFloat(latestAnalysis.femaleAverageSalary ?? "0"),
+                      salary: parseFloat(
+                        latestAnalysis.femaleAverageSalary ?? "0"
+                      ),
                     },
                   ]}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="gender" />
                   <YAxis />
-                  <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                  <Tooltip
+                    formatter={(value: number) => `$${value.toLocaleString()}`}
+                  />
                   <Legend />
-                  <Bar dataKey="salary" name="Salario Promedio" fill="#3b82f6" />
+                  <Bar
+                    dataKey="salary"
+                    name="Salario Promedio"
+                    fill="#3b82f6"
+                  />
                 </BarChart>
               </ResponsiveContainer>
 
               <div className="mt-4 grid gap-4 md:grid-cols-3">
                 <div>
-                  <p className="text-sm text-muted-foreground">Salario Promedio Hombres</p>
-                  <p className="text-2xl font-bold">${parseFloat(latestAnalysis.maleAverageSalary ?? "0").toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Salario Promedio Hombres
+                  </p>
+                  <p className="text-2xl font-bold">
+                    $
+                    {parseFloat(
+                      latestAnalysis.maleAverageSalary ?? "0"
+                    ).toLocaleString()}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Salario Promedio Mujeres</p>
-                  <p className="text-2xl font-bold">${parseFloat(latestAnalysis.femaleAverageSalary ?? "0").toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Salario Promedio Mujeres
+                  </p>
+                  <p className="text-2xl font-bold">
+                    $
+                    {parseFloat(
+                      latestAnalysis.femaleAverageSalary ?? "0"
+                    ).toLocaleString()}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Puntuación de Equidad</p>
-                  <p className="text-2xl font-bold">{latestAnalysis.genderEquityScore}/100</p>
+                  <p className="text-sm text-muted-foreground">
+                    Puntuación de Equidad
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {latestAnalysis.genderEquityScore}/100
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -270,7 +367,9 @@ export default function SalaryEquityDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Distribución Salarial por Rango de Edad</CardTitle>
-              <CardDescription>Análisis de equidad salarial por grupos etarios</CardDescription>
+              <CardDescription>
+                Análisis de equidad salarial por grupos etarios
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -278,9 +377,15 @@ export default function SalaryEquityDashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="ageRange" />
                   <YAxis />
-                  <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                  <Tooltip
+                    formatter={(value: number) => `$${value.toLocaleString()}`}
+                  />
                   <Legend />
-                  <Bar dataKey="averageSalary" name="Salario Promedio" fill="#10b981" />
+                  <Bar
+                    dataKey="averageSalary"
+                    name="Salario Promedio"
+                    fill="#10b981"
+                  />
                 </BarChart>
               </ResponsiveContainer>
 
@@ -297,11 +402,21 @@ export default function SalaryEquityDashboard() {
                   <TableBody>
                     {latestAnalysis.ageGroupAnalysis.map((group: any) => (
                       <TableRow key={group.ageRange}>
-                        <TableCell className="font-medium">{group.ageRange} años</TableCell>
+                        <TableCell className="font-medium">
+                          {group.ageRange} años
+                        </TableCell>
                         <TableCell>{group.employeeCount}</TableCell>
-                        <TableCell>${group.averageSalary.toLocaleString()}</TableCell>
                         <TableCell>
-                          <Badge variant={Math.abs(group.gapPercentage) > 15 ? "destructive" : "default"}>
+                          ${group.averageSalary.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              Math.abs(group.gapPercentage) > 15
+                                ? "destructive"
+                                : "default"
+                            }
+                          >
                             {group.gapPercentage.toFixed(1)}%
                           </Badge>
                         </TableCell>
@@ -319,7 +434,9 @@ export default function SalaryEquityDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Distribución Salarial por Antigüedad</CardTitle>
-              <CardDescription>Análisis de equidad salarial por años de servicio</CardDescription>
+              <CardDescription>
+                Análisis de equidad salarial por años de servicio
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -327,9 +444,17 @@ export default function SalaryEquityDashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="tenureRange" />
                   <YAxis />
-                  <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                  <Tooltip
+                    formatter={(value: number) => `$${value.toLocaleString()}`}
+                  />
                   <Legend />
-                  <Line type="monotone" dataKey="averageSalary" name="Salario Promedio" stroke="#8b5cf6" strokeWidth={2} />
+                  <Line
+                    type="monotone"
+                    dataKey="averageSalary"
+                    name="Salario Promedio"
+                    stroke="#8b5cf6"
+                    strokeWidth={2}
+                  />
                 </LineChart>
               </ResponsiveContainer>
 
@@ -346,11 +471,21 @@ export default function SalaryEquityDashboard() {
                   <TableBody>
                     {latestAnalysis.tenureGroupAnalysis.map((group: any) => (
                       <TableRow key={group.tenureRange}>
-                        <TableCell className="font-medium">{group.tenureRange} años</TableCell>
+                        <TableCell className="font-medium">
+                          {group.tenureRange} años
+                        </TableCell>
                         <TableCell>{group.employeeCount}</TableCell>
-                        <TableCell>${group.averageSalary.toLocaleString()}</TableCell>
                         <TableCell>
-                          <Badge variant={Math.abs(group.gapPercentage) > 15 ? "destructive" : "default"}>
+                          ${group.averageSalary.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              Math.abs(group.gapPercentage) > 15
+                                ? "destructive"
+                                : "default"
+                            }
+                          >
                             {group.gapPercentage.toFixed(1)}%
                           </Badge>
                         </TableCell>
@@ -368,7 +503,9 @@ export default function SalaryEquityDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Casos Críticos de Inequidad</CardTitle>
-              <CardDescription>Empleados con brechas salariales superiores al 20%</CardDescription>
+              <CardDescription>
+                Empleados con brechas salariales superiores al 20%
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {latestAnalysis.criticalCases.length === 0 ? (
@@ -394,12 +531,18 @@ export default function SalaryEquityDashboard() {
                   <TableBody>
                     {latestAnalysis.criticalCases.map((c: any) => (
                       <TableRow key={c.employeeId}>
-                        <TableCell className="font-medium">{c.employeeName}</TableCell>
+                        <TableCell className="font-medium">
+                          {c.employeeName}
+                        </TableCell>
                         <TableCell>{c.department}</TableCell>
                         <TableCell>{c.position}</TableCell>
                         <TableCell>{c.gender === "male" ? "M" : "F"}</TableCell>
-                        <TableCell>${c.currentSalary.toLocaleString()}</TableCell>
-                        <TableCell>${c.expectedSalary.toLocaleString()}</TableCell>
+                        <TableCell>
+                          ${c.currentSalary.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          ${c.expectedSalary.toLocaleString()}
+                        </TableCell>
                         <TableCell>
                           <Badge variant="destructive">
                             {c.gapPercentage.toFixed(1)}%
@@ -424,14 +567,22 @@ export default function SalaryEquityDashboard() {
                   {latestAnalysis.recommendations.map((rec: any, i: number) => (
                     <div key={i} className="border-l-4 border-blue-500 pl-4">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant={rec.priority === "high" ? "destructive" : "default"}>
+                        <Badge
+                          variant={
+                            rec.priority === "high" ? "destructive" : "default"
+                          }
+                        >
                           {rec.priority.toUpperCase()}
                         </Badge>
                         <span className="font-semibold">{rec.category}</span>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {rec.description}
+                      </p>
                       <div className="flex gap-4 text-xs text-muted-foreground">
-                        <span>Costo Estimado: ${rec.estimatedCost.toLocaleString()}</span>
+                        <span>
+                          Costo Estimado: ${rec.estimatedCost.toLocaleString()}
+                        </span>
                         <span>Impacto: {rec.expectedImpact}</span>
                       </div>
                     </div>
@@ -448,7 +599,9 @@ export default function SalaryEquityDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Historial de Análisis</CardTitle>
-            <CardDescription>Evolución del índice de equidad salarial</CardDescription>
+            <CardDescription>
+              Evolución del índice de equidad salarial
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
@@ -464,14 +617,20 @@ export default function SalaryEquityDashboard() {
               <TableBody>
                 {history.map((h: any) => (
                   <TableRow key={h.id}>
-                    <TableCell>{new Date(h.analysisDate).toLocaleDateString("es-MX")}</TableCell>
+                    <TableCell>
+                      {new Date(h.analysisDate).toLocaleDateString("es-MX")}
+                    </TableCell>
                     <TableCell>{h.globalEquityIndex}/100</TableCell>
                     <TableCell>
-                      <Badge className={getComplianceColor(h.nmxComplianceStatus)}>
+                      <Badge
+                        className={getComplianceColor(h.nmxComplianceStatus)}
+                      >
                         {getComplianceLabel(h.nmxComplianceStatus)}
                       </Badge>
                     </TableCell>
-                    <TableCell>{h.genderPayGapPercentage.toFixed(1)}%</TableCell>
+                    <TableCell>
+                      {h.genderPayGapPercentage.toFixed(1)}%
+                    </TableCell>
                     <TableCell>{h.criticalCasesCount}</TableCell>
                   </TableRow>
                 ))}

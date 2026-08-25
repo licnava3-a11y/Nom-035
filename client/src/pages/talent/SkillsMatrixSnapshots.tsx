@@ -1,7 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
@@ -22,48 +28,66 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { TrendingUp, TrendingDown, Minus, ArrowLeft, Trash2, Calendar, FileDown } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ArrowLeft,
+  Trash2,
+  Calendar,
+  FileDown,
+} from "lucide-react";
 import { Link } from "wouter";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function SkillsMatrixSnapshots() {
   const [snapshot1Id, setSnapshot1Id] = useState<number | undefined>();
   const [snapshot2Id, setSnapshot2Id] = useState<number | undefined>();
-  const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | undefined>();
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<
+    number | undefined
+  >();
 
   // Queries
-  const { data: snapshotsData, refetch } = trpc.skillsMatrixSnapshots.getAll.useQuery({
-    limit: 100,
-    offset: 0,
-  });
+  const { data: snapshotsData, refetch } =
+    trpc.skillsMatrixSnapshots.getAll.useQuery({
+      limit: 100,
+      offset: 0,
+    });
 
   const { data: trendData } = trpc.skillsMatrixSnapshots.getTrendData.useQuery({
     departmentId: selectedDepartmentId,
   });
 
-  const { data: departmentsDataRaw } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
+  const { data: departmentsDataRaw } = trpc.departments.list.useQuery({
+    page: 1,
+    pageSize: 100,
+  });
   const departmentsData = { departments: departmentsDataRaw?.data || [] };
 
-  const { data: comparisonData, isLoading: isComparing } = trpc.skillsMatrixSnapshots.compareSnapshots.useQuery(
-    {
-      snapshot1Id: snapshot1Id!,
-      snapshot2Id: snapshot2Id!,
-    },
-    {
-      enabled: !!snapshot1Id && !!snapshot2Id && snapshot1Id !== snapshot2Id,
-    }
-  );
+  const { data: comparisonData, isLoading: isComparing } =
+    trpc.skillsMatrixSnapshots.compareSnapshots.useQuery(
+      {
+        snapshot1Id: snapshot1Id!,
+        snapshot2Id: snapshot2Id!,
+      },
+      {
+        enabled: !!snapshot1Id && !!snapshot2Id && snapshot1Id !== snapshot2Id,
+      }
+    );
 
   // Mutations
-  const deleteSnapshotMutation = trpc.skillsMatrixSnapshots.deleteSnapshot.useMutation({
-    onSuccess: () => {
-      toast.success("Snapshot eliminado", { description: "El snapshot se eliminó correctamente" });
-      refetch();
-    },
-    onError: (error: { message: string }) => {
-      toast.error("Error", { description: error.message });
-    },
-  });
+  const deleteSnapshotMutation =
+    trpc.skillsMatrixSnapshots.deleteSnapshot.useMutation({
+      onSuccess: () => {
+        toast.success("Snapshot eliminado", {
+          description: "El snapshot se eliminó correctamente",
+        });
+        refetch();
+      },
+      onError: (error: { message: string }) => {
+        toast.error("Error", { description: error.message });
+      },
+    });
 
   const handleDelete = (id: number, name: string) => {
     if (window.confirm(`¿Estás seguro de eliminar el snapshot "${name}"?`)) {
@@ -73,7 +97,9 @@ export default function SkillsMatrixSnapshots() {
 
   const handleExportPDF = async () => {
     if (!snapshot1Id || !snapshot2Id || !comparisonData) {
-      toast.error("Error", { description: "Selecciona dos snapshots para comparar" });
+      toast.error("Error", {
+        description: "Selecciona dos snapshots para comparar",
+      });
       return;
     }
 
@@ -91,14 +117,21 @@ export default function SkillsMatrixSnapshots() {
       // Header
       doc.setFontSize(18);
       doc.setTextColor(0, 0, 0);
-      doc.text("Reporte de Comparación de Snapshots", pageWidth / 2, yPos, { align: "center" });
+      doc.text("Reporte de Comparación de Snapshots", pageWidth / 2, yPos, {
+        align: "center",
+      });
       yPos += 10;
 
       doc.setFontSize(12);
       doc.setTextColor(100, 100, 100);
       const snapshot1 = snapshots.find(s => s.id === snapshot1Id);
       const snapshot2 = snapshots.find(s => s.id === snapshot2Id);
-      doc.text(`${snapshot1?.name} vs ${snapshot2?.name}`, pageWidth / 2, yPos, { align: "center" });
+      doc.text(
+        `${snapshot1?.name} vs ${snapshot2?.name}`,
+        pageWidth / 2,
+        yPos,
+        { align: "center" }
+      );
       yPos += 15;
 
       // KPIs Section
@@ -108,10 +141,40 @@ export default function SkillsMatrixSnapshots() {
       yPos += 10;
 
       const kpisData = [
-        ["Empleados", comparisonData.summaryComparison.totalEmployees.before.toString(), comparisonData.summaryComparison.totalEmployees.after.toString(), comparisonData.summaryComparison.totalEmployees.change.toString(), `${comparisonData.summaryComparison.totalEmployees.percentChange}%`],
-        ["Nivel Promedio", comparisonData.summaryComparison.averageCompetencyLevel.before.toFixed(2), comparisonData.summaryComparison.averageCompetencyLevel.after.toFixed(2), comparisonData.summaryComparison.averageCompetencyLevel.change.toFixed(2), `${comparisonData.summaryComparison.averageCompetencyLevel.percentChange}%`],
-        ["Brechas Totales", comparisonData.summaryComparison.totalGaps.before.toString(), comparisonData.summaryComparison.totalGaps.after.toString(), comparisonData.summaryComparison.totalGaps.change.toString(), `${comparisonData.summaryComparison.totalGaps.percentChange}%`],
-        ["Brechas Críticas", comparisonData.summaryComparison.criticalGaps.before.toString(), comparisonData.summaryComparison.criticalGaps.after.toString(), comparisonData.summaryComparison.criticalGaps.change.toString(), `${comparisonData.summaryComparison.criticalGaps.percentChange}%`],
+        [
+          "Empleados",
+          comparisonData.summaryComparison.totalEmployees.before.toString(),
+          comparisonData.summaryComparison.totalEmployees.after.toString(),
+          comparisonData.summaryComparison.totalEmployees.change.toString(),
+          `${comparisonData.summaryComparison.totalEmployees.percentChange}%`,
+        ],
+        [
+          "Nivel Promedio",
+          comparisonData.summaryComparison.averageCompetencyLevel.before.toFixed(
+            2
+          ),
+          comparisonData.summaryComparison.averageCompetencyLevel.after.toFixed(
+            2
+          ),
+          comparisonData.summaryComparison.averageCompetencyLevel.change.toFixed(
+            2
+          ),
+          `${comparisonData.summaryComparison.averageCompetencyLevel.percentChange}%`,
+        ],
+        [
+          "Brechas Totales",
+          comparisonData.summaryComparison.totalGaps.before.toString(),
+          comparisonData.summaryComparison.totalGaps.after.toString(),
+          comparisonData.summaryComparison.totalGaps.change.toString(),
+          `${comparisonData.summaryComparison.totalGaps.percentChange}%`,
+        ],
+        [
+          "Brechas Críticas",
+          comparisonData.summaryComparison.criticalGaps.before.toString(),
+          comparisonData.summaryComparison.criticalGaps.after.toString(),
+          comparisonData.summaryComparison.criticalGaps.change.toString(),
+          `${comparisonData.summaryComparison.criticalGaps.percentChange}%`,
+        ],
       ];
 
       (doc as any).autoTable({
@@ -147,7 +210,18 @@ export default function SkillsMatrixSnapshots() {
 
       (doc as any).autoTable({
         startY: yPos,
-        head: [["Empleado", "Departamento", "Nivel Ant.", "Nivel Act.", "Cambio", "Brecha Ant.", "Brecha Act.", "Cambio Brecha"]],
+        head: [
+          [
+            "Empleado",
+            "Departamento",
+            "Nivel Ant.",
+            "Nivel Act.",
+            "Cambio",
+            "Brecha Ant.",
+            "Brecha Act.",
+            "Cambio Brecha",
+          ],
+        ],
         body: improversData,
         theme: "grid",
         headStyles: { fillColor: [34, 197, 94] },
@@ -180,7 +254,18 @@ export default function SkillsMatrixSnapshots() {
 
         (doc as any).autoTable({
           startY: yPos,
-          head: [["Empleado", "Departamento", "Nivel Ant.", "Nivel Act.", "Cambio", "Brecha Ant.", "Brecha Act.", "Cambio Brecha"]],
+          head: [
+            [
+              "Empleado",
+              "Departamento",
+              "Nivel Ant.",
+              "Nivel Act.",
+              "Cambio",
+              "Brecha Ant.",
+              "Brecha Act.",
+              "Cambio Brecha",
+            ],
+          ],
           body: needsAttentionData,
           theme: "grid",
           headStyles: { fillColor: [239, 68, 68] },
@@ -204,23 +289,37 @@ export default function SkillsMatrixSnapshots() {
       const recommendations = [];
 
       if (comparisonData.summaryComparison.averageCompetencyLevel.change > 0) {
-        recommendations.push("• El nivel promedio de competencias ha mejorado. Continuar con los programas de capacitación actuales.");
-      } else if (comparisonData.summaryComparison.averageCompetencyLevel.change < 0) {
-        recommendations.push("• El nivel promedio de competencias ha disminuido. Revisar y ajustar los programas de capacitación.");
+        recommendations.push(
+          "• El nivel promedio de competencias ha mejorado. Continuar con los programas de capacitación actuales."
+        );
+      } else if (
+        comparisonData.summaryComparison.averageCompetencyLevel.change < 0
+      ) {
+        recommendations.push(
+          "• El nivel promedio de competencias ha disminuido. Revisar y ajustar los programas de capacitación."
+        );
       }
 
       if (comparisonData.summaryComparison.totalGaps.change < 0) {
-        recommendations.push("• Las brechas de competencias han disminuido. Excelente progreso en el desarrollo del equipo.");
+        recommendations.push(
+          "• Las brechas de competencias han disminuido. Excelente progreso en el desarrollo del equipo."
+        );
       } else if (comparisonData.summaryComparison.totalGaps.change > 0) {
-        recommendations.push("• Las brechas de competencias han aumentado. Implementar planes de desarrollo personalizados.");
+        recommendations.push(
+          "• Las brechas de competencias han aumentado. Implementar planes de desarrollo personalizados."
+        );
       }
 
       if (comparisonData.needsAttention.length > 0) {
-        recommendations.push(`• ${comparisonData.needsAttention.length} empleados requieren atención inmediata. Priorizar su desarrollo.`);
+        recommendations.push(
+          `• ${comparisonData.needsAttention.length} empleados requieren atención inmediata. Priorizar su desarrollo.`
+        );
       }
 
       if (comparisonData.topImprovers.length > 0) {
-        recommendations.push(`• Reconocer y recompensar a los ${comparisonData.topImprovers.length} empleados con mayor mejora.`);
+        recommendations.push(
+          `• Reconocer y recompensar a los ${comparisonData.topImprovers.length} empleados con mayor mejora.`
+        );
       }
 
       recommendations.forEach(rec => {
@@ -253,8 +352,12 @@ export default function SkillsMatrixSnapshots() {
       }
 
       // Save PDF
-      doc.save(`comparacion-snapshots-${snapshot1?.name}-vs-${snapshot2?.name}.pdf`);
-      toast.success("PDF generado", { description: "El reporte se descargó correctamente" });
+      doc.save(
+        `comparacion-snapshots-${snapshot1?.name}-vs-${snapshot2?.name}.pdf`
+      );
+      toast.success("PDF generado", {
+        description: "El reporte se descargó correctamente",
+      });
     } catch (error) {
       toast.error("Error", { description: "No se pudo generar el PDF" });
     }
@@ -274,7 +377,9 @@ export default function SkillsMatrixSnapshots() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Snapshots de Matriz de Habilidades</h1>
+          <h1 className="text-3xl font-bold">
+            Snapshots de Matriz de Habilidades
+          </h1>
           <p className="text-muted-foreground">
             Compara el progreso de competencias a lo largo del tiempo
           </p>
@@ -292,25 +397,35 @@ export default function SkillsMatrixSnapshots() {
         <Card>
           <CardHeader>
             <CardTitle>Filtrar Gráficos de Tendencia</CardTitle>
-            <CardDescription>Selecciona un departamento para ver su evolución temporal</CardDescription>
+            <CardDescription>
+              Selecciona un departamento para ver su evolución temporal
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="max-w-md">
-              <label className="text-sm font-medium mb-2 block">Departamento</label>
+              <label className="text-sm font-medium mb-2 block">
+                Departamento
+              </label>
               <Select
                 value={selectedDepartmentId?.toString() || "all"}
-                onValueChange={(value) => setSelectedDepartmentId(value === "all" ? undefined : Number(value))}
+                onValueChange={value =>
+                  setSelectedDepartmentId(
+                    value === "all" ? undefined : Number(value)
+                  )
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los departamentos" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los departamentos</SelectItem>
-                  {departmentsData?.departments.map((dept: { id: number; name: string }) => (
-                    <SelectItem key={dept.id} value={dept.id.toString()}>
-                      {dept.name}
-                    </SelectItem>
-                  ))}
+                  {departmentsData?.departments.map(
+                    (dept: { id: number; name: string }) => (
+                      <SelectItem key={dept.id} value={dept.id.toString()}>
+                        {dept.name}
+                      </SelectItem>
+                    )
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -324,55 +439,67 @@ export default function SkillsMatrixSnapshots() {
           {/* Average Level Trend */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Evolución del Nivel Promedio{selectedDepartmentId && departmentsData ? ` - ${departmentsData.departments.find((d: { id: number; name: string }) => d.id === selectedDepartmentId)?.name}` : " - Todos los departamentos"}</CardTitle>
-              <CardDescription>Tendencia del nivel de competencias a lo largo del tiempo</CardDescription>
+              <CardTitle className="text-lg">
+                Evolución del Nivel Promedio
+                {selectedDepartmentId && departmentsData
+                  ? ` - ${departmentsData.departments.find((d: { id: number; name: string }) => d.id === selectedDepartmentId)?.name}`
+                  : " - Todos los departamentos"}
+              </CardTitle>
+              <CardDescription>
+                Tendencia del nivel de competencias a lo largo del tiempo
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ height: "300px" }}>
-                <canvas ref={(canvas) => {
-                  if (canvas && trendData) {
-                    const ctx = canvas.getContext("2d");
-                    if (ctx) {
-                      // Destroy previous chart if exists
-                      const existingChart = Chart.getChart(canvas);
-                      if (existingChart) existingChart.destroy();
-                      
-                      new Chart(ctx, {
-                        type: "line",
-                        data: {
-                          labels: trendData.labels,
-                          datasets: [{
-                            label: "Nivel Promedio",
-                            data: trendData.datasets.averageLevel,
-                            borderColor: "rgb(34, 197, 94)",
-                            backgroundColor: "rgba(34, 197, 94, 0.1)",
-                            tension: 0.3,
-                            fill: true,
-                          }],
-                        },
-                        options: {
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                              callbacks: {
-                                label: (context) => `Nivel: ${(context.parsed.y ?? 0).toFixed(2)}`,
+                <canvas
+                  ref={canvas => {
+                    if (canvas && trendData) {
+                      const ctx = canvas.getContext("2d");
+                      if (ctx) {
+                        // Destroy previous chart if exists
+                        const existingChart = Chart.getChart(canvas);
+                        if (existingChart) existingChart.destroy();
+
+                        new Chart(ctx, {
+                          type: "line",
+                          data: {
+                            labels: trendData.labels,
+                            datasets: [
+                              {
+                                label: "Nivel Promedio",
+                                data: trendData.datasets.averageLevel,
+                                borderColor: "rgb(34, 197, 94)",
+                                backgroundColor: "rgba(34, 197, 94, 0.1)",
+                                tension: 0.3,
+                                fill: true,
+                              },
+                            ],
+                          },
+                          options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: { display: false },
+                              tooltip: {
+                                callbacks: {
+                                  label: context =>
+                                    `Nivel: ${(context.parsed.y ?? 0).toFixed(2)}`,
+                                },
+                              },
+                            },
+                            scales: {
+                              y: {
+                                beginAtZero: true,
+                                max: 4,
+                                ticks: { stepSize: 1 },
                               },
                             },
                           },
-                          scales: {
-                            y: {
-                              beginAtZero: true,
-                              max: 4,
-                              ticks: { stepSize: 1 },
-                            },
-                          },
-                        },
-                      });
+                        });
+                      }
                     }
-                  }
-                }} />
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
@@ -380,52 +507,61 @@ export default function SkillsMatrixSnapshots() {
           {/* Total Gaps Trend */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Evolución de Brechas Totales</CardTitle>
-              <CardDescription>Tendencia de brechas de competencias identificadas</CardDescription>
+              <CardTitle className="text-lg">
+                Evolución de Brechas Totales
+              </CardTitle>
+              <CardDescription>
+                Tendencia de brechas de competencias identificadas
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ height: "300px" }}>
-                <canvas ref={(canvas) => {
-                  if (canvas && trendData) {
-                    const ctx = canvas.getContext("2d");
-                    if (ctx) {
-                      const existingChart = Chart.getChart(canvas);
-                      if (existingChart) existingChart.destroy();
-                      
-                      new Chart(ctx, {
-                        type: "line",
-                        data: {
-                          labels: trendData.labels,
-                          datasets: [{
-                            label: "Brechas Totales",
-                            data: trendData.datasets.totalGaps,
-                            borderColor: "rgb(239, 68, 68)",
-                            backgroundColor: "rgba(239, 68, 68, 0.1)",
-                            tension: 0.3,
-                            fill: true,
-                          }],
-                        },
-                        options: {
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                              callbacks: {
-                                label: (context) => `Brechas: ${context.parsed.y}`,
+                <canvas
+                  ref={canvas => {
+                    if (canvas && trendData) {
+                      const ctx = canvas.getContext("2d");
+                      if (ctx) {
+                        const existingChart = Chart.getChart(canvas);
+                        if (existingChart) existingChart.destroy();
+
+                        new Chart(ctx, {
+                          type: "line",
+                          data: {
+                            labels: trendData.labels,
+                            datasets: [
+                              {
+                                label: "Brechas Totales",
+                                data: trendData.datasets.totalGaps,
+                                borderColor: "rgb(239, 68, 68)",
+                                backgroundColor: "rgba(239, 68, 68, 0.1)",
+                                tension: 0.3,
+                                fill: true,
+                              },
+                            ],
+                          },
+                          options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: { display: false },
+                              tooltip: {
+                                callbacks: {
+                                  label: context =>
+                                    `Brechas: ${context.parsed.y}`,
+                                },
+                              },
+                            },
+                            scales: {
+                              y: {
+                                beginAtZero: true,
                               },
                             },
                           },
-                          scales: {
-                            y: {
-                              beginAtZero: true,
-                            },
-                          },
-                        },
-                      });
+                        });
+                      }
                     }
-                  }
-                }} />
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
@@ -433,52 +569,61 @@ export default function SkillsMatrixSnapshots() {
           {/* Critical Gaps Trend */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Evolución de Brechas Críticas</CardTitle>
-              <CardDescription>Tendencia de brechas críticas que requieren atención inmediata</CardDescription>
+              <CardTitle className="text-lg">
+                Evolución de Brechas Críticas
+              </CardTitle>
+              <CardDescription>
+                Tendencia de brechas críticas que requieren atención inmediata
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ height: "300px" }}>
-                <canvas ref={(canvas) => {
-                  if (canvas && trendData) {
-                    const ctx = canvas.getContext("2d");
-                    if (ctx) {
-                      const existingChart = Chart.getChart(canvas);
-                      if (existingChart) existingChart.destroy();
-                      
-                      new Chart(ctx, {
-                        type: "line",
-                        data: {
-                          labels: trendData.labels,
-                          datasets: [{
-                            label: "Brechas Críticas",
-                            data: trendData.datasets.criticalGaps,
-                            borderColor: "rgb(220, 38, 38)",
-                            backgroundColor: "rgba(220, 38, 38, 0.1)",
-                            tension: 0.3,
-                            fill: true,
-                          }],
-                        },
-                        options: {
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                              callbacks: {
-                                label: (context) => `Brechas Críticas: ${context.parsed.y}`,
+                <canvas
+                  ref={canvas => {
+                    if (canvas && trendData) {
+                      const ctx = canvas.getContext("2d");
+                      if (ctx) {
+                        const existingChart = Chart.getChart(canvas);
+                        if (existingChart) existingChart.destroy();
+
+                        new Chart(ctx, {
+                          type: "line",
+                          data: {
+                            labels: trendData.labels,
+                            datasets: [
+                              {
+                                label: "Brechas Críticas",
+                                data: trendData.datasets.criticalGaps,
+                                borderColor: "rgb(220, 38, 38)",
+                                backgroundColor: "rgba(220, 38, 38, 0.1)",
+                                tension: 0.3,
+                                fill: true,
+                              },
+                            ],
+                          },
+                          options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: { display: false },
+                              tooltip: {
+                                callbacks: {
+                                  label: context =>
+                                    `Brechas Críticas: ${context.parsed.y}`,
+                                },
+                              },
+                            },
+                            scales: {
+                              y: {
+                                beginAtZero: true,
                               },
                             },
                           },
-                          scales: {
-                            y: {
-                              beginAtZero: true,
-                            },
-                          },
-                        },
-                      });
+                        });
+                      }
                     }
-                  }
-                }} />
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
@@ -486,53 +631,62 @@ export default function SkillsMatrixSnapshots() {
           {/* Total Employees Trend */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Evolución de Total de Empleados</CardTitle>
-              <CardDescription>Tendencia del número de empleados evaluados</CardDescription>
+              <CardTitle className="text-lg">
+                Evolución de Total de Empleados
+              </CardTitle>
+              <CardDescription>
+                Tendencia del número de empleados evaluados
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ height: "300px" }}>
-                <canvas ref={(canvas) => {
-                  if (canvas && trendData) {
-                    const ctx = canvas.getContext("2d");
-                    if (ctx) {
-                      const existingChart = Chart.getChart(canvas);
-                      if (existingChart) existingChart.destroy();
-                      
-                      new Chart(ctx, {
-                        type: "line",
-                        data: {
-                          labels: trendData.labels,
-                          datasets: [{
-                            label: "Total Empleados",
-                            data: trendData.datasets.totalEmployees,
-                            borderColor: "rgb(59, 130, 246)",
-                            backgroundColor: "rgba(59, 130, 246, 0.1)",
-                            tension: 0.3,
-                            fill: true,
-                          }],
-                        },
-                        options: {
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                              callbacks: {
-                                label: (context) => `Empleados: ${context.parsed.y}`,
+                <canvas
+                  ref={canvas => {
+                    if (canvas && trendData) {
+                      const ctx = canvas.getContext("2d");
+                      if (ctx) {
+                        const existingChart = Chart.getChart(canvas);
+                        if (existingChart) existingChart.destroy();
+
+                        new Chart(ctx, {
+                          type: "line",
+                          data: {
+                            labels: trendData.labels,
+                            datasets: [
+                              {
+                                label: "Total Empleados",
+                                data: trendData.datasets.totalEmployees,
+                                borderColor: "rgb(59, 130, 246)",
+                                backgroundColor: "rgba(59, 130, 246, 0.1)",
+                                tension: 0.3,
+                                fill: true,
+                              },
+                            ],
+                          },
+                          options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: { display: false },
+                              tooltip: {
+                                callbacks: {
+                                  label: context =>
+                                    `Empleados: ${context.parsed.y}`,
+                                },
+                              },
+                            },
+                            scales: {
+                              y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 },
                               },
                             },
                           },
-                          scales: {
-                            y: {
-                              beginAtZero: true,
-                              ticks: { stepSize: 1 },
-                            },
-                          },
-                        },
-                      });
+                        });
+                      }
                     }
-                  }
-                }} />
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
@@ -550,10 +704,12 @@ export default function SkillsMatrixSnapshots() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Snapshot Anterior</label>
+              <label className="text-sm font-medium mb-2 block">
+                Snapshot Anterior
+              </label>
               <Select
                 value={snapshot1Id?.toString()}
-                onValueChange={(value) => setSnapshot1Id(Number(value))}
+                onValueChange={value => setSnapshot1Id(Number(value))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona snapshot..." />
@@ -568,10 +724,12 @@ export default function SkillsMatrixSnapshots() {
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Snapshot Actual</label>
+              <label className="text-sm font-medium mb-2 block">
+                Snapshot Actual
+              </label>
               <Select
                 value={snapshot2Id?.toString()}
-                onValueChange={(value) => setSnapshot2Id(Number(value))}
+                onValueChange={value => setSnapshot2Id(Number(value))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona snapshot..." />
@@ -613,9 +771,11 @@ export default function SkillsMatrixSnapshots() {
                   {comparisonData.summaryComparison.totalEmployees.after}
                 </div>
                 <div className="flex items-center text-xs">
-                  {comparisonData.summaryComparison.totalEmployees.change > 0 ? (
+                  {comparisonData.summaryComparison.totalEmployees.change >
+                  0 ? (
                     <TrendingUp className="mr-1 h-3 w-3 text-green-600" />
-                  ) : comparisonData.summaryComparison.totalEmployees.change < 0 ? (
+                  ) : comparisonData.summaryComparison.totalEmployees.change <
+                    0 ? (
                     <TrendingDown className="mr-1 h-3 w-3 text-red-600" />
                   ) : (
                     <Minus className="mr-1 h-3 w-3 text-gray-600" />
@@ -624,15 +784,25 @@ export default function SkillsMatrixSnapshots() {
                     className={
                       comparisonData.summaryComparison.totalEmployees.change > 0
                         ? "text-green-600"
-                        : comparisonData.summaryComparison.totalEmployees.change < 0
-                        ? "text-red-600"
-                        : "text-gray-600"
+                        : comparisonData.summaryComparison.totalEmployees
+                              .change < 0
+                          ? "text-red-600"
+                          : "text-gray-600"
                     }
                   >
-                    {comparisonData.summaryComparison.totalEmployees.change > 0 ? "+" : ""}
+                    {comparisonData.summaryComparison.totalEmployees.change > 0
+                      ? "+"
+                      : ""}
                     {comparisonData.summaryComparison.totalEmployees.change} (
-                    {comparisonData.summaryComparison.totalEmployees.percentChange > 0 ? "+" : ""}
-                    {comparisonData.summaryComparison.totalEmployees.percentChange}%)
+                    {comparisonData.summaryComparison.totalEmployees
+                      .percentChange > 0
+                      ? "+"
+                      : ""}
+                    {
+                      comparisonData.summaryComparison.totalEmployees
+                        .percentChange
+                    }
+                    %)
                   </span>
                 </div>
               </CardContent>
@@ -640,33 +810,55 @@ export default function SkillsMatrixSnapshots() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Nivel Promedio</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Nivel Promedio
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {comparisonData.summaryComparison.averageCompetencyLevel.after.toFixed(2)}
+                  {comparisonData.summaryComparison.averageCompetencyLevel.after.toFixed(
+                    2
+                  )}
                 </div>
                 <div className="flex items-center text-xs">
-                  {comparisonData.summaryComparison.averageCompetencyLevel.change > 0 ? (
+                  {comparisonData.summaryComparison.averageCompetencyLevel
+                    .change > 0 ? (
                     <TrendingUp className="mr-1 h-3 w-3 text-green-600" />
-                  ) : comparisonData.summaryComparison.averageCompetencyLevel.change < 0 ? (
+                  ) : comparisonData.summaryComparison.averageCompetencyLevel
+                      .change < 0 ? (
                     <TrendingDown className="mr-1 h-3 w-3 text-red-600" />
                   ) : (
                     <Minus className="mr-1 h-3 w-3 text-gray-600" />
                   )}
                   <span
                     className={
-                      comparisonData.summaryComparison.averageCompetencyLevel.change > 0
+                      comparisonData.summaryComparison.averageCompetencyLevel
+                        .change > 0
                         ? "text-green-600"
-                        : comparisonData.summaryComparison.averageCompetencyLevel.change < 0
-                        ? "text-red-600"
-                        : "text-gray-600"
+                        : comparisonData.summaryComparison
+                              .averageCompetencyLevel.change < 0
+                          ? "text-red-600"
+                          : "text-gray-600"
                     }
                   >
-                    {comparisonData.summaryComparison.averageCompetencyLevel.change > 0 ? "+" : ""}
-                    {comparisonData.summaryComparison.averageCompetencyLevel.change} (
-                    {comparisonData.summaryComparison.averageCompetencyLevel.percentChange > 0 ? "+" : ""}
-                    {comparisonData.summaryComparison.averageCompetencyLevel.percentChange}%)
+                    {comparisonData.summaryComparison.averageCompetencyLevel
+                      .change > 0
+                      ? "+"
+                      : ""}
+                    {
+                      comparisonData.summaryComparison.averageCompetencyLevel
+                        .change
+                    }{" "}
+                    (
+                    {comparisonData.summaryComparison.averageCompetencyLevel
+                      .percentChange > 0
+                      ? "+"
+                      : ""}
+                    {
+                      comparisonData.summaryComparison.averageCompetencyLevel
+                        .percentChange
+                    }
+                    %)
                   </span>
                 </div>
               </CardContent>
@@ -674,7 +866,9 @@ export default function SkillsMatrixSnapshots() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Brechas Totales</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Brechas Totales
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -693,13 +887,18 @@ export default function SkillsMatrixSnapshots() {
                       comparisonData.summaryComparison.totalGaps.change < 0
                         ? "text-green-600"
                         : comparisonData.summaryComparison.totalGaps.change > 0
-                        ? "text-red-600"
-                        : "text-gray-600"
+                          ? "text-red-600"
+                          : "text-gray-600"
                     }
                   >
-                    {comparisonData.summaryComparison.totalGaps.change > 0 ? "+" : ""}
+                    {comparisonData.summaryComparison.totalGaps.change > 0
+                      ? "+"
+                      : ""}
                     {comparisonData.summaryComparison.totalGaps.change} (
-                    {comparisonData.summaryComparison.totalGaps.percentChange > 0 ? "+" : ""}
+                    {comparisonData.summaryComparison.totalGaps.percentChange >
+                    0
+                      ? "+"
+                      : ""}
                     {comparisonData.summaryComparison.totalGaps.percentChange}%)
                   </span>
                 </div>
@@ -708,7 +907,9 @@ export default function SkillsMatrixSnapshots() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Brechas Críticas</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Brechas Críticas
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -717,7 +918,8 @@ export default function SkillsMatrixSnapshots() {
                 <div className="flex items-center text-xs">
                   {comparisonData.summaryComparison.criticalGaps.change < 0 ? (
                     <TrendingDown className="mr-1 h-3 w-3 text-green-600" />
-                  ) : comparisonData.summaryComparison.criticalGaps.change > 0 ? (
+                  ) : comparisonData.summaryComparison.criticalGaps.change >
+                    0 ? (
                     <TrendingUp className="mr-1 h-3 w-3 text-red-600" />
                   ) : (
                     <Minus className="mr-1 h-3 w-3 text-gray-600" />
@@ -726,15 +928,25 @@ export default function SkillsMatrixSnapshots() {
                     className={
                       comparisonData.summaryComparison.criticalGaps.change < 0
                         ? "text-green-600"
-                        : comparisonData.summaryComparison.criticalGaps.change > 0
-                        ? "text-red-600"
-                        : "text-gray-600"
+                        : comparisonData.summaryComparison.criticalGaps.change >
+                            0
+                          ? "text-red-600"
+                          : "text-gray-600"
                     }
                   >
-                    {comparisonData.summaryComparison.criticalGaps.change > 0 ? "+" : ""}
+                    {comparisonData.summaryComparison.criticalGaps.change > 0
+                      ? "+"
+                      : ""}
                     {comparisonData.summaryComparison.criticalGaps.change} (
-                    {comparisonData.summaryComparison.criticalGaps.percentChange > 0 ? "+" : ""}
-                    {comparisonData.summaryComparison.criticalGaps.percentChange}%)
+                    {comparisonData.summaryComparison.criticalGaps
+                      .percentChange > 0
+                      ? "+"
+                      : ""}
+                    {
+                      comparisonData.summaryComparison.criticalGaps
+                        .percentChange
+                    }
+                    %)
                   </span>
                 </div>
               </CardContent>
@@ -758,7 +970,9 @@ export default function SkillsMatrixSnapshots() {
                     <TableHead className="text-right">Nivel Anterior</TableHead>
                     <TableHead className="text-right">Nivel Actual</TableHead>
                     <TableHead className="text-right">Cambio</TableHead>
-                    <TableHead className="text-right">Brecha Anterior</TableHead>
+                    <TableHead className="text-right">
+                      Brecha Anterior
+                    </TableHead>
                     <TableHead className="text-right">Brecha Actual</TableHead>
                     <TableHead className="text-right">Cambio Brecha</TableHead>
                   </TableRow>
@@ -766,19 +980,45 @@ export default function SkillsMatrixSnapshots() {
                 <TableBody>
                   {comparisonData.topImprovers.map((emp: any) => (
                     <TableRow key={emp.employeeId}>
-                      <TableCell className="font-medium">{emp.employeeName}</TableCell>
+                      <TableCell className="font-medium">
+                        {emp.employeeName}
+                      </TableCell>
                       <TableCell>{emp.departmentName}</TableCell>
-                      <TableCell className="text-right">{emp.averageLevel.before.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">{emp.averageLevel.after.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
-                        <Badge variant={emp.averageLevel.change > 0 ? "default" : "secondary"} className="bg-green-100 text-green-700">
+                        {emp.averageLevel.before.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {emp.averageLevel.after.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Badge
+                          variant={
+                            emp.averageLevel.change > 0
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="bg-green-100 text-green-700"
+                        >
                           +{emp.averageLevel.change.toFixed(2)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">{emp.totalGap.before}</TableCell>
-                      <TableCell className="text-right">{emp.totalGap.after}</TableCell>
                       <TableCell className="text-right">
-                        <Badge variant={emp.totalGap.change < 0 ? "default" : "secondary"} className={emp.totalGap.change < 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
+                        {emp.totalGap.before}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {emp.totalGap.after}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Badge
+                          variant={
+                            emp.totalGap.change < 0 ? "default" : "secondary"
+                          }
+                          className={
+                            emp.totalGap.change < 0
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }
+                        >
                           {emp.totalGap.change}
                         </Badge>
                       </TableCell>
@@ -804,31 +1044,64 @@ export default function SkillsMatrixSnapshots() {
                     <TableRow>
                       <TableHead>Empleado</TableHead>
                       <TableHead>Departamento</TableHead>
-                      <TableHead className="text-right">Nivel Anterior</TableHead>
+                      <TableHead className="text-right">
+                        Nivel Anterior
+                      </TableHead>
                       <TableHead className="text-right">Nivel Actual</TableHead>
                       <TableHead className="text-right">Cambio</TableHead>
-                      <TableHead className="text-right">Brecha Anterior</TableHead>
-                      <TableHead className="text-right">Brecha Actual</TableHead>
-                      <TableHead className="text-right">Cambio Brecha</TableHead>
+                      <TableHead className="text-right">
+                        Brecha Anterior
+                      </TableHead>
+                      <TableHead className="text-right">
+                        Brecha Actual
+                      </TableHead>
+                      <TableHead className="text-right">
+                        Cambio Brecha
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {comparisonData.needsAttention.map((emp: any) => (
                       <TableRow key={emp.employeeId}>
-                        <TableCell className="font-medium">{emp.employeeName}</TableCell>
+                        <TableCell className="font-medium">
+                          {emp.employeeName}
+                        </TableCell>
                         <TableCell>{emp.departmentName}</TableCell>
-                        <TableCell className="text-right">{emp.averageLevel.before.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">{emp.averageLevel.after.toFixed(2)}</TableCell>
                         <TableCell className="text-right">
-                          <Badge variant="secondary" className={emp.averageLevel.change < 0 ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"}>
+                          {emp.averageLevel.before.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {emp.averageLevel.after.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Badge
+                            variant="secondary"
+                            className={
+                              emp.averageLevel.change < 0
+                                ? "bg-red-100 text-red-700"
+                                : "bg-gray-100 text-gray-700"
+                            }
+                          >
                             {emp.averageLevel.change.toFixed(2)}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">{emp.totalGap.before}</TableCell>
-                        <TableCell className="text-right">{emp.totalGap.after}</TableCell>
                         <TableCell className="text-right">
-                          <Badge variant="secondary" className={emp.totalGap.change > 0 ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"}>
-                            {emp.totalGap.change > 0 ? "+" : ""}{emp.totalGap.change}
+                          {emp.totalGap.before}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {emp.totalGap.after}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Badge
+                            variant="secondary"
+                            className={
+                              emp.totalGap.change > 0
+                                ? "bg-red-100 text-red-700"
+                                : "bg-gray-100 text-gray-700"
+                            }
+                          >
+                            {emp.totalGap.change > 0 ? "+" : ""}
+                            {emp.totalGap.change}
                           </Badge>
                         </TableCell>
                       </TableRow>
@@ -870,7 +1143,9 @@ export default function SkillsMatrixSnapshots() {
                 const data = snapshot.data as any;
                 return (
                   <TableRow key={snapshot.id}>
-                    <TableCell className="font-medium">{snapshot.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {snapshot.name}
+                    </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {snapshot.description || "-"}
                     </TableCell>
@@ -878,10 +1153,13 @@ export default function SkillsMatrixSnapshots() {
                       {new Date(snapshot.snapshotDate).toLocaleDateString()}
                     </TableCell>
                     <TableCell>{data.summary.totalEmployees}</TableCell>
-                    <TableCell>{data.summary.averageCompetencyLevel.toFixed(2)}</TableCell>
+                    <TableCell>
+                      {data.summary.averageCompetencyLevel.toFixed(2)}
+                    </TableCell>
                     <TableCell>
                       <Badge variant="secondary">
-                        {data.summary.totalGaps} ({data.summary.criticalGaps} críticas)
+                        {data.summary.totalGaps} ({data.summary.criticalGaps}{" "}
+                        críticas)
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

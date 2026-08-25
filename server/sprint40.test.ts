@@ -12,10 +12,7 @@ import path from "path";
 
 describe("Sprint 40.1 — Tabla branches y filtro mapa de calor", () => {
   it("branchesRouter existe y exporta el router", () => {
-    const routerPath = path.resolve(
-      __dirname,
-      "routers/branches.ts"
-    );
+    const routerPath = path.resolve(__dirname, "routers/branches.ts");
     const content = readFileSync(routerPath, "utf-8");
     expect(content).toContain("branchesRouter");
     expect(content).toContain("create");
@@ -40,10 +37,7 @@ describe("Sprint 40.1 — Tabla branches y filtro mapa de calor", () => {
   });
 
   it("getDepartmentalRiskMetrics acepta filtro branchId", () => {
-    const routerPath = path.resolve(
-      __dirname,
-      "routers/departmentalTrends.ts"
-    );
+    const routerPath = path.resolve(__dirname, "routers/departmentalTrends.ts");
     const content = readFileSync(routerPath, "utf-8");
     expect(content).toContain("branchId");
   });
@@ -85,10 +79,7 @@ describe("Sprint 40.2 — Exportar Catálogo de Puestos y Competencias a Excel",
 
 describe("Sprint 40.3 — Importar preguntas de Entrevistas de Salida desde Excel", () => {
   it("importQuestions procedure existe en exitInterviews router", () => {
-    const routerPath = path.resolve(
-      __dirname,
-      "routers/exitInterviews.ts"
-    );
+    const routerPath = path.resolve(__dirname, "routers/exitInterviews.ts");
     const content = readFileSync(routerPath, "utf-8");
     expect(content).toContain("importQuestions");
     expect(content).toContain("replaceAll");
@@ -97,10 +88,7 @@ describe("Sprint 40.3 — Importar preguntas de Entrevistas de Salida desde Exce
   });
 
   it("importQuestions procedure valida el array de preguntas", () => {
-    const routerPath = path.resolve(
-      __dirname,
-      "routers/exitInterviews.ts"
-    );
+    const routerPath = path.resolve(__dirname, "routers/exitInterviews.ts");
     const content = readFileSync(routerPath, "utf-8");
     // Debe validar que questions es un array con questionText
     expect(content).toContain("z.array");
@@ -139,10 +127,7 @@ describe("Sprint 40.3 — Importar preguntas de Entrevistas de Salida desde Exce
   });
 
   it("importQuestions procedure está registrado en el router de exitInterviews", () => {
-    const routerPath = path.resolve(
-      __dirname,
-      "routers/exitInterviews.ts"
-    );
+    const routerPath = path.resolve(__dirname, "routers/exitInterviews.ts");
     const content = readFileSync(routerPath, "utf-8");
     // Debe estar en el objeto del router
     expect(content).toContain("importQuestions:");

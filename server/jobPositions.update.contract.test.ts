@@ -24,19 +24,24 @@ describe("jobPositions.update input contract", () => {
   });
 
   it("allows unlinking a historical analysis without deleting it", () => {
-    expect(jobPositionUpdateInput.parse({ id: 42, catalogPositionId: null }).catalogPositionId).toBeNull();
+    expect(
+      jobPositionUpdateInput.parse({ id: 42, catalogPositionId: null })
+        .catalogPositionId
+    ).toBeNull();
   });
 
   it("rejects factors outside the NOM-035 scale", () => {
-    expect(() => jobPositionUpdateInput.parse({
-      id: 42,
-      factors: {
-        workload: 6,
-        control: 3,
-        leadership: 2,
-        relationships: 3,
-        workEnvironment: 2,
-      },
-    })).toThrow();
+    expect(() =>
+      jobPositionUpdateInput.parse({
+        id: 42,
+        factors: {
+          workload: 6,
+          control: 3,
+          leadership: 2,
+          relationships: 3,
+          workEnvironment: 2,
+        },
+      })
+    ).toThrow();
   });
 });

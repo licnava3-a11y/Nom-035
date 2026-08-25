@@ -7,6 +7,7 @@
 El screenshot del test fallido muestra que después del reload, la aplicación redirige a la página de inicio (Home) en lugar de permanecer en el dashboard autenticado.
 
 **Evidencia**:
+
 - Screenshot muestra: "Plataforma NOM-035 STPS 2018" con botón "Acceder a la Plataforma"
 - Logs del servidor: `[Auth] Missing session cookie` (2 veces)
 - Test falla en: `page.waitForResponse` esperando `/api/trpc/auth.me` con status 200
@@ -24,6 +25,7 @@ El screenshot del test fallido muestra que después del reload, la aplicación r
 **Hipótesis**: La cookie establecida por `context.request.post()` no se está compartiendo correctamente con el contexto del navegador de Playwright.
 
 **Razones posibles**:
+
 1. **Domain mismatch**: La cookie se establece para un dominio diferente al que navega el navegador
 2. **Secure flag**: La cookie requiere HTTPS pero el test usa HTTP
 3. **SameSite attribute**: La cookie tiene `SameSite=Strict` o `SameSite=Lax` que previene su envío
@@ -36,8 +38,8 @@ El screenshot del test fallido muestra que después del reload, la aplicación r
 Después de llamar al endpoint de autenticación, extraer las cookies de la respuesta y establecerlas manualmente en el contexto del navegador:
 
 ```typescript
-const response = await context.request.post('/api/test/auth/token');
-const cookies = response.headers()['set-cookie'];
+const response = await context.request.post("/api/test/auth/token");
+const cookies = response.headers()["set-cookie"];
 
 // Parsear y establecer cookies manualmente
 if (cookies) {
@@ -55,10 +57,10 @@ Guardar el estado de autenticación después del login y reutilizarlo:
 
 ```typescript
 // Después de autenticación exitosa
-await context.storageState({ path: 'auth-state.json' });
+await context.storageState({ path: "auth-state.json" });
 
 // En tests subsecuentes
-const context = await browser.newContext({ storageState: 'auth-state.json' });
+const context = await browser.newContext({ storageState: "auth-state.json" });
 ```
 
 ### Solución 3: No Hacer Reload
@@ -70,7 +72,7 @@ En lugar de reload, navegar directamente a la URL del dashboard:
 await page.reload();
 
 // Usar:
-await page.goto('/dashboard');
+await page.goto("/dashboard");
 ```
 
 ### Solución 4: Verificar Configuración de Cookies en el Servidor
@@ -78,12 +80,12 @@ await page.goto('/dashboard');
 Revisar `server/_core/test-auth.ts` para asegurar que las cookies se establecen correctamente:
 
 ```typescript
-res.cookie('session', token, {
+res.cookie("session", token, {
   httpOnly: true,
   secure: false, // Debe ser false para tests locales
-  sameSite: 'lax', // Permitir envío en navegación
-  path: '/',
-  maxAge: 24 * 60 * 60 * 1000 // 24 horas
+  sameSite: "lax", // Permitir envío en navegación
+  path: "/",
+  maxAge: 24 * 60 * 60 * 1000, // 24 horas
 });
 ```
 

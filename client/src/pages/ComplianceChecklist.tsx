@@ -1,25 +1,40 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { CheckCircle2, Circle, FileText } from "lucide-react";
 
 export default function ComplianceChecklist() {
-  const { data: checklist, isLoading, refetch } = trpc.compliance.getChecklist.useQuery();
+  const {
+    data: checklist,
+    isLoading,
+    refetch,
+  } = trpc.compliance.getChecklist.useQuery();
   const { data: stats } = trpc.compliance.getComplianceStats.useQuery();
   const updateCompliance = trpc.compliance.updateCompliance.useMutation({
     onSuccess: () => {
       toast.success("Estado de cumplimiento actualizado");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -35,7 +50,7 @@ export default function ComplianceChecklist() {
   };
 
   const handleNotesChange = (itemId: number, value: string) => {
-    setNotes((prev) => ({ ...prev, [itemId]: value }));
+    setNotes(prev => ({ ...prev, [itemId]: value }));
   };
 
   const handleSaveNotes = (itemId: number) => {
@@ -78,9 +93,12 @@ export default function ComplianceChecklist() {
   }));
 
   const getSectionProgress = (section: string) => {
-    const sectionItems = checklist?.filter((item: any) => item.section === section) || [];
+    const sectionItems =
+      checklist?.filter((item: any) => item.section === section) || [];
     if (sectionItems.length === 0) return 0;
-    const compliantCount = sectionItems.filter((item: any) => item.isCompliant).length;
+    const compliantCount = sectionItems.filter(
+      (item: any) => item.isCompliant
+    ).length;
     return Math.round((compliantCount / sectionItems.length) * 100);
   };
 
@@ -89,10 +107,13 @@ export default function ComplianceChecklist() {
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Checklist de Cumplimiento NOM-035-STPS-2018</h1>
+        <h1 className="text-3xl font-bold mb-2">
+          Checklist de Cumplimiento NOM-035-STPS-2018
+        </h1>
         <p className="text-muted-foreground">
-          Verifica el cumplimiento de los requisitos normativos para la identificación, análisis y prevención de
-          factores de riesgo psicosocial
+          Verifica el cumplimiento de los requisitos normativos para la
+          identificación, análisis y prevención de factores de riesgo
+          psicosocial
         </p>
       </div>
 
@@ -101,15 +122,19 @@ export default function ComplianceChecklist() {
         <CardHeader>
           <CardTitle>Progreso General de Cumplimiento</CardTitle>
           <CardDescription>
-            {stats?.overall.compliant || 0} de {stats?.overall.total || 0} items cumplidos
+            {stats?.overall.compliant || 0} de {stats?.overall.total || 0} items
+            cumplidos
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Cumplimiento: {totalProgress}%</span>
+              <span className="text-sm font-medium">
+                Cumplimiento: {totalProgress}%
+              </span>
               <span className="text-sm text-muted-foreground">
-                {(stats?.overall.total || 0) - (stats?.overall.compliant || 0)} pendientes
+                {(stats?.overall.total || 0) - (stats?.overall.compliant || 0)}{" "}
+                pendientes
               </span>
             </div>
             <Progress value={totalProgress} className="h-3" />
@@ -121,10 +146,16 @@ export default function ComplianceChecklist() {
       <Accordion type="multiple" className="space-y-4">
         {groupedChecklist.map(({ section, title, items }) => {
           const sectionProgress = getSectionProgress(section);
-          const compliantCount = items.filter((item: any) => item.isCompliant).length;
+          const compliantCount = items.filter(
+            (item: any) => item.isCompliant
+          ).length;
 
           return (
-            <AccordionItem key={section} value={section} className="border rounded-lg">
+            <AccordionItem
+              key={section}
+              value={section}
+              className="border rounded-lg"
+            >
               <AccordionTrigger className="px-6 hover:no-underline">
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-4">
@@ -141,20 +172,34 @@ export default function ComplianceChecklist() {
                     <div className="w-24">
                       <Progress value={sectionProgress} className="h-2" />
                     </div>
-                    <span className="text-sm font-medium">{sectionProgress}%</span>
+                    <span className="text-sm font-medium">
+                      {sectionProgress}%
+                    </span>
                   </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6">
                 <div className="space-y-4 mt-4">
                   {items.map((item: any) => (
-                    <Card key={item.id} className={item.isCompliant ? "border-green-200 bg-green-50/50" : ""}>
+                    <Card
+                      key={item.id}
+                      className={
+                        item.isCompliant
+                          ? "border-green-200 bg-green-50/50"
+                          : ""
+                      }
+                    >
                       <CardContent className="pt-6">
                         <div className="flex gap-4">
                           <div className="flex-shrink-0 pt-1">
                             <Checkbox
                               checked={item.isCompliant || false}
-                              onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                              onCheckedChange={checked =>
+                                handleCheckboxChange(
+                                  item.id,
+                                  checked as boolean
+                                )
+                              }
                               className="h-5 w-5"
                             />
                           </div>
@@ -171,31 +216,40 @@ export default function ComplianceChecklist() {
                                     {item.itemCode}
                                   </span>
                                 </div>
-                                <p className="text-sm font-medium mb-2">{item.requirement}</p>
+                                <p className="text-sm font-medium mb-2">
+                                  {item.requirement}
+                                </p>
                                 {item.evidence && (
-                                  <p className="text-sm text-muted-foreground"><strong>Evidencia:</strong> {item.evidence}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    <strong>Evidencia:</strong> {item.evidence}
+                                  </p>
                                 )}
                               </div>
                             </div>
 
                             {/* Campo de Notas */}
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">Notas / Evidencias</label>
+                              <label className="text-sm font-medium">
+                                Notas / Evidencias
+                              </label>
                               <Textarea
                                 value={notes[item.id] ?? item.notes ?? ""}
-                                onChange={(e) => handleNotesChange(item.id, e.target.value)}
+                                onChange={e =>
+                                  handleNotesChange(item.id, e.target.value)
+                                }
                                 placeholder="Agregar notas, evidencias o comentarios sobre el cumplimiento..."
                                 className="min-h-[80px]"
                               />
-                              {notes[item.id] !== undefined && notes[item.id] !== (item.notes || "") && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleSaveNotes(item.id)}
-                                  disabled={updateCompliance.isPending}
-                                >
-                                  Guardar Notas
-                                </Button>
-                              )}
+                              {notes[item.id] !== undefined &&
+                                notes[item.id] !== (item.notes || "") && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleSaveNotes(item.id)}
+                                    disabled={updateCompliance.isPending}
+                                  >
+                                    Guardar Notas
+                                  </Button>
+                                )}
                             </div>
                           </div>
                         </div>

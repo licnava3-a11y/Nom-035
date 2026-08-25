@@ -14,13 +14,17 @@ export const nom035PoliciesRouter = router({
    */
   list: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-    
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
+
     const policies = await db
       .select()
       .from(nom035Policies)
       .orderBy(desc(nom035Policies.createdAt));
-    
+
     return policies;
   }),
 
@@ -31,8 +35,12 @@ export const nom035PoliciesRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       const policy = await db
         .select()
         .from(nom035Policies)
@@ -63,8 +71,12 @@ export const nom035PoliciesRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       const [result] = await (db.insert(nom035Policies) as any).values({
         nombre: input.nombre,
         descripcion: input.descripcion,
@@ -98,8 +110,12 @@ export const nom035PoliciesRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       // Get current policy data to save as version
       const [currentPolicy] = await db
         .select()
@@ -130,7 +146,8 @@ export const nom035PoliciesRouter = router({
         fechaPublicacion: currentPolicy.fechaPublicacion,
         representanteLegalId: currentPolicy.representanteLegalId,
         pdfUrl: currentPolicy.pdfUrl,
-        changeDescription: input.changeDescription || `Actualización de política`,
+        changeDescription:
+          input.changeDescription || `Actualización de política`,
         createdBy: ctx.user.id,
       });
 
@@ -159,11 +176,13 @@ export const nom035PoliciesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
-      await db
-        .delete(nom035Policies)
-        .where(eq(nom035Policies.id, input.id));
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
+      await db.delete(nom035Policies).where(eq(nom035Policies.id, input.id));
 
       return {
         success: true,
@@ -178,8 +197,12 @@ export const nom035PoliciesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
       const policy = await db
         .select()
         .from(nom035Policies)
@@ -231,10 +254,14 @@ export const nom035PoliciesRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Validar tipo de archivo
-      if (!input.fileName.toLowerCase().endsWith('.pdf')) {
+      if (!input.fileName.toLowerCase().endsWith(".pdf")) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Solo se permiten archivos PDF",
@@ -265,7 +292,7 @@ export const nom035PoliciesRouter = router({
       }
 
       // Convertir base64 a buffer
-      const fileBuffer = Buffer.from(input.fileBase64, 'base64');
+      const fileBuffer = Buffer.from(input.fileBase64, "base64");
 
       // Generar nombre único para el archivo
       const timestamp = Date.now();
@@ -275,7 +302,7 @@ export const nom035PoliciesRouter = router({
       const { url: pdfUrl } = await storagePut(
         fileKey,
         fileBuffer,
-        'application/pdf'
+        "application/pdf"
       );
 
       // Actualizar política con URL del PDF y nombre del archivo
@@ -310,7 +337,11 @@ export const nom035PoliciesRouter = router({
     .input(z.object({ policyId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const versions = await db
         .select()
@@ -328,7 +359,11 @@ export const nom035PoliciesRouter = router({
     .input(z.object({ versionId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Get version data
       const [version] = await db

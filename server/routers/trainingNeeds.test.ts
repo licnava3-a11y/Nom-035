@@ -46,7 +46,9 @@ describe("trainingNeeds router", () => {
     if (db) {
       // Cleanup training needs for test employee
       try {
-        await db.delete(trainingNeeds).where(eq(trainingNeeds.employeeId, testEmployeeId));
+        await db
+          .delete(trainingNeeds)
+          .where(eq(trainingNeeds.employeeId, testEmployeeId));
       } catch (e) {
         console.warn("Cleanup trainingNeeds failed:", e);
       }
@@ -90,7 +92,9 @@ describe("trainingNeeds router", () => {
 
     it("should filter training needs by employee", async () => {
       const caller = appRouter.createCaller(adminContext);
-      const result = await caller.trainingNeeds.list({ employeeId: testEmployeeId });
+      const result = await caller.trainingNeeds.list({
+        employeeId: testEmployeeId,
+      });
 
       expect(result).toBeDefined();
       expect(Array.isArray(result)).toBe(true);
@@ -152,7 +156,9 @@ describe("trainingNeeds router", () => {
         expect(typeof result.generated).toBe("number");
       } catch (error: any) {
         // If it fails because there's no job profile, that's expected
-        expect(error.message).toMatch(/perfil|puesto|position|profile|no encontrado/i);
+        expect(error.message).toMatch(
+          /perfil|puesto|position|profile|no encontrado/i
+        );
       }
     });
   });

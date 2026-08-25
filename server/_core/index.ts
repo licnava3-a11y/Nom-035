@@ -17,7 +17,11 @@ import exportRouter from "../exportRouter";
 import confirmReadRouter from "../confirmReadRouter";
 import evidenceTokenRouter from "../nom035EvidenceTokenRouter";
 import { initializeWebSocket } from "./websocket";
-import { installLegacyConsoleAdapter, logNonBlockingFailure, logStructured } from "./logger";
+import {
+  installLegacyConsoleAdapter,
+  logNonBlockingFailure,
+  logStructured,
+} from "./logger";
 
 installLegacyConsoleAdapter();
 
@@ -40,8 +44,8 @@ function startConsolidatedMinuteTick() {
     label: string;
     hour: number;
     minute: number;
-    dayOfWeek?: number;   // 0=Sun … 6=Sat
-    dayOfMonth?: number;  // 1-31
+    dayOfWeek?: number; // 0=Sun … 6=Sat
+    dayOfMonth?: number; // 1-31
     fn: () => Promise<void> | void;
   }> = [];
 
@@ -73,20 +77,21 @@ async function startJobs() {
   // deshabilitados para reducir la carga en la BD y el consumo de memoria.
   // ═══════════════════════════════════════════════════════════════════════════
   logStructured("info", "critical_jobs_starting", {});
-  const schedules: Array<any> = (globalThis as any).__consolidatedSchedules ?? [];
+  const schedules: Array<any> =
+    (globalThis as any).__consolidatedSchedules ?? [];
 
   // ── Jobs activos con su propio scheduler interno (solo críticos NOM-035) ───
   const jobModules = await Promise.allSettled([
-    import("../jobs/survey-alerts-job"),           // Alertas de encuestas NOM-035
-    import("../jobs/survey-coverage-alerts-job"),   // Cobertura de encuestas
-    import("../jobs/nom035-action-alerts-job"),      // Acciones NOM-035 por vencer
+    import("../jobs/survey-alerts-job"), // Alertas de encuestas NOM-035
+    import("../jobs/survey-coverage-alerts-job"), // Cobertura de encuestas
+    import("../jobs/nom035-action-alerts-job"), // Acciones NOM-035 por vencer
     import("../jobs/corrective-actions-reminders-job"), // Recordatorios acciones correctivas
-    import("../jobs/training-reminders-job"),        // Recordatorios de capacitación
-    import("../jobs/calculate-risk-level-job"),      // Cálculo nivel de riesgo psicosocial
-    import("../jobs/survey-reminders-job"),          // Recordatorios de encuestas pendientes
-    import("../jobs/dispatch-unread-alerts-job"),    // Despacho de alertas no leídas
-    import("../jobs/compliance-reminders-job"),      // Recordatorios de cumplimiento
-    import("../jobs/deadlineAlertsJob"),             // Alertas de fechas límite
+    import("../jobs/training-reminders-job"), // Recordatorios de capacitación
+    import("../jobs/calculate-risk-level-job"), // Cálculo nivel de riesgo psicosocial
+    import("../jobs/survey-reminders-job"), // Recordatorios de encuestas pendientes
+    import("../jobs/dispatch-unread-alerts-job"), // Despacho de alertas no leídas
+    import("../jobs/compliance-reminders-job"), // Recordatorios de cumplimiento
+    import("../jobs/deadlineAlertsJob"), // Alertas de fechas límite
   ]);
 
   const starters: Array<[string, string]> = [
@@ -110,50 +115,131 @@ async function startJobs() {
     if (result.status === "fulfilled") {
       const mod = result.value as any;
       if (typeof mod[fnName] === "function") {
-        try { mod[fnName](); } catch (e) { logNonBlockingFailure("job_start_failed", e, { job: modName }); }
+        try {
+          mod[fnName]();
+        } catch (e) {
+          logNonBlockingFailure("job_start_failed", e, { job: modName });
+        }
       }
     } else {
-      logNonBlockingFailure("job_module_load_failed", result.reason, { job: modName });
+      logNonBlockingFailure("job_module_load_failed", result.reason, {
+        job: modName,
+      });
     }
   }
 
   // ── Jobs críticos en el minute-tick consolidado ───────────────────────────
   try {
-    const { runCorrectiveActionPlansRemindersJob } = await import("../jobs/corrective-action-plans-reminders-job");
-    schedules.push({ label: "corrective-action-plans-reminders", hour: 9, minute: 0, fn: runCorrectiveActionPlansRemindersJob });
-  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "corrective-action-plans-reminders" }); }
+    const { runCorrectiveActionPlansRemindersJob } = await import(
+      "../jobs/corrective-action-plans-reminders-job"
+    );
+    schedules.push({
+      label: "corrective-action-plans-reminders",
+      hour: 9,
+      minute: 0,
+      fn: runCorrectiveActionPlansRemindersJob,
+    });
+  } catch (e) {
+    logNonBlockingFailure("scheduled_job_load_failed", e, {
+      job: "corrective-action-plans-reminders",
+    });
+  }
 
   try {
-    const { runContractExpirationAlertsJob } = await import("../jobs/contract-expiration-alerts-job");
-    schedules.push({ label: "contract-expiration", hour: 8, minute: 0, fn: runContractExpirationAlertsJob });
-  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "contract-expiration" }); }
+    const { runContractExpirationAlertsJob } = await import(
+      "../jobs/contract-expiration-alerts-job"
+    );
+    schedules.push({
+      label: "contract-expiration",
+      hour: 8,
+      minute: 0,
+      fn: runContractExpirationAlertsJob,
+    });
+  } catch (e) {
+    logNonBlockingFailure("scheduled_job_load_failed", e, {
+      job: "contract-expiration",
+    });
+  }
 
   try {
-    const { runDictamenExpiryAlertJob } = await import("../jobs/dictamen-expiry-alert-job");
-    schedules.push({ label: "dictamen-expiry", hour: 8, minute: 0, fn: runDictamenExpiryAlertJob });
-  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "dictamen-expiry" }); }
+    const { runDictamenExpiryAlertJob } = await import(
+      "../jobs/dictamen-expiry-alert-job"
+    );
+    schedules.push({
+      label: "dictamen-expiry",
+      hour: 8,
+      minute: 0,
+      fn: runDictamenExpiryAlertJob,
+    });
+  } catch (e) {
+    logNonBlockingFailure("scheduled_job_load_failed", e, {
+      job: "dictamen-expiry",
+    });
+  }
 
   try {
-    const { runDc3ExpiryAlertsJob } = await import("../jobs/dc3-expiry-alerts-job");
-    schedules.push({ label: "dc3-expiry", hour: 7, minute: 30, fn: runDc3ExpiryAlertsJob });
-  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "dc3-expiry" }); }
+    const { runDc3ExpiryAlertsJob } = await import(
+      "../jobs/dc3-expiry-alerts-job"
+    );
+    schedules.push({
+      label: "dc3-expiry",
+      hour: 7,
+      minute: 30,
+      fn: runDc3ExpiryAlertsJob,
+    });
+  } catch (e) {
+    logNonBlockingFailure("scheduled_job_load_failed", e, {
+      job: "dc3-expiry",
+    });
+  }
 
   try {
     const { runPacStaleItemsJob } = await import("../jobs/pac-stale-items-job");
-    schedules.push({ label: "pac-stale-items", hour: 9, minute: 0, fn: runPacStaleItemsJob });
-  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "pac-stale-items" }); }
+    schedules.push({
+      label: "pac-stale-items",
+      hour: 9,
+      minute: 0,
+      fn: runPacStaleItemsJob,
+    });
+  } catch (e) {
+    logNonBlockingFailure("scheduled_job_load_failed", e, {
+      job: "pac-stale-items",
+    });
+  }
 
   // Reportes ejecutivos reactivados (solo se ejecutan en horario programado, no al arrancar)
   try {
-    const { weeklyReportJob, monthlyReportJob } = await import("../jobs/executive-reports-job");
-    schedules.push({ label: "weekly-report", hour: 8, minute: 0, dayOfWeek: 1, fn: weeklyReportJob });
-    schedules.push({ label: "monthly-report", hour: 8, minute: 0, dayOfMonth: 1, fn: monthlyReportJob });
-    logStructured("info", "scheduled_job_enabled", { job: "executive-reports" });
-  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "executive-reports" }); }
+    const { weeklyReportJob, monthlyReportJob } = await import(
+      "../jobs/executive-reports-job"
+    );
+    schedules.push({
+      label: "weekly-report",
+      hour: 8,
+      minute: 0,
+      dayOfWeek: 1,
+      fn: weeklyReportJob,
+    });
+    schedules.push({
+      label: "monthly-report",
+      hour: 8,
+      minute: 0,
+      dayOfMonth: 1,
+      fn: monthlyReportJob,
+    });
+    logStructured("info", "scheduled_job_enabled", {
+      job: "executive-reports",
+    });
+  } catch (e) {
+    logNonBlockingFailure("scheduled_job_load_failed", e, {
+      job: "executive-reports",
+    });
+  }
 
   // Token expiration job — diario a las 9 AM
   try {
-    const { runTokenExpirationJob } = await import("../jobs/anonymousTokenExpirationJob");
+    const { runTokenExpirationJob } = await import(
+      "../jobs/anonymousTokenExpirationJob"
+    );
     const now = new Date();
     const next9AM = new Date(now);
     next9AM.setHours(9, 0, 0, 0);
@@ -163,8 +249,15 @@ async function startJobs() {
       runTokenExpirationJob();
       setInterval(runTokenExpirationJob, 24 * 60 * 60 * 1000);
     }, msUntilNext9AM);
-    logStructured("info", "scheduled_job_registered", { job: "anonymous-token-expiration", scheduledAt: next9AM.toISOString() });
-  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "anonymous-token-expiration" }); }
+    logStructured("info", "scheduled_job_registered", {
+      job: "anonymous-token-expiration",
+      scheduledAt: next9AM.toISOString(),
+    });
+  } catch (e) {
+    logNonBlockingFailure("scheduled_job_load_failed", e, {
+      job: "anonymous-token-expiration",
+    });
+  }
 
   // ── Jobs NO CRÍTICOS deshabilitados (reducen carga DB y memoria) ────────────
   // DESHABILITADO: model-performance-monitor-job (ML, no NOM-035)
@@ -192,7 +285,9 @@ async function startJobs() {
   // DESHABILITADO: departmental-alerts-job (alertas dept, no crítico)
   // DESHABILITADO: realtime-alerts-job (WebSocket, no crítico para NOM-035)
 
-  logStructured("info", "critical_jobs_started", { nonCriticalJobsDisabled: true });
+  logStructured("info", "critical_jobs_started", {
+    nonCriticalJobsDisabled: true,
+  });
 }
 
 async function startServer() {
@@ -203,17 +298,19 @@ async function startServer() {
   // - req.protocol reflects HTTPS from x-forwarded-proto
   // - cookies with sameSite='none' + secure=true are set correctly
   // - req.hostname reflects the real host from x-forwarded-host
-  app.set('trust proxy', true);
+  app.set("trust proxy", true);
 
   // Compresión gzip/deflate
-  app.use(compression({
-    level: 6,
-    threshold: 1024,
-    filter: (req, res) => {
-      if (req.headers['x-no-compression']) return false;
-      return compression.filter(req, res);
-    },
-  }));
+  app.use(
+    compression({
+      level: 6,
+      threshold: 1024,
+      filter: (req, res) => {
+        if (req.headers["x-no-compression"]) return false;
+        return compression.filter(req, res);
+      },
+    })
+  );
 
   // Rate limiting
   app.use(globalLimiter);
@@ -221,22 +318,29 @@ async function startServer() {
   app.use("/api/trpc", apiLimiter);
 
   // Security headers
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https:"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com", "https:"],
-        imgSrc: ["'self'", "data:", "blob:", "https:"],
-        connectSrc: ["'self'", "ws:", "wss:", "https:"],
-        frameSrc: ["'self'", "https:"],
-        workerSrc: ["'self'", "blob:"],
-        childSrc: ["'self'", "blob:"],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"],
+          styleSrc: [
+            "'self'",
+            "'unsafe-inline'",
+            "https://fonts.googleapis.com",
+            "https:",
+          ],
+          fontSrc: ["'self'", "https://fonts.gstatic.com", "https:"],
+          imgSrc: ["'self'", "data:", "blob:", "https:"],
+          connectSrc: ["'self'", "ws:", "wss:", "https:"],
+          frameSrc: ["'self'", "https:"],
+          workerSrc: ["'self'", "blob:"],
+          childSrc: ["'self'", "blob:"],
+        },
       },
-    },
-    crossOriginEmbedderPolicy: false,
-  }));
+      crossOriginEmbedderPolicy: false,
+    })
+  );
 
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -247,7 +351,7 @@ async function startServer() {
   });
 
   // Authentication mode
-  const useLocalAuth = process.env.LOCAL_AUTH === 'true';
+  const useLocalAuth = process.env.LOCAL_AUTH === "true";
   if (useLocalAuth) {
     registerLocalAuthRoutes(app);
     logStructured("info", "authentication_mode_configured", { mode: "local" });
@@ -265,14 +369,16 @@ async function startServer() {
   app.post("/api/scheduled/email-digest", (req, res) => {
     import("../scheduledHandlers/emailDigestHandler")
       .then(({ emailDigestHandler }) => emailDigestHandler(req, res))
-      .catch((err) => res.status(500).json({ error: String(err) }));
+      .catch(err => res.status(500).json({ error: String(err) }));
   });
 
   // Warmup / anti-cold-start ping
   app.post("/api/scheduled/warmup", (req, res) => {
     try {
       const taskUid = req.headers["x-manus-cron-task-uid"] ?? "manual";
-      logStructured("info", "warmup_ping_received", { taskUid: String(taskUid) });
+      logStructured("info", "warmup_ping_received", {
+        taskUid: String(taskUid),
+      });
       res.json({ ok: true, ts: Date.now(), taskUid });
     } catch (err) {
       logNonBlockingFailure("warmup_ping_failed", err);
@@ -307,7 +413,7 @@ async function startServer() {
 
   initializeWebSocket(server);
 
-  server.once("error", (error) => {
+  server.once("error", error => {
     logNonBlockingFailure("server_listen_failed", error, { port });
     process.exitCode = 1;
   });
@@ -321,24 +427,37 @@ async function startServer() {
     // Delay inicial de 15s: suficiente para que Cloud Run pase el health check (~5s)
     // y el pool de DB se estabilice antes de que los jobs empiecen a conectarse.
     const JOB_STARTUP_DELAY_MS = 15_000;
-    logStructured("info", "scheduled_jobs_delayed", { delaySeconds: JOB_STARTUP_DELAY_MS / 1000 });
+    logStructured("info", "scheduled_jobs_delayed", {
+      delaySeconds: JOB_STARTUP_DELAY_MS / 1000,
+    });
 
     setTimeout(() => {
-      startJobs().catch(err => logNonBlockingFailure("scheduled_jobs_start_failed", err));
+      startJobs().catch(err =>
+        logNonBlockingFailure("scheduled_jobs_start_failed", err)
+      );
     }, JOB_STARTUP_DELAY_MS);
 
     // Warmup periódico: ping interno cada 4 minutos para evitar hibernación de Cloud Run.
     // Usa httpRequest importado en la cabecera (ESM, no require).
     const WARMUP_INTERVAL_MS = 4 * 60 * 1000; // 4 minutos
     setInterval(() => {
-      const req = httpRequest({ hostname: 'localhost', port, path: '/api/health', method: 'GET' }, (res) => {
-        res.resume(); // consume response body
-      });
-      req.on('error', (error) => logNonBlockingFailure("warmup_request_failed", error));
+      const req = httpRequest(
+        { hostname: "localhost", port, path: "/api/health", method: "GET" },
+        res => {
+          res.resume(); // consume response body
+        }
+      );
+      req.on("error", error =>
+        logNonBlockingFailure("warmup_request_failed", error)
+      );
       req.end();
     }, WARMUP_INTERVAL_MS);
-    logStructured("info", "warmup_interval_enabled", { intervalMinutes: WARMUP_INTERVAL_MS / 60000 });
+    logStructured("info", "warmup_interval_enabled", {
+      intervalMinutes: WARMUP_INTERVAL_MS / 60000,
+    });
   });
 }
 
-startServer().catch((error) => logNonBlockingFailure("server_start_failed", error));
+startServer().catch(error =>
+  logNonBlockingFailure("server_start_failed", error)
+);

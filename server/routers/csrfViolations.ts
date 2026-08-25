@@ -19,21 +19,23 @@ export const csrfViolationsRouter = router({
         // Paginación
         page: z.number().int().min(1).default(1),
         pageSize: z.number().int().min(1).max(100).default(20),
-        
+
         // Filtros opcionales
         ipAddress: z.string().optional(),
         userId: z.string().optional(),
-        reason: z.enum([
-          "missing_token",
-          "invalid_token",
-          "expired_token",
-          "user_mismatch",
-          "malformed_token"
-        ]).optional(),
-        
+        reason: z
+          .enum([
+            "missing_token",
+            "invalid_token",
+            "expired_token",
+            "user_mismatch",
+            "malformed_token",
+          ])
+          .optional(),
+
         // Rango de fechas
         startDate: z.string().datetime().optional(), // ISO 8601
-        endDate: z.string().datetime().optional(),   // ISO 8601
+        endDate: z.string().datetime().optional(), // ISO 8601
       })
     )
     .query(async ({ input }) => {
@@ -42,28 +44,29 @@ export const csrfViolationsRouter = router({
         throw new Error("Database not available");
       }
 
-      const { page, pageSize, ipAddress, userId, reason, startDate, endDate } = input;
+      const { page, pageSize, ipAddress, userId, reason, startDate, endDate } =
+        input;
       const offset = (page - 1) * pageSize;
 
       // Construir filtros dinámicamente
       const filters = [];
-      
+
       if (ipAddress) {
         filters.push(eq(csrfViolations.ipAddress, ipAddress));
       }
-      
+
       if (userId) {
         filters.push(eq(csrfViolations.userId, userId));
       }
-      
+
       if (reason) {
         filters.push(eq(csrfViolations.reason, reason));
       }
-      
+
       if (startDate) {
         filters.push(gte(csrfViolations.attemptedAt, new Date(startDate)));
       }
-      
+
       if (endDate) {
         filters.push(lte(csrfViolations.attemptedAt, new Date(endDate)));
       }
@@ -175,7 +178,7 @@ export const csrfViolationsRouter = router({
           lastAttempt: ip.lastAttempt,
         })),
         topTargetedEndpoints: topTargetedEndpoints.map(e => ({
-          endpoint: e.endpoint || 'unknown',
+          endpoint: e.endpoint || "unknown",
           count: Number(e.count),
         })),
       };

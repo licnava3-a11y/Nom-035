@@ -3,7 +3,17 @@ import { sendEmail } from "../_core/email";
 import { protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { dictamenDocs, docFormatConfig, caseInvestigationDocs, correctiveActions, companyGeneralData, companyLegalRepresentative, users, employees, systemSettings } from "../../drizzle/schema";
+import {
+  dictamenDocs,
+  docFormatConfig,
+  caseInvestigationDocs,
+  correctiveActions,
+  companyGeneralData,
+  companyLegalRepresentative,
+  users,
+  employees,
+  systemSettings,
+} from "../../drizzle/schema";
 import { createHash } from "crypto";
 import { inArray } from "drizzle-orm";
 import { eq, desc, sql } from "drizzle-orm";
@@ -13,15 +23,27 @@ import { invokeLLM } from "../_core/llm";
 
 async function requireDb() {
   const db = await getDb();
-  if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+  if (!db)
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Base de datos no disponible",
+    });
   return db;
 }
 
-async function generateFolio(db: NonNullable<Awaited<ReturnType<typeof getDb>>>): Promise<{ folio: string; numeroDictamen: string }> {
-  const [config] = await db.select().from(docFormatConfig).where(eq(docFormatConfig.docType, "dictamen")).limit(1);
+async function generateFolio(
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>
+): Promise<{ folio: string; numeroDictamen: string }> {
+  const [config] = await db
+    .select()
+    .from(docFormatConfig)
+    .where(eq(docFormatConfig.docType, "dictamen"))
+    .limit(1);
   const prefix = config?.codigoFormato ?? "DIC";
   const year = new Date().getFullYear();
-  const [countRow] = await db.select({ count: sql<number>`COUNT(*)` }).from(dictamenDocs);
+  const [countRow] = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(dictamenDocs);
   const consecutive = String((countRow?.count ?? 0) + 1).padStart(3, "0");
   const folio = `${prefix}-${consecutive}/${year}`;
   return { folio, numeroDictamen: folio };
@@ -61,9 +83,15 @@ async function generateDictamenContent(params: {
     accionesIndividual: number;
   };
 }): Promise<{ contenido: Record<string, string>; nivelRiesgoGlobal: string }> {
-  const scianLine = params.scian ? `\n- Código SCIAN (actividad económica): ${params.scian}` : '';
-  const workCenterLine = params.workCenter ? `\n- Centro de trabajo: ${params.workCenter}` : '';
-  const stpsLine = params.stpsRegistration ? `\n- Registro STPS: ${params.stpsRegistration}` : '';
+  const scianLine = params.scian
+    ? `\n- Código SCIAN (actividad económica): ${params.scian}`
+    : "";
+  const workCenterLine = params.workCenter
+    ? `\n- Centro de trabajo: ${params.workCenter}`
+    : "";
+  const stpsLine = params.stpsRegistration
+    ? `\n- Registro STPS: ${params.stpsRegistration}`
+    : "";
   const userPrompt = `Genera el documento "Dictamen" para la NOM-035-STPS-2018 con los siguientes datos:
 - Razón social: ${params.razonSocial}
 - Domicilio: ${params.domicilio}${scianLine}${workCenterLine}${stpsLine}
@@ -98,11 +126,19 @@ Cada apartado debe ser extenso, técnico-jurídico y completamente desarrollado 
   if (params.resumen85) {
     const r = params.resumen85;
     const nivelesPresentes = [
-      r.tieneOrganizacional ? `Nivel 1 Organizacional (${r.accionesOrganizacional} acciones)` : null,
+      r.tieneOrganizacional
+        ? `Nivel 1 Organizacional (${r.accionesOrganizacional} acciones)`
+        : null,
       r.tieneGrupal ? `Nivel 2 Grupal (${r.accionesGrupal} acciones)` : null,
-      r.tieneIndividual ? `Nivel 3 Individual (${r.accionesIndividual} acciones)` : null,
-    ].filter(Boolean).join(", ");
-    finalPrompt = userPrompt + `\n\n--- DATOS REALES DEL PUNTO 8.5 (inyectados automáticamente) ---\nEstado de cumplimiento: ${r.cumplimiento.toUpperCase()} — ${r.mensaje}\nTotal de acciones correctivas registradas: ${r.totalAcciones} (${r.totalCompletadas} completadas, ${r.porcentajeCompletado}% de avance)\nNiveles con acciones: ${nivelesPresentes || 'Ninguno'}\nAlertas Nivel 3 sin responsable clínico: ${r.alertasNivel3SinClinico}\nNOTA: El Apartado 8 (Medidas Correctivas) DEBE reflejar estos datos reales. Si hay alertas de Nivel 3 sin clínico, inclúyelas como medidas urgentes con plazo de 15 días hábiles.`;
+      r.tieneIndividual
+        ? `Nivel 3 Individual (${r.accionesIndividual} acciones)`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(", ");
+    finalPrompt =
+      userPrompt +
+      `\n\n--- DATOS REALES DEL PUNTO 8.5 (inyectados automáticamente) ---\nEstado de cumplimiento: ${r.cumplimiento.toUpperCase()} — ${r.mensaje}\nTotal de acciones correctivas registradas: ${r.totalAcciones} (${r.totalCompletadas} completadas, ${r.porcentajeCompletado}% de avance)\nNiveles con acciones: ${nivelesPresentes || "Ninguno"}\nAlertas Nivel 3 sin responsable clínico: ${r.alertasNivel3SinClinico}\nNOTA: El Apartado 8 (Medidas Correctivas) DEBE reflejar estos datos reales. Si hay alertas de Nivel 3 sin clínico, inclúyelas como medidas urgentes con plazo de 15 días hábiles.`;
   }
 
   const response = await invokeLLM({
@@ -129,12 +165,24 @@ Cada apartado debe ser extenso, técnico-jurídico y completamente desarrollado 
             recomendaciones_seguimiento: { type: "string" },
             firmas: { type: "string" },
             anexos: { type: "string" },
-            nivel_riesgo_global: { type: "string", enum: ["ausente", "bajo", "medio", "alto", "muy_alto"] },
+            nivel_riesgo_global: {
+              type: "string",
+              enum: ["ausente", "bajo", "medio", "alto", "muy_alto"],
+            },
           },
           required: [
-            "encabezado_formal","numero_fecha","metodologia","hallazgos_clave",
-            "impacto_legal","conclusiones_tecnicas","conclusiones_juridicas",
-            "medidas_correctivas","recomendaciones_seguimiento","firmas","anexos","nivel_riesgo_global"
+            "encabezado_formal",
+            "numero_fecha",
+            "metodologia",
+            "hallazgos_clave",
+            "impacto_legal",
+            "conclusiones_tecnicas",
+            "conclusiones_juridicas",
+            "medidas_correctivas",
+            "recomendaciones_seguimiento",
+            "firmas",
+            "anexos",
+            "nivel_riesgo_global",
           ],
           additionalProperties: false,
         },
@@ -144,7 +192,11 @@ Cada apartado debe ser extenso, técnico-jurídico y completamente desarrollado 
 
   const rawContent = response.choices?.[0]?.message?.content;
   const content = typeof rawContent === "string" ? rawContent : null;
-  if (!content) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "LLM no retornó contenido para el Dictamen" });
+  if (!content)
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "LLM no retornó contenido para el Dictamen",
+    });
 
   const parsed = JSON.parse(content);
   const { nivel_riesgo_global, ...contenido } = parsed;
@@ -155,50 +207,78 @@ Cada apartado debe ser extenso, técnico-jurídico y completamente desarrollado 
 
 export const dictamenDocsRouter = router({
   generate: protectedProcedure
-    .input(z.object({
-      razonSocial: z.string().min(2, "Razón social requerida"),
-      domicilio: z.string().min(5, "Domicilio requerido"),
-      totalTrabajadores: z.number().int().positive("Número de trabajadores requerido"),
-      trabajadoresHombres: z.number().int().min(0),
-      trabajadoresMujeres: z.number().int().min(0),
-      periodoEvaluado: z.string().min(4, "Período evaluado requerido"),
-      responsableTecnico: z.string().min(2, "Responsable técnico requerido"),
-      cedulaProfesional: z.string().min(3, "Cédula profesional requerida"),
-      representanteLegal: z.string().min(2, "Representante legal requerido"),
-      investigationDocId: z.number().optional(),
-      // P3: Campos NOM-035/STPS
-      scian: z.string().optional(),
-      workCenter: z.string().optional(),
-      stpsRegistration: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        razonSocial: z.string().min(2, "Razón social requerida"),
+        domicilio: z.string().min(5, "Domicilio requerido"),
+        totalTrabajadores: z
+          .number()
+          .int()
+          .positive("Número de trabajadores requerido"),
+        trabajadoresHombres: z.number().int().min(0),
+        trabajadoresMujeres: z.number().int().min(0),
+        periodoEvaluado: z.string().min(4, "Período evaluado requerido"),
+        responsableTecnico: z.string().min(2, "Responsable técnico requerido"),
+        cedulaProfesional: z.string().min(3, "Cédula profesional requerida"),
+        representanteLegal: z.string().min(2, "Representante legal requerido"),
+        investigationDocId: z.number().optional(),
+        // P3: Campos NOM-035/STPS
+        scian: z.string().optional(),
+        workCenter: z.string().optional(),
+        stpsRegistration: z.string().optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const db = await requireDb();
       const { folio, numeroDictamen } = await generateFolio(db);
-      const fechaEmision = new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" });
+      const fechaEmision = new Date().toLocaleDateString("es-MX", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
 
       // Consultar automáticamente el Resumen 8.5 para inyectarlo en el Apartado 8
-      let resumen85: Parameters<typeof generateDictamenContent>[0]['resumen85'];
+      let resumen85: Parameters<typeof generateDictamenContent>[0]["resumen85"];
       try {
         const allActions = await db.select().from(correctiveActions);
         const byLevel = {
-          organizacional: allActions.filter(a => a.actionLevel === 'organizacional'),
-          grupal: allActions.filter(a => a.actionLevel === 'grupal'),
-          individual: allActions.filter(a => a.actionLevel === 'individual'),
+          organizacional: allActions.filter(
+            a => a.actionLevel === "organizacional"
+          ),
+          grupal: allActions.filter(a => a.actionLevel === "grupal"),
+          individual: allActions.filter(a => a.actionLevel === "individual"),
         };
         const totalAcciones = allActions.length;
-        const totalCompletadas = allActions.filter(a => a.status === 'completada').length;
-        const alertasNivel3 = byLevel.individual.filter(a => !a.clinicalTitle).length;
+        const totalCompletadas = allActions.filter(
+          a => a.status === "completada"
+        ).length;
+        const alertasNivel3 = byLevel.individual.filter(
+          a => !a.clinicalTitle
+        ).length;
         const tieneOrganizacional = byLevel.organizacional.length > 0;
         const tieneGrupal = byLevel.grupal.length > 0;
         const tieneIndividual = byLevel.individual.length > 0;
-        const cumplimiento = tieneOrganizacional && tieneGrupal && tieneIndividual && alertasNivel3 === 0
-          ? 'cumple' : tieneOrganizacional || tieneGrupal || tieneIndividual ? 'riesgo' : 'incumple';
+        const cumplimiento =
+          tieneOrganizacional &&
+          tieneGrupal &&
+          tieneIndividual &&
+          alertasNivel3 === 0
+            ? "cumple"
+            : tieneOrganizacional || tieneGrupal || tieneIndividual
+              ? "riesgo"
+              : "incumple";
         resumen85 = {
           cumplimiento,
-          mensaje: cumplimiento === 'cumple' ? 'Centro de trabajo CUMPLE con el punto 8.5' : 'Requiere atención en acciones correctivas',
+          mensaje:
+            cumplimiento === "cumple"
+              ? "Centro de trabajo CUMPLE con el punto 8.5"
+              : "Requiere atención en acciones correctivas",
           totalAcciones,
           totalCompletadas,
-          porcentajeCompletado: totalAcciones > 0 ? Math.round((totalCompletadas / totalAcciones) * 100) : 0,
+          porcentajeCompletado:
+            totalAcciones > 0
+              ? Math.round((totalCompletadas / totalAcciones) * 100)
+              : 0,
           tieneOrganizacional,
           tieneGrupal,
           tieneIndividual,
@@ -238,78 +318,110 @@ export const dictamenDocsRouter = router({
       });
 
       const id = (result as any).insertId;
-      const [doc] = await db.select().from(dictamenDocs).where(eq(dictamenDocs.id, id)).limit(1);
+      const [doc] = await db
+        .select()
+        .from(dictamenDocs)
+        .where(eq(dictamenDocs.id, id))
+        .limit(1);
       return { success: true, doc };
     }),
 
   // Prellenado automático del formulario desde datos del sistema
-  getPrefilledData: protectedProcedure
-    .query(async () => {
-      const db = await requireDb();
-      const [company] = await db.select().from(companyGeneralData).limit(1);
-      const [legalRep] = await db.select().from(companyLegalRepresentative).limit(1);
-      // P3: Leer campos extendidos desde systemSettings (SCIAN, centro de trabajo, representante legal, número de trabajadores)
-      const sysSettings = await db.select().from(systemSettings);
-      const getSetting = (key: string) => sysSettings.find((s: any) => s.settingKey === key)?.settingValue ?? '';
-      const scian = getSetting('company_scian');
-      const workCenter = getSetting('company_work_center');
-      const stpsRegistration = getSetting('company_stps_registration');
-      const repLegalSys = getSetting('company_representative_legal');
-      const numWorkersSys = getSetting('company_num_workers');
-      const giroSys = getSetting('company_giro');
-      const addressSys = getSetting('company_address');
-      const razonSocialSys = getSetting('company_name');
-      const rfcSys = getSetting('company_rfc');
-      const genderCounts = await db
-        .select({ sexo: users.sexo, count: sql<number>`COUNT(*)` })
-        .from(users)
-        .groupBy(users.sexo);
-      const [totalRow] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(users)
-        .where(sql`role NOT IN ('super_admin')`);
-      let hombres = 0;
-      let mujeres = 0;
-      for (const g of genderCounts) {
-        if (g.sexo === 'Masculino') hombres = Number(g.count);
-        if (g.sexo === 'Femenino') mujeres = Number(g.count);
-      }
-      const total = Number(totalRow?.count ?? 0);
-      const numWorkers = total || Number(numWorkersSys) || (company?.numeroTrabajadores ?? 0);
-      const now = new Date();
-      const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-      const periodoEvaluado = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
-      return {
-        razonSocial: razonSocialSys || company?.razonSocial || '',
-        domicilio: addressSys || company?.direccionFiscal || '',
-        totalTrabajadores: numWorkers,
-        trabajadoresHombres: hombres,
-        trabajadoresMujeres: mujeres,
-        representanteLegal: repLegalSys || (legalRep as any)?.nombre || company?.representanteLegal || '',
-        periodoEvaluado,
-        rfc: rfcSys || company?.rfc || '',
-        giro: giroSys || company?.giro || '',
-        // P3: Campos nuevos NOM-035/STPS desde systemSettings
-        scian,
-        workCenter,
-        stpsRegistration,
-      };
-    }),
+  getPrefilledData: protectedProcedure.query(async () => {
+    const db = await requireDb();
+    const [company] = await db.select().from(companyGeneralData).limit(1);
+    const [legalRep] = await db
+      .select()
+      .from(companyLegalRepresentative)
+      .limit(1);
+    // P3: Leer campos extendidos desde systemSettings (SCIAN, centro de trabajo, representante legal, número de trabajadores)
+    const sysSettings = await db.select().from(systemSettings);
+    const getSetting = (key: string) =>
+      sysSettings.find((s: any) => s.settingKey === key)?.settingValue ?? "";
+    const scian = getSetting("company_scian");
+    const workCenter = getSetting("company_work_center");
+    const stpsRegistration = getSetting("company_stps_registration");
+    const repLegalSys = getSetting("company_representative_legal");
+    const numWorkersSys = getSetting("company_num_workers");
+    const giroSys = getSetting("company_giro");
+    const addressSys = getSetting("company_address");
+    const razonSocialSys = getSetting("company_name");
+    const rfcSys = getSetting("company_rfc");
+    const genderCounts = await db
+      .select({ sexo: users.sexo, count: sql<number>`COUNT(*)` })
+      .from(users)
+      .groupBy(users.sexo);
+    const [totalRow] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(users)
+      .where(sql`role NOT IN ('super_admin')`);
+    let hombres = 0;
+    let mujeres = 0;
+    for (const g of genderCounts) {
+      if (g.sexo === "Masculino") hombres = Number(g.count);
+      if (g.sexo === "Femenino") mujeres = Number(g.count);
+    }
+    const total = Number(totalRow?.count ?? 0);
+    const numWorkers =
+      total || Number(numWorkersSys) || (company?.numeroTrabajadores ?? 0);
+    const now = new Date();
+    const monthNames = [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre",
+    ];
+    const periodoEvaluado = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+    return {
+      razonSocial: razonSocialSys || company?.razonSocial || "",
+      domicilio: addressSys || company?.direccionFiscal || "",
+      totalTrabajadores: numWorkers,
+      trabajadoresHombres: hombres,
+      trabajadoresMujeres: mujeres,
+      representanteLegal:
+        repLegalSys ||
+        (legalRep as any)?.nombre ||
+        company?.representanteLegal ||
+        "",
+      periodoEvaluado,
+      rfc: rfcSys || company?.rfc || "",
+      giro: giroSys || company?.giro || "",
+      // P3: Campos nuevos NOM-035/STPS desde systemSettings
+      scian,
+      workCenter,
+      stpsRegistration,
+    };
+  }),
 
   save: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      contenido: z.record(z.string(), z.string()),
-      estado: z.enum(["borrador", "final"]),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        contenido: z.record(z.string(), z.string()),
+        estado: z.enum(["borrador", "final"]),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await requireDb();
       // Hash SHA-256 del contenido para trazabilidad NOM-151
-      const integrityHash = createHash('sha256')
+      const integrityHash = createHash("sha256")
         .update(JSON.stringify(input.contenido))
-        .digest('hex');
-      await db.update(dictamenDocs)
-        .set({ contenido: input.contenido as any, estado: input.estado, qrCode: `SHA256:${integrityHash}` } as any)
+        .digest("hex");
+      await db
+        .update(dictamenDocs)
+        .set({
+          contenido: input.contenido as any,
+          estado: input.estado,
+          qrCode: `SHA256:${integrityHash}`,
+        } as any)
         .where(eq(dictamenDocs.id, input.id));
       return { success: true, integrityHash };
     }),
@@ -318,19 +430,33 @@ export const dictamenDocsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await requireDb();
-      await db.update(dictamenDocs)
-        .set({ estado: "aprobado", aprobadoPor: ctx.user.id, fechaAprobacion: new Date() })
+      await db
+        .update(dictamenDocs)
+        .set({
+          estado: "aprobado",
+          aprobadoPor: ctx.user.id,
+          fechaAprobacion: new Date(),
+        })
         .where(eq(dictamenDocs.id, input.id));
       return { success: true };
     }),
 
   list: protectedProcedure
-    .input(z.object({
-      estado: z.enum(["borrador", "final", "aprobado", "all"]).default("all"),
-    }).optional())
+    .input(
+      z
+        .object({
+          estado: z
+            .enum(["borrador", "final", "aprobado", "all"])
+            .default("all"),
+        })
+        .optional()
+    )
     .query(async ({ input }) => {
       const db = await requireDb();
-      const docs = await db.select().from(dictamenDocs).orderBy(desc(dictamenDocs.createdAt));
+      const docs = await db
+        .select()
+        .from(dictamenDocs)
+        .orderBy(desc(dictamenDocs.createdAt));
       if (input?.estado && input.estado !== "all") {
         return docs.filter(d => d.estado === input.estado);
       }
@@ -341,8 +467,16 @@ export const dictamenDocsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await requireDb();
-      const [doc] = await db.select().from(dictamenDocs).where(eq(dictamenDocs.id, input.id)).limit(1);
-      if (!doc) throw new TRPCError({ code: "NOT_FOUND", message: "Dictamen no encontrado" });
+      const [doc] = await db
+        .select()
+        .from(dictamenDocs)
+        .where(eq(dictamenDocs.id, input.id))
+        .limit(1);
+      if (!doc)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Dictamen no encontrado",
+        });
       return doc;
     }),
 
@@ -355,42 +489,53 @@ export const dictamenDocsRouter = router({
     }),
 
   // Obtener lista de Investigaciones de Caso para vincular
-  listInvestigaciones: protectedProcedure
-    .query(async () => {
-      const db = await requireDb();
-      return db.select({
+  listInvestigaciones: protectedProcedure.query(async () => {
+    const db = await requireDb();
+    return db
+      .select({
         id: caseInvestigationDocs.id,
         folio: caseInvestigationDocs.folio,
         empresa: caseInvestigationDocs.empresa,
         area: caseInvestigationDocs.area,
         estado: caseInvestigationDocs.estado,
-      }).from(caseInvestigationDocs).orderBy(desc(caseInvestigationDocs.createdAt));
-    }),
+      })
+      .from(caseInvestigationDocs)
+      .orderBy(desc(caseInvestigationDocs.createdAt));
+  }),
 
   // ── Configuración del catálogo de formatos (folio configurable) ──────────────
   getDocFormatConfig: protectedProcedure
     .input(z.object({ docType: z.enum(["dictamen", "investigacion"]) }))
     .query(async ({ input }) => {
       const db = await requireDb();
-      const [config] = await db.select().from(docFormatConfig)
-        .where(eq(docFormatConfig.docType, input.docType)).limit(1);
+      const [config] = await db
+        .select()
+        .from(docFormatConfig)
+        .where(eq(docFormatConfig.docType, input.docType))
+        .limit(1);
       return config ?? null;
     }),
 
   updateDocFormatConfig: adminProcedure
-    .input(z.object({
-      docType: z.enum(["dictamen", "investigacion"]),
-      codigoFormato: z.string().min(1).max(30),
-      version: z.string().min(1).max(20),
-      fechaVersion: z.string().max(20).optional(),
-      referenciaNormativa: z.string().max(200).optional(),
-    }))
+    .input(
+      z.object({
+        docType: z.enum(["dictamen", "investigacion"]),
+        codigoFormato: z.string().min(1).max(30),
+        version: z.string().min(1).max(20),
+        fechaVersion: z.string().max(20).optional(),
+        referenciaNormativa: z.string().max(200).optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await requireDb();
-      const [existing] = await db.select().from(docFormatConfig)
-        .where(eq(docFormatConfig.docType, input.docType)).limit(1);
+      const [existing] = await db
+        .select()
+        .from(docFormatConfig)
+        .where(eq(docFormatConfig.docType, input.docType))
+        .limit(1);
       if (existing) {
-        await db.update(docFormatConfig)
+        await db
+          .update(docFormatConfig)
           .set({
             codigoFormato: input.codigoFormato,
             version: input.version,
@@ -410,54 +555,52 @@ export const dictamenDocsRouter = router({
       return { success: true };
     }),
   // --- Widget de vigencia del dictamen mas reciente aprobado ---
-  getVigencia: protectedProcedure
-    .query(async () => {
-      const db = await requireDb();
-      // Obtener el dictamen aprobado mas reciente
-      const [latest] = await db
-        .select({
-          id: dictamenDocs.id,
-          folio: dictamenDocs.folio,
-          titulo: dictamenDocs.titulo,
-          estado: dictamenDocs.estado,
-          nivelRiesgoGlobal: dictamenDocs.nivelRiesgoGlobal,
-          responsableTecnico: dictamenDocs.responsableTecnico,
-          fechaAprobacion: dictamenDocs.fechaAprobacion,
-          createdAt: dictamenDocs.createdAt,
-        })
-        .from(dictamenDocs)
-        .where(eq(dictamenDocs.estado, "aprobado"))
-        .orderBy(desc(dictamenDocs.fechaAprobacion))
-        .limit(1);
+  getVigencia: protectedProcedure.query(async () => {
+    const db = await requireDb();
+    // Obtener el dictamen aprobado mas reciente
+    const [latest] = await db
+      .select({
+        id: dictamenDocs.id,
+        folio: dictamenDocs.folio,
+        titulo: dictamenDocs.titulo,
+        estado: dictamenDocs.estado,
+        nivelRiesgoGlobal: dictamenDocs.nivelRiesgoGlobal,
+        responsableTecnico: dictamenDocs.responsableTecnico,
+        fechaAprobacion: dictamenDocs.fechaAprobacion,
+        createdAt: dictamenDocs.createdAt,
+      })
+      .from(dictamenDocs)
+      .where(eq(dictamenDocs.estado, "aprobado"))
+      .orderBy(desc(dictamenDocs.fechaAprobacion))
+      .limit(1);
 
-      if (!latest) return null;
+    if (!latest) return null;
 
-      // La vigencia NOM-035 es de 12 meses desde la fecha de aprobacion
-      const baseDate = latest.fechaAprobacion ?? latest.createdAt;
-      const expiryDate = new Date(baseDate);
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    // La vigencia NOM-035 es de 12 meses desde la fecha de aprobacion
+    const baseDate = latest.fechaAprobacion ?? latest.createdAt;
+    const expiryDate = new Date(baseDate);
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
-      const now = new Date();
-      const diffMs = expiryDate.getTime() - now.getTime();
-      const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    const now = new Date();
+    const diffMs = expiryDate.getTime() - now.getTime();
+    const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-      // Semaforo: verde >= 60 dias, amarillo 30-59, rojo < 30
-      const semaforo: "verde" | "amarillo" | "rojo" =
-        daysLeft >= 60 ? "verde" : daysLeft >= 30 ? "amarillo" : "rojo";
+    // Semaforo: verde >= 60 dias, amarillo 30-59, rojo < 30
+    const semaforo: "verde" | "amarillo" | "rojo" =
+      daysLeft >= 60 ? "verde" : daysLeft >= 30 ? "amarillo" : "rojo";
 
-      return {
-        id: latest.id,
-        folio: latest.folio,
-        titulo: latest.titulo,
-        estado: latest.estado,
-        nivelRiesgoGlobal: latest.nivelRiesgoGlobal,
-        responsableTecnico: latest.responsableTecnico,
-        fechaAprobacion: baseDate,
-        fechaVencimiento: expiryDate,
-        daysLeft,
-        semaforo,
-        vencido: daysLeft <= 0,
-      };
-    }),
-
+    return {
+      id: latest.id,
+      folio: latest.folio,
+      titulo: latest.titulo,
+      estado: latest.estado,
+      nivelRiesgoGlobal: latest.nivelRiesgoGlobal,
+      responsableTecnico: latest.responsableTecnico,
+      fechaAprobacion: baseDate,
+      fechaVencimiento: expiryDate,
+      daysLeft,
+      semaforo,
+      vencido: daysLeft <= 0,
+    };
+  }),
 });

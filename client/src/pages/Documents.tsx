@@ -1,8 +1,21 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Plus, Calendar, Users, ClipboardCheck } from "lucide-react";
+import {
+  FileText,
+  Download,
+  Plus,
+  Calendar,
+  Users,
+  ClipboardCheck,
+} from "lucide-react";
 import { Link } from "wouter";
 import ProtectedButton from "@/components/ProtectedButton";
 
@@ -16,7 +29,7 @@ export default function Documents() {
       description: "Documento de constitución formal del comité de atención",
       icon: FileText,
       route: "/documents/acta-constitutiva",
-      color: "bg-blue-500/10 text-blue-500"
+      color: "bg-blue-500/10 text-blue-500",
     },
     {
       id: "funciones-comite",
@@ -24,7 +37,7 @@ export default function Documents() {
       description: "Descripción detallada de funciones y responsabilidades",
       icon: Users,
       route: "/documents/funciones-comite",
-      color: "bg-green-500/10 text-green-500"
+      color: "bg-green-500/10 text-green-500",
     },
     {
       id: "aceptacion-cargo",
@@ -32,7 +45,7 @@ export default function Documents() {
       description: "Carta compromiso de aceptación de cargo",
       icon: FileText,
       route: "/documents/aceptacion-cargo",
-      color: "bg-purple-500/10 text-purple-500"
+      color: "bg-purple-500/10 text-purple-500",
     },
     {
       id: "acta-recorrido",
@@ -40,7 +53,7 @@ export default function Documents() {
       description: "Inspección de seguridad e higiene",
       icon: Calendar,
       route: "/documents/acta-recorrido-nom019",
-      color: "bg-orange-500/10 text-orange-500"
+      color: "bg-orange-500/10 text-orange-500",
     },
     {
       id: "acta-final-resultados",
@@ -48,8 +61,8 @@ export default function Documents() {
       description: "Resultados de evaluación y programa de atención NOM-035",
       icon: ClipboardCheck,
       route: "/documents/acta-final-resultados",
-      color: "bg-red-500/10 text-red-500"
-    }
+      color: "bg-red-500/10 text-red-500",
+    },
   ];
 
   return (
@@ -57,7 +70,9 @@ export default function Documents() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Documentos y Formatos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Documentos y Formatos
+          </h1>
           <p className="text-muted-foreground mt-2">
             Gestión de formatos legales y documentación del comité
           </p>

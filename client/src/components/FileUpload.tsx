@@ -48,15 +48,19 @@ export default function FileUpload({
     }
   };
 
-  const isImage = preview && (preview.startsWith("data:image") || preview.includes("/uploads/") || preview.includes("/storage/"));
+  const isImage =
+    preview &&
+    (preview.startsWith("data:image") ||
+      preview.includes("/uploads/") ||
+      preview.includes("/storage/"));
   const isPDF = fileName.endsWith(".pdf") || currentFileUrl?.endsWith(".pdf");
 
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">{label}</label>
-      
+
       {/* Preview o estado actual */}
-      {(preview || currentFileUrl) ? (
+      {preview || currentFileUrl ? (
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -112,7 +116,11 @@ export default function FileUpload({
               Haz clic para seleccionar archivo
             </span>
             <span className="text-xs text-gray-500">
-              {accept === "image/*" ? "Imágenes (JPG, PNG)" : accept === ".pdf" ? "Archivos PDF" : "Cualquier archivo"}
+              {accept === "image/*"
+                ? "Imágenes (JPG, PNG)"
+                : accept === ".pdf"
+                  ? "Archivos PDF"
+                  : "Cualquier archivo"}
             </span>
           </label>
         </div>

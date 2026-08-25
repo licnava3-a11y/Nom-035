@@ -14,7 +14,9 @@ interface QuestionnaireEmailData {
 /**
  * Envía correo electrónico con enlace al cuestionario de investigación
  */
-export async function sendQuestionnaireEmail(data: QuestionnaireEmailData): Promise<boolean> {
+export async function sendQuestionnaireEmail(
+  data: QuestionnaireEmailData
+): Promise<boolean> {
   try {
     const db = await getDb();
     if (!db) {
@@ -32,17 +34,20 @@ export async function sendQuestionnaireEmail(data: QuestionnaireEmailData): Prom
       .limit(1);
 
     if (!companyData?.noreplyEmail) {
-      console.error("[Questionnaire Email] No se encontró correo noreply configurado");
+      console.error(
+        "[Questionnaire Email] No se encontró correo noreply configurado"
+      );
       return false;
     }
 
     // Construir URL del cuestionario
-    const questionnaireUrl = `${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/questionnaire/${data.accessToken}`;
+    const questionnaireUrl = `${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/questionnaire/${data.accessToken}`;
 
     // Determinar tipo de cuestionario en español
-    const questionnaireTypeLabel = data.questionnaireType === "mobbing" 
-      ? "Mobbing (Acoso Laboral)" 
-      : "Burnout (Síndrome de Desgaste Profesional)";
+    const questionnaireTypeLabel =
+      data.questionnaireType === "mobbing"
+        ? "Mobbing (Acoso Laboral)"
+        : "Burnout (Síndrome de Desgaste Profesional)";
 
     // Construir HTML del correo
     const htmlContent = generateQuestionnaireEmailHTML({
@@ -59,9 +64,11 @@ export async function sendQuestionnaireEmail(data: QuestionnaireEmailData): Prom
     console.log("[Questionnaire Email] Correo preparado para envío:");
     console.log(`  De: ${companyData.noreplyEmail}`);
     console.log(`  Para: ${data.employeeEmail}`);
-    console.log(`  Asunto: Cuestionario de Investigación - ${questionnaireTypeLabel}`);
+    console.log(
+      `  Asunto: Cuestionario de Investigación - ${questionnaireTypeLabel}`
+    );
     console.log(`  URL: ${questionnaireUrl}`);
-    console.log(`  Expira: ${data.expiresAt.toLocaleDateString('es-MX')}`);
+    console.log(`  Expira: ${data.expiresAt.toLocaleDateString("es-MX")}`);
 
     // Simular envío exitoso
     return true;
@@ -82,7 +89,14 @@ function generateQuestionnaireEmailHTML(params: {
   caseFollio: string;
   companyName: string;
 }): string {
-  const { employeeName, questionnaireType, questionnaireUrl, expiresAt, caseFollio, companyName } = params;
+  const {
+    employeeName,
+    questionnaireType,
+    questionnaireUrl,
+    expiresAt,
+    caseFollio,
+    companyName,
+  } = params;
 
   return `
 <!DOCTYPE html>
@@ -149,7 +163,7 @@ function generateQuestionnaireEmailHTML(params: {
               <!-- Expiration Notice -->
               <div style="background-color: #fef3c7; border: 1px solid #fbbf24; padding: 16px; margin: 20px 0; border-radius: 6px;">
                 <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.5;">
-                  <strong>⚠️ Importante:</strong> Este enlace expirará el <strong>${expiresAt.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>. Por favor, complete el cuestionario antes de esta fecha.
+                  <strong>⚠️ Importante:</strong> Este enlace expirará el <strong>${expiresAt.toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</strong>. Por favor, complete el cuestionario antes de esta fecha.
                 </p>
               </div>
 

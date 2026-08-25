@@ -3,16 +3,20 @@
  * Muestra ayuda contextual al pasar el mouse sobre el icono
  */
 
-import * as Tooltip from '@radix-ui/react-tooltip';
-import { HelpCircle } from 'lucide-react';
+import * as Tooltip from "@radix-ui/react-tooltip";
+import { HelpCircle } from "lucide-react";
 
 interface InfoTooltipProps {
   content: string;
-  side?: 'top' | 'right' | 'bottom' | 'left';
+  side?: "top" | "right" | "bottom" | "left";
   className?: string;
 }
 
-export function InfoTooltip({ content, side = 'right', className = '' }: InfoTooltipProps) {
+export function InfoTooltip({
+  content,
+  side = "right",
+  className = "",
+}: InfoTooltipProps) {
   return (
     <Tooltip.Provider delayDuration={300}>
       <Tooltip.Root>
@@ -57,11 +61,14 @@ export function LabelWithTooltip({
   tooltip,
   htmlFor,
   required = false,
-  className = ''
+  className = "",
 }: LabelWithTooltipProps) {
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
-      <label htmlFor={htmlFor} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <label
+        htmlFor={htmlFor}
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
         {label}
         {required && <span className="text-destructive ml-0.5">*</span>}
       </label>

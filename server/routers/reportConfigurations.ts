@@ -14,25 +14,28 @@ export const reportConfigurationsRouter = router({
   /**
    * Obtener todas las configuraciones de reportes
    */
-  getAll: protectedProcedure
-    .query(async ({ ctx }) => {
-      if (ctx.user.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Solo administradores pueden ver configuraciones de reportes",
-        });
-      }
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Solo administradores pueden ver configuraciones de reportes",
+      });
+    }
 
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    const db = await getDb();
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
-      const configs = await db
-        .select()
-        .from(reportConfigurations)
-        .orderBy(desc(reportConfigurations.createdAt));
+    const configs = await db
+      .select()
+      .from(reportConfigurations)
+      .orderBy(desc(reportConfigurations.createdAt));
 
-      return configs;
-    }),
+    return configs;
+  }),
 
   /**
    * Obtener configuración por ID
@@ -43,12 +46,17 @@ export const reportConfigurationsRouter = router({
       if (ctx.user.role !== "admin") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Solo administradores pueden ver configuraciones de reportes",
+          message:
+            "Solo administradores pueden ver configuraciones de reportes",
         });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [config] = await db
         .select()
@@ -81,38 +89,54 @@ export const reportConfigurationsRouter = router({
         includeTrends: z.boolean().default(true),
         includeRecommendations: z.boolean().default(true),
         departmentIds: z.array(z.number()).optional(),
-        dateRangeType: z.enum(["auto", "custom", "last_7_days", "last_30_days"]).default("auto"),
+        dateRangeType: z
+          .enum(["auto", "custom", "last_7_days", "last_30_days"])
+          .default("auto"),
       })
     )
     .mutation(async ({ input, ctx }) => {
       if (ctx.user.role !== "admin") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Solo administradores pueden crear configuraciones de reportes",
+          message:
+            "Solo administradores pueden crear configuraciones de reportes",
         });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Calcular próxima ejecución basado en frecuencia
-      const nextExecutionAt = calculateNextExecution(input.frequency, input.customSchedule);
+      const nextExecutionAt = calculateNextExecution(
+        input.frequency,
+        input.customSchedule
+      );
 
-      const [newConfig] = await (db.insert(reportConfigurations) as any).values({
-        reportType: input.reportType,
-        frequency: input.frequency,
-        customSchedule: input.customSchedule || null,
-        recipients: JSON.stringify(input.recipients),
-        ccRecipients: input.ccRecipients ? JSON.stringify(input.ccRecipients) : null,
-        enabled: input.enabled,
-        includeCharts: input.includeCharts,
-        includeTrends: input.includeTrends,
-        includeRecommendations: input.includeRecommendations,
-        departmentIds: input.departmentIds ? JSON.stringify(input.departmentIds) : null,
-        dateRangeType: input.dateRangeType,
-        nextExecutionAt,
-        createdBy: ctx.user.id,
-      });
+      const [newConfig] = await (db.insert(reportConfigurations) as any).values(
+        {
+          reportType: input.reportType,
+          frequency: input.frequency,
+          customSchedule: input.customSchedule || null,
+          recipients: JSON.stringify(input.recipients),
+          ccRecipients: input.ccRecipients
+            ? JSON.stringify(input.ccRecipients)
+            : null,
+          enabled: input.enabled,
+          includeCharts: input.includeCharts,
+          includeTrends: input.includeTrends,
+          includeRecommendations: input.includeRecommendations,
+          departmentIds: input.departmentIds
+            ? JSON.stringify(input.departmentIds)
+            : null,
+          dateRangeType: input.dateRangeType,
+          nextExecutionAt,
+          createdBy: ctx.user.id,
+        }
+      );
 
       return {
         success: true,
@@ -129,7 +153,9 @@ export const reportConfigurationsRouter = router({
       z.object({
         id: z.number(),
         reportType: z.string().min(1).optional(),
-        frequency: z.enum(["weekly", "monthly", "quarterly", "custom"]).optional(),
+        frequency: z
+          .enum(["weekly", "monthly", "quarterly", "custom"])
+          .optional(),
         customSchedule: z.string().optional(),
         recipients: z.array(z.string().email()).optional(),
         ccRecipients: z.array(z.string().email()).optional(),
@@ -138,19 +164,26 @@ export const reportConfigurationsRouter = router({
         includeTrends: z.boolean().optional(),
         includeRecommendations: z.boolean().optional(),
         departmentIds: z.array(z.number()).optional(),
-        dateRangeType: z.enum(["auto", "custom", "last_7_days", "last_30_days"]).optional(),
+        dateRangeType: z
+          .enum(["auto", "custom", "last_7_days", "last_30_days"])
+          .optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       if (ctx.user.role !== "admin") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Solo administradores pueden actualizar configuraciones de reportes",
+          message:
+            "Solo administradores pueden actualizar configuraciones de reportes",
         });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Verificar que existe
       const [existing] = await db
@@ -172,21 +205,34 @@ export const reportConfigurationsRouter = router({
 
       if (input.reportType) updateData.reportType = input.reportType;
       if (input.frequency) updateData.frequency = input.frequency;
-      if (input.customSchedule !== undefined) updateData.customSchedule = input.customSchedule;
-      if (input.recipients) updateData.recipients = JSON.stringify(input.recipients);
-      if (input.ccRecipients !== undefined) updateData.ccRecipients = input.ccRecipients ? JSON.stringify(input.ccRecipients) : null;
+      if (input.customSchedule !== undefined)
+        updateData.customSchedule = input.customSchedule;
+      if (input.recipients)
+        updateData.recipients = JSON.stringify(input.recipients);
+      if (input.ccRecipients !== undefined)
+        updateData.ccRecipients = input.ccRecipients
+          ? JSON.stringify(input.ccRecipients)
+          : null;
       if (input.enabled !== undefined) updateData.enabled = input.enabled;
-      if (input.includeCharts !== undefined) updateData.includeCharts = input.includeCharts;
-      if (input.includeTrends !== undefined) updateData.includeTrends = input.includeTrends;
-      if (input.includeRecommendations !== undefined) updateData.includeRecommendations = input.includeRecommendations;
-      if (input.departmentIds !== undefined) updateData.departmentIds = input.departmentIds ? JSON.stringify(input.departmentIds) : null;
+      if (input.includeCharts !== undefined)
+        updateData.includeCharts = input.includeCharts;
+      if (input.includeTrends !== undefined)
+        updateData.includeTrends = input.includeTrends;
+      if (input.includeRecommendations !== undefined)
+        updateData.includeRecommendations = input.includeRecommendations;
+      if (input.departmentIds !== undefined)
+        updateData.departmentIds = input.departmentIds
+          ? JSON.stringify(input.departmentIds)
+          : null;
       if (input.dateRangeType) updateData.dateRangeType = input.dateRangeType;
 
       // Recalcular próxima ejecución si cambió frecuencia
       if (input.frequency || input.customSchedule !== undefined) {
         updateData.nextExecutionAt = calculateNextExecution(
           input.frequency || existing.frequency,
-          input.customSchedule !== undefined ? input.customSchedule : existing.customSchedule
+          input.customSchedule !== undefined
+            ? input.customSchedule
+            : existing.customSchedule
         );
       }
 
@@ -210,12 +256,17 @@ export const reportConfigurationsRouter = router({
       if (ctx.user.role !== "admin") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Solo administradores pueden eliminar configuraciones de reportes",
+          message:
+            "Solo administradores pueden eliminar configuraciones de reportes",
         });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       await db
         .delete(reportConfigurations)
@@ -236,12 +287,17 @@ export const reportConfigurationsRouter = router({
       if (ctx.user.role !== "admin") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Solo administradores pueden modificar configuraciones de reportes",
+          message:
+            "Solo administradores pueden modificar configuraciones de reportes",
         });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       await db
         .update(reportConfigurations)
@@ -258,7 +314,10 @@ export const reportConfigurationsRouter = router({
 /**
  * Calcular próxima fecha de ejecución basado en frecuencia
  */
-function calculateNextExecution(frequency: string, customSchedule?: string | null): Date {
+function calculateNextExecution(
+  frequency: string,
+  customSchedule?: string | null
+): Date {
   const now = new Date();
   const next = new Date();
 

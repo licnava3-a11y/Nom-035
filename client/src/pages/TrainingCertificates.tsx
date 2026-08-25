@@ -1,47 +1,82 @@
-import { useState } from 'react';
-import { trpc } from '../lib/trpc';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Award, Download, FileText, Search, Calendar, PenTool } from 'lucide-react';
-import SignatureCanvas from '@/components/SignatureCanvas';
+import { useState } from "react";
+import { trpc } from "../lib/trpc";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Award,
+  Download,
+  FileText,
+  Search,
+  Calendar,
+  PenTool,
+} from "lucide-react";
+import SignatureCanvas from "@/components/SignatureCanvas";
 // import { useToast } from '@/hooks/use-toast';
 
 export default function TrainingCertificates() {
   // const { toast } = useToast();
   const toast = ({ title, description, variant }: any) => {
-    if (variant === 'destructive') {
+    if (variant === "destructive") {
       alert(`Error: ${title}\n${description}`);
     } else {
       alert(`${title}\n${description}`);
     }
   };
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showInstructorSignature, setShowInstructorSignature] = useState(false);
-  const [showRepresentativeSignature, setShowRepresentativeSignature] = useState(false);
+  const [showRepresentativeSignature, setShowRepresentativeSignature] =
+    useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
     courseId: 0,
-    courseName: '',
-    completionDate: new Date().toISOString().split('T')[0],
+    courseName: "",
+    completionDate: new Date().toISOString().split("T")[0],
     durationHours: 0,
-    grade: '',
-    instructorName: '',
-    instructorSignatureUrl: '',
-    representativeName: '',
-    representativeSignatureUrl: '',
+    grade: "",
+    instructorName: "",
+    instructorSignatureUrl: "",
+    representativeName: "",
+    representativeSignatureUrl: "",
   });
 
   // Queries
-  const { data: employeesData, isLoading: loadingEmployees } = trpc.employees.list.useQuery({ pageSize: 1000 });
+  const { data: employeesData, isLoading: loadingEmployees } =
+    trpc.employees.list.useQuery({ pageSize: 1000 });
   const employees = employeesData?.employees;
   // TODO: Implementar procedimiento getReportHistory en compliance router
   // const { data: certificates, isLoading: loadingCertificates, refetch } = trpc.compliance.getReportHistory.useQuery();
@@ -50,34 +85,35 @@ export default function TrainingCertificates() {
   const refetch = () => {};
 
   // Mutation
-  const generateCertificate = trpc.compliance.generateTrainingCertificatePDF.useMutation({
-    onSuccess: (data) => {
-      toast({
-        title: 'Certificado generado',
-        description: `Folio: ${data.data.folio}`,
-      });
+  const generateCertificate =
+    trpc.compliance.generateTrainingCertificatePDF.useMutation({
+      onSuccess: data => {
+        toast({
+          title: "Certificado generado",
+          description: `Folio: ${data.data.folio}`,
+        });
 
-      // Descargar PDF
-      const link = document.createElement('a');
-      link.href = `data:application/pdf;base64,${data.pdfBase64}`;
-      link.download = `Certificado_${data.data.folio}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        // Descargar PDF
+        const link = document.createElement("a");
+        link.href = `data:application/pdf;base64,${data.pdfBase64}`;
+        link.download = `Certificado_${data.data.folio}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      setIsGenerating(false);
-      setDialogOpen(false);
-      refetch();
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-      setIsGenerating(false);
-    },
-  });
+        setIsGenerating(false);
+        setDialogOpen(false);
+        refetch();
+      },
+      onError: error => {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        setIsGenerating(false);
+      },
+    });
 
   // Mutation para subir firmas
   const uploadSignature = trpc.compliance.uploadSignature.useMutation({
@@ -87,19 +123,22 @@ export default function TrainingCertificates() {
         setFormData({ ...formData, instructorSignatureUrl: data.signatureUrl });
         setShowInstructorSignature(false);
       } else if (variables.signerName === formData.representativeName) {
-        setFormData({ ...formData, representativeSignatureUrl: data.signatureUrl });
+        setFormData({
+          ...formData,
+          representativeSignatureUrl: data.signatureUrl,
+        });
         setShowRepresentativeSignature(false);
       }
-      alert('Firma guardada exitosamente');
+      alert("Firma guardada exitosamente");
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error al guardar firma: ${error.message}`);
     },
   });
 
   const handleSaveInstructorSignature = (signatureDataUrl: string) => {
     if (!formData.instructorName) {
-      alert('Ingresa el nombre del instructor primero');
+      alert("Ingresa el nombre del instructor primero");
       return;
     }
     uploadSignature.mutate({
@@ -110,7 +149,7 @@ export default function TrainingCertificates() {
 
   const handleSaveRepresentativeSignature = (signatureDataUrl: string) => {
     if (!formData.representativeName) {
-      alert('Ingresa el nombre del representante primero');
+      alert("Ingresa el nombre del representante primero");
       return;
     }
     uploadSignature.mutate({
@@ -122,18 +161,24 @@ export default function TrainingCertificates() {
   const handleGenerateCertificate = () => {
     if (!selectedEmployee) {
       toast({
-        title: 'Error',
-        description: 'Selecciona un empleado',
-        variant: 'destructive',
+        title: "Error",
+        description: "Selecciona un empleado",
+        variant: "destructive",
       });
       return;
     }
 
-    if (!formData.courseName || !formData.durationHours || !formData.grade || !formData.instructorName || !formData.representativeName) {
+    if (
+      !formData.courseName ||
+      !formData.durationHours ||
+      !formData.grade ||
+      !formData.instructorName ||
+      !formData.representativeName
+    ) {
       toast({
-        title: 'Error',
-        description: 'Completa todos los campos obligatorios',
-        variant: 'destructive',
+        title: "Error",
+        description: "Completa todos los campos obligatorios",
+        variant: "destructive",
       });
       return;
     }
@@ -145,12 +190,17 @@ export default function TrainingCertificates() {
     });
   };
 
-  const filteredEmployees = employees?.filter(emp =>
-    `${emp.firstName} ${emp.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredEmployees = employees?.filter(
+    emp =>
+      `${emp.firstName} ${emp.lastName}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      emp.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const certificateHistory = certificates?.filter(cert => cert.tipo === 'certificado_capacitacion') || [];
+  const certificateHistory =
+    certificates?.filter(cert => cert.tipo === "certificado_capacitacion") ||
+    [];
 
   return (
     <div className="container mx-auto py-8">
@@ -160,7 +210,8 @@ export default function TrainingCertificates() {
           Certificados de Capacitación
         </h1>
         <p className="text-muted-foreground mt-2">
-          Genera certificados oficiales de capacitación con cumplimiento STPS y RED CONOCER
+          Genera certificados oficiales de capacitación con cumplimiento STPS y
+          RED CONOCER
         </p>
       </div>
 
@@ -183,7 +234,7 @@ export default function TrainingCertificates() {
                   <Input
                     placeholder="Nombre o correo..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={e => setSearchTerm(e.target.value)}
                     className="pl-9"
                   />
                 </div>
@@ -193,7 +244,9 @@ export default function TrainingCertificates() {
               {searchTerm && (
                 <div className="border rounded-lg max-h-60 overflow-y-auto">
                   {loadingEmployees ? (
-                    <div className="p-4 text-center text-muted-foreground">Cargando...</div>
+                    <div className="p-4 text-center text-muted-foreground">
+                      Cargando...
+                    </div>
                   ) : filteredEmployees && filteredEmployees.length > 0 ? (
                     <div className="divide-y">
                       {filteredEmployees.map((emp: any) => (
@@ -204,16 +257,22 @@ export default function TrainingCertificates() {
                             setSearchTerm(`${emp.firstName} ${emp.lastName}`);
                           }}
                           className={`w-full p-3 text-left hover:bg-accent transition-colors ${
-                            selectedEmployee === emp.id ? 'bg-accent' : ''
+                            selectedEmployee === emp.id ? "bg-accent" : ""
                           }`}
                         >
-                          <div className="font-medium">{emp.firstName} {emp.lastName}</div>
-                          <div className="text-sm text-muted-foreground">{emp.email}</div>
+                          <div className="font-medium">
+                            {emp.firstName} {emp.lastName}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {emp.email}
+                          </div>
                         </button>
                       ))}
                     </div>
                   ) : (
-                    <div className="p-4 text-center text-muted-foreground">No se encontraron empleados</div>
+                    <div className="p-4 text-center text-muted-foreground">
+                      No se encontraron empleados
+                    </div>
                   )}
                 </div>
               )}
@@ -241,7 +300,12 @@ export default function TrainingCertificates() {
                         <Input
                           id="courseName"
                           value={formData.courseName}
-                          onChange={(e) => setFormData({ ...formData, courseName: e.target.value })}
+                          onChange={e =>
+                            setFormData({
+                              ...formData,
+                              courseName: e.target.value,
+                            })
+                          }
                           placeholder="Ej: NOM-035 Implementación"
                         />
                       </div>
@@ -251,7 +315,12 @@ export default function TrainingCertificates() {
                           id="courseId"
                           type="number"
                           value={formData.courseId}
-                          onChange={(e) => setFormData({ ...formData, courseId: parseInt(e.target.value) || 0 })}
+                          onChange={e =>
+                            setFormData({
+                              ...formData,
+                              courseId: parseInt(e.target.value) || 0,
+                            })
+                          }
                           placeholder="0"
                         />
                       </div>
@@ -259,21 +328,35 @@ export default function TrainingCertificates() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="completionDate">Fecha de Conclusión *</Label>
+                        <Label htmlFor="completionDate">
+                          Fecha de Conclusión *
+                        </Label>
                         <Input
                           id="completionDate"
                           type="date"
                           value={formData.completionDate}
-                          onChange={(e) => setFormData({ ...formData, completionDate: e.target.value })}
+                          onChange={e =>
+                            setFormData({
+                              ...formData,
+                              completionDate: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
-                        <Label htmlFor="durationHours">Duración (horas) *</Label>
+                        <Label htmlFor="durationHours">
+                          Duración (horas) *
+                        </Label>
                         <Input
                           id="durationHours"
                           type="number"
                           value={formData.durationHours}
-                          onChange={(e) => setFormData({ ...formData, durationHours: parseInt(e.target.value) || 0 })}
+                          onChange={e =>
+                            setFormData({
+                              ...formData,
+                              durationHours: parseInt(e.target.value) || 0,
+                            })
+                          }
                           placeholder="40"
                         />
                       </div>
@@ -284,7 +367,9 @@ export default function TrainingCertificates() {
                       <Input
                         id="grade"
                         value={formData.grade}
-                        onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                        onChange={e =>
+                          setFormData({ ...formData, grade: e.target.value })
+                        }
                         placeholder="Ej: 95/100 o Aprobado"
                       />
                     </div>
@@ -293,11 +378,18 @@ export default function TrainingCertificates() {
                       <h4 className="font-medium mb-3">Instructor</h4>
                       <div className="space-y-3">
                         <div>
-                          <Label htmlFor="instructorName">Nombre del Instructor *</Label>
+                          <Label htmlFor="instructorName">
+                            Nombre del Instructor *
+                          </Label>
                           <Input
                             id="instructorName"
                             value={formData.instructorName}
-                            onChange={(e) => setFormData({ ...formData, instructorName: e.target.value })}
+                            onChange={e =>
+                              setFormData({
+                                ...formData,
+                                instructorName: e.target.value,
+                              })
+                            }
                             placeholder="Nombre completo"
                           />
                         </div>
@@ -306,7 +398,11 @@ export default function TrainingCertificates() {
                           {formData.instructorSignatureUrl ? (
                             <div className="space-y-2">
                               <div className="border rounded-lg p-2 bg-gray-50">
-                                <img src={formData.instructorSignatureUrl} alt="Firma instructor" className="h-20 mx-auto" />
+                                <img
+                                  src={formData.instructorSignatureUrl}
+                                  alt="Firma instructor"
+                                  className="h-20 mx-auto"
+                                />
                               </div>
                               <Button
                                 type="button"
@@ -338,11 +434,18 @@ export default function TrainingCertificates() {
                       <h4 className="font-medium mb-3">Representante Legal</h4>
                       <div className="space-y-3">
                         <div>
-                          <Label htmlFor="representativeName">Nombre del Representante *</Label>
+                          <Label htmlFor="representativeName">
+                            Nombre del Representante *
+                          </Label>
                           <Input
                             id="representativeName"
                             value={formData.representativeName}
-                            onChange={(e) => setFormData({ ...formData, representativeName: e.target.value })}
+                            onChange={e =>
+                              setFormData({
+                                ...formData,
+                                representativeName: e.target.value,
+                              })
+                            }
                             placeholder="Nombre completo"
                           />
                         </div>
@@ -351,14 +454,20 @@ export default function TrainingCertificates() {
                           {formData.representativeSignatureUrl ? (
                             <div className="space-y-2">
                               <div className="border rounded-lg p-2 bg-gray-50">
-                                <img src={formData.representativeSignatureUrl} alt="Firma representante" className="h-20 mx-auto" />
+                                <img
+                                  src={formData.representativeSignatureUrl}
+                                  alt="Firma representante"
+                                  className="h-20 mx-auto"
+                                />
                               </div>
                               <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
                                 className="w-full"
-                                onClick={() => setShowRepresentativeSignature(true)}
+                                onClick={() =>
+                                  setShowRepresentativeSignature(true)
+                                }
                               >
                                 <PenTool className="mr-2 h-4 w-4" />
                                 Cambiar Firma
@@ -369,7 +478,9 @@ export default function TrainingCertificates() {
                               type="button"
                               variant="outline"
                               className="w-full"
-                              onClick={() => setShowRepresentativeSignature(true)}
+                              onClick={() =>
+                                setShowRepresentativeSignature(true)
+                              }
                             >
                               <PenTool className="mr-2 h-4 w-4" />
                               Capturar Firma Digital
@@ -410,7 +521,9 @@ export default function TrainingCertificates() {
           </CardHeader>
           <CardContent>
             {loadingCertificates ? (
-              <div className="text-center py-8 text-muted-foreground">Cargando...</div>
+              <div className="text-center py-8 text-muted-foreground">
+                Cargando...
+              </div>
             ) : certificateHistory.length > 0 ? (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {certificateHistory.slice(0, 10).map((cert: any) => (
@@ -426,11 +539,14 @@ export default function TrainingCertificates() {
                         </div>
                         <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {new Date(cert.createdAt).toLocaleDateString('es-MX', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })}
+                          {new Date(cert.createdAt).toLocaleDateString(
+                            "es-MX",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
                         </div>
                       </div>
                       <Award className="h-5 w-5 text-primary" />
@@ -454,7 +570,9 @@ export default function TrainingCertificates() {
         </CardHeader>
         <CardContent>
           {loadingCertificates ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              Cargando...
+            </div>
           ) : certificateHistory.length > 0 ? (
             <Table>
               <TableHeader>
@@ -469,11 +587,13 @@ export default function TrainingCertificates() {
               <TableBody>
                 {certificateHistory.map((cert: any) => (
                   <TableRow key={cert.id}>
-                    <TableCell className="font-mono text-sm">{cert.folio}</TableCell>
+                    <TableCell className="font-mono text-sm">
+                      {cert.folio}
+                    </TableCell>
                     <TableCell>{cert.titulo}</TableCell>
                     <TableCell>{cert.generatedByName}</TableCell>
                     <TableCell>
-                      {new Date(cert.createdAt).toLocaleDateString('es-MX')}
+                      {new Date(cert.createdAt).toLocaleDateString("es-MX")}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm">

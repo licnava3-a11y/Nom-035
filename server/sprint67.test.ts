@@ -18,8 +18,8 @@ vi.mock("drizzle-orm", () => ({
   and: vi.fn((...args) => ({ type: "and", args })),
   gte: vi.fn((a, b) => ({ type: "gte", a, b })),
   lte: vi.fn((a, b) => ({ type: "lte", a, b })),
-  desc: vi.fn((a) => ({ type: "desc", a })),
-  isNull: vi.fn((a) => ({ type: "isNull", a })),
+  desc: vi.fn(a => ({ type: "desc", a })),
+  isNull: vi.fn(a => ({ type: "isNull", a })),
 }));
 
 // ── Mock del schema ───────────────────────────────────────────────────────────
@@ -54,7 +54,9 @@ vi.mock("../drizzle/schema", () => ({
 
 // ── Mock de _core/pdfGenerator ────────────────────────────────────────────────
 vi.mock("./_core/pdfGenerator", () => ({
-  generatePDFFromHTML: vi.fn().mockResolvedValue("https://s3.example.com/test.pdf"),
+  generatePDFFromHTML: vi
+    .fn()
+    .mockResolvedValue("https://s3.example.com/test.pdf"),
 }));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -85,11 +87,18 @@ function buildDbChain(returnValue: any) {
 describe("getMonthlyTrends — lógica de agrupación por mes", () => {
   it("inicializa todos los meses del rango solicitado", () => {
     const months = 6;
-    const monthMap = new Map<string, { sent: number; read: number; bounced: number }>();
+    const monthMap = new Map<
+      string,
+      { sent: number; read: number; bounced: number }
+    >();
     const now = new Date();
     for (let i = 0; i < months; i++) {
       // Usar el primer día del mes para evitar solapamiento por días fuera de rango
-      const d = new Date(now.getFullYear(), now.getMonth() - (months - 1) + i, 1);
+      const d = new Date(
+        now.getFullYear(),
+        now.getMonth() - (months - 1) + i,
+        1
+      );
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       monthMap.set(key, { sent: 0, read: 0, bounced: 0 });
     }
@@ -135,7 +144,20 @@ describe("getMonthlyTrends — lógica de agrupación por mes", () => {
   });
 
   it("genera etiquetas en español con formato correcto", () => {
-    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const monthNames = [
+      "Ene",
+      "Feb",
+      "Mar",
+      "Abr",
+      "May",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dic",
+    ];
     const key = "2026-05";
     const [year, month] = key.split("-");
     const label = `${monthNames[parseInt(month) - 1]} ${year}`;
@@ -143,7 +165,20 @@ describe("getMonthlyTrends — lógica de agrupación por mes", () => {
   });
 
   it("genera etiqueta correcta para enero", () => {
-    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const monthNames = [
+      "Ene",
+      "Feb",
+      "Mar",
+      "Abr",
+      "May",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dic",
+    ];
     const key = "2026-01";
     const [year, month] = key.split("-");
     const label = `${monthNames[parseInt(month) - 1]} ${year}`;
@@ -203,8 +238,8 @@ describe("generateDispatchesReportPDF — estadísticas y filtros", () => {
       { status: "bounced", readAt: null },
     ];
     const total = rows.length;
-    const read = rows.filter((r) => r.status === "read" || r.readAt).length;
-    const bounced = rows.filter((r) => r.status === "bounced").length;
+    const read = rows.filter(r => r.status === "read" || r.readAt).length;
+    const bounced = rows.filter(r => r.status === "bounced").length;
     const readRate = total > 0 ? Math.round((read / total) * 100) : 0;
 
     expect(total).toBe(4);
@@ -235,12 +270,22 @@ describe("generateDispatchesReportPDF — estadísticas y filtros", () => {
 
   it("aplica filtro de búsqueda en memoria correctamente", () => {
     const rows = [
-      { recipientName: "Ana García", minuteTitle: "Reunión enero", minuteFolio: "MIN-001/2026", recipientEmail: "ana@test.com" },
-      { recipientName: "Carlos López", minuteTitle: "Junta febrero", minuteFolio: "MIN-002/2026", recipientEmail: "carlos@test.com" },
+      {
+        recipientName: "Ana García",
+        minuteTitle: "Reunión enero",
+        minuteFolio: "MIN-001/2026",
+        recipientEmail: "ana@test.com",
+      },
+      {
+        recipientName: "Carlos López",
+        minuteTitle: "Junta febrero",
+        minuteFolio: "MIN-002/2026",
+        recipientEmail: "carlos@test.com",
+      },
     ];
     const term = "ana";
     const filtered = rows.filter(
-      (r) =>
+      r =>
         (r.recipientName ?? "").toLowerCase().includes(term) ||
         (r.minuteTitle ?? "").toLowerCase().includes(term) ||
         (r.minuteFolio ?? "").toLowerCase().includes(term) ||

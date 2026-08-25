@@ -9,10 +9,10 @@ interface TableSkeletonProps {
   showHeader?: boolean;
 }
 
-export function TableSkeleton({ 
-  rows = 10, 
+export function TableSkeleton({
+  rows = 10,
   columns = 5,
-  showHeader = true 
+  showHeader = true,
 }: TableSkeletonProps) {
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -34,11 +34,11 @@ export function TableSkeleton({
               <tr key={rowIndex} className="border-t">
                 {Array.from({ length: columns }).map((_, colIndex) => (
                   <td key={colIndex} className="p-4">
-                    <div 
-                      className="h-4 bg-muted rounded animate-pulse" 
-                      style={{ 
-                        width: colIndex === 0 ? '80%' : '60%',
-                        animationDelay: `${(rowIndex * 50 + colIndex * 20)}ms`
+                    <div
+                      className="h-4 bg-muted rounded animate-pulse"
+                      style={{
+                        width: colIndex === 0 ? "80%" : "60%",
+                        animationDelay: `${rowIndex * 50 + colIndex * 20}ms`,
                       }}
                     />
                   </td>
@@ -60,8 +60,8 @@ export function ListSkeleton({ items = 5 }: { items?: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: items }).map((_, i) => (
-        <div 
-          key={i} 
+        <div
+          key={i}
           className="border rounded-lg p-4 space-y-3 animate-pulse"
           style={{ animationDelay: `${i * 100}ms` }}
         >

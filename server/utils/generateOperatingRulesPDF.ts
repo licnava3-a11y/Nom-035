@@ -42,7 +42,9 @@ interface OperatingRuleData {
   digitalSignatures?: DigitalSignature[];
 }
 
-export async function generateOperatingRulesPDF(data: OperatingRuleData): Promise<Buffer> {
+export async function generateOperatingRulesPDF(
+  data: OperatingRuleData
+): Promise<Buffer> {
   const tempId = randomBytes(16).toString("hex");
   const htmlPath = path.join("/tmp", `operating-rules-${tempId}.html`);
   const pdfPath = path.join("/tmp", `operating-rules-${tempId}.pdf`);
@@ -50,12 +52,16 @@ export async function generateOperatingRulesPDF(data: OperatingRuleData): Promis
   try {
     // Generar URL de verificación con código QR
     const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || "https://app.manus.space"}/verify-document/operating-rules/${data.id}`;
-    
+
     // Formatear fechas
     const formatDate = (date: string | Date | undefined) => {
       if (!date) return "N/A";
       const d = new Date(date);
-      return d.toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" });
+      return d.toLocaleDateString("es-MX", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
     };
 
     // Generar HTML de firmas digitales
@@ -76,7 +82,9 @@ export async function generateOperatingRulesPDF(data: OperatingRuleData): Promis
           <h2>Firmas de Aprobación</h2>
           <p style="margin-bottom: 20px; color: #666;">Las siguientes personas han revisado y aprobado esta base de funcionamiento mediante firma digital:</p>
           <div class="digital-signatures">
-            ${data.digitalSignatures.map((sig: any, index: number) => `
+            ${data.digitalSignatures
+              .map(
+                (sig: any, index: number) => `
               <div class="digital-signature-item" style="margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa;">
                 <div style="display: flex; align-items: center; gap: 20px;">
                   <div style="flex: 0 0 200px;">
@@ -90,7 +98,9 @@ export async function generateOperatingRulesPDF(data: OperatingRuleData): Promis
                   </div>
                 </div>
               </div>
-            `).join("")}
+            `
+              )
+              .join("")}
           </div>
           <p style="margin-top: 20px; font-size: 9pt; color: #999; text-align: center;">Las firmas digitales son legátimas y verificables. Este documento cumple con la NOM-151 de la Secretaría de Economía de México.</p>
         </div>
@@ -104,14 +114,18 @@ export async function generateOperatingRulesPDF(data: OperatingRuleData): Promis
             <div class="section">
               <h2>Firmas de Aprobación</h2>
               <div class="signatures-grid">
-                ${signatures.map((sig: any) => `
+                ${signatures
+                  .map(
+                    (sig: any) => `
                   <div class="signature-item">
                     <div class="signature-line"></div>
                     <p class="signature-name"><strong>${sig.name || "N/A"}</strong></p>
                     <p class="signature-position">${sig.position || "N/A"}</p>
                     <p class="signature-date">${formatDate(sig.date)}</p>
                   </div>
-                `).join("")}
+                `
+                  )
+                  .join("")}
               </div>
             </div>
           `;
@@ -403,12 +417,16 @@ export async function generateOperatingRulesPDF(data: OperatingRuleData): Promis
     <p>${data.confidentiality || "No especificado"}</p>
   </div>
 
-  ${data.amendments ? `
+  ${
+    data.amendments
+      ? `
   <div class="section">
     <h2>10. Procedimiento de Modificación</h2>
     <p>${data.amendments}</p>
   </div>
-  ` : ""}
+  `
+      : ""
+  }
 
   ${signaturesHtml}
 

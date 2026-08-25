@@ -16,12 +16,18 @@ const ROOT = path.resolve(__dirname, "..");
 // ── 1. main.tsx: timeout de seguridad para hideAppLoading ─────────────────────
 describe("main.tsx – spinner safety timeout", () => {
   it("debe incluir setTimeout(hideAppLoading, 2000) como fallback", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/main.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/main.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("setTimeout(hideAppLoading, 2000)");
   });
 
   it("debe incluir requestAnimationFrame como primer intento de ocultar el spinner", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/main.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/main.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("requestAnimationFrame");
     expect(content).toContain("hideAppLoading");
   });
@@ -69,12 +75,18 @@ describe("BranchesManagement.tsx – página de sucursales", () => {
 // ── 3. App.tsx: ruta /branches registrada ────────────────────────────────────
 describe("App.tsx – ruta /branches", () => {
   it("debe importar BranchesManagement con lazy", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/App.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/App.tsx"),
+      "utf-8"
+    );
     expect(content).toContain('import("./pages/BranchesManagement")');
   });
 
   it("debe registrar la ruta /branches con DashboardLayout", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/App.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/App.tsx"),
+      "utf-8"
+    );
     expect(content).toContain('path={"/branches"}');
     expect(content).toContain("BranchesManagement");
   });
@@ -83,7 +95,10 @@ describe("App.tsx – ruta /branches", () => {
 // ── 4. DashboardLayout.tsx: enlace a /branches en sidebar ────────────────────
 describe("DashboardLayout.tsx – enlace a sucursales en sidebar", () => {
   it("debe incluir el enlace a /branches en el menú de Administración", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/components/DashboardLayout.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/components/DashboardLayout.tsx"),
+      "utf-8"
+    );
     expect(content).toContain('path: "/branches"');
     expect(content).toContain("Sucursales");
   });
@@ -92,18 +107,27 @@ describe("DashboardLayout.tsx – enlace a sucursales en sidebar", () => {
 // ── 5. ExitInterviews.tsx: botón de plantilla XLSX ───────────────────────────
 describe("ExitInterviews.tsx – plantilla XLSX descargable", () => {
   it("debe importar FileDown de lucide-react", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/pages/ExitInterviews.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/pages/ExitInterviews.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("FileDown");
   });
 
   it("debe incluir el botón de Plantilla con descarga de CSV", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/pages/ExitInterviews.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/pages/ExitInterviews.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("Plantilla_Preguntas_EntrevistasSalida.csv");
     expect(content).toContain("Plantilla descargada");
   });
 
   it("debe incluir ejemplos de preguntas en la plantilla (al menos 3 filas)", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/pages/ExitInterviews.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/pages/ExitInterviews.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("Clima Laboral");
     // La cadena está como unicode escape literal en el archivo fuente
     expect(content).toContain("Relaci\\u00f3n con Jefes");
@@ -114,22 +138,34 @@ describe("ExitInterviews.tsx – plantilla XLSX descargable", () => {
 // ── 6. KPIDashboard.tsx: filtro de sucursal ──────────────────────────────────
 describe("KPIDashboard.tsx – filtro de sucursal", () => {
   it("debe tener estado selectedBranchId", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/pages/KPIDashboard.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/pages/KPIDashboard.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("selectedBranchId");
   });
 
   it("debe usar trpc.branches.list para obtener las sucursales activas", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/pages/KPIDashboard.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/pages/KPIDashboard.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("trpc.branches.list");
   });
 
   it("debe pasar branchId al query de getKPIs", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/pages/KPIDashboard.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/pages/KPIDashboard.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("branchId: selectedBranchId");
   });
 
   it("debe mostrar un badge verde cuando hay una sucursal seleccionada", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/pages/KPIDashboard.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/pages/KPIDashboard.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("bg-emerald-100");
     expect(content).toContain("text-emerald-800");
   });
@@ -138,17 +174,26 @@ describe("KPIDashboard.tsx – filtro de sucursal", () => {
 // ── 7. executiveReport.ts: getKPIs acepta branchId ───────────────────────────
 describe("executiveReport.ts – getKPIs con branchId", () => {
   it("debe aceptar branchId como parámetro opcional en getKPIs", () => {
-    const content = readFileSync(path.join(ROOT, "server/routers/executiveReport.ts"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "server/routers/executiveReport.ts"),
+      "utf-8"
+    );
     expect(content).toContain("branchId: z.number().optional()");
   });
 
   it("debe filtrar empleados por branchId cuando se especifica", () => {
-    const content = readFileSync(path.join(ROOT, "server/routers/executiveReport.ts"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "server/routers/executiveReport.ts"),
+      "utf-8"
+    );
     expect(content).toContain("eq(employees.branchId, branchId)");
   });
 
   it("debe soportar filtro combinado departmentId + branchId", () => {
-    const content = readFileSync(path.join(ROOT, "server/routers/executiveReport.ts"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "server/routers/executiveReport.ts"),
+      "utf-8"
+    );
     expect(content).toContain("departmentId && branchId");
   });
 });
@@ -164,7 +209,10 @@ describe("vite.config.ts – Service Worker eliminado", () => {
   });
 
   it("PWAUpdateBanner debe ser un stub vacío sin import de virtual:pwa-register", () => {
-    const content = readFileSync(path.join(ROOT, "client/src/components/PWAUpdateBanner.tsx"), "utf-8");
+    const content = readFileSync(
+      path.join(ROOT, "client/src/components/PWAUpdateBanner.tsx"),
+      "utf-8"
+    );
     expect(content).not.toContain("virtual:pwa-register");
     expect(content).toContain("return null");
   });

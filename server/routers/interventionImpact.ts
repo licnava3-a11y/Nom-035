@@ -1,7 +1,15 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { companyLogo, departments, interventionImpactAnalysis, reportCache, sharedReportsLog, trainingEvaluations, workplaceViolenceCases } from "../../drizzle/schema";
+import {
+  companyLogo,
+  departments,
+  interventionImpactAnalysis,
+  reportCache,
+  sharedReportsLog,
+  trainingEvaluations,
+  workplaceViolenceCases,
+} from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { isEmailEnabled } from "../_core/email";
@@ -12,7 +20,16 @@ export const interventionImpactRouter = router({
     .input(
       z.object({
         status: z.enum(["active", "completed", "archived"]).optional(),
-        interventionType: z.enum(["training", "policy_change", "organizational_change", "corrective_action", "awareness_campaign", "other"]).optional(),
+        interventionType: z
+          .enum([
+            "training",
+            "policy_change",
+            "organizational_change",
+            "corrective_action",
+            "awareness_campaign",
+            "other",
+          ])
+          .optional(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -20,8 +37,15 @@ export const interventionImpactRouter = router({
       if (!db) throw new Error("Database connection failed");
 
       const conditions = [];
-      if (input.status) conditions.push(eq(interventionImpactAnalysis.status, input.status));
-      if (input.interventionType) conditions.push(eq(interventionImpactAnalysis.interventionType, input.interventionType));
+      if (input.status)
+        conditions.push(eq(interventionImpactAnalysis.status, input.status));
+      if (input.interventionType)
+        conditions.push(
+          eq(
+            interventionImpactAnalysis.interventionType,
+            input.interventionType
+          )
+        );
 
       const analyses = await db
         .select()
@@ -52,7 +76,14 @@ export const interventionImpactRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        interventionType: z.enum(["training", "policy_change", "organizational_change", "corrective_action", "awareness_campaign", "other"]),
+        interventionType: z.enum([
+          "training",
+          "policy_change",
+          "organizational_change",
+          "corrective_action",
+          "awareness_campaign",
+          "other",
+        ]),
         interventionName: z.string(),
         description: z.string().optional(),
         implementationDate: z.string(),
@@ -65,7 +96,9 @@ export const interventionImpactRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
 
-      const [result] = await (db.insert(interventionImpactAnalysis) as any).values({
+      const [result] = await (
+        db.insert(interventionImpactAnalysis) as any
+      ).values({
         ...input,
         implementationDate: new Date(input.implementationDate),
         createdBy: ctx.user.id,
@@ -92,11 +125,16 @@ export const interventionImpactRouter = router({
       const intervention = analysis[0];
       const implementationDate = new Date(intervention.implementationDate);
       const measurementEndDate = new Date(implementationDate);
-      measurementEndDate.setMonth(measurementEndDate.getMonth() + (intervention.measurementPeriodMonths || 3));
+      measurementEndDate.setMonth(
+        measurementEndDate.getMonth() +
+          (intervention.measurementPeriodMonths || 3)
+      );
 
       // Calcular métricas ANTES de la intervención
       const beforeStartDate = new Date(implementationDate);
-      beforeStartDate.setMonth(beforeStartDate.getMonth() - (intervention.measurementPeriodMonths || 3));
+      beforeStartDate.setMonth(
+        beforeStartDate.getMonth() - (intervention.measurementPeriodMonths || 3)
+      );
 
       const casesBeforeResult = await db
         .select({ count: sql<number>`count(*)` })
@@ -106,7 +144,10 @@ export const interventionImpactRouter = router({
             gte(workplaceViolenceCases.createdAt, beforeStartDate),
             lte(workplaceViolenceCases.createdAt, implementationDate),
             intervention.targetDepartmentId
-              ? eq(workplaceViolenceCases.complainantId, intervention.targetDepartmentId)
+              ? eq(
+                  workplaceViolenceCases.complainantId,
+                  intervention.targetDepartmentId
+                )
               : undefined
           )
         );
@@ -122,7 +163,10 @@ export const interventionImpactRouter = router({
             gte(workplaceViolenceCases.createdAt, implementationDate),
             lte(workplaceViolenceCases.createdAt, measurementEndDate),
             intervention.targetDepartmentId
-              ? eq(workplaceViolenceCases.complainantId, intervention.targetDepartmentId)
+              ? eq(
+                  workplaceViolenceCases.complainantId,
+                  intervention.targetDepartmentId
+                )
               : undefined
           )
         );
@@ -135,7 +179,9 @@ export const interventionImpactRouter = router({
 
       if (intervention.interventionType === "training") {
         const evalsBefore = await db
-          .select({ avg: sql<number>`AVG(${trainingEvaluations.overallSatisfaction})` })
+          .select({
+            avg: sql<number>`AVG(${trainingEvaluations.overallSatisfaction})`,
+          })
           .from(trainingEvaluations)
           .where(
             and(
@@ -145,7 +191,9 @@ export const interventionImpactRouter = router({
           );
 
         const evalsAfter = await db
-          .select({ avg: sql<number>`AVG(${trainingEvaluations.overallSatisfaction})` })
+          .select({
+            avg: sql<number>`AVG(${trainingEvaluations.overallSatisfaction})`,
+          })
           .from(trainingEvaluations)
           .where(
             and(
@@ -174,7 +222,7 @@ export const interventionImpactRouter = router({
         0,
         Math.min(
           100,
-          (caseReductionPercentage * 0.6) + (satisfactionImprovement * 20 * 0.4)
+          caseReductionPercentage * 0.6 + satisfactionImprovement * 20 * 0.4
         )
       );
 
@@ -184,10 +232,16 @@ export const interventionImpactRouter = router({
         .set({
           casesBeforeCount,
           casesAfterCount,
-          satisfactionScoreBefore: satisfactionBefore ? String(satisfactionBefore) : null,
-          satisfactionScoreAfter: satisfactionAfter ? String(satisfactionAfter) : null,
+          satisfactionScoreBefore: satisfactionBefore
+            ? String(satisfactionBefore)
+            : null,
+          satisfactionScoreAfter: satisfactionAfter
+            ? String(satisfactionAfter)
+            : null,
           caseReductionPercentage: String(caseReductionPercentage.toFixed(2)),
-          satisfactionScoreImprovement: String(satisfactionImprovement.toFixed(2)),
+          satisfactionScoreImprovement: String(
+            satisfactionImprovement.toFixed(2)
+          ),
           effectivenessScore: String(effectivenessScore.toFixed(2)),
         } as any)
         .where(eq(interventionImpactAnalysis.id, input.id));
@@ -265,19 +319,27 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
                 challenges: {
                   type: "array",
                   items: { type: "string" },
-                  description: "Desafíos encontrados durante la implementación (máximo 5)",
+                  description:
+                    "Desafíos encontrados durante la implementación (máximo 5)",
                 },
                 recommendations: {
                   type: "array",
                   items: { type: "string" },
-                  description: "Recomendaciones para futuras intervenciones (máximo 5)",
+                  description:
+                    "Recomendaciones para futuras intervenciones (máximo 5)",
                 },
                 predictedImpact: {
                   type: "string",
-                  description: "Predicción del impacto a largo plazo (1-2 párrafos)",
+                  description:
+                    "Predicción del impacto a largo plazo (1-2 párrafos)",
                 },
               },
-              required: ["successFactors", "challenges", "recommendations", "predictedImpact"],
+              required: [
+                "successFactors",
+                "challenges",
+                "recommendations",
+                "predictedImpact",
+              ],
               additionalProperties: false,
             },
           },
@@ -303,12 +365,23 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
     .input(
       z.object({
         status: z.enum(["active", "completed", "archived"]).optional(),
-        interventionType: z.enum(["training", "policy_change", "organizational_change", "corrective_action", "awareness_campaign", "other"]).optional(),
-        chartImages: z.object({
-          effectivenessChart: z.string().optional(),
-          casesChart: z.string().optional(),
-          typeDistributionChart: z.string().optional(),
-        }).optional(),
+        interventionType: z
+          .enum([
+            "training",
+            "policy_change",
+            "organizational_change",
+            "corrective_action",
+            "awareness_campaign",
+            "other",
+          ])
+          .optional(),
+        chartImages: z
+          .object({
+            effectivenessChart: z.string().optional(),
+            casesChart: z.string().optional(),
+            typeDistributionChart: z.string().optional(),
+          })
+          .optional(),
         companyLogo: z.string().optional(), // Base64 del logo de la empresa
       })
     )
@@ -324,12 +397,15 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
         hasCharts: !!input.chartImages,
         hasLogo: !!input.companyLogo,
       });
-      const paramsHash = crypto.createHash("md5").update(paramsString).digest("hex");
+      const paramsHash = crypto
+        .createHash("md5")
+        .update(paramsString)
+        .digest("hex");
 
       // Buscar en caché (reportes generados en las últimas 24 horas)
       const { reportCache } = await import("../../drizzle/schema");
       const { gt } = await import("drizzle-orm");
-      
+
       const cachedReport = await db
         .select()
         .from(reportCache)
@@ -364,8 +440,15 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       // No hay caché, generar nuevo reporte
       // Obtener datos filtrados
       const conditions = [];
-      if (input.status) conditions.push(eq(interventionImpactAnalysis.status, input.status));
-      if (input.interventionType) conditions.push(eq(interventionImpactAnalysis.interventionType, input.interventionType));
+      if (input.status)
+        conditions.push(eq(interventionImpactAnalysis.status, input.status));
+      if (input.interventionType)
+        conditions.push(
+          eq(
+            interventionImpactAnalysis.interventionType,
+            input.interventionType
+          )
+        );
 
       const interventions = await db
         .select()
@@ -375,25 +458,36 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
 
       // Calcular métricas globales
       const totalInterventions = interventions.length;
-      const avgEffectiveness = interventions.reduce((sum: any, i: any) => sum + Number(i.effectivenessScore || 0), 0) / totalInterventions || 0;
-      const totalCasesAvoided = interventions.reduce((sum: any, i: any) => sum + (Number(i.casesBeforeCount) - Number(i.casesAfterCount)), 0);
+      const avgEffectiveness =
+        interventions.reduce(
+          (sum: any, i: any) => sum + Number(i.effectivenessScore || 0),
+          0
+        ) / totalInterventions || 0;
+      const totalCasesAvoided = interventions.reduce(
+        (sum: any, i: any) =>
+          sum + (Number(i.casesBeforeCount) - Number(i.casesAfterCount)),
+        0
+      );
 
       // Generar PDF con PDFKit (con compresión habilitada)
       const PDFDocument = (await import("pdfkit")).default;
-      const doc = new PDFDocument({ 
+      const doc = new PDFDocument({
         margin: 50,
         compress: true, // Habilitar compresión de PDF
-        autoFirstPage: true
+        autoFirstPage: true,
       });
 
       const chunks: Buffer[] = [];
-      doc.on("data", (chunk) => chunks.push(chunk));
+      doc.on("data", chunk => chunks.push(chunk));
 
       // Portada
       // Agregar logo si está disponible
       if (input.companyLogo) {
         try {
-          const logoBuffer = Buffer.from(input.companyLogo.split(",")[1], "base64");
+          const logoBuffer = Buffer.from(
+            input.companyLogo.split(",")[1],
+            "base64"
+          );
           doc.image(logoBuffer, { fit: [150, 150], align: "center" });
           doc.moveDown();
         } catch (error) {
@@ -401,15 +495,29 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
         }
       }
 
-      doc.fontSize(24).font("Helvetica-Bold").text("Reporte de Análisis de Impacto de Intervenciones", { align: "center" });
+      doc
+        .fontSize(24)
+        .font("Helvetica-Bold")
+        .text("Reporte de Análisis de Impacto de Intervenciones", {
+          align: "center",
+        });
       doc.moveDown();
-      doc.fontSize(12).font("Helvetica").text(`Fecha de generación: ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}`, { align: "center" });
+      doc
+        .fontSize(12)
+        .font("Helvetica")
+        .text(
+          `Fecha de generación: ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}`,
+          { align: "center" }
+        );
       doc.text(`Generado por: ${ctx.user.name}`, { align: "center" });
       doc.moveDown(2);
 
       // Resumen ejecutivo
       doc.addPage();
-      doc.fontSize(16).font("Helvetica-Bold").text("Resumen Ejecutivo", { underline: true });
+      doc
+        .fontSize(16)
+        .font("Helvetica-Bold")
+        .text("Resumen Ejecutivo", { underline: true });
       doc.moveDown();
       doc.fontSize(12).font("Helvetica");
       doc.text(`Total de intervenciones analizadas: ${totalInterventions}`);
@@ -421,8 +529,14 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       if (input.chartImages) {
         if (input.chartImages.effectivenessChart) {
           try {
-            const chartBuffer = Buffer.from(input.chartImages.effectivenessChart.split(",")[1], "base64");
-            doc.fontSize(14).font("Helvetica-Bold").text("Gráfico de Efectividad");
+            const chartBuffer = Buffer.from(
+              input.chartImages.effectivenessChart.split(",")[1],
+              "base64"
+            );
+            doc
+              .fontSize(14)
+              .font("Helvetica-Bold")
+              .text("Gráfico de Efectividad");
             doc.moveDown(0.5);
             doc.image(chartBuffer, { fit: [450, 250] });
             doc.moveDown();
@@ -433,8 +547,14 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
 
         if (input.chartImages.casesChart) {
           try {
-            const chartBuffer = Buffer.from(input.chartImages.casesChart.split(",")[1], "base64");
-            doc.fontSize(14).font("Helvetica-Bold").text("Gráfico de Reducción de Casos");
+            const chartBuffer = Buffer.from(
+              input.chartImages.casesChart.split(",")[1],
+              "base64"
+            );
+            doc
+              .fontSize(14)
+              .font("Helvetica-Bold")
+              .text("Gráfico de Reducción de Casos");
             doc.moveDown(0.5);
             doc.image(chartBuffer, { fit: [450, 250] });
             doc.moveDown();
@@ -445,9 +565,15 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
 
         if (input.chartImages.typeDistributionChart) {
           try {
-            const chartBuffer = Buffer.from(input.chartImages.typeDistributionChart.split(",")[1], "base64");
+            const chartBuffer = Buffer.from(
+              input.chartImages.typeDistributionChart.split(",")[1],
+              "base64"
+            );
             doc.addPage();
-            doc.fontSize(14).font("Helvetica-Bold").text("Distribución por Tipo de Intervención");
+            doc
+              .fontSize(14)
+              .font("Helvetica-Bold")
+              .text("Distribución por Tipo de Intervención");
             doc.moveDown(0.5);
             doc.image(chartBuffer, { fit: [450, 250] });
             doc.moveDown();
@@ -458,19 +584,33 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       }
 
       // Tabla de intervenciones
-      doc.fontSize(16).font("Helvetica-Bold").text("Detalle de Intervenciones", { underline: true });
+      doc
+        .fontSize(16)
+        .font("Helvetica-Bold")
+        .text("Detalle de Intervenciones", { underline: true });
       doc.moveDown();
 
       interventions.forEach((intervention: any, idx: number) => {
         if (idx > 0 && idx % 3 === 0) doc.addPage();
 
-        doc.fontSize(14).font("Helvetica-Bold").text(`${idx + 1}. ${intervention.interventionName}`);
+        doc
+          .fontSize(14)
+          .font("Helvetica-Bold")
+          .text(`${idx + 1}. ${intervention.interventionName}`);
         doc.fontSize(10).font("Helvetica");
         doc.text(`Tipo: ${intervention.interventionType}`);
-        doc.text(`Fecha de implementación: ${new Date(intervention.implementationDate).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}`);
-        doc.text(`Casos antes: ${intervention.casesBeforeCount} | Casos después: ${intervention.casesAfterCount}`);
-        doc.text(`Reducción: ${Number(intervention.caseReductionPercentage || 0).toFixed(1)}%`);
-        doc.text(`Efectividad: ${Number(intervention.effectivenessScore || 0).toFixed(1)}/100`);
+        doc.text(
+          `Fecha de implementación: ${new Date(intervention.implementationDate).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}`
+        );
+        doc.text(
+          `Casos antes: ${intervention.casesBeforeCount} | Casos después: ${intervention.casesAfterCount}`
+        );
+        doc.text(
+          `Reducción: ${Number(intervention.caseReductionPercentage || 0).toFixed(1)}%`
+        );
+        doc.text(
+          `Efectividad: ${Number(intervention.effectivenessScore || 0).toFixed(1)}/100`
+        );
         doc.text(`Estado: ${intervention.status}`);
 
         if (intervention.aiInsights) {
@@ -479,10 +619,14 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
           doc.fontSize(11).font("Helvetica-Bold").text("Insights de IA:");
           doc.fontSize(9).font("Helvetica");
           if (insights.successFactors?.length > 0) {
-            doc.text(`Factores de éxito: ${insights.successFactors.slice(0, 2).join(", ")}`);
+            doc.text(
+              `Factores de éxito: ${insights.successFactors.slice(0, 2).join(", ")}`
+            );
           }
           if (insights.recommendations?.length > 0) {
-            doc.text(`Recomendaciones: ${insights.recommendations.slice(0, 2).join(", ")}`);
+            doc.text(
+              `Recomendaciones: ${insights.recommendations.slice(0, 2).join(", ")}`
+            );
           }
         }
 
@@ -490,19 +634,27 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       });
 
       // Pie de página
-      doc.fontSize(8).text(`Folio: IMPACT-${Date.now()}`, 50, doc.page.height - 50, { align: "center" });
+      doc
+        .fontSize(8)
+        .text(`Folio: IMPACT-${Date.now()}`, 50, doc.page.height - 50, {
+          align: "center",
+        });
 
       doc.end();
 
       // Esperar a que termine de generar
-      await new Promise<void>((resolve) => doc.on("end", () => resolve()));
+      await new Promise<void>(resolve => doc.on("end", () => resolve()));
 
       const pdfBuffer = Buffer.concat(chunks);
 
       // Subir a S3
       const { storagePut } = await import("../storage");
       const fileName = `intervention-impact-report-${Date.now()}.pdf`;
-      const { url } = await storagePut(`reports/${fileName}`, pdfBuffer, "application/pdf");
+      const { url } = await storagePut(
+        `reports/${fileName}`,
+        pdfBuffer,
+        "application/pdf"
+      );
 
       // Guardar en caché (expira en 24 horas)
       const expiresAt = new Date();
@@ -533,7 +685,16 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
     .input(
       z.object({
         status: z.enum(["active", "completed", "archived"]).optional(),
-        interventionType: z.enum(["training", "policy_change", "organizational_change", "corrective_action", "awareness_campaign", "other"]).optional(),
+        interventionType: z
+          .enum([
+            "training",
+            "policy_change",
+            "organizational_change",
+            "corrective_action",
+            "awareness_campaign",
+            "other",
+          ])
+          .optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -542,8 +703,15 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
 
       // Obtener datos filtrados
       const conditions = [];
-      if (input.status) conditions.push(eq(interventionImpactAnalysis.status, input.status));
-      if (input.interventionType) conditions.push(eq(interventionImpactAnalysis.interventionType, input.interventionType));
+      if (input.status)
+        conditions.push(eq(interventionImpactAnalysis.status, input.status));
+      if (input.interventionType)
+        conditions.push(
+          eq(
+            interventionImpactAnalysis.interventionType,
+            input.interventionType
+          )
+        );
 
       const interventions = await db
         .select()
@@ -563,14 +731,31 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       ];
 
       const totalInterventions = interventions.length;
-      const avgEffectiveness = interventions.reduce((sum: any, i: any) => sum + Number(i.effectivenessScore || 0), 0) / totalInterventions || 0;
-      const totalCasesAvoided = interventions.reduce((sum: any, i: any) => sum + (Number(i.casesBeforeCount) - Number(i.casesAfterCount)), 0);
+      const avgEffectiveness =
+        interventions.reduce(
+          (sum: any, i: any) => sum + Number(i.effectivenessScore || 0),
+          0
+        ) / totalInterventions || 0;
+      const totalCasesAvoided = interventions.reduce(
+        (sum: any, i: any) =>
+          sum + (Number(i.casesBeforeCount) - Number(i.casesAfterCount)),
+        0
+      );
 
       summarySheet.addRows([
-        { metric: "Total de intervenciones analizadas", value: totalInterventions },
-        { metric: "Efectividad promedio", value: `${avgEffectiveness.toFixed(1)}/100` },
+        {
+          metric: "Total de intervenciones analizadas",
+          value: totalInterventions,
+        },
+        {
+          metric: "Efectividad promedio",
+          value: `${avgEffectiveness.toFixed(1)}/100`,
+        },
         { metric: "Total de casos evitados", value: totalCasesAvoided },
-        { metric: "Fecha de generación", value: new Date().toLocaleDateString("es-MX") },
+        {
+          metric: "Fecha de generación",
+          value: new Date().toLocaleDateString("es-MX"),
+        },
       ]);
 
       summarySheet.getRow(1).font = { bold: true };
@@ -594,10 +779,14 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
           id: intervention.id,
           name: intervention.interventionName,
           type: intervention.interventionType,
-          date: new Date(intervention.implementationDate).toLocaleDateString("es-MX"),
+          date: new Date(intervention.implementationDate).toLocaleDateString(
+            "es-MX"
+          ),
           casesBefore: intervention.casesBeforeCount,
           casesAfter: intervention.casesAfterCount,
-          reduction: Number(intervention.caseReductionPercentage || 0).toFixed(1),
+          reduction: Number(intervention.caseReductionPercentage || 0).toFixed(
+            1
+          ),
           effectiveness: `${Number(intervention.effectivenessScore || 0).toFixed(1)}/100`,
           status: intervention.status,
         });
@@ -665,7 +854,11 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       // Subir a S3
       const { storagePut } = await import("../storage");
       const fileName = `intervention-impact-report-${Date.now()}.xlsx`;
-      const { url } = await storagePut(`reports/${fileName}`, Buffer.from(buffer), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      const { url } = await storagePut(
+        `reports/${fileName}`,
+        Buffer.from(buffer),
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
 
       return { success: true, url, fileName };
     }),
@@ -688,8 +881,15 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       // Guard centralizado: verificar si el envío de correos está habilitado
       const emailEnabled = await isEmailEnabled();
       if (!emailEnabled) {
-        console.log("[Email PAUSADO] Envío desactivado desde configuración. Reporte no enviado a:", recipients);
-        return { success: false, message: "El envío de correos está pausado. Activa el envío desde Administración \u2192 Configuración SMTP." };
+        console.log(
+          "[Email PAUSADO] Envío desactivado desde configuración. Reporte no enviado a:",
+          recipients
+        );
+        return {
+          success: false,
+          message:
+            "El envío de correos está pausado. Activa el envío desde Administración \u2192 Configuración SMTP.",
+        };
       }
 
       // Importar nodemailer dinámicamente
@@ -708,7 +908,9 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
 
       // Verificar configuración SMTP
       if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-        throw new Error("Configuración SMTP incompleta. Verifica las variables de entorno SMTP_*");
+        throw new Error(
+          "Configuración SMTP incompleta. Verifica las variables de entorno SMTP_*"
+        );
       }
 
       const fileExtension = reportType === "pdf" ? "pdf" : "xlsx";
@@ -746,7 +948,10 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
           {
             filename: fileName,
             content: Buffer.from(fileBuffer),
-            contentType: reportType === "pdf" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            contentType:
+              reportType === "pdf"
+                ? "application/pdf"
+                : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
           },
         ],
       };
@@ -754,10 +959,10 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       // Enviar email
       try {
         await transporter.sendMail(mailOptions);
-        
+
         // Registrar en log de reportes compartidos
         const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+        if (!db) throw new Error("Database not initialized");
         if (db) {
           await (db.insert(sharedReportsLog) as any).values({
             reportUrl: input.reportUrl,
@@ -774,7 +979,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
             appliedFilters: input.appliedFilters || null,
           });
         }
-        
+
         return { success: true, recipientCount: recipients.length };
       } catch (error: any) {
         console.error("Error al enviar correo:", error);
@@ -792,12 +997,16 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       .from(interventionImpactAnalysis);
 
     const avgEffectiveness = await db
-      .select({ avg: sql<number>`AVG(${interventionImpactAnalysis.effectivenessScore})` })
+      .select({
+        avg: sql<number>`AVG(${interventionImpactAnalysis.effectivenessScore})`,
+      })
       .from(interventionImpactAnalysis)
       .where(eq(interventionImpactAnalysis.status, "active"));
 
     const totalCasesAvoided = await db
-      .select({ sum: sql<number>`SUM(${interventionImpactAnalysis.casesBeforeCount} - ${interventionImpactAnalysis.casesAfterCount})` })
+      .select({
+        sum: sql<number>`SUM(${interventionImpactAnalysis.casesBeforeCount} - ${interventionImpactAnalysis.casesAfterCount})`,
+      })
       .from(interventionImpactAnalysis);
 
     const topInterventions = await db

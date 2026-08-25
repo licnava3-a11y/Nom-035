@@ -5,19 +5,58 @@
 
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { trpc } from '@/lib/trpc';
-import { Button } from '@/components/ui/button';
-import { LoadingButton } from '@/components/ui/loading-button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, Plus, Edit, Trash2, Download, Eye, X, BarChart3 } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title } from 'chart.js';
-import { Bar, Line, Doughnut } from 'react-chartjs-2';
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  FileText,
+  Plus,
+  Edit,
+  Trash2,
+  Download,
+  Eye,
+  X,
+  BarChart3,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+} from "chart.js";
+import { Bar, Line, Doughnut } from "react-chartjs-2";
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -42,18 +81,20 @@ export default function CommitteeAnnualReports() {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'draft' | 'final' | 'approved'>('all');
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "draft" | "final" | "approved"
+  >("all");
   const [showMetricsDialog, setShowMetricsDialog] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
     reportYear: new Date().getFullYear(),
-    startDate: '',
-    endDate: '',
-    executiveSummary: '',
-    recommendations: '',
-    actionPlan: '',
-    status: 'draft' as 'draft' | 'final' | 'approved',
+    startDate: "",
+    endDate: "",
+    executiveSummary: "",
+    recommendations: "",
+    actionPlan: "",
+    status: "draft" as "draft" | "final" | "approved",
   });
 
   // Métricas
@@ -66,80 +107,111 @@ export default function CommitteeAnnualReports() {
   });
 
   // Actividades
-  const [activities, setActivities] = useState<Array<{ description: string; date: string; impact: string }>>([
-    { description: '', date: '', impact: '' }
-  ]);
+  const [activities, setActivities] = useState<
+    Array<{ description: string; date: string; impact: string }>
+  >([{ description: "", date: "", impact: "" }]);
 
   // Capacitaciones
-  const [trainings, setTrainings] = useState<Array<{ title: string; participants: number; date: string }>>([
-    { title: '', participants: 0, date: '' }
-  ]);
+  const [trainings, setTrainings] = useState<
+    Array<{ title: string; participants: number; date: string }>
+  >([{ title: "", participants: 0, date: "" }]);
 
   // Casos atendidos
-  const [cases, setCases] = useState<Array<{ category: string; count: number; resolution: string }>>([
-    { category: '', count: 0, resolution: '' }
-  ]);
+  const [cases, setCases] = useState<
+    Array<{ category: string; count: number; resolution: string }>
+  >([{ category: "", count: 0, resolution: "" }]);
 
   // Firmas
   const [signatures, setSignatures] = useState<Signature[]>([
-    { name: '', position: '' }
+    { name: "", position: "" },
   ]);
 
   // Queries
-  const { data: reportsData, refetch } = trpc.committeeAnnualReports.list.useQuery({
-    status: filterStatus === 'all' ? undefined : filterStatus,
-  });
+  const { data: reportsData, refetch } =
+    trpc.committeeAnnualReports.list.useQuery({
+      status: filterStatus === "all" ? undefined : filterStatus,
+    });
 
   // Mutations
   const createMutation = trpc.committeeAnnualReports.create.useMutation({
     onSuccess: () => {
-      toast({ title: 'Éxito', description: 'Reporte anual creado exitosamente' });
+      toast({
+        title: "Éxito",
+        description: "Reporte anual creado exitosamente",
+      });
       refetch();
       resetForm();
     },
-    onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    onError: error => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
   const updateMutation = trpc.committeeAnnualReports.update.useMutation({
     onSuccess: () => {
-      toast({ title: 'Éxito', description: 'Reporte anual actualizado exitosamente' });
+      toast({
+        title: "Éxito",
+        description: "Reporte anual actualizado exitosamente",
+      });
       refetch();
       resetForm();
     },
-    onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    onError: error => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
   const deleteMutation = trpc.committeeAnnualReports.delete.useMutation({
     onSuccess: () => {
-      toast({ title: 'Éxito', description: 'Reporte anual eliminado exitosamente' });
+      toast({
+        title: "Éxito",
+        description: "Reporte anual eliminado exitosamente",
+      });
       refetch();
     },
-    onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    onError: error => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
-  const generatePDFMutation = trpc.committeeAnnualReports.generatePDF.useMutation({
-    onSuccess: (data) => {
-      toast({ title: 'Éxito', description: 'PDF generado exitosamente' });
-      window.open(data.pdfUrl, '_blank');
-    },
-    onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    },
-  });
+  const generatePDFMutation =
+    trpc.committeeAnnualReports.generatePDF.useMutation({
+      onSuccess: data => {
+        toast({ title: "Éxito", description: "PDF generado exitosamente" });
+        window.open(data.pdfUrl, "_blank");
+      },
+      onError: error => {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
 
   const publishMutation = trpc.committeeAnnualReports.publish.useMutation({
     onSuccess: () => {
-      toast({ title: 'Éxito', description: 'Reporte publicado exitosamente' });
+      toast({ title: "Éxito", description: "Reporte publicado exitosamente" });
       refetch();
     },
-    onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    onError: error => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -147,12 +219,12 @@ export default function CommitteeAnnualReports() {
   const resetForm = () => {
     setFormData({
       reportYear: new Date().getFullYear(),
-      startDate: '',
-      endDate: '',
-      executiveSummary: '',
-      recommendations: '',
-      actionPlan: '',
-      status: 'draft',
+      startDate: "",
+      endDate: "",
+      executiveSummary: "",
+      recommendations: "",
+      actionPlan: "",
+      status: "draft",
     });
     setMetrics({
       totalMeetings: 0,
@@ -161,10 +233,10 @@ export default function CommitteeAnnualReports() {
       trainingsProvided: 0,
       complianceScore: 0,
     });
-    setActivities([{ description: '', date: '', impact: '' }]);
-    setTrainings([{ title: '', participants: 0, date: '' }]);
-    setCases([{ category: '', count: 0, resolution: '' }]);
-    setSignatures([{ name: '', position: '' }]);
+    setActivities([{ description: "", date: "", impact: "" }]);
+    setTrainings([{ title: "", participants: 0, date: "" }]);
+    setCases([{ category: "", count: 0, resolution: "" }]);
+    setSignatures([{ name: "", position: "" }]);
     setEditingId(null);
     setShowForm(false);
   };
@@ -178,7 +250,9 @@ export default function CommitteeAnnualReports() {
       activities: JSON.stringify(activities.filter(a => a.description)),
       trainings: JSON.stringify(trainings.filter(t => t.title)),
       casesHandled: JSON.stringify(cases.filter(c => c.category)),
-      complianceMetrics: JSON.stringify({ complianceScore: metrics.complianceScore }),
+      complianceMetrics: JSON.stringify({
+        complianceScore: metrics.complianceScore,
+      }),
       signatures: JSON.stringify(signatures.filter(s => s.name)),
     };
 
@@ -195,12 +269,12 @@ export default function CommitteeAnnualReports() {
 
     setFormData({
       reportYear: report.reportYear,
-      startDate: new Date(report.startDate).toISOString().split('T')[0],
-      endDate: new Date(report.endDate).toISOString().split('T')[0],
+      startDate: new Date(report.startDate).toISOString().split("T")[0],
+      endDate: new Date(report.endDate).toISOString().split("T")[0],
       executiveSummary: report.executiveSummary,
       recommendations: report.recommendations,
       actionPlan: report.actionPlan,
-      status: report.status as 'draft' | 'final' | 'approved',
+      status: report.status as "draft" | "final" | "approved",
     });
 
     setMetrics(JSON.parse(report.metrics));
@@ -213,7 +287,10 @@ export default function CommitteeAnnualReports() {
     setShowForm(true);
   };
 
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; year: number } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: number;
+    year: number;
+  } | null>(null);
 
   const handleDelete = (id: number, year: number) => {
     setDeleteConfirm({ id, year });
@@ -228,37 +305,50 @@ export default function CommitteeAnnualReports() {
 
   // Datos para gráficas
   const meetingsChartData = {
-    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+    labels: [
+      "Ene",
+      "Feb",
+      "Mar",
+      "Abr",
+      "May",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dic",
+    ],
     datasets: [
       {
-        label: 'Reuniones Realizadas',
+        label: "Reuniones Realizadas",
         data: [2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2],
-        backgroundColor: 'rgba(59, 130, 246, 0.5)',
-        borderColor: 'rgba(59, 130, 246, 1)',
+        backgroundColor: "rgba(59, 130, 246, 0.5)",
+        borderColor: "rgba(59, 130, 246, 1)",
         borderWidth: 1,
       },
     ],
   };
 
   const casesChartData = {
-    labels: cases.map(c => c.category || 'Sin categoría'),
+    labels: cases.map(c => c.category || "Sin categoría"),
     datasets: [
       {
-        label: 'Casos Atendidos',
+        label: "Casos Atendidos",
         data: cases.map(c => c.count),
         backgroundColor: [
-          'rgba(239, 68, 68, 0.5)',
-          'rgba(251, 191, 36, 0.5)',
-          'rgba(34, 197, 94, 0.5)',
-          'rgba(59, 130, 246, 0.5)',
-          'rgba(168, 85, 247, 0.5)',
+          "rgba(239, 68, 68, 0.5)",
+          "rgba(251, 191, 36, 0.5)",
+          "rgba(34, 197, 94, 0.5)",
+          "rgba(59, 130, 246, 0.5)",
+          "rgba(168, 85, 247, 0.5)",
         ],
         borderColor: [
-          'rgba(239, 68, 68, 1)',
-          'rgba(251, 191, 36, 1)',
-          'rgba(34, 197, 94, 1)',
-          'rgba(59, 130, 246, 1)',
-          'rgba(168, 85, 247, 1)',
+          "rgba(239, 68, 68, 1)",
+          "rgba(251, 191, 36, 1)",
+          "rgba(34, 197, 94, 1)",
+          "rgba(59, 130, 246, 1)",
+          "rgba(168, 85, 247, 1)",
         ],
         borderWidth: 1,
       },
@@ -266,13 +356,19 @@ export default function CommitteeAnnualReports() {
   };
 
   const complianceChartData = {
-    labels: ['Cumplimiento NOM-035'],
+    labels: ["Cumplimiento NOM-035"],
     datasets: [
       {
-        label: 'Porcentaje de Cumplimiento',
+        label: "Porcentaje de Cumplimiento",
         data: [metrics.complianceScore],
-        backgroundColor: metrics.complianceScore >= 80 ? 'rgba(34, 197, 94, 0.5)' : 'rgba(251, 191, 36, 0.5)',
-        borderColor: metrics.complianceScore >= 80 ? 'rgba(34, 197, 94, 1)' : 'rgba(251, 191, 36, 1)',
+        backgroundColor:
+          metrics.complianceScore >= 80
+            ? "rgba(34, 197, 94, 0.5)"
+            : "rgba(251, 191, 36, 0.5)",
+        borderColor:
+          metrics.complianceScore >= 80
+            ? "rgba(34, 197, 94, 1)"
+            : "rgba(251, 191, 36, 1)",
         borderWidth: 1,
       },
     ],
@@ -283,7 +379,9 @@ export default function CommitteeAnnualReports() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Reportes Anuales del Comité</h1>
-          <p className="text-muted-foreground">Gestión de reportes anuales NOM-035</p>
+          <p className="text-muted-foreground">
+            Gestión de reportes anuales NOM-035
+          </p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" />
@@ -300,7 +398,10 @@ export default function CommitteeAnnualReports() {
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Estado</Label>
-              <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+              <Select
+                value={filterStatus}
+                onValueChange={(value: any) => setFilterStatus(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -320,7 +421,9 @@ export default function CommitteeAnnualReports() {
       <Card>
         <CardHeader>
           <CardTitle>Reportes Anuales</CardTitle>
-          <CardDescription>Total: {reportsData?.reports.length || 0} reportes</CardDescription>
+          <CardDescription>
+            Total: {reportsData?.reports.length || 0} reportes
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -333,19 +436,30 @@ export default function CommitteeAnnualReports() {
                         Reporte Anual {report.reportYear}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {report.folioCode}-{String(report.folioNumber).padStart(3, '0')}/{report.folioYear}
+                        {report.folioCode}-
+                        {String(report.folioNumber).padStart(3, "0")}/
+                        {report.folioYear}
                       </p>
                       <p className="text-sm mt-2">
-                        Periodo: {new Date(report.startDate).toLocaleDateString()} - {new Date(report.endDate).toLocaleDateString()}
+                        Periodo:{" "}
+                        {new Date(report.startDate).toLocaleDateString()} -{" "}
+                        {new Date(report.endDate).toLocaleDateString()}
                       </p>
                       <div className="mt-2">
-                        <span className={`inline-block px-2 py-1 text-xs rounded ${
-                          report.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          report.status === 'final' ? 'bg-blue-100 text-blue-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {report.status === 'approved' ? 'Aprobado' :
-                           report.status === 'final' ? 'Final' : 'Borrador'}
+                        <span
+                          className={`inline-block px-2 py-1 text-xs rounded ${
+                            report.status === "approved"
+                              ? "bg-green-100 text-green-800"
+                              : report.status === "final"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {report.status === "approved"
+                            ? "Aprobado"
+                            : report.status === "final"
+                              ? "Final"
+                              : "Borrador"}
                         </span>
                       </div>
                     </div>
@@ -353,7 +467,9 @@ export default function CommitteeAnnualReports() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => generatePDFMutation.mutate({ id: report.id })}
+                        onClick={() =>
+                          generatePDFMutation.mutate({ id: report.id })
+                        }
                         disabled={generatePDFMutation.isPending}
                       >
                         <Download className="h-4 w-4" />
@@ -365,12 +481,14 @@ export default function CommitteeAnnualReports() {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      {report.status === 'draft' && (
+                      {report.status === "draft" && (
                         <>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => publishMutation.mutate({ id: report.id })}
+                            onClick={() =>
+                              publishMutation.mutate({ id: report.id })
+                            }
                             disabled={publishMutation.isPending}
                           >
                             Publicar
@@ -398,7 +516,7 @@ export default function CommitteeAnnualReports() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingId ? 'Editar Reporte Anual' : 'Nuevo Reporte Anual'}
+              {editingId ? "Editar Reporte Anual" : "Nuevo Reporte Anual"}
             </DialogTitle>
             <DialogDescription>
               Complete la información del reporte anual del comité
@@ -418,7 +536,12 @@ export default function CommitteeAnnualReports() {
                     <Input
                       type="number"
                       value={formData.reportYear}
-                      onChange={(e) => setFormData({ ...formData, reportYear: parseInt(e.target.value) })}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          reportYear: parseInt(e.target.value),
+                        })
+                      }
                       required
                     />
                   </div>
@@ -427,7 +550,9 @@ export default function CommitteeAnnualReports() {
                     <Input
                       type="date"
                       value={formData.startDate}
-                      onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                      onChange={e =>
+                        setFormData({ ...formData, startDate: e.target.value })
+                      }
                       required
                     />
                   </div>
@@ -436,7 +561,9 @@ export default function CommitteeAnnualReports() {
                     <Input
                       type="date"
                       value={formData.endDate}
-                      onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                      onChange={e =>
+                        setFormData({ ...formData, endDate: e.target.value })
+                      }
                       required
                     />
                   </div>
@@ -446,7 +573,12 @@ export default function CommitteeAnnualReports() {
                   <Label>Resumen Ejecutivo</Label>
                   <Textarea
                     value={formData.executiveSummary}
-                    onChange={(e) => setFormData({ ...formData, executiveSummary: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        executiveSummary: e.target.value,
+                      })
+                    }
                     rows={4}
                     required
                     placeholder="Resumen de las actividades y logros del comité durante el año..."
@@ -478,7 +610,12 @@ export default function CommitteeAnnualReports() {
                     <Input
                       type="number"
                       value={metrics.totalMeetings}
-                      onChange={(e) => setMetrics({ ...metrics, totalMeetings: parseInt(e.target.value) || 0 })}
+                      onChange={e =>
+                        setMetrics({
+                          ...metrics,
+                          totalMeetings: parseInt(e.target.value) || 0,
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -486,7 +623,12 @@ export default function CommitteeAnnualReports() {
                     <Input
                       type="number"
                       value={metrics.averageAttendance}
-                      onChange={(e) => setMetrics({ ...metrics, averageAttendance: parseFloat(e.target.value) || 0 })}
+                      onChange={e =>
+                        setMetrics({
+                          ...metrics,
+                          averageAttendance: parseFloat(e.target.value) || 0,
+                        })
+                      }
                       step="0.1"
                       max="100"
                     />
@@ -496,7 +638,12 @@ export default function CommitteeAnnualReports() {
                     <Input
                       type="number"
                       value={metrics.casesHandled}
-                      onChange={(e) => setMetrics({ ...metrics, casesHandled: parseInt(e.target.value) || 0 })}
+                      onChange={e =>
+                        setMetrics({
+                          ...metrics,
+                          casesHandled: parseInt(e.target.value) || 0,
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -504,7 +651,12 @@ export default function CommitteeAnnualReports() {
                     <Input
                       type="number"
                       value={metrics.trainingsProvided}
-                      onChange={(e) => setMetrics({ ...metrics, trainingsProvided: parseInt(e.target.value) || 0 })}
+                      onChange={e =>
+                        setMetrics({
+                          ...metrics,
+                          trainingsProvided: parseInt(e.target.value) || 0,
+                        })
+                      }
                     />
                   </div>
                   <div className="col-span-2">
@@ -512,7 +664,12 @@ export default function CommitteeAnnualReports() {
                     <Input
                       type="number"
                       value={metrics.complianceScore}
-                      onChange={(e) => setMetrics({ ...metrics, complianceScore: parseFloat(e.target.value) || 0 })}
+                      onChange={e =>
+                        setMetrics({
+                          ...metrics,
+                          complianceScore: parseFloat(e.target.value) || 0,
+                        })
+                      }
                       step="0.1"
                       max="100"
                     />
@@ -530,7 +687,12 @@ export default function CommitteeAnnualReports() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setActivities([...activities, { description: '', date: '', impact: '' }])}
+                    onClick={() =>
+                      setActivities([
+                        ...activities,
+                        { description: "", date: "", impact: "" },
+                      ])
+                    }
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Agregar Actividad
@@ -539,12 +701,15 @@ export default function CommitteeAnnualReports() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {activities.map((activity, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-4 items-end">
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-4 items-end"
+                  >
                     <div className="col-span-5">
                       <Label>Descripción</Label>
                       <Input
                         value={activity.description}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newActivities = [...activities];
                           newActivities[index].description = e.target.value;
                           setActivities(newActivities);
@@ -557,7 +722,7 @@ export default function CommitteeAnnualReports() {
                       <Input
                         type="date"
                         value={activity.date}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newActivities = [...activities];
                           newActivities[index].date = e.target.value;
                           setActivities(newActivities);
@@ -568,7 +733,7 @@ export default function CommitteeAnnualReports() {
                       <Label>Impacto</Label>
                       <Input
                         value={activity.impact}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newActivities = [...activities];
                           newActivities[index].impact = e.target.value;
                           setActivities(newActivities);
@@ -581,7 +746,11 @@ export default function CommitteeAnnualReports() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => setActivities(activities.filter((_, i) => i !== index))}
+                        onClick={() =>
+                          setActivities(
+                            activities.filter((_, i) => i !== index)
+                          )
+                        }
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -600,7 +769,12 @@ export default function CommitteeAnnualReports() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setTrainings([...trainings, { title: '', participants: 0, date: '' }])}
+                    onClick={() =>
+                      setTrainings([
+                        ...trainings,
+                        { title: "", participants: 0, date: "" },
+                      ])
+                    }
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Agregar Capacitación
@@ -609,12 +783,15 @@ export default function CommitteeAnnualReports() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {trainings.map((training, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-4 items-end">
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-4 items-end"
+                  >
                     <div className="col-span-5">
                       <Label>Título</Label>
                       <Input
                         value={training.title}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newTrainings = [...trainings];
                           newTrainings[index].title = e.target.value;
                           setTrainings(newTrainings);
@@ -627,9 +804,10 @@ export default function CommitteeAnnualReports() {
                       <Input
                         type="number"
                         value={training.participants}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newTrainings = [...trainings];
-                          newTrainings[index].participants = parseInt(e.target.value) || 0;
+                          newTrainings[index].participants =
+                            parseInt(e.target.value) || 0;
                           setTrainings(newTrainings);
                         }}
                       />
@@ -639,7 +817,7 @@ export default function CommitteeAnnualReports() {
                       <Input
                         type="date"
                         value={training.date}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newTrainings = [...trainings];
                           newTrainings[index].date = e.target.value;
                           setTrainings(newTrainings);
@@ -651,7 +829,9 @@ export default function CommitteeAnnualReports() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => setTrainings(trainings.filter((_, i) => i !== index))}
+                        onClick={() =>
+                          setTrainings(trainings.filter((_, i) => i !== index))
+                        }
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -670,7 +850,12 @@ export default function CommitteeAnnualReports() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setCases([...cases, { category: '', count: 0, resolution: '' }])}
+                    onClick={() =>
+                      setCases([
+                        ...cases,
+                        { category: "", count: 0, resolution: "" },
+                      ])
+                    }
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Agregar Categoría
@@ -679,12 +864,15 @@ export default function CommitteeAnnualReports() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {cases.map((caseItem, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-4 items-end">
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-4 items-end"
+                  >
                     <div className="col-span-4">
                       <Label>Categoría</Label>
                       <Input
                         value={caseItem.category}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newCases = [...cases];
                           newCases[index].category = e.target.value;
                           setCases(newCases);
@@ -697,7 +885,7 @@ export default function CommitteeAnnualReports() {
                       <Input
                         type="number"
                         value={caseItem.count}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newCases = [...cases];
                           newCases[index].count = parseInt(e.target.value) || 0;
                           setCases(newCases);
@@ -708,7 +896,7 @@ export default function CommitteeAnnualReports() {
                       <Label>Resolución</Label>
                       <Input
                         value={caseItem.resolution}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newCases = [...cases];
                           newCases[index].resolution = e.target.value;
                           setCases(newCases);
@@ -721,7 +909,9 @@ export default function CommitteeAnnualReports() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => setCases(cases.filter((_, i) => i !== index))}
+                        onClick={() =>
+                          setCases(cases.filter((_, i) => i !== index))
+                        }
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -741,7 +931,12 @@ export default function CommitteeAnnualReports() {
                   <Label>Recomendaciones</Label>
                   <Textarea
                     value={formData.recommendations}
-                    onChange={(e) => setFormData({ ...formData, recommendations: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        recommendations: e.target.value,
+                      })
+                    }
                     rows={4}
                     required
                     placeholder="Recomendaciones para el siguiente periodo..."
@@ -751,7 +946,9 @@ export default function CommitteeAnnualReports() {
                   <Label>Plan de Acción</Label>
                   <Textarea
                     value={formData.actionPlan}
-                    onChange={(e) => setFormData({ ...formData, actionPlan: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, actionPlan: e.target.value })
+                    }
                     rows={4}
                     required
                     placeholder="Plan de acción para el siguiente periodo..."
@@ -769,7 +966,9 @@ export default function CommitteeAnnualReports() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setSignatures([...signatures, { name: '', position: '' }])}
+                    onClick={() =>
+                      setSignatures([...signatures, { name: "", position: "" }])
+                    }
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Agregar Firma
@@ -778,12 +977,15 @@ export default function CommitteeAnnualReports() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {signatures.map((signature, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-4 items-end">
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-4 items-end"
+                  >
                     <div className="col-span-5">
                       <Label>Nombre</Label>
                       <Input
                         value={signature.name}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newSignatures = [...signatures];
                           newSignatures[index].name = e.target.value;
                           setSignatures(newSignatures);
@@ -795,7 +997,7 @@ export default function CommitteeAnnualReports() {
                       <Label>Cargo</Label>
                       <Input
                         value={signature.position}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newSignatures = [...signatures];
                           newSignatures[index].position = e.target.value;
                           setSignatures(newSignatures);
@@ -808,7 +1010,11 @@ export default function CommitteeAnnualReports() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => setSignatures(signatures.filter((_, i) => i !== index))}
+                        onClick={() =>
+                          setSignatures(
+                            signatures.filter((_, i) => i !== index)
+                          )
+                        }
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -826,7 +1032,12 @@ export default function CommitteeAnnualReports() {
               <CardContent>
                 <div>
                   <Label>Estado</Label>
-                  <Select value={formData.status} onValueChange={(value: any) => setFormData({ ...formData, status: value })}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value: any) =>
+                      setFormData({ ...formData, status: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -848,7 +1059,7 @@ export default function CommitteeAnnualReports() {
                 type="submit"
                 loading={createMutation.isPending || updateMutation.isPending}
               >
-                {editingId ? 'Actualizar' : 'Crear'} Reporte
+                {editingId ? "Actualizar" : "Crear"} Reporte
               </LoadingButton>
             </div>
           </form>
@@ -871,7 +1082,10 @@ export default function CommitteeAnnualReports() {
                 <CardTitle>Reuniones por Mes</CardTitle>
               </CardHeader>
               <CardContent>
-                <Bar data={meetingsChartData} options={{ responsive: true, maintainAspectRatio: true }} />
+                <Bar
+                  data={meetingsChartData}
+                  options={{ responsive: true, maintainAspectRatio: true }}
+                />
               </CardContent>
             </Card>
 
@@ -880,7 +1094,10 @@ export default function CommitteeAnnualReports() {
                 <CardTitle>Casos Atendidos por Categoría</CardTitle>
               </CardHeader>
               <CardContent>
-                <Doughnut data={casesChartData} options={{ responsive: true, maintainAspectRatio: true }} />
+                <Doughnut
+                  data={casesChartData}
+                  options={{ responsive: true, maintainAspectRatio: true }}
+                />
               </CardContent>
             </Card>
 
@@ -910,7 +1127,7 @@ export default function CommitteeAnnualReports() {
 
       <ConfirmDialog
         open={deleteConfirm !== null}
-        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onOpenChange={open => !open && setDeleteConfirm(null)}
         onConfirm={confirmDelete}
         title="Eliminar Reporte Anual"
         description={`¿Estás seguro de eliminar el reporte anual del año ${deleteConfirm?.year}? Esta acción no se puede deshacer.`}

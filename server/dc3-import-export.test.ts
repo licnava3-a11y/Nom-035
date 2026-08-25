@@ -38,7 +38,8 @@ const DATOS_PRUEBA = [
     workerPosition: "Analista Administrativo",
     companyName: "INDUSTRIAS MONTERREY S.A. DE C.V.",
     companyRfc: "IMO850101AAA",
-    courseName: "Prevención de Factores de Riesgo Psicosocial NOM-035-STPS-2018",
+    courseName:
+      "Prevención de Factores de Riesgo Psicosocial NOM-035-STPS-2018",
     courseDurationHours: 16,
     periodStartDate: "2025-01-15",
     periodEndDate: "2025-01-16",
@@ -220,7 +221,8 @@ const DATOS_PRUEBA = [
     periodEndDate: "2025-09-16",
     thematicAreaKey: "6000",
     thematicAreaDesc: "Seguridad",
-    trainingAgentName: "COFEPRIS — Comisión Federal para la Protección contra Riesgos Sanitarios",
+    trainingAgentName:
+      "COFEPRIS — Comisión Federal para la Protección contra Riesgos Sanitarios",
     instructorName: "Q.F.B. ADRIANA MORALES SOTO",
     employerRepName: "ING. BERNARDO ESTRADA VILLA",
     workerRepName: "",
@@ -277,27 +279,27 @@ function buildTestWorkbook(data: typeof DATOS_PRUEBA): Buffer {
     "Folio\n(Auto-generado al emitir)",
     "Notas internas",
   ];
-  const rows = data.map((d) => [
-    d.workerName,       // A(0)
-    d.workerCurp,       // B(1)
+  const rows = data.map(d => [
+    d.workerName, // A(0)
+    d.workerCurp, // B(1)
     d.workerOccupationCnoKey, // C(2)
     d.workerOccupationCnoDesc, // D(3)
-    d.workerPosition,   // E(4)
-    d.companyName,      // F(5)
-    d.companyRfc,       // G(6)
-    d.courseName,       // H(7)
+    d.workerPosition, // E(4)
+    d.companyName, // F(5)
+    d.companyRfc, // G(6)
+    d.courseName, // H(7)
     String(d.courseDurationHours), // I(8)
-    d.periodStartDate,  // J(9)
-    d.periodEndDate,    // K(10)
-    d.thematicAreaKey,  // L(11)
+    d.periodStartDate, // J(9)
+    d.periodEndDate, // K(10)
+    d.thematicAreaKey, // L(11)
     d.thematicAreaDesc, // M(12)
     d.trainingAgentName, // N(13)
-    d.instructorName,   // O(14)
-    d.employerRepName,  // P(15)
-    d.workerRepName,    // Q(16)
-    d.status,           // R(17)
-    d.folioNumber,      // S(18)
-    d.notes,            // T(19)
+    d.instructorName, // O(14)
+    d.employerRepName, // P(15)
+    d.workerRepName, // Q(16)
+    d.status, // R(17)
+    d.folioNumber, // S(18)
+    d.notes, // T(19)
   ]);
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
   XLSX.utils.book_append_sheet(wb, ws, "DC-3 Plantilla");
@@ -305,17 +307,23 @@ function buildTestWorkbook(data: typeof DATOS_PRUEBA): Buffer {
 }
 
 // ─── Helper: simular la función importFromExcel del servidor ──────────────────
-function parseImportedRows(buffer: Buffer): Record<string, string | number | null>[] {
+function parseImportedRows(
+  buffer: Buffer
+): Record<string, string | number | null>[] {
   const wb = XLSX.read(buffer, { type: "buffer" });
   const sheetName = wb.SheetNames[0];
   const ws = wb.Sheets[sheetName];
-  const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1 }) as unknown[][];
+  const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, {
+    header: 1,
+  }) as unknown[][];
   if (rows.length < 2) throw new Error("El archivo no contiene datos");
 
-  const dataRows = rows.slice(1).filter((row) => (row as unknown[])[0]);
-  return dataRows.map((rawRow) => {
+  const dataRows = rows.slice(1).filter(row => (row as unknown[])[0]);
+  return dataRows.map(rawRow => {
     const row = rawRow as (string | number | undefined)[];
-    const statusRaw = String(row[17] ?? "draft").trim().toLowerCase();
+    const statusRaw = String(row[17] ?? "draft")
+      .trim()
+      .toLowerCase();
     const status = ["draft", "issued", "cancelled"].includes(statusRaw)
       ? statusRaw
       : "draft";
@@ -351,7 +359,9 @@ describe("DC-3 Importación y Exportación — Validación de 20 campos oficiale
     const buffer = buildTestWorkbook(DATOS_PRUEBA);
     const wb = XLSX.read(buffer, { type: "buffer" });
     const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1 }) as unknown[][];
+    const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, {
+      header: 1,
+    }) as unknown[][];
     const header = rows[0] as string[];
     expect(header).toHaveLength(20);
     // Verificar que los encabezados contienen los campos obligatorios
@@ -365,7 +375,9 @@ describe("DC-3 Importación y Exportación — Validación de 20 campos oficiale
     const buffer = buildTestWorkbook(DATOS_PRUEBA);
     const wb = XLSX.read(buffer, { type: "buffer" });
     const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1 }) as unknown[][];
+    const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, {
+      header: 1,
+    }) as unknown[][];
     // 1 encabezado + 10 datos
     expect(rows.length).toBe(11);
   });
@@ -384,7 +396,9 @@ describe("DC-3 Importación y Exportación — Validación de 20 campos oficiale
     expect(r0.workerPosition).toBe("Analista Administrativo");
     expect(r0.companyName).toBe("INDUSTRIAS MONTERREY S.A. DE C.V.");
     expect(r0.companyRfc).toBe("IMO850101AAA");
-    expect(r0.courseName).toBe("Prevención de Factores de Riesgo Psicosocial NOM-035-STPS-2018");
+    expect(r0.courseName).toBe(
+      "Prevención de Factores de Riesgo Psicosocial NOM-035-STPS-2018"
+    );
     expect(r0.courseDurationHours).toBe(16);
     expect(r0.periodStartDate).toBe("2025-01-15");
     expect(r0.periodEndDate).toBe("2025-01-16");
@@ -412,7 +426,7 @@ describe("DC-3 Importación y Exportación — Validación de 20 campos oficiale
   it("El campo duración se convierte correctamente a número entero", () => {
     const buffer = buildTestWorkbook(DATOS_PRUEBA);
     const parsed = parseImportedRows(buffer);
-    const duraciones = parsed.map((r) => r.courseDurationHours);
+    const duraciones = parsed.map(r => r.courseDurationHours);
     expect(duraciones[0]).toBe(16);
     expect(duraciones[1]).toBe(8);
     expect(duraciones[2]).toBe(24);
@@ -506,8 +520,12 @@ describe("DC-3 Importación y Exportación — Validación de 20 campos oficiale
 
       expect(imported.workerName).toBe(original.workerName);
       expect(imported.workerCurp).toBe(original.workerCurp || null);
-      expect(imported.workerOccupationCnoKey).toBe(original.workerOccupationCnoKey || null);
-      expect(imported.workerOccupationCnoDesc).toBe(original.workerOccupationCnoDesc || null);
+      expect(imported.workerOccupationCnoKey).toBe(
+        original.workerOccupationCnoKey || null
+      );
+      expect(imported.workerOccupationCnoDesc).toBe(
+        original.workerOccupationCnoDesc || null
+      );
       expect(imported.workerPosition).toBe(original.workerPosition || null);
       expect(imported.companyName).toBe(original.companyName);
       expect(imported.companyRfc).toBe(original.companyRfc || null);
@@ -517,7 +535,9 @@ describe("DC-3 Importación y Exportación — Validación de 20 campos oficiale
       expect(imported.periodEndDate).toBe(original.periodEndDate || null);
       expect(imported.thematicAreaKey).toBe(original.thematicAreaKey || null);
       expect(imported.thematicAreaDesc).toBe(original.thematicAreaDesc || null);
-      expect(imported.trainingAgentName).toBe(original.trainingAgentName || null);
+      expect(imported.trainingAgentName).toBe(
+        original.trainingAgentName || null
+      );
       expect(imported.instructorName).toBe(original.instructorName || null);
       expect(imported.employerRepName).toBe(original.employerRepName || null);
       expect(imported.workerRepName).toBe(original.workerRepName || null);

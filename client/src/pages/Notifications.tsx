@@ -1,5 +1,11 @@
 import { Bell, Check, CheckCheck } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -12,9 +18,10 @@ import { toast } from "sonner";
 export default function Notifications() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
-  
-  const { data: notifications = [], isLoading } = trpc.notifications.getAll.useQuery({ limit: 100 });
-  
+
+  const { data: notifications = [], isLoading } =
+    trpc.notifications.getAll.useQuery({ limit: 100 });
+
   const markAsRead = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
       utils.notifications.getAll.invalidate();
@@ -22,20 +29,26 @@ export default function Notifications() {
       toast.success("Notificación marcada como leída");
     },
   });
-  
+
   const handleNotificationClick = (notification: any) => {
     if (!notification.isRead) {
       markAsRead.mutate({ id: notification.id });
     }
-    
+
     // Navigate to related entity
-    if (notification.relatedEntityType === "case" && notification.relatedEntityId) {
+    if (
+      notification.relatedEntityType === "case" &&
+      notification.relatedEntityId
+    ) {
       setLocation(`/cases/${notification.relatedEntityId}`);
-    } else if (notification.relatedEntityType === "mailbox" && notification.relatedEntityId) {
+    } else if (
+      notification.relatedEntityType === "mailbox" &&
+      notification.relatedEntityId
+    ) {
       setLocation("/mailbox");
     }
   };
-  
+
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "new_case":
@@ -51,7 +64,7 @@ export default function Notifications() {
         return "🔔";
     }
   };
-  
+
   const getNotificationTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
       new_case: "Nuevo Caso",
@@ -64,7 +77,7 @@ export default function Notifications() {
     };
     return labels[type] || type;
   };
-  
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleString("es-MX", {
       day: "2-digit",
@@ -74,10 +87,10 @@ export default function Notifications() {
       minute: "2-digit",
     });
   };
-  
+
   const unreadNotifications = notifications.filter((n: any) => !n.isRead);
   const readNotifications = notifications.filter((n: any) => n.isRead);
-  
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -90,7 +103,7 @@ export default function Notifications() {
       </div>
     );
   }
-  
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -106,14 +119,15 @@ export default function Notifications() {
           </Badge>
         </div>
       </div>
-      
+
       {notifications.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Bell className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-lg font-medium mb-2">No hay notificaciones</p>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Cuando recibas notificaciones sobre casos, solicitudes o actualizaciones del sistema, aparecerán aquí.
+              Cuando recibas notificaciones sobre casos, solicitudes o
+              actualizaciones del sistema, aparecerán aquí.
             </p>
           </CardContent>
         </Card>
@@ -126,7 +140,7 @@ export default function Notifications() {
                 <Badge>{unreadNotifications.length}</Badge>
               </div>
               {unreadNotifications.map((notification: any) => (
-                <Card 
+                <Card
                   key={notification.id}
                   className="cursor-pointer hover:bg-accent/50 transition-colors border-l-4 border-l-blue-500"
                   onClick={() => handleNotificationClick(notification)}
@@ -134,15 +148,21 @@ export default function Notifications() {
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3 flex-1">
-                        <div className="text-2xl mt-1">{getNotificationIcon(notification.type)}</div>
+                        <div className="text-2xl mt-1">
+                          {getNotificationIcon(notification.type)}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <CardTitle className="text-base">{notification.title}</CardTitle>
+                            <CardTitle className="text-base">
+                              {notification.title}
+                            </CardTitle>
                             <Badge variant="outline" className="text-xs">
                               {getNotificationTypeLabel(notification.type)}
                             </Badge>
                           </div>
-                          <CardDescription>{notification.message}</CardDescription>
+                          <CardDescription>
+                            {notification.message}
+                          </CardDescription>
                           <p className="text-xs text-muted-foreground mt-2">
                             {formatDate(notification.createdAt)}
                           </p>
@@ -151,7 +171,7 @@ export default function Notifications() {
                       <ProtectedButton
                         variant="ghost"
                         size="icon"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           markAsRead.mutate({ id: notification.id });
                         }}
@@ -166,7 +186,7 @@ export default function Notifications() {
               ))}
             </div>
           )}
-          
+
           {readNotifications.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -174,22 +194,28 @@ export default function Notifications() {
                 <CheckCheck className="h-5 w-5 text-muted-foreground" />
               </div>
               {readNotifications.map((notification: any) => (
-                <Card 
+                <Card
                   key={notification.id}
                   className="cursor-pointer hover:bg-accent/50 transition-colors opacity-70"
                   onClick={() => handleNotificationClick(notification)}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start gap-3">
-                      <div className="text-2xl mt-1">{getNotificationIcon(notification.type)}</div>
+                      <div className="text-2xl mt-1">
+                        {getNotificationIcon(notification.type)}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <CardTitle className="text-base">{notification.title}</CardTitle>
+                          <CardTitle className="text-base">
+                            {notification.title}
+                          </CardTitle>
                           <Badge variant="outline" className="text-xs">
                             {getNotificationTypeLabel(notification.type)}
                           </Badge>
                         </div>
-                        <CardDescription>{notification.message}</CardDescription>
+                        <CardDescription>
+                          {notification.message}
+                        </CardDescription>
                         <p className="text-xs text-muted-foreground mt-2">
                           {formatDate(notification.createdAt)}
                         </p>

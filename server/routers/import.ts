@@ -29,7 +29,9 @@ function generateErrorReportPDF(errors: ValidationError[]): Buffer {
 
   // Resumen
   const errorCount = errors.filter((e: any) => e.severity === "error").length;
-  const warningCount = errors.filter((e: any) => e.severity === "warning").length;
+  const warningCount = errors.filter(
+    (e: any) => e.severity === "warning"
+  ).length;
 
   doc.setFontSize(12);
   doc.text("Resumen:", 14, 45);
@@ -41,7 +43,9 @@ function generateErrorReportPDF(errors: ValidationError[]): Buffer {
   const tableData = errors.map((error: any) => [
     error.row.toString(),
     error.field,
-    error.value !== null && error.value !== undefined ? String(error.value) : "N/A",
+    error.value !== null && error.value !== undefined
+      ? String(error.value)
+      : "N/A",
     error.error,
     error.severity === "error" ? "Error" : "Advertencia",
   ]);
@@ -99,7 +103,7 @@ function parseDateDDMMYYYY(dateStr: string): Date | null {
   const year = parseInt(parts[2], 10);
 
   const date = new Date(year, month, day);
-  
+
   // Verificar que la fecha sea válida
   if (
     date.getDate() !== day ||
@@ -217,7 +221,8 @@ export const importRouter = router({
                 row: rowNumber,
                 field: "Correo Electrónico",
                 value: worker.correoElectronico,
-                error: "Ya existe un trabajador con este correo electrónico en el sistema",
+                error:
+                  "Ya existe un trabajador con este correo electrónico en el sistema",
                 severity: "warning",
               });
             }
@@ -287,7 +292,8 @@ export const importRouter = router({
           summary: {
             total: workers.length,
             errors: errors.filter((e: any) => e.severity === "error").length,
-            warnings: errors.filter((e: any) => e.severity === "warning").length,
+            warnings: errors.filter((e: any) => e.severity === "warning")
+              .length,
           },
         };
       } catch (error) {
@@ -338,7 +344,8 @@ export const importRouter = router({
       }
 
       let successCount = 0;
-      const failedWorkers: Array<{ worker: WorkerFromExcel; error: string }> = [];
+      const failedWorkers: Array<{ worker: WorkerFromExcel; error: string }> =
+        [];
 
       for (const worker of input.workers) {
         try {
@@ -364,12 +371,27 @@ export const importRouter = router({
             telefono: worker.telefono,
             fechaNacimiento: birthDate,
             sexo: worker.sexo as "Masculino" | "Femenino" | "Otro",
-            estadoCivil: worker.estadoCivil as "Soltero(a)" | "Casado(a)" | "Divorciado(a)" | "Viudo(a)" | "Unión libre" | undefined,
+            estadoCivil: worker.estadoCivil as
+              | "Soltero(a)"
+              | "Casado(a)"
+              | "Divorciado(a)"
+              | "Viudo(a)"
+              | "Unión libre"
+              | undefined,
             puesto: worker.puesto,
             departamento: worker.departamento || "Administración",
             fechaIngreso: hireDate,
-            tipoContrato: worker.tipoContrato as "Planta" | "Temporal" | "Por obra" | "Honorarios" | "Otro",
-            jornadaLaboral: worker.jornadaLaboral as "Diurna" | "Nocturna" | "Mixta" | "Por turnos",
+            tipoContrato: worker.tipoContrato as
+              | "Planta"
+              | "Temporal"
+              | "Por obra"
+              | "Honorarios"
+              | "Otro",
+            jornadaLaboral: worker.jornadaLaboral as
+              | "Diurna"
+              | "Nocturna"
+              | "Mixta"
+              | "Por turnos",
             direccion: worker.direccion,
             ultimoGradoEstudios: worker.ultimoGradoEstudios,
             nombreCarrera: worker.nombreCarrera,

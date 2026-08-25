@@ -5,37 +5,45 @@
  * Envía correos HTML a los reportantes de cada caso con enlace único de encuesta
  */
 
-import cron from 'node-cron';
-import crypto from 'crypto';
-import { getDb } from '../db';
-import { cases, postCaseSurveys } from '../../drizzle/schema';
-import { eq, and, sql, lte } from 'drizzle-orm';
-import { sendEmail } from '../lib/email-sender';
+import cron from "node-cron";
+import crypto from "crypto";
+import { getDb } from "../db";
+import { cases, postCaseSurveys } from "../../drizzle/schema";
+import { eq, and, sql, lte } from "drizzle-orm";
+import { sendEmail } from "../lib/email-sender";
 
 // ─── URL base de la plataforma ────────────────────────────────────────────────
 
 function getBaseUrl(): string {
-  return process.env.VITE_APP_URL
-    || process.env.APP_URL
-    || 'https://nom035mood-32dy4ksx.manus.space';
+  return (
+    process.env.VITE_APP_URL ||
+    process.env.APP_URL ||
+    "https://nom035mood-32dy4ksx.manus.space"
+  );
 }
 
 // ─── Utilidad: Reintentos con Backoff Exponencial ────────────────────────────
 
-const RETRYABLE_ERRORS = ['ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED', 'EPIPE', 'ENOTFOUND'];
+const RETRYABLE_ERRORS = [
+  "ECONNRESET",
+  "ETIMEDOUT",
+  "ECONNREFUSED",
+  "EPIPE",
+  "ENOTFOUND",
+];
 
 function isRetryableError(error: unknown): boolean {
-  if (!error || typeof error !== 'object') return false;
-  const code = (error as NodeJS.ErrnoException).code ?? '';
-  const message = (error as Error).message ?? '';
-  return RETRYABLE_ERRORS.some((e) => code.includes(e) || message.includes(e));
+  if (!error || typeof error !== "object") return false;
+  const code = (error as NodeJS.ErrnoException).code ?? "";
+  const message = (error as Error).message ?? "";
+  return RETRYABLE_ERRORS.some(e => code.includes(e) || message.includes(e));
 }
 
 async function withRetry<T>(
   fn: () => Promise<T>,
   options: { maxAttempts?: number; baseDelayMs?: number; label?: string } = {}
 ): Promise<T> {
-  const { maxAttempts = 3, baseDelayMs = 500, label = 'operation' } = options;
+  const { maxAttempts = 3, baseDelayMs = 500, label = "operation" } = options;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -56,11 +64,13 @@ async function withRetry<T>(
       console.warn(
         `[Post-Case Surveys Job] ${label} attempt ${attempt} failed (${(error as Error).message}). Retrying in ${delay}ms...`
       );
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 
-  throw new Error(`[Post-Case Surveys Job] ${label} exhausted all ${maxAttempts} attempts`);
+  throw new Error(
+    `[Post-Case Surveys Job] ${label} exhausted all ${maxAttempts} attempts`
+  );
 }
 
 // ─── Plantilla HTML del correo ────────────────────────────────────────────────
@@ -72,11 +82,12 @@ function buildSurveyEmailHtml(params: {
   surveyUrl: string;
   expiresAt: Date;
 }): string {
-  const { reporterName, caseNumber, daysSinceClosure, surveyUrl, expiresAt } = params;
-  const expiresFormatted = expiresAt.toLocaleDateString('es-MX', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
+  const { reporterName, caseNumber, daysSinceClosure, surveyUrl, expiresAt } =
+    params;
+  const expiresFormatted = expiresAt.toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   });
 
   return `<!DOCTYPE html>
@@ -177,7 +188,7 @@ async function createPendingSurveys() {
     async () => {
       const db = await getDb();
       if (!db) {
-        console.error('[Post-Case Surveys Job] Database not available');
+        console.error("[Post-Case Surveys Job] Database not available");
         return { surveysCreated: 0 };
       }
 
@@ -206,7 +217,8 @@ async function createPendingSurveys() {
         if (!caso.closedAt) continue;
 
         const daysSinceClosure = Math.floor(
-          (now.getTime() - new Date(caso.closedAt).getTime()) / (1000 * 60 * 60 * 24)
+          (now.getTime() - new Date(caso.closedAt).getTime()) /
+            (1000 * 60 * 60 * 24)
         );
 
         const periods: Array<30 | 60 | 90> = [30, 60, 90];
@@ -227,12 +239,12 @@ async function createPendingSurveys() {
 
             if (!existing) {
               // Generar token único para acceso sin login
-              const token = crypto.randomBytes(32).toString('hex');
+              const token = crypto.randomBytes(32).toString("hex");
 
               await (db.insert(postCaseSurveys) as any).values({
                 caseId: caso.id,
                 daysSinceClosure: period,
-                status: 'pending',
+                status: "pending",
                 surveyToken: token,
               });
               surveysCreated++;
@@ -244,12 +256,17 @@ async function createPendingSurveys() {
         }
       }
 
-      console.log(`[Post-Case Surveys Job] Created ${surveysCreated} pending surveys`);
+      console.log(
+        `[Post-Case Surveys Job] Created ${surveysCreated} pending surveys`
+      );
       return { surveysCreated };
     },
-    { label: 'createPendingSurveys', maxAttempts: 3, baseDelayMs: 500 }
-  ).catch((error) => {
-    console.error('[Post-Case Surveys Job] createPendingSurveys failed after retries:', error);
+    { label: "createPendingSurveys", maxAttempts: 3, baseDelayMs: 500 }
+  ).catch(error => {
+    console.error(
+      "[Post-Case Surveys Job] createPendingSurveys failed after retries:",
+      error
+    );
     return { surveysCreated: 0 };
   });
 }
@@ -261,7 +278,7 @@ async function sendPendingSurveys() {
     async () => {
       const db = await getDb();
       if (!db) {
-        console.error('[Post-Case Surveys Job] Database not available');
+        console.error("[Post-Case Surveys Job] Database not available");
         return { surveysSent: 0, emailsSent: 0, emailsFailed: 0 };
       }
 
@@ -281,7 +298,7 @@ async function sendPendingSurveys() {
         })
         .from(postCaseSurveys)
         .innerJoin(cases, eq(postCaseSurveys.caseId, cases.id))
-        .where(eq(postCaseSurveys.status, 'pending'));
+        .where(eq(postCaseSurveys.status, "pending"));
 
       let surveysSent = 0;
       let emailsSent = 0;
@@ -291,7 +308,7 @@ async function sendPendingSurveys() {
         // Generar token si no existe (para encuestas creadas antes de esta versión)
         let token = survey.surveyToken;
         if (!token) {
-          token = crypto.randomBytes(32).toString('hex');
+          token = crypto.randomBytes(32).toString("hex");
           await db
             .update(postCaseSurveys)
             .set({ surveyToken: token } as any)
@@ -301,7 +318,7 @@ async function sendPendingSurveys() {
         // Actualizar estado a 'sent'
         await db
           .update(postCaseSurveys)
-          .set({ status: 'sent', sentAt: now, expiresAt } as any)
+          .set({ status: "sent", sentAt: now, expiresAt } as any)
           .where(eq(postCaseSurveys.id, survey.surveyId));
 
         surveysSent++;
@@ -310,7 +327,7 @@ async function sendPendingSurveys() {
         const recipientEmail = survey.reporterEmail;
         if (recipientEmail && !survey.isAnonymous) {
           const surveyUrl = `${getBaseUrl()}/survey/${token}`;
-          const reporterName = survey.reporterName || 'Colaborador/a';
+          const reporterName = survey.reporterName || "Colaborador/a";
 
           const html = buildSurveyEmailHtml({
             reporterName,
@@ -324,7 +341,7 @@ async function sendPendingSurveys() {
             to: recipientEmail,
             subject: `Encuesta de Seguimiento - Caso ${survey.caseNumber} (${survey.daysSinceClosure} días)`,
             html,
-            text: `Estimado/a ${reporterName}, han transcurrido ${survey.daysSinceClosure} días desde el cierre del caso ${survey.caseNumber}. Por favor responda la encuesta en: ${surveyUrl} (válida hasta ${expiresAt.toLocaleDateString('es-MX')})`,
+            text: `Estimado/a ${reporterName}, han transcurrido ${survey.daysSinceClosure} días desde el cierre del caso ${survey.caseNumber}. Por favor responda la encuesta en: ${surveyUrl} (válida hasta ${expiresAt.toLocaleDateString("es-MX")})`,
           });
 
           if (sent) {
@@ -354,9 +371,12 @@ async function sendPendingSurveys() {
       );
       return { surveysSent, emailsSent, emailsFailed };
     },
-    { label: 'sendPendingSurveys', maxAttempts: 3, baseDelayMs: 500 }
-  ).catch((error) => {
-    console.error('[Post-Case Surveys Job] sendPendingSurveys failed after retries:', error);
+    { label: "sendPendingSurveys", maxAttempts: 3, baseDelayMs: 500 }
+  ).catch(error => {
+    console.error(
+      "[Post-Case Surveys Job] sendPendingSurveys failed after retries:",
+      error
+    );
     return { surveysSent: 0, emailsSent: 0, emailsFailed: 0 };
   });
 }
@@ -370,9 +390,12 @@ function buildReminderEmailHtml(params: {
   surveyUrl: string;
   expiresAt: Date;
 }): string {
-  const { reporterName, caseNumber, daysSinceClosure, surveyUrl, expiresAt } = params;
-  const expiresFormatted = expiresAt.toLocaleDateString('es-MX', {
-    day: '2-digit', month: 'long', year: 'numeric',
+  const { reporterName, caseNumber, daysSinceClosure, surveyUrl, expiresAt } =
+    params;
+  const expiresFormatted = expiresAt.toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   });
   return `<!DOCTYPE html>
 <html lang="es">
@@ -420,7 +443,7 @@ async function sendSurveyReminders() {
     async () => {
       const db = await getDb();
       if (!db) {
-        console.error('[Post-Case Surveys Job] Database not available');
+        console.error("[Post-Case Surveys Job] Database not available");
         return { remindersSent: 0, emailsSent: 0, emailsFailed: 0 };
       }
 
@@ -443,7 +466,7 @@ async function sendSurveyReminders() {
         .innerJoin(cases, eq(postCaseSurveys.caseId, cases.id))
         .where(
           and(
-            eq(postCaseSurveys.status, 'sent'),
+            eq(postCaseSurveys.status, "sent"),
             sql`${postCaseSurveys.sentAt} IS NOT NULL`,
             lte(postCaseSurveys.sentAt, threeDaysAgo),
             sql`${postCaseSurveys.reminderSentAt} IS NULL`,
@@ -466,7 +489,7 @@ async function sendSurveyReminders() {
         const recipientEmail = survey.reporterEmail;
         if (recipientEmail && !survey.isAnonymous && survey.surveyToken) {
           const surveyUrl = `${getBaseUrl()}/survey/${survey.surveyToken}`;
-          const reporterName = survey.reporterName || 'Colaborador/a';
+          const reporterName = survey.reporterName || "Colaborador/a";
           const expiresAt = survey.expiresAt
             ? new Date(survey.expiresAt)
             : new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000);
@@ -488,20 +511,29 @@ async function sendSurveyReminders() {
 
           if (sent) {
             emailsSent++;
-            console.log(`[Post-Case Surveys Job] Reminder sent to ${recipientEmail} for case ${survey.caseNumber}`);
+            console.log(
+              `[Post-Case Surveys Job] Reminder sent to ${recipientEmail} for case ${survey.caseNumber}`
+            );
           } else {
             emailsFailed++;
-            console.warn(`[Post-Case Surveys Job] Failed to send reminder to ${recipientEmail} for case ${survey.caseNumber}`);
+            console.warn(
+              `[Post-Case Surveys Job] Failed to send reminder to ${recipientEmail} for case ${survey.caseNumber}`
+            );
           }
         }
       }
 
-      console.log(`[Post-Case Surveys Job] Reminders: ${remindersSent} processed | Emails: ${emailsSent} sent, ${emailsFailed} failed`);
+      console.log(
+        `[Post-Case Surveys Job] Reminders: ${remindersSent} processed | Emails: ${emailsSent} sent, ${emailsFailed} failed`
+      );
       return { remindersSent, emailsSent, emailsFailed };
     },
-    { label: 'sendSurveyReminders', maxAttempts: 3, baseDelayMs: 500 }
-  ).catch((error) => {
-    console.error('[Post-Case Surveys Job] sendSurveyReminders failed after retries:', error);
+    { label: "sendSurveyReminders", maxAttempts: 3, baseDelayMs: 500 }
+  ).catch(error => {
+    console.error(
+      "[Post-Case Surveys Job] sendSurveyReminders failed after retries:",
+      error
+    );
     return { remindersSent: 0, emailsSent: 0, emailsFailed: 0 };
   });
 }
@@ -513,7 +545,7 @@ async function expireSurveys() {
     async () => {
       const db = await getDb();
       if (!db) {
-        console.error('[Post-Case Surveys Job] Database not available');
+        console.error("[Post-Case Surveys Job] Database not available");
         return { surveysExpired: 0 };
       }
 
@@ -524,7 +556,7 @@ async function expireSurveys() {
         .from(postCaseSurveys)
         .where(
           and(
-            eq(postCaseSurveys.status, 'sent'),
+            eq(postCaseSurveys.status, "sent"),
             sql`${postCaseSurveys.expiresAt} IS NOT NULL`,
             lte(postCaseSurveys.expiresAt, now)
           )
@@ -535,7 +567,7 @@ async function expireSurveys() {
       for (const survey of expiredSurveys) {
         await db
           .update(postCaseSurveys)
-          .set({ status: 'expired' } as any)
+          .set({ status: "expired" } as any)
           .where(eq(postCaseSurveys.id, survey.id));
         surveysExpired++;
       }
@@ -543,9 +575,12 @@ async function expireSurveys() {
       console.log(`[Post-Case Surveys Job] Expired ${surveysExpired} surveys`);
       return { surveysExpired };
     },
-    { label: 'expireSurveys', maxAttempts: 3, baseDelayMs: 500 }
-  ).catch((error) => {
-    console.error('[Post-Case Surveys Job] expireSurveys failed after retries:', error);
+    { label: "expireSurveys", maxAttempts: 3, baseDelayMs: 500 }
+  ).catch(error => {
+    console.error(
+      "[Post-Case Surveys Job] expireSurveys failed after retries:",
+      error
+    );
     return { surveysExpired: 0 };
   });
 }
@@ -553,7 +588,10 @@ async function expireSurveys() {
 // ─── Orquestador principal ────────────────────────────────────────────────────
 
 export async function runPostCaseSurveysJobs() {
-  console.log('[Post-Case Surveys Job] Starting automated jobs at', new Date().toISOString());
+  console.log(
+    "[Post-Case Surveys Job] Starting automated jobs at",
+    new Date().toISOString()
+  );
 
   // Crear primero, luego enviar (secuencial para evitar enviar encuestas recién creadas)
   const createResult = await createPendingSurveys();
@@ -573,17 +611,20 @@ export async function runPostCaseSurveysJobs() {
     expired: expireResult.surveysExpired,
   };
 
-  console.log('[Post-Case Surveys Job] Completed:', summary);
+  console.log("[Post-Case Surveys Job] Completed:", summary);
   return summary;
 }
 
 // ─── Programar cron diario a las 2:00 AM ─────────────────────────────────────
 
 export function schedulePostCaseSurveysJob() {
-  cron.schedule('0 2 * * *', async () => {
-    console.log('[Post-Case Surveys Job] Cron triggered at', new Date().toISOString());
+  cron.schedule("0 2 * * *", async () => {
+    console.log(
+      "[Post-Case Surveys Job] Cron triggered at",
+      new Date().toISOString()
+    );
     await runPostCaseSurveysJobs();
   });
 
-  console.log('[Post-Case Surveys Job] Scheduled to run daily at 2:00 AM');
+  console.log("[Post-Case Surveys Job] Scheduled to run daily at 2:00 AM");
 }

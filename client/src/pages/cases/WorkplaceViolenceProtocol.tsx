@@ -1,25 +1,64 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { AlertTriangle, FileText, Plus, Search, Filter, Eye } from "lucide-react";
+import {
+  AlertTriangle,
+  FileText,
+  Plus,
+  Search,
+  Filter,
+  Eye,
+} from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function WorkplaceViolenceProtocol() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<"activo" | "suspendido" | "cerrado" | "todos">("todos");
-  const [filterPriority, setFilterPriority] = useState<"baja" | "media" | "alta" | "critica" | "todas">("todas");
-  const [filterPhase, setFilterPhase] = useState<"recepcion" | "evaluacion_inicial" | "medidas_cautelares" | "investigacion" | "resolucion" | "seguimiento" | "cerrado" | "todas">("todas");
+  const [filterStatus, setFilterStatus] = useState<
+    "activo" | "suspendido" | "cerrado" | "todos"
+  >("todos");
+  const [filterPriority, setFilterPriority] = useState<
+    "baja" | "media" | "alta" | "critica" | "todas"
+  >("todas");
+  const [filterPhase, setFilterPhase] = useState<
+    | "recepcion"
+    | "evaluacion_inicial"
+    | "medidas_cautelares"
+    | "investigacion"
+    | "resolucion"
+    | "seguimiento"
+    | "cerrado"
+    | "todas"
+  >("todas");
 
   // Form state
   const [formData, setFormData] = useState({
@@ -34,24 +73,30 @@ export default function WorkplaceViolenceProtocol() {
   });
 
   // Queries
-  const { data: cases, isLoading, refetch } = trpc.workplaceViolence.listCases.useQuery({
+  const {
+    data: cases,
+    isLoading,
+    refetch,
+  } = trpc.workplaceViolence.listCases.useQuery({
     status: filterStatus,
     priority: filterPriority,
     phase: filterPhase,
   });
 
-  const { data: employeesData } = trpc.employees.list.useQuery({ pageSize: 1000 });
+  const { data: employeesData } = trpc.employees.list.useQuery({
+    pageSize: 1000,
+  });
   const employees = employeesData?.employees;
 
   // Mutations
   const createCaseMutation = trpc.workplaceViolence.createCase.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(`Caso creado exitosamente: ${data.folio}`);
       setIsDialogOpen(false);
       refetch();
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al crear caso: ${error.message}`);
     },
   });
@@ -84,8 +129,12 @@ export default function WorkplaceViolenceProtocol() {
     }
 
     createCaseMutation.mutate({
-      complainantId: formData.isAnonymous ? undefined : parseInt(formData.complainantId),
-      complainantName: formData.isAnonymous ? formData.complainantName : undefined,
+      complainantId: formData.isAnonymous
+        ? undefined
+        : parseInt(formData.complainantId),
+      complainantName: formData.isAnonymous
+        ? formData.complainantName
+        : undefined,
       accusedId: parseInt(formData.accusedId),
       complaintDate: formData.complaintDate,
       incidentDate: formData.incidentDate || undefined,
@@ -105,7 +154,11 @@ export default function WorkplaceViolenceProtocol() {
       suspendido: "Suspendido",
       cerrado: "Cerrado",
     };
-    return <Badge variant={variants[status] || "default"}>{labels[status] || status}</Badge>;
+    return (
+      <Badge variant={variants[status] || "default"}>
+        {labels[status] || status}
+      </Badge>
+    );
   };
 
   const getPriorityBadge = (priority: string) => {
@@ -121,7 +174,11 @@ export default function WorkplaceViolenceProtocol() {
       alta: "Alta",
       critica: "Crítica",
     };
-    return <Badge variant={variants[priority] || "default"}>{labels[priority] || priority}</Badge>;
+    return (
+      <Badge variant={variants[priority] || "default"}>
+        {labels[priority] || priority}
+      </Badge>
+    );
   };
 
   const getPhaseBadge = (phase: string) => {
@@ -172,7 +229,8 @@ export default function WorkplaceViolenceProtocol() {
             <DialogHeader>
               <DialogTitle>Recepción de Queja de Violencia Laboral</DialogTitle>
               <DialogDescription>
-                Complete el formulario para registrar una nueva queja de violencia laboral
+                Complete el formulario para registrar una nueva queja de
+                violencia laboral
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -183,7 +241,13 @@ export default function WorkplaceViolenceProtocol() {
                     type="checkbox"
                     id="anonymous"
                     checked={formData.isAnonymous}
-                    onChange={(e) => setFormData({ ...formData, isAnonymous: e.target.checked, complainantId: "" })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        isAnonymous: e.target.checked,
+                        complainantId: "",
+                      })
+                    }
                     className="h-4 w-4"
                   />
                   <Label htmlFor="anonymous">Denuncia anónima</Label>
@@ -192,25 +256,38 @@ export default function WorkplaceViolenceProtocol() {
 
               {formData.isAnonymous ? (
                 <div className="space-y-2">
-                  <Label htmlFor="complainantName">Nombre del denunciante (opcional)</Label>
+                  <Label htmlFor="complainantName">
+                    Nombre del denunciante (opcional)
+                  </Label>
                   <Input
                     id="complainantName"
                     placeholder="Puede dejarse en blanco para denuncias completamente anónimas"
                     value={formData.complainantName}
-                    onChange={(e) => setFormData({ ...formData, complainantName: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        complainantName: e.target.value,
+                      })
+                    }
                   />
                 </div>
               ) : (
                 <div className="space-y-2">
                   <Label htmlFor="complainant">Denunciante *</Label>
-                  <Select value={formData.complainantId} onValueChange={(value) => setFormData({ ...formData, complainantId: value })}>
+                  <Select
+                    value={formData.complainantId}
+                    onValueChange={value =>
+                      setFormData({ ...formData, complainantId: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione al denunciante" />
                     </SelectTrigger>
                     <SelectContent>
                       {employees?.map((emp: any) => (
                         <SelectItem key={emp.id} value={emp.id.toString()}>
-                          {emp.firstName} {emp.lastName} - Depto ID: {emp.departmentId || "N/A"}
+                          {emp.firstName} {emp.lastName} - Depto ID:{" "}
+                          {emp.departmentId || "N/A"}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -221,14 +298,20 @@ export default function WorkplaceViolenceProtocol() {
               {/* Persona Acusada */}
               <div className="space-y-2">
                 <Label htmlFor="accused">Persona Acusada *</Label>
-                <Select value={formData.accusedId} onValueChange={(value) => setFormData({ ...formData, accusedId: value })}>
+                <Select
+                  value={formData.accusedId}
+                  onValueChange={value =>
+                    setFormData({ ...formData, accusedId: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccione a la persona acusada" />
                   </SelectTrigger>
                   <SelectContent>
                     {employees?.map((emp: any) => (
                       <SelectItem key={emp.id} value={emp.id.toString()}>
-                        {emp.firstName} {emp.lastName} - Puesto ID: {emp.positionId || "N/A"}
+                        {emp.firstName} {emp.lastName} - Puesto ID:{" "}
+                        {emp.positionId || "N/A"}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -243,7 +326,12 @@ export default function WorkplaceViolenceProtocol() {
                     id="complaintDate"
                     type="date"
                     value={formData.complaintDate}
-                    onChange={(e) => setFormData({ ...formData, complaintDate: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        complaintDate: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -252,7 +340,9 @@ export default function WorkplaceViolenceProtocol() {
                     id="incidentDate"
                     type="date"
                     value={formData.incidentDate}
-                    onChange={(e) => setFormData({ ...formData, incidentDate: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, incidentDate: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -260,7 +350,12 @@ export default function WorkplaceViolenceProtocol() {
               {/* Prioridad */}
               <div className="space-y-2">
                 <Label htmlFor="priority">Nivel de Prioridad *</Label>
-                <Select value={formData.priority} onValueChange={(value: any) => setFormData({ ...formData, priority: value })}>
+                <Select
+                  value={formData.priority}
+                  onValueChange={(value: any) =>
+                    setFormData({ ...formData, priority: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -280,13 +375,21 @@ export default function WorkplaceViolenceProtocol() {
                   id="description"
                   placeholder="Describa detalladamente los hechos de violencia laboral..."
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   rows={6}
                 />
               </div>
 
-              <Button onClick={handleSubmit} disabled={createCaseMutation.isPending} className="w-full">
-                {createCaseMutation.isPending ? "Creando caso..." : "Registrar Queja"}
+              <Button
+                onClick={handleSubmit}
+                disabled={createCaseMutation.isPending}
+                className="w-full"
+              >
+                {createCaseMutation.isPending
+                  ? "Creando caso..."
+                  : "Registrar Queja"}
               </Button>
             </div>
           </DialogContent>
@@ -305,7 +408,10 @@ export default function WorkplaceViolenceProtocol() {
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Estado</Label>
-              <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+              <Select
+                value={filterStatus}
+                onValueChange={(value: any) => setFilterStatus(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -319,7 +425,10 @@ export default function WorkplaceViolenceProtocol() {
             </div>
             <div className="space-y-2">
               <Label>Prioridad</Label>
-              <Select value={filterPriority} onValueChange={(value: any) => setFilterPriority(value)}>
+              <Select
+                value={filterPriority}
+                onValueChange={(value: any) => setFilterPriority(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -334,15 +443,22 @@ export default function WorkplaceViolenceProtocol() {
             </div>
             <div className="space-y-2">
               <Label>Fase del Protocolo</Label>
-              <Select value={filterPhase} onValueChange={(value: any) => setFilterPhase(value)}>
+              <Select
+                value={filterPhase}
+                onValueChange={(value: any) => setFilterPhase(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todas">Todas</SelectItem>
                   <SelectItem value="recepcion">Recepción</SelectItem>
-                  <SelectItem value="evaluacion_inicial">Evaluación Inicial</SelectItem>
-                  <SelectItem value="medidas_cautelares">Medidas Cautelares</SelectItem>
+                  <SelectItem value="evaluacion_inicial">
+                    Evaluación Inicial
+                  </SelectItem>
+                  <SelectItem value="medidas_cautelares">
+                    Medidas Cautelares
+                  </SelectItem>
                   <SelectItem value="investigacion">Investigación</SelectItem>
                   <SelectItem value="resolucion">Resolución</SelectItem>
                   <SelectItem value="seguimiento">Seguimiento</SelectItem>
@@ -366,32 +482,43 @@ export default function WorkplaceViolenceProtocol() {
           {cases && cases.length > 0 ? (
             <div className="space-y-4">
               {cases.map((caseItem: any) => (
-                <div key={caseItem.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                <div
+                  key={caseItem.id}
+                  className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="font-mono font-semibold">{caseItem.folio}</span>
+                        <span className="font-mono font-semibold">
+                          {caseItem.folio}
+                        </span>
                         {getStatusBadge(caseItem.status)}
                         {getPriorityBadge(caseItem.priority)}
                         {getPhaseBadge(caseItem.currentPhase)}
                       </div>
                       <div className="text-sm space-y-1">
                         <p>
-                          <span className="font-medium">Acusado:</span> {caseItem.accusedName} {caseItem.accusedLastName}
+                          <span className="font-medium">Acusado:</span>{" "}
+                          {caseItem.accusedName} {caseItem.accusedLastName}
                         </p>
                         <p>
                           <span className="font-medium">Denunciante:</span>{" "}
                           {caseItem.complainantName || "Anónimo"}
                         </p>
                         <p className="text-muted-foreground">
-                          Recibido: {new Date(caseItem.complaintDate).toLocaleDateString()}
+                          Recibido:{" "}
+                          {new Date(
+                            caseItem.complaintDate
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setLocation(`/cases/workplace-violence/${caseItem.id}`)}
+                      onClick={() =>
+                        setLocation(`/cases/workplace-violence/${caseItem.id}`)
+                      }
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       Ver Detalles
@@ -403,7 +530,9 @@ export default function WorkplaceViolenceProtocol() {
           ) : (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No se encontraron casos con los filtros seleccionados</p>
+              <p className="text-muted-foreground">
+                No se encontraron casos con los filtros seleccionados
+              </p>
             </div>
           )}
         </CardContent>

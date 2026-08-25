@@ -6,17 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  FileText, 
-  Edit, 
-  CheckCircle, 
-  XCircle, 
-  RotateCcw, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  FileText,
+  Edit,
+  CheckCircle,
+  XCircle,
+  RotateCcw,
   Calendar,
   User,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -27,45 +33,50 @@ interface OperatingRulesTimelineProps {
 
 type EventType = "created" | "updated" | "approved" | "rejected" | "restored";
 
-const eventConfig: Record<EventType, { 
-  icon: React.ComponentType<{ className?: string }>, 
-  color: string, 
-  bgColor: string, 
-  label: string 
-}> = {
-  created: { 
-    icon: FileText, 
-    color: "text-blue-600", 
-    bgColor: "bg-blue-100", 
-    label: "Creación" 
+const eventConfig: Record<
+  EventType,
+  {
+    icon: React.ComponentType<{ className?: string }>;
+    color: string;
+    bgColor: string;
+    label: string;
+  }
+> = {
+  created: {
+    icon: FileText,
+    color: "text-blue-600",
+    bgColor: "bg-blue-100",
+    label: "Creación",
   },
-  updated: { 
-    icon: Edit, 
-    color: "text-purple-600", 
-    bgColor: "bg-purple-100", 
-    label: "Actualización" 
+  updated: {
+    icon: Edit,
+    color: "text-purple-600",
+    bgColor: "bg-purple-100",
+    label: "Actualización",
   },
-  approved: { 
-    icon: CheckCircle, 
-    color: "text-green-600", 
-    bgColor: "bg-green-100", 
-    label: "Aprobación" 
+  approved: {
+    icon: CheckCircle,
+    color: "text-green-600",
+    bgColor: "bg-green-100",
+    label: "Aprobación",
   },
-  rejected: { 
-    icon: XCircle, 
-    color: "text-red-600", 
-    bgColor: "bg-red-100", 
-    label: "Rechazo" 
+  rejected: {
+    icon: XCircle,
+    color: "text-red-600",
+    bgColor: "bg-red-100",
+    label: "Rechazo",
   },
-  restored: { 
-    icon: RotateCcw, 
-    color: "text-orange-600", 
-    bgColor: "bg-orange-100", 
-    label: "Restauración" 
+  restored: {
+    icon: RotateCcw,
+    color: "text-orange-600",
+    bgColor: "bg-orange-100",
+    label: "Restauración",
   },
 };
 
-export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimelineProps) {
+export function OperatingRulesTimeline({
+  operatingRuleId,
+}: OperatingRulesTimelineProps) {
   const [selectedEventTypes, setSelectedEventTypes] = useState<EventType[]>([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -73,23 +84,32 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
   const [offset, setOffset] = useState(0);
   const [expandedEvents, setExpandedEvents] = useState<Set<number>>(new Set());
 
-  const { data: historyData, isLoading } = trpc.committeeOperatingRules.getOperatingRulesHistory.useQuery({
-    operatingRuleId,
-    eventTypes: selectedEventTypes.length > 0 ? selectedEventTypes : undefined,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
-    userId: selectedUserId,
-    limit: 50,
-    offset,
-  });
+  const { data: historyData, isLoading } =
+    trpc.committeeOperatingRules.getOperatingRulesHistory.useQuery({
+      operatingRuleId,
+      eventTypes:
+        selectedEventTypes.length > 0 ? selectedEventTypes : undefined,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      userId: selectedUserId,
+      limit: 50,
+      offset,
+    });
 
   // Obtener lista de usuarios únicos para el filtro
-  const uniqueUsers = historyData?.events.reduce((acc: any, event: any) => {
-    if (event.userId && !acc.find((u: { id: number; name: string }) => u.id === event.userId)) {
-      acc.push({ id: event.userId, name: event.userName || "Desconocido" });
-    }
-    return acc;
-  }, [] as { id: number; name: string }[]) || [];
+  const uniqueUsers =
+    historyData?.events.reduce(
+      (acc: any, event: any) => {
+        if (
+          event.userId &&
+          !acc.find((u: { id: number; name: string }) => u.id === event.userId)
+        ) {
+          acc.push({ id: event.userId, name: event.userName || "Desconocido" });
+        }
+        return acc;
+      },
+      [] as { id: number; name: string }[]
+    ) || [];
 
   const toggleEventType = (eventType: EventType) => {
     setSelectedEventTypes(prev =>
@@ -132,26 +152,31 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
           <div className="space-y-2">
             <Label>Tipo de Evento</Label>
             <div className="flex flex-wrap gap-3">
-              {(Object.keys(eventConfig) as EventType[]).map((eventType: any) => {
-                const config = eventConfig[eventType as EventType];
-                const Icon = config.icon;
-                return (
-                  <div key={eventType} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`event-${eventType}`}
-                      checked={selectedEventTypes.includes(eventType)}
-                      onCheckedChange={() => toggleEventType(eventType)}
-                    />
-                    <Label
-                      htmlFor={`event-${eventType}`}
-                      className="flex items-center gap-2 cursor-pointer"
+              {(Object.keys(eventConfig) as EventType[]).map(
+                (eventType: any) => {
+                  const config = eventConfig[eventType as EventType];
+                  const Icon = config.icon;
+                  return (
+                    <div
+                      key={eventType}
+                      className="flex items-center space-x-2"
                     >
-                      <Icon className={`h-4 w-4 ${config.color}`} />
-                      <span>{config.label}</span>
-                    </Label>
-                  </div>
-                );
-              })}
+                      <Checkbox
+                        id={`event-${eventType}`}
+                        checked={selectedEventTypes.includes(eventType)}
+                        onCheckedChange={() => toggleEventType(eventType)}
+                      />
+                      <Label
+                        htmlFor={`event-${eventType}`}
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <Icon className={`h-4 w-4 ${config.color}`} />
+                        <span>{config.label}</span>
+                      </Label>
+                    </div>
+                  );
+                }
+              )}
             </div>
           </div>
 
@@ -163,7 +188,7 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
                 id="start-date"
                 type="date"
                 value={startDate}
-                onChange={(e) => {
+                onChange={e => {
                   setStartDate(e.target.value);
                   setOffset(0);
                 }}
@@ -175,7 +200,7 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
                 id="end-date"
                 type="date"
                 value={endDate}
-                onChange={(e) => {
+                onChange={e => {
                   setEndDate(e.target.value);
                   setOffset(0);
                 }}
@@ -189,8 +214,10 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
               <Label htmlFor="user-filter">Usuario</Label>
               <Select
                 value={selectedUserId?.toString() || "all"}
-                onValueChange={(value) => {
-                  setSelectedUserId(value === "all" ? undefined : parseInt(value));
+                onValueChange={value => {
+                  setSelectedUserId(
+                    value === "all" ? undefined : parseInt(value)
+                  );
                   setOffset(0);
                 }}
               >
@@ -249,7 +276,10 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
                   const isExpanded = expandedEvents.has(event.id);
 
                   return (
-                    <div key={`${event.id}-${index}`} className="relative pl-14">
+                    <div
+                      key={`${event.id}-${index}`}
+                      className="relative pl-14"
+                    >
                       {/* Icono del evento */}
                       <div
                         className={`absolute left-0 flex items-center justify-center w-12 h-12 rounded-full ${config.bgColor}`}
@@ -258,14 +288,23 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
                       </div>
 
                       {/* Tarjeta del evento */}
-                      <Card className="border-l-4" style={{ borderLeftColor: config.color.replace("text-", "") }}>
+                      <Card
+                        className="border-l-4"
+                        style={{
+                          borderLeftColor: config.color.replace("text-", ""),
+                        }}
+                      >
                         <CardContent className="pt-4">
                           <div className="space-y-2">
                             {/* Header del evento */}
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <Badge className={config.bgColor + " " + config.color}>
+                                  <Badge
+                                    className={
+                                      config.bgColor + " " + config.color
+                                    }
+                                  >
                                     {config.label}
                                   </Badge>
                                   {event.versionNumber && (
@@ -274,7 +313,9 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="font-medium">{event.description}</p>
+                                <p className="font-medium">
+                                  {event.description}
+                                </p>
                               </div>
                               <Button
                                 variant="ghost"
@@ -294,7 +335,11 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
                                 <span>
-                                  {format(new Date(event.eventDate), "PPP 'a las' p", { locale: es })}
+                                  {format(
+                                    new Date(event.eventDate),
+                                    "PPP 'a las' p",
+                                    { locale: es }
+                                  )}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
@@ -306,22 +351,47 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
                             {/* Detalles expandibles */}
                             {isExpanded && event.metadata && (
                               <div className="mt-4 pt-4 border-t space-y-2">
-                                <p className="text-sm font-medium">Detalles Adicionales:</p>
+                                <p className="text-sm font-medium">
+                                  Detalles Adicionales:
+                                </p>
                                 <div className="text-sm text-muted-foreground space-y-1">
                                   {event.metadata.title && (
-                                    <p><span className="font-medium">Título:</span> {event.metadata.title}</p>
+                                    <p>
+                                      <span className="font-medium">
+                                        Título:
+                                      </span>{" "}
+                                      {event.metadata.title}
+                                    </p>
                                   )}
                                   {event.metadata.role && (
-                                    <p><span className="font-medium">Rol:</span> {event.metadata.role}</p>
+                                    <p>
+                                      <span className="font-medium">Rol:</span>{" "}
+                                      {event.metadata.role}
+                                    </p>
                                   )}
                                   {event.metadata.roleDescription && (
-                                    <p><span className="font-medium">Descripción del Rol:</span> {event.metadata.roleDescription}</p>
+                                    <p>
+                                      <span className="font-medium">
+                                        Descripción del Rol:
+                                      </span>{" "}
+                                      {event.metadata.roleDescription}
+                                    </p>
                                   )}
                                   {event.metadata.comments && (
-                                    <p><span className="font-medium">Comentarios:</span> {event.metadata.comments}</p>
+                                    <p>
+                                      <span className="font-medium">
+                                        Comentarios:
+                                      </span>{" "}
+                                      {event.metadata.comments}
+                                    </p>
                                   )}
                                   {event.metadata.status && (
-                                    <p><span className="font-medium">Estado:</span> {event.metadata.status}</p>
+                                    <p>
+                                      <span className="font-medium">
+                                        Estado:
+                                      </span>{" "}
+                                      {event.metadata.status}
+                                    </p>
                                   )}
                                 </div>
                               </div>

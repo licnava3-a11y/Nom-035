@@ -26,6 +26,7 @@
 **Componente Reutilizable**: `ConfirmDialog.tsx`
 
 **Beneficios**:
+
 - Prevención de eliminación accidental de datos
 - Mensajes de impacto específicos por página
 - UX consistente en todo el sistema
@@ -38,6 +39,7 @@
 **Comando**: `pnpm run seed:test`
 
 **Datos Generados**:
+
 - 5 departamentos
 - 10 empleados
 - 10 casos NOM-035
@@ -54,6 +56,7 @@
 **Documento**: `docs/PLAN_ESTANDARIZACION_NOMENCLATURA.md`
 
 **Hallazgos**:
+
 - Sistema **95% estandarizado** en inglés + snake_case
 - Solo 1 campo redundante detectado (`reportedBy`)
 - Tablas críticas ya siguen convenciones SQL estándar
@@ -66,30 +69,30 @@
 
 ### Errores de TypeScript
 
-| Checkpoint | Errores | Cambio |
-|-----------|---------|--------|
-| Inicial (d0fdd2be) | 724 | - |
-| Actual | 726 | +2 |
+| Checkpoint         | Errores | Cambio |
+| ------------------ | ------- | ------ |
+| Inicial (d0fdd2be) | 724     | -      |
+| Actual             | 726     | +2     |
 
 **Nota**: Los 2 errores adicionales son de package.json (no críticos)
 
 ### Cobertura de Confirmaciones
 
-| Métrica | Valor |
-|---------|-------|
-| Páginas con confirmaciones | 10/28 |
-| Cobertura | 36% |
-| Componente reutilizable | ✅ ConfirmDialog |
+| Métrica                    | Valor            |
+| -------------------------- | ---------------- |
+| Páginas con confirmaciones | 10/28            |
+| Cobertura                  | 36%              |
+| Componente reutilizable    | ✅ ConfirmDialog |
 
 ### Datos de Prueba
 
-| Tipo | Cantidad |
-|------|----------|
-| Departamentos | 5 |
-| Empleados | 10 |
-| Casos NOM-035 | 10 |
-| Minutas | 5 |
-| **Total** | **30** |
+| Tipo          | Cantidad |
+| ------------- | -------- |
+| Departamentos | 5        |
+| Empleados     | 10       |
+| Casos NOM-035 | 10       |
+| Minutas       | 5        |
+| **Total**     | **30**   |
 
 ---
 

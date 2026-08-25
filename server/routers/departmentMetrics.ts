@@ -58,7 +58,7 @@ export const departmentMetricsRouter = router({
 
       // Calcular altas (empleados creados en el período)
       const hires = await Promise.all(
-        allDepartments.map(async (dept) => {
+        allDepartments.map(async dept => {
           const [result] = await db
             .select({ count: count() })
             .from(employees)
@@ -81,7 +81,7 @@ export const departmentMetricsRouter = router({
 
       // Calcular bajas (empleados con status 'inactivo' en el período)
       const terminations = await Promise.all(
-        allDepartments.map(async (dept) => {
+        allDepartments.map(async dept => {
           const [result] = await db
             .select({ count: count() })
             .from(employees)
@@ -106,7 +106,9 @@ export const departmentMetricsRouter = router({
       // Combinar resultados
       const rotationMetrics = allDepartments.map((dept: any) => {
         const hire = hires.find((h: any) => h.departmentId === dept.id);
-        const termination = terminations.find((t: any) => t.departmentId === dept.id);
+        const termination = terminations.find(
+          (t: any) => t.departmentId === dept.id
+        );
 
         return {
           departmentId: dept.id,
@@ -121,7 +123,10 @@ export const departmentMetricsRouter = router({
         period: { start, end },
         metrics: rotationMetrics,
         totalHires: hires.reduce((sum: any, h: any) => sum + h.hires, 0),
-        totalTerminations: terminations.reduce((sum: any, t: any) => sum + t.terminations, 0),
+        totalTerminations: terminations.reduce(
+          (sum: any, t: any) => sum + t.terminations,
+          0
+        ),
       };
     }),
 
@@ -152,7 +157,14 @@ export const departmentMetricsRouter = router({
         .execute();
 
       // Generar datos de crecimiento por mes
-      type GrowthDataItem = { month: string; departments: { departmentId: number; departmentName: string | null; employeeCount: number; }[] };
+      type GrowthDataItem = {
+        month: string;
+        departments: {
+          departmentId: number;
+          departmentName: string | null;
+          employeeCount: number;
+        }[];
+      };
       const growthData: GrowthDataItem[] = [];
       const now = new Date();
 
@@ -161,9 +173,12 @@ export const departmentMetricsRouter = router({
         const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
 
         const monthData = {
-          month: monthDate.toLocaleDateString("es-MX", { year: "numeric", month: "short" }),
+          month: monthDate.toLocaleDateString("es-MX", {
+            year: "numeric",
+            month: "short",
+          }),
           departments: await Promise.all(
-            allDepartments.map(async (dept) => {
+            allDepartments.map(async dept => {
               const [result] = await db
                 .select({ count: count() })
                 .from(employees)
@@ -193,8 +208,10 @@ export const departmentMetricsRouter = router({
         departments: allDepartments.map((dept: any) => ({
           id: dept.id,
           name: dept.name,
-          data: growthData.map((month: any) =>
-              month.departments.find((d: any) => d.departmentId === dept.id)?.employeeCount || 0
+          data: growthData.map(
+            (month: any) =>
+              month.departments.find((d: any) => d.departmentId === dept.id)
+                ?.employeeCount || 0
           ),
         })),
       };
@@ -222,12 +239,18 @@ export const departmentMetricsRouter = router({
       .execute();
 
     // Calcular total de empleados
-    const totalEmployees = distribution.reduce((sum: any, d: any) => sum + d.employeeCount, 0);
+    const totalEmployees = distribution.reduce(
+      (sum: any, d: any) => sum + d.employeeCount,
+      0
+    );
 
     // Calcular porcentajes
     const distributionWithPercentage = distribution.map((d: any) => ({
       ...d,
-      percentage: totalEmployees > 0 ? ((d.employeeCount / totalEmployees) * 100).toFixed(2) : "0",
+      percentage:
+        totalEmployees > 0
+          ? ((d.employeeCount / totalEmployees) * 100).toFixed(2)
+          : "0",
     }));
 
     return {
@@ -244,7 +267,9 @@ export const departmentMetricsRouter = router({
   getYearOverYearComparison: protectedProcedure
     .input(
       z.object({
-        metric: z.enum(["rotation", "growth", "distribution"]).default("growth"),
+        metric: z
+          .enum(["rotation", "growth", "distribution"])
+          .default("growth"),
       })
     )
     .query(async ({ input }) => {
@@ -273,7 +298,7 @@ export const departmentMetricsRouter = router({
       if (metric === "rotation") {
         // Comparativa de rotación (altas y bajas)
         const currentYearData = await Promise.all(
-          allDepartments.map(async (dept) => {
+          allDepartments.map(async dept => {
             const [hires] = await db
               .select({ count: count() })
               .from(employees)
@@ -310,7 +335,7 @@ export const departmentMetricsRouter = router({
         );
 
         const lastYearData = await Promise.all(
-          allDepartments.map(async (dept) => {
+          allDepartments.map(async dept => {
             const [hires] = await db
               .select({ count: count() })
               .from(employees)
@@ -348,22 +373,28 @@ export const departmentMetricsRouter = router({
 
         // Calcular cambios porcentuales
         const comparison = allDepartments.map((dept: any) => {
-          const current = currentYearData.find((d: any) => d.departmentId === dept.id);
-          const last = lastYearData.find((d: any) => d.departmentId === dept.id);
+          const current = currentYearData.find(
+            (d: any) => d.departmentId === dept.id
+          );
+          const last = lastYearData.find(
+            (d: any) => d.departmentId === dept.id
+          );
 
           const hiresChange =
             last && last.hires > 0
               ? ((current!.hires - last.hires) / last.hires) * 100
               : current!.hires > 0
-              ? 100
-              : 0;
+                ? 100
+                : 0;
 
           const terminationsChange =
             last && last.terminations > 0
-              ? ((current!.terminations - last.terminations) / last.terminations) * 100
+              ? ((current!.terminations - last.terminations) /
+                  last.terminations) *
+                100
               : current!.terminations > 0
-              ? 100
-              : 0;
+                ? 100
+                : 0;
 
           return {
             departmentId: dept.id,
@@ -384,7 +415,7 @@ export const departmentMetricsRouter = router({
       } else if (metric === "growth") {
         // Comparativa de crecimiento (número de empleados)
         const currentYearData = await Promise.all(
-          allDepartments.map(async (dept) => {
+          allDepartments.map(async dept => {
             const [result] = await db
               .select({ count: count() })
               .from(employees)
@@ -406,7 +437,7 @@ export const departmentMetricsRouter = router({
         );
 
         const lastYearData = await Promise.all(
-          allDepartments.map(async (dept) => {
+          allDepartments.map(async dept => {
             const [result] = await db
               .select({ count: count() })
               .from(employees)
@@ -429,15 +460,21 @@ export const departmentMetricsRouter = router({
 
         // Calcular cambios porcentuales
         const comparison = allDepartments.map((dept: any) => {
-          const current = currentYearData.find((d: any) => d.departmentId === dept.id);
-          const last = lastYearData.find((d: any) => d.departmentId === dept.id);
+          const current = currentYearData.find(
+            (d: any) => d.departmentId === dept.id
+          );
+          const last = lastYearData.find(
+            (d: any) => d.departmentId === dept.id
+          );
 
           const growthChange =
             last && last.employeeCount > 0
-              ? ((current!.employeeCount - last.employeeCount) / last.employeeCount) * 100
+              ? ((current!.employeeCount - last.employeeCount) /
+                  last.employeeCount) *
+                100
               : current!.employeeCount > 0
-              ? 100
-              : 0;
+                ? 100
+                : 0;
 
           return {
             departmentId: dept.id,
@@ -457,7 +494,7 @@ export const departmentMetricsRouter = router({
       } else {
         // Comparativa de distribución (porcentaje por departamento)
         const currentYearTotal = await Promise.all(
-          allDepartments.map(async (dept) => {
+          allDepartments.map(async dept => {
             const [result] = await db
               .select({ count: count() })
               .from(employees)
@@ -477,14 +514,19 @@ export const departmentMetricsRouter = router({
           })
         );
 
-        const totalCurrent = currentYearTotal.reduce((sum: any, d: any) => sum + d.employeeCount, 0);
+        const totalCurrent = currentYearTotal.reduce(
+          (sum: any, d: any) => sum + d.employeeCount,
+          0
+        );
 
         const comparison = currentYearTotal.map((dept: any) => ({
           departmentId: dept.departmentId,
           departmentName: dept.departmentName,
           employeeCount: dept.employeeCount,
           percentage:
-            totalCurrent > 0 ? ((dept.employeeCount / totalCurrent) * 100).toFixed(2) : "0",
+            totalCurrent > 0
+              ? ((dept.employeeCount / totalCurrent) * 100).toFixed(2)
+              : "0",
         }));
 
         return {
@@ -562,7 +604,7 @@ export const departmentMetricsRouter = router({
 
       // Obtener métricas individuales para cada empleado
       const employeesWithMetrics = await Promise.all(
-        employeesList.map(async (emp) => {
+        employeesList.map(async emp => {
           // Calcular antigüedad en meses
           const createdDate = new Date(emp.createdAt);
           const now = new Date();
@@ -575,10 +617,7 @@ export const departmentMetricsRouter = router({
             .select({ count: count() })
             .from(sql`survey_responses`)
             .where(
-              and(
-                sql`employee_id = ${emp.id}`,
-                sql`completed_at IS NOT NULL`
-              )
+              and(sql`employee_id = ${emp.id}`, sql`completed_at IS NOT NULL`)
             )
             .execute();
 
@@ -586,12 +625,7 @@ export const departmentMetricsRouter = router({
           const [trainingsResult] = await db
             .select({ count: count() })
             .from(sql`training_enrollments`)
-            .where(
-              and(
-                sql`employee_id = ${emp.id}`,
-                sql`status = 'completed'`
-              )
-            )
+            .where(and(sql`employee_id = ${emp.id}`, sql`status = 'completed'`))
             .execute();
 
           // Obtener número de casos asociados (como reportante)
@@ -603,7 +637,8 @@ export const departmentMetricsRouter = router({
 
           return {
             ...emp,
-            nombreCompleto: `${emp.nombre} ${emp.apellidoPaterno} ${emp.apellidoMaterno || ""}`.trim(),
+            nombreCompleto:
+              `${emp.nombre} ${emp.apellidoPaterno} ${emp.apellidoMaterno || ""}`.trim(),
             metrics: {
               tenureMonths,
               tenureYears: (tenureMonths / 12).toFixed(1),

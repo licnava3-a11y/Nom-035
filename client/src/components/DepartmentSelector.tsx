@@ -50,29 +50,33 @@ export function DepartmentSelector({
   });
 
   // Filtrar departamentos inválidos
-  const validDepartments = departmentsData?.data.filter((dept: any) =>
-      dept.name !== "Comité NOM-035" &&
-      dept.name !== "Sin departamento" &&
-      dept.name !== "Sin Departamento"
-  ) || [];
+  const validDepartments =
+    departmentsData?.data.filter(
+      (dept: any) =>
+        dept.name !== "Comité NOM-035" &&
+        dept.name !== "Sin departamento" &&
+        dept.name !== "Sin Departamento"
+    ) || [];
 
   const utils = trpc.useUtils();
 
   const createDepartmentMutation = trpc.departments.create.useMutation({
-    onSuccess: async (newDept) => {
+    onSuccess: async newDept => {
       // Invalidar cache y actualizar lista
       await utils.departments.list.invalidate();
-      
+
       // Seleccionar el nuevo departamento automáticamente
       onChange(newDept.id);
-      
+
       // Cerrar dialog y limpiar formulario
       setIsDialogOpen(false);
       setNewDepartmentName("");
       setNewDepartmentDescription("");
       setNewDepartmentCode("");
-      
-      alert(`Departamento "${(newDept as any).name ?? newDepartmentName}" creado exitosamente`);
+
+      alert(
+        `Departamento "${(newDept as any).name ?? newDepartmentName}" creado exitosamente`
+      );
     },
     onError: (error: any) => {
       alert(`Error al crear departamento: ${error.message}`);
@@ -86,8 +90,10 @@ export function DepartmentSelector({
     }
 
     // Generar código automático si no se proporciona
-    const code = newDepartmentCode.trim() || 
-      newDepartmentName.trim().substring(0, 3).toUpperCase() + Date.now().toString().slice(-4);
+    const code =
+      newDepartmentCode.trim() ||
+      newDepartmentName.trim().substring(0, 3).toUpperCase() +
+        Date.now().toString().slice(-4);
 
     createDepartmentMutation.mutate({
       name: newDepartmentName.trim(),
@@ -121,7 +127,7 @@ export function DepartmentSelector({
       <select
         id="department"
         value={value}
-        onChange={(e) => {
+        onChange={e => {
           const newValue = e.target.value ? parseInt(e.target.value) : "";
           onChange(newValue);
         }}
@@ -153,19 +159,21 @@ export function DepartmentSelector({
           <DialogHeader>
             <DialogTitle>Agregar Nuevo Departamento</DialogTitle>
             <DialogDescription>
-              Complete la información del nuevo departamento. Los campos marcados con * son obligatorios.
+              Complete la información del nuevo departamento. Los campos
+              marcados con * son obligatorios.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="newDeptName">
-                Nombre del Departamento <span className="text-destructive">*</span>
+                Nombre del Departamento{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="newDeptName"
                 value={newDepartmentName}
-                onChange={(e) => setNewDepartmentName(e.target.value)}
+                onChange={e => setNewDepartmentName(e.target.value)}
                 placeholder="Ej: Recursos Humanos"
                 required
               />
@@ -176,7 +184,7 @@ export function DepartmentSelector({
               <Input
                 id="newDeptCode"
                 value={newDepartmentCode}
-                onChange={(e) => setNewDepartmentCode(e.target.value)}
+                onChange={e => setNewDepartmentCode(e.target.value)}
                 placeholder="Ej: RH"
                 maxLength={10}
               />
@@ -187,7 +195,7 @@ export function DepartmentSelector({
               <Textarea
                 id="newDeptDescription"
                 value={newDepartmentDescription}
-                onChange={(e) => setNewDepartmentDescription(e.target.value)}
+                onChange={e => setNewDepartmentDescription(e.target.value)}
                 placeholder="Descripción del departamento..."
                 rows={3}
               />
@@ -210,9 +218,13 @@ export function DepartmentSelector({
             <Button
               type="button"
               onClick={handleCreateDepartment}
-              disabled={createDepartmentMutation.isPending || !newDepartmentName.trim()}
+              disabled={
+                createDepartmentMutation.isPending || !newDepartmentName.trim()
+              }
             >
-              {createDepartmentMutation.isPending ? "Creando..." : "Crear Departamento"}
+              {createDepartmentMutation.isPending
+                ? "Creando..."
+                : "Crear Departamento"}
             </Button>
           </DialogFooter>
         </DialogContent>

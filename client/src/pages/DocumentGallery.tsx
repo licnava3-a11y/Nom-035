@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { trpc } from '@/lib/trpc';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   FileText,
   Download,
@@ -19,11 +19,11 @@ import {
   CheckSquare,
   Square,
   DownloadCloud,
-} from 'lucide-react';
+} from "lucide-react";
 
 /**
  * Galería de Documentos Formales NOM-035
- * 
+ *
  * Características:
  * - Lista todos los documentos guardados
  * - Filtros por tipo, estado y fecha
@@ -32,48 +32,50 @@ import {
  * - Vista de detalles de documento
  */
 export default function DocumentGallery() {
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedDocs, setSelectedDocs] = useState<Set<number>>(new Set());
 
   // Obtener lista de documentos
   const { data: documents, isLoading } = trpc.documents.list.useQuery({
-    type: typeFilter === 'all' ? undefined : typeFilter,
-    status: statusFilter === 'all' ? undefined : statusFilter,
+    type: typeFilter === "all" ? undefined : typeFilter,
+    status: statusFilter === "all" ? undefined : statusFilter,
     limit: 100,
   });
 
   // Mutation para generar PDF
-  const generateActaRecorridoPDF = trpc.documents.generateActaRecorridoPDF.useMutation();
-  const generateActaFinalResultadosPDF = trpc.documents.generateActaFinalResultadosPDF.useMutation();
+  const generateActaRecorridoPDF =
+    trpc.documents.generateActaRecorridoPDF.useMutation();
+  const generateActaFinalResultadosPDF =
+    trpc.documents.generateActaFinalResultadosPDF.useMutation();
 
   const handleGeneratePDF = async (documentId: number, type: string) => {
     try {
       let result: any;
-      if (type === 'acta_recorrido') {
+      if (type === "acta_recorrido") {
         result = await generateActaRecorridoPDF.mutateAsync(documentId);
-      } else if (type === 'acta_final_resultados') {
+      } else if (type === "acta_final_resultados") {
         result = await generateActaFinalResultadosPDF.mutateAsync(documentId);
       } else {
-        alert('Tipo de documento no soportado para generación PDF');
+        alert("Tipo de documento no soportado para generación PDF");
         return;
       }
 
       if (result.pdfUrl) {
         // Abrir PDF en nueva pestaña
-        window.open(result.pdfUrl, '_blank');
+        window.open(result.pdfUrl, "_blank");
       }
     } catch (error) {
-      alert('Error al generar PDF. Por favor intente nuevamente.');
+      alert("Error al generar PDF. Por favor intente nuevamente.");
     }
   };
 
   const handleDownloadPDF = (pdfUrl: string, folio: string) => {
     // Crear enlace temporal para descarga
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = pdfUrl;
     link.download = `${folio}.pdf`;
-    link.target = '_blank';
+    link.target = "_blank";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -99,7 +101,7 @@ export default function DocumentGallery() {
 
   const handleBulkDownload = async () => {
     if (selectedDocs.size === 0) {
-      alert('Por favor seleccione al menos un documento');
+      alert("Por favor seleccione al menos un documento");
       return;
     }
 
@@ -118,28 +120,30 @@ export default function DocumentGallery() {
 
   const getDocumentTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      acta_constitutiva: 'Acta Constitutiva',
-      funciones_comite: 'Funciones del Comité',
-      aceptacion_cargo: 'Aceptación de Cargo',
-      acta_recorrido: 'Acta de Recorrido NOM-019',
-      acta_final_resultados: 'Acta Final de Resultados',
+      acta_constitutiva: "Acta Constitutiva",
+      funciones_comite: "Funciones del Comité",
+      aceptacion_cargo: "Aceptación de Cargo",
+      acta_recorrido: "Acta de Recorrido NOM-019",
+      acta_final_resultados: "Acta Final de Resultados",
     };
     return labels[type] || type;
   };
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      draft: 'bg-yellow-100 text-yellow-800',
-      final: 'bg-green-100 text-green-800',
-      archived: 'bg-gray-100 text-gray-800',
+      draft: "bg-yellow-100 text-yellow-800",
+      final: "bg-green-100 text-green-800",
+      archived: "bg-gray-100 text-gray-800",
     };
     const labels: Record<string, string> = {
-      draft: 'Borrador',
-      final: 'Final',
-      archived: 'Archivado',
+      draft: "Borrador",
+      final: "Final",
+      archived: "Archivado",
     };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}
+      >
         {labels[status] || status}
       </span>
     );
@@ -178,18 +182,30 @@ export default function DocumentGallery() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Filtro por tipo */}
           <div>
-            <label className="text-sm font-medium mb-2 block">Tipo de Documento</label>
+            <label className="text-sm font-medium mb-2 block">
+              Tipo de Documento
+            </label>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Todos los tipos" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los tipos</SelectItem>
-                <SelectItem value="acta_constitutiva">Acta Constitutiva</SelectItem>
-                <SelectItem value="funciones_comite">Funciones del Comité</SelectItem>
-                <SelectItem value="aceptacion_cargo">Aceptación de Cargo</SelectItem>
-                <SelectItem value="acta_recorrido">Acta de Recorrido NOM-019</SelectItem>
-                <SelectItem value="acta_final_resultados">Acta Final de Resultados</SelectItem>
+                <SelectItem value="acta_constitutiva">
+                  Acta Constitutiva
+                </SelectItem>
+                <SelectItem value="funciones_comite">
+                  Funciones del Comité
+                </SelectItem>
+                <SelectItem value="aceptacion_cargo">
+                  Aceptación de Cargo
+                </SelectItem>
+                <SelectItem value="acta_recorrido">
+                  Acta de Recorrido NOM-019
+                </SelectItem>
+                <SelectItem value="acta_final_resultados">
+                  Acta Final de Resultados
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -229,11 +245,7 @@ export default function DocumentGallery() {
         <>
           {/* Botón de seleccionar todos */}
           <div className="mb-4 flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleSelectAll}
-            >
+            <Button variant="outline" size="sm" onClick={toggleSelectAll}>
               {selectedDocs.size === documents.length ? (
                 <>
                   <CheckSquare className="w-4 h-4 mr-2" />
@@ -253,7 +265,10 @@ export default function DocumentGallery() {
 
           <div className="grid grid-cols-1 gap-4">
             {documents.map((doc: any) => (
-              <Card key={doc.id} className="p-6 hover:shadow-lg transition-shadow">
+              <Card
+                key={doc.id}
+                className="p-6 hover:shadow-lg transition-shadow"
+              >
                 <div className="flex items-start gap-4">
                   {/* Checkbox de selección */}
                   <button
@@ -278,7 +293,9 @@ export default function DocumentGallery() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <div>
-                        <h3 className="text-lg font-semibold mb-1">{doc.title}</h3>
+                        <h3 className="text-lg font-semibold mb-1">
+                          {doc.title}
+                        </h3>
                         <p className="text-sm text-muted-foreground">
                           {getDocumentTypeLabel(doc.type)}
                         </p>
@@ -293,7 +310,7 @@ export default function DocumentGallery() {
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        {new Date(doc.createdAt).toLocaleDateString('es-MX')}
+                        {new Date(doc.createdAt).toLocaleDateString("es-MX")}
                       </span>
                     </div>
 
@@ -303,7 +320,9 @@ export default function DocumentGallery() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDownloadPDF(doc.pdfUrl!, doc.folio)}
+                          onClick={() =>
+                            handleDownloadPDF(doc.pdfUrl!, doc.folio)
+                          }
                         >
                           <Download className="w-4 h-4 mr-2" />
                           Descargar PDF
@@ -321,8 +340,8 @@ export default function DocumentGallery() {
                           <Download className="w-4 h-4 mr-2" />
                           {generateActaRecorridoPDF.isPending ||
                           generateActaFinalResultadosPDF.isPending
-                            ? 'Generando...'
-                            : 'Generar PDF'}
+                            ? "Generando..."
+                            : "Generar PDF"}
                         </Button>
                       )}
 
@@ -331,7 +350,7 @@ export default function DocumentGallery() {
                         size="sm"
                         onClick={() => {
                           // TODO: Implementar vista de detalles
-                          alert('Vista de detalles próximamente');
+                          alert("Vista de detalles próximamente");
                         }}
                       >
                         <Eye className="w-4 h-4 mr-2" />
@@ -355,8 +374,8 @@ export default function DocumentGallery() {
             <Button
               variant="outline"
               onClick={() => {
-                setTypeFilter('all');
-                setStatusFilter('all');
+                setTypeFilter("all");
+                setStatusFilter("all");
               }}
             >
               Limpiar Filtros

@@ -2,10 +2,22 @@ import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { employees, questions, surveyAnswers, surveyEmployeeTokens, surveyPeriods, surveyQuestions, surveyResponses, users } from "../../drizzle/schema";
+import {
+  employees,
+  questions,
+  surveyAnswers,
+  surveyEmployeeTokens,
+  surveyPeriods,
+  surveyQuestions,
+  surveyResponses,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
-import { sendBulkEmails, getSurveyInvitationTemplate } from "../services/emailService";
+import {
+  sendBulkEmails,
+  getSurveyInvitationTemplate,
+} from "../services/emailService";
 
 export const publicSurveysRouter = router({
   /**
@@ -39,8 +51,12 @@ export const publicSurveysRouter = router({
 
       try {
         // Verificar que el período de encuesta existe
-        const [period] = await db.select().from(surveyPeriods).where(eq(surveyPeriods.id, input.surveyPeriodId)).limit(1);
-        
+        const [period] = await db
+          .select()
+          .from(surveyPeriods)
+          .where(eq(surveyPeriods.id, input.surveyPeriodId))
+          .limit(1);
+
         if (!period) {
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -52,11 +68,14 @@ export const publicSurveysRouter = router({
         let targetEmployees: any;
         if (input.employeeIds && input.employeeIds.length > 0) {
           // Empleados específicos
-          targetEmployees = await db.select().from(employees).where(
-            and(
-              eq(employees.id, input.employeeIds[0]) // Drizzle needs single value, we'll iterate
-            )
-          );
+          targetEmployees = await db
+            .select()
+            .from(employees)
+            .where(
+              and(
+                eq(employees.id, input.employeeIds[0]) // Drizzle needs single value, we'll iterate
+              )
+            );
           // TODO: Mejorar query para múltiples IDs
         } else {
           // Todos los empleados activos
@@ -78,23 +97,30 @@ export const publicSurveysRouter = router({
         for (const employee of targetEmployees) {
           // Verificar si el empleado tiene CURP
           if (!employee.curp) {
-            console.warn(`[PublicSurveys] Empleado ${employee.id} no tiene CURP, saltando...`);
+            console.warn(
+              `[PublicSurveys] Empleado ${employee.id} no tiene CURP, saltando...`
+            );
             continue;
           }
 
           // Verificar si ya existe un token activo para este empleado y período
-          const existingTokens = await db.select().from(surveyEmployeeTokens).where(
-            and(
-              eq(surveyEmployeeTokens.employeeId, employee.id),
-              eq(surveyEmployeeTokens.surveyPeriodId, input.surveyPeriodId),
-              eq(surveyEmployeeTokens.surveyType, input.surveyType),
-              isNull(surveyEmployeeTokens.usedAt),
-              eq(surveyEmployeeTokens.isRevoked, false)
-            )
-          );
+          const existingTokens = await db
+            .select()
+            .from(surveyEmployeeTokens)
+            .where(
+              and(
+                eq(surveyEmployeeTokens.employeeId, employee.id),
+                eq(surveyEmployeeTokens.surveyPeriodId, input.surveyPeriodId),
+                eq(surveyEmployeeTokens.surveyType, input.surveyType),
+                isNull(surveyEmployeeTokens.usedAt),
+                eq(surveyEmployeeTokens.isRevoked, false)
+              )
+            );
 
           if (existingTokens.length > 0) {
-            console.log(`[PublicSurveys] Empleado ${employee.id} ya tiene token activo, saltando...`);
+            console.log(
+              `[PublicSurveys] Empleado ${employee.id} ya tiene token activo, saltando...`
+            );
             tokensGenerated.push({
               employeeId: employee.id,
               token: existingTokens[0].token,
@@ -132,7 +158,8 @@ export const publicSurveysRouter = router({
         console.error("[PublicSurveys] Error generating tokens:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : "Error al generar tokens",
+          message:
+            error instanceof Error ? error.message : "Error al generar tokens",
         });
       }
     }),
@@ -158,9 +185,11 @@ export const publicSurveysRouter = router({
 
       try {
         // Buscar token
-        const [tokenData] = await db.select().from(surveyEmployeeTokens).where(
-          eq(surveyEmployeeTokens.token, input.token)
-        ).limit(1);
+        const [tokenData] = await db
+          .select()
+          .from(surveyEmployeeTokens)
+          .where(eq(surveyEmployeeTokens.token, input.token))
+          .limit(1);
 
         if (!tokenData) {
           throw new TRPCError({
@@ -202,9 +231,11 @@ export const publicSurveysRouter = router({
         }
 
         // Obtener información del empleado
-        const [employee] = await db.select().from(employees).where(
-          eq(employees.id, tokenData.employeeId)
-        ).limit(1);
+        const [employee] = await db
+          .select()
+          .from(employees)
+          .where(eq(employees.id, tokenData.employeeId))
+          .limit(1);
 
         if (!employee) {
           throw new TRPCError({
@@ -214,9 +245,11 @@ export const publicSurveysRouter = router({
         }
 
         // Obtener información del período
-        const [period] = await db.select().from(surveyPeriods).where(
-          eq(surveyPeriods.id, tokenData.surveyPeriodId)
-        ).limit(1);
+        const [period] = await db
+          .select()
+          .from(surveyPeriods)
+          .where(eq(surveyPeriods.id, tokenData.surveyPeriodId))
+          .limit(1);
 
         return {
           success: true,
@@ -232,12 +265,14 @@ export const publicSurveysRouter = router({
             name: sql<string>`CONCAT(${employee.firstName}, ' ', ${employee.lastName})`,
             department: employee.departmentId,
           },
-          period: period ? {
-            id: period.id,
-            name: period.name,
-            startDate: period.startDate,
-            endDate: period.endDate,
-          } : null,
+          period: period
+            ? {
+                id: period.id,
+                name: period.name,
+                startDate: period.startDate,
+                endDate: period.endDate,
+              }
+            : null,
         };
       } catch (error) {
         console.error("[PublicSurveys] Error validating token:", error);
@@ -272,9 +307,11 @@ export const publicSurveysRouter = router({
 
       try {
         // Verificar que el token existe y es válido
-        const [tokenData] = await db.select().from(surveyEmployeeTokens).where(
-          eq(surveyEmployeeTokens.token, input.token)
-        ).limit(1);
+        const [tokenData] = await db
+          .select()
+          .from(surveyEmployeeTokens)
+          .where(eq(surveyEmployeeTokens.token, input.token))
+          .limit(1);
 
         if (!tokenData || tokenData.surveyType !== input.surveyType) {
           throw new TRPCError({
@@ -284,9 +321,10 @@ export const publicSurveysRouter = router({
         }
 
         // Obtener preguntas de la encuesta (surveyQuestions no tiene surveyType, usar category)
-        const questions = await db.select().from(surveyQuestions).where(
-          eq(surveyQuestions.category, input.surveyType as string)
-        );
+        const questions = await db
+          .select()
+          .from(surveyQuestions)
+          .where(eq(surveyQuestions.category, input.surveyType as string));
 
         return {
           success: true,
@@ -330,9 +368,11 @@ export const publicSurveysRouter = router({
 
       try {
         // Verificar token
-        const [tokenData] = await db.select().from(surveyEmployeeTokens).where(
-          eq(surveyEmployeeTokens.token, input.token)
-        ).limit(1);
+        const [tokenData] = await db
+          .select()
+          .from(surveyEmployeeTokens)
+          .where(eq(surveyEmployeeTokens.token, input.token))
+          .limit(1);
 
         if (!tokenData) {
           throw new TRPCError({
@@ -356,7 +396,9 @@ export const publicSurveysRouter = router({
         }
 
         // Crear respuesta de encuesta (campos correctos del schema: surveyId, periodId, userId, token)
-        const [surveyResponse] = await (db.insert(surveyResponses) as any).values({
+        const [surveyResponse] = await (
+          db.insert(surveyResponses) as any
+        ).values({
           surveyId: tokenData.surveyPeriodId, // surveyPeriodId apunta al survey
           periodId: tokenData.surveyPeriodId,
           userId: tokenData.employeeId,
@@ -374,7 +416,8 @@ export const publicSurveysRouter = router({
         }
 
         // Marcar token como usado
-        await db.update(surveyEmployeeTokens)
+        await db
+          .update(surveyEmployeeTokens)
           .set({ usedAt: new Date() } as any)
           .where(eq(surveyEmployeeTokens.id, tokenData.id));
 
@@ -424,22 +467,27 @@ export const publicSurveysRouter = router({
 
       try {
         let conditions = [];
-        
+
         if (input.surveyPeriodId) {
-          conditions.push(eq(surveyEmployeeTokens.surveyPeriodId, input.surveyPeriodId));
+          conditions.push(
+            eq(surveyEmployeeTokens.surveyPeriodId, input.surveyPeriodId)
+          );
         }
-        
+
         if (input.surveyType) {
-          conditions.push(eq(surveyEmployeeTokens.surveyType, input.surveyType));
+          conditions.push(
+            eq(surveyEmployeeTokens.surveyType, input.surveyType)
+          );
         }
-        
+
         if (!input.showUsed) {
           conditions.push(isNull(surveyEmployeeTokens.usedAt));
         }
 
-        const tokens = await db.select().from(surveyEmployeeTokens).where(
-          conditions.length > 0 ? and(...conditions) : undefined
-        );
+        const tokens = await db
+          .select()
+          .from(surveyEmployeeTokens)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
 
         return {
           success: true,
@@ -482,19 +530,23 @@ export const publicSurveysRouter = router({
 
       try {
         // Obtener tokens activos (no usados, no revocados, no expirados)
-        const tokens = await db.select().from(surveyEmployeeTokens).where(
-          and(
-            eq(surveyEmployeeTokens.surveyPeriodId, input.surveyPeriodId),
-            eq(surveyEmployeeTokens.surveyType, input.surveyType),
-            isNull(surveyEmployeeTokens.usedAt),
-            eq(surveyEmployeeTokens.isRevoked, false)
-          )
-        );
+        const tokens = await db
+          .select()
+          .from(surveyEmployeeTokens)
+          .where(
+            and(
+              eq(surveyEmployeeTokens.surveyPeriodId, input.surveyPeriodId),
+              eq(surveyEmployeeTokens.surveyType, input.surveyType),
+              isNull(surveyEmployeeTokens.usedAt),
+              eq(surveyEmployeeTokens.isRevoked, false)
+            )
+          );
 
         if (tokens.length === 0) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: "No hay tokens activos para enviar invitaciones. Genera tokens primero.",
+            message:
+              "No hay tokens activos para enviar invitaciones. Genera tokens primero.",
           });
         }
 
@@ -503,21 +555,27 @@ export const publicSurveysRouter = router({
 
         for (const token of tokens) {
           // Obtener información del empleado
-          const [employee] = await db.select().from(employees).where(
-            eq(employees.id, token.employeeId)
-          ).limit(1);
+          const [employee] = await db
+            .select()
+            .from(employees)
+            .where(eq(employees.id, token.employeeId))
+            .limit(1);
 
           if (!employee || !employee.email) {
-            console.warn(`[PublicSurveys] Empleado ${token.employeeId} no tiene email, saltando...`);
+            console.warn(
+              `[PublicSurveys] Empleado ${token.employeeId} no tiene email, saltando...`
+            );
             continue;
           }
 
           // Generar URL del survey
-          const surveyUrl = `${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/survey/public/${token.token}`;
+          const surveyUrl = `${process.env.VITE_FRONTEND_URL || "http://localhost:3000"}/survey/public/${token.token}`;
 
           // Generar HTML del email
           const emailHtml = getSurveyInvitationTemplate({
-            employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`.trim() || "Empleado",
+            employeeName:
+              `${employee.firstName || ""} ${employee.lastName || ""}`.trim() ||
+              "Empleado",
             surveyType: input.surveyType,
             surveyToken: token.token,
             expiresAt: new Date(token.expiresAt),
@@ -534,7 +592,8 @@ export const publicSurveysRouter = router({
         if (emailsToSend.length === 0) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "No hay empleados con email válido para enviar invitaciones",
+            message:
+              "No hay empleados con email válido para enviar invitaciones",
           });
         }
 

@@ -39,10 +39,18 @@ function buildRegisteredRedirectUri(req: Request): string {
   // the registered redirectUri. So we MUST reconstruct the same origin from the
   // actual request headers — this works for BOTH the sandbox preview URL AND the
   // published production domain automatically.
-  const proto = req.get("x-forwarded-proto")?.split(",")[0]?.trim() || req.protocol;
+  const proto =
+    req.get("x-forwarded-proto")?.split(",")[0]?.trim() || req.protocol;
   const host = req.get("x-forwarded-host") || req.get("host") || req.hostname;
   const redirectUri = `${proto}://${host}/api/oauth/callback`;
-  console.log("[OAuth] Building redirectUri from request headers — proto:", proto, "host:", host, "→", redirectUri);
+  console.log(
+    "[OAuth] Building redirectUri from request headers — proto:",
+    proto,
+    "host:",
+    host,
+    "→",
+    redirectUri
+  );
   return redirectUri;
 }
 
@@ -65,7 +73,10 @@ function decodeReturnPath(state: string): string {
         const url = new URL(decoded);
         // Avoid redirecting to the callback itself (would cause infinite loop)
         const path = url.pathname;
-        if (path === "/api/oauth/callback" || path === "/manus-oauth/callback") {
+        if (
+          path === "/api/oauth/callback" ||
+          path === "/manus-oauth/callback"
+        ) {
           return "/";
         }
         return path || "/";
@@ -76,7 +87,10 @@ function decodeReturnPath(state: string): string {
     // It's already a path
     if (decoded.startsWith("/")) {
       // Avoid redirecting to the callback itself
-      if (decoded === "/api/oauth/callback" || decoded === "/manus-oauth/callback") {
+      if (
+        decoded === "/api/oauth/callback" ||
+        decoded === "/manus-oauth/callback"
+      ) {
         return "/";
       }
       return decoded;
@@ -93,9 +107,17 @@ function decodeReturnPath(state: string): string {
  */
 function classifyOAuthError(error: any): string {
   const status = error?.response?.status;
-  const message = (error?.response?.data?.message ?? error?.message ?? "").toLowerCase();
+  const message = (
+    error?.response?.data?.message ??
+    error?.message ??
+    ""
+  ).toLowerCase();
 
-  if (status === 401 || message.includes("invalid") || message.includes("expired")) {
+  if (
+    status === 401 ||
+    message.includes("invalid") ||
+    message.includes("expired")
+  ) {
     // Authorization code expired (codes are single-use and expire in ~60s)
     // User should simply restart the login flow
     return "code_expired";
@@ -135,7 +157,14 @@ async function handleOAuthCallback(req: Request, res: Response) {
   });
 
   if (!code || !state) {
-    console.error("[OAuth] Missing parameters — code:", !!code, "state:", !!state, "query:", req.query);
+    console.error(
+      "[OAuth] Missing parameters — code:",
+      !!code,
+      "state:",
+      !!state,
+      "query:",
+      req.query
+    );
     // Redirect to friendly error page instead of plain text
     res.redirect(302, "/login-error?reason=missing_params");
     return;
@@ -151,7 +180,10 @@ async function handleOAuthCallback(req: Request, res: Response) {
     console.log("[OAuth] Token exchange successful");
 
     const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
-    console.log("[OAuth] User info:", { openId: userInfo.openId, email: userInfo.email });
+    console.log("[OAuth] User info:", {
+      openId: userInfo.openId,
+      email: userInfo.email,
+    });
 
     if (!userInfo.openId) {
       console.error("[OAuth] Missing openId in user info response");
@@ -174,8 +206,16 @@ async function handleOAuthCallback(req: Request, res: Response) {
     });
 
     const cookieOptions = getSessionCookieOptions(req);
-    res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
-    console.log("[OAuth] Session cookie set, sameSite:", cookieOptions.sameSite, "secure:", cookieOptions.secure);
+    res.cookie(COOKIE_NAME, sessionToken, {
+      ...cookieOptions,
+      maxAge: ONE_YEAR_MS,
+    });
+    console.log(
+      "[OAuth] Session cookie set, sameSite:",
+      cookieOptions.sameSite,
+      "secure:",
+      cookieOptions.secure
+    );
 
     // Decode state to get the post-login destination path
     const returnPath = decodeReturnPath(state);
@@ -183,7 +223,12 @@ async function handleOAuthCallback(req: Request, res: Response) {
     res.redirect(302, returnPath);
   } catch (error: any) {
     const reason = classifyOAuthError(error);
-    console.error("[OAuth] Callback failed:", reason, error?.response?.status, error?.response?.data ?? error?.message ?? error);
+    console.error(
+      "[OAuth] Callback failed:",
+      reason,
+      error?.response?.status,
+      error?.response?.data ?? error?.message ?? error
+    );
 
     // For expired codes, show the error page — do NOT auto-restart the login flow.
     // Auto-restarting causes an infinite redirect loop because:
@@ -191,7 +236,9 @@ async function handleOAuthCallback(req: Request, res: Response) {
     //   2. The server-generated redirectUri may differ from what the portal expects
     // The user can click "Iniciar sesión" on the error page to restart manually.
     if (reason === "code_expired") {
-      console.log("[OAuth] Code expired — showing error page (no auto-restart to prevent infinite loop)");
+      console.log(
+        "[OAuth] Code expired — showing error page (no auto-restart to prevent infinite loop)"
+      );
       res.redirect(302, `/login-error?reason=code_expired`);
       return;
     }
@@ -214,13 +261,17 @@ function handleOAuthLogin(req: Request, res: Response) {
   // Use APP_PUBLIC_URL if available (most reliable in production)
   // This ensures the redirectUri matches exactly what the portal expects
   const appPublicUrl = (process.env.APP_PUBLIC_URL || "").replace(/\/$/, "");
-  const proto = req.get("x-forwarded-proto")?.split(",")[0]?.trim() || req.protocol;
+  const proto =
+    req.get("x-forwarded-proto")?.split(",")[0]?.trim() || req.protocol;
   const host = req.get("x-forwarded-host") || req.get("host") || req.hostname;
   const origin = appPublicUrl || `${proto}://${host}`;
 
   // Read OAuth env vars from process.env
   // IMPORTANT: Use VITE_OAUTH_PORTAL_URL and /app-auth endpoint — same as frontend getLoginUrl()
-  const oauthPortalUrl = (process.env.VITE_OAUTH_PORTAL_URL || "").replace(/\/$/, "");
+  const oauthPortalUrl = (process.env.VITE_OAUTH_PORTAL_URL || "").replace(
+    /\/$/,
+    ""
+  );
   const appId = process.env.VITE_APP_ID || "";
   const redirectUri = `${origin}/api/oauth/callback`;
   // state encodes only the post-login destination path (same format as frontend)
@@ -228,14 +279,20 @@ function handleOAuthLogin(req: Request, res: Response) {
 
   if (!oauthPortalUrl || !appId) {
     // Fallback: redirect to root and let the frontend handle it
-    console.warn("[OAuth] handleOAuthLogin: missing VITE_OAUTH_PORTAL_URL or VITE_APP_ID");
+    console.warn(
+      "[OAuth] handleOAuthLogin: missing VITE_OAUTH_PORTAL_URL or VITE_APP_ID"
+    );
     res.redirect(302, "/");
     return;
   }
 
   // Use /app-auth endpoint with appId/redirectUri params — matches frontend getLoginUrl()
   const loginUrl = `${oauthPortalUrl}/app-auth?appId=${encodeURIComponent(appId)}&redirectUri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&responseType=code`;
-  console.log("[OAuth] Login flow initiated:", { origin, redirectUri, loginUrl });
+  console.log("[OAuth] Login flow initiated:", {
+    origin,
+    redirectUri,
+    loginUrl,
+  });
   res.redirect(302, loginUrl);
 }
 

@@ -2,7 +2,14 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { employees, surveyPeriods, surveyResponses, surveyTokens, surveys, users } from "../../drizzle/schema";
+import {
+  employees,
+  surveyPeriods,
+  surveyResponses,
+  surveyTokens,
+  surveys,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, sql, gte, lte, isNull } from "drizzle-orm";
 import crypto from "crypto";
 
@@ -16,23 +23,29 @@ export const surveyPeriodsRouter = router({
    * Crear nuevo periodo de aplicación de encuesta
    */
   create: protectedProcedure
-    .input(z.object({
-      name: z.string().min(1, "El nombre es requerido"),
-      surveyType: z.enum(["guia_i", "guia_ii", "guia_iii"]),
-      startDate: z.string(), // Formato: YYYY-MM-DD
-      endDate: z.string(),
-      description: z.string().optional(),
-      generateTokens: z.boolean().default(false), // Si true, genera tokens para trabajadores activos
-    }))
+    .input(
+      z.object({
+        name: z.string().min(1, "El nombre es requerido"),
+        surveyType: z.enum(["guia_i", "guia_ii", "guia_iii"]),
+        startDate: z.string(), // Formato: YYYY-MM-DD
+        endDate: z.string(),
+        description: z.string().optional(),
+        generateTokens: z.boolean().default(false), // Si true, genera tokens para trabajadores activos
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Validar que la fecha de fin sea posterior a la fecha de inicio
       if (new Date(input.endDate) <= new Date(input.startDate)) {
-        throw new TRPCError({ 
-          code: "BAD_REQUEST", 
-          message: "La fecha de fin debe ser posterior a la fecha de inicio" 
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "La fecha de fin debe ser posterior a la fecha de inicio",
         });
       }
 
@@ -69,9 +82,9 @@ export const surveyPeriodsRouter = router({
           .limit(1);
 
         if (!survey) {
-          throw new TRPCError({ 
-            code: "NOT_FOUND", 
-            message: `No se encontró la encuesta de tipo ${input.surveyType}` 
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `No se encontró la encuesta de tipo ${input.surveyType}`,
           });
         }
 
@@ -108,13 +121,19 @@ export const surveyPeriodsRouter = router({
    * Obtener lista de periodos
    */
   list: protectedProcedure
-    .input(z.object({
-      surveyType: z.enum(["guia_i", "guia_ii", "guia_iii"]).optional(),
-      status: z.enum(["draft", "active", "closed", "archived"]).optional(),
-    }))
+    .input(
+      z.object({
+        surveyType: z.enum(["guia_i", "guia_ii", "guia_iii"]).optional(),
+        status: z.enum(["draft", "active", "closed", "archived"]).optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       let query = db
         .select({
@@ -147,7 +166,7 @@ export const surveyPeriodsRouter = router({
 
       // Obtener estadísticas para cada periodo
       const periodsWithStats = await Promise.all(
-        periods.map(async (period) => {
+        periods.map(async period => {
           const [tokensCount] = await db
             .select({ count: sql<number>`COUNT(*)` })
             .from(surveyTokens)
@@ -167,8 +186,10 @@ export const surveyPeriodsRouter = router({
             ...period,
             totalTokens: tokensCount?.count || 0,
             totalResponses: responsesCount?.count || 0,
-            completionRate: tokensCount?.count 
-              ? Math.round(((responsesCount?.count || 0) / tokensCount.count) * 100)
+            completionRate: tokensCount?.count
+              ? Math.round(
+                  ((responsesCount?.count || 0) / tokensCount.count) * 100
+                )
               : 0,
           };
         })
@@ -184,7 +205,11 @@ export const surveyPeriodsRouter = router({
     .input(z.number())
     .query(async ({ input: periodId }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [period] = await db
         .select({
@@ -204,7 +229,10 @@ export const surveyPeriodsRouter = router({
         .limit(1);
 
       if (!period) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Periodo no encontrado" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Periodo no encontrado",
+        });
       }
 
       // Obtener trabajadores asignados con estado de respuesta
@@ -240,34 +268,43 @@ export const surveyPeriodsRouter = router({
    * Actualizar periodo
    */
   update: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      name: z.string().min(1).optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      description: z.string().optional(),
-      status: z.enum(["draft", "active", "closed", "archived"]).optional(),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        description: z.string().optional(),
+        status: z.enum(["draft", "active", "closed", "archived"]).optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const { id, ...inputData } = input;
 
       // Preparar datos de actualización con conversión de fechas
       const updateData: any = {};
       if (inputData.name !== undefined) updateData.name = inputData.name;
-      if (inputData.description !== undefined) updateData.description = inputData.description;
+      if (inputData.description !== undefined)
+        updateData.description = inputData.description;
       if (inputData.status !== undefined) updateData.status = inputData.status;
-      if (inputData.startDate !== undefined) updateData.startDate = new Date(inputData.startDate);
-      if (inputData.endDate !== undefined) updateData.endDate = new Date(inputData.endDate);
+      if (inputData.startDate !== undefined)
+        updateData.startDate = new Date(inputData.startDate);
+      if (inputData.endDate !== undefined)
+        updateData.endDate = new Date(inputData.endDate);
 
       // Validar fechas si se proporcionan ambas
       if (updateData.startDate && updateData.endDate) {
         if (updateData.endDate <= updateData.startDate) {
-          throw new TRPCError({ 
-            code: "BAD_REQUEST", 
-            message: "La fecha de fin debe ser posterior a la fecha de inicio" 
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "La fecha de fin debe ser posterior a la fecha de inicio",
           });
         }
       }
@@ -287,7 +324,11 @@ export const surveyPeriodsRouter = router({
     .input(z.number())
     .mutation(async ({ input: periodId }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Verificar si hay respuestas asociadas
       const [responsesCount] = await db
@@ -296,21 +337,18 @@ export const surveyPeriodsRouter = router({
         .where(eq(surveyResponses.periodId, periodId));
 
       if ((responsesCount?.count || 0) > 0) {
-        throw new TRPCError({ 
-          code: "BAD_REQUEST", 
-          message: "No se puede eliminar un periodo con respuestas registradas. Considere archivarlo en su lugar." 
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "No se puede eliminar un periodo con respuestas registradas. Considere archivarlo en su lugar.",
         });
       }
 
       // Eliminar tokens asociados
-      await db
-        .delete(surveyTokens)
-        .where(eq(surveyTokens.periodId, periodId));
+      await db.delete(surveyTokens).where(eq(surveyTokens.periodId, periodId));
 
       // Eliminar periodo
-      await db
-        .delete(surveyPeriods)
-        .where(eq(surveyPeriods.id, periodId));
+      await db.delete(surveyPeriods).where(eq(surveyPeriods.id, periodId));
 
       return { success: true, message: "Periodo eliminado exitosamente" };
     }),
@@ -319,13 +357,19 @@ export const surveyPeriodsRouter = router({
    * Generar tokens para trabajadores activos en un periodo existente
    */
   generateTokens: protectedProcedure
-    .input(z.object({
-      periodId: z.number(),
-      regenerate: z.boolean().default(false), // Si true, regenera tokens para todos
-    }))
+    .input(
+      z.object({
+        periodId: z.number(),
+        regenerate: z.boolean().default(false), // Si true, regenera tokens para todos
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener información del periodo
       const [period] = await db
@@ -335,7 +379,10 @@ export const surveyPeriodsRouter = router({
         .limit(1);
 
       if (!period) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Periodo no encontrado" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Periodo no encontrado",
+        });
       }
 
       // Obtener la encuesta correspondiente
@@ -346,9 +393,9 @@ export const surveyPeriodsRouter = router({
         .limit(1);
 
       if (!survey) {
-        throw new TRPCError({ 
-          code: "NOT_FOUND", 
-          message: `No se encontró la encuesta de tipo ${period.surveyType}` 
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `No se encontró la encuesta de tipo ${period.surveyType}`,
         });
       }
 
@@ -407,7 +454,11 @@ export const surveyPeriodsRouter = router({
    */
   getActiveEmployees: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     const activeEmployees = await db
       .select({

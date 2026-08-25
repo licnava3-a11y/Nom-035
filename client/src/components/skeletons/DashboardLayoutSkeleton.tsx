@@ -1,17 +1,19 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { useEffect, useState } from 'react';
-import { getLoginUrl } from '@/const';
+import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
+import { getLoginUrl } from "@/const";
 
 interface DashboardLayoutSkeletonProps {
   onRetry?: () => void;
 }
 
-export function DashboardLayoutSkeleton({ onRetry }: DashboardLayoutSkeletonProps) {
+export function DashboardLayoutSkeleton({
+  onRetry,
+}: DashboardLayoutSkeletonProps) {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setElapsed((e) => e + 1);
+      setElapsed(e => e + 1);
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -23,16 +25,28 @@ export function DashboardLayoutSkeleton({ onRetry }: DashboardLayoutSkeletonProp
         <div className="text-center space-y-5 max-w-sm px-6">
           {/* Logo */}
           <div className="w-16 h-16 mx-auto rounded-2xl bg-primary flex items-center justify-center shadow-lg">
-            <svg className="w-8 h-8 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            <svg
+              className="w-8 h-8 text-primary-foreground"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
             </svg>
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-foreground">Plataforma NOM-035</h2>
+            <h2 className="text-xl font-bold text-foreground">
+              Plataforma NOM-035
+            </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              El servidor está iniciando. Esto ocurre en el primer acceso del día.
+              El servidor está iniciando. Esto ocurre en el primer acceso del
+              día.
             </p>
           </div>
 
@@ -72,9 +86,11 @@ export function DashboardLayoutSkeleton({ onRetry }: DashboardLayoutSkeletonProp
 
   // Mensaje progresivo según el tiempo transcurrido
   const statusMessage =
-    elapsed >= 6 ? 'Iniciando servidor, por favor espera...' :
-    elapsed >= 3 ? 'Verificando sesión...' :
-    'Cargando...';
+    elapsed >= 6
+      ? "Iniciando servidor, por favor espera..."
+      : elapsed >= 3
+        ? "Verificando sesión..."
+        : "Cargando...";
 
   return (
     <div className="flex min-h-screen bg-background">

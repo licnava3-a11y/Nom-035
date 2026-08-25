@@ -1,11 +1,14 @@
 import * as React from "react";
-import { Input } from "@/components/ui/input"
-import { type InputHTMLAttributes } from "react"
+import { Input } from "@/components/ui/input";
+import { type InputHTMLAttributes } from "react";
 type InputProps = InputHTMLAttributes<HTMLInputElement>;
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import { useRealtimeValidation, ValidationRules } from "@/hooks/useRealtimeValidation";
+import {
+  useRealtimeValidation,
+  ValidationRules,
+} from "@/hooks/useRealtimeValidation";
 
 export interface InputWithValidationProps extends Omit<InputProps, "onChange"> {
   label?: string;
@@ -15,7 +18,10 @@ export interface InputWithValidationProps extends Omit<InputProps, "onChange"> {
   validateOnBlur?: boolean;
 }
 
-const InputWithValidation = React.forwardRef<HTMLInputElement, InputWithValidationProps>(
+const InputWithValidation = React.forwardRef<
+  HTMLInputElement,
+  InputWithValidationProps
+>(
   (
     {
       className,
@@ -30,7 +36,9 @@ const InputWithValidation = React.forwardRef<HTMLInputElement, InputWithValidati
     ref
   ) => {
     const { validateField, getValidation } = useRealtimeValidation();
-    const [value, setValue] = React.useState<string>((props.value as string) || "");
+    const [value, setValue] = React.useState<string>(
+      (props.value as string) || ""
+    );
     const [touched, setTouched] = React.useState(false);
     const fieldName = id || props.name || "field";
 
@@ -63,9 +71,18 @@ const InputWithValidation = React.forwardRef<HTMLInputElement, InputWithValidati
     return (
       <div className="space-y-2">
         {label && (
-          <Label htmlFor={id} className={cn(showValidation && validation.type === "error" && "text-destructive")}>
+          <Label
+            htmlFor={id}
+            className={cn(
+              showValidation &&
+                validation.type === "error" &&
+                "text-destructive"
+            )}
+          >
             {label}
-            {validationRules?.required && <span className="text-destructive ml-1">*</span>}
+            {validationRules?.required && (
+              <span className="text-destructive ml-1">*</span>
+            )}
           </Label>
         )}
         <div className="relative">
@@ -77,8 +94,12 @@ const InputWithValidation = React.forwardRef<HTMLInputElement, InputWithValidati
             onBlur={handleBlur}
             className={cn(
               className,
-              showValidation && validation.type === "error" && "border-destructive focus-visible:ring-destructive",
-              showValidation && validation.type === "success" && "border-green-500 focus-visible:ring-green-500",
+              showValidation &&
+                validation.type === "error" &&
+                "border-destructive focus-visible:ring-destructive",
+              showValidation &&
+                validation.type === "success" &&
+                "border-green-500 focus-visible:ring-green-500",
               showValidationIcon && "pr-10"
             )}
             {...props}

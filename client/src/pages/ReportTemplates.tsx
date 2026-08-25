@@ -3,12 +3,31 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Edit, Trash2, Eye, Star, Code } from "lucide-react";
@@ -114,7 +133,7 @@ export default function ReportTemplates() {
 
   const getPreviewHTML = () => {
     if (!selectedTemplate) return "";
-    
+
     // La vista previa usa configuración persistida o valores vacíos explícitos.
     let html = selectedTemplate.htmlTemplate;
     const variables = {
@@ -168,12 +187,21 @@ export default function ReportTemplates() {
             Variables Disponibles
           </CardTitle>
           <CardDescription>
-            Usa estas variables en tus plantillas HTML para insertar datos dinámicos
+            Usa estas variables en tus plantillas HTML para insertar datos
+            dinámicos
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {["logo", "razonSocial", "rfc", "folio", "fecha", "titulo", "contenido"].map((variable: any) => (
+            {[
+              "logo",
+              "razonSocial",
+              "rfc",
+              "folio",
+              "fecha",
+              "titulo",
+              "contenido",
+            ].map((variable: any) => (
               <Badge key={variable} variant="secondary" className="font-mono">
                 {`{${variable}}`}
               </Badge>
@@ -269,7 +297,9 @@ export default function ReportTemplates() {
                 <Input
                   id="nombre"
                   value={formData.nombre}
-                  onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, nombre: e.target.value })
+                  }
                   placeholder="Plantilla de Verificación"
                 />
               </div>
@@ -279,7 +309,9 @@ export default function ReportTemplates() {
                 <Textarea
                   id="descripcion"
                   value={formData.descripcion}
-                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, descripcion: e.target.value })
+                  }
                   placeholder="Descripción de la plantilla"
                   rows={2}
                 />
@@ -289,26 +321,36 @@ export default function ReportTemplates() {
                 <Label htmlFor="tipo">Tipo</Label>
                 <Select
                   value={formData.tipo}
-                  onValueChange={(value) => setFormData({ ...formData, tipo: value })}
+                  onValueChange={value =>
+                    setFormData({ ...formData, tipo: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="verificacion_numerales">Verificación de Numerales</SelectItem>
+                    <SelectItem value="verificacion_numerales">
+                      Verificación de Numerales
+                    </SelectItem>
                     <SelectItem value="minuta">Minuta</SelectItem>
                     <SelectItem value="constancia">Constancia</SelectItem>
-                    <SelectItem value="reporte_general">Reporte General</SelectItem>
+                    <SelectItem value="reporte_general">
+                      Reporte General
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="variables">Variables (separadas por coma)</Label>
+                <Label htmlFor="variables">
+                  Variables (separadas por coma)
+                </Label>
                 <Input
                   id="variables"
                   value={formData.variables}
-                  onChange={(e) => setFormData({ ...formData, variables: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, variables: e.target.value })
+                  }
                   placeholder="logo,razonSocial,rfc,folio,fecha"
                 />
               </div>
@@ -317,16 +359,22 @@ export default function ReportTemplates() {
                 <Switch
                   id="isDefault"
                   checked={formData.isDefault}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isDefault: checked })}
+                  onCheckedChange={checked =>
+                    setFormData({ ...formData, isDefault: checked })
+                  }
                 />
-                <Label htmlFor="isDefault">Establecer como plantilla por defecto</Label>
+                <Label htmlFor="isDefault">
+                  Establecer como plantilla por defecto
+                </Label>
               </div>
 
               <div className="flex items-center space-x-2">
                 <Switch
                   id="activo"
                   checked={formData.activo}
-                  onCheckedChange={(checked) => setFormData({ ...formData, activo: checked })}
+                  onCheckedChange={checked =>
+                    setFormData({ ...formData, activo: checked })
+                  }
                 />
                 <Label htmlFor="activo">Activo</Label>
               </div>
@@ -341,7 +389,9 @@ export default function ReportTemplates() {
                     height="300px"
                     language="html"
                     value={formData.htmlTemplate}
-                    onChange={(value) => setFormData({ ...formData, htmlTemplate: value || "" })}
+                    onChange={value =>
+                      setFormData({ ...formData, htmlTemplate: value || "" })
+                    }
                     theme="vs-dark"
                     options={{
                       minimap: { enabled: false },
@@ -360,7 +410,9 @@ export default function ReportTemplates() {
                     height="200px"
                     language="css"
                     value={formData.cssStyles}
-                    onChange={(value) => setFormData({ ...formData, cssStyles: value || "" })}
+                    onChange={value =>
+                      setFormData({ ...formData, cssStyles: value || "" })
+                    }
                     theme="vs-dark"
                     options={{
                       minimap: { enabled: false },
@@ -378,9 +430,7 @@ export default function ReportTemplates() {
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSave}>
-              Guardar Plantilla
-            </Button>
+            <Button onClick={handleSave}>Guardar Plantilla</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -391,10 +441,14 @@ export default function ReportTemplates() {
           <DialogHeader>
             <DialogTitle>Vista Previa - {selectedTemplate?.nombre}</DialogTitle>
             <DialogDescription>
-              Usa los datos de empresa configurados; los campos sin fuente permanecen vacíos.
+              Usa los datos de empresa configurados; los campos sin fuente
+              permanecen vacíos.
             </DialogDescription>
           </DialogHeader>
-          <div className="border rounded-md overflow-auto" style={{ height: "70vh" }}>
+          <div
+            className="border rounded-md overflow-auto"
+            style={{ height: "70vh" }}
+          >
             <iframe
               srcDoc={getPreviewHTML()}
               className="w-full h-full"

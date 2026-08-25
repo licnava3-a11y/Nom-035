@@ -1,7 +1,16 @@
 import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { cases, employees, nom035Cases, nom035Results, reportHistory, scheduledReports, surveyResponses, surveys } from "../../drizzle/schema";
+import {
+  cases,
+  employees,
+  nom035Cases,
+  nom035Results,
+  reportHistory,
+  scheduledReports,
+  surveyResponses,
+  surveys,
+} from "../../drizzle/schema";
 import { eq, and, sql, desc, count } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 
@@ -48,8 +57,15 @@ export const scheduledReportsRouter = router({
       if (!db) throw new Error("Database not available");
 
       const reports = await (input?.isActive !== undefined
-        ? db.select().from(scheduledReports).where(eq(scheduledReports.isActive, input.isActive)).orderBy(desc(scheduledReports.createdAt))
-        : db.select().from(scheduledReports).orderBy(desc(scheduledReports.createdAt)));
+        ? db
+            .select()
+            .from(scheduledReports)
+            .where(eq(scheduledReports.isActive, input.isActive))
+            .orderBy(desc(scheduledReports.createdAt))
+        : db
+            .select()
+            .from(scheduledReports)
+            .orderBy(desc(scheduledReports.createdAt)));
       return reports;
     }),
 
@@ -79,15 +95,25 @@ export const scheduledReportsRouter = router({
       if (report.includeNMX025) {
         const allEmployees = await db.select().from(employees);
         const totalEmployees = allEmployees.length;
-        const maleCount = allEmployees.filter((e: any) => e.gender === "male").length;
-        const femaleCount = allEmployees.filter((e: any) => e.gender === "female").length;
+        const maleCount = allEmployees.filter(
+          (e: any) => e.gender === "male"
+        ).length;
+        const femaleCount = allEmployees.filter(
+          (e: any) => e.gender === "female"
+        ).length;
 
         metrics.nmx025 = {
           totalEmployees,
           maleCount,
           femaleCount,
-          malePercentage: totalEmployees > 0 ? ((maleCount / totalEmployees) * 100).toFixed(2) : "0.00",
-          femalePercentage: totalEmployees > 0 ? ((femaleCount / totalEmployees) * 100).toFixed(2) : "0.00",
+          malePercentage:
+            totalEmployees > 0
+              ? ((maleCount / totalEmployees) * 100).toFixed(2)
+              : "0.00",
+          femalePercentage:
+            totalEmployees > 0
+              ? ((femaleCount / totalEmployees) * 100).toFixed(2)
+              : "0.00",
         };
       }
 
@@ -95,11 +121,20 @@ export const scheduledReportsRouter = router({
       if (report.includeNOM035) {
         const surveys = await db.select().from(nom035Results);
         const totalSurveys = surveys.length;
-        const highRiskCount = surveys.filter((s: any) => s.globalRiskLevel === "alto" || s.globalRiskLevel === "muy_alto").length;
-        const mediumRiskCount = surveys.filter((s: any) => s.globalRiskLevel === "medio").length;
-        const lowRiskCount = surveys.filter((s: any) => s.globalRiskLevel === "bajo" || s.globalRiskLevel === "nulo").length;
+        const highRiskCount = surveys.filter(
+          (s: any) =>
+            s.globalRiskLevel === "alto" || s.globalRiskLevel === "muy_alto"
+        ).length;
+        const mediumRiskCount = surveys.filter(
+          (s: any) => s.globalRiskLevel === "medio"
+        ).length;
+        const lowRiskCount = surveys.filter(
+          (s: any) =>
+            s.globalRiskLevel === "bajo" || s.globalRiskLevel === "nulo"
+        ).length;
 
-        const highRiskPercentage = totalSurveys > 0 ? (highRiskCount / totalSurveys) * 100 : 0;
+        const highRiskPercentage =
+          totalSurveys > 0 ? (highRiskCount / totalSurveys) * 100 : 0;
 
         metrics.nom035 = {
           totalSurveys,
@@ -107,7 +142,8 @@ export const scheduledReportsRouter = router({
           mediumRiskCount,
           lowRiskCount,
           highRiskPercentage: highRiskPercentage.toFixed(2),
-          alert: highRiskPercentage > 30 ? "⚠️ ALERTA: >30% en riesgo alto" : null,
+          alert:
+            highRiskPercentage > 30 ? "⚠️ ALERTA: >30% en riesgo alto" : null,
         };
       }
 
@@ -115,8 +151,12 @@ export const scheduledReportsRouter = router({
       if (report.includeCases) {
         const cases = await db.select().from(nom035Cases);
         const openCases = cases.filter((c: any) => c.status === "open").length;
-        const inProgressCases = cases.filter((c: any) => c.status === "in_progress").length;
-        const closedCases = cases.filter((c: any) => c.status === "closed").length;
+        const inProgressCases = cases.filter(
+          (c: any) => c.status === "in_progress"
+        ).length;
+        const closedCases = cases.filter(
+          (c: any) => c.status === "closed"
+        ).length;
 
         metrics.cases = {
           totalCases: cases.length,
@@ -141,29 +181,41 @@ export const scheduledReportsRouter = router({
       const reportContent = `
 📊 **${report.reportName}** (${report.reportType})
 
-${report.includeNMX025 ? `
+${
+  report.includeNMX025
+    ? `
 **NMX-025 - Igualdad Laboral**
 - Total de empleados: ${metrics.nmx025.totalEmployees}
 - Hombres: ${metrics.nmx025.maleCount} (${metrics.nmx025.malePercentage}%)
 - Mujeres: ${metrics.nmx025.femaleCount} (${metrics.nmx025.femalePercentage}%)
-` : ""}
+`
+    : ""
+}
 
-${report.includeNOM035 ? `
+${
+  report.includeNOM035
+    ? `
 **NOM-035 - Riesgo Psicosocial**
 - Total evaluados: ${metrics.nom035.totalSurveys}
 - Riesgo alto/muy alto: ${metrics.nom035.highRiskCount} (${metrics.nom035.highRiskPercentage}%)
 - Riesgo medio: ${metrics.nom035.mediumRiskCount}
 - Riesgo bajo: ${metrics.nom035.lowRiskCount}
 ${metrics.nom035.alert ? `\n${metrics.nom035.alert}` : ""}
-` : ""}
+`
+    : ""
+}
 
-${report.includeCases ? `
+${
+  report.includeCases
+    ? `
 **Casos NOM-035**
 - Total de casos: ${metrics.cases.totalCases}
 - Casos abiertos: ${metrics.cases.openCases}
 - Casos en investigación: ${metrics.cases.inProgressCases}
 - Casos resueltos: ${metrics.cases.closedCases}
-` : ""}
+`
+    : ""
+}
 
 ---
 Reporte enviado a ${recipients.length} destinatario(s).
@@ -182,18 +234,29 @@ Reporte enviado a ${recipients.length} destinatario(s).
    */
   getReportHistory: protectedProcedure
     .input(
-      z.object({
-        reportId: z.number().optional(),
-        limit: z.number().optional().default(50),
-      }).optional()
+      z
+        .object({
+          reportId: z.number().optional(),
+          limit: z.number().optional().default(50),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
       const history = await (input?.reportId
-        ? db.select().from(reportHistory).where(eq(reportHistory.reportId, input.reportId)).orderBy(desc(reportHistory.sentAt)).limit(input?.limit || 50)
-        : db.select().from(reportHistory).orderBy(desc(reportHistory.sentAt)).limit(input?.limit || 50));
+        ? db
+            .select()
+            .from(reportHistory)
+            .where(eq(reportHistory.reportId, input.reportId))
+            .orderBy(desc(reportHistory.sentAt))
+            .limit(input?.limit || 50)
+        : db
+            .select()
+            .from(reportHistory)
+            .orderBy(desc(reportHistory.sentAt))
+            .limit(input?.limit || 50));
       return history;
     }),
 
@@ -218,11 +281,16 @@ Reporte enviado a ${recipients.length} destinatario(s).
 
       const updateData: any = {};
 
-      if (input.reportName !== undefined) updateData.reportName = input.reportName;
-      if (input.recipients !== undefined) updateData.recipients = JSON.stringify(input.recipients);
-      if (input.includeNMX025 !== undefined) updateData.includeNMX025 = input.includeNMX025;
-      if (input.includeNOM035 !== undefined) updateData.includeNOM035 = input.includeNOM035;
-      if (input.includeCases !== undefined) updateData.includeCases = input.includeCases;
+      if (input.reportName !== undefined)
+        updateData.reportName = input.reportName;
+      if (input.recipients !== undefined)
+        updateData.recipients = JSON.stringify(input.recipients);
+      if (input.includeNMX025 !== undefined)
+        updateData.includeNMX025 = input.includeNMX025;
+      if (input.includeNOM035 !== undefined)
+        updateData.includeNOM035 = input.includeNOM035;
+      if (input.includeCases !== undefined)
+        updateData.includeCases = input.includeCases;
       if (input.isActive !== undefined) updateData.isActive = input.isActive;
 
       await db
@@ -242,7 +310,9 @@ Reporte enviado a ${recipients.length} destinatario(s).
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      await db.delete(scheduledReports).where(eq(scheduledReports.id, input.reportId));
+      await db
+        .delete(scheduledReports)
+        .where(eq(scheduledReports.id, input.reportId));
 
       return { success: true };
     }),

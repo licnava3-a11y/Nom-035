@@ -11,7 +11,10 @@ vi.mock("../db", () => ({
 }));
 
 vi.mock("../storage", () => ({
-  storagePut: vi.fn().mockResolvedValue({ url: "https://s3.example.com/test.png", key: "test.png" }),
+  storagePut: vi.fn().mockResolvedValue({
+    url: "https://s3.example.com/test.png",
+    key: "test.png",
+  }),
 }));
 
 vi.mock("../_core/email", () => ({
@@ -33,7 +36,10 @@ interface Dc3Row {
 }
 
 function aggregateByMonth(rows: Dc3Row[]) {
-  const map = new Map<string, { draft: number; issued: number; cancelled: number }>();
+  const map = new Map<
+    string,
+    { draft: number; issued: number; cancelled: number }
+  >();
   for (const r of rows) {
     const d = r.createdAt ? new Date(r.createdAt) : null;
     if (!d) continue;
@@ -74,13 +80,55 @@ function aggregateByArea(rows: Dc3Row[], limit = 10) {
 // ─── Datos de prueba ──────────────────────────────────────────────────────────
 
 const sampleRows: Dc3Row[] = [
-  { id: 1, status: "issued",    companyName: "Empresa A", thematicArea: "6000", createdAt: new Date("2026-01-15") },
-  { id: 2, status: "issued",    companyName: "Empresa A", thematicArea: "6000", createdAt: new Date("2026-01-20") },
-  { id: 3, status: "draft",     companyName: "Empresa B", thematicArea: "8000", createdAt: new Date("2026-02-05") },
-  { id: 4, status: "cancelled", companyName: "Empresa C", thematicArea: "6000", createdAt: new Date("2026-02-10") },
-  { id: 5, status: "issued",    companyName: "Empresa B", thematicArea: "3000", createdAt: new Date("2026-03-01") },
-  { id: 6, status: "draft",     companyName: null,        thematicArea: null,   createdAt: new Date("2026-03-15") },
-  { id: 7, status: "issued",    companyName: "Empresa A", thematicArea: "6000", createdAt: null },
+  {
+    id: 1,
+    status: "issued",
+    companyName: "Empresa A",
+    thematicArea: "6000",
+    createdAt: new Date("2026-01-15"),
+  },
+  {
+    id: 2,
+    status: "issued",
+    companyName: "Empresa A",
+    thematicArea: "6000",
+    createdAt: new Date("2026-01-20"),
+  },
+  {
+    id: 3,
+    status: "draft",
+    companyName: "Empresa B",
+    thematicArea: "8000",
+    createdAt: new Date("2026-02-05"),
+  },
+  {
+    id: 4,
+    status: "cancelled",
+    companyName: "Empresa C",
+    thematicArea: "6000",
+    createdAt: new Date("2026-02-10"),
+  },
+  {
+    id: 5,
+    status: "issued",
+    companyName: "Empresa B",
+    thematicArea: "3000",
+    createdAt: new Date("2026-03-01"),
+  },
+  {
+    id: 6,
+    status: "draft",
+    companyName: null,
+    thematicArea: null,
+    createdAt: new Date("2026-03-15"),
+  },
+  {
+    id: 7,
+    status: "issued",
+    companyName: "Empresa A",
+    thematicArea: "6000",
+    createdAt: null,
+  },
 ];
 
 // ─── Tests: getDashboardStats helpers ─────────────────────────────────────────
@@ -89,7 +137,7 @@ describe("getDashboardStats — aggregateByMonth", () => {
   it("agrupa correctamente por mes YYYY-MM", () => {
     const result = aggregateByMonth(sampleRows);
     expect(result.length).toBe(3); // Ene, Feb, Mar (id=7 no tiene fecha)
-    const jan = result.find((r) => r.month === "2026-01");
+    const jan = result.find(r => r.month === "2026-01");
     expect(jan).toBeDefined();
     expect(jan!.issued).toBe(2);
     expect(jan!.draft).toBe(0);
@@ -98,19 +146,22 @@ describe("getDashboardStats — aggregateByMonth", () => {
 
   it("ordena los meses cronológicamente", () => {
     const result = aggregateByMonth(sampleRows);
-    const months = result.map((r) => r.month);
+    const months = result.map(r => r.month);
     expect(months).toEqual(["2026-01", "2026-02", "2026-03"]);
   });
 
   it("ignora filas sin fecha", () => {
     const result = aggregateByMonth(sampleRows);
-    const total = result.reduce((acc, r) => acc + r.issued + r.draft + r.cancelled, 0);
+    const total = result.reduce(
+      (acc, r) => acc + r.issued + r.draft + r.cancelled,
+      0
+    );
     expect(total).toBe(6); // id=7 no tiene fecha → se ignora
   });
 
   it("cuenta correctamente borradores y canceladas", () => {
     const result = aggregateByMonth(sampleRows);
-    const feb = result.find((r) => r.month === "2026-02");
+    const feb = result.find(r => r.month === "2026-02");
     expect(feb!.draft).toBe(1);
     expect(feb!.cancelled).toBe(1);
     expect(feb!.issued).toBe(0);
@@ -126,7 +177,7 @@ describe("getDashboardStats — aggregateByCompany", () => {
 
   it("usa 'Sin empresa' para filas sin companyName", () => {
     const result = aggregateByCompany(sampleRows);
-    const sinEmpresa = result.find((r) => r.company === "Sin empresa");
+    const sinEmpresa = result.find(r => r.company === "Sin empresa");
     expect(sinEmpresa).toBeDefined();
     expect(sinEmpresa!.count).toBe(1);
   });
@@ -153,7 +204,7 @@ describe("getDashboardStats — aggregateByArea", () => {
 
   it("usa 'Sin área' para filas sin thematicArea", () => {
     const result = aggregateByArea(sampleRows);
-    const sinArea = result.find((r) => r.area === "Sin área");
+    const sinArea = result.find(r => r.area === "Sin área");
     expect(sinArea).toBeDefined();
     expect(sinArea!.count).toBe(1);
   });
@@ -162,7 +213,7 @@ describe("getDashboardStats — aggregateByArea", () => {
 describe("getDashboardStats — KPIs", () => {
   it("calcula la tasa de emisión correctamente", () => {
     const total = sampleRows.length;
-    const issued = sampleRows.filter((r) => r.status === "issued").length;
+    const issued = sampleRows.filter(r => r.status === "issued").length;
     const issueRate = total > 0 ? Math.round((issued / total) * 100) : 0;
     expect(issueRate).toBe(Math.round((4 / 7) * 100)); // 4 issued de 7
   });
@@ -200,7 +251,8 @@ describe("renewToken — lógica de validación", () => {
   it("genera un UUID v4 válido para el nuevo token", () => {
     const { randomUUID } = require("crypto");
     const token = randomUUID();
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     expect(uuidRegex.test(token)).toBe(true);
   });
 
@@ -208,7 +260,9 @@ describe("renewToken — lógica de validación", () => {
     const baseUrl = "https://nom035mood-32dy4ksx.manus.space";
     const token = "abc123-test-token";
     const url = `${baseUrl}/firmar-dc3/${token}`;
-    expect(url).toBe("https://nom035mood-32dy4ksx.manus.space/firmar-dc3/abc123-test-token");
+    expect(url).toBe(
+      "https://nom035mood-32dy4ksx.manus.space/firmar-dc3/abc123-test-token"
+    );
   });
 });
 
@@ -220,7 +274,7 @@ describe("getDashboardStats — período de filtrado", () => {
     const from = new Date(now.getFullYear(), 0, 1);
     const to = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
     expect(from.getMonth()).toBe(0); // Enero
-    expect(to.getMonth()).toBe(11);  // Diciembre
+    expect(to.getMonth()).toBe(11); // Diciembre
     expect(from.getFullYear()).toBe(now.getFullYear());
     expect(to.getFullYear()).toBe(now.getFullYear());
   });

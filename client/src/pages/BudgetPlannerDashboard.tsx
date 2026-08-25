@@ -1,20 +1,43 @@
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DollarSign, TrendingUp, Users, Target } from "lucide-react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function BudgetPlannerDashboard() {
-  const { data: scenarios, refetch } = trpc.budgetPlanner.getScenarios.useQuery();
-  const { data: highRiskEmployees } = (trpc as any).predictiveTurnover.getHighRiskEmployees.useQuery({ limit: 50 });
+  const { data: scenarios, refetch } =
+    trpc.budgetPlanner.getScenarios.useQuery();
+  const { data: highRiskEmployees } = (
+    trpc as any
+  ).predictiveTurnover.getHighRiskEmployees.useQuery({ limit: 50 });
 
   const createScenario = trpc.budgetPlanner.createScenario.useMutation({
     onSuccess: () => {
@@ -35,8 +58,13 @@ export default function BudgetPlannerDashboard() {
   const [scenarioName, setScenarioName] = useState("");
   const [scenarioDescription, setScenarioDescription] = useState("");
   const [totalBudget, setTotalBudget] = useState("");
-  const [selectedEmployees, setSelectedEmployees] = useState<Set<number>>(new Set());
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
+  const [selectedEmployees, setSelectedEmployees] = useState<Set<number>>(
+    new Set()
+  );
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   const handleEmployeeToggle = (employeeId: number) => {
     const newSet = new Set(selectedEmployees);
@@ -54,15 +82,16 @@ export default function BudgetPlannerDashboard() {
       return;
     }
 
-    const employeeAdjustments = highRiskEmployees
-      ?.filter((emp: any) => selectedEmployees.has(emp.employee_id))
-      .map((emp: any) => ({
-        employeeId: emp.employee_id,
-        employeeName: emp.employee_name,
-        currentSalary: parseFloat(emp.salary || "0"),
-        newSalary: parseFloat(emp.market_rate || emp.salary || "0"),
-        turnoverProbability: parseFloat(emp.turnover_probability || "0"),
-      })) || [];
+    const employeeAdjustments =
+      highRiskEmployees
+        ?.filter((emp: any) => selectedEmployees.has(emp.employee_id))
+        .map((emp: any) => ({
+          employeeId: emp.employee_id,
+          employeeName: emp.employee_name,
+          currentSalary: parseFloat(emp.salary || "0"),
+          newSalary: parseFloat(emp.market_rate || emp.salary || "0"),
+          turnoverProbability: parseFloat(emp.turnover_probability || "0"),
+        })) || [];
 
     createScenario.mutate({
       scenarioName,
@@ -77,7 +106,9 @@ export default function BudgetPlannerDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Planificador Presupuestario</h1>
-          <p className="text-muted-foreground">Simula y optimiza ajustes salariales múltiples</p>
+          <p className="text-muted-foreground">
+            Simula y optimiza ajustes salariales múltiples
+          </p>
         </div>
 
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
@@ -100,7 +131,7 @@ export default function BudgetPlannerDashboard() {
                 <Label>Nombre del Escenario</Label>
                 <Input
                   value={scenarioName}
-                  onChange={(e) => setScenarioName(e.target.value)}
+                  onChange={e => setScenarioName(e.target.value)}
                   placeholder="Ej: Ajustes Q1 2026"
                 />
               </div>
@@ -109,7 +140,7 @@ export default function BudgetPlannerDashboard() {
                 <Label>Descripción</Label>
                 <Textarea
                   value={scenarioDescription}
-                  onChange={(e) => setScenarioDescription(e.target.value)}
+                  onChange={e => setScenarioDescription(e.target.value)}
                   placeholder="Descripción opcional del escenario..."
                 />
               </div>
@@ -119,13 +150,16 @@ export default function BudgetPlannerDashboard() {
                 <Input
                   type="number"
                   value={totalBudget}
-                  onChange={(e) => setTotalBudget(e.target.value)}
+                  onChange={e => setTotalBudget(e.target.value)}
                   placeholder="Ej: 500000"
                 />
               </div>
 
               <div>
-                <Label>Empleados de Alto Riesgo ({selectedEmployees.size} seleccionados)</Label>
+                <Label>
+                  Empleados de Alto Riesgo ({selectedEmployees.size}{" "}
+                  seleccionados)
+                </Label>
                 <div className="border rounded-md max-h-64 overflow-y-auto mt-2">
                   <Table>
                     <TableHeader>
@@ -145,18 +179,44 @@ export default function BudgetPlannerDashboard() {
                             <input
                               type="checkbox"
                               checked={selectedEmployees.has(emp.employee_id)}
-                              onChange={() => handleEmployeeToggle(emp.employee_id)}
+                              onChange={() =>
+                                handleEmployeeToggle(emp.employee_id)
+                              }
                             />
                           </TableCell>
-                          <TableCell className="font-medium">{emp.employee_name}</TableCell>
-                          <TableCell>${parseFloat(emp.salary || "0").toLocaleString()}</TableCell>
-                          <TableCell>${parseFloat(emp.market_rate || emp.salary || "0").toLocaleString()}</TableCell>
+                          <TableCell className="font-medium">
+                            {emp.employee_name}
+                          </TableCell>
                           <TableCell>
-                            <Badge variant={parseFloat(emp.salary_gap_percentage || "0") < -20 ? "destructive" : "default"}>
-                              {parseFloat(emp.salary_gap_percentage || "0").toFixed(1)}%
+                            ${parseFloat(emp.salary || "0").toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            $
+                            {parseFloat(
+                              emp.market_rate || emp.salary || "0"
+                            ).toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                parseFloat(emp.salary_gap_percentage || "0") <
+                                -20
+                                  ? "destructive"
+                                  : "default"
+                              }
+                            >
+                              {parseFloat(
+                                emp.salary_gap_percentage || "0"
+                              ).toFixed(1)}
+                              %
                             </Badge>
                           </TableCell>
-                          <TableCell>{parseFloat(emp.turnover_probability || "0").toFixed(0)}%</TableCell>
+                          <TableCell>
+                            {parseFloat(
+                              emp.turnover_probability || "0"
+                            ).toFixed(0)}
+                            %
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -191,7 +251,11 @@ export default function BudgetPlannerDashboard() {
                     <CardTitle>{scenario.scenarioName}</CardTitle>
                     <CardDescription>{scenario.description}</CardDescription>
                   </div>
-                  <Badge variant={scenario.status === "approved" ? "default" : "secondary"}>
+                  <Badge
+                    variant={
+                      scenario.status === "approved" ? "default" : "secondary"
+                    }
+                  >
                     {scenario.status.toUpperCase()}
                   </Badge>
                 </div>
@@ -201,32 +265,48 @@ export default function BudgetPlannerDashboard() {
                   <div className="flex items-center gap-2">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Presupuesto Total</p>
-                      <p className="text-lg font-semibold">${parseFloat(scenario.totalBudget).toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Presupuesto Total
+                      </p>
+                      <p className="text-lg font-semibold">
+                        ${parseFloat(scenario.totalBudget).toLocaleString()}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Presupuesto Usado</p>
-                      <p className="text-lg font-semibold">${parseFloat(scenario.budgetUsed).toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Presupuesto Usado
+                      </p>
+                      <p className="text-lg font-semibold">
+                        ${parseFloat(scenario.budgetUsed).toLocaleString()}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Empleados Afectados</p>
-                      <p className="text-lg font-semibold">{scenario.totalEmployeesAffected}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Empleados Afectados
+                      </p>
+                      <p className="text-lg font-semibold">
+                        {scenario.totalEmployeesAffected}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-muted-foreground">ROI Estimado</p>
-                      <p className={`text-lg font-semibold ${parseFloat(scenario.roi) > 0 ? "text-green-600" : "text-red-600"}`}>
+                      <p className="text-sm text-muted-foreground">
+                        ROI Estimado
+                      </p>
+                      <p
+                        className={`text-lg font-semibold ${parseFloat(scenario.roi) > 0 ? "text-green-600" : "text-red-600"}`}
+                      >
                         {parseFloat(scenario.roi).toFixed(1)}%
                       </p>
                     </div>
@@ -240,7 +320,12 @@ export default function BudgetPlannerDashboard() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setDeleteConfirm({ id: scenario.id, name: scenario.scenarioName })}
+                    onClick={() =>
+                      setDeleteConfirm({
+                        id: scenario.id,
+                        name: scenario.scenarioName,
+                      })
+                    }
                   >
                     Eliminar
                   </Button>
@@ -253,7 +338,7 @@ export default function BudgetPlannerDashboard() {
 
       <ConfirmDialog
         open={deleteConfirm !== null}
-        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onOpenChange={open => !open && setDeleteConfirm(null)}
         onConfirm={() => {
           if (deleteConfirm) {
             deleteScenario.mutate({ scenarioId: deleteConfirm.id });

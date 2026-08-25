@@ -94,12 +94,8 @@
           "name": "alert_history_user_id_users_id_fk",
           "tableFrom": "alert_history",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -107,9 +103,7 @@
       "compositePrimaryKeys": {
         "alert_history_id": {
           "name": "alert_history_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -183,9 +177,7 @@
       "compositePrimaryKeys": {
         "alertLogs_id": {
           "name": "alertLogs_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -252,9 +244,7 @@
       "compositePrimaryKeys": {
         "answerOptions_id": {
           "name": "answerOptions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -328,9 +318,7 @@
       "compositePrimaryKeys": {
         "caseAssignments_id": {
           "name": "caseAssignments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -402,9 +390,7 @@
       "compositePrimaryKeys": {
         "caseDocuments_id": {
           "name": "caseDocuments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -462,9 +448,7 @@
       "compositePrimaryKeys": {
         "caseFollowUps_id": {
           "name": "caseFollowUps_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -583,17 +567,13 @@
       "compositePrimaryKeys": {
         "cases_id": {
           "name": "cases_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "cases_caseNumber_unique": {
           "name": "cases_caseNumber_unique",
-          "columns": [
-            "caseNumber"
-          ]
+          "columns": ["caseNumber"]
         }
       },
       "checkConstraint": {}
@@ -658,17 +638,13 @@
       "compositePrimaryKeys": {
         "certificates_id": {
           "name": "certificates_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "certificates_certificateNumber_unique": {
           "name": "certificates_certificateNumber_unique",
-          "columns": [
-            "certificateNumber"
-          ]
+          "columns": ["certificateNumber"]
         }
       },
       "checkConstraint": {}
@@ -750,23 +726,17 @@
       "compositePrimaryKeys": {
         "committeeMembers_id": {
           "name": "committeeMembers_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "committeeMembers_employeeId_unique": {
           "name": "committeeMembers_employeeId_unique",
-          "columns": [
-            "employeeId"
-          ]
+          "columns": ["employeeId"]
         },
         "committeeMembers_userId_unique": {
           "name": "committeeMembers_userId_unique",
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         }
       },
       "checkConstraint": {}
@@ -883,12 +853,8 @@
           "name": "committee_position_acceptances_committee_member_id_committeeMembers_id_fk",
           "tableFrom": "committee_position_acceptances",
           "tableTo": "committeeMembers",
-          "columnsFrom": [
-            "committee_member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["committee_member_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -896,9 +862,7 @@
       "compositePrimaryKeys": {
         "committee_position_acceptances_id": {
           "name": "committee_position_acceptances_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -965,12 +929,8 @@
           "name": "committee_attendance_session_id_committee_sessions_id_fk",
           "tableFrom": "committee_attendance",
           "tableTo": "committee_sessions",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["session_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -978,12 +938,8 @@
           "name": "committee_attendance_committee_member_id_committeeMembers_id_fk",
           "tableFrom": "committee_attendance",
           "tableTo": "committeeMembers",
-          "columnsFrom": [
-            "committee_member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["committee_member_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -991,9 +947,7 @@
       "compositePrimaryKeys": {
         "committee_attendance_id": {
           "name": "committee_attendance_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1083,12 +1037,8 @@
           "name": "committee_programs_created_by_users_id_fk",
           "tableFrom": "committee_programs",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1096,9 +1046,7 @@
       "compositePrimaryKeys": {
         "committee_programs_id": {
           "name": "committee_programs_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1196,12 +1144,8 @@
           "name": "committee_sessions_program_id_committee_programs_id_fk",
           "tableFrom": "committee_sessions",
           "tableTo": "committee_programs",
-          "columnsFrom": [
-            "program_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["program_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1209,9 +1153,7 @@
       "compositePrimaryKeys": {
         "committee_sessions_id": {
           "name": "committee_sessions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1345,12 +1287,8 @@
           "name": "company_digital_signature_user_id_users_id_fk",
           "tableFrom": "company_digital_signature",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1358,12 +1296,8 @@
           "name": "company_digital_signature_autorizado_por_users_id_fk",
           "tableFrom": "company_digital_signature",
           "tableTo": "users",
-          "columnsFrom": [
-            "autorizado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["autorizado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1371,9 +1305,7 @@
       "compositePrimaryKeys": {
         "company_digital_signature_id": {
           "name": "company_digital_signature_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1496,17 +1428,13 @@
       "compositePrimaryKeys": {
         "company_general_data_id": {
           "name": "company_general_data_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "company_general_data_rfc_unique": {
           "name": "company_general_data_rfc_unique",
-          "columns": [
-            "rfc"
-          ]
+          "columns": ["rfc"]
         }
       },
       "checkConstraint": {}
@@ -1657,9 +1585,7 @@
       "compositePrimaryKeys": {
         "company_legal_representative_id": {
           "name": "company_legal_representative_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1734,12 +1660,8 @@
           "name": "company_logo_uploaded_by_users_id_fk",
           "tableFrom": "company_logo",
           "tableTo": "users",
-          "columnsFrom": [
-            "uploaded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["uploaded_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1747,9 +1669,7 @@
       "compositePrimaryKeys": {
         "company_logo_id": {
           "name": "company_logo_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1978,12 +1898,8 @@
           "name": "company_survey_report_created_by_users_id_fk",
           "tableFrom": "company_survey_report",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1991,9 +1907,7 @@
       "compositePrimaryKeys": {
         "company_survey_report_id": {
           "name": "company_survey_report_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2067,9 +1981,7 @@
       "compositePrimaryKeys": {
         "competencies_id": {
           "name": "competencies_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2141,9 +2053,7 @@
       "compositePrimaryKeys": {
         "complianceChecklist_id": {
           "name": "complianceChecklist_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2218,9 +2128,7 @@
       "compositePrimaryKeys": {
         "complianceChecks_id": {
           "name": "complianceChecks_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2285,9 +2193,7 @@
       "compositePrimaryKeys": {
         "complianceEvidence_id": {
           "name": "complianceEvidence_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2426,9 +2332,7 @@
       "compositePrimaryKeys": {
         "correctiveActions_id": {
           "name": "correctiveActions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2510,9 +2414,7 @@
       "compositePrimaryKeys": {
         "courses_id": {
           "name": "courses_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2605,9 +2507,7 @@
       "compositePrimaryKeys": {
         "department_history_id": {
           "name": "department_history_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2689,23 +2589,17 @@
       "compositePrimaryKeys": {
         "departments_id": {
           "name": "departments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "departments_name_unique": {
           "name": "departments_name_unique",
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         },
         "departments_code_unique": {
           "name": "departments_code_unique",
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "checkConstraint": {}
@@ -2756,12 +2650,8 @@
           "name": "document_evidence_document_id_documents_id_fk",
           "tableFrom": "document_evidence",
           "tableTo": "documents",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2769,9 +2659,7 @@
       "compositePrimaryKeys": {
         "document_evidence_id": {
           "name": "document_evidence_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2844,12 +2732,8 @@
           "name": "document_participants_document_id_documents_id_fk",
           "tableFrom": "document_participants",
           "tableTo": "documents",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2857,12 +2741,8 @@
           "name": "document_participants_user_id_users_id_fk",
           "tableFrom": "document_participants",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2870,9 +2750,7 @@
       "compositePrimaryKeys": {
         "document_participants_id": {
           "name": "document_participants_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -2983,12 +2861,8 @@
           "name": "documents_format_catalog_id_format_catalog_id_fk",
           "tableFrom": "documents",
           "tableTo": "format_catalog",
-          "columnsFrom": [
-            "format_catalog_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["format_catalog_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2996,12 +2870,8 @@
           "name": "documents_created_by_users_id_fk",
           "tableFrom": "documents",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3009,23 +2879,17 @@
       "compositePrimaryKeys": {
         "documents_id": {
           "name": "documents_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "documents_folio_unique": {
           "name": "documents_folio_unique",
-          "columns": [
-            "folio"
-          ]
+          "columns": ["folio"]
         },
         "documents_qr_code_unique": {
           "name": "documents_qr_code_unique",
-          "columns": [
-            "qr_code"
-          ]
+          "columns": ["qr_code"]
         }
       },
       "checkConstraint": {}
@@ -3112,9 +2976,7 @@
       "compositePrimaryKeys": {
         "employeeCompetencies_id": {
           "name": "employeeCompetencies_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3239,9 +3101,7 @@
       "compositePrimaryKeys": {
         "employeeDocuments_id": {
           "name": "employeeDocuments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3349,12 +3209,8 @@
           "name": "employeeHistory_employeeId_employees_id_fk",
           "tableFrom": "employeeHistory",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employeeId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employeeId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3362,12 +3218,8 @@
           "name": "employeeHistory_processedBy_users_id_fk",
           "tableFrom": "employeeHistory",
           "tableTo": "users",
-          "columnsFrom": [
-            "processedBy"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["processedBy"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3375,12 +3227,8 @@
           "name": "employeeHistory_departmentId_departments_id_fk",
           "tableFrom": "employeeHistory",
           "tableTo": "departments",
-          "columnsFrom": [
-            "departmentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3388,12 +3236,8 @@
           "name": "employeeHistory_positionId_positions_id_fk",
           "tableFrom": "employeeHistory",
           "tableTo": "positions",
-          "columnsFrom": [
-            "positionId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["positionId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3401,9 +3245,7 @@
       "compositePrimaryKeys": {
         "employeeHistory_id": {
           "name": "employeeHistory_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3572,12 +3414,8 @@
           "name": "employees_departmentId_departments_id_fk",
           "tableFrom": "employees",
           "tableTo": "departments",
-          "columnsFrom": [
-            "departmentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3585,12 +3423,8 @@
           "name": "employees_positionId_positions_id_fk",
           "tableFrom": "employees",
           "tableTo": "positions",
-          "columnsFrom": [
-            "positionId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["positionId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3598,35 +3432,25 @@
       "compositePrimaryKeys": {
         "employees_id": {
           "name": "employees_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "employees_email_unique": {
           "name": "employees_email_unique",
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "employees_curp_unique": {
           "name": "employees_curp_unique",
-          "columns": [
-            "curp"
-          ]
+          "columns": ["curp"]
         },
         "employees_employeeNumber_unique": {
           "name": "employees_employeeNumber_unique",
-          "columns": [
-            "employeeNumber"
-          ]
+          "columns": ["employeeNumber"]
         },
         "employees_userId_unique": {
           "name": "employees_userId_unique",
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         }
       },
       "checkConstraint": {}
@@ -3771,12 +3595,8 @@
           "name": "equality_affirmative_actions_created_by_users_id_fk",
           "tableFrom": "equality_affirmative_actions",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3784,9 +3604,7 @@
       "compositePrimaryKeys": {
         "equality_affirmative_actions_id": {
           "name": "equality_affirmative_actions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -3876,12 +3694,8 @@
           "name": "equality_committee_user_id_users_id_fk",
           "tableFrom": "equality_committee",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3889,12 +3703,8 @@
           "name": "equality_committee_designado_por_users_id_fk",
           "tableFrom": "equality_committee",
           "tableTo": "users",
-          "columnsFrom": [
-            "designado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["designado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3902,9 +3712,7 @@
       "compositePrimaryKeys": {
         "equality_committee_id": {
           "name": "equality_committee_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4080,12 +3888,8 @@
           "name": "equality_complaints_investigador_asignado_users_id_fk",
           "tableFrom": "equality_complaints",
           "tableTo": "users",
-          "columnsFrom": [
-            "investigador_asignado"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["investigador_asignado"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4093,12 +3897,8 @@
           "name": "equality_complaints_created_by_users_id_fk",
           "tableFrom": "equality_complaints",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4106,17 +3906,13 @@
       "compositePrimaryKeys": {
         "equality_complaints_id": {
           "name": "equality_complaints_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "equality_complaints_folio_unique": {
           "name": "equality_complaints_folio_unique",
-          "columns": [
-            "folio"
-          ]
+          "columns": ["folio"]
         }
       },
       "checkConstraint": {}
@@ -4219,12 +4015,8 @@
           "name": "equality_policy_aprobado_por_users_id_fk",
           "tableFrom": "equality_policy",
           "tableTo": "users",
-          "columnsFrom": [
-            "aprobado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["aprobado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4232,12 +4024,8 @@
           "name": "equality_policy_created_by_users_id_fk",
           "tableFrom": "equality_policy",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4245,9 +4033,7 @@
       "compositePrimaryKeys": {
         "equality_policy_id": {
           "name": "equality_policy_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4379,12 +4165,8 @@
           "name": "equality_salary_gap_calculado_por_users_id_fk",
           "tableFrom": "equality_salary_gap",
           "tableTo": "users",
-          "columnsFrom": [
-            "calculado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["calculado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4392,9 +4174,7 @@
       "compositePrimaryKeys": {
         "equality_salary_gap_id": {
           "name": "equality_salary_gap_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4481,9 +4261,7 @@
       "compositePrimaryKeys": {
         "evaluationAttempts_id": {
           "name": "evaluationAttempts_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4566,9 +4344,7 @@
       "compositePrimaryKeys": {
         "evaluations_id": {
           "name": "evaluations_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4650,17 +4426,13 @@
       "compositePrimaryKeys": {
         "format_catalog_id": {
           "name": "format_catalog_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "format_catalog_code_unique": {
           "name": "format_catalog_code_unique",
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "checkConstraint": {}
@@ -4785,12 +4557,8 @@
           "name": "investigation_questionnaires_case_id_nom035_cases_id_fk",
           "tableFrom": "investigation_questionnaires",
           "tableTo": "nom035_cases",
-          "columnsFrom": [
-            "case_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["case_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4798,12 +4566,8 @@
           "name": "investigation_questionnaires_employee_id_employees_id_fk",
           "tableFrom": "investigation_questionnaires",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employee_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employee_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4811,12 +4575,8 @@
           "name": "investigation_questionnaires_created_by_users_id_fk",
           "tableFrom": "investigation_questionnaires",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4824,17 +4584,13 @@
       "compositePrimaryKeys": {
         "investigation_questionnaires_id": {
           "name": "investigation_questionnaires_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "investigation_questionnaires_access_token_unique": {
           "name": "investigation_questionnaires_access_token_unique",
-          "columns": [
-            "access_token"
-          ]
+          "columns": ["access_token"]
         }
       },
       "checkConstraint": {}
@@ -4907,9 +4663,7 @@
       "compositePrimaryKeys": {
         "jobFunctions_id": {
           "name": "jobFunctions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -4983,9 +4737,7 @@
       "compositePrimaryKeys": {
         "jobPositions_id": {
           "name": "jobPositions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -5059,9 +4811,7 @@
       "compositePrimaryKeys": {
         "jobProfiles_id": {
           "name": "jobProfiles_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -5202,17 +4952,13 @@
       "compositePrimaryKeys": {
         "mailbox_id": {
           "name": "mailbox_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "mailbox_folio_unique": {
           "name": "mailbox_folio_unique",
-          "columns": [
-            "folio"
-          ]
+          "columns": ["folio"]
         }
       },
       "checkConstraint": {}
@@ -5270,9 +5016,7 @@
       "compositePrimaryKeys": {
         "mailboxResponses_id": {
           "name": "mailboxResponses_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -5344,9 +5088,7 @@
       "compositePrimaryKeys": {
         "meetingAttachments_id": {
           "name": "meetingAttachments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -5477,17 +5219,13 @@
       "compositePrimaryKeys": {
         "meetingMinutes_id": {
           "name": "meetingMinutes_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "meetingMinutes_folio_unique": {
           "name": "meetingMinutes_folio_unique",
-          "columns": [
-            "folio"
-          ]
+          "columns": ["folio"]
         }
       },
       "checkConstraint": {}
@@ -5572,9 +5310,7 @@
       "compositePrimaryKeys": {
         "meetingParticipants_id": {
           "name": "meetingParticipants_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -5656,9 +5392,7 @@
       "compositePrimaryKeys": {
         "modules_id": {
           "name": "modules_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -5804,12 +5538,8 @@
           "name": "nom035_cases_employee_id_employees_id_fk",
           "tableFrom": "nom035_cases",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employee_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employee_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5817,12 +5547,8 @@
           "name": "nom035_cases_assigned_to_users_id_fk",
           "tableFrom": "nom035_cases",
           "tableTo": "users",
-          "columnsFrom": [
-            "assigned_to"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assigned_to"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5830,12 +5556,8 @@
           "name": "nom035_cases_closed_by_users_id_fk",
           "tableFrom": "nom035_cases",
           "tableTo": "users",
-          "columnsFrom": [
-            "closed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["closed_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5843,12 +5565,8 @@
           "name": "nom035_cases_created_by_users_id_fk",
           "tableFrom": "nom035_cases",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5856,17 +5574,13 @@
       "compositePrimaryKeys": {
         "nom035_cases_id": {
           "name": "nom035_cases_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "nom035_cases_folio_unique": {
           "name": "nom035_cases_folio_unique",
-          "columns": [
-            "folio"
-          ]
+          "columns": ["folio"]
         }
       },
       "checkConstraint": {}
@@ -5982,12 +5696,8 @@
           "name": "nom035_evidence_folder_uploaded_by_users_id_fk",
           "tableFrom": "nom035_evidence_folder",
           "tableTo": "users",
-          "columnsFrom": [
-            "uploaded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["uploaded_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5995,9 +5705,7 @@
       "compositePrimaryKeys": {
         "nom035_evidence_folder_id": {
           "name": "nom035_evidence_folder_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -6087,12 +5795,8 @@
           "name": "nom035_policies_representante_legal_id_company_legal_representative_id_fk",
           "tableFrom": "nom035_policies",
           "tableTo": "company_legal_representative",
-          "columnsFrom": [
-            "representante_legal_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["representante_legal_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6100,12 +5804,8 @@
           "name": "nom035_policies_created_by_users_id_fk",
           "tableFrom": "nom035_policies",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6113,9 +5813,7 @@
       "compositePrimaryKeys": {
         "nom035_policies_id": {
           "name": "nom035_policies_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -6188,17 +5886,13 @@
       "compositePrimaryKeys": {
         "nom035_questions_id": {
           "name": "nom035_questions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "nom035_questions_question_number_unique": {
           "name": "nom035_questions_question_number_unique",
-          "columns": [
-            "question_number"
-          ]
+          "columns": ["question_number"]
         }
       },
       "checkConstraint": {}
@@ -6256,12 +5950,8 @@
           "name": "nom035_responses_employee_id_employees_id_fk",
           "tableFrom": "nom035_responses",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employee_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employee_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6269,12 +5959,8 @@
           "name": "nom035_responses_survey_period_id_nom035_survey_periods_id_fk",
           "tableFrom": "nom035_responses",
           "tableTo": "nom035_survey_periods",
-          "columnsFrom": [
-            "survey_period_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["survey_period_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6282,12 +5968,8 @@
           "name": "nom035_responses_question_id_nom035_questions_id_fk",
           "tableFrom": "nom035_responses",
           "tableTo": "nom035_questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6295,9 +5977,7 @@
       "compositePrimaryKeys": {
         "nom035_responses_id": {
           "name": "nom035_responses_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -6392,12 +6072,8 @@
           "name": "nom035_results_employee_id_employees_id_fk",
           "tableFrom": "nom035_results",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employee_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employee_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6405,12 +6081,8 @@
           "name": "nom035_results_survey_period_id_nom035_survey_periods_id_fk",
           "tableFrom": "nom035_results",
           "tableTo": "nom035_survey_periods",
-          "columnsFrom": [
-            "survey_period_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["survey_period_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6418,9 +6090,7 @@
       "compositePrimaryKeys": {
         "nom035_results_id": {
           "name": "nom035_results_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -6496,12 +6166,8 @@
           "name": "nom035_survey_periods_created_by_users_id_fk",
           "tableFrom": "nom035_survey_periods",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6509,9 +6175,7 @@
       "compositePrimaryKeys": {
         "nom035_survey_periods_id": {
           "name": "nom035_survey_periods_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -6591,9 +6255,7 @@
       "compositePrimaryKeys": {
         "notifications_id": {
           "name": "notifications_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -6682,9 +6344,7 @@
       "compositePrimaryKeys": {
         "organizationalCompetencies_id": {
           "name": "organizationalCompetencies_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -6772,9 +6432,7 @@
       "compositePrimaryKeys": {
         "performanceEvaluations_id": {
           "name": "performanceEvaluations_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -6857,12 +6515,8 @@
           "name": "positions_departmentId_departments_id_fk",
           "tableFrom": "positions",
           "tableTo": "departments",
-          "columnsFrom": [
-            "departmentId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["departmentId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6870,17 +6524,13 @@
       "compositePrimaryKeys": {
         "positions_id": {
           "name": "positions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "positions_code_unique": {
           "name": "positions_code_unique",
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "checkConstraint": {}
@@ -6960,12 +6610,8 @@
           "name": "protocol_steps_case_id_workplace_violence_cases_id_fk",
           "tableFrom": "protocol_steps",
           "tableTo": "workplace_violence_cases",
-          "columnsFrom": [
-            "case_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["case_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6973,12 +6619,8 @@
           "name": "protocol_steps_responsible_id_users_id_fk",
           "tableFrom": "protocol_steps",
           "tableTo": "users",
-          "columnsFrom": [
-            "responsible_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["responsible_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6986,9 +6628,7 @@
       "compositePrimaryKeys": {
         "protocol_steps_id": {
           "name": "protocol_steps_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7064,9 +6704,7 @@
       "compositePrimaryKeys": {
         "questions_id": {
           "name": "questions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7162,9 +6800,7 @@
       "compositePrimaryKeys": {
         "resources_id": {
           "name": "resources_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7258,12 +6894,8 @@
           "name": "signatures_document_id_documents_id_fk",
           "tableFrom": "signatures",
           "tableTo": "documents",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7271,12 +6903,8 @@
           "name": "signatures_user_id_users_id_fk",
           "tableFrom": "signatures",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7284,9 +6912,7 @@
       "compositePrimaryKeys": {
         "signatures_id": {
           "name": "signatures_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7367,9 +6993,7 @@
       "compositePrimaryKeys": {
         "skillsMatrix_id": {
           "name": "skillsMatrix_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7441,9 +7065,7 @@
       "compositePrimaryKeys": {
         "skillsMatrixImports_id": {
           "name": "skillsMatrixImports_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7516,9 +7138,7 @@
       "compositePrimaryKeys": {
         "studentAnswers_id": {
           "name": "studentAnswers_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7616,9 +7236,7 @@
       "compositePrimaryKeys": {
         "studentProgress_id": {
           "name": "studentProgress_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7670,12 +7288,8 @@
           "name": "survey_answers_response_id_survey_responses_id_fk",
           "tableFrom": "survey_answers",
           "tableTo": "survey_responses",
-          "columnsFrom": [
-            "response_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["response_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7683,12 +7297,8 @@
           "name": "survey_answers_question_id_survey_questions_id_fk",
           "tableFrom": "survey_answers",
           "tableTo": "survey_questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["question_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7696,9 +7306,7 @@
       "compositePrimaryKeys": {
         "survey_answers_id": {
           "name": "survey_answers_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7785,9 +7393,7 @@
       "compositePrimaryKeys": {
         "surveyNotifications_id": {
           "name": "surveyNotifications_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7877,12 +7483,8 @@
           "name": "survey_periods_created_by_users_id_fk",
           "tableFrom": "survey_periods",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7890,9 +7492,7 @@
       "compositePrimaryKeys": {
         "survey_periods_id": {
           "name": "survey_periods_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -7987,12 +7587,8 @@
           "name": "survey_questions_survey_id_surveys_id_fk",
           "tableFrom": "survey_questions",
           "tableTo": "surveys",
-          "columnsFrom": [
-            "survey_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["survey_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8000,9 +7596,7 @@
       "compositePrimaryKeys": {
         "survey_questions_id": {
           "name": "survey_questions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -8096,12 +7690,8 @@
           "name": "survey_responses_survey_id_surveys_id_fk",
           "tableFrom": "survey_responses",
           "tableTo": "surveys",
-          "columnsFrom": [
-            "survey_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["survey_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8109,12 +7699,8 @@
           "name": "survey_responses_period_id_survey_periods_id_fk",
           "tableFrom": "survey_responses",
           "tableTo": "survey_periods",
-          "columnsFrom": [
-            "period_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["period_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8122,12 +7708,8 @@
           "name": "survey_responses_user_id_users_id_fk",
           "tableFrom": "survey_responses",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8135,17 +7717,13 @@
       "compositePrimaryKeys": {
         "survey_responses_id": {
           "name": "survey_responses_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "survey_responses_token_unique": {
           "name": "survey_responses_token_unique",
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "checkConstraint": {}
@@ -8231,12 +7809,8 @@
           "name": "survey_tokens_period_id_survey_periods_id_fk",
           "tableFrom": "survey_tokens",
           "tableTo": "survey_periods",
-          "columnsFrom": [
-            "period_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["period_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8244,12 +7818,8 @@
           "name": "survey_tokens_user_id_users_id_fk",
           "tableFrom": "survey_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8257,12 +7827,8 @@
           "name": "survey_tokens_survey_id_surveys_id_fk",
           "tableFrom": "survey_tokens",
           "tableTo": "surveys",
-          "columnsFrom": [
-            "survey_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["survey_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8270,17 +7836,13 @@
       "compositePrimaryKeys": {
         "survey_tokens_id": {
           "name": "survey_tokens_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "survey_tokens_token_unique": {
           "name": "survey_tokens_token_unique",
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "checkConstraint": {}
@@ -8368,9 +7930,7 @@
       "compositePrimaryKeys": {
         "surveys_id": {
           "name": "surveys_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -8437,17 +7997,13 @@
       "compositePrimaryKeys": {
         "systemSettings_id": {
           "name": "systemSettings_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "systemSettings_settingKey_unique": {
           "name": "systemSettings_settingKey_unique",
-          "columns": [
-            "settingKey"
-          ]
+          "columns": ["settingKey"]
         }
       },
       "checkConstraint": {}
@@ -8570,9 +8126,7 @@
       "compositePrimaryKeys": {
         "trainingNeeds_id": {
           "name": "trainingNeeds_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -8767,29 +8321,21 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         },
         "users_curp_unique": {
           "name": "users_curp_unique",
-          "columns": [
-            "curp"
-          ]
+          "columns": ["curp"]
         },
         "users_rfc_unique": {
           "name": "users_rfc_unique",
-          "columns": [
-            "rfc"
-          ]
+          "columns": ["rfc"]
         }
       },
       "checkConstraint": {}
@@ -8943,12 +8489,8 @@
           "name": "workplace_violence_cases_complainant_id_employees_id_fk",
           "tableFrom": "workplace_violence_cases",
           "tableTo": "employees",
-          "columnsFrom": [
-            "complainant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["complainant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8956,12 +8498,8 @@
           "name": "workplace_violence_cases_accused_id_employees_id_fk",
           "tableFrom": "workplace_violence_cases",
           "tableTo": "employees",
-          "columnsFrom": [
-            "accused_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["accused_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8969,12 +8507,8 @@
           "name": "workplace_violence_cases_assigned_to_id_users_id_fk",
           "tableFrom": "workplace_violence_cases",
           "tableTo": "users",
-          "columnsFrom": [
-            "assigned_to_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assigned_to_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8982,12 +8516,8 @@
           "name": "workplace_violence_cases_created_by_users_id_fk",
           "tableFrom": "workplace_violence_cases",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8995,17 +8525,13 @@
       "compositePrimaryKeys": {
         "workplace_violence_cases_id": {
           "name": "workplace_violence_cases_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "workplace_violence_cases_folio_unique": {
           "name": "workplace_violence_cases_folio_unique",
-          "columns": [
-            "folio"
-          ]
+          "columns": ["folio"]
         }
       },
       "checkConstraint": {}

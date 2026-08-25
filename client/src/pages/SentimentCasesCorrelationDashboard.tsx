@@ -5,12 +5,31 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Link } from "wouter";
-import { TrendingUp, AlertCircle, CheckCircle, Clock, ExternalLink, BarChart3 } from "lucide-react";
+import {
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  ExternalLink,
+  BarChart3,
+} from "lucide-react";
 import { Line, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -36,26 +55,34 @@ ChartJS.register(
 );
 
 export default function SentimentCasesCorrelationDashboard() {
-  const [departmentId, setDepartmentId] = useState<number | undefined>(undefined);
+  const [departmentId, setDepartmentId] = useState<number | undefined>(
+    undefined
+  );
 
   // Query: datos de correlación temporal
-  const { data: correlationData = [], isLoading: loadingCorrelation } = trpc.sentimentCasesCorrelation.getCorrelationData.useQuery({
-    departmentId,
-  });
+  const { data: correlationData = [], isLoading: loadingCorrelation } =
+    trpc.sentimentCasesCorrelation.getCorrelationData.useQuery({
+      departmentId,
+    });
 
   // Query: casos generados automáticamente
-  const { data: autoCases = [], isLoading: loadingCases } = trpc.sentimentCasesCorrelation.getAutoCases.useQuery({
-    limit: 20,
-  });
+  const { data: autoCases = [], isLoading: loadingCases } =
+    trpc.sentimentCasesCorrelation.getAutoCases.useQuery({
+      limit: 20,
+    });
 
   // Query: métricas de efectividad
-  const { data: metrics } = trpc.sentimentCasesCorrelation.getInterventionMetrics.useQuery();
+  const { data: metrics } =
+    trpc.sentimentCasesCorrelation.getInterventionMetrics.useQuery();
 
   // Query: distribución por departamento
-  const { data: casesByDept = [] } = trpc.sentimentCasesCorrelation.getCasesByDepartment.useQuery();
+  const { data: casesByDept = [] } =
+    trpc.sentimentCasesCorrelation.getCasesByDepartment.useQuery();
 
   // Query: lista de departamentos
-  const { data: departmentsData } = trpc.departments.list.useQuery({ pageSize: 1000 });
+  const { data: departmentsData } = trpc.departments.list.useQuery({
+    pageSize: 1000,
+  });
   const departments = departmentsData?.data ?? [];
 
   // Datos para gráfico de línea temporal
@@ -137,7 +164,11 @@ export default function SentimentCasesCorrelationDashboard() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "closed":
-        return <Badge variant="default" className="bg-green-600">Cerrado</Badge>;
+        return (
+          <Badge variant="default" className="bg-green-600">
+            Cerrado
+          </Badge>
+        );
       case "investigating":
         return <Badge variant="secondary">En Investigación</Badge>;
       case "open":
@@ -152,7 +183,11 @@ export default function SentimentCasesCorrelationDashboard() {
       case "critical":
         return <Badge variant="destructive">Crítico</Badge>;
       case "high":
-        return <Badge variant="destructive" className="bg-orange-600">Alto</Badge>;
+        return (
+          <Badge variant="destructive" className="bg-orange-600">
+            Alto
+          </Badge>
+        );
       case "medium":
         return <Badge variant="secondary">Medio</Badge>;
       case "low":
@@ -171,7 +206,8 @@ export default function SentimentCasesCorrelationDashboard() {
           Correlación Sentimiento-Casos
         </h1>
         <p className="text-muted-foreground mt-2">
-          Visualiza la relación entre análisis de sentimiento y casos generados automáticamente
+          Visualiza la relación entre análisis de sentimiento y casos generados
+          automáticamente
         </p>
       </div>
 
@@ -183,10 +219,14 @@ export default function SentimentCasesCorrelationDashboard() {
         <CardContent>
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium mb-2 block">Departamento</label>
+              <label className="text-sm font-medium mb-2 block">
+                Departamento
+              </label>
               <Select
                 value={departmentId?.toString() || "all"}
-                onValueChange={(value) => setDepartmentId(value === "all" ? undefined : parseInt(value))}
+                onValueChange={value =>
+                  setDepartmentId(value === "all" ? undefined : parseInt(value))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los departamentos" />
@@ -210,7 +250,9 @@ export default function SentimentCasesCorrelationDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Casos Automáticos</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Casos Automáticos
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -222,11 +264,15 @@ export default function SentimentCasesCorrelationDashboard() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Casos Cerrados</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Casos Cerrados
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-bold text-green-600">{metrics.closedCases}</span>
+                <span className="text-3xl font-bold text-green-600">
+                  {metrics.closedCases}
+                </span>
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
@@ -234,11 +280,15 @@ export default function SentimentCasesCorrelationDashboard() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Tasa de Resolución</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Tasa de Resolución
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-bold">{metrics.resolutionRate}%</span>
+                <span className="text-3xl font-bold">
+                  {metrics.resolutionRate}%
+                </span>
                 <TrendingUp className="h-8 w-8 text-primary" />
               </div>
             </CardContent>
@@ -246,11 +296,15 @@ export default function SentimentCasesCorrelationDashboard() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Tiempo Promedio de Resolución</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Tiempo Promedio de Resolución
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-bold">{metrics.avgResolutionDays}</span>
+                <span className="text-3xl font-bold">
+                  {metrics.avgResolutionDays}
+                </span>
                 <Clock className="h-8 w-8 text-orange-600" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">días</p>
@@ -262,8 +316,13 @@ export default function SentimentCasesCorrelationDashboard() {
       {/* Gráfico de Línea Temporal */}
       <Card>
         <CardHeader>
-          <CardTitle>Evolución Temporal: Comentarios Críticos vs Casos Abiertos</CardTitle>
-          <CardDescription>Comparación mensual de comentarios críticos detectados y casos generados</CardDescription>
+          <CardTitle>
+            Evolución Temporal: Comentarios Críticos vs Casos Abiertos
+          </CardTitle>
+          <CardDescription>
+            Comparación mensual de comentarios críticos detectados y casos
+            generados
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {loadingCorrelation ? (
@@ -286,8 +345,12 @@ export default function SentimentCasesCorrelationDashboard() {
       {casesByDept.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Distribución de Casos Automáticos por Departamento</CardTitle>
-            <CardDescription>Número de casos generados automáticamente por departamento</CardDescription>
+            <CardTitle>
+              Distribución de Casos Automáticos por Departamento
+            </CardTitle>
+            <CardDescription>
+              Número de casos generados automáticamente por departamento
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
@@ -304,11 +367,15 @@ export default function SentimentCasesCorrelationDashboard() {
             <BarChart3 className="h-5 w-5" />
             Casos Generados Automáticamente
           </CardTitle>
-          <CardDescription>Últimos 20 casos creados por el sistema de análisis de sentimiento</CardDescription>
+          <CardDescription>
+            Últimos 20 casos creados por el sistema de análisis de sentimiento
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {loadingCases ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando casos...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              Cargando casos...
+            </div>
           ) : autoCases.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -317,7 +384,10 @@ export default function SentimentCasesCorrelationDashboard() {
           ) : (
             <div className="space-y-3">
               {autoCases.map((caso: any) => (
-                <div key={caso.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                <div
+                  key={caso.id}
+                  className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+                >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -325,10 +395,17 @@ export default function SentimentCasesCorrelationDashboard() {
                         {getStatusBadge(caso.status)}
                         {getPriorityBadge(caso.priority)}
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{caso.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {caso.description}
+                      </p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>Departamento: {caso.departmentName || "Sin asignar"}</span>
-                        <span>Creado: {new Date(caso.createdAt).toLocaleDateString()}</span>
+                        <span>
+                          Departamento: {caso.departmentName || "Sin asignar"}
+                        </span>
+                        <span>
+                          Creado:{" "}
+                          {new Date(caso.createdAt).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
                     <Link href={`/cases/${caso.id}`}>

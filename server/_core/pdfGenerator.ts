@@ -78,7 +78,11 @@ export async function generatePDFFromHTML(
     await browser.close();
 
     const fileKey = `compliance-reports/${fileName}-${Date.now()}.pdf`;
-    const { url } = await storagePut(fileKey, Buffer.from(pdfBuffer), "application/pdf");
+    const { url } = await storagePut(
+      fileKey,
+      Buffer.from(pdfBuffer),
+      "application/pdf"
+    );
 
     return url;
   } catch (error) {
@@ -86,10 +90,14 @@ export async function generatePDFFromHTML(
       try {
         await browser.close();
       } catch (closeError) {
-        logNonBlockingFailure("pdf.browser_close_failed", closeError, { fileName });
+        logNonBlockingFailure("pdf.browser_close_failed", closeError, {
+          fileName,
+        });
       }
     }
-    throw new Error(`Error al generar PDF: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Error al generar PDF: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 }
 

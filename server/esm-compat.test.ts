@@ -30,11 +30,16 @@ function getSourceFiles(dir: string, files: string[] = []): string[] {
     const fullPath = join(dir, entry);
     const stat = statSync(fullPath);
     if (stat.isDirectory()) {
-      if (["node_modules", "dist", ".git", "coverage"].includes(entry)) continue;
+      if (["node_modules", "dist", ".git", "coverage"].includes(entry))
+        continue;
       getSourceFiles(fullPath, files);
     } else {
       const ext = extname(entry);
-      if ([".ts", ".tsx"].includes(ext) && !entry.endsWith(".test.ts") && !entry.endsWith(".test.tsx")) {
+      if (
+        [".ts", ".tsx"].includes(ext) &&
+        !entry.endsWith(".test.ts") &&
+        !entry.endsWith(".test.tsx")
+      ) {
         files.push(fullPath);
       }
     }
@@ -52,7 +57,12 @@ function findDirnameCalls(content: string, filePath: string): string[] {
   lines.forEach((line, idx) => {
     const trimmed = line.trimStart();
     // Ignorar líneas que son comentarios
-    if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) return;
+    if (
+      trimmed.startsWith("//") ||
+      trimmed.startsWith("*") ||
+      trimmed.startsWith("/*")
+    )
+      return;
     // Detectar __dirname usado como valor (no en comentarios inline)
     // Eliminar la parte de comentario inline antes de buscar
     const codeOnly = line.replace(/\/\/.*$/, "");
@@ -71,7 +81,12 @@ function findFilenameCalls(content: string, filePath: string): string[] {
   const lines = content.split("\n");
   lines.forEach((line, idx) => {
     const trimmed = line.trimStart();
-    if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) return;
+    if (
+      trimmed.startsWith("//") ||
+      trimmed.startsWith("*") ||
+      trimmed.startsWith("/*")
+    )
+      return;
     const codeOnly = line.replace(/\/\/.*$/, "");
     if (/\b__filename\b/.test(codeOnly)) {
       violations.push(`  ${filePath}:${idx + 1} → ${line.trim()}`);
@@ -86,7 +101,12 @@ function findFilenameCalls(content: string, filePath: string): string[] {
  */
 function findRequireCalls(content: string, filePath: string): string[] {
   // Archivos de configuración que pueden usar require() legítimamente
-  const allowedFiles = ["vite.config.ts", "drizzle.config.ts", "tailwind.config.ts", "postcss.config.ts"];
+  const allowedFiles = [
+    "vite.config.ts",
+    "drizzle.config.ts",
+    "tailwind.config.ts",
+    "postcss.config.ts",
+  ];
   const fileName = filePath.split("/").pop() ?? "";
   if (allowedFiles.includes(fileName)) return [];
 
@@ -94,10 +114,19 @@ function findRequireCalls(content: string, filePath: string): string[] {
   const lines = content.split("\n");
   lines.forEach((line, idx) => {
     const trimmed = line.trimStart();
-    if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) return;
+    if (
+      trimmed.startsWith("//") ||
+      trimmed.startsWith("*") ||
+      trimmed.startsWith("/*")
+    )
+      return;
     const codeOnly = line.replace(/\/\/.*$/, "");
     // Detectar require() como llamada de función (no en strings)
-    if (/\brequire\s*\(/.test(codeOnly) && !codeOnly.includes('"require"') && !codeOnly.includes("'require'")) {
+    if (
+      /\brequire\s*\(/.test(codeOnly) &&
+      !codeOnly.includes('"require"') &&
+      !codeOnly.includes("'require'")
+    ) {
       violations.push(`  ${filePath}:${idx + 1} → ${line.trim()}`);
     }
   });
@@ -169,7 +198,9 @@ describe("ESM Compatibility — Prevención de errores de despliegue en Cloud Ru
   it("server/_core/index.ts usa Vite en desarrollo y estáticos ESM en producción", () => {
     const indexPath = join(ROOT, "server/_core/index.ts");
     const content = readFileSync(indexPath, "utf-8");
-    expect(content).toContain('import { serveStatic, setupVite } from "./vite"');
+    expect(content).toContain(
+      'import { serveStatic, setupVite } from "./vite"'
+    );
     expect(content).toContain('process.env.NODE_ENV === "development"');
     expect(content).toContain("await setupVite(app, server)");
     expect(content).toContain("serveStatic(app)");

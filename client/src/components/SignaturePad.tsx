@@ -1,8 +1,8 @@
-import { useRef, useState, useEffect } from 'react';
-import SignatureCanvas from 'react-signature-canvas';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Eraser, Save, X, Edit } from 'lucide-react';
+import { useRef, useState, useEffect } from "react";
+import SignatureCanvas from "react-signature-canvas";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Eraser, Save, X, Edit } from "lucide-react";
 
 interface SignaturePadProps {
   onSave: (signatureDataUrl: string) => void;
@@ -14,7 +14,7 @@ interface SignaturePadProps {
 
 /**
  * Componente de captura de firma digitalizada con mejoras
- * 
+ *
  * Características:
  * - Canvas responsive que se ajusta al contenedor
  * - Vista previa de firma guardada
@@ -23,7 +23,7 @@ interface SignaturePadProps {
  * - Conversión automática a PNG/base64
  * - Detección de dispositivo táctil
  * - Validación de firma no vacía
- * 
+ *
  * @param onSave - Callback con la firma en formato data URL (base64 comprimido)
  * @param onCancel - Callback opcional para cancelar
  * @param signerName - Nombre del firmante (opcional, para mostrar)
@@ -42,13 +42,15 @@ export function SignaturePad({
   const [isEmpty, setIsEmpty] = useState(true);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [canvasSize, setCanvasSize] = useState({ width: 500, height: 200 });
-  const [savedSignature, setSavedSignature] = useState<string | null>(initialSignature || null);
+  const [savedSignature, setSavedSignature] = useState<string | null>(
+    initialSignature || null
+  );
   const [isEditing, setIsEditing] = useState(!initialSignature);
 
   useEffect(() => {
     // Detectar si el dispositivo soporta touch
     const hasTouchSupport =
-      'ontouchstart' in window ||
+      "ontouchstart" in window ||
       navigator.maxTouchPoints > 0 ||
       (navigator as any).msMaxTouchPoints > 0;
     setIsTouchDevice(hasTouchSupport);
@@ -87,28 +89,28 @@ export function SignaturePad({
   };
 
   const compressSignature = (dataUrl: string): Promise<string> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const img = new Image();
       img.onload = () => {
         // Crear canvas temporal para compresión
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         const targetWidth = 300;
         const targetHeight = 120;
         canvas.width = targetWidth;
         canvas.height = targetHeight;
-        
-        const ctx = canvas.getContext('2d');
+
+        const ctx = canvas.getContext("2d");
         if (ctx) {
           // Fondo blanco
-          ctx.fillStyle = 'white';
+          ctx.fillStyle = "white";
           ctx.fillRect(0, 0, targetWidth, targetHeight);
-          
+
           // Dibujar imagen escalada
           ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
         }
-        
+
         // Convertir a PNG con calidad optimizada
-        resolve(canvas.toDataURL('image/png', 0.8));
+        resolve(canvas.toDataURL("image/png", 0.8));
       };
       img.src = dataUrl;
     });
@@ -117,15 +119,15 @@ export function SignaturePad({
   const handleSave = async () => {
     if (sigPadRef.current && !sigPadRef.current.isEmpty()) {
       // Obtener la firma como data URL (PNG base64)
-      const signatureDataUrl = sigPadRef.current.toDataURL('image/png');
-      
+      const signatureDataUrl = sigPadRef.current.toDataURL("image/png");
+
       // Comprimir la imagen
       const compressedSignature = await compressSignature(signatureDataUrl);
-      
+
       // Guardar en estado local para vista previa
       setSavedSignature(compressedSignature);
       setIsEditing(false);
-      
+
       // Llamar callback con firma comprimida
       onSave(compressedSignature);
     }
@@ -158,9 +160,9 @@ export function SignaturePad({
 
         {/* Vista previa de firma */}
         <div className="border-2 border-border rounded-lg overflow-hidden bg-white p-4">
-          <img 
-            src={savedSignature} 
-            alt="Firma guardada" 
+          <img
+            src={savedSignature}
+            alt="Firma guardada"
             className="w-full h-auto max-w-md mx-auto"
           />
         </div>
@@ -201,8 +203,8 @@ export function SignaturePad({
         )}
         <p className="text-sm text-muted-foreground">
           {isTouchDevice
-            ? 'Firme con su dedo o stylus en el área de abajo'
-            : 'Firme con el mouse en el área de abajo'}
+            ? "Firme con su dedo o stylus en el área de abajo"
+            : "Firme con el mouse en el área de abajo"}
         </p>
       </div>
 
@@ -213,7 +215,7 @@ export function SignaturePad({
           canvasProps={{
             width: canvasSize.width,
             height: canvasSize.height,
-            className: 'signature-canvas w-full',
+            className: "signature-canvas w-full",
           }}
           backgroundColor="rgb(255, 255, 255)"
           penColor="rgb(0, 0, 0)"
@@ -243,11 +245,7 @@ export function SignaturePad({
               Cancelar
             </Button>
           )}
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={isEmpty}
-          >
+          <Button type="button" onClick={handleSave} disabled={isEmpty}>
             <Save className="w-4 h-4 mr-2" />
             Guardar Firma
           </Button>
@@ -262,7 +260,8 @@ export function SignaturePad({
           NOM-151-SCFI-2016.
         </p>
         <p className="mt-1">
-          La firma se optimiza automáticamente a 300x120px para reducir el tamaño del documento.
+          La firma se optimiza automáticamente a 300x120px para reducir el
+          tamaño del documento.
         </p>
       </div>
     </Card>

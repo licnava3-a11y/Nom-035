@@ -18,7 +18,11 @@ export function DeferredChartFrame({
   return (
     <section aria-busy={loading} aria-live="polite" className="relative">
       {loading && (
-        <div role="status" aria-label="Cargando gráfica" className="absolute inset-0 z-10">
+        <div
+          role="status"
+          aria-label="Cargando gráfica"
+          className="absolute inset-0 z-10"
+        >
           <ChartSkeleton type={type} height={heightClass} title={false} />
         </div>
       )}

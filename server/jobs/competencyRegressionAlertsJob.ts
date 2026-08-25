@@ -1,5 +1,13 @@
 import { getDb } from "../db";
-import { competencies, competencyRegressionAlerts, departments, employees, notifications, organizationalCompetencies, skillsMatrixSnapshots } from "../../drizzle/schema";
+import {
+  competencies,
+  competencyRegressionAlerts,
+  departments,
+  employees,
+  notifications,
+  organizationalCompetencies,
+  skillsMatrixSnapshots,
+} from "../../drizzle/schema";
 import { desc, eq, and } from "drizzle-orm";
 import { sendEmail } from "../lib/email-sender";
 
@@ -29,7 +37,9 @@ interface RegressionAlert {
 
 export async function detectCompetencyRegressions() {
   const startTime = Date.now();
-  console.log(`[Competency Regression Job] Starting regression detection at ${new Date().toISOString()}`);
+  console.log(
+    `[Competency Regression Job] Starting regression detection at ${new Date().toISOString()}`
+  );
 
   try {
     const db = await getDb();
@@ -45,7 +55,9 @@ export async function detectCompetencyRegressions() {
       .orderBy(desc(skillsMatrixSnapshots.snapshotDate));
 
     if (allSnapshots.length < 2) {
-      console.log("[Competency Regression Job] Not enough snapshots to compare (need at least 2)");
+      console.log(
+        "[Competency Regression Job] Not enough snapshots to compare (need at least 2)"
+      );
       return { success: true, message: "Not enough snapshots to compare" };
     }
 
@@ -67,16 +79,22 @@ export async function detectCompetencyRegressions() {
     }
 
     // Process each department
-    for (const [deptId, deptSnapshots] of Array.from(snapshotsByDept.entries())) {
+    for (const [deptId, deptSnapshots] of Array.from(
+      snapshotsByDept.entries()
+    )) {
       if (deptSnapshots.length < 2) {
-        console.log(`[Competency Regression Job] Skipping department ${deptId} - not enough snapshots`);
+        console.log(
+          `[Competency Regression Job] Skipping department ${deptId} - not enough snapshots`
+        );
         continue;
       }
 
       // Get the two most recent snapshots
       const [currentSnapshot, previousSnapshot] = deptSnapshots.slice(0, 2);
 
-      console.log(`[Competency Regression Job] Comparing snapshots: ${currentSnapshot.name} vs ${previousSnapshot.name}`);
+      console.log(
+        `[Competency Regression Job] Comparing snapshots: ${currentSnapshot.name} vs ${previousSnapshot.name}`
+      );
 
       // Extract employee competencies from both snapshots
       const currentData = currentSnapshot.data as any;
@@ -118,14 +136,20 @@ export async function detectCompetencyRegressions() {
         const levelDrop = previous.level - current.level;
         if (levelDrop >= 1) {
           // Significant regression detected
-          const empData = currentData.employees.find((e: any) => e.employeeId === current.employeeId);
-          const compData = empData?.competencies.find((c: any) => c.competencyId === current.competencyId);
+          const empData = currentData.employees.find(
+            (e: any) => e.employeeId === current.employeeId
+          );
+          const compData = empData?.competencies.find(
+            (c: any) => c.competencyId === current.competencyId
+          );
 
           regressions.push({
             employeeId: current.employeeId,
-            employeeName: `${empData?.firstName || ''} ${empData?.lastName || ''}`.trim(),
+            employeeName:
+              `${empData?.firstName || ""} ${empData?.lastName || ""}`.trim(),
             competencyId: current.competencyId,
-            competencyName: compData?.competencyName || 'Competencia desconocida',
+            competencyName:
+              compData?.competencyName || "Competencia desconocida",
             previousLevel: previous.level,
             currentLevel: current.level,
             levelDrop,
@@ -147,10 +171,14 @@ export async function detectCompetencyRegressions() {
             });
 
             results.totalRegressions++;
-            const deptName = empData?.departmentName || 'Sin departamento';
-            results.regressionsByDepartment[deptName] = (results.regressionsByDepartment[deptName] || 0) + 1;
+            const deptName = empData?.departmentName || "Sin departamento";
+            results.regressionsByDepartment[deptName] =
+              (results.regressionsByDepartment[deptName] || 0) + 1;
           } catch (error: any) {
-            console.error(`[Competency Regression Job] Error saving alert for employee ${current.employeeId}:`, error);
+            console.error(
+              `[Competency Regression Job] Error saving alert for employee ${current.employeeId}:`,
+              error
+            );
             results.errors.push(`Error saving alert: ${error.message}`);
           }
         }
@@ -158,20 +186,32 @@ export async function detectCompetencyRegressions() {
 
       // Send notifications if regressions were detected
       if (regressions.length > 0) {
-        console.log(`[Competency Regression Job] Detected ${regressions.length} regressions in department ${deptId}`);
+        console.log(
+          `[Competency Regression Job] Detected ${regressions.length} regressions in department ${deptId}`
+        );
 
         try {
-          await sendRegressionNotifications(regressions, currentSnapshot.name, previousSnapshot.name);
+          await sendRegressionNotifications(
+            regressions,
+            currentSnapshot.name,
+            previousSnapshot.name
+          );
           results.notificationsSent++;
         } catch (error: any) {
-          console.error(`[Competency Regression Job] Error sending notifications:`, error);
+          console.error(
+            `[Competency Regression Job] Error sending notifications:`,
+            error
+          );
           results.errors.push(`Error sending notifications: ${error.message}`);
         }
       }
     }
 
     const duration = Date.now() - startTime;
-    console.log(`[Competency Regression Job] Completed in ${duration}ms. Results:`, results);
+    console.log(
+      `[Competency Regression Job] Completed in ${duration}ms. Results:`,
+      results
+    );
 
     return {
       success: true,
@@ -195,7 +235,7 @@ async function sendRegressionNotifications(
   // Group regressions by department
   const byDepartment = new Map<string, RegressionAlert[]>();
   for (const reg of regressions) {
-    const dept = reg.departmentName || 'Sin departamento';
+    const dept = reg.departmentName || "Sin departamento";
     if (!byDepartment.has(dept)) {
       byDepartment.set(dept, []);
     }
@@ -203,11 +243,14 @@ async function sendRegressionNotifications(
   }
 
   // Send email notification for each department
-  for (const [deptName, deptRegressions] of Array.from(byDepartment.entries())) {
+  for (const [deptName, deptRegressions] of Array.from(
+    byDepartment.entries()
+  )) {
     const subject = `🚨 Alerta: Retrocesos de Competencias Detectados - ${deptName}`;
 
     const employeeList = deptRegressions
-      .map((r: RegressionAlert) => `
+      .map(
+        (r: RegressionAlert) => `
         <tr>
           <td style="padding: 8px; border: 1px solid #ddd;">${r.employeeName}</td>
           <td style="padding: 8px; border: 1px solid #ddd;">${r.competencyName}</td>
@@ -215,8 +258,9 @@ async function sendRegressionNotifications(
           <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${r.currentLevel}</td>
           <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: #dc2626; font-weight: bold;">-${r.levelDrop}</td>
         </tr>
-      `)
-      .join('');
+      `
+      )
+      .join("");
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -264,9 +308,14 @@ async function sendRegressionNotifications(
         subject,
         html,
       });
-      console.log(`[Competency Regression Job] Notification sent for department: ${deptName}`);
+      console.log(
+        `[Competency Regression Job] Notification sent for department: ${deptName}`
+      );
     } catch (error: any) {
-      console.error(`[Competency Regression Job] Error sending email for ${deptName}:`, error);
+      console.error(
+        `[Competency Regression Job] Error sending email for ${deptName}:`,
+        error
+      );
       throw error;
     }
   }

@@ -1,7 +1,13 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, users, departments, positions, contractSignatures } from "../../drizzle/schema";
+import {
+  employees,
+  users,
+  departments,
+  positions,
+  contractSignatures,
+} from "../../drizzle/schema";
 import { storagePut } from "../storage";
 import crypto from "crypto";
 import { eq, and, lte, gte, or } from "drizzle-orm";
@@ -12,7 +18,8 @@ import { sendEmail } from "../lib/email-service";
  * Generate random password
  */
 function generatePassword(length: number = 12): string {
-  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  const charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
   let password = "";
   for (let i = 0; i < length; i++) {
     password += charset.charAt(Math.floor(Math.random() * charset.length));
@@ -38,7 +45,16 @@ export const hiringRouter = router({
     .input(
       z.object({
         employeeId: z.number(),
-        role: z.enum(["admin", "instructor", "student", "committee", "committee_member", "committee_coordinator"]).default("student"),
+        role: z
+          .enum([
+            "admin",
+            "instructor",
+            "student",
+            "committee",
+            "committee_member",
+            "committee_coordinator",
+          ])
+          .default("student"),
         sendToPersonalEmail: z.boolean().default(false),
       })
     )
@@ -83,7 +99,9 @@ export const hiringRouter = router({
         name: `${employee.firstName} ${employee.lastName}`,
         email: employee.email,
         role: input.role,
-        departamento: employee.departmentId ? String(employee.departmentId) : "Administración",
+        departamento: employee.departmentId
+          ? String(employee.departmentId)
+          : "Administración",
       });
 
       // Link user to employee
@@ -93,7 +111,9 @@ export const hiringRouter = router({
         .where(eq(employees.id, input.employeeId));
 
       // Prepare email
-      const recipientEmail = input.sendToPersonalEmail ? employee.email : employee.email;
+      const recipientEmail = input.sendToPersonalEmail
+        ? employee.email
+        : employee.email;
       const emailSubject = "Bienvenido al Sistema de Gestión NOM-035";
       const emailHtml = `
 <!DOCTYPE html>
@@ -139,7 +159,7 @@ export const hiringRouter = router({
       <p>Puedes acceder al sistema haciendo clic en el siguiente botón:</p>
       
       <div style="text-align: center;">
-        <a href="${process.env.VITE_FRONTEND_FORGE_API_URL || 'https://app.manus.im'}" class="button">
+        <a href="${process.env.VITE_FRONTEND_FORGE_API_URL || "https://app.manus.im"}" class="button">
           Acceder al Sistema
         </a>
       </div>
@@ -466,26 +486,57 @@ export const hiringRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
 
-      const [employee] = await db.select({ id: employees.id }).from(employees).where(eq(employees.id, input.employeeId)).limit(1);
-      if (!employee) throw new TRPCError({ code: "NOT_FOUND", message: "Empleado no encontrado" });
+      const [employee] = await db
+        .select({ id: employees.id })
+        .from(employees)
+        .where(eq(employees.id, input.employeeId))
+        .limit(1);
+      if (!employee)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Empleado no encontrado",
+        });
 
       if (!input.signatureDataUrl.startsWith("data:image/")) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Formato de firma inv\u00e1lido" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Formato de firma inv\u00e1lido",
+        });
       }
 
       const base64Data = input.signatureDataUrl.split(",")[1];
-      if (!base64Data) throw new TRPCError({ code: "BAD_REQUEST", message: "Datos de firma vac\u00edos" });
+      if (!base64Data)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Datos de firma vac\u00edos",
+        });
 
-      const signatureHash = crypto.createHash("sha256").update(base64Data).digest("hex");
+      const signatureHash = crypto
+        .createHash("sha256")
+        .update(base64Data)
+        .digest("hex");
       const fileBuffer = Buffer.from(base64Data, "base64");
       const fileKey = `contract-signatures/emp-${input.employeeId}-contract-${input.contractNumber}-${Date.now()}.png`;
-      const { url: signatureImageUrl } = await storagePut(fileKey, fileBuffer, "image/png");
+      const { url: signatureImageUrl } = await storagePut(
+        fileKey,
+        fileBuffer,
+        "image/png"
+      );
 
       const serverTimestamp = Date.now();
-      const ipAddress = (ctx.req as any)?.ip || (ctx.req as any)?.headers?.["x-forwarded-for"] || "unknown";
-      const deviceInfo = ((ctx.req as any)?.headers?.["user-agent"] || "unknown").substring(0, 200);
+      const ipAddress =
+        (ctx.req as any)?.ip ||
+        (ctx.req as any)?.headers?.["x-forwarded-for"] ||
+        "unknown";
+      const deviceInfo = (
+        (ctx.req as any)?.headers?.["user-agent"] || "unknown"
+      ).substring(0, 200);
 
       await (db.insert(contractSignatures) as any).values({
         employeeId: input.employeeId,
@@ -516,7 +567,11 @@ export const hiringRouter = router({
     .input(z.object({ employeeId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
       const sigs = await db
         .select()
         .from(contractSignatures)

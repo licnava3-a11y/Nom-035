@@ -7,10 +7,12 @@
 **Objetivo**: Prevenir errores en runtime agregando validaciones de inicialización de base de datos.
 
 **Implementación**:
+
 - Agregados guards de null en **12 archivos** (67 ubicaciones totales)
 - Patrón implementado: `if (!db) throw new Error('Database not initialized');`
 
 **Archivos modificados**:
+
 1. `server/routers/budgetPlanner.ts` - 1 guard
 2. `server/routers/careerPlanning.ts` - 1 guard
 3. `server/routers/climateAnalysis.ts` - 6 guards
@@ -25,6 +27,7 @@
 12. `server/jobs/external-offer-risk-monitor-job.ts` - Múltiples guards
 
 **Resultado**:
+
 - ✅ Errores TypeScript reducidos de 726 a 704 (reducción de 22 errores)
 - ✅ Sistema más robusto contra fallos de inicialización de DB
 - ✅ Mensajes de error más descriptivos para depuración
@@ -36,11 +39,13 @@
 **Hallazgo**: Los campos identificados como "obsoletos" (riskLevel, employeeId, severity) **NO son obsoletos**.
 
 **Verificación**:
+
 ```bash
 grep -r "riskLevel\|employeeId\|severity" server/ --include="*.ts"
 ```
 
 **Resultado**:
+
 - `employeeId`: Campo válido en múltiples tablas (committeeMembers, employeeHistory, nom035Responses)
 - `riskLevel`: Campo válido en tests y análisis de riesgos
 - `severity`: Campo válido en análisis de clima
@@ -54,11 +59,13 @@ grep -r "riskLevel\|employeeId\|severity" server/ --include="*.ts"
 **Documento creado**: `docs/ESTRATEGIA_TESTING_E2E_SIMPLIFICADA.md`
 
 **Análisis de situación actual**:
+
 - **Tiempo invertido en E2E**: 12-14 horas (8 sesiones)
 - **Tests funcionando**: 0/180
 - **Funcionalidad del sistema**: 100% operacional
 
 **Problemas identificados**:
+
 1. Complejidad excesiva del sistema de bypass de autenticación
 2. Cookies no persisten entre contexts
 3. Timeouts persistentes (>2 minutos)
@@ -67,17 +74,20 @@ grep -r "riskLevel\|employeeId\|severity" server/ --include="*.ts"
 **Estrategias propuestas**:
 
 #### Opción 1: Tests Sin Autenticación
+
 - **Cobertura**: ~20%
 - **Complejidad**: Baja
 - **Tiempo implementación**: 1 hora
 
 #### Opción 2: Mock de Usuario en Frontend (Recomendada)
+
 - **Cobertura**: ~60%
 - **Complejidad**: Media
 - **Tiempo implementación**: 2-3 horas
 - **Ventajas**: Balance óptimo entre cobertura y mantenibilidad
 
 #### Opción 3: Usuario de Prueba Real
+
 - **Cobertura**: 100%
 - **Complejidad**: Alta
 - **Tiempo implementación**: 3-4 horas
@@ -91,6 +101,7 @@ grep -r "riskLevel\|employeeId\|severity" server/ --include="*.ts"
 ### Errores TypeScript: 704 (Reducción de 22 desde inicio de sesión)
 
 **Distribución de errores**:
+
 - ~600 errores: Problemas de tipos de Drizzle ORM con enum columns
 - ~67 errores: 'db' is possibly 'null' (corregidos en esta sesión)
 - ~37 errores: Otros (overloads, any types, etc.)

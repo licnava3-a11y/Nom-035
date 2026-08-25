@@ -21,7 +21,14 @@ export const retentionInterventionsRouter = router({
         employeeName: z.string(),
         employeePosition: z.string().optional(),
         department: z.string().optional(),
-        interventionType: z.enum(["training", "salary_adjustment", "position_change", "benefits", "recognition", "other"]),
+        interventionType: z.enum([
+          "training",
+          "salary_adjustment",
+          "position_change",
+          "benefits",
+          "recognition",
+          "other",
+        ]),
         interventionDescription: z.string(),
         cost: z.number().optional(),
         implementationDate: z.string(), // YYYY-MM-DD
@@ -45,7 +52,10 @@ export const retentionInterventionsRouter = router({
           createdBy: ctx.user?.id,
         });
 
-        return { success: true, message: "Intervención registrada exitosamente" };
+        return {
+          success: true,
+          message: "Intervención registrada exitosamente",
+        };
       } catch (error: any) {
         console.error("Error al crear intervención:", error);
         throw new TRPCError({
@@ -100,7 +110,7 @@ export const retentionInterventionsRouter = router({
           const before = parseFloat(intervention.riskScoreBefore);
           const after = input.riskScoreAfter;
           riskReduction = ((before - after) / before) * 100;
-          
+
           // Effectiveness score basado en reducción de riesgo y outcome
           if (input.outcome === "retained") {
             effectivenessScore = Math.min(100, riskReduction + 20); // Bonus por retención
@@ -115,9 +125,12 @@ export const retentionInterventionsRouter = router({
           .update(retentionInterventions)
           .set({
             riskScoreAfter: input.riskScoreAfter?.toString(),
-            turnoverProbabilityAfter: input.turnoverProbabilityAfter?.toString(),
+            turnoverProbabilityAfter:
+              input.turnoverProbabilityAfter?.toString(),
             outcome: input.outcome,
-            outcomeDate: input.outcomeDate ? new Date(input.outcomeDate) : undefined,
+            outcomeDate: input.outcomeDate
+              ? new Date(input.outcomeDate)
+              : undefined,
             outcomeNotes: input.outcomeNotes,
             riskReduction: riskReduction?.toFixed(2),
             effectivenessScore: effectivenessScore?.toFixed(2),
@@ -157,7 +170,9 @@ export const retentionInterventionsRouter = router({
         let query: any = db.select().from(retentionInterventions);
 
         if (input.outcome !== "all") {
-          query = query.where(eq(retentionInterventions.outcome, input.outcome)) as any;
+          query = query.where(
+            eq(retentionInterventions.outcome, input.outcome)
+          ) as any;
         }
 
         const interventions = await query
@@ -190,29 +205,51 @@ export const retentionInterventionsRouter = router({
       const allInterventions = await db.select().from(retentionInterventions);
 
       const totalInterventions = allInterventions.length;
-      const retainedCount = allInterventions.filter(i => i.outcome === "retained").length;
-      const leftCount = allInterventions.filter(i => i.outcome === "left").length;
-      const pendingCount = allInterventions.filter(i => i.outcome === "pending" || !i.outcome).length;
+      const retainedCount = allInterventions.filter(
+        i => i.outcome === "retained"
+      ).length;
+      const leftCount = allInterventions.filter(
+        i => i.outcome === "left"
+      ).length;
+      const pendingCount = allInterventions.filter(
+        i => i.outcome === "pending" || !i.outcome
+      ).length;
 
-      const retentionRate = totalInterventions > 0 
-        ? ((retainedCount / (retainedCount + leftCount)) * 100).toFixed(1)
-        : "0";
+      const retentionRate =
+        totalInterventions > 0
+          ? ((retainedCount / (retainedCount + leftCount)) * 100).toFixed(1)
+          : "0";
 
       // Efectividad promedio por tipo de intervención
-      const interventionTypes = ["training", "salary_adjustment", "position_change", "benefits", "recognition", "other"];
+      const interventionTypes = [
+        "training",
+        "salary_adjustment",
+        "position_change",
+        "benefits",
+        "recognition",
+        "other",
+      ];
       const effectivenessByType = interventionTypes.map(type => {
-        const typeInterventions = allInterventions.filter(i => i.interventionType === type);
-        const avgEffectiveness = typeInterventions.length > 0
-          ? typeInterventions
-              .filter(i => i.effectivenessScore)
-              .reduce((acc: any, i: any) => acc + parseFloat(i.effectivenessScore || "0"), 0) / typeInterventions.length
-          : 0;
+        const typeInterventions = allInterventions.filter(
+          i => i.interventionType === type
+        );
+        const avgEffectiveness =
+          typeInterventions.length > 0
+            ? typeInterventions
+                .filter(i => i.effectivenessScore)
+                .reduce(
+                  (acc: any, i: any) =>
+                    acc + parseFloat(i.effectivenessScore || "0"),
+                  0
+                ) / typeInterventions.length
+            : 0;
 
         return {
           type,
           count: typeInterventions.length,
           avgEffectiveness: avgEffectiveness.toFixed(1),
-          retainedCount: typeInterventions.filter(i => i.outcome === "retained").length,
+          retainedCount: typeInterventions.filter(i => i.outcome === "retained")
+            .length,
         };
       });
 
@@ -221,7 +258,8 @@ export const retentionInterventionsRouter = router({
         .filter(i => i.cost)
         .reduce((acc: any, i: any) => acc + parseFloat(i.cost || "0"), 0);
 
-      const avgCostPerRetention = retainedCount > 0 ? (totalCost / retainedCount).toFixed(2) : "0";
+      const avgCostPerRetention =
+        retainedCount > 0 ? (totalCost / retainedCount).toFixed(2) : "0";
 
       return {
         total: totalInterventions,
@@ -237,7 +275,8 @@ export const retentionInterventionsRouter = router({
       console.error("Error al obtener estadísticas de efectividad:", error);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: error.message || "Error al obtener estadísticas de efectividad",
+        message:
+          error.message || "Error al obtener estadísticas de efectividad",
       });
     }
   }),

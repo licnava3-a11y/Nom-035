@@ -1,8 +1,40 @@
 import { eq, asc, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { InsertUser, answerOptions, caseAssignments, caseDocuments, caseFollowUps, cases, certificates, committeeMembers, courses, evaluationAttempts, evaluations, expenseRequests, invoices, jobFunctions, jobPositions, leads, mailbox, mailboxResponses, modules, notifications, performanceEvaluations, positions, purchaseOrders, questions, resources, salespeople, sentimentAnalysis, studentAnswers, studentProgress, surveyResponses, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import {
+  InsertUser,
+  answerOptions,
+  caseAssignments,
+  caseDocuments,
+  caseFollowUps,
+  cases,
+  certificates,
+  committeeMembers,
+  courses,
+  evaluationAttempts,
+  evaluations,
+  expenseRequests,
+  invoices,
+  jobFunctions,
+  jobPositions,
+  leads,
+  mailbox,
+  mailboxResponses,
+  modules,
+  notifications,
+  performanceEvaluations,
+  positions,
+  purchaseOrders,
+  questions,
+  resources,
+  salespeople,
+  sentimentAnalysis,
+  studentAnswers,
+  studentProgress,
+  surveyResponses,
+  users,
+} from "../drizzle/schema";
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let _pool: mysql.Pool | null = null;
@@ -12,11 +44,11 @@ function createControlledPool(): mysql.Pool {
   const url = process.env.DATABASE_URL!;
   return mysql.createPool({
     uri: url,
-    connectionLimit: 15,      // aumentado a 15: soporta jobs concurrentes + auth sin agotarse
+    connectionLimit: 15, // aumentado a 15: soporta jobs concurrentes + auth sin agotarse
     waitForConnections: true, // queue requests instead of throwing when pool is full
-    queueLimit: 100,          // max 100 queued requests before rejecting
-    connectTimeout: 15_000,   // 15s connect timeout
-    idleTimeout: 60_000,      // release idle connections after 60s
+    queueLimit: 100, // max 100 queued requests before rejecting
+    connectTimeout: 15_000, // 15s connect timeout
+    idleTimeout: 60_000, // release idle connections after 60s
     enableKeepAlive: true,
     keepAliveInitialDelay: 10_000,
   });
@@ -65,9 +97,11 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
       if (user.name !== undefined) updateData.name = user.name;
       if (user.email !== undefined) updateData.email = user.email;
-      if (user.loginMethod !== undefined) updateData.loginMethod = user.loginMethod;
+      if (user.loginMethod !== undefined)
+        updateData.loginMethod = user.loginMethod;
       if (user.role !== undefined) updateData.role = user.role;
-      if ((user as any).passwordHash !== undefined) (updateData as any).passwordHash = (user as any).passwordHash;
+      if ((user as any).passwordHash !== undefined)
+        (updateData as any).passwordHash = (user as any).passwordHash;
 
       await db
         .update(users)
@@ -82,7 +116,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
         name: user.name || "",
         email: user.email || "",
         loginMethod: user.loginMethod || "google",
-        role: user.role || (user.openId === ENV.ownerOpenId ? "admin" : "student"),
+        role:
+          user.role || (user.openId === ENV.ownerOpenId ? "admin" : "student"),
         departamento: "Administración", // Departamento por defecto
         lastSignedIn: user.lastSignedIn || new Date(),
       };
@@ -97,7 +132,10 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 }
 
 // getUserByOpenId con retry para el flujo de auth (ETIMEDOUT al cold start)
-export async function getUserByOpenId(openId: string, retries = 3): Promise<typeof users.$inferSelect | undefined> {
+export async function getUserByOpenId(
+  openId: string,
+  retries = 3
+): Promise<typeof users.$inferSelect | undefined> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     const db = await getDb();
     if (!db) {
@@ -105,14 +143,23 @@ export async function getUserByOpenId(openId: string, retries = 3): Promise<type
       return undefined;
     }
     try {
-      const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+      const result = await db
+        .select()
+        .from(users)
+        .where(eq(users.openId, openId))
+        .limit(1);
       return result.length > 0 ? result[0] : undefined;
     } catch (err: any) {
       const code = err?.code ?? err?.cause?.code;
-      const isRetryable = code === 'ETIMEDOUT' || code === 'ECONNRESET' || code === 'PROTOCOL_CONNECTION_LOST';
+      const isRetryable =
+        code === "ETIMEDOUT" ||
+        code === "ECONNRESET" ||
+        code === "PROTOCOL_CONNECTION_LOST";
       if (isRetryable && attempt < retries) {
         const delay = 600 * attempt; // 600ms, 1200ms
-        console.warn(`[Database] getUserByOpenId attempt ${attempt}/${retries} failed (${code}), retrying in ${delay}ms...`);
+        console.warn(
+          `[Database] getUserByOpenId attempt ${attempt}/${retries} failed (${code}), retrying in ${delay}ms...`
+        );
         await new Promise(r => setTimeout(r, delay));
         continue;
       }
@@ -139,21 +186,35 @@ export async function getUserById(id: number) {
 export async function getUserByEmail(email: string) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
 export async function adminExists(): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
-  const result = await db.select({ id: users.id }).from(users).where(eq(users.role, 'admin')).limit(1);
+  const result = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.role, "admin"))
+    .limit(1);
   return result.length > 0;
 }
 
-export async function updateUserRole(userId: number, role: "admin" | "instructor" | "student" | "committee") {
+export async function updateUserRole(
+  userId: number,
+  role: "admin" | "instructor" | "student" | "committee"
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(users).set({ role } as any).where(eq(users.id, userId));
+  await db
+    .update(users)
+    .set({ role } as any)
+    .where(eq(users.id, userId));
 }
 
 // Course management
@@ -172,7 +233,11 @@ export async function getPublishedCourses() {
 export async function getCourseById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(courses).where(eq(courses.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(courses)
+    .where(eq(courses.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -185,7 +250,11 @@ export async function getModulesByCourseId(courseId: number) {
 export async function getModuleById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(modules).where(eq(modules.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(modules)
+    .where(eq(modules.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -199,65 +268,101 @@ export async function getAllEvaluations() {
 export async function getEvaluationsByModuleId(moduleId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(evaluations).where(eq(evaluations.moduleId, moduleId));
+  return await db
+    .select()
+    .from(evaluations)
+    .where(eq(evaluations.moduleId, moduleId));
 }
 
 export async function getEvaluationById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(evaluations).where(eq(evaluations.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(evaluations)
+    .where(eq(evaluations.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
 export async function getQuestionsByEvaluationId(evaluationId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(questions).where(eq(questions.evaluationId, evaluationId));
+  return await db
+    .select()
+    .from(questions)
+    .where(eq(questions.evaluationId, evaluationId));
 }
 
 export async function getAnswerOptionsByQuestionId(questionId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(answerOptions).where(eq(answerOptions.questionId, questionId));
+  return await db
+    .select()
+    .from(answerOptions)
+    .where(eq(answerOptions.questionId, questionId));
 }
 
 // Student progress
 export async function getStudentProgressByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(studentProgress).where(eq(studentProgress.userId, userId));
+  return await db
+    .select()
+    .from(studentProgress)
+    .where(eq(studentProgress.userId, userId));
 }
 
-export async function getStudentProgressByCourse(userId: number, courseId: number) {
+export async function getStudentProgressByCourse(
+  userId: number,
+  courseId: number
+) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(studentProgress)
+  const result = await db
+    .select()
+    .from(studentProgress)
     .where(eq(studentProgress.userId, userId))
     .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
 // Evaluation attempts
-export async function getEvaluationAttemptsByUser(userId: number, evaluationId: number) {
+export async function getEvaluationAttemptsByUser(
+  userId: number,
+  evaluationId: number
+) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(evaluationAttempts)
+  return await db
+    .select()
+    .from(evaluationAttempts)
     .where(eq(evaluationAttempts.userId, userId));
 }
 
-export async function getNextAttemptNumber(userId: number, evaluationId: number): Promise<number> {
+export async function getNextAttemptNumber(
+  userId: number,
+  evaluationId: number
+): Promise<number> {
   const db = await getDb();
   if (!db) return 1;
-  const attempts = await db.select().from(evaluationAttempts)
+  const attempts = await db
+    .select()
+    .from(evaluationAttempts)
     .where(eq(evaluationAttempts.userId, userId));
   const filtered = attempts.filter(a => a.evaluationId === evaluationId);
   return filtered.length + 1;
 }
 
-export async function getEvaluationAttempts(userId: number, evaluationId: number) {
+export async function getEvaluationAttempts(
+  userId: number,
+  evaluationId: number
+) {
   const db = await getDb();
   if (!db) return [];
-  const attempts = await db.select().from(evaluationAttempts)
+  const attempts = await db
+    .select()
+    .from(evaluationAttempts)
     .where(eq(evaluationAttempts.userId, userId));
   return attempts.filter(a => a.evaluationId === evaluationId);
 }
@@ -265,21 +370,31 @@ export async function getEvaluationAttempts(userId: number, evaluationId: number
 export async function getAttemptById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(evaluationAttempts).where(eq(evaluationAttempts.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(evaluationAttempts)
+    .where(eq(evaluationAttempts.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
 export async function getStudentAnswersByAttempt(attemptId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(studentAnswers).where(eq(studentAnswers.attemptId, attemptId));
+  return await db
+    .select()
+    .from(studentAnswers)
+    .where(eq(studentAnswers.attemptId, attemptId));
 }
 
 // Certificates
 export async function getCertificatesByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(certificates).where(eq(certificates.userId, userId));
+  return await db
+    .select()
+    .from(certificates)
+    .where(eq(certificates.userId, userId));
 }
 
 // Cases management
@@ -299,20 +414,26 @@ export async function getCaseById(id: number) {
 export async function getCaseFollowUpsByCaseId(caseId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(caseFollowUps).where(eq(caseFollowUps.caseId, caseId));
+  return await db
+    .select()
+    .from(caseFollowUps)
+    .where(eq(caseFollowUps.caseId, caseId));
 }
 
 export async function getCaseDocumentsByCaseId(caseId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(caseDocuments).where(eq(caseDocuments.caseId, caseId));
+  return await db
+    .select()
+    .from(caseDocuments)
+    .where(eq(caseDocuments.caseId, caseId));
 }
 
 // Committee members
 export async function getAllCommitteeMembers() {
   const db = await getDb();
   if (!db) return [];
-  
+
   const result = await db
     .select({
       id: committeeMembers.id,
@@ -329,14 +450,18 @@ export async function getAllCommitteeMembers() {
     })
     .from(committeeMembers)
     .leftJoin(users, eq(committeeMembers.userId, users.id));
-  
+
   return result;
 }
 
 export async function getCommitteeMemberByUserId(userId: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(committeeMembers).where(eq(committeeMembers.userId, userId)).limit(1);
+  const result = await db
+    .select()
+    .from(committeeMembers)
+    .where(eq(committeeMembers.userId, userId))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -350,7 +475,11 @@ export async function getAllResources() {
 export async function getResourceById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(resources).where(eq(resources.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(resources)
+    .where(eq(resources.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -376,22 +505,28 @@ export async function createResource(data: {
   return { id: Number(insertId), ...data };
 }
 
-export async function updateResource(id: number, data: {
-  title: string;
-  description?: string;
-  category: "manual" | "protocol" | "form" | "pdf" | "presentation" | "other";
-  fileUrl: string;
-  fileType: string;
-}) {
+export async function updateResource(
+  id: number,
+  data: {
+    title: string;
+    description?: string;
+    category: "manual" | "protocol" | "form" | "pdf" | "presentation" | "other";
+    fileUrl: string;
+    fileType: string;
+  }
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(resources).set({
-    title: data.title,
-    description: data.description,
-    category: data.category,
-    resourceUrl: data.fileUrl,
-    fileKey: data.fileUrl,
-  } as any).where(eq(resources.id, id));
+  await db
+    .update(resources)
+    .set({
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      resourceUrl: data.fileUrl,
+      fileKey: data.fileUrl,
+    } as any)
+    .where(eq(resources.id, id));
   return { id, ...data };
 }
 
@@ -405,26 +540,38 @@ export async function getAllJobPositions() {
 export async function getJobPositionById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(jobPositions).where(eq(jobPositions.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(jobPositions)
+    .where(eq(jobPositions.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
 export async function getJobFunctionsByPositionId(positionId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(jobFunctions).where(eq(jobFunctions.positionId, positionId));
+  return await db
+    .select()
+    .from(jobFunctions)
+    .where(eq(jobFunctions.positionId, positionId));
 }
 
-export async function createJobPosition(data: typeof jobPositions.$inferInsert) {
+export async function createJobPosition(
+  data: typeof jobPositions.$inferInsert
+) {
   const db = await getDb();
-  if (!db) throw new Error('Database not available');
+  if (!db) throw new Error("Database not available");
   const result = await (db.insert(jobPositions) as any).values(data);
   return { id: Number(result[0].insertId), ...data };
 }
 
-export async function updateJobPosition(id: number, data: Partial<typeof jobPositions.$inferInsert>) {
+export async function updateJobPosition(
+  id: number,
+  data: Partial<typeof jobPositions.$inferInsert>
+) {
   const db = await getDb();
-  if (!db) throw new Error('Database not available');
+  if (!db) throw new Error("Database not available");
   await db.update(jobPositions).set(data).where(eq(jobPositions.id, id));
   return { id, ...data };
 }
@@ -433,7 +580,10 @@ export async function updateJobPosition(id: number, data: Partial<typeof jobPosi
 export async function getPerformanceEvaluationsByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(performanceEvaluations).where(eq(performanceEvaluations.userId, userId));
+  return await db
+    .select()
+    .from(performanceEvaluations)
+    .where(eq(performanceEvaluations.userId, userId));
 }
 
 // Mailbox functions
@@ -446,12 +596,20 @@ export async function getAllMailboxRequests() {
 export async function getMailboxRequestById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(mailbox).where(eq(mailbox.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(mailbox)
+    .where(eq(mailbox.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
 export async function createMailboxRequest(data: {
-  requestType: "queja" | "sugerencia" | "felicitacion" | "solicitud_capacitacion";
+  requestType:
+    | "queja"
+    | "sugerencia"
+    | "felicitacion"
+    | "solicitud_capacitacion";
   complaintType?: string;
   senderName?: string;
   senderEmail: string;
@@ -464,13 +622,13 @@ export async function createMailboxRequest(data: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   // Generate folio
   const year = new Date().getFullYear();
   const allRequests = await db.select().from(mailbox);
   const consecutivo = allRequests.length + 1;
-  const folio = `BZN-${consecutivo.toString().padStart(4, '0')}/${year}`;
-  
+  const folio = `BZN-${consecutivo.toString().padStart(4, "0")}/${year}`;
+
   const result = await (db.insert(mailbox) as any).values({
     folio,
     requestType: data.requestType,
@@ -485,15 +643,19 @@ export async function createMailboxRequest(data: {
     receivedVia: data.receivedVia,
     status: "recibido",
   });
-  
+
   const insertId = (result as any)[0]?.insertId || 1;
   return { id: Number(insertId), folio, ...data };
 }
 
-export async function updateMailboxStatus(id: number, status: "recibido" | "asignado" | "en_proceso" | "concluido", assignedTo?: number) {
+export async function updateMailboxStatus(
+  id: number,
+  status: "recibido" | "asignado" | "en_proceso" | "concluido",
+  assignedTo?: number
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   const updateData: any = { status };
   if (assignedTo) {
     updateData.assignedTo = assignedTo;
@@ -501,22 +663,26 @@ export async function updateMailboxStatus(id: number, status: "recibido" | "asig
   if (status === "concluido") {
     updateData.concludedAt = new Date();
   }
-  
+
   await db.update(mailbox).set(updateData).where(eq(mailbox.id, id));
   return { id, status, assignedTo };
 }
 
-export async function addMailboxResponse(mailboxId: number, responderId: number, response: string) {
+export async function addMailboxResponse(
+  mailboxId: number,
+  responderId: number,
+  response: string
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   const result = await (db.insert(mailboxResponses) as any).values({
     mailboxId,
     responderId,
     response,
     emailSent: false,
   });
-  
+
   const insertId = (result as any)[0]?.insertId || 1;
   return { id: Number(insertId), mailboxId, responderId, response };
 }
@@ -524,13 +690,23 @@ export async function addMailboxResponse(mailboxId: number, responderId: number,
 export async function getMailboxResponses(mailboxId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(mailboxResponses).where(eq(mailboxResponses.mailboxId, mailboxId));
+  return await db
+    .select()
+    .from(mailboxResponses)
+    .where(eq(mailboxResponses.mailboxId, mailboxId));
 }
 
 // Notifications functions
 export async function createNotification(data: {
   userId: number;
-  type: "new_case" | "case_status_change" | "case_assigned" | "deadline_approaching" | "new_mailbox_request" | "mailbox_status_change" | "system";
+  type:
+    | "new_case"
+    | "case_status_change"
+    | "case_assigned"
+    | "deadline_approaching"
+    | "new_mailbox_request"
+    | "mailbox_status_change"
+    | "system";
   title: string;
   message: string;
   relatedEntityType?: string;
@@ -538,7 +714,7 @@ export async function createNotification(data: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   const result = await (db.insert(notifications) as any).values({
     userId: data.userId,
     type: data.type,
@@ -548,7 +724,7 @@ export async function createNotification(data: {
     relatedEntityId: data.relatedEntityId,
     isRead: false,
   });
-  
+
   const insertId = (result as any)[0]?.insertId || 1;
   return { id: Number(insertId), ...data };
 }
@@ -556,28 +732,42 @@ export async function createNotification(data: {
 export async function getUserNotifications(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(notifications).where(eq(notifications.userId, userId));
+  return await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, userId));
 }
 
 export async function markNotificationAsRead(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(notifications).set({ isRead: true } as any).where(eq(notifications.id, id));
+  await db
+    .update(notifications)
+    .set({ isRead: true } as any)
+    .where(eq(notifications.id, id));
   return { id, isRead: true };
 }
 
 export async function getUnreadNotificationsCount(userId: number) {
   const db = await getDb();
   if (!db) return 0;
-  const result = await db.select().from(notifications).where(eq(notifications.userId, userId));
+  const result = await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, userId));
   return result.filter(n => !n.isRead).length;
 }
 
 // Case assignments functions
-export async function assignCommitteeMemberToCase(caseId: number, committeeMemberId: number, assignedBy: number, role: "lead" | "support" | "observer" = "support") {
+export async function assignCommitteeMemberToCase(
+  caseId: number,
+  committeeMemberId: number,
+  assignedBy: number,
+  role: "lead" | "support" | "observer" = "support"
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   const result = await (db.insert(caseAssignments) as any).values({
     caseId,
     committeeMemberId,
@@ -585,7 +775,7 @@ export async function assignCommitteeMemberToCase(caseId: number, committeeMembe
     role,
     isActive: true,
   });
-  
+
   const insertId = (result as any)[0]?.insertId || 1;
   return { id: Number(insertId), caseId, committeeMemberId, assignedBy, role };
 }
@@ -593,15 +783,20 @@ export async function assignCommitteeMemberToCase(caseId: number, committeeMembe
 export async function getCaseAssignments(caseId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(caseAssignments).where(eq(caseAssignments.caseId, caseId));
+  return await db
+    .select()
+    .from(caseAssignments)
+    .where(eq(caseAssignments.caseId, caseId));
 }
 
 export async function getCommitteeMemberAssignments(committeeMemberId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(caseAssignments).where(eq(caseAssignments.committeeMemberId, committeeMemberId));
+  return await db
+    .select()
+    .from(caseAssignments)
+    .where(eq(caseAssignments.committeeMemberId, committeeMemberId));
 }
-
 
 // ==================== FINANCIAL QUERIES ====================
 
@@ -611,13 +806,18 @@ export async function getCommitteeMemberAssignments(committeeMemberId: number) {
 export async function getInvoicesSummary() {
   const db = await getDb();
   if (!db) return { total: 0, pendientes: 0, vencidas: 0, montoTotal: 0 };
-  
+
   const allInvoices = await db.select().from(invoices);
   const total = allInvoices.length;
-  const pendientes = allInvoices.filter(inv => inv.estado === 'pendiente').length;
-  const vencidas = allInvoices.filter(inv => inv.estado === 'vencida').length;
-  const montoTotal = allInvoices.reduce((sum: any, inv: any) => sum + parseFloat(inv.monto.toString()), 0);
-  
+  const pendientes = allInvoices.filter(
+    inv => inv.estado === "pendiente"
+  ).length;
+  const vencidas = allInvoices.filter(inv => inv.estado === "vencida").length;
+  const montoTotal = allInvoices.reduce(
+    (sum: any, inv: any) => sum + parseFloat(inv.monto.toString()),
+    0
+  );
+
   return { total, pendientes, vencidas, montoTotal };
 }
 
@@ -627,11 +827,14 @@ export async function getInvoicesSummary() {
 export async function getPurchaseOrdersSummary() {
   const db = await getDb();
   if (!db) return { total: 0, montoTotal: 0 };
-  
+
   const allOrders = await db.select().from(purchaseOrders);
   const total = allOrders.length;
-  const montoTotal = allOrders.reduce((sum: any, order: any) => sum + parseFloat(order.monto.toString()), 0);
-  
+  const montoTotal = allOrders.reduce(
+    (sum: any, order: any) => sum + parseFloat(order.monto.toString()),
+    0
+  );
+
   return { total, montoTotal };
 }
 
@@ -641,12 +844,17 @@ export async function getPurchaseOrdersSummary() {
 export async function getExpenseRequestsSummary() {
   const db = await getDb();
   if (!db) return { total: 0, pendientes: 0, montoTotal: 0 };
-  
+
   const allRequests = await db.select().from(expenseRequests);
   const total = allRequests.length;
-  const pendientes = allRequests.filter(req => req.estado === 'pendiente').length;
-  const montoTotal = allRequests.reduce((sum: any, req: any) => sum + parseFloat(req.monto.toString()), 0);
-  
+  const pendientes = allRequests.filter(
+    req => req.estado === "pendiente"
+  ).length;
+  const montoTotal = allRequests.reduce(
+    (sum: any, req: any) => sum + parseFloat(req.monto.toString()),
+    0
+  );
+
   return { total, pendientes, montoTotal };
 }
 
@@ -701,14 +909,14 @@ export async function getActiveSalespeople() {
 export async function getNextSalespersonRoundRobin() {
   const db = await getDb();
   if (!db) return null;
-  
+
   const activeSalespeople = await db
     .select()
     .from(salespeople)
     .where(eq(salespeople.activo, true))
     .orderBy(asc(salespeople.ultimaAsignacion))
     .limit(1);
-  
+
   return activeSalespeople[0] || null;
 }
 
@@ -718,7 +926,7 @@ export async function getNextSalespersonRoundRobin() {
 export async function updateSalespersonAssignment(salespersonId: number) {
   const db = await getDb();
   if (!db) return;
-  
+
   await db
     .update(salespeople)
     .set({
@@ -735,7 +943,11 @@ export async function updateSalespersonAssignment(salespersonId: number) {
 export async function getSalespersonById(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(salespeople).where(eq(salespeople.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(salespeople)
+    .where(eq(salespeople.id, id))
+    .limit(1);
   return result[0] || null;
 }
 
@@ -745,7 +957,10 @@ export async function getSalespersonById(id: number) {
 export async function getAllSalespeople() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(salespeople).orderBy(desc(salespeople.activo), asc(salespeople.nombre));
+  return await db
+    .select()
+    .from(salespeople)
+    .orderBy(desc(salespeople.activo), asc(salespeople.nombre));
 }
 
 /**
@@ -758,7 +973,7 @@ export async function createSalesperson(data: {
 }) {
   const db = await getDb();
   if (!db) return null;
-  
+
   const result = await (db.insert(salespeople) as any).values({
     nombre: data.nombre,
     email: data.email,
@@ -766,21 +981,24 @@ export async function createSalesperson(data: {
     activo: true,
     totalLeadsAsignados: 0,
   });
-  
+
   return result.insertId;
 }
 
 /**
  * Update salesperson
  */
-export async function updateSalesperson(id: number, data: {
-  nombre?: string;
-  email?: string;
-  activo?: boolean;
-}) {
+export async function updateSalesperson(
+  id: number,
+  data: {
+    nombre?: string;
+    email?: string;
+    activo?: boolean;
+  }
+) {
   const db = await getDb();
   if (!db) return;
-  
+
   await db
     .update(salespeople)
     .set({
@@ -796,10 +1014,10 @@ export async function updateSalesperson(id: number, data: {
 export async function toggleSalespersonActive(id: number) {
   const db = await getDb();
   if (!db) return;
-  
+
   const salesperson = await getSalespersonById(id);
   if (!salesperson) return;
-  
+
   await db
     .update(salespeople)
     .set({
@@ -815,7 +1033,7 @@ export async function toggleSalespersonActive(id: number) {
 export async function getSalespeopleDistributionStats() {
   const db = await getDb();
   if (!db) return [];
-  
+
   // Get all salespeople with their lead counts by status
   const stats = await db
     .select({
@@ -833,7 +1051,7 @@ export async function getSalespeopleDistributionStats() {
     .leftJoin(leads, eq((leads as any).assignedTo, salespeople.id))
     .groupBy(salespeople.id)
     .orderBy(desc(salespeople.activo), asc(salespeople.nombre));
-  
+
   return stats;
 }
 
@@ -849,23 +1067,26 @@ export async function notifySalespersonLeadAssignment(data: {
 }) {
   const db = await getDb();
   if (!db) return;
-  
+
   // Get salesperson with userId
   const salesperson = await getSalespersonById(data.salespersonId);
   if (!salesperson || !salesperson.userId) {
-    console.log(`[Notifications] Salesperson ${data.salespersonId} has no linked userId, skipping notification`);
+    console.log(
+      `[Notifications] Salesperson ${data.salespersonId} has no linked userId, skipping notification`
+    );
     return;
   }
-  
+
   // Build notification message
-  const normativasText = data.leadNormativas && data.leadNormativas.length > 0
-    ? ` interesado en ${data.leadNormativas.join(", ")}`
-    : "";
-  
+  const normativasText =
+    data.leadNormativas && data.leadNormativas.length > 0
+      ? ` interesado en ${data.leadNormativas.join(", ")}`
+      : "";
+
   const companyText = data.leadCompany ? ` de ${data.leadCompany}` : "";
-  
+
   const message = `Se te ha asignado un nuevo lead: ${data.leadName}${companyText}${normativasText}. Revisa el pipeline para dar seguimiento.`;
-  
+
   // Create notification
   await (db.insert(notifications) as any).values({
     userId: salesperson.userId,
@@ -876,50 +1097,60 @@ export async function notifySalespersonLeadAssignment(data: {
     relatedEntityId: data.leadId,
     isRead: false,
   } as any);
-  
-  console.log(`[Notifications] Lead assignment notification sent to salesperson ${salesperson.nombre} (userId: ${salesperson.userId})`);
+
+  console.log(
+    `[Notifications] Lead assignment notification sent to salesperson ${salesperson.nombre} (userId: ${salesperson.userId})`
+  );
 }
 
 /**
  * Get individual salesperson performance metrics
  */
-export async function getSalespersonPerformance(salespersonId: number, months: number = 6) {
+export async function getSalespersonPerformance(
+  salespersonId: number,
+  months: number = 6
+) {
   const db = await getDb();
   if (!db) return null;
-  
+
   const startDate = new Date();
   startDate.setMonth(startDate.getMonth() - months);
-  
+
   // Get all leads for this salesperson
   const salespersonLeads = await db
     .select()
     .from(leads)
     .where(eq(leads.asignadoA, salespersonId));
-  
+
   // Calculate metrics
   const totalLeads = salespersonLeads.length;
   const leadsWon = salespersonLeads.filter(l => l.estado === "ganado").length;
   const leadsLost = salespersonLeads.filter(l => l.estado === "perdido").length;
-  const leadsActive = salespersonLeads.filter(l => 
-    ["nuevo", "contactado", "en_negociacion", "propuesta_enviada"].includes(l.estado)
+  const leadsActive = salespersonLeads.filter(l =>
+    ["nuevo", "contactado", "en_negociacion", "propuesta_enviada"].includes(
+      l.estado
+    )
   ).length;
-  
+
   const conversionRate = totalLeads > 0 ? (leadsWon / totalLeads) * 100 : 0;
-  
+
   // Calculate average response time (time from creation to first contact)
   const contactedLeads = salespersonLeads.filter(l => l.fechaContacto);
   let avgResponseTime = 0;
   if (contactedLeads.length > 0) {
     const totalResponseTime = contactedLeads.reduce((sum: any, lead: any) => {
       if (lead.fechaContacto && lead.createdAt) {
-        const diff = new Date(lead.fechaContacto).getTime() - new Date(lead.createdAt).getTime();
+        const diff =
+          new Date(lead.fechaContacto).getTime() -
+          new Date(lead.createdAt).getTime();
         return sum + diff;
       }
       return sum;
     }, 0);
-    avgResponseTime = totalResponseTime / contactedLeads.length / (1000 * 60 * 60); // Convert to hours
+    avgResponseTime =
+      totalResponseTime / contactedLeads.length / (1000 * 60 * 60); // Convert to hours
   }
-  
+
   // Group by source
   const bySource: Record<string, { total: number; won: number }> = {};
   salespersonLeads.forEach(lead => {
@@ -932,9 +1163,12 @@ export async function getSalespersonPerformance(salespersonId: number, months: n
       bySource[source].won++;
     }
   });
-  
+
   // Group by month for trends
-  const monthlyTrends: Record<string, { total: number; won: number; lost: number }> = {};
+  const monthlyTrends: Record<
+    string,
+    { total: number; won: number; lost: number }
+  > = {};
   salespersonLeads.forEach(lead => {
     const monthKey = new Date(lead.createdAt).toISOString().substring(0, 7); // YYYY-MM
     if (!monthlyTrends[monthKey]) {
@@ -944,12 +1178,12 @@ export async function getSalespersonPerformance(salespersonId: number, months: n
     if (lead.estado === "ganado") monthlyTrends[monthKey].won++;
     if (lead.estado === "perdido") monthlyTrends[monthKey].lost++;
   });
-  
+
   // Calculate total revenue from won leads
   const totalRevenue = salespersonLeads
     .filter(l => l.estado === "ganado" && l.valorEstimado)
     .reduce((sum: any, l: any) => sum + Number(l.valorEstimado || 0), 0);
-  
+
   return {
     totalLeads,
     leadsWon,
@@ -961,7 +1195,10 @@ export async function getSalespersonPerformance(salespersonId: number, months: n
     bySource,
     monthlyTrends,
     recentLeads: salespersonLeads
-      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
       .slice(0, 10),
   };
 }
@@ -970,14 +1207,17 @@ export async function getSalespersonPerformance(salespersonId: number, months: n
  * Analizar sentimiento de respuestas de encuestas NOM-035 usando LLM
  * Detecta patrones de riesgo psicosocial (burnout, acoso, estrés)
  */
-export async function analyzeSentimentWithLLM(responseText: string, questionContext?: string) {
+export async function analyzeSentimentWithLLM(
+  responseText: string,
+  questionContext?: string
+) {
   const { invokeLLM } = await import("./_core/llm");
-  
+
   const prompt = `Eres un experto en psicología organizacional y riesgo psicosocial según la NOM-035-STPS-2018 de México.
 
 Analiza la siguiente respuesta de un trabajador en una encuesta de factores de riesgo psicosocial:
 
-${questionContext ? `**Contexto de la pregunta:** ${questionContext}\n\n` : ''}**Respuesta del trabajador:** "${responseText}"
+${questionContext ? `**Contexto de la pregunta:** ${questionContext}\n\n` : ""}**Respuesta del trabajador:** "${responseText}"
 
 Realiza un análisis profundo y proporciona tu evaluación en formato JSON con la siguiente estructura:
 
@@ -1011,12 +1251,13 @@ Realiza un análisis profundo y proporciona tu evaluación en formato JSON con l
       messages: [
         {
           role: "system",
-          content: "Eres un experto en psicología organizacional y análisis de riesgo psicosocial. Respondes siempre en formato JSON válido."
+          content:
+            "Eres un experto en psicología organizacional y análisis de riesgo psicosocial. Respondes siempre en formato JSON válido.",
         },
         {
           role: "user",
-          content: prompt
-        }
+          content: prompt,
+        },
       ] as any,
       response_format: {
         type: "json_schema",
@@ -1029,41 +1270,49 @@ Realiza un análisis profundo y proporciona tu evaluación en formato JSON con l
               sentiment: {
                 type: "string",
                 enum: ["positive", "neutral", "negative", "critical"],
-                description: "Tono emocional general de la respuesta"
+                description: "Tono emocional general de la respuesta",
               },
               riskLevel: {
                 type: "string",
                 enum: ["low", "medium", "high", "critical"],
-                description: "Nivel de riesgo psicosocial detectado"
+                description: "Nivel de riesgo psicosocial detectado",
               },
               confidence: {
                 type: "number",
-                description: "Nivel de confianza del análisis (0-100)"
+                description: "Nivel de confianza del análisis (0-100)",
               },
               keywords: {
                 type: "array",
                 items: { type: "string" },
-                description: "Palabras clave más relevantes"
+                description: "Palabras clave más relevantes",
               },
               riskIndicators: {
                 type: "array",
                 items: { type: "string" },
-                description: "Indicadores específicos de riesgo detectados"
+                description: "Indicadores específicos de riesgo detectados",
               },
               summary: {
                 type: "string",
-                description: "Resumen breve del análisis"
+                description: "Resumen breve del análisis",
               },
               recommendations: {
                 type: "string",
-                description: "Recomendaciones específicas para el comité"
-              }
+                description: "Recomendaciones específicas para el comité",
+              },
             },
-            required: ["sentiment", "riskLevel", "confidence", "keywords", "riskIndicators", "summary", "recommendations"],
-            additionalProperties: false
-          }
-        }
-      }
+            required: [
+              "sentiment",
+              "riskLevel",
+              "confidence",
+              "keywords",
+              "riskIndicators",
+              "summary",
+              "recommendations",
+            ],
+            additionalProperties: false,
+          },
+        },
+      },
     });
 
     const content = response.choices[0].message.content as string;
@@ -1082,23 +1331,29 @@ Realiza un análisis profundo y proporciona tu evaluación en formato JSON con l
 /**
  * Obtener tendencias de sentimiento por departamento
  */
-export async function getSentimentTrends(departmentId?: number, startDate?: Date, endDate?: Date) {
+export async function getSentimentTrends(
+  departmentId?: number,
+  startDate?: Date,
+  endDate?: Date
+) {
   const db = await getDb();
   if (!db) return null;
 
-  const { sentimentAnalysis, surveyResponses, users } = await import("../drizzle/schema");
+  const { sentimentAnalysis, surveyResponses, users } = await import(
+    "../drizzle/schema"
+  );
   const { eq, and, gte, lte, sql } = await import("drizzle-orm");
 
   let conditions = [];
-  
+
   if (departmentId) {
     conditions.push(eq(users.departamento, String(departmentId)));
   }
-  
+
   if (startDate) {
     conditions.push(gte(sentimentAnalysis.analyzedAt, startDate));
   }
-  
+
   if (endDate) {
     conditions.push(lte(sentimentAnalysis.analyzedAt, endDate));
   }
@@ -1121,7 +1376,10 @@ export async function getSentimentTrends(departmentId?: number, startDate?: Date
       userDepartment: users.departamento,
     })
     .from(sentimentAnalysis)
-    .leftJoin(surveyResponses, eq(sentimentAnalysis.responseId, surveyResponses.id))
+    .leftJoin(
+      surveyResponses,
+      eq(sentimentAnalysis.responseId, surveyResponses.id)
+    )
     .leftJoin(users, eq(surveyResponses.userId, users.id))
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(sql`${sentimentAnalysis.analyzedAt} DESC`);
@@ -1139,7 +1397,10 @@ export async function getRecipients(onlyActive?: boolean) {
   if (!db) return [];
   const { minuteRecipients } = await import("../drizzle/schema");
   const { eq, asc } = await import("drizzle-orm");
-  const query = db.select().from(minuteRecipients).orderBy(asc(minuteRecipients.name));
+  const query = db
+    .select()
+    .from(minuteRecipients)
+    .orderBy(asc(minuteRecipients.name));
   if (onlyActive) {
     return query.where(eq(minuteRecipients.isActive, true));
   }
@@ -1154,6 +1415,10 @@ export async function getRecipientById(id: number) {
   if (!db) return null;
   const { minuteRecipients } = await import("../drizzle/schema");
   const { eq } = await import("drizzle-orm");
-  const results = await db.select().from(minuteRecipients).where(eq(minuteRecipients.id, id)).limit(1);
+  const results = await db
+    .select()
+    .from(minuteRecipients)
+    .where(eq(minuteRecipients.id, id))
+    .limit(1);
   return results[0] ?? null;
 }

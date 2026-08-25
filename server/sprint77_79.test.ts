@@ -11,13 +11,19 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 describe("Sprint 77 — IA mejorada con contexto de encuesta NOM-035", () => {
   // Simula la función buildSurveyContext que enriquece el prompt con datos reales
-  function buildSurveyContext(surveyData: {
-    periodName?: string;
-    totalRespondents?: number;
-    avgScore?: number;
-    dominioStats?: Array<{ dominio: string; avgScore: number; riskLevel: string }>;
-    topRiskDomains?: string[];
-  } | null): string {
+  function buildSurveyContext(
+    surveyData: {
+      periodName?: string;
+      totalRespondents?: number;
+      avgScore?: number;
+      dominioStats?: Array<{
+        dominio: string;
+        avgScore: number;
+        riskLevel: string;
+      }>;
+      topRiskDomains?: string[];
+    } | null
+  ): string {
     if (!surveyData) return "";
 
     const lines: string[] = [
@@ -32,12 +38,16 @@ describe("Sprint 77 — IA mejorada con contexto de encuesta NOM-035", () => {
         .filter(d => d.riskLevel === "alto" || d.riskLevel === "muy_alto")
         .slice(0, 5)
         .forEach(d => {
-          lines.push(`- ${d.dominio}: ${d.avgScore.toFixed(1)} pts (${d.riskLevel})`);
+          lines.push(
+            `- ${d.dominio}: ${d.avgScore.toFixed(1)} pts (${d.riskLevel})`
+          );
         });
     }
 
     if (surveyData.topRiskDomains && surveyData.topRiskDomains.length > 0) {
-      lines.push(`\n### Áreas prioritarias de intervención: ${surveyData.topRiskDomains.join(", ")}`);
+      lines.push(
+        `\n### Áreas prioritarias de intervención: ${surveyData.topRiskDomains.join(", ")}`
+      );
     }
 
     return lines.join("\n");
@@ -82,7 +92,11 @@ describe("Sprint 77 — IA mejorada con contexto de encuesta NOM-035", () => {
       periodName: "2024",
       totalRespondents: 80,
       avgScore: 5.0,
-      topRiskDomains: ["Carga de Trabajo", "Jornada de Trabajo", "Violencia Laboral"],
+      topRiskDomains: [
+        "Carga de Trabajo",
+        "Jornada de Trabajo",
+        "Violencia Laboral",
+      ],
     });
     expect(ctx).toContain("Carga de Trabajo");
     expect(ctx).toContain("Jornada de Trabajo");
@@ -106,7 +120,8 @@ describe("Sprint 77 — IA mejorada con contexto de encuesta NOM-035", () => {
   });
 
   it("el prompt enriquecido es más largo que el prompt base", () => {
-    const basePrompt = "Genera un plan de intervención NOM-035 para el tipo: intervencion.";
+    const basePrompt =
+      "Genera un plan de intervención NOM-035 para el tipo: intervencion.";
     const surveyCtx = buildSurveyContext({
       periodName: "2024-Q2",
       totalRespondents: 200,
@@ -122,7 +137,10 @@ describe("Sprint 77 — IA mejorada con contexto de encuesta NOM-035", () => {
 
 describe("Sprint 78 — Token público de 72h para subida de evidencias", () => {
   // Simula la generación de token
-  function generateEvidenceToken(actionId: number, maxUses: number = 3): {
+  function generateEvidenceToken(
+    actionId: number,
+    maxUses: number = 3
+  ): {
     token: string;
     expiresAt: Date;
     uploadUrl: string;
@@ -142,9 +160,12 @@ describe("Sprint 78 — Token público de 72h para subida de evidencias", () => 
     maxUses: number;
     isActive: boolean;
   }): { valid: boolean; reason?: string } {
-    if (!tokenRow.isActive) return { valid: false, reason: "Token desactivado" };
-    if (new Date() > tokenRow.expiresAt) return { valid: false, reason: "Token expirado" };
-    if (tokenRow.useCount >= tokenRow.maxUses) return { valid: false, reason: "Límite de usos alcanzado" };
+    if (!tokenRow.isActive)
+      return { valid: false, reason: "Token desactivado" };
+    if (new Date() > tokenRow.expiresAt)
+      return { valid: false, reason: "Token expirado" };
+    if (tokenRow.useCount >= tokenRow.maxUses)
+      return { valid: false, reason: "Límite de usos alcanzado" };
     return { valid: true };
   }
 
@@ -283,10 +304,20 @@ describe("Sprint 79 — Exportación XLSX/PDF del historial de bitácora", () =>
   ) {
     return rows.filter(row => {
       if (filters.campo && row.campo !== filters.campo) return false;
-      if (filters.changedByName &&
-        !row.changedByName?.toLowerCase().includes(filters.changedByName.toLowerCase())) return false;
-      if (filters.fromDate && row.createdAt < new Date(filters.fromDate)) return false;
-      if (filters.toDate && row.createdAt > new Date(filters.toDate + "T23:59:59")) return false;
+      if (
+        filters.changedByName &&
+        !row.changedByName
+          ?.toLowerCase()
+          .includes(filters.changedByName.toLowerCase())
+      )
+        return false;
+      if (filters.fromDate && row.createdAt < new Date(filters.fromDate))
+        return false;
+      if (
+        filters.toDate &&
+        row.createdAt > new Date(filters.toDate + "T23:59:59")
+      )
+        return false;
       return true;
     });
   }
@@ -298,11 +329,61 @@ describe("Sprint 79 — Exportación XLSX/PDF del historial de bitácora", () =>
 
   // Datos de prueba
   const sampleRows = [
-    { id: 1, actionId: 10, planId: 1, campo: "estado", valorAnterior: "no_iniciada", valorNuevo: "en_proceso", changedByName: "Ana García", nota: null, createdAt: new Date("2024-03-15T10:00:00") },
-    { id: 2, actionId: 10, planId: 1, campo: "responsable", valorAnterior: "Juan", valorNuevo: "María", changedByName: "Ana García", nota: null, createdAt: new Date("2024-03-16T11:00:00") },
-    { id: 3, actionId: 11, planId: 1, campo: "plazo", valorAnterior: "2024-03-31", valorNuevo: "2024-04-15", changedByName: "Carlos López", nota: "Extensión aprobada", createdAt: new Date("2024-03-20T09:00:00") },
-    { id: 4, actionId: 12, planId: 2, campo: "prioridad", valorAnterior: "media", valorNuevo: "alta", changedByName: "Ana García", nota: null, createdAt: new Date("2024-04-01T14:00:00") },
-    { id: 5, actionId: 13, planId: 2, campo: "estado", valorAnterior: "en_proceso", valorNuevo: "cumplida", changedByName: "María Torres", nota: "Completada con evidencia", createdAt: new Date("2024-04-10T16:00:00") },
+    {
+      id: 1,
+      actionId: 10,
+      planId: 1,
+      campo: "estado",
+      valorAnterior: "no_iniciada",
+      valorNuevo: "en_proceso",
+      changedByName: "Ana García",
+      nota: null,
+      createdAt: new Date("2024-03-15T10:00:00"),
+    },
+    {
+      id: 2,
+      actionId: 10,
+      planId: 1,
+      campo: "responsable",
+      valorAnterior: "Juan",
+      valorNuevo: "María",
+      changedByName: "Ana García",
+      nota: null,
+      createdAt: new Date("2024-03-16T11:00:00"),
+    },
+    {
+      id: 3,
+      actionId: 11,
+      planId: 1,
+      campo: "plazo",
+      valorAnterior: "2024-03-31",
+      valorNuevo: "2024-04-15",
+      changedByName: "Carlos López",
+      nota: "Extensión aprobada",
+      createdAt: new Date("2024-03-20T09:00:00"),
+    },
+    {
+      id: 4,
+      actionId: 12,
+      planId: 2,
+      campo: "prioridad",
+      valorAnterior: "media",
+      valorNuevo: "alta",
+      changedByName: "Ana García",
+      nota: null,
+      createdAt: new Date("2024-04-01T14:00:00"),
+    },
+    {
+      id: 5,
+      actionId: 13,
+      planId: 2,
+      campo: "estado",
+      valorAnterior: "en_proceso",
+      valorNuevo: "cumplida",
+      changedByName: "María Torres",
+      nota: "Completada con evidencia",
+      createdAt: new Date("2024-04-10T16:00:00"),
+    },
   ];
 
   it("filtra por campo correctamente", () => {
@@ -314,7 +395,9 @@ describe("Sprint 79 — Exportación XLSX/PDF del historial de bitácora", () =>
   it("filtra por nombre de usuario (case-insensitive)", () => {
     const result = filterHistory(sampleRows, { changedByName: "ana" });
     expect(result).toHaveLength(3);
-    result.forEach(r => expect(r.changedByName?.toLowerCase()).toContain("ana"));
+    result.forEach(r =>
+      expect(r.changedByName?.toLowerCase()).toContain("ana")
+    );
   });
 
   it("filtra por rango de fechas", () => {
@@ -324,7 +407,9 @@ describe("Sprint 79 — Exportación XLSX/PDF del historial de bitácora", () =>
     });
     expect(result).toHaveLength(2);
     result.forEach(r => {
-      expect(r.createdAt.getTime()).toBeGreaterThanOrEqual(new Date("2024-03-20").getTime());
+      expect(r.createdAt.getTime()).toBeGreaterThanOrEqual(
+        new Date("2024-03-20").getTime()
+      );
     });
   });
 
@@ -372,9 +457,15 @@ describe("Sprint 79 — Exportación XLSX/PDF del historial de bitácora", () =>
   it("paginación: divide correctamente en páginas de 30", () => {
     const PAGE_SIZE = 30;
     const rows = Array.from({ length: 75 }, (_, i) => ({
-      id: i + 1, actionId: i + 1, planId: 1, campo: "estado",
-      valorAnterior: null, valorNuevo: "cumplida", changedByName: "Test",
-      nota: null, createdAt: new Date(),
+      id: i + 1,
+      actionId: i + 1,
+      planId: 1,
+      campo: "estado",
+      valorAnterior: null,
+      valorNuevo: "cumplida",
+      changedByName: "Test",
+      nota: null,
+      createdAt: new Date(),
     }));
     const totalPages = Math.ceil(rows.length / PAGE_SIZE);
     expect(totalPages).toBe(3);
@@ -388,8 +479,16 @@ describe("Sprint 79 — Exportación XLSX/PDF del historial de bitácora", () =>
 
   it("columnas XLSX tienen los encabezados correctos", () => {
     const expectedColumns = [
-      "ID", "ID Acción", "ID Plan", "Campo Modificado",
-      "Valor Anterior", "Valor Nuevo", "Usuario", "Correo", "Nota", "Fecha y Hora"
+      "ID",
+      "ID Acción",
+      "ID Plan",
+      "Campo Modificado",
+      "Valor Anterior",
+      "Valor Nuevo",
+      "Usuario",
+      "Correo",
+      "Nota",
+      "Fecha y Hora",
     ];
     expect(expectedColumns).toHaveLength(10);
     expect(expectedColumns[3]).toBe("Campo Modificado");
@@ -397,7 +496,15 @@ describe("Sprint 79 — Exportación XLSX/PDF del historial de bitácora", () =>
   });
 
   it("columnas PDF tienen el orden correcto para orientación horizontal", () => {
-    const pdfColumns = ["ID", "Acción", "Campo", "Valor Anterior", "Valor Nuevo", "Usuario", "Fecha"];
+    const pdfColumns = [
+      "ID",
+      "Acción",
+      "Campo",
+      "Valor Anterior",
+      "Valor Nuevo",
+      "Usuario",
+      "Fecha",
+    ];
     expect(pdfColumns).toHaveLength(7);
     expect(pdfColumns[0]).toBe("ID");
     expect(pdfColumns[6]).toBe("Fecha");

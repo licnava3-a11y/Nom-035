@@ -7,41 +7,158 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Scale, ChevronDown, ChevronUp, Loader2, CheckCircle, Download, Save, Eye, Trash2, Plus, Settings2 } from "lucide-react";
+import {
+  FileText,
+  Scale,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  CheckCircle,
+  Download,
+  Save,
+  Eye,
+  Trash2,
+  Plus,
+  Settings2,
+} from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 const INVESTIGACION_SECTIONS = [
-  { key: "fundamento_normativo", label: "1. Fundamento Normativo", desc: "Artículos y puntos de la NOM-035 que exigen la investigación" },
-  { key: "objetivo", label: "2. Objetivo de la Investigación", desc: "Objetivo general y específicos" },
-  { key: "alcance", label: "3. Alcance", desc: "Puestos, áreas, modalidades de trabajo" },
-  { key: "instrumentos", label: "4. Instrumentos de Evaluación", desc: "Guía de Referencia I, II y III" },
-  { key: "poblacion_muestra", label: "5. Población Objetivo y Muestra", desc: "Criterios de inclusión, exclusión y cálculo muestral" },
-  { key: "periodicidad", label: "6. Periodicidad", desc: "Cada 12 o 24 meses; eventos traumáticos" },
-  { key: "responsables", label: "7. Responsables de la Investigación", desc: "Perfil: psicólogo con experiencia en SST, cédula profesional" },
-  { key: "calendario", label: "8. Calendario de Etapas", desc: "Planeación, aplicación, análisis, integración del expediente" },
-  { key: "confidencialidad", label: "9. Confidencialidad y No Represalias", desc: "Mecanismos de protección" },
-  { key: "integracion_normas", label: "10. Integración con Otras Normas", desc: "Relación con NOM-036, NOM-037, etc." },
-  { key: "aprobacion_registro", label: "11. Aprobación y Registro", desc: "Visto bueno del patrón o responsable de SST" },
+  {
+    key: "fundamento_normativo",
+    label: "1. Fundamento Normativo",
+    desc: "Artículos y puntos de la NOM-035 que exigen la investigación",
+  },
+  {
+    key: "objetivo",
+    label: "2. Objetivo de la Investigación",
+    desc: "Objetivo general y específicos",
+  },
+  {
+    key: "alcance",
+    label: "3. Alcance",
+    desc: "Puestos, áreas, modalidades de trabajo",
+  },
+  {
+    key: "instrumentos",
+    label: "4. Instrumentos de Evaluación",
+    desc: "Guía de Referencia I, II y III",
+  },
+  {
+    key: "poblacion_muestra",
+    label: "5. Población Objetivo y Muestra",
+    desc: "Criterios de inclusión, exclusión y cálculo muestral",
+  },
+  {
+    key: "periodicidad",
+    label: "6. Periodicidad",
+    desc: "Cada 12 o 24 meses; eventos traumáticos",
+  },
+  {
+    key: "responsables",
+    label: "7. Responsables de la Investigación",
+    desc: "Perfil: psicólogo con experiencia en SST, cédula profesional",
+  },
+  {
+    key: "calendario",
+    label: "8. Calendario de Etapas",
+    desc: "Planeación, aplicación, análisis, integración del expediente",
+  },
+  {
+    key: "confidencialidad",
+    label: "9. Confidencialidad y No Represalias",
+    desc: "Mecanismos de protección",
+  },
+  {
+    key: "integracion_normas",
+    label: "10. Integración con Otras Normas",
+    desc: "Relación con NOM-036, NOM-037, etc.",
+  },
+  {
+    key: "aprobacion_registro",
+    label: "11. Aprobación y Registro",
+    desc: "Visto bueno del patrón o responsable de SST",
+  },
 ];
 
 const DICTAMEN_SECTIONS = [
-  { key: "encabezado_formal", label: "1. Encabezado Formal", desc: "Razón social, domicilio, número de trabajadores por sexo" },
-  { key: "numero_fecha", label: "2. Número de Dictamen y Fecha", desc: "Folio y fecha de emisión" },
-  { key: "metodologia", label: "3. Metodología Aplicada", desc: "Instrumentos, fechas, muestra, tasa de respuesta" },
-  { key: "hallazgos_clave", label: "4. Hallazgos Clave", desc: "Niveles de riesgo por dominio (bajo, medio, alto, muy alto)" },
-  { key: "impacto_legal", label: "5. Análisis de Impacto Legal", desc: "Artículos de LFT o NOM incumplidos" },
-  { key: "conclusiones_tecnicas", label: "6. Conclusiones Técnicas", desc: "Nivel de riesgo global determinado" },
-  { key: "conclusiones_juridicas", label: "7. Conclusiones Jurídicas", desc: "Redacción de imputación normativa" },
-  { key: "medidas_correctivas", label: "8. Medidas Correctivas", desc: "Acciones, plazos en días hábiles, responsable" },
-  { key: "recomendaciones_seguimiento", label: "9. Recomendaciones de Seguimiento", desc: "Próxima evaluación, indicadores" },
-  { key: "firmas", label: "10. Firmas", desc: "Responsable técnico y representante legal" },
-  { key: "anexos", label: "11. Anexos", desc: "Listado de documentos que integran el expediente" },
+  {
+    key: "encabezado_formal",
+    label: "1. Encabezado Formal",
+    desc: "Razón social, domicilio, número de trabajadores por sexo",
+  },
+  {
+    key: "numero_fecha",
+    label: "2. Número de Dictamen y Fecha",
+    desc: "Folio y fecha de emisión",
+  },
+  {
+    key: "metodologia",
+    label: "3. Metodología Aplicada",
+    desc: "Instrumentos, fechas, muestra, tasa de respuesta",
+  },
+  {
+    key: "hallazgos_clave",
+    label: "4. Hallazgos Clave",
+    desc: "Niveles de riesgo por dominio (bajo, medio, alto, muy alto)",
+  },
+  {
+    key: "impacto_legal",
+    label: "5. Análisis de Impacto Legal",
+    desc: "Artículos de LFT o NOM incumplidos",
+  },
+  {
+    key: "conclusiones_tecnicas",
+    label: "6. Conclusiones Técnicas",
+    desc: "Nivel de riesgo global determinado",
+  },
+  {
+    key: "conclusiones_juridicas",
+    label: "7. Conclusiones Jurídicas",
+    desc: "Redacción de imputación normativa",
+  },
+  {
+    key: "medidas_correctivas",
+    label: "8. Medidas Correctivas",
+    desc: "Acciones, plazos en días hábiles, responsable",
+  },
+  {
+    key: "recomendaciones_seguimiento",
+    label: "9. Recomendaciones de Seguimiento",
+    desc: "Próxima evaluación, indicadores",
+  },
+  {
+    key: "firmas",
+    label: "10. Firmas",
+    desc: "Responsable técnico y representante legal",
+  },
+  {
+    key: "anexos",
+    label: "11. Anexos",
+    desc: "Listado de documentos que integran el expediente",
+  },
 ];
 
 const RIESGO_COLORS: Record<string, string> = {
@@ -62,7 +179,11 @@ const RIESGO_LABELS: Record<string, string> = {
 
 // ── Section Viewer ────────────────────────────────────────────────────────────
 
-function SectionEditor({ sections, contenido, onChange }: {
+function SectionEditor({
+  sections,
+  contenido,
+  onChange,
+}: {
   sections: typeof INVESTIGACION_SECTIONS;
   contenido: Record<string, string>;
   onChange: (key: string, value: string) => void;
@@ -71,11 +192,13 @@ function SectionEditor({ sections, contenido, onChange }: {
 
   return (
     <div className="space-y-3">
-      {sections.map((section) => (
+      {sections.map(section => (
         <Collapsible
           key={section.key}
           open={openSections[section.key] ?? true}
-          onOpenChange={(open) => setOpenSections(prev => ({ ...prev, [section.key]: open }))}
+          onOpenChange={open =>
+            setOpenSections(prev => ({ ...prev, [section.key]: open }))
+          }
         >
           <CollapsibleTrigger asChild>
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors border">
@@ -83,14 +206,18 @@ function SectionEditor({ sections, contenido, onChange }: {
                 <p className="font-semibold text-sm">{section.label}</p>
                 <p className="text-xs text-muted-foreground">{section.desc}</p>
               </div>
-              {openSections[section.key] !== false ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+              {openSections[section.key] !== false ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="pt-2 pb-3 px-1">
               <Textarea
                 value={contenido[section.key] ?? ""}
-                onChange={(e) => onChange(section.key, e.target.value)}
+                onChange={e => onChange(section.key, e.target.value)}
                 rows={6}
                 className="text-sm font-mono leading-relaxed"
                 placeholder={`Contenido del ${section.label}...`}
@@ -105,18 +232,24 @@ function SectionEditor({ sections, contenido, onChange }: {
 
 // ── Document History Table ────────────────────────────────────────────────────
 
-function DocHistoryTable({ docs, onView, onDelete, type }: {
+function DocHistoryTable({
+  docs,
+  onView,
+  onDelete,
+  type,
+}: {
   docs: any[];
   onView: (doc: any) => void;
   onDelete: (id: number) => void;
   type: "investigacion" | "dictamen";
 }) {
-  if (!docs.length) return (
-    <div className="text-center py-12 text-muted-foreground">
-      <FileText className="h-12 w-12 mx-auto mb-3 opacity-30" />
-      <p>No hay documentos generados aún.</p>
-    </div>
-  );
+  if (!docs.length)
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        <FileText className="h-12 w-12 mx-auto mb-3 opacity-30" />
+        <p>No hay documentos generados aún.</p>
+      </div>
+    );
 
   return (
     <div className="overflow-x-auto">
@@ -131,8 +264,12 @@ function DocHistoryTable({ docs, onView, onDelete, type }: {
               </>
             ) : (
               <>
-                <th className="text-left py-2 px-3 font-semibold">Razón Social</th>
-                <th className="text-left py-2 px-3 font-semibold">Riesgo Global</th>
+                <th className="text-left py-2 px-3 font-semibold">
+                  Razón Social
+                </th>
+                <th className="text-left py-2 px-3 font-semibold">
+                  Riesgo Global
+                </th>
               </>
             )}
             <th className="text-left py-2 px-3 font-semibold">Estado</th>
@@ -141,9 +278,11 @@ function DocHistoryTable({ docs, onView, onDelete, type }: {
           </tr>
         </thead>
         <tbody>
-          {docs.map((doc) => (
+          {docs.map(doc => (
             <tr key={doc.id} className="border-b hover:bg-muted/30">
-              <td className="py-2 px-3 font-mono font-semibold text-primary">{doc.folio}</td>
+              <td className="py-2 px-3 font-mono font-semibold text-primary">
+                {doc.folio}
+              </td>
               {type === "investigacion" ? (
                 <>
                   <td className="py-2 px-3">{doc.empresa ?? "—"}</td>
@@ -154,15 +293,28 @@ function DocHistoryTable({ docs, onView, onDelete, type }: {
                   <td className="py-2 px-3">{doc.razonSocial ?? "—"}</td>
                   <td className="py-2 px-3">
                     {doc.nivelRiesgoGlobal ? (
-                      <Badge className={RIESGO_COLORS[doc.nivelRiesgoGlobal] ?? ""}>
-                        {RIESGO_LABELS[doc.nivelRiesgoGlobal] ?? doc.nivelRiesgoGlobal}
+                      <Badge
+                        className={RIESGO_COLORS[doc.nivelRiesgoGlobal] ?? ""}
+                      >
+                        {RIESGO_LABELS[doc.nivelRiesgoGlobal] ??
+                          doc.nivelRiesgoGlobal}
                       </Badge>
-                    ) : "—"}
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 </>
               )}
               <td className="py-2 px-3">
-                <Badge variant={doc.estado === "aprobado" ? "default" : doc.estado === "final" ? "secondary" : "outline"}>
+                <Badge
+                  variant={
+                    doc.estado === "aprobado"
+                      ? "default"
+                      : doc.estado === "final"
+                        ? "secondary"
+                        : "outline"
+                  }
+                >
                   {doc.estado}
                 </Badge>
               </td>
@@ -171,10 +323,21 @@ function DocHistoryTable({ docs, onView, onDelete, type }: {
               </td>
               <td className="py-2 px-3">
                 <div className="flex gap-1">
-                  <Button size="sm" variant="ghost" onClick={() => onView(doc)} title="Ver documento">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onView(doc)}
+                    title="Ver documento"
+                  >
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => onDelete(doc.id)} title="Eliminar" className="text-destructive hover:text-destructive">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onDelete(doc.id)}
+                    title="Eliminar"
+                    className="text-destructive hover:text-destructive"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -192,44 +355,82 @@ function DocHistoryTable({ docs, onView, onDelete, type }: {
 function InvestigacionTab() {
   const { toast } = useToast();
   const { data: companyInfo } = trpc.systemSettings.getCompanyInfo.useQuery();
-  const [form, setForm] = useState({ empresa: "", area: "", fechaInvestigacion: "", responsableSst: "" });
+  const [form, setForm] = useState({
+    empresa: "",
+    area: "",
+    fechaInvestigacion: "",
+    responsableSst: "",
+  });
 
   // P8: Prellenar empresa desde configuración cuando carguen los datos
   useEffect(() => {
     if (companyInfo?.company_name && !form.empresa) {
       setForm(prev => ({ ...prev, empresa: companyInfo.company_name || "" }));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyInfo?.company_name]);
   const [activeDoc, setActiveDoc] = useState<any>(null);
-  const [editedContenido, setEditedContenido] = useState<Record<string, string>>({});
+  const [editedContenido, setEditedContenido] = useState<
+    Record<string, string>
+  >({});
   const [view, setView] = useState<"form" | "editor" | "history">("form");
 
   const { data: docs, refetch } = trpc.caseInvestigationDocs.list.useQuery();
   const generateMut = trpc.caseInvestigationDocs.generate.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setActiveDoc(data.doc);
       setEditedContenido((data.doc?.contenido as Record<string, string>) ?? {});
       setView("editor");
-      toast({ title: "Documento generado", description: `Folio: ${data.doc?.folio}` });
+      toast({
+        title: "Documento generado",
+        description: `Folio: ${data.doc?.folio}`,
+      });
       refetch();
     },
-    onError: (e) => toast({ title: "Error al generar", description: e.message, variant: "destructive" }),
+    onError: e =>
+      toast({
+        title: "Error al generar",
+        description: e.message,
+        variant: "destructive",
+      }),
   });
   const saveMut = trpc.caseInvestigationDocs.save.useMutation({
-    onSuccess: () => { toast({ title: "Guardado exitosamente" }); refetch(); },
-    onError: (e) => toast({ title: "Error al guardar", description: e.message, variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "Guardado exitosamente" });
+      refetch();
+    },
+    onError: e =>
+      toast({
+        title: "Error al guardar",
+        description: e.message,
+        variant: "destructive",
+      }),
   });
   const approveMut = trpc.caseInvestigationDocs.approve.useMutation({
-    onSuccess: () => { toast({ title: "Documento aprobado" }); refetch(); },
+    onSuccess: () => {
+      toast({ title: "Documento aprobado" });
+      refetch();
+    },
   });
   const deleteMut = trpc.caseInvestigationDocs.delete.useMutation({
-    onSuccess: () => { toast({ title: "Documento eliminado" }); refetch(); },
+    onSuccess: () => {
+      toast({ title: "Documento eliminado" });
+      refetch();
+    },
   });
 
   const handleGenerate = () => {
-    if (!form.empresa || !form.area || !form.fechaInvestigacion || !form.responsableSst) {
-      toast({ title: "Campos requeridos", description: "Completa todos los campos antes de generar", variant: "destructive" });
+    if (
+      !form.empresa ||
+      !form.area ||
+      !form.fechaInvestigacion ||
+      !form.responsableSst
+    ) {
+      toast({
+        title: "Campos requeridos",
+        description: "Completa todos los campos antes de generar",
+        variant: "destructive",
+      });
       return;
     }
     generateMut.mutate(form);
@@ -267,20 +468,35 @@ function InvestigacionTab() {
     a.download = `Investigacion_Caso_${activeDoc.folio.replace("/", "-")}.html`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: "Documento exportado", description: "Abre el archivo HTML en tu navegador e imprime como PDF" });
+    toast({
+      title: "Documento exportado",
+      description: "Abre el archivo HTML en tu navegador e imprime como PDF",
+    });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex gap-2">
-        <Button variant={view === "form" ? "default" : "outline"} size="sm" onClick={() => setView("form")}>
+        <Button
+          variant={view === "form" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setView("form")}
+        >
           <Plus className="h-4 w-4 mr-1" /> Nuevo
         </Button>
-        <Button variant={view === "history" ? "default" : "outline"} size="sm" onClick={() => setView("history")}>
+        <Button
+          variant={view === "history" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setView("history")}
+        >
           <FileText className="h-4 w-4 mr-1" /> Historial ({docs?.length ?? 0})
         </Button>
         {activeDoc && (
-          <Button variant={view === "editor" ? "default" : "outline"} size="sm" onClick={() => setView("editor")}>
+          <Button
+            variant={view === "editor" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setView("editor")}
+          >
             <Eye className="h-4 w-4 mr-1" /> Editar: {activeDoc.folio}
           </Button>
         )}
@@ -289,33 +505,72 @@ function InvestigacionTab() {
       {view === "form" && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-blue-600" /> Generar Investigación de Caso</CardTitle>
-            <CardDescription>El sistema generará automáticamente los 11 apartados obligatorios usando IA especializada en derecho laboral y SST.</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-blue-600" /> Generar
+              Investigación de Caso
+            </CardTitle>
+            <CardDescription>
+              El sistema generará automáticamente los 11 apartados obligatorios
+              usando IA especializada en derecho laboral y SST.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Nombre de la Empresa *</Label>
-                <Input placeholder="Ej: Industrias XYZ S.A. de C.V." value={form.empresa} onChange={e => setForm(p => ({ ...p, empresa: e.target.value }))} />
+                <Input
+                  placeholder="Ej: Industrias XYZ S.A. de C.V."
+                  value={form.empresa}
+                  onChange={e =>
+                    setForm(p => ({ ...p, empresa: e.target.value }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Área / Departamento *</Label>
-                <Input placeholder="Ej: Operaciones, Producción, Ventas" value={form.area} onChange={e => setForm(p => ({ ...p, area: e.target.value }))} />
+                <Input
+                  placeholder="Ej: Operaciones, Producción, Ventas"
+                  value={form.area}
+                  onChange={e => setForm(p => ({ ...p, area: e.target.value }))}
+                />
               </div>
               <div className="space-y-1">
                 <Label>Fecha de Investigación *</Label>
-                <Input type="date" value={form.fechaInvestigacion} onChange={e => setForm(p => ({ ...p, fechaInvestigacion: e.target.value }))} />
+                <Input
+                  type="date"
+                  value={form.fechaInvestigacion}
+                  onChange={e =>
+                    setForm(p => ({ ...p, fechaInvestigacion: e.target.value }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Responsable SST *</Label>
-                <Input placeholder="Ej: Psic. María García López, Cédula 1234567" value={form.responsableSst} onChange={e => setForm(p => ({ ...p, responsableSst: e.target.value }))} />
+                <Input
+                  placeholder="Ej: Psic. María García López, Cédula 1234567"
+                  value={form.responsableSst}
+                  onChange={e =>
+                    setForm(p => ({ ...p, responsableSst: e.target.value }))
+                  }
+                />
               </div>
             </div>
-            <Button onClick={handleGenerate} disabled={generateMut.isPending} className="w-full" size="lg">
+            <Button
+              onClick={handleGenerate}
+              disabled={generateMut.isPending}
+              className="w-full"
+              size="lg"
+            >
               {generateMut.isPending ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generando documento con IA (puede tardar 15-30 segundos)...</>
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generando
+                  documento con IA (puede tardar 15-30 segundos)...
+                </>
               ) : (
-                <><FileText className="h-4 w-4 mr-2" /> Generar Investigación de Caso con IA</>
+                <>
+                  <FileText className="h-4 w-4 mr-2" /> Generar Investigación de
+                  Caso con IA
+                </>
               )}
             </Button>
           </CardContent>
@@ -326,30 +581,70 @@ function InvestigacionTab() {
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200">
             <div>
-              <p className="font-bold text-blue-800 dark:text-blue-200 font-mono text-lg">{activeDoc.folio}</p>
-              <p className="text-sm text-blue-600 dark:text-blue-400">{activeDoc.empresa} — {activeDoc.area}</p>
+              <p className="font-bold text-blue-800 dark:text-blue-200 font-mono text-lg">
+                {activeDoc.folio}
+              </p>
+              <p className="text-sm text-blue-600 dark:text-blue-400">
+                {activeDoc.empresa} — {activeDoc.area}
+              </p>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => handleSave("borrador")} disabled={saveMut.isPending}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleSave("borrador")}
+                disabled={saveMut.isPending}
+              >
                 <Save className="h-4 w-4 mr-1" /> Borrador
               </Button>
-              <Button size="sm" variant="outline" onClick={() => handleSave("final")} disabled={saveMut.isPending}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleSave("final")}
+                disabled={saveMut.isPending}
+              >
                 <CheckCircle className="h-4 w-4 mr-1" /> Versión Final
               </Button>
-              <Button size="sm" onClick={() => approveMut.mutate({ id: activeDoc.id })} disabled={approveMut.isPending}>
+              <Button
+                size="sm"
+                onClick={() => approveMut.mutate({ id: activeDoc.id })}
+                disabled={approveMut.isPending}
+              >
                 <CheckCircle className="h-4 w-4 mr-1" /> Aprobar
               </Button>
-              <Button size="sm" variant="secondary" onClick={handleExportPDF} title="Descarga el HTML con firma digital, cédula profesional y QR NOM-151">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleExportPDF}
+                title="Descarga el HTML con firma digital, cédula profesional y QR NOM-151"
+              >
                 <Download className="h-4 w-4 mr-1" /> Descargar PDF Firmable
               </Button>
-              <Button size="sm" variant="outline" onClick={() => {
-                if (!activeDoc) return;
-                const printWindow = window.open('', '_blank');
-                if (!printWindow) { toast({ title: 'Bloqueador de ventanas activo', description: 'Permite ventanas emergentes para imprimir el PDF', variant: 'destructive' }); return; }
-                // Reutilizar la misma lógica de generación HTML
-                handleExportPDF();
-                toast({ title: 'PDF listo para imprimir', description: 'Se abrirá el diálogo de impresión. Selecciona "Guardar como PDF".' });
-              }} title="Abre el diálogo de impresión del navegador para guardar como PDF directamente">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  if (!activeDoc) return;
+                  const printWindow = window.open("", "_blank");
+                  if (!printWindow) {
+                    toast({
+                      title: "Bloqueador de ventanas activo",
+                      description:
+                        "Permite ventanas emergentes para imprimir el PDF",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  // Reutilizar la misma lógica de generación HTML
+                  handleExportPDF();
+                  toast({
+                    title: "PDF listo para imprimir",
+                    description:
+                      'Se abrirá el diálogo de impresión. Selecciona "Guardar como PDF".',
+                  });
+                }}
+                title="Abre el diálogo de impresión del navegador para guardar como PDF directamente"
+              >
                 <FileText className="h-4 w-4 mr-1" /> Imprimir PDF
               </Button>
             </div>
@@ -357,24 +652,30 @@ function InvestigacionTab() {
           <SectionEditor
             sections={INVESTIGACION_SECTIONS}
             contenido={editedContenido}
-            onChange={(key, val) => setEditedContenido(prev => ({ ...prev, [key]: val }))}
+            onChange={(key, val) =>
+              setEditedContenido(prev => ({ ...prev, [key]: val }))
+            }
           />
         </div>
       )}
 
       {view === "history" && (
         <Card>
-          <CardHeader><CardTitle>Historial de Investigaciones de Caso</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>Historial de Investigaciones de Caso</CardTitle>
+          </CardHeader>
           <CardContent>
             <DocHistoryTable
               docs={docs ?? []}
               type="investigacion"
-              onView={(doc) => {
+              onView={doc => {
                 setActiveDoc(doc);
-                setEditedContenido((doc.contenido as Record<string, string>) ?? {});
+                setEditedContenido(
+                  (doc.contenido as Record<string, string>) ?? {}
+                );
                 setView("editor");
               }}
-              onDelete={(id) => deleteMut.mutate({ id })}
+              onDelete={id => deleteMut.mutate({ id })}
             />
           </CardContent>
         </Card>
@@ -388,42 +689,71 @@ function InvestigacionTab() {
 function DictamenTab() {
   const { toast } = useToast();
   const [form, setForm] = useState({
-    razonSocial: "", domicilio: "", totalTrabajadores: 0,
-    trabajadoresHombres: 0, trabajadoresMujeres: 0, periodoEvaluado: "",
-    responsableTecnico: "", cedulaProfesional: "", representanteLegal: "",
+    razonSocial: "",
+    domicilio: "",
+    totalTrabajadores: 0,
+    trabajadoresHombres: 0,
+    trabajadoresMujeres: 0,
+    periodoEvaluado: "",
+    responsableTecnico: "",
+    cedulaProfesional: "",
+    representanteLegal: "",
     investigationDocId: undefined as number | undefined,
     // P3: Campos NOM-035/STPS desde systemSettings
-    scian: "", workCenter: "", stpsRegistration: "",
+    scian: "",
+    workCenter: "",
+    stpsRegistration: "",
   });
   const [activeDoc, setActiveDoc] = useState<any>(null);
-  const [editedContenido, setEditedContenido] = useState<Record<string, string>>({});
+  const [editedContenido, setEditedContenido] = useState<
+    Record<string, string>
+  >({});
   const [view, setView] = useState<"form" | "editor" | "history">("form");
 
   const { data: docs, refetch } = trpc.dictamenDocs.list.useQuery();
-  const { data: investigaciones } = trpc.dictamenDocs.listInvestigaciones.useQuery();
-  const { data: clinicalEmployees } = trpc.employees.getClinicalEmployees.useQuery();
+  const { data: investigaciones } =
+    trpc.dictamenDocs.listInvestigaciones.useQuery();
+  const { data: clinicalEmployees } =
+    trpc.employees.getClinicalEmployees.useQuery();
   const [useManualResponsable, setUseManualResponsable] = useState(false);
   const [responsableSearch, setResponsableSearch] = useState("");
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === "admin";
   // Configuración de folio
-  const { data: folioConfig, refetch: refetchFolioConfig } = trpc.dictamenDocs.getDocFormatConfig.useQuery({ docType: "dictamen" });
+  const { data: folioConfig, refetch: refetchFolioConfig } =
+    trpc.dictamenDocs.getDocFormatConfig.useQuery({ docType: "dictamen" });
   const [folioConfigOpen, setFolioConfigOpen] = useState(false);
-  const [folioForm, setFolioForm] = useState({ codigoFormato: "NOM035-DICT", version: "1.0", fechaVersion: "", referenciaNormativa: "NOM-035-STPS-2018" });
+  const [folioForm, setFolioForm] = useState({
+    codigoFormato: "NOM035-DICT",
+    version: "1.0",
+    fechaVersion: "",
+    referenciaNormativa: "NOM-035-STPS-2018",
+  });
   useEffect(() => {
     if (folioConfig) {
       setFolioForm({
         codigoFormato: folioConfig.codigoFormato ?? "NOM035-DICT",
         version: folioConfig.version ?? "1.0",
         fechaVersion: folioConfig.fechaVersion ?? "",
-        referenciaNormativa: folioConfig.referenciaNormativa ?? "NOM-035-STPS-2018",
+        referenciaNormativa:
+          folioConfig.referenciaNormativa ?? "NOM-035-STPS-2018",
       });
     }
   }, [folioConfig]);
-  const updateFolioConfigMut = trpc.dictamenDocs.updateDocFormatConfig.useMutation({
-    onSuccess: () => { toast({ title: "Configuración de folio actualizada" }); refetchFolioConfig(); setFolioConfigOpen(false); },
-    onError: (e) => toast({ title: "Error al actualizar configuración", description: e.message, variant: "destructive" }),
-  });
+  const updateFolioConfigMut =
+    trpc.dictamenDocs.updateDocFormatConfig.useMutation({
+      onSuccess: () => {
+        toast({ title: "Configuración de folio actualizada" });
+        refetchFolioConfig();
+        setFolioConfigOpen(false);
+      },
+      onError: e =>
+        toast({
+          title: "Error al actualizar configuración",
+          description: e.message,
+          variant: "destructive",
+        }),
+    });
 
   // Prellenado automático desde datos del sistema
   const { data: prefilledData } = trpc.dictamenDocs.getPrefilledData.useQuery();
@@ -434,47 +764,90 @@ function DictamenTab() {
         ...prev,
         razonSocial: prefilledData.razonSocial || prev.razonSocial,
         domicilio: prefilledData.domicilio || prev.domicilio,
-        totalTrabajadores: prefilledData.totalTrabajadores || prev.totalTrabajadores,
-        trabajadoresHombres: prefilledData.trabajadoresHombres || prev.trabajadoresHombres,
-        trabajadoresMujeres: prefilledData.trabajadoresMujeres || prev.trabajadoresMujeres,
-        representanteLegal: prefilledData.representanteLegal || prev.representanteLegal,
+        totalTrabajadores:
+          prefilledData.totalTrabajadores || prev.totalTrabajadores,
+        trabajadoresHombres:
+          prefilledData.trabajadoresHombres || prev.trabajadoresHombres,
+        trabajadoresMujeres:
+          prefilledData.trabajadoresMujeres || prev.trabajadoresMujeres,
+        representanteLegal:
+          prefilledData.representanteLegal || prev.representanteLegal,
         periodoEvaluado: prefilledData.periodoEvaluado || prev.periodoEvaluado,
         // P3: Prellenar campos NOM-035/STPS desde systemSettings
         scian: (prefilledData as any).scian || prev.scian,
         workCenter: (prefilledData as any).workCenter || prev.workCenter,
-        stpsRegistration: (prefilledData as any).stpsRegistration || prev.stpsRegistration,
+        stpsRegistration:
+          (prefilledData as any).stpsRegistration || prev.stpsRegistration,
       }));
       setPrefilledApplied(true);
     }
   }, [prefilledData, prefilledApplied]);
 
   const generateMut = trpc.dictamenDocs.generate.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setActiveDoc(data.doc);
       setEditedContenido((data.doc?.contenido as Record<string, string>) ?? {});
       setView("editor");
-      toast({ title: "Dictamen generado", description: `Folio: ${data.doc?.folio}` });
+      toast({
+        title: "Dictamen generado",
+        description: `Folio: ${data.doc?.folio}`,
+      });
       refetch();
     },
-    onError: (e) => toast({ title: "Error al generar", description: e.message, variant: "destructive" }),
+    onError: e =>
+      toast({
+        title: "Error al generar",
+        description: e.message,
+        variant: "destructive",
+      }),
   });
   const saveMut = trpc.dictamenDocs.save.useMutation({
-    onSuccess: () => { toast({ title: "Guardado exitosamente" }); refetch(); },
-    onError: (e) => toast({ title: "Error al guardar", description: e.message, variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "Guardado exitosamente" });
+      refetch();
+    },
+    onError: e =>
+      toast({
+        title: "Error al guardar",
+        description: e.message,
+        variant: "destructive",
+      }),
   });
   const approveMut = trpc.dictamenDocs.approve.useMutation({
-    onSuccess: () => { toast({ title: "Dictamen aprobado" }); refetch(); },
+    onSuccess: () => {
+      toast({ title: "Dictamen aprobado" });
+      refetch();
+    },
   });
   const deleteMut = trpc.dictamenDocs.delete.useMutation({
-    onSuccess: () => { toast({ title: "Dictamen eliminado" }); refetch(); },
+    onSuccess: () => {
+      toast({ title: "Dictamen eliminado" });
+      refetch();
+    },
   });
 
   const handleGenerate = () => {
-    if (!form.razonSocial || !form.domicilio || !form.periodoEvaluado || !form.responsableTecnico || !form.cedulaProfesional || !form.representanteLegal) {
-      toast({ title: "Campos requeridos", description: "Completa todos los campos obligatorios", variant: "destructive" });
+    if (
+      !form.razonSocial ||
+      !form.domicilio ||
+      !form.periodoEvaluado ||
+      !form.responsableTecnico ||
+      !form.cedulaProfesional ||
+      !form.representanteLegal
+    ) {
+      toast({
+        title: "Campos requeridos",
+        description: "Completa todos los campos obligatorios",
+        variant: "destructive",
+      });
       return;
     }
-    generateMut.mutate({ ...form, totalTrabajadores: Number(form.totalTrabajadores), trabajadoresHombres: Number(form.trabajadoresHombres), trabajadoresMujeres: Number(form.trabajadoresMujeres) });
+    generateMut.mutate({
+      ...form,
+      totalTrabajadores: Number(form.totalTrabajadores),
+      trabajadoresHombres: Number(form.trabajadoresHombres),
+      trabajadoresMujeres: Number(form.trabajadoresMujeres),
+    });
   };
 
   const handleSave = (estado: "borrador" | "final") => {
@@ -486,14 +859,36 @@ function DictamenTab() {
     if (!activeDoc) return;
     const sections = DICTAMEN_SECTIONS;
     const contenido = editedContenido;
-    const fechaEmision = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
-    const riesgoLabel = RIESGO_LABELS[activeDoc.nivelRiesgoGlobal] ?? activeDoc.nivelRiesgoGlobal ?? 'No determinado';
-    const riesgoColor = activeDoc.nivelRiesgoGlobal === 'muy_alto' ? '#991b1b' : activeDoc.nivelRiesgoGlobal === 'alto' ? '#c2410c' : activeDoc.nivelRiesgoGlobal === 'medio' ? '#92400e' : '#166534';
-    const riesgoBg = activeDoc.nivelRiesgoGlobal === 'muy_alto' ? '#fee2e2' : activeDoc.nivelRiesgoGlobal === 'alto' ? '#ffedd5' : activeDoc.nivelRiesgoGlobal === 'medio' ? '#fef9c3' : '#dcfce7';
+    const fechaEmision = new Date().toLocaleDateString("es-MX", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const riesgoLabel =
+      RIESGO_LABELS[activeDoc.nivelRiesgoGlobal] ??
+      activeDoc.nivelRiesgoGlobal ??
+      "No determinado";
+    const riesgoColor =
+      activeDoc.nivelRiesgoGlobal === "muy_alto"
+        ? "#991b1b"
+        : activeDoc.nivelRiesgoGlobal === "alto"
+          ? "#c2410c"
+          : activeDoc.nivelRiesgoGlobal === "medio"
+            ? "#92400e"
+            : "#166534";
+    const riesgoBg =
+      activeDoc.nivelRiesgoGlobal === "muy_alto"
+        ? "#fee2e2"
+        : activeDoc.nivelRiesgoGlobal === "alto"
+          ? "#ffedd5"
+          : activeDoc.nivelRiesgoGlobal === "medio"
+            ? "#fef9c3"
+            : "#dcfce7";
     // Datos de folio configurable y NOM-151
-    const refNormativa = folioConfig?.referenciaNormativa ?? 'NOM-035-STPS-2018';
-    const versionDoc = folioConfig?.version ?? '1.0';
-    const fechaVersionDoc = folioConfig?.fechaVersion ?? '';
+    const refNormativa =
+      folioConfig?.referenciaNormativa ?? "NOM-035-STPS-2018";
+    const versionDoc = folioConfig?.version ?? "1.0";
+    const fechaVersionDoc = folioConfig?.fechaVersion ?? "";
     const integrityHash = (activeDoc as any).integrityHash ?? null;
     let html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
     <style>
@@ -533,7 +928,7 @@ function DictamenTab() {
       <h1>DICTAMEN NOM-035-STPS-2018</h1>
       <div class="folio-box">
         <div><strong>Folio:</strong> ${activeDoc.folio}</div>
-        <div><strong>Versión:</strong> ${versionDoc}${fechaVersionDoc ? ' | ' + fechaVersionDoc : ''}</div>
+        <div><strong>Versión:</strong> ${versionDoc}${fechaVersionDoc ? " | " + fechaVersionDoc : ""}</div>
         <div><strong>Fecha:</strong> ${fechaEmision}</div>
       </div>
     </div>
@@ -543,9 +938,11 @@ function DictamenTab() {
     </div>
     <div class="aviso-confidencial">⚠️ DOCUMENTO CONFIDENCIAL — Uso exclusivo del área de Seguridad y Salud en el Trabajo. Prohibida su reproducción parcial sin autorización.</div>`;
     // Secciones 1-9
-    sections.filter(s => s.key !== 'firmas').forEach(s => {
-      html += `<h2>${s.label}</h2><p>${(contenido[s.key] ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`;
-    });
+    sections
+      .filter(s => s.key !== "firmas")
+      .forEach(s => {
+        html += `<h2>${s.label}</h2><p>${(contenido[s.key] ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
+      });
     // Sección 10: Firmas con espacios firmables
     html += `
     <div class="firma-section">
@@ -557,34 +954,36 @@ function DictamenTab() {
           <div class="sello-box">SELLO<br>OFICIAL</div>
           <div class="firma-line"></div>
           <div class="firma-label">Firma Autógrafa</div>
-          <div class="firma-name">${form.responsableTecnico || '___________________________'}</div>
+          <div class="firma-name">${form.responsableTecnico || "___________________________"}</div>
           ${form.cedulaProfesional ? `<div class="firma-cedula">Cédula Prof.: ${form.cedulaProfesional}</div>` : '<div class="firma-cedula" style="background:#fee2e2;color:#991b1b;">Cédula Profesional: (pendiente)</div>'}
           <div class="firma-puesto">Responsable Técnico NOM-035-STPS-2018</div>
           <div class="firma-digital-badge">✓ Documento oficial NOM-035</div>
-          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" })}</div>
         </div>
         <div class="firma-box">
           <div class="firma-box-header">Representante Legal</div>
           <div class="sello-box">SELLO<br>OFICIAL</div>
           <div class="firma-line"></div>
           <div class="firma-label">Firma Autógrafa</div>
-          <div class="firma-name">${form.representanteLegal || '___________________________'}</div>
+          <div class="firma-name">${form.representanteLegal || "___________________________"}</div>
           <div class="firma-cedula" style="background:#e0e7ff;color:#3730a3;">Representante Legal</div>
           <div class="firma-puesto">Representante Legal de la Empresa</div>
           <div class="firma-digital-badge">✓ Documento oficial NOM-035</div>
-          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" })}</div>
         </div>
       </div>
       <div style="margin-top:16px;padding:10px 14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:4px;font-size:8pt;color:#0c4a6e;">
         <strong>Nota Legal:</strong> Este Dictamen ha sido elaborado conforme a los requisitos de la NOM-035-STPS-2018 (Factores de riesgo psicosocial en el trabajo). 
-        La cédula profesional del Responsable Técnico (No. ${form.cedulaProfesional || 'N/D'}) acredita su habilitación para la aplicación de los instrumentos de evaluación. 
+        La cédula profesional del Responsable Técnico (No. ${form.cedulaProfesional || "N/D"}) acredita su habilitación para la aplicación de los instrumentos de evaluación. 
         Folio del documento: <strong>${activeDoc.folio}</strong>.
       </div>
     </div>`;
     // Sección 11: Anexos
-    html += `<h2>11. Anexos</h2><p>${(contenido['anexos'] ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`;
+    html += `<h2>11. Anexos</h2><p>${(contenido["anexos"] ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
     // QR de verificación NOM-151 + Hash de integridad + Footer
-    const qrData = encodeURIComponent(`DICTAMEN NOM-035\nFolio: ${activeDoc.folio}\nFecha: ${fechaEmision}\nNivel Riesgo: ${riesgoLabel}\nResponsable: ${form.responsableTecnico || 'N/D'}\nCédula: ${form.cedulaProfesional || 'N/D'}\nReferencia: ${refNormativa}`);
+    const qrData = encodeURIComponent(
+      `DICTAMEN NOM-035\nFolio: ${activeDoc.folio}\nFecha: ${fechaEmision}\nNivel Riesgo: ${riesgoLabel}\nResponsable: ${form.responsableTecnico || "N/D"}\nCédula: ${form.cedulaProfesional || "N/D"}\nReferencia: ${refNormativa}`
+    );
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${qrData}`;
     html += `
     <div style="margin-top: 32px; page-break-inside: avoid; border-top: 1px solid #e5e7eb; padding-top: 16px; display: flex; align-items: flex-start; gap: 20px;">
@@ -596,36 +995,52 @@ function DictamenTab() {
         <strong style="font-size: 8.5pt; color: #374151;">Autenticidad del Documento — Trazabilidad NOM-151-SCFI-2016</strong><br>
         Este código QR contiene los datos de identificación del Dictamen (folio, fecha, nivel de riesgo y responsable técnico). Escánelo para verificar la autenticidad del documento conforme a la NOM-151-SCFI-2016 (conservación de mensajes de datos).<br>
         <span style="color: #9ca3af;">Folio: ${activeDoc.folio} &bull; Versión: ${versionDoc} &bull; Generado: ${fechaEmision} &bull; ${refNormativa}</span>
-        ${integrityHash ? `<div class="hash-box" style="margin-top:6px;"><strong>Hash SHA-256 NOM-151:</strong> ${integrityHash}</div>` : ''}
+        ${integrityHash ? `<div class="hash-box" style="margin-top:6px;"><strong>Hash SHA-256 NOM-151:</strong> ${integrityHash}</div>` : ""}
       </div>
     </div>
     <div class="footer">
       <span>Folio: ${activeDoc.folio} | ${refNormativa}</span>
       <span>Versión: ${versionDoc} | Generado: ${fechaEmision}</span>
-      <span>Trazabilidad NOM-151 | ${integrityHash ? 'Hash: ' + integrityHash.substring(0, 16) + '...' : 'Sin hash'}</span>
+      <span>Trazabilidad NOM-151 | ${integrityHash ? "Hash: " + integrityHash.substring(0, 16) + "..." : "Sin hash"}</span>
     </div>
     </body></html>`;
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `Dictamen_NOM035_${activeDoc.folio.replace(/\//g, '-')}_${new Date().getFullYear()}.html`;
+    a.download = `Dictamen_NOM035_${activeDoc.folio.replace(/\//g, "-")}_${new Date().getFullYear()}.html`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: 'Dictamen exportado para imprimir como PDF', description: 'Incluye hash NOM-151, folio configurable, espacios de firma y QR de verificación. Selecciona "Guardar como PDF" en el diálogo de impresión.' });
+    toast({
+      title: "Dictamen exportado para imprimir como PDF",
+      description:
+        'Incluye hash NOM-151, folio configurable, espacios de firma y QR de verificación. Selecciona "Guardar como PDF" en el diálogo de impresión.',
+    });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex gap-2">
-        <Button variant={view === "form" ? "default" : "outline"} size="sm" onClick={() => setView("form")}>
+        <Button
+          variant={view === "form" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setView("form")}
+        >
           <Plus className="h-4 w-4 mr-1" /> Nuevo
         </Button>
-        <Button variant={view === "history" ? "default" : "outline"} size="sm" onClick={() => setView("history")}>
+        <Button
+          variant={view === "history" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setView("history")}
+        >
           <Scale className="h-4 w-4 mr-1" /> Historial ({docs?.length ?? 0})
         </Button>
         {activeDoc && (
-          <Button variant={view === "editor" ? "default" : "outline"} size="sm" onClick={() => setView("editor")}>
+          <Button
+            variant={view === "editor" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setView("editor")}
+          >
             <Eye className="h-4 w-4 mr-1" /> Editar: {activeDoc.folio}
           </Button>
         )}
@@ -634,39 +1049,130 @@ function DictamenTab() {
       {/* Panel de configuración de folio — solo visible para admins */}
       {isAdmin && (
         <Card className="border-amber-200 dark:border-amber-800">
-          <CardHeader className="pb-2 cursor-pointer" onClick={() => setFolioConfigOpen(o => !o)}>
+          <CardHeader
+            className="pb-2 cursor-pointer"
+            onClick={() => setFolioConfigOpen(o => !o)}
+          >
             <CardTitle className="flex items-center justify-between text-sm font-medium text-amber-800 dark:text-amber-300">
-              <span className="flex items-center gap-2"><Settings2 className="h-4 w-4" /> Configuración de Folio y Formato del Dictamen</span>
-              {folioConfigOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              <span className="flex items-center gap-2">
+                <Settings2 className="h-4 w-4" /> Configuración de Folio y
+                Formato del Dictamen
+              </span>
+              {folioConfigOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
             </CardTitle>
             {!folioConfigOpen && folioConfig && (
-              <p className="text-xs text-muted-foreground mt-1">Prefijo actual: <span className="font-mono font-semibold">{folioConfig.codigoFormato}</span> · Versión: {folioConfig.version} · Ref: {folioConfig.referenciaNormativa ?? "NOM-035-STPS-2018"}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Prefijo actual:{" "}
+                <span className="font-mono font-semibold">
+                  {folioConfig.codigoFormato}
+                </span>{" "}
+                · Versión: {folioConfig.version} · Ref:{" "}
+                {folioConfig.referenciaNormativa ?? "NOM-035-STPS-2018"}
+              </p>
             )}
           </CardHeader>
           {folioConfigOpen && (
             <CardContent className="space-y-3 pt-0">
-              <p className="text-xs text-muted-foreground">Define el prefijo del folio, versión del documento y referencia normativa que aparecerán en el encabezado y pie de página del PDF exportado.</p>
+              <p className="text-xs text-muted-foreground">
+                Define el prefijo del folio, versión del documento y referencia
+                normativa que aparecerán en el encabezado y pie de página del
+                PDF exportado.
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">Prefijo del Folio (Código de Formato)</Label>
-                  <Input className="font-mono text-sm" placeholder="Ej: NOM035-DICT" value={folioForm.codigoFormato} onChange={e => setFolioForm(p => ({ ...p, codigoFormato: e.target.value }))} maxLength={30} />
-                  <p className="text-xs text-muted-foreground">El folio generado será: <span className="font-mono">{folioForm.codigoFormato || "NOM035-DICT"}-AAAA-NNN</span></p>
+                  <Label className="text-xs">
+                    Prefijo del Folio (Código de Formato)
+                  </Label>
+                  <Input
+                    className="font-mono text-sm"
+                    placeholder="Ej: NOM035-DICT"
+                    value={folioForm.codigoFormato}
+                    onChange={e =>
+                      setFolioForm(p => ({
+                        ...p,
+                        codigoFormato: e.target.value,
+                      }))
+                    }
+                    maxLength={30}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    El folio generado será:{" "}
+                    <span className="font-mono">
+                      {folioForm.codigoFormato || "NOM035-DICT"}-AAAA-NNN
+                    </span>
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Versión del Documento</Label>
-                  <Input className="text-sm" placeholder="Ej: 1.0" value={folioForm.version} onChange={e => setFolioForm(p => ({ ...p, version: e.target.value }))} maxLength={20} />
+                  <Input
+                    className="text-sm"
+                    placeholder="Ej: 1.0"
+                    value={folioForm.version}
+                    onChange={e =>
+                      setFolioForm(p => ({ ...p, version: e.target.value }))
+                    }
+                    maxLength={20}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Fecha de Versión</Label>
-                  <Input type="date" className="text-sm" value={folioForm.fechaVersion} onChange={e => setFolioForm(p => ({ ...p, fechaVersion: e.target.value }))} />
+                  <Input
+                    type="date"
+                    className="text-sm"
+                    value={folioForm.fechaVersion}
+                    onChange={e =>
+                      setFolioForm(p => ({
+                        ...p,
+                        fechaVersion: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Referencia Normativa</Label>
-                  <Input className="text-sm" placeholder="Ej: NOM-035-STPS-2018" value={folioForm.referenciaNormativa} onChange={e => setFolioForm(p => ({ ...p, referenciaNormativa: e.target.value }))} maxLength={200} />
+                  <Input
+                    className="text-sm"
+                    placeholder="Ej: NOM-035-STPS-2018"
+                    value={folioForm.referenciaNormativa}
+                    onChange={e =>
+                      setFolioForm(p => ({
+                        ...p,
+                        referenciaNormativa: e.target.value,
+                      }))
+                    }
+                    maxLength={200}
+                  />
                 </div>
               </div>
-              <Button size="sm" onClick={() => updateFolioConfigMut.mutate({ docType: "dictamen", ...folioForm })} disabled={updateFolioConfigMut.isPending || !folioForm.codigoFormato || !folioForm.version}>
-                {updateFolioConfigMut.isPending ? <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Guardando...</> : <><CheckCircle className="h-3 w-3 mr-1" /> Guardar Configuración</>}
+              <Button
+                size="sm"
+                onClick={() =>
+                  updateFolioConfigMut.mutate({
+                    docType: "dictamen",
+                    ...folioForm,
+                  })
+                }
+                disabled={
+                  updateFolioConfigMut.isPending ||
+                  !folioForm.codigoFormato ||
+                  !folioForm.version
+                }
+              >
+                {updateFolioConfigMut.isPending ? (
+                  <>
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />{" "}
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-3 w-3 mr-1" /> Guardar
+                    Configuración
+                  </>
+                )}
               </Button>
             </CardContent>
           )}
@@ -675,14 +1181,28 @@ function DictamenTab() {
       {view === "form" && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Scale className="h-5 w-5 text-red-600" /> Generar Dictamen NOM-035</CardTitle>
-            <CardDescription>El sistema generará el Dictamen con los 11 apartados técnico-jurídicos obligatorios, incluyendo hallazgos, impacto legal y medidas correctivas.</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Scale className="h-5 w-5 text-red-600" /> Generar Dictamen
+              NOM-035
+            </CardTitle>
+            <CardDescription>
+              El sistema generará el Dictamen con los 11 apartados
+              técnico-jurídicos obligatorios, incluyendo hallazgos, impacto
+              legal y medidas correctivas.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {investigaciones && investigaciones.length > 0 && (
               <div className="space-y-1 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200">
                 <Label>Vincular con Investigación de Caso (opcional)</Label>
-                <Select onValueChange={(v) => setForm(p => ({ ...p, investigationDocId: v === "none" ? undefined : Number(v) }))}>
+                <Select
+                  onValueChange={v =>
+                    setForm(p => ({
+                      ...p,
+                      investigationDocId: v === "none" ? undefined : Number(v),
+                    }))
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar investigación de caso..." />
                   </SelectTrigger>
@@ -700,47 +1220,117 @@ function DictamenTab() {
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-1">
                 <Label>Razón Social *</Label>
-                <Input placeholder="Ej: Industrias XYZ S.A. de C.V." value={form.razonSocial} onChange={e => setForm(p => ({ ...p, razonSocial: e.target.value }))} />
+                <Input
+                  placeholder="Ej: Industrias XYZ S.A. de C.V."
+                  value={form.razonSocial}
+                  onChange={e =>
+                    setForm(p => ({ ...p, razonSocial: e.target.value }))
+                  }
+                />
               </div>
               <div className="col-span-2 space-y-1">
                 <Label>Domicilio Fiscal *</Label>
-                <Input placeholder="Calle, número, colonia, municipio, estado, C.P." value={form.domicilio} onChange={e => setForm(p => ({ ...p, domicilio: e.target.value }))} />
+                <Input
+                  placeholder="Calle, número, colonia, municipio, estado, C.P."
+                  value={form.domicilio}
+                  onChange={e =>
+                    setForm(p => ({ ...p, domicilio: e.target.value }))
+                  }
+                />
               </div>
               {/* P3: Campos NOM-035/STPS prellenados desde Configuración */}
               <div className="space-y-1">
                 <Label className="flex items-center gap-1">
                   Código SCIAN
-                  <span className="text-xs text-muted-foreground">(Actividad económica)</span>
+                  <span className="text-xs text-muted-foreground">
+                    (Actividad económica)
+                  </span>
                 </Label>
-                <Input placeholder="Ej: 311811" value={form.scian} onChange={e => setForm(p => ({ ...p, scian: e.target.value }))} />
+                <Input
+                  placeholder="Ej: 311811"
+                  value={form.scian}
+                  onChange={e =>
+                    setForm(p => ({ ...p, scian: e.target.value }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Centro de Trabajo</Label>
-                <Input placeholder="Nombre del centro de trabajo" value={form.workCenter} onChange={e => setForm(p => ({ ...p, workCenter: e.target.value }))} />
+                <Input
+                  placeholder="Nombre del centro de trabajo"
+                  value={form.workCenter}
+                  onChange={e =>
+                    setForm(p => ({ ...p, workCenter: e.target.value }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Registro STPS</Label>
-                <Input placeholder="Número de registro ante la STPS" value={form.stpsRegistration} onChange={e => setForm(p => ({ ...p, stpsRegistration: e.target.value }))} />
+                <Input
+                  placeholder="Número de registro ante la STPS"
+                  value={form.stpsRegistration}
+                  onChange={e =>
+                    setForm(p => ({ ...p, stpsRegistration: e.target.value }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Total de Trabajadores *</Label>
-                <Input type="number" min={1} value={form.totalTrabajadores || ""} onChange={e => setForm(p => ({ ...p, totalTrabajadores: Number(e.target.value) }))} />
+                <Input
+                  type="number"
+                  min={1}
+                  value={form.totalTrabajadores || ""}
+                  onChange={e =>
+                    setForm(p => ({
+                      ...p,
+                      totalTrabajadores: Number(e.target.value),
+                    }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Período Evaluado *</Label>
-                <Input placeholder="Ej: Enero - Marzo 2026" value={form.periodoEvaluado} onChange={e => setForm(p => ({ ...p, periodoEvaluado: e.target.value }))} />
+                <Input
+                  placeholder="Ej: Enero - Marzo 2026"
+                  value={form.periodoEvaluado}
+                  onChange={e =>
+                    setForm(p => ({ ...p, periodoEvaluado: e.target.value }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Trabajadores Hombres</Label>
-                <Input type="number" min={0} value={form.trabajadoresHombres || ""} onChange={e => setForm(p => ({ ...p, trabajadoresHombres: Number(e.target.value) }))} />
+                <Input
+                  type="number"
+                  min={0}
+                  value={form.trabajadoresHombres || ""}
+                  onChange={e =>
+                    setForm(p => ({
+                      ...p,
+                      trabajadoresHombres: Number(e.target.value),
+                    }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Trabajadoras Mujeres</Label>
-                <Input type="number" min={0} value={form.trabajadoresMujeres || ""} onChange={e => setForm(p => ({ ...p, trabajadoresMujeres: Number(e.target.value) }))} />
+                <Input
+                  type="number"
+                  min={0}
+                  value={form.trabajadoresMujeres || ""}
+                  onChange={e =>
+                    setForm(p => ({
+                      ...p,
+                      trabajadoresMujeres: Number(e.target.value),
+                    }))
+                  }
+                />
               </div>
               <div className="space-y-1 col-span-2">
                 <Label>Responsable Técnico *</Label>
-                {!useManualResponsable && clinicalEmployees && clinicalEmployees.length > 0 ? (
+                {!useManualResponsable &&
+                clinicalEmployees &&
+                clinicalEmployees.length > 0 ? (
                   <div className="space-y-1">
                     {/* Campo de búsqueda para filtrar empleados */}
                     <Input
@@ -750,21 +1340,35 @@ function DictamenTab() {
                       className="mb-1"
                     />
                     <Select
-                      value={form.responsableTecnico ? String(clinicalEmployees.find(e => `${e.clinicalTitle ? e.clinicalTitle + ' ' : ''}${e.fullName}` === form.responsableTecnico || e.fullName === form.responsableTecnico)?.id ?? '') : ''}
-                      onValueChange={(v) => {
-                        if (v === '__manual__') {
+                      value={
+                        form.responsableTecnico
+                          ? String(
+                              clinicalEmployees.find(
+                                e =>
+                                  `${e.clinicalTitle ? e.clinicalTitle + " " : ""}${e.fullName}` ===
+                                    form.responsableTecnico ||
+                                  e.fullName === form.responsableTecnico
+                              )?.id ?? ""
+                            )
+                          : ""
+                      }
+                      onValueChange={v => {
+                        if (v === "__manual__") {
                           setUseManualResponsable(true);
                           setResponsableSearch("");
                           return;
                         }
-                        const emp = clinicalEmployees.find(e => String(e.id) === v);
+                        const emp = clinicalEmployees.find(
+                          e => String(e.id) === v
+                        );
                         const fullName = emp
-                          ? `${emp.clinicalTitle ? emp.clinicalTitle + ' ' : ''}${emp.fullName}`
+                          ? `${emp.clinicalTitle ? emp.clinicalTitle + " " : ""}${emp.fullName}`
                           : v;
                         setForm(p => ({
                           ...p,
                           responsableTecnico: fullName,
-                          cedulaProfesional: emp?.cedulaProfesional || p.cedulaProfesional,
+                          cedulaProfesional:
+                            emp?.cedulaProfesional || p.cedulaProfesional,
                         }));
                         setResponsableSearch("");
                       }}
@@ -779,19 +1383,26 @@ function DictamenTab() {
                             const q = responsableSearch.toLowerCase();
                             return (
                               emp.fullName.toLowerCase().includes(q) ||
-                              (emp.positionTitle || '').toLowerCase().includes(q) ||
-                              (emp.cedulaProfesional || '').toLowerCase().includes(q)
+                              (emp.positionTitle || "")
+                                .toLowerCase()
+                                .includes(q) ||
+                              (emp.cedulaProfesional || "")
+                                .toLowerCase()
+                                .includes(q)
                             );
                           })
                           .map(emp => {
-                            const displayName = `${emp.clinicalTitle ? emp.clinicalTitle + ' ' : ''}${emp.fullName}`;
+                            const displayName = `${emp.clinicalTitle ? emp.clinicalTitle + " " : ""}${emp.fullName}`;
                             return (
                               <SelectItem key={emp.id} value={String(emp.id)}>
                                 <div className="flex flex-col">
-                                  <span className="font-medium">{displayName}</span>
+                                  <span className="font-medium">
+                                    {displayName}
+                                  </span>
                                   <span className="text-xs text-muted-foreground">
                                     {emp.positionTitle}
-                                    {emp.cedulaProfesional && ` · Céd: ${emp.cedulaProfesional}`}
+                                    {emp.cedulaProfesional &&
+                                      ` · Céd: ${emp.cedulaProfesional}`}
                                   </span>
                                 </div>
                               </SelectItem>
@@ -800,18 +1411,48 @@ function DictamenTab() {
                         {clinicalEmployees.filter(emp => {
                           if (!responsableSearch) return true;
                           const q = responsableSearch.toLowerCase();
-                          return emp.fullName.toLowerCase().includes(q) || (emp.positionTitle || '').toLowerCase().includes(q) || (emp.cedulaProfesional || '').toLowerCase().includes(q);
+                          return (
+                            emp.fullName.toLowerCase().includes(q) ||
+                            (emp.positionTitle || "")
+                              .toLowerCase()
+                              .includes(q) ||
+                            (emp.cedulaProfesional || "")
+                              .toLowerCase()
+                              .includes(q)
+                          );
                         }).length === 0 && (
-                          <div className="px-2 py-1.5 text-sm text-muted-foreground">No se encontraron resultados</div>
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                            No se encontraron resultados
+                          </div>
                         )}
-                        <SelectItem value="__manual__" className="text-muted-foreground italic border-t mt-1">✏️ Captura manual...</SelectItem>
+                        <SelectItem
+                          value="__manual__"
+                          className="text-muted-foreground italic border-t mt-1"
+                        >
+                          ✏️ Captura manual...
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     {form.responsableTecnico && (
                       <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700">
-                        <span>✅ <strong>{form.responsableTecnico}</strong> seleccionado del catálogo</span>
-                        {form.cedulaProfesional && <span className="text-green-600">· Céd: {form.cedulaProfesional}</span>}
-                        <button type="button" className="ml-auto underline text-green-700" onClick={() => { setUseManualResponsable(true); }}>Editar</button>
+                        <span>
+                          ✅ <strong>{form.responsableTecnico}</strong>{" "}
+                          seleccionado del catálogo
+                        </span>
+                        {form.cedulaProfesional && (
+                          <span className="text-green-600">
+                            · Céd: {form.cedulaProfesional}
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          className="ml-auto underline text-green-700"
+                          onClick={() => {
+                            setUseManualResponsable(true);
+                          }}
+                        >
+                          Editar
+                        </button>
                       </div>
                     )}
                   </div>
@@ -820,11 +1461,24 @@ function DictamenTab() {
                     <Input
                       placeholder="Ej: Psic. María García López"
                       value={form.responsableTecnico}
-                      onChange={e => setForm(p => ({ ...p, responsableTecnico: e.target.value }))}
+                      onChange={e =>
+                        setForm(p => ({
+                          ...p,
+                          responsableTecnico: e.target.value,
+                        }))
+                      }
                     />
                     {clinicalEmployees && clinicalEmployees.length > 0 && (
-                      <button type="button" className="text-xs text-primary underline" onClick={() => { setUseManualResponsable(false); setResponsableSearch(""); }}>
-                        ← Seleccionar del catálogo ({clinicalEmployees.length} empleados disponibles)
+                      <button
+                        type="button"
+                        className="text-xs text-primary underline"
+                        onClick={() => {
+                          setUseManualResponsable(false);
+                          setResponsableSearch("");
+                        }}
+                      >
+                        ← Seleccionar del catálogo ({clinicalEmployees.length}{" "}
+                        empleados disponibles)
                       </button>
                     )}
                   </div>
@@ -835,23 +1489,56 @@ function DictamenTab() {
                 <Input
                   placeholder="Ej: 1234567"
                   value={form.cedulaProfesional}
-                  onChange={e => setForm(p => ({ ...p, cedulaProfesional: e.target.value }))}
-                  className={form.cedulaProfesional && !useManualResponsable && clinicalEmployees?.some(e => e.cedulaProfesional === form.cedulaProfesional) ? 'border-green-500' : ''}
+                  onChange={e =>
+                    setForm(p => ({ ...p, cedulaProfesional: e.target.value }))
+                  }
+                  className={
+                    form.cedulaProfesional &&
+                    !useManualResponsable &&
+                    clinicalEmployees?.some(
+                      e => e.cedulaProfesional === form.cedulaProfesional
+                    )
+                      ? "border-green-500"
+                      : ""
+                  }
                 />
-                {form.cedulaProfesional && !useManualResponsable && clinicalEmployees?.some(e => e.cedulaProfesional === form.cedulaProfesional) && (
-                  <p className="text-xs text-green-600">Auto-rellenada desde el catálogo de empleados</p>
-                )}
+                {form.cedulaProfesional &&
+                  !useManualResponsable &&
+                  clinicalEmployees?.some(
+                    e => e.cedulaProfesional === form.cedulaProfesional
+                  ) && (
+                    <p className="text-xs text-green-600">
+                      Auto-rellenada desde el catálogo de empleados
+                    </p>
+                  )}
               </div>
               <div className="col-span-2 space-y-1">
                 <Label>Representante Legal *</Label>
-                <Input placeholder="Ej: Lic. Juan Pérez Rodríguez, Director General" value={form.representanteLegal} onChange={e => setForm(p => ({ ...p, representanteLegal: e.target.value }))} />
+                <Input
+                  placeholder="Ej: Lic. Juan Pérez Rodríguez, Director General"
+                  value={form.representanteLegal}
+                  onChange={e =>
+                    setForm(p => ({ ...p, representanteLegal: e.target.value }))
+                  }
+                />
               </div>
             </div>
-            <Button onClick={handleGenerate} disabled={generateMut.isPending} className="w-full" size="lg">
+            <Button
+              onClick={handleGenerate}
+              disabled={generateMut.isPending}
+              className="w-full"
+              size="lg"
+            >
               {generateMut.isPending ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generando Dictamen con IA (puede tardar 15-30 segundos)...</>
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generando
+                  Dictamen con IA (puede tardar 15-30 segundos)...
+                </>
               ) : (
-                <><Scale className="h-4 w-4 mr-2" /> Generar Dictamen NOM-035 con IA</>
+                <>
+                  <Scale className="h-4 w-4 mr-2" /> Generar Dictamen NOM-035
+                  con IA
+                </>
               )}
             </Button>
           </CardContent>
@@ -862,25 +1549,52 @@ function DictamenTab() {
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200">
             <div>
-              <p className="font-bold text-red-800 dark:text-red-200 font-mono text-lg">{activeDoc.folio}</p>
-              <p className="text-sm text-red-600 dark:text-red-400">{activeDoc.razonSocial}</p>
+              <p className="font-bold text-red-800 dark:text-red-200 font-mono text-lg">
+                {activeDoc.folio}
+              </p>
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {activeDoc.razonSocial}
+              </p>
               {activeDoc.nivelRiesgoGlobal && (
-                <Badge className={`mt-1 ${RIESGO_COLORS[activeDoc.nivelRiesgoGlobal] ?? ""}`}>
-                  Riesgo Global: {RIESGO_LABELS[activeDoc.nivelRiesgoGlobal] ?? activeDoc.nivelRiesgoGlobal}
+                <Badge
+                  className={`mt-1 ${RIESGO_COLORS[activeDoc.nivelRiesgoGlobal] ?? ""}`}
+                >
+                  Riesgo Global:{" "}
+                  {RIESGO_LABELS[activeDoc.nivelRiesgoGlobal] ??
+                    activeDoc.nivelRiesgoGlobal}
                 </Badge>
               )}
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => handleSave("borrador")} disabled={saveMut.isPending}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleSave("borrador")}
+                disabled={saveMut.isPending}
+              >
                 <Save className="h-4 w-4 mr-1" /> Borrador
               </Button>
-              <Button size="sm" variant="outline" onClick={() => handleSave("final")} disabled={saveMut.isPending}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleSave("final")}
+                disabled={saveMut.isPending}
+              >
                 <CheckCircle className="h-4 w-4 mr-1" /> Versión Final
               </Button>
-              <Button size="sm" onClick={() => approveMut.mutate({ id: activeDoc.id })} disabled={approveMut.isPending}>
+              <Button
+                size="sm"
+                onClick={() => approveMut.mutate({ id: activeDoc.id })}
+                disabled={approveMut.isPending}
+              >
                 <CheckCircle className="h-4 w-4 mr-1" /> Aprobar
               </Button>
-              <Button size="sm" variant="secondary" onClick={handleExportPDF} title="Genera un archivo HTML listo para imprimir como PDF con espacios de firma">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleExportPDF}
+                title="Genera un archivo HTML listo para imprimir como PDF con espacios de firma"
+              >
                 <Download className="h-4 w-4 mr-1" /> Exportar PDF Firmable
               </Button>
             </div>
@@ -888,30 +1602,64 @@ function DictamenTab() {
           <SectionEditor
             sections={DICTAMEN_SECTIONS}
             contenido={editedContenido}
-            onChange={(key, val) => setEditedContenido(prev => ({ ...prev, [key]: val }))}
+            onChange={(key, val) =>
+              setEditedContenido(prev => ({ ...prev, [key]: val }))
+            }
           />
 
           {/* QR de verificacion NOM-151 en pantalla */}
           {(() => {
-            const fechaEmision = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
-            const riesgoLabel = RIESGO_LABELS[activeDoc.nivelRiesgoGlobal ?? ''] ?? activeDoc.nivelRiesgoGlobal ?? 'No determinado';
-            const qrData = encodeURIComponent('DICTAMEN NOM-035 | Folio: ' + activeDoc.folio + ' | Fecha: ' + fechaEmision + ' | Riesgo: ' + riesgoLabel + ' | Empresa: ' + (activeDoc.razonSocial ?? '') + ' | Ref: NOM-035-STPS-2018');
-            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + qrData;
+            const fechaEmision = new Date().toLocaleDateString("es-MX", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
+            const riesgoLabel =
+              RIESGO_LABELS[activeDoc.nivelRiesgoGlobal ?? ""] ??
+              activeDoc.nivelRiesgoGlobal ??
+              "No determinado";
+            const qrData = encodeURIComponent(
+              "DICTAMEN NOM-035 | Folio: " +
+                activeDoc.folio +
+                " | Fecha: " +
+                fechaEmision +
+                " | Riesgo: " +
+                riesgoLabel +
+                " | Empresa: " +
+                (activeDoc.razonSocial ?? "") +
+                " | Ref: NOM-035-STPS-2018"
+            );
+            const qrUrl =
+              "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=" +
+              qrData;
             return (
               <div className="flex items-start gap-4 p-4 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/20 mt-4">
                 <div className="flex-shrink-0 text-center">
-                  <img src={qrUrl} alt="QR de verificacion NOM-151" width={90} height={90} className="border border-border rounded p-1" />
-                  <p className="text-xs text-muted-foreground mt-1">Verificacion NOM-151</p>
+                  <img
+                    src={qrUrl}
+                    alt="QR de verificacion NOM-151"
+                    width={90}
+                    height={90}
+                    className="border border-border rounded p-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Verificacion NOM-151
+                  </p>
                 </div>
                 <div className="flex-1 text-sm">
-                  <p className="font-semibold text-foreground mb-1">Codigo QR de Autenticidad del Documento</p>
+                  <p className="font-semibold text-foreground mb-1">
+                    Codigo QR de Autenticidad del Documento
+                  </p>
                   <p className="text-muted-foreground text-xs leading-relaxed">
-                    Este codigo QR identifica el Dictamen <strong>{activeDoc.folio}</strong> con nivel de riesgo <strong>{riesgoLabel}</strong>.
-                    Se incluye automaticamente al exportar el PDF firmable, conforme a la NOM-151-SCFI-2016 (conservacion de mensajes de datos).
+                    Este codigo QR identifica el Dictamen{" "}
+                    <strong>{activeDoc.folio}</strong> con nivel de riesgo{" "}
+                    <strong>{riesgoLabel}</strong>. Se incluye automaticamente
+                    al exportar el PDF firmable, conforme a la NOM-151-SCFI-2016
+                    (conservacion de mensajes de datos).
                   </p>
                   <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
                     <span>Fecha: {fechaEmision}</span>
-                    <span>Empresa: {activeDoc.razonSocial ?? 'N/D'}</span>
+                    <span>Empresa: {activeDoc.razonSocial ?? "N/D"}</span>
                     <span>Folio: {activeDoc.folio}</span>
                   </div>
                 </div>
@@ -923,17 +1671,21 @@ function DictamenTab() {
 
       {view === "history" && (
         <Card>
-          <CardHeader><CardTitle>Historial de Dictámenes</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>Historial de Dictámenes</CardTitle>
+          </CardHeader>
           <CardContent>
             <DocHistoryTable
               docs={docs ?? []}
               type="dictamen"
-              onView={(doc) => {
+              onView={doc => {
                 setActiveDoc(doc);
-                setEditedContenido((doc.contenido as Record<string, string>) ?? {});
+                setEditedContenido(
+                  (doc.contenido as Record<string, string>) ?? {}
+                );
                 setView("editor");
               }}
-              onDelete={(id) => deleteMut.mutate({ id })}
+              onDelete={id => deleteMut.mutate({ id })}
             />
           </CardContent>
         </Card>
@@ -955,10 +1707,13 @@ export default function LegalDocGenerator() {
               Documentos Técnico-Jurídicos NOM-035
             </h1>
             <p className="text-muted-foreground mt-1">
-              Generación automática con IA especializada en derecho laboral y seguridad y salud en el trabajo (SST).
+              Generación automática con IA especializada en derecho laboral y
+              seguridad y salud en el trabajo (SST).
             </p>
           </div>
-          <Badge variant="outline" className="text-xs">NOM-035-STPS-2018</Badge>
+          <Badge variant="outline" className="text-xs">
+            NOM-035-STPS-2018
+          </Badge>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -968,7 +1723,9 @@ export default function LegalDocGenerator() {
                 <FileText className="h-8 w-8 text-blue-600" />
                 <div>
                   <p className="font-semibold">Documento 1</p>
-                  <p className="text-sm text-muted-foreground">Investigación de Caso — 11 apartados</p>
+                  <p className="text-sm text-muted-foreground">
+                    Investigación de Caso — 11 apartados
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -979,7 +1736,9 @@ export default function LegalDocGenerator() {
                 <Scale className="h-8 w-8 text-red-600" />
                 <div>
                   <p className="font-semibold">Documento 2</p>
-                  <p className="text-sm text-muted-foreground">Dictamen — 11 apartados</p>
+                  <p className="text-sm text-muted-foreground">
+                    Dictamen — 11 apartados
+                  </p>
                 </div>
               </div>
             </CardContent>

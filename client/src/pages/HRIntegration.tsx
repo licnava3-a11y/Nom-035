@@ -1,20 +1,38 @@
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import {
-  Upload, Download, CheckCircle, AlertCircle, Info, ArrowRight,
-  FileSpreadsheet, Building2, RefreshCw, Eye, Users
+  Upload,
+  Download,
+  CheckCircle,
+  AlertCircle,
+  Info,
+  ArrowRight,
+  FileSpreadsheet,
+  Building2,
+  RefreshCw,
+  Eye,
+  Users,
 } from "lucide-react";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import {
-  Alert, AlertDescription, AlertTitle
-} from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // ─── Sistemas HR disponibles ──────────────────────────────────────────────────
 
@@ -25,8 +43,20 @@ const HR_SYSTEMS = [
     vendor: "Grupo Caminante",
     color: "bg-blue-50 border-blue-200",
     badgeColor: "bg-blue-100 text-blue-800",
-    description: "Compatible con CONTPAQi Nóminas 18 y versiones anteriores. Exporta desde Catálogos → Empleados → Exportar.",
-    fields: ["Clave", "Nombre", "RFC", "CURP", "NSS", "Departamento", "Puesto", "Fecha de Alta", "Sexo", "Correo Electrónico"],
+    description:
+      "Compatible con CONTPAQi Nóminas 18 y versiones anteriores. Exporta desde Catálogos → Empleados → Exportar.",
+    fields: [
+      "Clave",
+      "Nombre",
+      "RFC",
+      "CURP",
+      "NSS",
+      "Departamento",
+      "Puesto",
+      "Fecha de Alta",
+      "Sexo",
+      "Correo Electrónico",
+    ],
   },
   {
     id: "aspelNoi",
@@ -34,8 +64,20 @@ const HR_SYSTEMS = [
     vendor: "Aspel",
     color: "bg-green-50 border-green-200",
     badgeColor: "bg-green-100 text-green-800",
-    description: "Compatible con Aspel NOI 10 y versiones anteriores. Exporta desde Trabajadores → Exportar a Excel.",
-    fields: ["CLAVE", "NOMBRE", "RFC", "CURP", "NSS", "DEPARTAMENTO", "PUESTO", "FECHA INGRESO", "SEXO", "EMAIL"],
+    description:
+      "Compatible con Aspel NOI 10 y versiones anteriores. Exporta desde Trabajadores → Exportar a Excel.",
+    fields: [
+      "CLAVE",
+      "NOMBRE",
+      "RFC",
+      "CURP",
+      "NSS",
+      "DEPARTAMENTO",
+      "PUESTO",
+      "FECHA INGRESO",
+      "SEXO",
+      "EMAIL",
+    ],
   },
   {
     id: "sapHcm",
@@ -43,8 +85,21 @@ const HR_SYSTEMS = [
     vendor: "SAP",
     color: "bg-orange-50 border-orange-200",
     badgeColor: "bg-orange-100 text-orange-800",
-    description: "Compatible con SAP HCM y SAP SuccessFactors. Exporta el informe de empleados activos en formato CSV.",
-    fields: ["Personnel Number", "Last Name", "First Name", "RFC", "CURP", "NSS", "Department", "Position", "Hire Date", "Gender", "Email"],
+    description:
+      "Compatible con SAP HCM y SAP SuccessFactors. Exporta el informe de empleados activos en formato CSV.",
+    fields: [
+      "Personnel Number",
+      "Last Name",
+      "First Name",
+      "RFC",
+      "CURP",
+      "NSS",
+      "Department",
+      "Position",
+      "Hire Date",
+      "Gender",
+      "Email",
+    ],
   },
   {
     id: "oracleHcm",
@@ -52,8 +107,21 @@ const HR_SYSTEMS = [
     vendor: "Oracle",
     color: "bg-red-50 border-red-200",
     badgeColor: "bg-red-100 text-red-800",
-    description: "Compatible con Oracle HCM Cloud. Exporta el reporte de personas activas en formato CSV.",
-    fields: ["Person Number", "Last Name", "First Name", "RFC", "CURP", "National Identifier", "Department Name", "Job Name", "Hire Date", "Gender", "Work Email"],
+    description:
+      "Compatible con Oracle HCM Cloud. Exporta el reporte de personas activas en formato CSV.",
+    fields: [
+      "Person Number",
+      "Last Name",
+      "First Name",
+      "RFC",
+      "CURP",
+      "National Identifier",
+      "Department Name",
+      "Job Name",
+      "Hire Date",
+      "Gender",
+      "Work Email",
+    ],
   },
   {
     id: "nomipaq",
@@ -61,8 +129,20 @@ const HR_SYSTEMS = [
     vendor: "Computación en Acción",
     color: "bg-purple-50 border-purple-200",
     badgeColor: "bg-purple-100 text-purple-800",
-    description: "Compatible con Nomipaq. Exporta desde Catálogo de Empleados → Exportar a Excel.",
-    fields: ["Clave Empleado", "Nombre Completo", "RFC", "CURP", "NSS", "Área", "Puesto", "Fecha Ingreso", "Sexo", "Email"],
+    description:
+      "Compatible con Nomipaq. Exporta desde Catálogo de Empleados → Exportar a Excel.",
+    fields: [
+      "Clave Empleado",
+      "Nombre Completo",
+      "RFC",
+      "CURP",
+      "NSS",
+      "Área",
+      "Puesto",
+      "Fecha Ingreso",
+      "Sexo",
+      "Email",
+    ],
   },
   {
     id: "suaImss",
@@ -70,8 +150,20 @@ const HR_SYSTEMS = [
     vendor: "IMSS",
     color: "bg-teal-50 border-teal-200",
     badgeColor: "bg-teal-100 text-teal-800",
-    description: "Compatible con el Sistema Único de Autodeterminación (SUA) del IMSS. Importa movimientos de altas, bajas y modificaciones de salario desde archivos TXT o CSV.",
-    fields: ["NSS", "RFC", "CURP", "Nombre", "Apellido Paterno", "Apellido Materno", "Salario Diario", "Fecha Alta", "Fecha Baja", "Tipo Movimiento"],
+    description:
+      "Compatible con el Sistema Único de Autodeterminación (SUA) del IMSS. Importa movimientos de altas, bajas y modificaciones de salario desde archivos TXT o CSV.",
+    fields: [
+      "NSS",
+      "RFC",
+      "CURP",
+      "Nombre",
+      "Apellido Paterno",
+      "Apellido Materno",
+      "Salario Diario",
+      "Fecha Alta",
+      "Fecha Baja",
+      "Tipo Movimiento",
+    ],
   },
   {
     id: "generic",
@@ -79,12 +171,24 @@ const HR_SYSTEMS = [
     vendor: "Personalizado",
     color: "bg-gray-50 border-gray-200",
     badgeColor: "bg-gray-100 text-gray-800",
-    description: "Formato flexible con columnas en español. Útil para cualquier sistema que no esté en la lista.",
-    fields: ["nombre", "email", "rfc", "curp", "nss", "departamento", "puesto", "fechaIngreso", "sexo", "telefono"],
+    description:
+      "Formato flexible con columnas en español. Útil para cualquier sistema que no esté en la lista.",
+    fields: [
+      "nombre",
+      "email",
+      "rfc",
+      "curp",
+      "nss",
+      "departamento",
+      "puesto",
+      "fechaIngreso",
+      "sexo",
+      "telefono",
+    ],
   },
 ] as const;
 
-type HrSystemId = typeof HR_SYSTEMS[number]["id"];
+type HrSystemId = (typeof HR_SYSTEMS)[number]["id"];
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
@@ -93,15 +197,21 @@ export default function HRIntegration() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedSystem, setSelectedSystem] = useState<HrSystemId | null>(null);
-  const [step, setStep] = useState<"select" | "upload" | "preview" | "result">("select");
+  const [step, setStep] = useState<"select" | "upload" | "preview" | "result">(
+    "select"
+  );
   const [previewData, setPreviewData] = useState<any>(null);
   const [importResult, setImportResult] = useState<any>(null);
-  const [fileData, setFileData] = useState<{ base64: string; name: string } | null>(null);
+  const [fileData, setFileData] = useState<{
+    base64: string;
+    name: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const previewMutation = trpc.hrIntegration.previewImport.useMutation();
   const confirmMutation = trpc.hrIntegration.confirmImport.useMutation();
-  const exportContpaqiMutation = trpc.hrIntegration.exportForContpaqi.useMutation();
+  const exportContpaqiMutation =
+    trpc.hrIntegration.exportForContpaqi.useMutation();
   const exportNOIMutation = trpc.hrIntegration.exportForAspelNoi.useMutation();
 
   // ── Manejar selección de archivo ──────────────────────────────────────────
@@ -114,12 +224,23 @@ export default function HRIntegration() {
       "application/vnd.ms-excel",
       "text/csv",
     ];
-    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls|csv)$/i)) {
-      toast({ title: "Formato no válido", description: "Solo se aceptan archivos .xlsx, .xls o .csv", variant: "destructive" });
+    if (
+      !allowedTypes.includes(file.type) &&
+      !file.name.match(/\.(xlsx|xls|csv)$/i)
+    ) {
+      toast({
+        title: "Formato no válido",
+        description: "Solo se aceptan archivos .xlsx, .xls o .csv",
+        variant: "destructive",
+      });
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      toast({ title: "Archivo muy grande", description: "El archivo no debe superar 10 MB.", variant: "destructive" });
+      toast({
+        title: "Archivo muy grande",
+        description: "El archivo no debe superar 10 MB.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -127,7 +248,9 @@ export default function HRIntegration() {
     try {
       const buffer = await file.arrayBuffer();
       const bytes = new Uint8Array(buffer);
-      const base64 = btoa(Array.from(bytes, b => String.fromCharCode(b)).join(""));
+      const base64 = btoa(
+        Array.from(bytes, b => String.fromCharCode(b)).join("")
+      );
       setFileData({ base64, name: file.name });
 
       const result = await previewMutation.mutateAsync({
@@ -138,7 +261,11 @@ export default function HRIntegration() {
       setPreviewData(result);
       setStep("preview");
     } catch (err: any) {
-      toast({ title: "Error al procesar el archivo", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error al procesar el archivo",
+        description: err.message,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -163,7 +290,11 @@ export default function HRIntegration() {
         description: `${result.imported} empleados importados, ${result.skipped} omitidos, ${result.failed} con error.`,
       });
     } catch (err: any) {
-      toast({ title: "Error en la importación", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error en la importación",
+        description: err.message,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -176,13 +307,25 @@ export default function HRIntegration() {
       const binary = atob(result.data);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      const blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const blob = new Blob([bytes], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a"); a.href = url; a.download = result.filename; a.click();
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename;
+      a.click();
       URL.revokeObjectURL(url);
-      toast({ title: "Exportación exitosa", description: `${result.count} empleados exportados en formato CONTPAQi.` });
+      toast({
+        title: "Exportación exitosa",
+        description: `${result.count} empleados exportados en formato CONTPAQi.`,
+      });
     } catch (err: any) {
-      toast({ title: "Error al exportar", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error al exportar",
+        description: err.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -193,13 +336,25 @@ export default function HRIntegration() {
       const binary = atob(result.data);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      const blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const blob = new Blob([bytes], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a"); a.href = url; a.download = result.filename; a.click();
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename;
+      a.click();
       URL.revokeObjectURL(url);
-      toast({ title: "Exportación exitosa", description: `${result.count} empleados exportados en formato Aspel NOI.` });
+      toast({
+        title: "Exportación exitosa",
+        description: `${result.count} empleados exportados en formato Aspel NOI.`,
+      });
     } catch (err: any) {
-      toast({ title: "Error al exportar", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error al exportar",
+        description: err.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -216,13 +371,18 @@ export default function HRIntegration() {
   return (
     <div className="container mx-auto py-8 max-w-6xl">
       <div className="mb-6">
-        <Breadcrumb items={[
-          { label: "Administración", href: "/" },
-          { label: "Integración con Sistemas de RH" }
-        ]} />
-        <h1 className="text-3xl font-bold mt-4">Integración con Sistemas de RH</h1>
+        <Breadcrumb
+          items={[
+            { label: "Administración", href: "/" },
+            { label: "Integración con Sistemas de RH" },
+          ]}
+        />
+        <h1 className="text-3xl font-bold mt-4">
+          Integración con Sistemas de RH
+        </h1>
         <p className="text-muted-foreground mt-1">
-          Importa empleados desde CONTPAQi, Aspel NOI, SAP HCM, Oracle HCM y otros sistemas de nómina
+          Importa empleados desde CONTPAQi, Aspel NOI, SAP HCM, Oracle HCM y
+          otros sistemas de nómina
         </p>
       </div>
 
@@ -234,7 +394,8 @@ export default function HRIntegration() {
             <CardTitle>Exportar Empleados</CardTitle>
           </div>
           <CardDescription>
-            Descarga el catálogo de empleados activos en el formato de tu sistema de nómina
+            Descarga el catálogo de empleados activos en el formato de tu
+            sistema de nómina
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -245,7 +406,9 @@ export default function HRIntegration() {
               disabled={exportContpaqiMutation.isPending}
             >
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              {exportContpaqiMutation.isPending ? "Exportando..." : "Exportar para CONTPAQi Nóminas"}
+              {exportContpaqiMutation.isPending
+                ? "Exportando..."
+                : "Exportar para CONTPAQi Nóminas"}
             </Button>
             <Button
               variant="outline"
@@ -253,11 +416,14 @@ export default function HRIntegration() {
               disabled={exportNOIMutation.isPending}
             >
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              {exportNOIMutation.isPending ? "Exportando..." : "Exportar para Aspel NOI"}
+              {exportNOIMutation.isPending
+                ? "Exportando..."
+                : "Exportar para Aspel NOI"}
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Los archivos exportados incluyen: Clave, Nombre, RFC, CURP, NSS, Departamento, Puesto, Fecha de Alta, Sexo y Correo.
+            Los archivos exportados incluyen: Clave, Nombre, RFC, CURP, NSS,
+            Departamento, Puesto, Fecha de Alta, Sexo y Correo.
           </p>
         </CardContent>
       </Card>
@@ -270,7 +436,8 @@ export default function HRIntegration() {
             <CardTitle>Importar Empleados</CardTitle>
           </div>
           <CardDescription>
-            Carga el archivo exportado desde tu sistema de nómina para sincronizar el catálogo de empleados
+            Carga el archivo exportado desde tu sistema de nómina para
+            sincronizar el catálogo de empleados
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -283,14 +450,22 @@ export default function HRIntegration() {
               { key: "result", label: "4. Resultado" },
             ].map((s, i, arr) => (
               <div key={s.key} className="flex items-center gap-2">
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                  step === s.key ? "bg-primary text-primary-foreground" :
-                  ["select","upload","preview","result"].indexOf(step) > i ? "bg-green-100 text-green-800" :
-                  "bg-muted text-muted-foreground"
-                }`}>
+                <span
+                  className={`px-2 py-0.5 rounded text-xs font-medium ${
+                    step === s.key
+                      ? "bg-primary text-primary-foreground"
+                      : ["select", "upload", "preview", "result"].indexOf(
+                            step
+                          ) > i
+                        ? "bg-green-100 text-green-800"
+                        : "bg-muted text-muted-foreground"
+                  }`}
+                >
                   {s.label}
                 </span>
-                {i < arr.length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
+                {i < arr.length - 1 && (
+                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                )}
               </div>
             ))}
           </div>
@@ -298,19 +473,29 @@ export default function HRIntegration() {
           {/* PASO 1: Seleccionar sistema */}
           {step === "select" && (
             <div>
-              <p className="text-sm font-medium mb-4">Selecciona el sistema de nómina desde el que exportaste el archivo:</p>
+              <p className="text-sm font-medium mb-4">
+                Selecciona el sistema de nómina desde el que exportaste el
+                archivo:
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {HR_SYSTEMS.map(sys => (
                   <button
                     key={sys.id}
-                    onClick={() => { setSelectedSystem(sys.id); setStep("upload"); }}
+                    onClick={() => {
+                      setSelectedSystem(sys.id);
+                      setStep("upload");
+                    }}
                     className={`text-left p-4 rounded-lg border-2 transition-all hover:shadow-md ${sys.color} hover:border-primary`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <span className="font-semibold text-sm">{sys.label}</span>
-                      <Badge className={`text-xs ${sys.badgeColor}`}>{sys.vendor}</Badge>
+                      <Badge className={`text-xs ${sys.badgeColor}`}>
+                        {sys.vendor}
+                      </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{sys.description}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {sys.description}
+                    </p>
                   </button>
                 ))}
               </div>
@@ -322,15 +507,21 @@ export default function HRIntegration() {
             <div className="space-y-4">
               <Alert>
                 <Info className="h-4 w-4" />
-                <AlertTitle>Sistema seleccionado: {selectedSystemInfo.label}</AlertTitle>
-                <AlertDescription>{selectedSystemInfo.description}</AlertDescription>
+                <AlertTitle>
+                  Sistema seleccionado: {selectedSystemInfo.label}
+                </AlertTitle>
+                <AlertDescription>
+                  {selectedSystemInfo.description}
+                </AlertDescription>
               </Alert>
 
               <div>
                 <p className="text-sm font-medium mb-2">Columnas esperadas:</p>
                 <div className="flex flex-wrap gap-1">
                   {selectedSystemInfo.fields.map(f => (
-                    <Badge key={f} variant="outline" className="text-xs">{f}</Badge>
+                    <Badge key={f} variant="outline" className="text-xs">
+                      {f}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -342,13 +533,19 @@ export default function HRIntegration() {
                 {isLoading ? (
                   <div className="flex flex-col items-center gap-2">
                     <RefreshCw className="h-8 w-8 text-primary animate-spin" />
-                    <p className="text-sm text-muted-foreground">Procesando archivo...</p>
+                    <p className="text-sm text-muted-foreground">
+                      Procesando archivo...
+                    </p>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-2">
                     <Upload className="h-8 w-8 text-muted-foreground/50" />
-                    <p className="font-medium">Haz clic para seleccionar el archivo</p>
-                    <p className="text-sm text-muted-foreground">Formatos aceptados: .xlsx, .xls, .csv (máx. 10 MB)</p>
+                    <p className="font-medium">
+                      Haz clic para seleccionar el archivo
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Formatos aceptados: .xlsx, .xls, .csv (máx. 10 MB)
+                    </p>
                   </div>
                 )}
               </div>
@@ -361,7 +558,9 @@ export default function HRIntegration() {
               />
 
               <div className="flex gap-2">
-                <Button variant="outline" onClick={resetFlow}>Cambiar sistema</Button>
+                <Button variant="outline" onClick={resetFlow}>
+                  Cambiar sistema
+                </Button>
               </div>
             </div>
           )}
@@ -372,9 +571,13 @@ export default function HRIntegration() {
               <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
                 <Eye className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="font-medium">Vista previa — {previewData.totalRows} registros detectados</p>
+                  <p className="font-medium">
+                    Vista previa — {previewData.totalRows} registros detectados
+                  </p>
                   <p className="text-sm text-muted-foreground">
-                    Se muestran los primeros {previewData.previewRows.length} registros. Los emails duplicados serán omitidos automáticamente.
+                    Se muestran los primeros {previewData.previewRows.length}{" "}
+                    registros. Los emails duplicados serán omitidos
+                    automáticamente.
                   </p>
                 </div>
               </div>
@@ -384,8 +587,11 @@ export default function HRIntegration() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Columnas no reconocidas</AlertTitle>
                   <AlertDescription>
-                    Las siguientes columnas no se importarán (no tienen equivalente en el sistema):
-                    <span className="font-mono text-xs ml-1">{previewData.unmappedColumns.join(", ")}</span>
+                    Las siguientes columnas no se importarán (no tienen
+                    equivalente en el sistema):
+                    <span className="font-mono text-xs ml-1">
+                      {previewData.unmappedColumns.join(", ")}
+                    </span>
                   </AlertDescription>
                 </Alert>
               )}
@@ -407,14 +613,32 @@ export default function HRIntegration() {
                   <TableBody>
                     {previewData.previewRows.map((row: any, i: number) => (
                       <TableRow key={i}>
-                        <TableCell className="text-xs">{`${row.firstName ?? ""} ${row.lastName ?? ""}`.trim() || row.nombre || "—"}</TableCell>
-                        <TableCell className="text-xs">{row.email || "—"}</TableCell>
-                        <TableCell className="text-xs font-mono">{row.rfc || "—"}</TableCell>
-                        <TableCell className="text-xs font-mono">{row.curp || "—"}</TableCell>
-                        <TableCell className="text-xs font-mono">{row.nss || "—"}</TableCell>
-                        <TableCell className="text-xs">{row.departamento || row.department || "—"}</TableCell>
-                        <TableCell className="text-xs">{row.puesto || row.position || "—"}</TableCell>
-                        <TableCell className="text-xs">{row.gender || "—"}</TableCell>
+                        <TableCell className="text-xs">
+                          {`${row.firstName ?? ""} ${row.lastName ?? ""}`.trim() ||
+                            row.nombre ||
+                            "—"}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {row.email || "—"}
+                        </TableCell>
+                        <TableCell className="text-xs font-mono">
+                          {row.rfc || "—"}
+                        </TableCell>
+                        <TableCell className="text-xs font-mono">
+                          {row.curp || "—"}
+                        </TableCell>
+                        <TableCell className="text-xs font-mono">
+                          {row.nss || "—"}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {row.departamento || row.department || "—"}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {row.puesto || row.position || "—"}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {row.gender || "—"}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -424,12 +648,20 @@ export default function HRIntegration() {
               <div className="flex gap-3">
                 <Button onClick={handleConfirmImport} disabled={isLoading}>
                   {isLoading ? (
-                    <><RefreshCw className="mr-2 h-4 w-4 animate-spin" />Importando...</>
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      Importando...
+                    </>
                   ) : (
-                    <><Users className="mr-2 h-4 w-4" />Confirmar e Importar {previewData.totalRows} registros</>
+                    <>
+                      <Users className="mr-2 h-4 w-4" />
+                      Confirmar e Importar {previewData.totalRows} registros
+                    </>
                   )}
                 </Button>
-                <Button variant="outline" onClick={resetFlow}>Cancelar</Button>
+                <Button variant="outline" onClick={resetFlow}>
+                  Cancelar
+                </Button>
               </div>
             </div>
           )}
@@ -440,24 +672,34 @@ export default function HRIntegration() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-center">
                   <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-green-700">{importResult.imported}</p>
+                  <p className="text-2xl font-bold text-green-700">
+                    {importResult.imported}
+                  </p>
                   <p className="text-sm text-green-600">Importados</p>
                 </div>
                 <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
                   <AlertCircle className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-yellow-700">{importResult.skipped}</p>
-                  <p className="text-sm text-yellow-600">Omitidos (duplicados)</p>
+                  <p className="text-2xl font-bold text-yellow-700">
+                    {importResult.skipped}
+                  </p>
+                  <p className="text-sm text-yellow-600">
+                    Omitidos (duplicados)
+                  </p>
                 </div>
                 <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-center">
                   <AlertCircle className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-red-700">{importResult.failed}</p>
+                  <p className="text-2xl font-bold text-red-700">
+                    {importResult.failed}
+                  </p>
                   <p className="text-sm text-red-600">Con error</p>
                 </div>
               </div>
 
               {importResult.errors.length > 0 && (
                 <div>
-                  <p className="text-sm font-medium mb-2">Detalle de errores:</p>
+                  <p className="text-sm font-medium mb-2">
+                    Detalle de errores:
+                  </p>
                   <div className="max-h-48 overflow-y-auto border rounded-lg">
                     <Table>
                       <TableHeader>
@@ -468,13 +710,21 @@ export default function HRIntegration() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {importResult.errors.slice(0, 20).map((err: any, i: number) => (
-                          <TableRow key={i}>
-                            <TableCell className="text-xs">{err.row}</TableCell>
-                            <TableCell className="text-xs text-red-600">{err.error}</TableCell>
-                            <TableCell className="text-xs font-mono">{err.data?.email || err.data?.nombre || "—"}</TableCell>
-                          </TableRow>
-                        ))}
+                        {importResult.errors
+                          .slice(0, 20)
+                          .map((err: any, i: number) => (
+                            <TableRow key={i}>
+                              <TableCell className="text-xs">
+                                {err.row}
+                              </TableCell>
+                              <TableCell className="text-xs text-red-600">
+                                {err.error}
+                              </TableCell>
+                              <TableCell className="text-xs font-mono">
+                                {err.data?.email || err.data?.nombre || "—"}
+                              </TableCell>
+                            </TableRow>
+                          ))}
                       </TableBody>
                     </Table>
                   </div>
@@ -483,7 +733,8 @@ export default function HRIntegration() {
 
               <div className="flex gap-3">
                 <Button onClick={resetFlow}>
-                  <Upload className="mr-2 h-4 w-4" />Nueva importación
+                  <Upload className="mr-2 h-4 w-4" />
+                  Nueva importación
                 </Button>
                 <Button variant="outline" asChild>
                   <a href="/employees">Ver catálogo de empleados</a>
@@ -515,34 +766,59 @@ export default function HRIntegration() {
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell className="font-medium">CONTPAQi Nóminas 18</TableCell>
-                  <TableCell className="text-sm">Catálogos → Empleados → Exportar a Excel</TableCell>
+                  <TableCell className="font-medium">
+                    CONTPAQi Nóminas 18
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    Catálogos → Empleados → Exportar a Excel
+                  </TableCell>
                   <TableCell className="text-sm">10 campos</TableCell>
-                  <TableCell className="text-sm">El nombre viene en formato "AP.PAT AP.MAT NOMBRE(S)"</TableCell>
+                  <TableCell className="text-sm">
+                    El nombre viene en formato "AP.PAT AP.MAT NOMBRE(S)"
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Aspel NOI 10</TableCell>
-                  <TableCell className="text-sm">Trabajadores → Exportar → Excel</TableCell>
+                  <TableCell className="text-sm">
+                    Trabajadores → Exportar → Excel
+                  </TableCell>
                   <TableCell className="text-sm">10 campos</TableCell>
-                  <TableCell className="text-sm">Columnas en MAYÚSCULAS</TableCell>
+                  <TableCell className="text-sm">
+                    Columnas en MAYÚSCULAS
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">SAP HCM</TableCell>
-                  <TableCell className="text-sm">Informe PA20 → Exportar CSV</TableCell>
+                  <TableCell className="text-sm">
+                    Informe PA20 → Exportar CSV
+                  </TableCell>
                   <TableCell className="text-sm">11 campos</TableCell>
-                  <TableCell className="text-sm">Columnas en inglés. RFC/CURP deben estar configurados como infotipos</TableCell>
+                  <TableCell className="text-sm">
+                    Columnas en inglés. RFC/CURP deben estar configurados como
+                    infotipos
+                  </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">Oracle HCM Cloud</TableCell>
-                  <TableCell className="text-sm">Reportes → Personas Activas → CSV</TableCell>
+                  <TableCell className="font-medium">
+                    Oracle HCM Cloud
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    Reportes → Personas Activas → CSV
+                  </TableCell>
                   <TableCell className="text-sm">11 campos</TableCell>
-                  <TableCell className="text-sm">NSS se mapea desde "National Identifier"</TableCell>
+                  <TableCell className="text-sm">
+                    NSS se mapea desde "National Identifier"
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Nomipaq</TableCell>
-                  <TableCell className="text-sm">Catálogo → Empleados → Exportar</TableCell>
+                  <TableCell className="text-sm">
+                    Catálogo → Empleados → Exportar
+                  </TableCell>
                   <TableCell className="text-sm">10 campos</TableCell>
-                  <TableCell className="text-sm">Compatible con versiones recientes</TableCell>
+                  <TableCell className="text-sm">
+                    Compatible con versiones recientes
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>

@@ -9,22 +9,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { 
-  Users, 
-  Mail, 
-  Send, 
-  CheckCircle, 
-  Clock, 
+import {
+  Users,
+  Mail,
+  Send,
+  CheckCircle,
+  Clock,
   AlertCircle,
   Eye,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
@@ -38,15 +38,15 @@ export default function SurveySend() {
   const [showPreview, setShowPreview] = useState(false);
 
   // Obtener guías requeridas según cantidad de trabajadores
-  const { data: surveyRequirements, isLoading: loadingRequirements } = 
+  const { data: surveyRequirements, isLoading: loadingRequirements } =
     trpc.surveyDistribution.getRequiredSurveys.useQuery();
 
   // Obtener empleados elegibles
-  const { data: employees, isLoading: loadingEmployees } = 
+  const { data: employees, isLoading: loadingEmployees } =
     trpc.surveyDistribution.getEligibleEmployees.useQuery(
-      { 
-        surveyId: selectedSurveyId!, 
-        excludeCompleted: true 
+      {
+        surveyId: selectedSurveyId!,
+        excludeCompleted: true,
       },
       { enabled: !!selectedSurveyId }
     );
@@ -58,19 +58,22 @@ export default function SurveySend() {
   );
 
   // Mutation para enviar invitaciones
-  const sendMutation = trpc.surveyDistribution.sendSurveyInvitations.useMutation({
-    onSuccess: (result) => {
-      toast.success(`Invitaciones enviadas: ${result.sent} exitosas, ${result.failed} fallidas`);
-      if (result.errors.length > 0) {
-      }
-      setSelectedEmployees([]);
-      setCustomSubject("");
-      setCustomMessage("");
-    },
-    onError: (error) => {
-      toast.error(`Error al enviar invitaciones: ${error.message}`);
-    },
-  });
+  const sendMutation =
+    trpc.surveyDistribution.sendSurveyInvitations.useMutation({
+      onSuccess: result => {
+        toast.success(
+          `Invitaciones enviadas: ${result.sent} exitosas, ${result.failed} fallidas`
+        );
+        if (result.errors.length > 0) {
+        }
+        setSelectedEmployees([]);
+        setCustomSubject("");
+        setCustomMessage("");
+      },
+      onError: error => {
+        toast.error(`Error al enviar invitaciones: ${error.message}`);
+      },
+    });
 
   const handleSelectAll = () => {
     if (employees) {
@@ -83,7 +86,7 @@ export default function SurveySend() {
   };
 
   const handleToggleEmployee = (employeeId: number) => {
-    setSelectedEmployees(prev => 
+    setSelectedEmployees(prev =>
       prev.includes(employeeId)
         ? prev.filter(id => id !== employeeId)
         : [...prev, employeeId]
@@ -122,12 +125,17 @@ export default function SurveySend() {
   return (
     <div className="container py-8">
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => setLocation("/surveys/dashboard")}>
+        <Button
+          variant="ghost"
+          onClick={() => setLocation("/surveys/dashboard")}
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Envío Masivo de Encuestas NOM-035</h1>
+          <h1 className="text-3xl font-bold">
+            Envío Masivo de Encuestas NOM-035
+          </h1>
           <p className="text-muted-foreground mt-1">
             Envía encuestas por correo electrónico a tus colaboradores
           </p>
@@ -139,7 +147,9 @@ export default function SurveySend() {
         <div className="flex items-start gap-4">
           <Users className="h-6 w-6 text-blue-600 mt-1" />
           <div className="flex-1">
-            <h3 className="font-semibold text-lg mb-2">Guías Requeridas según NOM-035</h3>
+            <h3 className="font-semibold text-lg mb-2">
+              Guías Requeridas según NOM-035
+            </h3>
             <p className="text-sm text-muted-foreground mb-3">
               {surveyRequirements?.recommendation}
             </p>
@@ -161,10 +171,12 @@ export default function SurveySend() {
 
       {/* Selección de encuesta */}
       <Card className="p-6 mb-6">
-        <h3 className="font-semibold text-lg mb-4">1. Selecciona la Encuesta</h3>
-        <Select 
-          value={selectedSurveyId?.toString()} 
-          onValueChange={(value) => setSelectedSurveyId(parseInt(value))}
+        <h3 className="font-semibold text-lg mb-4">
+          1. Selecciona la Encuesta
+        </h3>
+        <Select
+          value={selectedSurveyId?.toString()}
+          onValueChange={value => setSelectedSurveyId(parseInt(value))}
         >
           <SelectTrigger>
             <SelectValue placeholder="Selecciona una encuesta..." />
@@ -187,15 +199,23 @@ export default function SurveySend() {
             </div>
             <div className="bg-green-50 p-3 rounded-lg">
               <div className="text-sm text-muted-foreground">Completadas</div>
-              <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {stats.completed}
+              </div>
             </div>
             <div className="bg-yellow-50 p-3 rounded-lg">
               <div className="text-sm text-muted-foreground">Pendientes</div>
-              <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+              <div className="text-2xl font-bold text-yellow-600">
+                {stats.pending}
+              </div>
             </div>
             <div className="bg-blue-50 p-3 rounded-lg">
-              <div className="text-sm text-muted-foreground">Tasa de Respuesta</div>
-              <div className="text-2xl font-bold text-blue-600">{stats.completionRate}%</div>
+              <div className="text-sm text-muted-foreground">
+                Tasa de Respuesta
+              </div>
+              <div className="text-2xl font-bold text-blue-600">
+                {stats.completionRate}%
+              </div>
             </div>
           </div>
         )}
@@ -206,9 +226,13 @@ export default function SurveySend() {
         <>
           <Card className="p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-lg">2. Selecciona Destinatarios</h3>
+              <h3 className="font-semibold text-lg">
+                2. Selecciona Destinatarios
+              </h3>
               <Button variant="outline" size="sm" onClick={handleSelectAll}>
-                {selectedEmployees.length === employees?.length ? "Deseleccionar Todos" : "Seleccionar Todos"}
+                {selectedEmployees.length === employees?.length
+                  ? "Deseleccionar Todos"
+                  : "Seleccionar Todos"}
               </Button>
             </div>
 
@@ -228,9 +252,13 @@ export default function SurveySend() {
                       onCheckedChange={() => handleToggleEmployee(employee.id)}
                     />
                     <div className="flex-1">
-                      <div className="font-medium">{employee.name || "Sin nombre"}</div>
+                      <div className="font-medium">
+                        {employee.name || "Sin nombre"}
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        {employee.email || "Sin correo"} • {employee.departamento || "Sin departamento"} • {employee.puesto || "Sin puesto"}
+                        {employee.email || "Sin correo"} •{" "}
+                        {employee.departamento || "Sin departamento"} •{" "}
+                        {employee.puesto || "Sin puesto"}
                       </div>
                     </div>
                     {!employee.email && (
@@ -257,14 +285,16 @@ export default function SurveySend() {
 
           {/* Personalización del correo */}
           <Card className="p-6 mb-6">
-            <h3 className="font-semibold text-lg mb-4">3. Personaliza el Correo (Opcional)</h3>
+            <h3 className="font-semibold text-lg mb-4">
+              3. Personaliza el Correo (Opcional)
+            </h3>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="subject">Asunto del Correo</Label>
                 <Input
                   id="subject"
                   value={customSubject}
-                  onChange={(e) => setCustomSubject(e.target.value)}
+                  onChange={e => setCustomSubject(e.target.value)}
                   placeholder="Dejar vacío para usar el asunto predeterminado"
                 />
               </div>
@@ -273,7 +303,7 @@ export default function SurveySend() {
                 <Textarea
                   id="message"
                   value={customMessage}
-                  onChange={(e) => setCustomMessage(e.target.value)}
+                  onChange={e => setCustomMessage(e.target.value)}
                   placeholder="Agrega un mensaje personalizado que aparecerá en el correo..."
                   rows={4}
                 />
@@ -286,7 +316,9 @@ export default function SurveySend() {
             <Button
               size="lg"
               onClick={handleSend}
-              disabled={selectedEmployees.length === 0 || sendMutation.isPending}
+              disabled={
+                selectedEmployees.length === 0 || sendMutation.isPending
+              }
             >
               {sendMutation.isPending ? (
                 <>
@@ -318,25 +350,41 @@ export default function SurveySend() {
                 <div className="mb-4">
                   <div className="text-sm text-muted-foreground">Asunto:</div>
                   <div className="font-semibold">
-                    {customSubject || `Encuesta NOM-035: ${surveyRequirements?.surveys.find(s => s.id === selectedSurveyId)?.title}`}
+                    {customSubject ||
+                      `Encuesta NOM-035: ${surveyRequirements?.surveys.find(s => s.id === selectedSurveyId)?.title}`}
                   </div>
                 </div>
                 <hr className="my-4" />
                 <div className="space-y-4">
-                  <h2 className="text-xl font-bold text-blue-600">Encuesta NOM-035 STPS 2018</h2>
-                  <p>Estimado(a) <strong>[Nombre del Empleado]</strong>,</p>
+                  <h2 className="text-xl font-bold text-blue-600">
+                    Encuesta NOM-035 STPS 2018
+                  </h2>
+                  <p>
+                    Estimado(a) <strong>[Nombre del Empleado]</strong>,
+                  </p>
                   {customMessage && (
                     <p className="bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">
                       {customMessage}
                     </p>
                   )}
-                  <p>Se le invita a completar la siguiente encuesta como parte del cumplimiento de la NOM-035-STPS-2018:</p>
+                  <p>
+                    Se le invita a completar la siguiente encuesta como parte
+                    del cumplimiento de la NOM-035-STPS-2018:
+                  </p>
                   <div className="bg-gray-100 p-4 rounded">
                     <h3 className="font-semibold">
-                      {surveyRequirements?.surveys.find(s => s.id === selectedSurveyId)?.title}
+                      {
+                        surveyRequirements?.surveys.find(
+                          s => s.id === selectedSurveyId
+                        )?.title
+                      }
                     </h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {surveyRequirements?.surveys.find(s => s.id === selectedSurveyId)?.description}
+                      {
+                        surveyRequirements?.surveys.find(
+                          s => s.id === selectedSurveyId
+                        )?.description
+                      }
                     </p>
                   </div>
                   <div className="text-center">

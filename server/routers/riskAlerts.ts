@@ -1,7 +1,15 @@
 import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { departments, employees, riskAlertHistory, riskAlertThresholds, surveyResponses, surveys, users } from "../../drizzle/schema";
+import {
+  departments,
+  employees,
+  riskAlertHistory,
+  riskAlertThresholds,
+  surveyResponses,
+  surveys,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, sql, desc, count } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 
@@ -11,9 +19,11 @@ export const riskAlertsRouter = router({
    */
   checkRiskLevels: protectedProcedure
     .input(
-      z.object({
-        departmentId: z.number().optional(),
-      }).optional()
+      z
+        .object({
+          departmentId: z.number().optional(),
+        })
+        .optional()
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -67,12 +77,19 @@ export const riskAlertsRouter = router({
         const highRiskEmployees = deptEntries.filter((e: any) => {
           try {
             const results = JSON.parse(e.survey.results || "{}");
-            return results.riskLevel === "high" || results.globalRiskLevel === "high";
-          } catch { return false; }
+            return (
+              results.riskLevel === "high" || results.globalRiskLevel === "high"
+            );
+          } catch {
+            return false;
+          }
         }).length;
         const riskPercentage = (highRiskEmployees / totalEmployees) * 100;
 
-        let alertType: "high_risk_threshold_exceeded" | "medium_risk_threshold_exceeded" | null = null;
+        let alertType:
+          | "high_risk_threshold_exceeded"
+          | "medium_risk_threshold_exceeded"
+          | null = null;
 
         if (riskPercentage >= highRiskThreshold) {
           alertType = "high_risk_threshold_exceeded";
@@ -103,7 +120,8 @@ export const riskAlertsRouter = router({
 
           await notifyOwner({
             title: `⚠️ Alerta de Riesgo Psicosocial - ${deptName}`,
-            content: `El departamento ${deptName} ha superado el umbral de riesgo ${alertType === "high_risk_threshold_exceeded" ? "alto" : "medio"}.\n\n` +
+            content:
+              `El departamento ${deptName} ha superado el umbral de riesgo ${alertType === "high_risk_threshold_exceeded" ? "alto" : "medio"}.\n\n` +
               `📊 Estadísticas:\n` +
               `- Total de empleados: ${totalEmployees}\n` +
               `- Empleados en riesgo alto: ${highRiskEmployees}\n` +
@@ -166,10 +184,15 @@ export const riskAlertsRouter = router({
       const highRiskEmployees = deptEmployees.filter((e: any) => {
         try {
           const results = JSON.parse(e.survey.results || "{}");
-          return results.riskLevel === "high" || results.globalRiskLevel === "high";
-        } catch { return false; }
+          return (
+            results.riskLevel === "high" || results.globalRiskLevel === "high"
+          );
+        } catch {
+          return false;
+        }
       }).length;
-      const riskPercentage = totalEmployees > 0 ? (highRiskEmployees / totalEmployees) * 100 : 0;
+      const riskPercentage =
+        totalEmployees > 0 ? (highRiskEmployees / totalEmployees) * 100 : 0;
 
       // Insertar alerta manual
       await (db.insert(riskAlertHistory) as any).values({
@@ -194,7 +217,8 @@ export const riskAlertsRouter = router({
 
       await notifyOwner({
         title: `🔔 Alerta Manual - ${deptName}`,
-        content: `Se ha generado una alerta manual para el departamento ${deptName}.\n\n` +
+        content:
+          `Se ha generado una alerta manual para el departamento ${deptName}.\n\n` +
           `📊 Estadísticas actuales:\n` +
           `- Total de empleados: ${totalEmployees}\n` +
           `- Empleados en riesgo alto: ${highRiskEmployees}\n` +
@@ -210,10 +234,12 @@ export const riskAlertsRouter = router({
    */
   getAlertHistory: protectedProcedure
     .input(
-      z.object({
-        departmentId: z.number().optional(),
-        limit: z.number().optional().default(50),
-      }).optional()
+      z
+        .object({
+          departmentId: z.number().optional(),
+          limit: z.number().optional().default(50),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       const db = await getDb();
@@ -338,16 +364,27 @@ export const riskAlertsRouter = router({
         try {
           const results = JSON.parse(entry.survey.results || "{}");
           return results.riskLevel || results.globalRiskLevel || "low";
-        } catch { return "low"; }
+        } catch {
+          return "low";
+        }
       };
 
-      const highRiskCount = deptSurveys.filter((e: any) => getRiskLevel(e) === "high").length;
-      const mediumRiskCount = deptSurveys.filter((e: any) => getRiskLevel(e) === "medium").length;
-      const lowRiskCount = deptSurveys.filter((e: any) => getRiskLevel(e) === "low").length;
+      const highRiskCount = deptSurveys.filter(
+        (e: any) => getRiskLevel(e) === "high"
+      ).length;
+      const mediumRiskCount = deptSurveys.filter(
+        (e: any) => getRiskLevel(e) === "medium"
+      ).length;
+      const lowRiskCount = deptSurveys.filter(
+        (e: any) => getRiskLevel(e) === "low"
+      ).length;
 
-      const highRiskPercentage = totalEmployees > 0 ? (highRiskCount / totalEmployees) * 100 : 0;
-      const mediumRiskPercentage = totalEmployees > 0 ? (mediumRiskCount / totalEmployees) * 100 : 0;
-      const lowRiskPercentage = totalEmployees > 0 ? (lowRiskCount / totalEmployees) * 100 : 0;
+      const highRiskPercentage =
+        totalEmployees > 0 ? (highRiskCount / totalEmployees) * 100 : 0;
+      const mediumRiskPercentage =
+        totalEmployees > 0 ? (mediumRiskCount / totalEmployees) * 100 : 0;
+      const lowRiskPercentage =
+        totalEmployees > 0 ? (lowRiskCount / totalEmployees) * 100 : 0;
 
       return {
         totalEmployees,

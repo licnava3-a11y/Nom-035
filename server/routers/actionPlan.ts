@@ -9,7 +9,7 @@ import { storagePut } from "../storage";
 
 /**
  * Router para Plan de Acción Multinivel NOM-035
- * 
+ *
  * Análisis de resultados de encuestas por diferentes segmentos:
  * - Organizacional (toda la empresa)
  * - Departamental/grupal
@@ -41,7 +41,9 @@ interface SegmentAnalysis {
 }
 
 // Helper para calcular distribución de riesgo
-function calculateRiskDistribution(responses: any[]): SegmentAnalysis['riskDistribution'] {
+function calculateRiskDistribution(
+  responses: any[]
+): SegmentAnalysis["riskDistribution"] {
   const distribution = {
     nulo: 0,
     bajo: 0,
@@ -52,8 +54,9 @@ function calculateRiskDistribution(responses: any[]): SegmentAnalysis['riskDistr
 
   responses.forEach(r => {
     if (r.results) {
-      const results = typeof r.results === 'string' ? JSON.parse(r.results) : r.results;
-      const level = results.riskLevel?.toLowerCase().replace(' ', '_');
+      const results =
+        typeof r.results === "string" ? JSON.parse(r.results) : r.results;
+      const level = results.riskLevel?.toLowerCase().replace(" ", "_");
       if (level && level in distribution) {
         distribution[level as keyof typeof distribution]++;
       }
@@ -70,7 +73,8 @@ function calculateAvgScore(responses: any[]): number {
 
   responses.forEach(r => {
     if (r.results) {
-      const results = typeof r.results === 'string' ? JSON.parse(r.results) : r.results;
+      const results =
+        typeof r.results === "string" ? JSON.parse(r.results) : r.results;
       if (results.totalScore !== undefined) {
         totalScore += results.totalScore;
         count++;
@@ -84,28 +88,42 @@ function calculateAvgScore(responses: any[]): number {
 export const actionPlanRouter = router({
   // Análisis organizacional (toda la empresa)
   getOrganizationalAnalysis: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener todas las respuestas completadas de la encuesta
       const responses = await db
         .select()
         .from(surveyResponses)
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          sql`${surveyResponses.completedAt} IS NOT NULL`
-        ));
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
 
       if (responses.length === 0) {
         return {
-          segment: 'Organizacional',
+          segment: "Organizacional",
           totalResponses: 0,
           avgScore: 0,
-          riskDistribution: { nulo: 0, bajo: 0, medio: 0, alto: 0, muy_alto: 0 },
+          riskDistribution: {
+            nulo: 0,
+            bajo: 0,
+            medio: 0,
+            alto: 0,
+            muy_alto: 0,
+          },
           topRisks: [],
         };
       }
@@ -114,11 +132,13 @@ export const actionPlanRouter = router({
       const riskDistribution = calculateRiskDistribution(responses);
 
       // Calcular top riesgos por categoría
-      const categoryScores: Record<string, { total: number; count: number }> = {};
+      const categoryScores: Record<string, { total: number; count: number }> =
+        {};
 
       responses.forEach(r => {
         if (r.results) {
-          const results = typeof r.results === 'string' ? JSON.parse(r.results) : r.results;
+          const results =
+            typeof r.results === "string" ? JSON.parse(r.results) : r.results;
           if (results.categoryScores) {
             results.categoryScores.forEach((cat: any) => {
               if (!categoryScores[cat.category]) {
@@ -135,13 +155,13 @@ export const actionPlanRouter = router({
         .map(([category, data]: [string, any]) => ({
           category,
           avgScore: data.total / data.count,
-          riskLevel: 'medio', // Simplificado, se puede calcular según rangos
+          riskLevel: "medio", // Simplificado, se puede calcular según rangos
         }))
         .sort((a: any, b: any) => b.avgScore - a.avgScore)
         .slice(0, 5);
 
       return {
-        segment: 'Organizacional',
+        segment: "Organizacional",
         totalResponses: responses.length,
         avgScore,
         riskDistribution,
@@ -151,12 +171,18 @@ export const actionPlanRouter = router({
 
   // Análisis departamental
   getDepartmentalAnalysis: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener respuestas con información de departamento
       const responses = await db
@@ -167,16 +193,18 @@ export const actionPlanRouter = router({
         })
         .from(surveyResponses)
         .leftJoin(users, eq(surveyResponses.userId, users.id))
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          sql`${surveyResponses.completedAt} IS NOT NULL`
-        ));
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
 
       // Agrupar por departamento
       const departmentGroups: Record<string, any[]> = {};
 
       responses.forEach(r => {
-        const dept = r.departamento || 'Sin departamento';
+        const dept = r.departamento || "Sin departamento";
         if (!departmentGroups[dept]) {
           departmentGroups[dept] = [];
         }
@@ -184,25 +212,33 @@ export const actionPlanRouter = router({
       });
 
       // Calcular análisis por departamento
-      const analysis = Object.entries(departmentGroups).map(([dept, deptResponses]: [string, any]) => ({
-        segment: dept,
-        totalResponses: deptResponses.length,
-        avgScore: calculateAvgScore(deptResponses),
-        riskDistribution: calculateRiskDistribution(deptResponses),
-        topRisks: [],
-      }));
+      const analysis = Object.entries(departmentGroups).map(
+        ([dept, deptResponses]: [string, any]) => ({
+          segment: dept,
+          totalResponses: deptResponses.length,
+          avgScore: calculateAvgScore(deptResponses),
+          riskDistribution: calculateRiskDistribution(deptResponses),
+          topRisks: [],
+        })
+      );
 
       return analysis;
     }),
 
   // Análisis por puesto
   getPositionAnalysis: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const responses = await db
         .select({
@@ -212,40 +248,50 @@ export const actionPlanRouter = router({
         })
         .from(surveyResponses)
         .leftJoin(users, eq(surveyResponses.userId, users.id))
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          sql`${surveyResponses.completedAt} IS NOT NULL`
-        ));
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
 
       const positionGroups: Record<string, any[]> = {};
 
       responses.forEach(r => {
-        const position = r.puesto || 'Sin puesto';
+        const position = r.puesto || "Sin puesto";
         if (!positionGroups[position]) {
           positionGroups[position] = [];
         }
         positionGroups[position].push(r);
       });
 
-      const analysis = Object.entries(positionGroups).map(([position, posResponses]: [string, any]) => ({
-        segment: position,
-        totalResponses: posResponses.length,
-        avgScore: calculateAvgScore(posResponses),
-        riskDistribution: calculateRiskDistribution(posResponses),
-        topRisks: [],
-      }));
+      const analysis = Object.entries(positionGroups).map(
+        ([position, posResponses]: [string, any]) => ({
+          segment: position,
+          totalResponses: posResponses.length,
+          avgScore: calculateAvgScore(posResponses),
+          riskDistribution: calculateRiskDistribution(posResponses),
+          topRisks: [],
+        })
+      );
 
       return analysis;
     }),
 
   // Análisis por rango de edad
   getAgeRangeAnalysis: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const responses = await db
         .select({
@@ -255,36 +301,40 @@ export const actionPlanRouter = router({
         })
         .from(surveyResponses)
         .leftJoin(users, eq(surveyResponses.userId, users.id))
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          sql`${surveyResponses.completedAt} IS NOT NULL`
-        ));
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
 
       // Calcular edad y agrupar por rangos
       const ageGroups: Record<string, any[]> = {
-        '18-25': [],
-        '26-35': [],
-        '36-45': [],
-        '46-55': [],
-        '56+': [],
-        'Sin edad': [],
+        "18-25": [],
+        "26-35": [],
+        "36-45": [],
+        "46-55": [],
+        "56+": [],
+        "Sin edad": [],
       };
 
       responses.forEach(r => {
         if (!r.fechaNacimiento) {
-          ageGroups['Sin edad'].push(r);
+          ageGroups["Sin edad"].push(r);
           return;
         }
 
         const birthDate = new Date(r.fechaNacimiento);
-        const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+        const age = Math.floor(
+          (Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+        );
 
-        if (age >= 18 && age <= 25) ageGroups['18-25'].push(r);
-        else if (age >= 26 && age <= 35) ageGroups['26-35'].push(r);
-        else if (age >= 36 && age <= 45) ageGroups['36-45'].push(r);
-        else if (age >= 46 && age <= 55) ageGroups['46-55'].push(r);
-        else if (age >= 56) ageGroups['56+'].push(r);
-        else ageGroups['Sin edad'].push(r);
+        if (age >= 18 && age <= 25) ageGroups["18-25"].push(r);
+        else if (age >= 26 && age <= 35) ageGroups["26-35"].push(r);
+        else if (age >= 36 && age <= 45) ageGroups["36-45"].push(r);
+        else if (age >= 46 && age <= 55) ageGroups["46-55"].push(r);
+        else if (age >= 56) ageGroups["56+"].push(r);
+        else ageGroups["Sin edad"].push(r);
       });
 
       const analysis = Object.entries(ageGroups)
@@ -302,12 +352,18 @@ export const actionPlanRouter = router({
 
   // Análisis por género
   getGenderAnalysis: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const responses = await db
         .select({
@@ -317,40 +373,50 @@ export const actionPlanRouter = router({
         })
         .from(surveyResponses)
         .leftJoin(users, eq(surveyResponses.userId, users.id))
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          sql`${surveyResponses.completedAt} IS NOT NULL`
-        ));
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
 
       const genderGroups: Record<string, any[]> = {};
 
       responses.forEach(r => {
-        const gender = r.sexo || 'No especificado';
+        const gender = r.sexo || "No especificado";
         if (!genderGroups[gender]) {
           genderGroups[gender] = [];
         }
         genderGroups[gender].push(r);
       });
 
-      const analysis = Object.entries(genderGroups).map(([gender, genderResponses]: [string, any]) => ({
-        segment: gender,
-        totalResponses: genderResponses.length,
-        avgScore: calculateAvgScore(genderResponses),
-        riskDistribution: calculateRiskDistribution(genderResponses),
-        topRisks: [],
-      }));
+      const analysis = Object.entries(genderGroups).map(
+        ([gender, genderResponses]: [string, any]) => ({
+          segment: gender,
+          totalResponses: genderResponses.length,
+          avgScore: calculateAvgScore(genderResponses),
+          riskDistribution: calculateRiskDistribution(genderResponses),
+          topRisks: [],
+        })
+      );
 
       return analysis;
     }),
 
   // Análisis por estado civil
   getMaritalStatusAnalysis: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const responses = await db
         .select({
@@ -360,40 +426,50 @@ export const actionPlanRouter = router({
         })
         .from(surveyResponses)
         .leftJoin(users, eq(surveyResponses.userId, users.id))
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          sql`${surveyResponses.completedAt} IS NOT NULL`
-        ));
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
 
       const maritalGroups: Record<string, any[]> = {};
 
       responses.forEach(r => {
-        const marital = r.estadoCivil || 'No especificado';
+        const marital = r.estadoCivil || "No especificado";
         if (!maritalGroups[marital]) {
           maritalGroups[marital] = [];
         }
         maritalGroups[marital].push(r);
       });
 
-      const analysis = Object.entries(maritalGroups).map(([marital, maritalResponses]: [string, any]) => ({
-        segment: marital,
-        totalResponses: maritalResponses.length,
-        avgScore: calculateAvgScore(maritalResponses),
-        riskDistribution: calculateRiskDistribution(maritalResponses),
-        topRisks: [],
-      }));
+      const analysis = Object.entries(maritalGroups).map(
+        ([marital, maritalResponses]: [string, any]) => ({
+          segment: marital,
+          totalResponses: maritalResponses.length,
+          avgScore: calculateAvgScore(maritalResponses),
+          riskDistribution: calculateRiskDistribution(maritalResponses),
+          topRisks: [],
+        })
+      );
 
       return analysis;
     }),
 
   // Análisis por jornada laboral
   getWorkScheduleAnalysis: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const responses = await db
         .select({
@@ -403,40 +479,50 @@ export const actionPlanRouter = router({
         })
         .from(surveyResponses)
         .leftJoin(users, eq(surveyResponses.userId, users.id))
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          sql`${surveyResponses.completedAt} IS NOT NULL`
-        ));
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
 
       const scheduleGroups: Record<string, any[]> = {};
 
       responses.forEach(r => {
-        const schedule = r.jornadaLaboral || 'No especificado';
+        const schedule = r.jornadaLaboral || "No especificado";
         if (!scheduleGroups[schedule]) {
           scheduleGroups[schedule] = [];
         }
         scheduleGroups[schedule].push(r);
       });
 
-      const analysis = Object.entries(scheduleGroups).map(([schedule, scheduleResponses]: [string, any]) => ({
-        segment: schedule,
-        totalResponses: scheduleResponses.length,
-        avgScore: calculateAvgScore(scheduleResponses),
-        riskDistribution: calculateRiskDistribution(scheduleResponses),
-        topRisks: [],
-      }));
+      const analysis = Object.entries(scheduleGroups).map(
+        ([schedule, scheduleResponses]: [string, any]) => ({
+          segment: schedule,
+          totalResponses: scheduleResponses.length,
+          avgScore: calculateAvgScore(scheduleResponses),
+          riskDistribution: calculateRiskDistribution(scheduleResponses),
+          topRisks: [],
+        })
+      );
 
       return analysis;
     }),
 
   // Análisis por tipo de contrato
   getContractTypeAnalysis: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const responses = await db
         .select({
@@ -446,40 +532,50 @@ export const actionPlanRouter = router({
         })
         .from(surveyResponses)
         .leftJoin(users, eq(surveyResponses.userId, users.id))
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          sql`${surveyResponses.completedAt} IS NOT NULL`
-        ));
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
 
       const contractGroups: Record<string, any[]> = {};
 
       responses.forEach(r => {
-        const contract = r.tipoContrato || 'No especificado';
+        const contract = r.tipoContrato || "No especificado";
         if (!contractGroups[contract]) {
           contractGroups[contract] = [];
         }
         contractGroups[contract].push(r);
       });
 
-      const analysis = Object.entries(contractGroups).map(([contract, contractResponses]: [string, any]) => ({
-        segment: contract,
-        totalResponses: contractResponses.length,
-        avgScore: calculateAvgScore(contractResponses),
-        riskDistribution: calculateRiskDistribution(contractResponses),
-        topRisks: [],
-      }));
+      const analysis = Object.entries(contractGroups).map(
+        ([contract, contractResponses]: [string, any]) => ({
+          segment: contract,
+          totalResponses: contractResponses.length,
+          avgScore: calculateAvgScore(contractResponses),
+          riskDistribution: calculateRiskDistribution(contractResponses),
+          topRisks: [],
+        })
+      );
 
       return analysis;
     }),
 
   // Análisis por antigüedad en el puesto
   getTenureAnalysis: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const responses = await db
         .select({
@@ -489,35 +585,38 @@ export const actionPlanRouter = router({
         })
         .from(surveyResponses)
         .leftJoin(users, eq(surveyResponses.userId, users.id))
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          sql`${surveyResponses.completedAt} IS NOT NULL`
-        ));
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
 
       // Agrupar por antigüedad
       const tenureGroups: Record<string, any[]> = {
-        '0-1 años': [],
-        '1-3 años': [],
-        '3-5 años': [],
-        '5-10 años': [],
-        '10+ años': [],
-        'Sin fecha': [],
+        "0-1 años": [],
+        "1-3 años": [],
+        "3-5 años": [],
+        "5-10 años": [],
+        "10+ años": [],
+        "Sin fecha": [],
       };
 
       responses.forEach(r => {
         if (!r.fechaIngreso) {
-          tenureGroups['Sin fecha'].push(r);
+          tenureGroups["Sin fecha"].push(r);
           return;
         }
 
         const hireDate = new Date(r.fechaIngreso);
-        const yearsOfService = (Date.now() - hireDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+        const yearsOfService =
+          (Date.now() - hireDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
 
-        if (yearsOfService < 1) tenureGroups['0-1 años'].push(r);
-        else if (yearsOfService < 3) tenureGroups['1-3 años'].push(r);
-        else if (yearsOfService < 5) tenureGroups['3-5 años'].push(r);
-        else if (yearsOfService < 10) tenureGroups['5-10 años'].push(r);
-        else tenureGroups['10+ años'].push(r);
+        if (yearsOfService < 1) tenureGroups["0-1 años"].push(r);
+        else if (yearsOfService < 3) tenureGroups["1-3 años"].push(r);
+        else if (yearsOfService < 5) tenureGroups["3-5 años"].push(r);
+        else if (yearsOfService < 10) tenureGroups["5-10 años"].push(r);
+        else tenureGroups["10+ años"].push(r);
       });
 
       const analysis = Object.entries(tenureGroups)
@@ -535,85 +634,113 @@ export const actionPlanRouter = router({
 
   // Exportar análisis a Excel
   exportToExcel: protectedProcedure
-    .input(z.object({
-      surveyId: z.number(),
-      analysisType: z.enum([
-        'organizational',
-        'departmental',
-        'position',
-        'age',
-        'gender',
-        'marital',
-        'schedule',
-        'contract',
-        'tenure'
-      ]),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+        analysisType: z.enum([
+          "organizational",
+          "departmental",
+          "position",
+          "age",
+          "gender",
+          "marital",
+          "schedule",
+          "contract",
+          "tenure",
+        ]),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener datos según tipo de análisis
       let data: any[] = [];
-      let title = '';
-      let subtitle = '';
+      let title = "";
+      let subtitle = "";
 
       switch (input.analysisType) {
-        case 'organizational':
+        case "organizational":
           // Llamar al procedimiento correspondiente
           const orgRouter = actionPlanRouter.createCaller(ctx);
-          const orgData = await orgRouter.getOrganizationalAnalysis({ surveyId: input.surveyId });
+          const orgData = await orgRouter.getOrganizationalAnalysis({
+            surveyId: input.surveyId,
+          });
           data = [orgData];
-          title = 'Análisis Organizacional NOM-035';
-          subtitle = 'Evaluación del entorno organizacional - Nivel empresa';
+          title = "Análisis Organizacional NOM-035";
+          subtitle = "Evaluación del entorno organizacional - Nivel empresa";
           break;
-        case 'departmental':
+        case "departmental":
           const deptRouter = actionPlanRouter.createCaller(ctx);
-          data = await deptRouter.getDepartmentalAnalysis({ surveyId: input.surveyId });
-          title = 'Análisis Departamental NOM-035';
-          subtitle = 'Evaluación del entorno organizacional por departamento';
+          data = await deptRouter.getDepartmentalAnalysis({
+            surveyId: input.surveyId,
+          });
+          title = "Análisis Departamental NOM-035";
+          subtitle = "Evaluación del entorno organizacional por departamento";
           break;
-        case 'position':
+        case "position":
           const posRouter = actionPlanRouter.createCaller(ctx);
-          data = await posRouter.getPositionAnalysis({ surveyId: input.surveyId });
-          title = 'Análisis por Puesto NOM-035';
-          subtitle = 'Evaluación del entorno organizacional por puesto de trabajo';
+          data = await posRouter.getPositionAnalysis({
+            surveyId: input.surveyId,
+          });
+          title = "Análisis por Puesto NOM-035";
+          subtitle =
+            "Evaluación del entorno organizacional por puesto de trabajo";
           break;
-        case 'age':
+        case "age":
           const ageRouter = actionPlanRouter.createCaller(ctx);
-          data = await ageRouter.getAgeRangeAnalysis({ surveyId: input.surveyId });
-          title = 'Análisis por Rango de Edad NOM-035';
-          subtitle = 'Evaluación del entorno organizacional por grupo etáreo';
+          data = await ageRouter.getAgeRangeAnalysis({
+            surveyId: input.surveyId,
+          });
+          title = "Análisis por Rango de Edad NOM-035";
+          subtitle = "Evaluación del entorno organizacional por grupo etáreo";
           break;
-        case 'gender':
+        case "gender":
           const genderRouter = actionPlanRouter.createCaller(ctx);
-          data = await genderRouter.getGenderAnalysis({ surveyId: input.surveyId });
-          title = 'Análisis por Género NOM-035';
-          subtitle = 'Evaluación del entorno organizacional por género';
+          data = await genderRouter.getGenderAnalysis({
+            surveyId: input.surveyId,
+          });
+          title = "Análisis por Género NOM-035";
+          subtitle = "Evaluación del entorno organizacional por género";
           break;
-        case 'marital':
+        case "marital":
           const maritalRouter = actionPlanRouter.createCaller(ctx);
-          data = await maritalRouter.getMaritalStatusAnalysis({ surveyId: input.surveyId });
-          title = 'Análisis por Estado Civil NOM-035';
-          subtitle = 'Evaluación del entorno organizacional por estado civil';
+          data = await maritalRouter.getMaritalStatusAnalysis({
+            surveyId: input.surveyId,
+          });
+          title = "Análisis por Estado Civil NOM-035";
+          subtitle = "Evaluación del entorno organizacional por estado civil";
           break;
-        case 'schedule':
+        case "schedule":
           const scheduleRouter = actionPlanRouter.createCaller(ctx);
-          data = await scheduleRouter.getWorkScheduleAnalysis({ surveyId: input.surveyId });
-          title = 'Análisis por Jornada Laboral NOM-035';
-          subtitle = 'Evaluación del entorno organizacional por tipo de jornada';
+          data = await scheduleRouter.getWorkScheduleAnalysis({
+            surveyId: input.surveyId,
+          });
+          title = "Análisis por Jornada Laboral NOM-035";
+          subtitle =
+            "Evaluación del entorno organizacional por tipo de jornada";
           break;
-        case 'contract':
+        case "contract":
           const contractRouter = actionPlanRouter.createCaller(ctx);
-          data = await contractRouter.getContractTypeAnalysis({ surveyId: input.surveyId });
-          title = 'Análisis por Tipo de Contrato NOM-035';
-          subtitle = 'Evaluación del entorno organizacional por tipo de contrato';
+          data = await contractRouter.getContractTypeAnalysis({
+            surveyId: input.surveyId,
+          });
+          title = "Análisis por Tipo de Contrato NOM-035";
+          subtitle =
+            "Evaluación del entorno organizacional por tipo de contrato";
           break;
-        case 'tenure':
+        case "tenure":
           const tenureRouter = actionPlanRouter.createCaller(ctx);
-          data = await tenureRouter.getTenureAnalysis({ surveyId: input.surveyId });
-          title = 'Análisis por Antigüedad NOM-035';
-          subtitle = 'Evaluación del entorno organizacional por antigüedad en el puesto';
+          data = await tenureRouter.getTenureAnalysis({
+            surveyId: input.surveyId,
+          });
+          title = "Análisis por Antigüedad NOM-035";
+          subtitle =
+            "Evaluación del entorno organizacional por antigüedad en el puesto";
           break;
       }
 
@@ -631,7 +758,7 @@ export const actionPlanRouter = router({
       const { url } = await storagePut(
         `reports/${fileName}`,
         excelBuffer,
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       );
 
       return {

@@ -8,7 +8,10 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { surveys, surveyResponses } from "../../drizzle/schema";
 import { and, eq, desc, sql, gte, lte } from "drizzle-orm";
-import { normalizePaginationParams, calculatePagination } from "../utils/pagination";
+import {
+  normalizePaginationParams,
+  calculatePagination,
+} from "../utils/pagination";
 
 export const surveysPaginatedRouter = router({
   /**
@@ -60,7 +63,8 @@ export const surveysPaginatedRouter = router({
         conditions.push(lte(surveys.createdAt, new Date(input.dateTo)));
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       // Ejecutar queries en paralelo
       const [surveysList, totalCount] = await Promise.all([
@@ -75,7 +79,7 @@ export const surveysPaginatedRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(surveys)
           .where(whereClause)
-          .then((r) => r[0]?.count || 0),
+          .then(r => r[0]?.count || 0),
       ]);
 
       const pagination = calculatePagination(page, pageSize, totalCount);
@@ -126,7 +130,7 @@ export const surveysPaginatedRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(surveys)
           .where(whereClause)
-          .then((r) => r[0]?.count || 0),
+          .then(r => r[0]?.count || 0),
       ]);
 
       const pagination = calculatePagination(page, pageSize, totalCount);
@@ -163,7 +167,8 @@ export const surveysPaginatedRouter = router({
         conditions.push(sql`${surveys.status} = ${input.status}`);
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       // Obtener encuestas con conteo de respuestas
       const [surveysList, totalCount] = await Promise.all([
@@ -187,7 +192,7 @@ export const surveysPaginatedRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(surveys)
           .where(whereClause)
-          .then((r) => r[0]?.count || 0),
+          .then(r => r[0]?.count || 0),
       ]);
 
       const pagination = calculatePagination(page, pageSize, totalCount);
@@ -214,13 +219,39 @@ export const surveysPaginatedRouter = router({
       guiaIIISurveys,
       totalResponses,
     ] = await Promise.all([
-      db.select({ count: sql<number>`count(*)` }).from(surveys).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(surveys).where(sql`${surveys.status} = 'active'`).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(surveys).where(sql`${surveys.status} = 'closed'`).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(surveys).where(sql`${surveys.type} = 'guia_i'`).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(surveys).where(sql`${surveys.type} = 'guia_ii'`).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(surveys).where(sql`${surveys.type} = 'guia_iii'`).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(surveyResponses).then((r) => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(surveys)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(surveys)
+        .where(sql`${surveys.status} = 'active'`)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(surveys)
+        .where(sql`${surveys.status} = 'closed'`)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(surveys)
+        .where(sql`${surveys.type} = 'guia_i'`)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(surveys)
+        .where(sql`${surveys.type} = 'guia_ii'`)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(surveys)
+        .where(sql`${surveys.type} = 'guia_iii'`)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(surveyResponses)
+        .then(r => r[0]?.count || 0),
     ]);
 
     return {

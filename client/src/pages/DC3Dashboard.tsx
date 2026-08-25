@@ -52,7 +52,15 @@ import {
 import { Bar, Doughnut } from "react-chartjs-2";
 
 // Registrar componentes Chart.js
-Chart.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 // ─── Helpers de período ───────────────────────────────────────────────────────
 
@@ -70,7 +78,14 @@ function getPeriodRange(key: PeriodKey): { from: number; to: number } {
     case "month": {
       return {
         from: new Date(now.getFullYear(), now.getMonth(), 1).getTime(),
-        to: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime(),
+        to: new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0,
+          23,
+          59,
+          59
+        ).getTime(),
       };
     }
     case "quarter": {
@@ -92,7 +107,20 @@ function getPeriodRange(key: PeriodKey): { from: number; to: number } {
 
 function formatMonthLabel(yyyymm: string): string {
   const [y, m] = yyyymm.split("-");
-  const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+  const months = [
+    "Ene",
+    "Feb",
+    "Mar",
+    "Abr",
+    "May",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dic",
+  ];
   return `${months[parseInt(m, 10) - 1]} ${y}`;
 }
 
@@ -118,7 +146,9 @@ function KpiCard({
           <div>
             <p className="text-sm text-muted-foreground">{label}</p>
             <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
-            {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
+            {sub && (
+              <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
+            )}
           </div>
           <div className={`p-3 rounded-full bg-muted/60`}>
             <Icon className={`w-6 h-6 ${color}`} />
@@ -172,51 +202,83 @@ export default function DC3Dashboard() {
       ["Canceladas", data.kpis.cancelled],
       ["Tasa de emisión (%)", data.kpis.issueRate],
     ];
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kpiRows), "Resumen KPIs");
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.aoa_to_sheet(kpiRows),
+      "Resumen KPIs"
+    );
 
     // Hoja 2: Por mes
-    const monthRows = [["Mes", "Emitidas", "Borradores", "Canceladas"],
-      ...(data.byMonth ?? []).map((m) => [m.month, m.issued ?? 0, m.draft ?? 0, m.cancelled ?? 0])];
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(monthRows), "Por Mes");
+    const monthRows = [
+      ["Mes", "Emitidas", "Borradores", "Canceladas"],
+      ...(data.byMonth ?? []).map(m => [
+        m.month,
+        m.issued ?? 0,
+        m.draft ?? 0,
+        m.cancelled ?? 0,
+      ]),
+    ];
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.aoa_to_sheet(monthRows),
+      "Por Mes"
+    );
 
     // Hoja 3: Por empresa
-    const companyRows = [["Empresa", "Total constancias"],
-      ...(data.byCompany ?? []).map((c) => [c.company, c.count])];
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(companyRows), "Por Empresa");
+    const companyRows = [
+      ["Empresa", "Total constancias"],
+      ...(data.byCompany ?? []).map(c => [c.company, c.count]),
+    ];
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.aoa_to_sheet(companyRows),
+      "Por Empresa"
+    );
 
     // Hoja 4: Por área temática
-    const areaRows = [["Área Temática", "Total constancias"],
-      ...(data.byThematicArea ?? []).map((a: { area: string; count: number }) => [a.area, a.count])];
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(areaRows), "Por Área Temática");
+    const areaRows = [
+      ["Área Temática", "Total constancias"],
+      ...(data.byThematicArea ?? []).map(
+        (a: { area: string; count: number }) => [a.area, a.count]
+      ),
+    ];
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.aoa_to_sheet(areaRows),
+      "Por Área Temática"
+    );
 
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     XLSX.writeFile(wb, `dashboard_dc3_${today}.xlsx`);
   }
 
   // ── Gráfica 1: Barras apiladas por mes ──────────────────────────────────────
-  const barMonthData: ChartData<"bar"> = useMemo(() => ({
-    labels: (data?.byMonth ?? []).map((m) => formatMonthLabel(m.month)),
-    datasets: [
-      {
-        label: "Emitidas",
-        data: (data?.byMonth ?? []).map((m) => m.issued ?? 0),
-        backgroundColor: "#16a34a",
-        borderRadius: 3,
-      },
-      {
-        label: "Borradores",
-        data: (data?.byMonth ?? []).map((m) => m.draft ?? 0),
-        backgroundColor: "#2563eb",
-        borderRadius: 3,
-      },
-      {
-        label: "Canceladas",
-        data: (data?.byMonth ?? []).map((m) => m.cancelled ?? 0),
-        backgroundColor: "#dc2626",
-        borderRadius: 3,
-      },
-    ],
-  }), [data]);
+  const barMonthData: ChartData<"bar"> = useMemo(
+    () => ({
+      labels: (data?.byMonth ?? []).map(m => formatMonthLabel(m.month)),
+      datasets: [
+        {
+          label: "Emitidas",
+          data: (data?.byMonth ?? []).map(m => m.issued ?? 0),
+          backgroundColor: "#16a34a",
+          borderRadius: 3,
+        },
+        {
+          label: "Borradores",
+          data: (data?.byMonth ?? []).map(m => m.draft ?? 0),
+          backgroundColor: "#2563eb",
+          borderRadius: 3,
+        },
+        {
+          label: "Canceladas",
+          data: (data?.byMonth ?? []).map(m => m.cancelled ?? 0),
+          backgroundColor: "#dc2626",
+          borderRadius: 3,
+        },
+      ],
+    }),
+    [data]
+  );
 
   const barMonthOptions: ChartOptions<"bar"> = {
     responsive: true,
@@ -232,19 +294,24 @@ export default function DC3Dashboard() {
   };
 
   // ── Gráfica 2: Dona por estado ───────────────────────────────────────────────
-  const donutData: ChartData<"doughnut"> = useMemo(() => ({
-    labels: ["Emitidas", "Borradores", "Canceladas"],
-    datasets: [{
-      data: [
-        data?.kpis.issued ?? 0,
-        data?.kpis.draft ?? 0,
-        data?.kpis.cancelled ?? 0,
+  const donutData: ChartData<"doughnut"> = useMemo(
+    () => ({
+      labels: ["Emitidas", "Borradores", "Canceladas"],
+      datasets: [
+        {
+          data: [
+            data?.kpis.issued ?? 0,
+            data?.kpis.draft ?? 0,
+            data?.kpis.cancelled ?? 0,
+          ],
+          backgroundColor: ["#16a34a", "#2563eb", "#dc2626"],
+          borderWidth: 2,
+          borderColor: "#ffffff",
+        },
       ],
-      backgroundColor: ["#16a34a", "#2563eb", "#dc2626"],
-      borderWidth: 2,
-      borderColor: "#ffffff",
-    }],
-  }), [data]);
+    }),
+    [data]
+  );
 
   const donutOptions: ChartOptions<"doughnut"> = {
     responsive: true,
@@ -256,17 +323,22 @@ export default function DC3Dashboard() {
   };
 
   // ── Gráfica 3: Barras horizontales por empresa ───────────────────────────────
-  const barCompanyData: ChartData<"bar"> = useMemo(() => ({
-    labels: (data?.byCompany ?? []).map((c) =>
-      c.company.length > 30 ? c.company.slice(0, 28) + "…" : c.company
-    ),
-    datasets: [{
-      label: "Constancias",
-      data: (data?.byCompany ?? []).map((c) => c.count),
-      backgroundColor: "#7c3aed",
-      borderRadius: 3,
-    }],
-  }), [data]);
+  const barCompanyData: ChartData<"bar"> = useMemo(
+    () => ({
+      labels: (data?.byCompany ?? []).map(c =>
+        c.company.length > 30 ? c.company.slice(0, 28) + "…" : c.company
+      ),
+      datasets: [
+        {
+          label: "Constancias",
+          data: (data?.byCompany ?? []).map(c => c.count),
+          backgroundColor: "#7c3aed",
+          borderRadius: 3,
+        },
+      ],
+    }),
+    [data]
+  );
 
   const barCompanyOptions: ChartOptions<"bar"> = {
     indexAxis: "y",
@@ -280,17 +352,22 @@ export default function DC3Dashboard() {
   };
 
   // ── Gráfica 4: Barras horizontales por área temática ─────────────────────────
-  const barAreaData: ChartData<"bar"> = useMemo(() => ({
-    labels: (data?.byThematicArea ?? []).map((a) =>
-      a.area.length > 35 ? a.area.slice(0, 33) + "…" : a.area
-    ),
-    datasets: [{
-      label: "Constancias",
-      data: (data?.byThematicArea ?? []).map((a) => a.count),
-      backgroundColor: "#0891b2",
-      borderRadius: 3,
-    }],
-  }), [data]);
+  const barAreaData: ChartData<"bar"> = useMemo(
+    () => ({
+      labels: (data?.byThematicArea ?? []).map(a =>
+        a.area.length > 35 ? a.area.slice(0, 33) + "…" : a.area
+      ),
+      datasets: [
+        {
+          label: "Constancias",
+          data: (data?.byThematicArea ?? []).map(a => a.count),
+          backgroundColor: "#0891b2",
+          borderRadius: 3,
+        },
+      ],
+    }),
+    [data]
+  );
 
   const barAreaOptions: ChartOptions<"bar"> = {
     indexAxis: "y",
@@ -318,7 +395,12 @@ export default function DC3Dashboard() {
             </p>
           </div>
           <div className="flex items-center gap-2 no-print">
-            <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              className="gap-2"
+            >
               <RefreshCw className="w-4 h-4" />
               Actualizar
             </Button>
@@ -350,8 +432,13 @@ export default function DC3Dashboard() {
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center gap-4 flex-wrap">
               <div className="flex items-center gap-2">
-                <Label className="text-sm font-medium whitespace-nowrap">Período:</Label>
-                <Select value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
+                <Label className="text-sm font-medium whitespace-nowrap">
+                  Período:
+                </Label>
+                <Select
+                  value={period}
+                  onValueChange={v => setPeriod(v as PeriodKey)}
+                >
                   <SelectTrigger className="w-44">
                     <SelectValue />
                   </SelectTrigger>
@@ -371,7 +458,7 @@ export default function DC3Dashboard() {
                     <Input
                       type="date"
                       value={customFrom}
-                      onChange={(e) => setCustomFrom(e.target.value)}
+                      onChange={e => setCustomFrom(e.target.value)}
                       className="w-36"
                     />
                   </div>
@@ -380,7 +467,7 @@ export default function DC3Dashboard() {
                     <Input
                       type="date"
                       value={customTo}
-                      onChange={(e) => setCustomTo(e.target.value)}
+                      onChange={e => setCustomTo(e.target.value)}
                       className="w-36"
                     />
                   </div>
@@ -477,7 +564,14 @@ export default function DC3Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div style={{ height: Math.max(200, (data?.byCompany?.length ?? 0) * 32 + 40) }}>
+              <div
+                style={{
+                  height: Math.max(
+                    200,
+                    (data?.byCompany?.length ?? 0) * 32 + 40
+                  ),
+                }}
+              >
                 {(data?.byCompany?.length ?? 0) > 0 ? (
                   <Bar data={barCompanyData} options={barCompanyOptions} />
                 ) : (
@@ -496,7 +590,14 @@ export default function DC3Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div style={{ height: Math.max(200, (data?.byThematicArea?.length ?? 0) * 32 + 40) }}>
+              <div
+                style={{
+                  height: Math.max(
+                    200,
+                    (data?.byThematicArea?.length ?? 0) * 32 + 40
+                  ),
+                }}
+              >
                 {(data?.byThematicArea?.length ?? 0) > 0 ? (
                   <Bar data={barAreaData} options={barAreaOptions} />
                 ) : (

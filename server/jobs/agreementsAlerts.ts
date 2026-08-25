@@ -1,5 +1,10 @@
 import { getDb } from "../db";
-import { committeeMinuteAgreements, committeeMinutes, users, systemSettings } from "../../drizzle/schema";
+import {
+  committeeMinuteAgreements,
+  committeeMinutes,
+  users,
+  systemSettings,
+} from "../../drizzle/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { sendEmail } from "../lib/email-sender";
 
@@ -37,7 +42,9 @@ async function getResponsibleEmail(
  * Se ejecuta diariamente y detecta acuerdos que vencen en 3 y 7 días
  */
 export async function runAgreementsAlertsJob() {
-  console.log('[Agreements Alerts Job] Iniciando verificación de acuerdos próximos a vencer...');
+  console.log(
+    "[Agreements Alerts Job] Iniciando verificación de acuerdos próximos a vencer..."
+  );
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -52,7 +59,7 @@ export async function runAgreementsAlertsJob() {
   try {
     const db = await getDb();
     if (!db) {
-      console.error('[Agreements Alerts Job] Database not available');
+      console.error("[Agreements Alerts Job] Database not available");
       return;
     }
 
@@ -70,12 +77,18 @@ export async function runAgreementsAlertsJob() {
         responsibleEmail: users.email,
       })
       .from(committeeMinuteAgreements)
-      .innerJoin(committeeMinutes, eq(committeeMinuteAgreements.minuteId, committeeMinutes.id))
-      .leftJoin(users, eq(committeeMinuteAgreements.responsibleUserId, users.id))
+      .innerJoin(
+        committeeMinutes,
+        eq(committeeMinuteAgreements.minuteId, committeeMinutes.id)
+      )
+      .leftJoin(
+        users,
+        eq(committeeMinuteAgreements.responsibleUserId, users.id)
+      )
       .where(
         and(
-          eq(committeeMinuteAgreements.status, 'pendiente'),
-          sql`DATE(${committeeMinuteAgreements.dueDate}) = DATE(${in7Days.toISOString().split('T')[0]})`
+          eq(committeeMinuteAgreements.status, "pendiente"),
+          sql`DATE(${committeeMinuteAgreements.dueDate}) = DATE(${in7Days.toISOString().split("T")[0]})`
         )
       );
 
@@ -93,18 +106,26 @@ export async function runAgreementsAlertsJob() {
         responsibleEmail: users.email,
       })
       .from(committeeMinuteAgreements)
-      .innerJoin(committeeMinutes, eq(committeeMinuteAgreements.minuteId, committeeMinutes.id))
-      .leftJoin(users, eq(committeeMinuteAgreements.responsibleUserId, users.id))
+      .innerJoin(
+        committeeMinutes,
+        eq(committeeMinuteAgreements.minuteId, committeeMinutes.id)
+      )
+      .leftJoin(
+        users,
+        eq(committeeMinuteAgreements.responsibleUserId, users.id)
+      )
       .where(
         and(
-          eq(committeeMinuteAgreements.status, 'pendiente'),
-          sql`DATE(${committeeMinuteAgreements.dueDate}) = DATE(${in3Days.toISOString().split('T')[0]})`
+          eq(committeeMinuteAgreements.status, "pendiente"),
+          sql`DATE(${committeeMinuteAgreements.dueDate}) = DATE(${in3Days.toISOString().split("T")[0]})`
         )
       );
 
     // Obtener hrEmail de systemSettings como fallback global
     const [settings] = await db.select().from(systemSettings).limit(1);
-    const globalFallbackEmail = (settings as any)?.hrEmail as string | undefined;
+    const globalFallbackEmail = (settings as any)?.hrEmail as
+      | string
+      | undefined;
 
     let alertsSent = 0;
 
@@ -112,9 +133,12 @@ export async function runAgreementsAlertsJob() {
     for (const agreement of agreementsIn7Days) {
       try {
         // Prioridad: email del usuario vinculado → hrEmail global → skip
-        const recipientEmail = agreement.responsibleEmail ?? globalFallbackEmail;
+        const recipientEmail =
+          agreement.responsibleEmail ?? globalFallbackEmail;
         if (!recipientEmail) {
-          console.warn(`[Agreements Alerts Job] Sin email para acuerdo #${agreement.id} (responsable: ${agreement.responsibleName ?? 'N/A'}). Saltando.`);
+          console.warn(
+            `[Agreements Alerts Job] Sin email para acuerdo #${agreement.id} (responsable: ${agreement.responsibleName ?? "N/A"}). Saltando.`
+          );
           continue;
         }
         await sendEmail({
@@ -123,18 +147,26 @@ export async function runAgreementsAlertsJob() {
           html: generate7DaysAlertEmail(agreement),
         });
         alertsSent++;
-        console.log(`[Agreements Alerts Job] Alerta de 7 días enviada a ${recipientEmail} para acuerdo #${agreement.id}`);
+        console.log(
+          `[Agreements Alerts Job] Alerta de 7 días enviada a ${recipientEmail} para acuerdo #${agreement.id}`
+        );
       } catch (error) {
-        console.error(`[Agreements Alerts Job] Error al enviar alerta de 7 días para acuerdo #${agreement.id}:`, error);
+        console.error(
+          `[Agreements Alerts Job] Error al enviar alerta de 7 días para acuerdo #${agreement.id}:`,
+          error
+        );
       }
     }
 
     // Enviar alertas para acuerdos que vencen en 3 días
     for (const agreement of agreementsIn3Days) {
       try {
-        const recipientEmail = agreement.responsibleEmail ?? globalFallbackEmail;
+        const recipientEmail =
+          agreement.responsibleEmail ?? globalFallbackEmail;
         if (!recipientEmail) {
-          console.warn(`[Agreements Alerts Job] Sin email para acuerdo #${agreement.id} (responsable: ${agreement.responsibleName ?? 'N/A'}). Saltando.`);
+          console.warn(
+            `[Agreements Alerts Job] Sin email para acuerdo #${agreement.id} (responsable: ${agreement.responsibleName ?? "N/A"}). Saltando.`
+          );
           continue;
         }
         await sendEmail({
@@ -143,13 +175,20 @@ export async function runAgreementsAlertsJob() {
           html: generate3DaysAlertEmail(agreement),
         });
         alertsSent++;
-        console.log(`[Agreements Alerts Job] Alerta de 3 días enviada a ${recipientEmail} para acuerdo #${agreement.id}`);
+        console.log(
+          `[Agreements Alerts Job] Alerta de 3 días enviada a ${recipientEmail} para acuerdo #${agreement.id}`
+        );
       } catch (error) {
-        console.error(`[Agreements Alerts Job] Error al enviar alerta de 3 días para acuerdo #${agreement.id}:`, error);
+        console.error(
+          `[Agreements Alerts Job] Error al enviar alerta de 3 días para acuerdo #${agreement.id}:`,
+          error
+        );
       }
     }
 
-    console.log(`[Agreements Alerts Job] Verificación completada: ${agreementsIn7Days.length} acuerdos en 7 días, ${agreementsIn3Days.length} acuerdos en 3 días, ${alertsSent} alertas enviadas`);
+    console.log(
+      `[Agreements Alerts Job] Verificación completada: ${agreementsIn7Days.length} acuerdos en 7 días, ${agreementsIn3Days.length} acuerdos en 3 días, ${alertsSent} alertas enviadas`
+    );
 
     return {
       success: true,
@@ -158,10 +197,10 @@ export async function runAgreementsAlertsJob() {
       alertsSent,
     };
   } catch (error) {
-    console.error('[Agreements Alerts Job] Error al ejecutar job:', error);
+    console.error("[Agreements Alerts Job] Error al ejecutar job:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Error desconocido',
+      error: error instanceof Error ? error.message : "Error desconocido",
     };
   }
 }
@@ -171,17 +210,17 @@ export async function runAgreementsAlertsJob() {
  */
 function generate7DaysAlertEmail(agreement: any): string {
   const priorityColors: Record<string, string> = {
-    baja: '#10b981',
-    media: '#f59e0b',
-    alta: '#ef4444',
-    urgente: '#dc2626',
+    baja: "#10b981",
+    media: "#f59e0b",
+    alta: "#ef4444",
+    urgente: "#dc2626",
   };
 
   const priorityLabels: Record<string, string> = {
-    baja: 'Baja',
-    media: 'Media',
-    alta: 'Alta',
-    urgente: 'Urgente',
+    baja: "Baja",
+    media: "Media",
+    alta: "Alta",
+    urgente: "Urgente",
   };
 
   return `
@@ -207,17 +246,17 @@ function generate7DaysAlertEmail(agreement: any): string {
           <p style="margin: 5px 0 0 0; opacity: 0.9;">Acuerdo próximo a vencer en 7 días</p>
         </div>
         <div class="content">
-          <p>Estimado/a <strong>${agreement.responsibleName ?? 'Responsable'}</strong>,</p>
+          <p>Estimado/a <strong>${agreement.responsibleName ?? "Responsable"}</strong>,</p>
           <p>Le recordamos que tiene un acuerdo pendiente que vence en <strong>7 días</strong>.</p>
 
           <div class="agreement-card">
             <h3 style="margin-top: 0; color: #0066cc;">Detalles del Acuerdo</h3>
             <p><strong>Minuta:</strong> ${agreement.sessionNumber ?? agreement.minuteId}</p>
             <p><strong>Descripción:</strong> ${agreement.description}</p>
-            <p><strong>Fecha de vencimiento:</strong> ${new Date(agreement.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p><strong>Fecha de vencimiento:</strong> ${new Date(agreement.dueDate).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</p>
             <p>
               <strong>Prioridad:</strong>
-              <span class="priority-badge" style="background: ${priorityColors[agreement.priority] ?? '#6b7280'};">
+              <span class="priority-badge" style="background: ${priorityColors[agreement.priority] ?? "#6b7280"};">
                 ${priorityLabels[agreement.priority] ?? agreement.priority}
               </span>
             </p>
@@ -242,17 +281,17 @@ function generate7DaysAlertEmail(agreement: any): string {
  */
 function generate3DaysAlertEmail(agreement: any): string {
   const priorityColors: Record<string, string> = {
-    baja: '#10b981',
-    media: '#f59e0b',
-    alta: '#ef4444',
-    urgente: '#dc2626',
+    baja: "#10b981",
+    media: "#f59e0b",
+    alta: "#ef4444",
+    urgente: "#dc2626",
   };
 
   const priorityLabels: Record<string, string> = {
-    baja: 'Baja',
-    media: 'Media',
-    alta: 'Alta',
-    urgente: 'Urgente',
+    baja: "Baja",
+    media: "Media",
+    alta: "Alta",
+    urgente: "Urgente",
   };
 
   return `
@@ -284,17 +323,17 @@ function generate3DaysAlertEmail(agreement: any): string {
             <p style="margin: 5px 0 0 0; font-weight: bold;">Este acuerdo vence en solo 3 días</p>
           </div>
 
-          <p>Estimado/a <strong>${agreement.responsibleName ?? 'Responsable'}</strong>,</p>
+          <p>Estimado/a <strong>${agreement.responsibleName ?? "Responsable"}</strong>,</p>
           <p>Este es un recordatorio <strong>URGENTE</strong>. Su acuerdo vence en <strong>3 días</strong>.</p>
 
           <div class="agreement-card">
             <h3 style="margin-top: 0; color: #dc2626;">Detalles del Acuerdo</h3>
             <p><strong>Minuta:</strong> ${agreement.sessionNumber ?? agreement.minuteId}</p>
             <p><strong>Descripción:</strong> ${agreement.description}</p>
-            <p><strong>Fecha de vencimiento:</strong> ${new Date(agreement.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p><strong>Fecha de vencimiento:</strong> ${new Date(agreement.dueDate).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</p>
             <p>
               <strong>Prioridad:</strong>
-              <span class="priority-badge" style="background: ${priorityColors[agreement.priority] ?? '#6b7280'};">
+              <span class="priority-badge" style="background: ${priorityColors[agreement.priority] ?? "#6b7280"};">
                 ${priorityLabels[agreement.priority] ?? agreement.priority}
               </span>
             </p>
@@ -319,7 +358,9 @@ function generate3DaysAlertEmail(agreement: any): string {
  * Se ejecuta diariamente a las 8:00 AM
  */
 export function startAgreementsAlertsJob() {
-  console.log('[Agreements Alerts Job] Initializing automated alerts job (daily at 8:00 AM)...');
+  console.log(
+    "[Agreements Alerts Job] Initializing automated alerts job (daily at 8:00 AM)..."
+  );
 
   // Calcular tiempo hasta las 8:00 AM del próximo día
   const now = new Date();
@@ -344,6 +385,10 @@ export function startAgreementsAlertsJob() {
     }, ONE_DAY);
   }, timeUntilNext8AM);
 
-  console.log(`[Agreements Alerts Job] First execution scheduled for ${next8AM.toLocaleString('es-MX')}`);
-  console.log('[Agreements Alerts Job] Automated alerts job started successfully');
+  console.log(
+    `[Agreements Alerts Job] First execution scheduled for ${next8AM.toLocaleString("es-MX")}`
+  );
+  console.log(
+    "[Agreements Alerts Job] Automated alerts job started successfully"
+  );
 }

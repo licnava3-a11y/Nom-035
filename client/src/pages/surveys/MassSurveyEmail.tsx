@@ -1,16 +1,22 @@
-import { useState } from 'react';
-import { trpc } from '@/lib/trpc';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,45 +26,48 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+} from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { Mail, Send, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { Mail, Send, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function MassSurveyEmail() {
   const [surveyId, setSurveyId] = useState<number | null>(null);
-  const [recipientType, setRecipientType] = useState<'all' | 'department' | 'position'>('all');
+  const [recipientType, setRecipientType] = useState<
+    "all" | "department" | "position"
+  >("all");
   const [departmentId, setDepartmentId] = useState<number | null>(null);
   const [positionId, setPositionId] = useState<number | null>(null);
-  const [customMessage, setCustomMessage] = useState('');
+  const [customMessage, setCustomMessage] = useState("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
   // Queries
   const { data: surveys } = trpc.surveys.getAll.useQuery();
-  const { data: selectedSurvey } = trpc.surveys.getById.useQuery(
-    surveyId!,
-    { enabled: !!surveyId }
-  );
+  const { data: selectedSurvey } = trpc.surveys.getById.useQuery(surveyId!, {
+    enabled: !!surveyId,
+  });
 
   // Mutation
   const sendMassEmail = trpc.surveys.sendMassEmail.useMutation({
-    onSuccess: (result) => {
-      toast.success(`✅ Envío completado: ${result.sent} correos enviados, ${result.failed} fallidos`);
+    onSuccess: result => {
+      toast.success(
+        `✅ Envío completado: ${result.sent} correos enviados, ${result.failed} fallidos`
+      );
       // Reset form
       setSurveyId(null);
-      setRecipientType('all');
-      setCustomMessage('');
+      setRecipientType("all");
+      setCustomMessage("");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`❌ Error al enviar: ${error.message}`);
     },
   });
 
   const handleSend = () => {
     if (!surveyId) {
-      toast.error('Selecciona una encuesta');
+      toast.error("Selecciona una encuesta");
       return;
     }
 
@@ -71,8 +80,14 @@ export default function MassSurveyEmail() {
     sendMassEmail.mutate({
       surveyId,
       recipientType,
-      departmentId: recipientType === 'department' && departmentId !== null ? departmentId : undefined,
-      positionId: recipientType === 'position' && positionId !== null ? positionId : undefined,
+      departmentId:
+        recipientType === "department" && departmentId !== null
+          ? departmentId
+          : undefined,
+      positionId:
+        recipientType === "position" && positionId !== null
+          ? positionId
+          : undefined,
       customMessage: customMessage || undefined,
     });
 
@@ -80,7 +95,8 @@ export default function MassSurveyEmail() {
   };
 
   // Vista previa del correo
-  const emailPreview = selectedSurvey ? `
+  const emailPreview = selectedSurvey
+    ? `
 <!DOCTYPE html>
 <html>
 <head>
@@ -101,8 +117,8 @@ export default function MassSurveyEmail() {
     </div>
     <div class="content">
       <h2>${selectedSurvey.title}</h2>
-      <p>${selectedSurvey.description || 'Encuesta de evaluación de factores de riesgo psicosocial'}</p>
-      ${customMessage ? `<p><strong>Mensaje:</strong> ${customMessage}</p>` : ''}
+      <p>${selectedSurvey.description || "Encuesta de evaluación de factores de riesgo psicosocial"}</p>
+      ${customMessage ? `<p><strong>Mensaje:</strong> ${customMessage}</p>` : ""}
       <p>Has sido seleccionado para participar en esta encuesta. Tu participación es importante para mejorar el ambiente laboral.</p>
       <a href="[ENLACE_ÚNICO]" class="button">Acceder a la Encuesta</a>
       <p><small>Este enlace es único y válido por 30 días.</small></p>
@@ -113,15 +129,18 @@ export default function MassSurveyEmail() {
   </div>
 </body>
 </html>
-  ` : '';
+  `
+    : "";
 
   return (
     <div className="container py-6 space-y-6">
       {/* Breadcrumbs */}
-      <Breadcrumb items={[
-        { label: "Encuestas", href: "/surveys/dashboard" },
-        { label: "Envío Masivo" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Encuestas", href: "/surveys/dashboard" },
+          { label: "Envío Masivo" },
+        ]}
+      />
 
       {/* Header */}
       <div>
@@ -130,7 +149,8 @@ export default function MassSurveyEmail() {
           Envío Masivo de Encuestas
         </h1>
         <p className="text-muted-foreground mt-2">
-          Envía invitaciones por correo electrónico a los trabajadores seleccionados
+          Envía invitaciones por correo electrónico a los trabajadores
+          seleccionados
         </p>
       </div>
 
@@ -138,7 +158,8 @@ export default function MassSurveyEmail() {
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Asegúrate de que la configuración SMTP esté correctamente configurada en Administración &gt; Configuración
+          Asegúrate de que la configuración SMTP esté correctamente configurada
+          en Administración &gt; Configuración
         </AlertDescription>
       </Alert>
 
@@ -147,15 +168,17 @@ export default function MassSurveyEmail() {
         <Card>
           <CardHeader>
             <CardTitle>Configuración del Envío</CardTitle>
-            <CardDescription>Selecciona la encuesta y los destinatarios</CardDescription>
+            <CardDescription>
+              Selecciona la encuesta y los destinatarios
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Selección de Encuesta */}
             <div className="space-y-2">
               <Label htmlFor="survey">Encuesta *</Label>
               <Select
-                value={surveyId?.toString() || ''}
-                onValueChange={(value) => setSurveyId(parseInt(value))}
+                value={surveyId?.toString() || ""}
+                onValueChange={value => setSurveyId(parseInt(value))}
               >
                 <SelectTrigger id="survey">
                   <SelectValue placeholder="Selecciona una encuesta" />
@@ -175,7 +198,9 @@ export default function MassSurveyEmail() {
               <Label htmlFor="recipientType">Destinatarios *</Label>
               <Select
                 value={recipientType}
-                onValueChange={(value) => setRecipientType(value as 'all' | 'department' | 'position')}
+                onValueChange={value =>
+                  setRecipientType(value as "all" | "department" | "position")
+                }
               >
                 <SelectTrigger id="recipientType">
                   <SelectValue />
@@ -189,12 +214,12 @@ export default function MassSurveyEmail() {
             </div>
 
             {/* Departamento (condicional) */}
-            {recipientType === 'department' && (
+            {recipientType === "department" && (
               <div className="space-y-2">
                 <Label htmlFor="department">Departamento</Label>
                 <Select
-                  value={departmentId?.toString() || ''}
-                  onValueChange={(value) => setDepartmentId(parseInt(value))}
+                  value={departmentId?.toString() || ""}
+                  onValueChange={value => setDepartmentId(parseInt(value))}
                 >
                   <SelectTrigger id="department">
                     <SelectValue placeholder="Selecciona un departamento" />
@@ -209,12 +234,12 @@ export default function MassSurveyEmail() {
             )}
 
             {/* Puesto (condicional) */}
-            {recipientType === 'position' && (
+            {recipientType === "position" && (
               <div className="space-y-2">
                 <Label htmlFor="position">Puesto</Label>
                 <Select
-                  value={positionId?.toString() || ''}
-                  onValueChange={(value) => setPositionId(parseInt(value))}
+                  value={positionId?.toString() || ""}
+                  onValueChange={value => setPositionId(parseInt(value))}
                 >
                   <SelectTrigger id="position">
                     <SelectValue placeholder="Selecciona un puesto" />
@@ -230,12 +255,14 @@ export default function MassSurveyEmail() {
 
             {/* Mensaje Personalizado */}
             <div className="space-y-2">
-              <Label htmlFor="customMessage">Mensaje Personalizado (Opcional)</Label>
+              <Label htmlFor="customMessage">
+                Mensaje Personalizado (Opcional)
+              </Label>
               <Textarea
                 id="customMessage"
                 placeholder="Agrega un mensaje personalizado que se incluirá en el correo..."
                 value={customMessage}
-                onChange={(e) => setCustomMessage(e.target.value)}
+                onChange={e => setCustomMessage(e.target.value)}
                 rows={4}
               />
             </div>
@@ -248,7 +275,7 @@ export default function MassSurveyEmail() {
                 disabled={!surveyId}
                 className="flex-1"
               >
-                {showPreview ? 'Ocultar' : 'Vista Previa'}
+                {showPreview ? "Ocultar" : "Vista Previa"}
               </Button>
               <Button
                 onClick={handleSend}
@@ -276,7 +303,9 @@ export default function MassSurveyEmail() {
           <Card>
             <CardHeader>
               <CardTitle>Vista Previa del Correo</CardTitle>
-              <CardDescription>Así se verá el correo que recibirán los trabajadores</CardDescription>
+              <CardDescription>
+                Así se verá el correo que recibirán los trabajadores
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div
@@ -299,12 +328,18 @@ export default function MassSurveyEmail() {
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <p className="text-sm text-muted-foreground">Enviados Exitosamente</p>
-                  <p className="text-3xl font-bold text-green-600">{sendMassEmail.data?.sent || 0}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Enviados Exitosamente
+                  </p>
+                  <p className="text-3xl font-bold text-green-600">
+                    {sendMassEmail.data?.sent || 0}
+                  </p>
                 </div>
                 <div className="bg-red-50 p-4 rounded-lg">
                   <p className="text-sm text-muted-foreground">Fallidos</p>
-                  <p className="text-3xl font-bold text-red-600">{sendMassEmail.data?.failed || 0}</p>
+                  <p className="text-3xl font-bold text-red-600">
+                    {sendMassEmail.data?.failed || 0}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -318,12 +353,12 @@ export default function MassSurveyEmail() {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Confirmar envío masivo?</AlertDialogTitle>
             <AlertDialogDescription>
-              Se enviará la encuesta "{selectedSurvey?.title}" a{' '}
-              {recipientType === 'all'
-                ? 'todos los trabajadores'
-                : recipientType === 'department'
-                ? 'el departamento seleccionado'
-                : 'el puesto seleccionado'}
+              Se enviará la encuesta "{selectedSurvey?.title}" a{" "}
+              {recipientType === "all"
+                ? "todos los trabajadores"
+                : recipientType === "department"
+                  ? "el departamento seleccionado"
+                  : "el puesto seleccionado"}
               . Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>

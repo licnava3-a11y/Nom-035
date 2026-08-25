@@ -1,5 +1,10 @@
-import { useState, useCallback } from 'react';
-import { validateCURP, validateRFC, validateNSS, validateEmail } from '../../../shared/validators';
+import { useState, useCallback } from "react";
+import {
+  validateCURP,
+  validateRFC,
+  validateNSS,
+  validateEmail,
+} from "../../../shared/validators";
 
 export interface ValidationResult {
   valid: boolean;
@@ -32,16 +37,19 @@ export function useValidation() {
     return result;
   }, []);
 
-  const validateRFCField = useCallback((rfc: string, tipoPersona: 'fisica' | 'moral' = 'fisica') => {
-    if (!rfc || rfc.length === 0) {
-      setValidations(prev => ({ ...prev, rfc: null }));
-      return null;
-    }
+  const validateRFCField = useCallback(
+    (rfc: string, tipoPersona: "fisica" | "moral" = "fisica") => {
+      if (!rfc || rfc.length === 0) {
+        setValidations(prev => ({ ...prev, rfc: null }));
+        return null;
+      }
 
-    const result = validateRFC(rfc, tipoPersona);
-    setValidations(prev => ({ ...prev, rfc: result }));
-    return result;
-  }, []);
+      const result = validateRFC(rfc, tipoPersona);
+      setValidations(prev => ({ ...prev, rfc: result }));
+      return result;
+    },
+    []
+  );
 
   const validateNSSField = useCallback((nss: string) => {
     if (!nss || nss.length === 0) {

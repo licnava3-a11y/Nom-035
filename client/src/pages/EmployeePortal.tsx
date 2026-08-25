@@ -6,8 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  User, BookOpen, Calendar, FileText, GraduationCap,
-  Clock, CheckCircle2, XCircle, AlertCircle, Building2, Briefcase
+  User,
+  BookOpen,
+  Calendar,
+  FileText,
+  GraduationCap,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Building2,
+  Briefcase,
 } from "lucide-react";
 
 // ─── Status helpers ────────────────────────────────────────────────────────────
@@ -22,9 +31,14 @@ function statusBadge(status: string) {
     rejected: { label: "Rechazado", color: "bg-red-100 text-red-800" },
     cancelled: { label: "Cancelado", color: "bg-gray-100 text-gray-800" },
   };
-  const s = map[status] ?? { label: status, color: "bg-gray-100 text-gray-800" };
+  const s = map[status] ?? {
+    label: status,
+    color: "bg-gray-100 text-gray-800",
+  };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${s.color}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${s.color}`}
+    >
       {s.label}
     </span>
   );
@@ -32,7 +46,11 @@ function statusBadge(status: string) {
 
 function fmtDate(d: string | Date | null | undefined) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 // ─── Main Component ────────────────────────────────────────────────────────────
@@ -41,20 +59,26 @@ export default function EmployeePortal() {
   const { token } = useParams<{ token: string }>();
   const [activeTab, setActiveTab] = useState("courses");
 
-  const { data: tokenData, isLoading: loadingToken, error: tokenError } = trpc.employeePortal.validateToken.useQuery(
+  const {
+    data: tokenData,
+    isLoading: loadingToken,
+    error: tokenError,
+  } = trpc.employeePortal.validateToken.useQuery(
     { token: token ?? "" },
     { enabled: !!token, retry: false }
   );
 
-  const { data: coursesData, isLoading: loadingCourses } = trpc.employeePortal.getEmployeeCourses.useQuery(
-    { token: token ?? "" },
-    { enabled: !!token && !!tokenData?.valid }
-  );
+  const { data: coursesData, isLoading: loadingCourses } =
+    trpc.employeePortal.getEmployeeCourses.useQuery(
+      { token: token ?? "" },
+      { enabled: !!token && !!tokenData?.valid }
+    );
 
-  const { data: vacationsData, isLoading: loadingVacations } = trpc.employeePortal.getEmployeeVacations.useQuery(
-    { token: token ?? "" },
-    { enabled: !!token && !!tokenData?.valid && activeTab === "vacations" }
-  );
+  const { data: vacationsData, isLoading: loadingVacations } =
+    trpc.employeePortal.getEmployeeVacations.useQuery(
+      { token: token ?? "" },
+      { enabled: !!token && !!tokenData?.valid && activeTab === "vacations" }
+    );
 
   // ── Error / Loading states ──────────────────────────────────────────────────
 
@@ -77,9 +101,12 @@ export default function EmployeePortal() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <XCircle className="w-8 h-8 text-red-500" />
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Enlace inválido o expirado</h1>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">
+            Enlace inválido o expirado
+          </h1>
           <p className="text-gray-500 text-sm">
-            Este enlace de acceso al portal ya no es válido. Solicita un nuevo enlace a tu área de Recursos Humanos.
+            Este enlace de acceso al portal ya no es válido. Solicita un nuevo
+            enlace a tu área de Recursos Humanos.
           </p>
         </div>
       </div>
@@ -98,8 +125,12 @@ export default function EmployeePortal() {
               <User className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm text-blue-200">Portal del Empleado — NOM-035 STPS</p>
-              <h1 className="text-xl font-bold">{emp.firstName} {emp.lastName}</h1>
+              <p className="text-sm text-blue-200">
+                Portal del Empleado — NOM-035 STPS
+              </p>
+              <h1 className="text-xl font-bold">
+                {emp.firstName} {emp.lastName}
+              </h1>
             </div>
           </div>
           <div className="flex flex-wrap gap-4 mt-3 text-sm text-blue-100">
@@ -161,22 +192,32 @@ export default function EmployeePortal() {
               <CardContent>
                 {loadingCourses ? (
                   <div className="space-y-3">
-                    {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
+                    {[1, 2, 3].map(i => (
+                      <Skeleton key={i} className="h-16 w-full" />
+                    ))}
                   </div>
                 ) : !coursesData?.courses.length ? (
                   <div className="text-center py-10 text-gray-400">
                     <BookOpen className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">No tienes capacitaciones asignadas actualmente.</p>
+                    <p className="text-sm">
+                      No tienes capacitaciones asignadas actualmente.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {coursesData.courses.map((c) => (
-                      <div key={c.assignmentId} className="flex items-center justify-between p-3 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
+                    {coursesData.courses.map(c => (
+                      <div
+                        key={c.assignmentId}
+                        className="flex items-center justify-between p-3 rounded-lg border bg-white hover:bg-gray-50 transition-colors"
+                      >
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm text-gray-900 truncate">{c.trainingTitle}</p>
+                          <p className="font-medium text-sm text-gray-900 truncate">
+                            {c.trainingTitle}
+                          </p>
                           <p className="text-xs text-gray-400 mt-0.5">
                             Asignado: {fmtDate(c.assignedDate)}
-                            {c.completionDate && ` · Completado: ${fmtDate(c.completionDate)}`}
+                            {c.completionDate &&
+                              ` · Completado: ${fmtDate(c.completionDate)}`}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 ml-3">
@@ -207,26 +248,36 @@ export default function EmployeePortal() {
               <CardContent>
                 {loadingVacations ? (
                   <div className="space-y-3">
-                    {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
+                    {[1, 2, 3].map(i => (
+                      <Skeleton key={i} className="h-16 w-full" />
+                    ))}
                   </div>
                 ) : !vacationsData?.vacations.length ? (
                   <div className="text-center py-10 text-gray-400">
                     <Calendar className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">No tienes solicitudes de vacaciones registradas.</p>
+                    <p className="text-sm">
+                      No tienes solicitudes de vacaciones registradas.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {vacationsData.vacations.map((v) => (
-                      <div key={v.id} className="flex items-center justify-between p-3 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
+                    {vacationsData.vacations.map(v => (
+                      <div
+                        key={v.id}
+                        className="flex items-center justify-between p-3 rounded-lg border bg-white hover:bg-gray-50 transition-colors"
+                      >
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm text-gray-900">
                             {fmtDate(v.startDate)} → {fmtDate(v.endDate)}
                           </p>
                           <p className="text-xs text-gray-400 mt-0.5">
-                            {v.requestedDays} días solicitados · Regreso: {fmtDate(v.returnDate)}
+                            {v.requestedDays} días solicitados · Regreso:{" "}
+                            {fmtDate(v.returnDate)}
                           </p>
                           {v.rejectionReason && (
-                            <p className="text-xs text-red-500 mt-0.5">Motivo: {v.rejectionReason}</p>
+                            <p className="text-xs text-red-500 mt-0.5">
+                              Motivo: {v.rejectionReason}
+                            </p>
                           )}
                         </div>
                         <div className="ml-3">{statusBadge(v.status)}</div>
@@ -250,16 +301,29 @@ export default function EmployeePortal() {
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
-                    { label: "Nombre completo", value: `${emp.firstName} ${emp.lastName}` },
+                    {
+                      label: "Nombre completo",
+                      value: `${emp.firstName} ${emp.lastName}`,
+                    },
                     { label: "Correo electrónico", value: emp.email },
-                    { label: "No. de empleado", value: emp.employeeNumber ?? "—" },
+                    {
+                      label: "No. de empleado",
+                      value: emp.employeeNumber ?? "—",
+                    },
                     { label: "Departamento", value: emp.departmentName ?? "—" },
                     { label: "Puesto", value: emp.positionName ?? "—" },
                     { label: "Fecha de ingreso", value: fmtDate(emp.hireDate) },
-                  ].map((item) => (
-                    <div key={item.label} className="p-3 rounded-lg bg-gray-50 border">
-                      <p className="text-xs text-gray-400 mb-0.5">{item.label}</p>
-                      <p className="text-sm font-medium text-gray-900">{item.value}</p>
+                  ].map(item => (
+                    <div
+                      key={item.label}
+                      className="p-3 rounded-lg bg-gray-50 border"
+                    >
+                      <p className="text-xs text-gray-400 mb-0.5">
+                        {item.label}
+                      </p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {item.value}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -278,7 +342,8 @@ export default function EmployeePortal() {
       {/* Footer */}
       <div className="max-w-4xl mx-auto px-4 pb-8 text-center">
         <p className="text-xs text-gray-400">
-          Portal del Empleado · Plataforma NOM-035 STPS 2018 · Acceso personal e intransferible
+          Portal del Empleado · Plataforma NOM-035 STPS 2018 · Acceso personal e
+          intransferible
         </p>
       </div>
     </div>

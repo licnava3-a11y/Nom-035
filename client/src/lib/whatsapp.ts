@@ -12,7 +12,7 @@ export interface WhatsAppMessageOptions {
  * Genera un enlace de WhatsApp con mensaje pre-llenado
  * @param options - Opciones del mensaje
  * @returns URL de WhatsApp lista para abrir
- * 
+ *
  * @example
  * ```ts
  * const url = generateWhatsAppLink({
@@ -24,13 +24,13 @@ export interface WhatsAppMessageOptions {
  */
 export function generateWhatsAppLink(options: WhatsAppMessageOptions): string {
   const { phoneNumber, message } = options;
-  
+
   // Limpiar el número de teléfono (eliminar espacios, guiones, paréntesis)
   const cleanPhone = phoneNumber.replace(/[\s\-\(\)\+]/g, "");
-  
+
   // Codificar el mensaje para URL
   const encodedMessage = encodeURIComponent(message);
-  
+
   // Generar URL de WhatsApp
   // Usar api.whatsapp.com para abrir en cualquier dispositivo (web o app)
   return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedMessage}`;
@@ -50,30 +50,31 @@ export interface DemoRequestData {
 
 export function generateDemoRequestMessage(data: DemoRequestData): string {
   const { nombre, email, empresa, normativas } = data;
-  
-  let message = "¡Hola! Me interesa solicitar una demo de la plataforma de cumplimiento normativo.\n\n";
-  
+
+  let message =
+    "¡Hola! Me interesa solicitar una demo de la plataforma de cumplimiento normativo.\n\n";
+
   if (nombre) {
     message += `👤 *Nombre:* ${nombre}\n`;
   }
-  
+
   if (email) {
     message += `📧 *Email:* ${email}\n`;
   }
-  
+
   if (empresa) {
     message += `🏢 *Empresa:* ${empresa}\n`;
   }
-  
+
   if (normativas && normativas.length > 0) {
     message += `\n📋 *Normativas de interés:*\n`;
     normativas.forEach((norm: any) => {
       message += `• ${norm}\n`;
     });
   }
-  
+
   message += `\n¿Podrían proporcionarme más información sobre la plataforma?`;
-  
+
   return message;
 }
 
@@ -93,7 +94,10 @@ export const NORMATIVAS_MAP: Record<string, string> = {
  * @param phoneNumber - Número de WhatsApp del negocio (formato internacional sin +)
  * @param data - Datos del usuario y normativas de interés
  */
-export function openWhatsAppDemo(phoneNumber: string, data: DemoRequestData): void {
+export function openWhatsAppDemo(
+  phoneNumber: string,
+  data: DemoRequestData
+): void {
   const message = generateDemoRequestMessage(data);
   const url = generateWhatsAppLink({ phoneNumber, message });
   window.open(url, "_blank");
@@ -105,16 +109,20 @@ export function openWhatsAppDemo(phoneNumber: string, data: DemoRequestData): vo
  * @param asunto - Asunto del mensaje
  * @param mensaje - Mensaje adicional
  */
-export function generateContactMessage(nombre: string, asunto: string, mensaje?: string): string {
+export function generateContactMessage(
+  nombre: string,
+  asunto: string,
+  mensaje?: string
+): string {
   let text = `¡Hola! Mi nombre es *${nombre}*.\n\n`;
   text += `*Asunto:* ${asunto}\n\n`;
-  
+
   if (mensaje) {
     text += `${mensaje}\n\n`;
   }
-  
+
   text += `Quedo atento a su respuesta.`;
-  
+
   return text;
 }
 
@@ -125,17 +133,17 @@ export function generateContactMessage(nombre: string, asunto: string, mensaje?:
  */
 export function formatPhoneForWhatsApp(phone: string): string {
   const cleaned = phone.replace(/\D/g, "");
-  
+
   // Si ya tiene código de país, retornar
   if (cleaned.startsWith("52") && cleaned.length === 12) {
     return cleaned;
   }
-  
+
   // Si es número mexicano de 10 dígitos, agregar 52
   if (cleaned.length === 10) {
     return `52${cleaned}`;
   }
-  
+
   // Retornar limpio si no cumple con el formato esperado
   return cleaned;
 }

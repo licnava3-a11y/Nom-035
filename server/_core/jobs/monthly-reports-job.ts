@@ -29,14 +29,18 @@ export async function runMonthlyReportsJob() {
       .from(scheduledReports)
       .where(eq(scheduledReports.isActive, true));
 
-    const monthlyReports = activeReports.filter((r: any) => r.reportType === "monthly");
+    const monthlyReports = activeReports.filter(
+      (r: any) => r.reportType === "monthly"
+    );
 
     if (monthlyReports.length === 0) {
       console.log("[Monthly Reports Job] No active monthly reports found");
       return;
     }
 
-    console.log(`[Monthly Reports Job] Found ${monthlyReports.length} active monthly reports`);
+    console.log(
+      `[Monthly Reports Job] Found ${monthlyReports.length} active monthly reports`
+    );
 
     // Procesar cada reporte
     for (const report of monthlyReports) {
@@ -48,15 +52,25 @@ export async function runMonthlyReportsJob() {
         if (report.includeNMX025) {
           const allEmployees = await db.select().from(employees);
           const totalEmployees = allEmployees.length;
-          const maleCount = allEmployees.filter((e: any) => e.gender === "male").length;
-          const femaleCount = allEmployees.filter((e: any) => e.gender === "female").length;
+          const maleCount = allEmployees.filter(
+            (e: any) => e.gender === "male"
+          ).length;
+          const femaleCount = allEmployees.filter(
+            (e: any) => e.gender === "female"
+          ).length;
 
           metrics.nmx025 = {
             totalEmployees,
             maleCount,
             femaleCount,
-            malePercentage: totalEmployees > 0 ? ((maleCount / totalEmployees) * 100).toFixed(2) : "0.00",
-            femalePercentage: totalEmployees > 0 ? ((femaleCount / totalEmployees) * 100).toFixed(2) : "0.00",
+            malePercentage:
+              totalEmployees > 0
+                ? ((maleCount / totalEmployees) * 100).toFixed(2)
+                : "0.00",
+            femalePercentage:
+              totalEmployees > 0
+                ? ((femaleCount / totalEmployees) * 100).toFixed(2)
+                : "0.00",
           };
         }
 
@@ -64,11 +78,20 @@ export async function runMonthlyReportsJob() {
         if (report.includeNOM035) {
           const surveys = await db.select().from(surveyResponses);
           const totalSurveys = surveys.length;
-          const highRiskCount = surveys.filter((s: any) => (s as any).riskLevel === "high" || (s as any).riskLevel === "very_high").length;
-          const mediumRiskCount = surveys.filter((s: any) => (s as any).riskLevel === "medium").length;
-          const lowRiskCount = surveys.filter((s: any) => (s as any).riskLevel === "low").length;
+          const highRiskCount = surveys.filter(
+            (s: any) =>
+              (s as any).riskLevel === "high" ||
+              (s as any).riskLevel === "very_high"
+          ).length;
+          const mediumRiskCount = surveys.filter(
+            (s: any) => (s as any).riskLevel === "medium"
+          ).length;
+          const lowRiskCount = surveys.filter(
+            (s: any) => (s as any).riskLevel === "low"
+          ).length;
 
-          const highRiskPercentage = totalSurveys > 0 ? (highRiskCount / totalSurveys) * 100 : 0;
+          const highRiskPercentage =
+            totalSurveys > 0 ? (highRiskCount / totalSurveys) * 100 : 0;
 
           metrics.nom035 = {
             totalSurveys,
@@ -76,16 +99,23 @@ export async function runMonthlyReportsJob() {
             mediumRiskCount,
             lowRiskCount,
             highRiskPercentage: highRiskPercentage.toFixed(2),
-            alert: highRiskPercentage > 30 ? "⚠️ ALERTA: >30% en riesgo alto" : null,
+            alert:
+              highRiskPercentage > 30 ? "⚠️ ALERTA: >30% en riesgo alto" : null,
           };
         }
 
         // Casos NOM-035
         if (report.includeCases) {
           const cases = await db.select().from(nom035Cases);
-          const openCases = cases.filter((c: any) => c.status === "open").length;
-          const inProgressCases = cases.filter((c: any) => c.status === "in_progress").length;
-          const closedCases = cases.filter((c: any) => c.status === "closed").length;
+          const openCases = cases.filter(
+            (c: any) => c.status === "open"
+          ).length;
+          const inProgressCases = cases.filter(
+            (c: any) => c.status === "in_progress"
+          ).length;
+          const closedCases = cases.filter(
+            (c: any) => c.status === "closed"
+          ).length;
 
           metrics.cases = {
             totalCases: cases.length,
@@ -110,29 +140,41 @@ export async function runMonthlyReportsJob() {
         const reportContent = `
 📊 **${report.reportName}** (Reporte Mensual Automático)
 
-${report.includeNMX025 ? `
+${
+  report.includeNMX025
+    ? `
 **NMX-025 - Igualdad Laboral**
 - Total de empleados: ${metrics.nmx025.totalEmployees}
 - Hombres: ${metrics.nmx025.maleCount} (${metrics.nmx025.malePercentage}%)
 - Mujeres: ${metrics.nmx025.femaleCount} (${metrics.nmx025.femalePercentage}%)
-` : ""}
+`
+    : ""
+}
 
-${report.includeNOM035 ? `
+${
+  report.includeNOM035
+    ? `
 **NOM-035 - Riesgo Psicosocial**
 - Total evaluados: ${metrics.nom035.totalSurveys}
 - Riesgo alto/muy alto: ${metrics.nom035.highRiskCount} (${metrics.nom035.highRiskPercentage}%)
 - Riesgo medio: ${metrics.nom035.mediumRiskCount}
 - Riesgo bajo: ${metrics.nom035.lowRiskCount}
 ${metrics.nom035.alert ? `\n${metrics.nom035.alert}` : ""}
-` : ""}
+`
+    : ""
+}
 
-${report.includeCases ? `
+${
+  report.includeCases
+    ? `
 **Casos NOM-035**
 - Total de casos: ${metrics.cases.totalCases}
 - Casos abiertos: ${metrics.cases.openCases}
 - Casos en investigación: ${metrics.cases.inProgressCases}
 - Casos resueltos: ${metrics.cases.closedCases}
-` : ""}
+`
+    : ""
+}
 
 ---
 Reporte enviado automáticamente a ${recipients.length} destinatario(s).
@@ -143,9 +185,14 @@ Reporte enviado automáticamente a ${recipients.length} destinatario(s).
           content: reportContent,
         });
 
-        console.log(`[Monthly Reports Job] Report "${report.reportName}" sent successfully`);
+        console.log(
+          `[Monthly Reports Job] Report "${report.reportName}" sent successfully`
+        );
       } catch (error) {
-        console.error(`[Monthly Reports Job] Error processing report ${report.id}:`, error);
+        console.error(
+          `[Monthly Reports Job] Error processing report ${report.id}:`,
+          error
+        );
       }
     }
 

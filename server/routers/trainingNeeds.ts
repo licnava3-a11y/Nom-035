@@ -20,11 +20,19 @@ const createTrainingNeedSchema = z.object({
   employeeId: z.number(),
   competencyName: z.string(),
   competencyType: z.enum(["tecnica", "transversal", "conocimiento"]),
-  currentLevel: z.enum(["ninguno", "basico", "intermedio", "avanzado", "experto"]),
+  currentLevel: z.enum([
+    "ninguno",
+    "basico",
+    "intermedio",
+    "avanzado",
+    "experto",
+  ]),
   requiredLevel: z.enum(["basico", "intermedio", "avanzado", "experto"]),
   gap: z.number(),
   priority: z.enum(["baja", "media", "alta", "critica"]),
-  status: z.enum(["pendiente", "en_proceso", "completada", "cancelada"]).default("pendiente"),
+  status: z
+    .enum(["pendiente", "en_proceso", "completada", "cancelada"])
+    .default("pendiente"),
   dueDate: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -34,11 +42,17 @@ const updateTrainingNeedSchema = z.object({
   id: z.number(),
   competencyName: z.string().optional(),
   competencyType: z.enum(["tecnica", "transversal", "conocimiento"]).optional(),
-  currentLevel: z.enum(["ninguno", "basico", "intermedio", "avanzado", "experto"]).optional(),
-  requiredLevel: z.enum(["basico", "intermedio", "avanzado", "experto"]).optional(),
+  currentLevel: z
+    .enum(["ninguno", "basico", "intermedio", "avanzado", "experto"])
+    .optional(),
+  requiredLevel: z
+    .enum(["basico", "intermedio", "avanzado", "experto"])
+    .optional(),
   gap: z.number().optional(),
   priority: z.enum(["baja", "media", "alta", "critica"]).optional(),
-  status: z.enum(["pendiente", "en_proceso", "completada", "cancelada"]).optional(),
+  status: z
+    .enum(["pendiente", "en_proceso", "completada", "cancelada"])
+    .optional(),
   dueDate: z.string().optional(),
   completedDate: z.string().optional(),
   notes: z.string().optional(),
@@ -50,7 +64,11 @@ export const trainingNeedsRouter = router({
     .input(createTrainingNeedSchema)
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [need] = await (db.insert(trainingNeeds) as any).values({
         ...input,
@@ -69,7 +87,11 @@ export const trainingNeedsRouter = router({
     .input(updateTrainingNeedSchema)
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const { id, ...data } = input;
 
@@ -86,7 +108,8 @@ export const trainingNeedsRouter = router({
         updateData.completedDate = new Date(data.completedDate);
       }
 
-      await db.update(trainingNeeds)
+      await db
+        .update(trainingNeeds)
         .set(updateData)
         .where(eq(trainingNeeds.id, id));
 
@@ -98,7 +121,11 @@ export const trainingNeedsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       await db.delete(trainingNeeds).where(eq(trainingNeeds.id, input.id));
       return { success: true };
@@ -109,7 +136,11 @@ export const trainingNeedsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const results = await db
         .select({
@@ -148,7 +179,9 @@ export const trainingNeedsRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        status: z.enum(["pendiente", "en_proceso", "completada", "cancelada"]).optional(),
+        status: z
+          .enum(["pendiente", "en_proceso", "completada", "cancelada"])
+          .optional(),
         priority: z.enum(["baja", "media", "alta", "critica"]).optional(),
         employeeId: z.number().optional(),
         search: z.string().optional(),
@@ -156,7 +189,11 @@ export const trainingNeedsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const conditions = [];
 
@@ -176,7 +213,10 @@ export const trainingNeedsRouter = router({
         conditions.push(
           or(
             like(trainingNeeds.competencyName, `%${input.search}%`),
-            like(sql`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`, `%${input.search}%`)
+            like(
+              sql`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
+              `%${input.search}%`
+            )
           )!
         );
       }
@@ -209,7 +249,11 @@ export const trainingNeedsRouter = router({
     .input(z.object({ evaluationId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener evaluación
       const [evaluation] = await db
@@ -280,8 +324,12 @@ export const trainingNeedsRouter = router({
       // Calcular brechas
       const needs = [];
       for (const required of requiredComps) {
-        const current = employeeComps.find((c: any) => c.competencyName === required.competencyName);
-        const currentLevelNum = current ? getLevelNumber(current.currentLevel) : 0;
+        const current = employeeComps.find(
+          (c: any) => c.competencyName === required.competencyName
+        );
+        const currentLevelNum = current
+          ? getLevelNumber(current.currentLevel)
+          : 0;
         const requiredLevelNum = getLevelNumber(required.requiredLevel);
         const gap = requiredLevelNum - currentLevelNum;
 
@@ -290,10 +338,19 @@ export const trainingNeedsRouter = router({
             employeeId: employee.id,
             competencyName: required.competencyName,
             competencyType: required.competencyType,
-            currentLevel: (current?.currentLevel || "ninguno") as "ninguno" | "basico" | "intermedio" | "avanzado" | "experto",
+            currentLevel: (current?.currentLevel || "ninguno") as
+              | "ninguno"
+              | "basico"
+              | "intermedio"
+              | "avanzado"
+              | "experto",
             requiredLevel: required.requiredLevel,
             gap,
-            priority: (gap >= 3 ? "critica" : gap >= 2 ? "alta" : "media") as "baja" | "media" | "alta" | "critica",
+            priority: (gap >= 3 ? "critica" : gap >= 2 ? "alta" : "media") as
+              | "baja"
+              | "media"
+              | "alta"
+              | "critica",
             status: "pendiente" as const,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -310,59 +367,72 @@ export const trainingNeedsRouter = router({
     }),
 
   // 7. Obtener brechas críticas (top 3 competencias con mayor brecha organizacional)
-  getCriticalGaps: protectedProcedure
-    .query(async () => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+  getCriticalGaps: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
-      // Obtener top 3 competencias con mayor brecha promedio
-      const results = await db
-        .select({
-          competencyName: trainingNeeds.competencyName,
-          competencyType: trainingNeeds.competencyType,
-          avgGap: sql<number>`AVG(${trainingNeeds.gap})`,
-          affectedEmployees: sql<number>`COUNT(DISTINCT ${trainingNeeds.employeeId})`,
-          criticalCount: sql<number>`SUM(CASE WHEN ${trainingNeeds.priority} = 'critica' THEN 1 ELSE 0 END)`,
-        })
-        .from(trainingNeeds)
-        .where(eq(trainingNeeds.status, "pendiente"))
-        .groupBy(trainingNeeds.competencyName, trainingNeeds.competencyType)
-        .orderBy(desc(sql`AVG(${trainingNeeds.gap})`), desc(sql`COUNT(DISTINCT ${trainingNeeds.employeeId})`))
-        .limit(3);
+    // Obtener top 3 competencias con mayor brecha promedio
+    const results = await db
+      .select({
+        competencyName: trainingNeeds.competencyName,
+        competencyType: trainingNeeds.competencyType,
+        avgGap: sql<number>`AVG(${trainingNeeds.gap})`,
+        affectedEmployees: sql<number>`COUNT(DISTINCT ${trainingNeeds.employeeId})`,
+        criticalCount: sql<number>`SUM(CASE WHEN ${trainingNeeds.priority} = 'critica' THEN 1 ELSE 0 END)`,
+      })
+      .from(trainingNeeds)
+      .where(eq(trainingNeeds.status, "pendiente"))
+      .groupBy(trainingNeeds.competencyName, trainingNeeds.competencyType)
+      .orderBy(
+        desc(sql`AVG(${trainingNeeds.gap})`),
+        desc(sql`COUNT(DISTINCT ${trainingNeeds.employeeId})`)
+      )
+      .limit(3);
 
-      // Enviar notificación si hay brechas críticas
-      if (results.length > 0) {
-        const ownerEmail = process.env.OWNER_EMAIL || 'admin@example.com';
-        try {
-          await sendCriticalGapsNotification(
-            ownerEmail,
-            results.map(r => ({
-              competency: r.competencyName,
-              avgGap: Number(r.avgGap),
-              affectedEmployees: Number(r.affectedEmployees),
-            }))
-          );
-        } catch (error) {
-          console.error('Error al enviar notificación de brechas críticas:', error);
-          // No lanzar error, solo registrar en consola
-        }
+    // Enviar notificación si hay brechas críticas
+    if (results.length > 0) {
+      const ownerEmail = process.env.OWNER_EMAIL || "admin@example.com";
+      try {
+        await sendCriticalGapsNotification(
+          ownerEmail,
+          results.map(r => ({
+            competency: r.competencyName,
+            avgGap: Number(r.avgGap),
+            affectedEmployees: Number(r.affectedEmployees),
+          }))
+        );
+      } catch (error) {
+        console.error(
+          "Error al enviar notificación de brechas críticas:",
+          error
+        );
+        // No lanzar error, solo registrar en consola
       }
+    }
 
-      // MySQL returns aggregate functions as strings, convert to numbers
-      return results.map(r => ({
-        ...r,
-        avgGap: Number(r.avgGap),
-        affectedEmployees: Number(r.affectedEmployees),
-        criticalCount: Number(r.criticalCount),
-      }));
-    }),
+    // MySQL returns aggregate functions as strings, convert to numbers
+    return results.map(r => ({
+      ...r,
+      avgGap: Number(r.avgGap),
+      affectedEmployees: Number(r.affectedEmployees),
+      criticalCount: Number(r.criticalCount),
+    }));
+  }),
 
   // 8. Generar desde matriz de habilidades
   generateFromSkillsMatrix: protectedProcedure
     .input(z.object({ employeeId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener empleado
       const [employee] = await db
@@ -419,8 +489,12 @@ export const trainingNeedsRouter = router({
       // Calcular brechas
       const needs = [];
       for (const required of requiredComps) {
-        const current = employeeComps.find((c: any) => c.competencyName === required.competencyName);
-        const currentLevelNum = current ? getLevelNumber(current.currentLevel) : 0;
+        const current = employeeComps.find(
+          (c: any) => c.competencyName === required.competencyName
+        );
+        const currentLevelNum = current
+          ? getLevelNumber(current.currentLevel)
+          : 0;
         const requiredLevelNum = getLevelNumber(required.requiredLevel);
         const gap = requiredLevelNum - currentLevelNum;
 
@@ -429,10 +503,19 @@ export const trainingNeedsRouter = router({
             employeeId: employee.id,
             competencyName: required.competencyName,
             competencyType: required.competencyType,
-            currentLevel: (current?.currentLevel || "ninguno") as "ninguno" | "basico" | "intermedio" | "avanzado" | "experto",
+            currentLevel: (current?.currentLevel || "ninguno") as
+              | "ninguno"
+              | "basico"
+              | "intermedio"
+              | "avanzado"
+              | "experto",
             requiredLevel: required.requiredLevel,
             gap,
-            priority: (gap >= 3 ? "critica" : gap >= 2 ? "alta" : "media") as "baja" | "media" | "alta" | "critica",
+            priority: (gap >= 3 ? "critica" : gap >= 2 ? "alta" : "media") as
+              | "baja"
+              | "media"
+              | "alta"
+              | "critica",
             status: "pendiente" as const,
             createdAt: new Date(),
             updatedAt: new Date(),

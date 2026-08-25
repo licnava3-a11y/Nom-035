@@ -47,7 +47,7 @@ pnpm add @sendgrid/mail
 En `server/lib/email-service.ts`, descomenta y configura el código de SendGrid:
 
 ```typescript
-import sgMail from '@sendgrid/mail';
+import sgMail from "@sendgrid/mail";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
@@ -56,7 +56,7 @@ export async function sendEmail(config: EmailConfig): Promise<boolean> {
     await sgMail.send(config);
     return true;
   } catch (error) {
-    console.error('Error enviando correo:', error);
+    console.error("Error enviando correo:", error);
     return false;
   }
 }
@@ -139,12 +139,12 @@ MAILBOX_EMAIL_FROM=buzon@tudominio.com
 En `server/lib/email-service.ts`:
 
 ```typescript
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_PORT === '465',
+  port: parseInt(process.env.SMTP_PORT || "587"),
+  secure: process.env.SMTP_PORT === "465",
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -156,7 +156,7 @@ export async function sendEmail(config: EmailConfig): Promise<boolean> {
     await transporter.sendMail(config);
     return true;
   } catch (error) {
-    console.error('Error enviando correo:', error);
+    console.error("Error enviando correo:", error);
     return false;
   }
 }
@@ -215,6 +215,7 @@ Envía un correo a `buzon@tudominio.com` con:
 - **Cuerpo**: Descripción de la situación
 
 Deberías recibir:
+
 1. Confirmación de recepción automática
 2. La solicitud aparecerá en el buzón de la plataforma
 
@@ -231,16 +232,16 @@ El webhook ya está integrado con el sistema. Para usarlo:
 1. Registra el webhook en `server/_core/index.ts`:
 
 ```typescript
-import mailboxWebhookRouter from './routes/mailbox-webhook';
+import mailboxWebhookRouter from "./routes/mailbox-webhook";
 
 // Agregar después de las otras rutas
-app.use('/api', mailboxWebhookRouter);
+app.use("/api", mailboxWebhookRouter);
 ```
 
 2. Actualiza el procedimiento de cambio de estado en `server/routers.ts` para enviar notificaciones:
 
 ```typescript
-import { sendStatusChangeNotification } from './lib/email-service';
+import { sendStatusChangeNotification } from "./lib/email-service";
 
 // En el procedimiento updateMailboxStatus
 await sendStatusChangeNotification(
@@ -284,11 +285,11 @@ Agrega validación de firma en el webhook:
 
 ```typescript
 // Para SendGrid
-const signature = req.headers['x-twilio-email-event-webhook-signature'];
+const signature = req.headers["x-twilio-email-event-webhook-signature"];
 // Validar firma...
 
 // Para Mailgun
-const signature = req.headers['x-mailgun-signature'];
+const signature = req.headers["x-mailgun-signature"];
 // Validar firma...
 ```
 
@@ -297,14 +298,14 @@ const signature = req.headers['x-mailgun-signature'];
 Implementa rate limiting para prevenir abuso:
 
 ```typescript
-import rateLimit from 'express-rate-limit';
+import rateLimit from "express-rate-limit";
 
 const webhookLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 100, // máximo 100 solicitudes
 });
 
-router.post('/mailbox-webhook', webhookLimiter, async (req, res) => {
+router.post("/mailbox-webhook", webhookLimiter, async (req, res) => {
   // ...
 });
 ```
@@ -322,6 +323,7 @@ router.post('/mailbox-webhook', webhookLimiter, async (req, res) => {
 ### Logs
 
 Los logs se encuentran en:
+
 - Consola de la aplicación
 - Dashboard del servicio de correo
 - Logs de la base de datos (tabla `mailbox`)
@@ -329,15 +331,18 @@ Los logs se encuentran en:
 ## Costos Estimados
 
 ### SendGrid
+
 - Gratis: 100 correos/día
 - Essentials: $19.95/mes - 50,000 correos/mes
 - Pro: $89.95/mes - 100,000 correos/mes
 
 ### AWS SES
+
 - $0.10 por 1,000 correos enviados
 - $0.12 por 1,000 correos recibidos
 
 ### Mailgun
+
 - Gratis: 5,000 correos/mes (primeros 3 meses)
 - Foundation: $35/mes - 50,000 correos/mes
 - Growth: $80/mes - 100,000 correos/mes
@@ -345,6 +350,7 @@ Los logs se encuentran en:
 ## Soporte
 
 Para más ayuda:
+
 - Documentación de SendGrid: https://docs.sendgrid.com/
 - Documentación de AWS SES: https://docs.aws.amazon.com/ses/
 - Documentación de Mailgun: https://documentation.mailgun.com/

@@ -1,12 +1,25 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Upload, Download, CheckCircle, Clock, XCircle } from "lucide-react";
+import {
+  FileText,
+  Upload,
+  Download,
+  CheckCircle,
+  Clock,
+  XCircle,
+} from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Policy() {
@@ -19,7 +32,8 @@ export default function Policy() {
   });
 
   const utils = trpc.useUtils();
-  const { data: currentPolicy, isLoading } = trpc.equality.policy.get.useQuery();
+  const { data: currentPolicy, isLoading } =
+    trpc.equality.policy.get.useQuery();
   const { data: policies = [] } = trpc.equality.policy.list.useQuery();
 
   const createMutation = trpc.equality.policy.create.useMutation({
@@ -28,9 +42,14 @@ export default function Policy() {
       utils.equality.policy.get.invalidate();
       utils.equality.policy.list.invalidate();
       setIsCreating(false);
-      setFormData({ titulo: "", descripcion: "", fechaAprobacion: "", documentoUrl: "" });
+      setFormData({
+        titulo: "",
+        descripcion: "",
+        fechaAprobacion: "",
+        documentoUrl: "",
+      });
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -41,7 +60,7 @@ export default function Policy() {
       utils.equality.policy.get.invalidate();
       utils.equality.policy.list.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
@@ -58,7 +77,13 @@ export default function Policy() {
   };
 
   const getStatusBadge = (estado: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; icon: any }> = {
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        icon: any;
+      }
+    > = {
       borrador: { variant: "secondary", icon: Clock },
       vigente: { variant: "default", icon: CheckCircle },
       archivado: { variant: "outline", icon: XCircle },
@@ -79,15 +104,22 @@ export default function Policy() {
 
   return (
     <div className="p-6 space-y-6">
-      <Breadcrumb items={[
-        { label: "Igualdad Laboral y No Discriminación", href: "/equality/policy" },
-        { label: "Política de Igualdad" }
-      ]} />
-      
+      <Breadcrumb
+        items={[
+          {
+            label: "Igualdad Laboral y No Discriminación",
+            href: "/equality/policy",
+          },
+          { label: "Política de Igualdad" },
+        ]}
+      />
+
       <div className="flex items-center justify-between mt-4">
         <div>
           <h1 className="text-3xl font-bold">Política de Igualdad Laboral</h1>
-          <p className="text-muted-foreground">NMX-025-SCFI-2015 - Requisito 4.1.1</p>
+          <p className="text-muted-foreground">
+            NMX-025-SCFI-2015 - Requisito 4.1.1
+          </p>
         </div>
         <Button onClick={() => setIsCreating(!isCreating)}>
           {isCreating ? "Cancelar" : "Nueva Política"}
@@ -102,7 +134,8 @@ export default function Policy() {
               <div>
                 <CardTitle>{currentPolicy.titulo}</CardTitle>
                 <CardDescription>
-                  Aprobada el {new Date(currentPolicy.fechaAprobacion).toLocaleDateString()}
+                  Aprobada el{" "}
+                  {new Date(currentPolicy.fechaAprobacion).toLocaleDateString()}
                 </CardDescription>
               </div>
               {getStatusBadge(currentPolicy.estado)}
@@ -111,7 +144,9 @@ export default function Policy() {
           <CardContent className="space-y-4">
             <div>
               <Label>Descripción</Label>
-              <p className="text-sm text-muted-foreground mt-1">{currentPolicy.descripcion}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {currentPolicy.descripcion}
+              </p>
             </div>
             {currentPolicy.documentoUrl && (
               <div>
@@ -137,7 +172,8 @@ export default function Policy() {
           <CardHeader>
             <CardTitle>Crear Nueva Política</CardTitle>
             <CardDescription>
-              Registra la política de igualdad laboral y no discriminación de la organización
+              Registra la política de igualdad laboral y no discriminación de la
+              organización
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -147,7 +183,9 @@ export default function Policy() {
                 <Input
                   id="titulo"
                   value={formData.titulo}
-                  onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, titulo: e.target.value })
+                  }
                   placeholder="Ej: Política de Igualdad Laboral y No Discriminación 2026"
                   required
                 />
@@ -158,7 +196,9 @@ export default function Policy() {
                 <Textarea
                   id="descripcion"
                   value={formData.descripcion}
-                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, descripcion: e.target.value })
+                  }
                   placeholder="Describe los objetivos y alcance de la política..."
                   rows={5}
                   required
@@ -171,18 +211,27 @@ export default function Policy() {
                   id="fechaAprobacion"
                   type="date"
                   value={formData.fechaAprobacion}
-                  onChange={(e) => setFormData({ ...formData, fechaAprobacion: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      fechaAprobacion: e.target.value,
+                    })
+                  }
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="documentoUrl">URL del Documento (opcional)</Label>
+                <Label htmlFor="documentoUrl">
+                  URL del Documento (opcional)
+                </Label>
                 <Input
                   id="documentoUrl"
                   type="url"
                   value={formData.documentoUrl}
-                  onChange={(e) => setFormData({ ...formData, documentoUrl: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, documentoUrl: e.target.value })
+                  }
                   placeholder="https://..."
                 />
                 <p className="text-xs text-muted-foreground mt-1">
@@ -192,9 +241,15 @@ export default function Policy() {
 
               <div className="flex gap-2">
                 <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? "Guardando..." : "Guardar Política"}
+                  {createMutation.isPending
+                    ? "Guardando..."
+                    : "Guardar Política"}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setIsCreating(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreating(false)}
+                >
                   Cancelar
                 </Button>
               </div>
@@ -207,7 +262,9 @@ export default function Policy() {
       <Card>
         <CardHeader>
           <CardTitle>Historial de Políticas</CardTitle>
-          <CardDescription>Todas las políticas registradas en el sistema</CardDescription>
+          <CardDescription>
+            Todas las políticas registradas en el sistema
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {policies.length === 0 ? (
@@ -227,13 +284,18 @@ export default function Policy() {
                       {getStatusBadge(policy.estado)}
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Aprobada: {new Date(policy.fechaAprobacion).toLocaleDateString()}
+                      Aprobada:{" "}
+                      {new Date(policy.fechaAprobacion).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="flex gap-2">
                     {policy.documentoUrl && (
                       <Button variant="outline" size="sm" asChild>
-                        <a href={policy.documentoUrl} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={policy.documentoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <Download className="h-4 w-4" />
                         </a>
                       </Button>

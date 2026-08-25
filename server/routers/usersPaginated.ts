@@ -8,7 +8,10 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { users } from "../../drizzle/schema";
 import { and, eq, or, desc, sql, like } from "drizzle-orm";
-import { normalizePaginationParams, calculatePagination } from "../utils/pagination";
+import {
+  normalizePaginationParams,
+  calculatePagination,
+} from "../utils/pagination";
 
 export const usersPaginatedRouter = router({
   /**
@@ -51,7 +54,8 @@ export const usersPaginatedRouter = router({
         );
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       // Ejecutar queries en paralelo
       const [usersList, totalCount] = await Promise.all([
@@ -88,7 +92,7 @@ export const usersPaginatedRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(users)
           .where(whereClause)
-          .then((r) => r[0]?.count || 0),
+          .then(r => r[0]?.count || 0),
       ]);
 
       const pagination = calculatePagination(page, pageSize, totalCount);
@@ -149,7 +153,7 @@ export const usersPaginatedRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(users)
           .where(whereClause)
-          .then((r) => r[0]?.count || 0),
+          .then(r => r[0]?.count || 0),
       ]);
 
       const pagination = calculatePagination(page, pageSize, totalCount);
@@ -203,7 +207,7 @@ export const usersPaginatedRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(users)
           .where(whereClause)
-          .then((r) => r[0]?.count || 0),
+          .then(r => r[0]?.count || 0),
       ]);
 
       const pagination = calculatePagination(page, pageSize, totalCount);
@@ -228,11 +232,30 @@ export const usersPaginatedRouter = router({
       studentCount,
       committeeCount,
     ] = await Promise.all([
-      db.select({ count: sql<number>`count(*)` }).from(users).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, "admin")).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, "instructor")).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, "student")).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, "committee")).then((r) => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(eq(users.role, "admin"))
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(eq(users.role, "instructor"))
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(eq(users.role, "student"))
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(eq(users.role, "committee"))
+        .then(r => r[0]?.count || 0),
     ]);
 
     return {

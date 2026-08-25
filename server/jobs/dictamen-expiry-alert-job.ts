@@ -12,7 +12,12 @@
  */
 
 import { getDb } from "../db";
-import { dictamenDocs, notifications, users, systemSettings } from "../../drizzle/schema";
+import {
+  dictamenDocs,
+  notifications,
+  users,
+  systemSettings,
+} from "../../drizzle/schema";
 import { eq, and, isNotNull, sql } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 import { notifyOwner } from "../_core/notification";
@@ -25,9 +30,16 @@ export async function runDictamenExpiryAlertJob(): Promise<{
   alertsSent: number;
   errors: string[];
 }> {
-  console.log(`${JOB_TAG} Iniciando verificación de dictámenes próximos a vencer...`);
+  console.log(
+    `${JOB_TAG} Iniciando verificación de dictámenes próximos a vencer...`
+  );
 
-  const result = { success: false, checked: 0, alertsSent: 0, errors: [] as string[] };
+  const result = {
+    success: false,
+    checked: 0,
+    alertsSent: 0,
+    errors: [] as string[],
+  };
 
   try {
     const db = await getDb();
@@ -75,7 +87,9 @@ export async function runDictamenExpiryAlertJob(): Promise<{
       );
 
     result.checked = expiringDictamenes.length;
-    console.log(`${JOB_TAG} Dictámenes próximos a vencer encontrados: ${result.checked}`);
+    console.log(
+      `${JOB_TAG} Dictámenes próximos a vencer encontrados: ${result.checked}`
+    );
 
     if (result.checked === 0) {
       result.success = true;
@@ -95,10 +109,14 @@ export async function runDictamenExpiryAlertJob(): Promise<{
         // Calcular días restantes
         const expiryDate = new Date(dictamen.fechaAprobacion!);
         expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-        const daysRemaining = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        const daysRemaining = Math.ceil(
+          (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        );
 
         const expiryDateStr = expiryDate.toLocaleDateString("es-MX", {
-          year: "numeric", month: "long", day: "numeric",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
         });
 
         const subject = `⚠️ Dictamen NOM-035 próximo a vencer — ${dictamen.folio} (${daysRemaining} días)`;
@@ -168,23 +186,35 @@ export async function runDictamenExpiryAlertJob(): Promise<{
         await notifyOwner({
           title: `⚠️ Dictamen NOM-035 vence en ${daysRemaining} días — ${dictamen.folio}`,
           content: `El Dictamen ${dictamen.folio} (${dictamen.razonSocial ?? ""}) vence el ${expiryDateStr}. Responsable: ${dictamen.responsableTecnico ?? "N/A"}. Se requiere renovación.`,
-        }).catch((e: Error) => console.error(`${JOB_TAG} Error notifyOwner:`, e.message));
+        }).catch((e: Error) =>
+          console.error(`${JOB_TAG} Error notifyOwner:`, e.message)
+        );
 
         // 3. Crear notificación interna en la tabla notifications para el creador del dictamen
         if (dictamen.creadoPor) {
-          await db.insert(notifications).values({
-            userId: dictamen.creadoPor,
-            title: `⚠️ Dictamen ${dictamen.folio} vence en ${daysRemaining} días`,
-            message: `El Dictamen NOM-035 con folio ${dictamen.folio} vence el ${expiryDateStr}. Inicia el proceso de renovación.`,
-            type: "system",
-            isRead: false,
-            relatedEntityType: "dictamen",
-            relatedEntityId: dictamen.id,
-          }).catch((e: Error) => console.error(`${JOB_TAG} Error creando notificación interna:`, e.message));
+          await db
+            .insert(notifications)
+            .values({
+              userId: dictamen.creadoPor,
+              title: `⚠️ Dictamen ${dictamen.folio} vence en ${daysRemaining} días`,
+              message: `El Dictamen NOM-035 con folio ${dictamen.folio} vence el ${expiryDateStr}. Inicia el proceso de renovación.`,
+              type: "system",
+              isRead: false,
+              relatedEntityType: "dictamen",
+              relatedEntityId: dictamen.id,
+            })
+            .catch((e: Error) =>
+              console.error(
+                `${JOB_TAG} Error creando notificación interna:`,
+                e.message
+              )
+            );
         }
 
         result.alertsSent++;
-        console.log(`${JOB_TAG} Alerta enviada para dictamen ${dictamen.folio} (vence en ${daysRemaining} días)`);
+        console.log(
+          `${JOB_TAG} Alerta enviada para dictamen ${dictamen.folio} (vence en ${daysRemaining} días)`
+        );
       } catch (itemErr: any) {
         const msg = `Error procesando dictamen ${dictamen.folio}: ${itemErr?.message}`;
         result.errors.push(msg);
@@ -193,7 +223,9 @@ export async function runDictamenExpiryAlertJob(): Promise<{
     }
 
     result.success = true;
-    console.log(`${JOB_TAG} Completado. Alertas enviadas: ${result.alertsSent}, errores: ${result.errors.length}`);
+    console.log(
+      `${JOB_TAG} Completado. Alertas enviadas: ${result.alertsSent}, errores: ${result.errors.length}`
+    );
     return result;
   } catch (err: any) {
     result.errors.push(err?.message ?? "Error desconocido");

@@ -1,6 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -38,7 +49,7 @@ export function PaginationControls({
           <span className="text-sm text-muted-foreground">Mostrar:</span>
           <Select
             value={pageSize.toString()}
-            onValueChange={(value) => onPageSizeChange(parseInt(value))}
+            onValueChange={value => onPageSizeChange(parseInt(value))}
           >
             <SelectTrigger className="h-8 w-[70px]">
               <SelectValue />

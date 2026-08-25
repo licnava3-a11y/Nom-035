@@ -57,11 +57,11 @@ vi.mock("drizzle-orm", () => ({
   like: vi.fn((a, b) => ({ type: "like", a, b })),
   gte: vi.fn((a, b) => ({ type: "gte", a, b })),
   lte: vi.fn((a, b) => ({ type: "lte", a, b })),
-  desc: vi.fn((a) => ({ type: "desc", a })),
-  asc: vi.fn((a) => ({ type: "asc", a })),
+  desc: vi.fn(a => ({ type: "desc", a })),
+  asc: vi.fn(a => ({ type: "asc", a })),
   inArray: vi.fn((a, b) => ({ type: "inArray", a, b })),
-  sql: vi.fn((a) => ({ type: "sql", a })),
-  isNull: vi.fn((a) => ({ type: "isNull", a })),
+  sql: vi.fn(a => ({ type: "sql", a })),
+  isNull: vi.fn(a => ({ type: "isNull", a })),
 }));
 
 // ── Sección 1: Lógica de cookies (secure en producción) ──────────────────────
@@ -82,16 +82,22 @@ describe("cookies.ts — isSecureRequest", () => {
     return LOCAL_HOSTS.has(hostname) || isIpAddress(hostname);
   }
 
-  function isSecureRequest(hostname: string, protocol: string, forwardedProto?: string): boolean {
+  function isSecureRequest(
+    hostname: string,
+    protocol: string,
+    forwardedProto?: string
+  ): boolean {
     if (!isLocalHost(hostname)) return true;
     if (protocol === "https") return true;
     if (!forwardedProto) return false;
     const protoList = forwardedProto.split(",");
-    return protoList.some((p) => p.trim().toLowerCase() === "https");
+    return protoList.some(p => p.trim().toLowerCase() === "https");
   }
 
   it("devuelve true para dominios de producción (no localhost)", () => {
-    expect(isSecureRequest("nom035mood-32dy4ksx.manus.space", "http")).toBe(true);
+    expect(isSecureRequest("nom035mood-32dy4ksx.manus.space", "http")).toBe(
+      true
+    );
     expect(isSecureRequest("myapp.example.com", "http")).toBe(true);
     expect(isSecureRequest("3000-sandbox.manus.computer", "http")).toBe(true);
   });
@@ -119,7 +125,9 @@ describe("cookies.ts — isSecureRequest", () => {
     // Nota: isIpAddress detecta IPs, pero isLocalHost solo bloquea LOCAL_HOSTS
     // Las IPs públicas como 34.100.1.1 no están en LOCAL_HOSTS
     // Verificamos que el comportamiento sea correcto para dominios de producción
-    expect(isSecureRequest("nom035mood-32dy4ksx.manus.space", "http")).toBe(true);
+    expect(isSecureRequest("nom035mood-32dy4ksx.manus.space", "http")).toBe(
+      true
+    );
   });
 
   it("getSessionCookieOptions incluye secure:true para hostname de producción", async () => {
@@ -269,13 +277,17 @@ describe("getAllDispatches — filtro signerSearch", () => {
    */
 
   function applySignerSearchFilter(
-    dispatches: Array<{ id: number; signerName: string | null; status: string }>,
+    dispatches: Array<{
+      id: number;
+      signerName: string | null;
+      status: string;
+    }>,
     signerSearch: string
   ) {
     if (!signerSearch || signerSearch.trim() === "") return dispatches;
     const signerTerm = signerSearch.toLowerCase().trim();
-    return dispatches.filter(
-      (d) => (d.signerName ?? "").toLowerCase().includes(signerTerm)
+    return dispatches.filter(d =>
+      (d.signerName ?? "").toLowerCase().includes(signerTerm)
     );
   }
 
@@ -295,7 +307,7 @@ describe("getAllDispatches — filtro signerSearch", () => {
   it("filtra por nombre parcial del firmante (case-insensitive)", () => {
     const result = applySignerSearchFilter(sampleDispatches, "garcía");
     expect(result).toHaveLength(2);
-    expect(result.map((d) => d.id)).toEqual([1, 4]);
+    expect(result.map(d => d.id)).toEqual([1, 4]);
   });
 
   it("filtra correctamente por nombre exacto", () => {
@@ -309,11 +321,14 @@ describe("getAllDispatches — filtro signerSearch", () => {
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe(2);
     // El despacho con id=3 (signerName null) no debe aparecer
-    expect(result.find((d) => d.id === 3)).toBeUndefined();
+    expect(result.find(d => d.id === 3)).toBeUndefined();
   });
 
   it("retorna arreglo vacío si no hay coincidencias", () => {
-    const result = applySignerSearchFilter(sampleDispatches, "Nombre Inexistente XYZ");
+    const result = applySignerSearchFilter(
+      sampleDispatches,
+      "Nombre Inexistente XYZ"
+    );
     expect(result).toHaveLength(0);
   });
 
@@ -434,7 +449,9 @@ describe("getAllDispatches — input schema con signerSearch", () => {
     const applyFilter = (dispatches: any[], signerSearch?: string) => {
       if (!signerSearch || signerSearch.trim() === "") return dispatches;
       const term = signerSearch.toLowerCase().trim();
-      return dispatches.filter((d) => (d.signerName ?? "").toLowerCase().includes(term));
+      return dispatches.filter(d =>
+        (d.signerName ?? "").toLowerCase().includes(term)
+      );
     };
 
     const dispatches = [
@@ -474,7 +491,8 @@ describe("trust proxy — configuración del servidor Express", () => {
     // La corrección clave: para dominios no-localhost, siempre retornar true
     const isNonLocalhost = (hostname: string): boolean => {
       const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
-      const isIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname) || hostname.includes(":");
+      const isIp =
+        /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname) || hostname.includes(":");
       return !LOCAL_HOSTS.has(hostname) && !isIp;
     };
 

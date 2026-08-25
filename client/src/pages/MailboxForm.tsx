@@ -1,29 +1,55 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Loader2, Send, FileText, MessageSquare, ThumbsUp, GraduationCap } from "lucide-react";
+import {
+  Loader2,
+  Send,
+  FileText,
+  MessageSquare,
+  ThumbsUp,
+  GraduationCap,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 
 export default function MailboxForm() {
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   const createMutation = trpc.mailbox.create.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(`Solicitud enviada correctamente. Folio: ${data.folio}`);
       reset();
       setIsAnonymous(false);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al enviar solicitud: ${error.message}`);
     },
   });
@@ -60,7 +86,8 @@ export default function MailboxForm() {
         <CardHeader>
           <CardTitle className="text-2xl">Buzón Electrónico NOM-035</CardTitle>
           <CardDescription>
-            Envía tus quejas, sugerencias, felicitaciones o solicitudes de capacitación de forma segura
+            Envía tus quejas, sugerencias, felicitaciones o solicitudes de
+            capacitación de forma segura
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -69,7 +96,7 @@ export default function MailboxForm() {
             <div className="space-y-2">
               <Label htmlFor="requestType">Tipo de Solicitud *</Label>
               <Select
-                onValueChange={(value) => setValue("requestType", value)}
+                onValueChange={value => setValue("requestType", value)}
                 {...register("requestType", { required: true })}
               >
                 <SelectTrigger>
@@ -103,7 +130,9 @@ export default function MailboxForm() {
                 </SelectContent>
               </Select>
               {errors.requestType && (
-                <p className="text-sm text-destructive">Este campo es requerido</p>
+                <p className="text-sm text-destructive">
+                  Este campo es requerido
+                </p>
               )}
             </div>
 
@@ -112,30 +141,52 @@ export default function MailboxForm() {
               <div className="space-y-2">
                 <Label htmlFor="complaintType">Tipo de Queja *</Label>
                 <Select
-                  onValueChange={(value) => setValue("complaintType", value)}
-                  {...register("complaintType", { required: requestType === "complaint" })}
+                  onValueChange={value => setValue("complaintType", value)}
+                  {...register("complaintType", {
+                    required: requestType === "complaint",
+                  })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona el tipo de queja" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="liderazgo_negativo">Liderazgo Negativo</SelectItem>
-                    <SelectItem value="entorno_no_favorable">Entorno Organizacional No Favorable</SelectItem>
-                    <SelectItem value="conductas_contrarias">Conductas Contrarias al Ambiente Laboral</SelectItem>
-                    <SelectItem value="carga_trabajo">Carga de Trabajo Excesiva</SelectItem>
+                    <SelectItem value="liderazgo_negativo">
+                      Liderazgo Negativo
+                    </SelectItem>
+                    <SelectItem value="entorno_no_favorable">
+                      Entorno Organizacional No Favorable
+                    </SelectItem>
+                    <SelectItem value="conductas_contrarias">
+                      Conductas Contrarias al Ambiente Laboral
+                    </SelectItem>
+                    <SelectItem value="carga_trabajo">
+                      Carga de Trabajo Excesiva
+                    </SelectItem>
                     <SelectItem value="acoso_laboral">Acoso Laboral</SelectItem>
                     <SelectItem value="acoso_sexual">Acoso Sexual</SelectItem>
-                    <SelectItem value="hostigamiento_sexual">Hostigamiento Sexual</SelectItem>
+                    <SelectItem value="hostigamiento_sexual">
+                      Hostigamiento Sexual
+                    </SelectItem>
                     <SelectItem value="mobbing">Mobbing</SelectItem>
-                    <SelectItem value="burnout">Burnout (Síndrome de Desgaste)</SelectItem>
-                    <SelectItem value="falta_control">Falta de Control sobre el Trabajo</SelectItem>
-                    <SelectItem value="jornadas_trabajo">Jornadas de Trabajo Excesivas</SelectItem>
-                    <SelectItem value="interferencia_trabajo_familia">Interferencia Trabajo-Familia</SelectItem>
+                    <SelectItem value="burnout">
+                      Burnout (Síndrome de Desgaste)
+                    </SelectItem>
+                    <SelectItem value="falta_control">
+                      Falta de Control sobre el Trabajo
+                    </SelectItem>
+                    <SelectItem value="jornadas_trabajo">
+                      Jornadas de Trabajo Excesivas
+                    </SelectItem>
+                    <SelectItem value="interferencia_trabajo_familia">
+                      Interferencia Trabajo-Familia
+                    </SelectItem>
                     <SelectItem value="otros">Otros</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.complaintType && (
-                  <p className="text-sm text-destructive">Este campo es requerido</p>
+                  <p className="text-sm text-destructive">
+                    Este campo es requerido
+                  </p>
                 )}
               </div>
             )}
@@ -149,7 +200,9 @@ export default function MailboxForm() {
                 {...register("subject", { required: true, maxLength: 200 })}
               />
               {errors.subject && (
-                <p className="text-sm text-destructive">Este campo es requerido (máximo 200 caracteres)</p>
+                <p className="text-sm text-destructive">
+                  Este campo es requerido (máximo 200 caracteres)
+                </p>
               )}
             </div>
 
@@ -163,7 +216,9 @@ export default function MailboxForm() {
                 {...register("description", { required: true })}
               />
               {errors.description && (
-                <p className="text-sm text-destructive">Este campo es requerido</p>
+                <p className="text-sm text-destructive">
+                  Este campo es requerido
+                </p>
               )}
             </div>
 
@@ -172,7 +227,7 @@ export default function MailboxForm() {
               <Checkbox
                 id="anonymous"
                 checked={isAnonymous}
-                onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
+                onCheckedChange={checked => setIsAnonymous(checked as boolean)}
               />
               <Label htmlFor="anonymous" className="cursor-pointer">
                 Enviar de forma anónima
@@ -183,7 +238,7 @@ export default function MailboxForm() {
             {!isAnonymous && (
               <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
                 <h3 className="font-semibold">Datos del Remitente</h3>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="senderName">Nombre Completo *</Label>
                   <Input
@@ -192,7 +247,9 @@ export default function MailboxForm() {
                     {...register("senderName", { required: !isAnonymous })}
                   />
                   {errors.senderName && (
-                    <p className="text-sm text-destructive">Este campo es requerido</p>
+                    <p className="text-sm text-destructive">
+                      Este campo es requerido
+                    </p>
                   )}
                 </div>
 
@@ -202,13 +259,15 @@ export default function MailboxForm() {
                     id="senderEmail"
                     type="email"
                     placeholder="tu@email.com"
-                    {...register("senderEmail", { 
+                    {...register("senderEmail", {
                       required: !isAnonymous,
-                      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                     })}
                   />
                   {errors.senderEmail && (
-                    <p className="text-sm text-destructive">Correo electrónico inválido</p>
+                    <p className="text-sm text-destructive">
+                      Correo electrónico inválido
+                    </p>
                   )}
                 </div>
 
@@ -268,11 +327,22 @@ export default function MailboxForm() {
           <CardTitle>Información Importante</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>• Todas las solicitudes son tratadas con estricta confidencialidad.</p>
+          <p>
+            • Todas las solicitudes son tratadas con estricta confidencialidad.
+          </p>
           <p>• Recibirás un folio único para dar seguimiento a tu solicitud.</p>
-          <p>• El comité de atención revisará tu solicitud en un plazo máximo de 5 días hábiles.</p>
-          <p>• Si proporcionaste tu correo electrónico, recibirás actualizaciones sobre el estado de tu solicitud.</p>
-          <p>• Las solicitudes anónimas también son atendidas con la misma prioridad.</p>
+          <p>
+            • El comité de atención revisará tu solicitud en un plazo máximo de
+            5 días hábiles.
+          </p>
+          <p>
+            • Si proporcionaste tu correo electrónico, recibirás actualizaciones
+            sobre el estado de tu solicitud.
+          </p>
+          <p>
+            • Las solicitudes anónimas también son atendidas con la misma
+            prioridad.
+          </p>
         </CardContent>
       </Card>
     </div>

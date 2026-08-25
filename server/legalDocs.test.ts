@@ -2,9 +2,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ── Mock setup ────────────────────────────────────────────────────────────────
 
-const mockInsert = vi.fn().mockReturnValue({ values: vi.fn().mockResolvedValue([{ insertId: 1 }]) });
-const mockUpdate = vi.fn().mockReturnValue({ set: vi.fn().mockReturnValue({ where: vi.fn().mockResolvedValue([]) }) });
-const mockDelete = vi.fn().mockReturnValue({ where: vi.fn().mockResolvedValue([]) });
+const mockInsert = vi
+  .fn()
+  .mockReturnValue({ values: vi.fn().mockResolvedValue([{ insertId: 1 }]) });
+const mockUpdate = vi.fn().mockReturnValue({
+  set: vi.fn().mockReturnValue({ where: vi.fn().mockResolvedValue([]) }),
+});
+const mockDelete = vi
+  .fn()
+  .mockReturnValue({ where: vi.fn().mockResolvedValue([]) });
 const mockSelectFrom = vi.fn().mockResolvedValue([]);
 const mockSelectObj = { from: vi.fn() };
 mockSelectObj.from.mockImplementation((table: any) => {
@@ -33,35 +39,50 @@ vi.mock("../db", () => ({
 
 vi.mock("../_core/llm", () => ({
   invokeLLM: vi.fn().mockResolvedValue({
-    choices: [{
-      message: {
-        content: JSON.stringify({
-          fundamento_normativo: "Puntos 5, 6, 7, 8 y 9 de la NOM-035-STPS-2018.",
-          objetivo: "Objetivo general: identificar factores de riesgo psicosocial.",
-          alcance: "Aplica a todos los trabajadores del área de Operaciones.",
-          instrumentos: "Guía de Referencia III para empresas con más de 50 trabajadores.",
-          poblacion_muestra: "Universo: 120 trabajadores. Muestra: 92 (IC 95%).",
-          periodicidad: "Cada 12 meses y ante eventos traumáticos severos.",
-          responsables: "Psicólogo con cédula profesional y experiencia en SST.",
-          calendario: "Planeación: semana 1-2. Aplicación: semana 3-4. Análisis: semana 5-6.",
-          confidencialidad: "Los datos serán tratados de forma confidencial y anónima.",
-          integracion_normas: "Se integra con NOM-036-STPS-2016 y NOM-037-STPS-2023.",
-          aprobacion_registro: "Aprobado por el responsable de SST con fecha y firma.",
-        }),
+    choices: [
+      {
+        message: {
+          content: JSON.stringify({
+            fundamento_normativo:
+              "Puntos 5, 6, 7, 8 y 9 de la NOM-035-STPS-2018.",
+            objetivo:
+              "Objetivo general: identificar factores de riesgo psicosocial.",
+            alcance: "Aplica a todos los trabajadores del área de Operaciones.",
+            instrumentos:
+              "Guía de Referencia III para empresas con más de 50 trabajadores.",
+            poblacion_muestra:
+              "Universo: 120 trabajadores. Muestra: 92 (IC 95%).",
+            periodicidad: "Cada 12 meses y ante eventos traumáticos severos.",
+            responsables:
+              "Psicólogo con cédula profesional y experiencia en SST.",
+            calendario:
+              "Planeación: semana 1-2. Aplicación: semana 3-4. Análisis: semana 5-6.",
+            confidencialidad:
+              "Los datos serán tratados de forma confidencial y anónima.",
+            integracion_normas:
+              "Se integra con NOM-036-STPS-2016 y NOM-037-STPS-2023.",
+            aprobacion_registro:
+              "Aprobado por el responsable de SST con fecha y firma.",
+          }),
+        },
       },
-    }],
+    ],
   }),
 }));
 
 vi.mock("../../drizzle/schema", () => ({
   caseInvestigationDocs: { id: "id", folio: "folio" },
   dictamenDocs: { id: "id", folio: "folio" },
-  docFormatConfig: { id: "id", docType: "docType", codigoFormato: "codigoFormato" },
+  docFormatConfig: {
+    id: "id",
+    docType: "docType",
+    codigoFormato: "codigoFormato",
+  },
 }));
 
 vi.mock("drizzle-orm", () => ({
   eq: vi.fn((a, b) => ({ eq: [a, b] })),
-  desc: vi.fn((a) => ({ desc: a })),
+  desc: vi.fn(a => ({ desc: a })),
   sql: vi.fn((strings: TemplateStringsArray) => strings[0]),
 }));
 
@@ -74,9 +95,17 @@ describe("caseInvestigationDocs router", () => {
 
   it("debe tener exactamente 11 apartados obligatorios en el schema de Investigación de Caso", () => {
     const requiredKeys = [
-      "fundamento_normativo", "objetivo", "alcance", "instrumentos",
-      "poblacion_muestra", "periodicidad", "responsables", "calendario",
-      "confidencialidad", "integracion_normas", "aprobacion_registro",
+      "fundamento_normativo",
+      "objetivo",
+      "alcance",
+      "instrumentos",
+      "poblacion_muestra",
+      "periodicidad",
+      "responsables",
+      "calendario",
+      "confidencialidad",
+      "integracion_normas",
+      "aprobacion_registro",
     ];
     expect(requiredKeys.length).toBe(11);
     const uniqueKeys = new Set(requiredKeys);
@@ -86,14 +115,19 @@ describe("caseInvestigationDocs router", () => {
       fundamento_normativo: "Puntos 5, 6, 7, 8 y 9 de la NOM-035-STPS-2018.",
       objetivo: "Objetivo general: identificar factores de riesgo psicosocial.",
       alcance: "Aplica a todos los trabajadores del área de Operaciones.",
-      instrumentos: "Guía de Referencia III para empresas con más de 50 trabajadores.",
+      instrumentos:
+        "Guía de Referencia III para empresas con más de 50 trabajadores.",
       poblacion_muestra: "Universo: 120 trabajadores. Muestra: 92 (IC 95%).",
       periodicidad: "Cada 12 meses y ante eventos traumáticos severos.",
       responsables: "Psicólogo con cédula profesional y experiencia en SST.",
-      calendario: "Planeación: semana 1-2. Aplicación: semana 3-4. Análisis: semana 5-6.",
-      confidencialidad: "Los datos serán tratados de forma confidencial y anónima.",
-      integracion_normas: "Se integra con NOM-036-STPS-2016 y NOM-037-STPS-2023.",
-      aprobacion_registro: "Aprobado por el responsable de SST con fecha y firma.",
+      calendario:
+        "Planeación: semana 1-2. Aplicación: semana 3-4. Análisis: semana 5-6.",
+      confidencialidad:
+        "Los datos serán tratados de forma confidencial y anónima.",
+      integracion_normas:
+        "Se integra con NOM-036-STPS-2016 y NOM-037-STPS-2023.",
+      aprobacion_registro:
+        "Aprobado por el responsable de SST con fecha y firma.",
     };
     requiredKeys.forEach(key => {
       expect(mockContent).toHaveProperty(key);
@@ -103,17 +137,43 @@ describe("caseInvestigationDocs router", () => {
   });
 
   it("debe validar que los campos requeridos del formulario no estén vacíos", () => {
-    const validateForm = (form: { empresa: string; area: string; fechaInvestigacion: string; responsableSst: string }) => {
-      return form.empresa.length > 0 && form.area.length > 0 &&
-        form.fechaInvestigacion.length > 0 && form.responsableSst.length > 0;
+    const validateForm = (form: {
+      empresa: string;
+      area: string;
+      fechaInvestigacion: string;
+      responsableSst: string;
+    }) => {
+      return (
+        form.empresa.length > 0 &&
+        form.area.length > 0 &&
+        form.fechaInvestigacion.length > 0 &&
+        form.responsableSst.length > 0
+      );
     };
-    expect(validateForm({ empresa: "", area: "Ops", fechaInvestigacion: "2026-01-01", responsableSst: "Psic. García" })).toBe(false);
-    expect(validateForm({ empresa: "XYZ SA", area: "Ops", fechaInvestigacion: "2026-01-01", responsableSst: "Psic. García" })).toBe(true);
+    expect(
+      validateForm({
+        empresa: "",
+        area: "Ops",
+        fechaInvestigacion: "2026-01-01",
+        responsableSst: "Psic. García",
+      })
+    ).toBe(false);
+    expect(
+      validateForm({
+        empresa: "XYZ SA",
+        area: "Ops",
+        fechaInvestigacion: "2026-01-01",
+        responsableSst: "Psic. García",
+      })
+    ).toBe(true);
   });
 
   it("debe generar folio con formato correcto INV-001/2026", () => {
-    const generateFolioFormat = (prefix: string, consecutive: number, year: number) =>
-      `${prefix}-${String(consecutive).padStart(3, "0")}/${year}`;
+    const generateFolioFormat = (
+      prefix: string,
+      consecutive: number,
+      year: number
+    ) => `${prefix}-${String(consecutive).padStart(3, "0")}/${year}`;
     expect(generateFolioFormat("INV", 1, 2026)).toBe("INV-001/2026");
     expect(generateFolioFormat("INV", 15, 2026)).toBe("INV-015/2026");
     expect(generateFolioFormat("INV", 100, 2026)).toBe("INV-100/2026");
@@ -154,9 +214,17 @@ describe("dictamenDocs router", () => {
 
   it("debe tener los 11 apartados obligatorios del Dictamen", () => {
     const dictamenKeys = [
-      "encabezado_formal", "numero_fecha", "metodologia", "hallazgos_clave",
-      "impacto_legal", "conclusiones_tecnicas", "conclusiones_juridicas",
-      "medidas_correctivas", "recomendaciones_seguimiento", "firmas", "anexos",
+      "encabezado_formal",
+      "numero_fecha",
+      "metodologia",
+      "hallazgos_clave",
+      "impacto_legal",
+      "conclusiones_tecnicas",
+      "conclusiones_juridicas",
+      "medidas_correctivas",
+      "recomendaciones_seguimiento",
+      "firmas",
+      "anexos",
     ];
     expect(dictamenKeys.length).toBe(11);
     // Verificar que no hay duplicados
@@ -176,8 +244,11 @@ describe("dictamenDocs router", () => {
   });
 
   it("debe generar folio de Dictamen con formato DIC-001/2026", () => {
-    const generateFolioFormat = (prefix: string, consecutive: number, year: number) =>
-      `${prefix}-${String(consecutive).padStart(3, "0")}/${year}`;
+    const generateFolioFormat = (
+      prefix: string,
+      consecutive: number,
+      year: number
+    ) => `${prefix}-${String(consecutive).padStart(3, "0")}/${year}`;
     expect(generateFolioFormat("DIC", 1, 2026)).toBe("DIC-001/2026");
     expect(generateFolioFormat("DIC", 50, 2026)).toBe("DIC-050/2026");
   });
@@ -192,21 +263,42 @@ describe("dictamenDocs router", () => {
 
   it("debe validar campos obligatorios del formulario de Dictamen", () => {
     const validateDictamen = (form: {
-      razonSocial: string; domicilio: string; periodoEvaluado: string;
-      responsableTecnico: string; cedulaProfesional: string; representanteLegal: string;
+      razonSocial: string;
+      domicilio: string;
+      periodoEvaluado: string;
+      responsableTecnico: string;
+      cedulaProfesional: string;
+      representanteLegal: string;
     }) => {
-      return form.razonSocial.length > 0 && form.domicilio.length > 0 &&
-        form.periodoEvaluado.length > 0 && form.responsableTecnico.length > 0 &&
-        form.cedulaProfesional.length > 0 && form.representanteLegal.length > 0;
+      return (
+        form.razonSocial.length > 0 &&
+        form.domicilio.length > 0 &&
+        form.periodoEvaluado.length > 0 &&
+        form.responsableTecnico.length > 0 &&
+        form.cedulaProfesional.length > 0 &&
+        form.representanteLegal.length > 0
+      );
     };
-    expect(validateDictamen({
-      razonSocial: "XYZ SA", domicilio: "Calle 1", periodoEvaluado: "Q1 2026",
-      responsableTecnico: "Psic. García", cedulaProfesional: "1234567", representanteLegal: "Lic. Pérez",
-    })).toBe(true);
-    expect(validateDictamen({
-      razonSocial: "", domicilio: "Calle 1", periodoEvaluado: "Q1 2026",
-      responsableTecnico: "Psic. García", cedulaProfesional: "1234567", representanteLegal: "Lic. Pérez",
-    })).toBe(false);
+    expect(
+      validateDictamen({
+        razonSocial: "XYZ SA",
+        domicilio: "Calle 1",
+        periodoEvaluado: "Q1 2026",
+        responsableTecnico: "Psic. García",
+        cedulaProfesional: "1234567",
+        representanteLegal: "Lic. Pérez",
+      })
+    ).toBe(true);
+    expect(
+      validateDictamen({
+        razonSocial: "",
+        domicilio: "Calle 1",
+        periodoEvaluado: "Q1 2026",
+        responsableTecnico: "Psic. García",
+        cedulaProfesional: "1234567",
+        representanteLegal: "Lic. Pérez",
+      })
+    ).toBe(false);
   });
 
   it("debe separar nivel_riesgo_global del contenido al guardar", () => {

@@ -32,8 +32,12 @@ describe("Common Validators - Zod Schemas", () => {
 
   describe("nonEmptyString", () => {
     it("debe aceptar strings no vacíos", () => {
-      expect(() => commonValidators.nonEmptyString().parse("Hola")).not.toThrow();
-      expect(() => commonValidators.nonEmptyString().parse("Texto válido")).not.toThrow();
+      expect(() =>
+        commonValidators.nonEmptyString().parse("Hola")
+      ).not.toThrow();
+      expect(() =>
+        commonValidators.nonEmptyString().parse("Texto válido")
+      ).not.toThrow();
     });
 
     it("debe rechazar strings vacíos", () => {
@@ -52,15 +56,23 @@ describe("Common Validators - Zod Schemas", () => {
 
   describe("email", () => {
     it("debe aceptar emails válidos", () => {
-      expect(() => commonValidators.email.parse("usuario@ejemplo.com")).not.toThrow();
-      expect(() => commonValidators.email.parse("test.user+tag@domain.co.mx")).not.toThrow();
+      expect(() =>
+        commonValidators.email.parse("usuario@ejemplo.com")
+      ).not.toThrow();
+      expect(() =>
+        commonValidators.email.parse("test.user+tag@domain.co.mx")
+      ).not.toThrow();
     });
 
     it("debe rechazar emails inválidos", () => {
       expect(() => commonValidators.email.parse("usuario@")).toThrow();
       expect(() => commonValidators.email.parse("@ejemplo.com")).toThrow();
-      expect(() => commonValidators.email.parse("usuario.ejemplo.com")).toThrow();
-      expect(() => commonValidators.email.parse("usuario @ejemplo.com")).toThrow();
+      expect(() =>
+        commonValidators.email.parse("usuario.ejemplo.com")
+      ).toThrow();
+      expect(() =>
+        commonValidators.email.parse("usuario @ejemplo.com")
+      ).toThrow();
     });
 
     it("debe rechazar strings vacíos", () => {
@@ -108,8 +120,10 @@ describe("Common Validators - Zod Schemas", () => {
   describe("monetaryAmount", () => {
     it("debe aceptar montos positivos", () => {
       expect(() => commonValidators.monetaryAmount.parse(0.01)).not.toThrow();
-      expect(() => commonValidators.monetaryAmount.parse(100.50)).not.toThrow();
-      expect(() => commonValidators.monetaryAmount.parse(999999.99)).not.toThrow();
+      expect(() => commonValidators.monetaryAmount.parse(100.5)).not.toThrow();
+      expect(() =>
+        commonValidators.monetaryAmount.parse(999999.99)
+      ).not.toThrow();
     });
 
     it("debe rechazar montos negativos", () => {
@@ -133,14 +147,6 @@ describe("Common Validators - Zod Schemas", () => {
       // Este test se omite por ahora
       expect(true).toBe(true);
     });
-
-
-
-
-
-
-
-
   });
 
   describe("dateRange (manual test)", () => {
@@ -149,42 +155,50 @@ describe("Common Validators - Zod Schemas", () => {
       // Este test se omite por ahora
       expect(true).toBe(true);
     });
-
-
-
-
-
-
   });
 
   describe("Edge Cases - SQL Injection Prevention", () => {
     it("debe rechazar intentos de SQL injection en strings", () => {
-      expect(() => commonValidators.nonEmptyString().parse("'; DROP TABLE users; --")).not.toThrow();
+      expect(() =>
+        commonValidators.nonEmptyString().parse("'; DROP TABLE users; --")
+      ).not.toThrow();
       // Nota: Zod valida formato, no contenido malicioso
       // La prevención de SQL injection se hace con prepared statements en Drizzle
     });
 
     it("debe rechazar scripts en emails", () => {
-      expect(() => commonValidators.email.parse("<script>alert('xss')</script>@test.com")).toThrow();
+      expect(() =>
+        commonValidators.email.parse("<script>alert('xss')</script>@test.com")
+      ).toThrow();
     });
   });
 
   describe("Edge Cases - XSS Prevention", () => {
     it("debe aceptar strings con HTML (sanitización debe hacerse en capa superior)", () => {
-      expect(() => commonValidators.nonEmptyString().parse("<b>Bold text</b>")).not.toThrow();
+      expect(() =>
+        commonValidators.nonEmptyString().parse("<b>Bold text</b>")
+      ).not.toThrow();
       // Nota: Sanitización de HTML se hace en capa de presentación
     });
   });
 
   describe("Edge Cases - Unicode y caracteres especiales", () => {
     it("debe aceptar caracteres Unicode válidos", () => {
-      expect(() => commonValidators.nonEmptyString().parse("Héctor García")).not.toThrow();
-      expect(() => commonValidators.nonEmptyString().parse("北京")).not.toThrow();
-      expect(() => commonValidators.nonEmptyString().parse("🎉 Celebración")).not.toThrow();
+      expect(() =>
+        commonValidators.nonEmptyString().parse("Héctor García")
+      ).not.toThrow();
+      expect(() =>
+        commonValidators.nonEmptyString().parse("北京")
+      ).not.toThrow();
+      expect(() =>
+        commonValidators.nonEmptyString().parse("🎉 Celebración")
+      ).not.toThrow();
     });
 
     it("debe aceptar emails con caracteres internacionales", () => {
-      expect(() => commonValidators.email.parse("usuario@dominio.mx")).not.toThrow();
+      expect(() =>
+        commonValidators.email.parse("usuario@dominio.mx")
+      ).not.toThrow();
     });
   });
 });

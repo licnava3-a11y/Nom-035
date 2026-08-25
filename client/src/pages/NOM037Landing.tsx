@@ -1,11 +1,24 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WhatsAppDemoButton } from "@/components/WhatsAppButton";
-import { CheckCircle2, Shield, Briefcase, FileCheck, AlertTriangle, Clock } from "lucide-react";
+import {
+  CheckCircle2,
+  Shield,
+  Briefcase,
+  FileCheck,
+  AlertTriangle,
+  Clock,
+} from "lucide-react";
 
 export default function NOM037Landing() {
   const [formData, setFormData] = useState({
@@ -29,22 +42,26 @@ export default function NOM037Landing() {
     {
       icon: Shield,
       title: "Protección Laboral",
-      description: "Garantiza condiciones seguras para el teletrabajo y protege los derechos de tus colaboradores.",
+      description:
+        "Garantiza condiciones seguras para el teletrabajo y protege los derechos de tus colaboradores.",
     },
     {
       icon: Briefcase,
       title: "Trabajo Remoto Regulado",
-      description: "Establece políticas claras para el teletrabajo cumpliendo con la legislación mexicana.",
+      description:
+        "Establece políticas claras para el teletrabajo cumpliendo con la legislación mexicana.",
     },
     {
       icon: Clock,
       title: "Flexibilidad Controlada",
-      description: "Implementa esquemas de teletrabajo que respeten los derechos de desconexión y horarios.",
+      description:
+        "Implementa esquemas de teletrabajo que respeten los derechos de desconexión y horarios.",
     },
     {
       icon: FileCheck,
       title: "Documentación Legal",
-      description: "Genera contratos, políticas y acuerdos de teletrabajo conforme a la NOM-037.",
+      description:
+        "Genera contratos, políticas y acuerdos de teletrabajo conforme a la NOM-037.",
     },
   ];
 
@@ -60,19 +77,23 @@ export default function NOM037Landing() {
   const requirements = [
     {
       title: "Condiciones de Seguridad y Salud",
-      description: "Verificar que el lugar de teletrabajo cumpla con condiciones mínimas de seguridad e higiene.",
+      description:
+        "Verificar que el lugar de teletrabajo cumpla con condiciones mínimas de seguridad e higiene.",
     },
     {
       title: "Derecho a la Desconexión",
-      description: "Respetar el derecho de los trabajadores a desconectarse fuera de su jornada laboral.",
+      description:
+        "Respetar el derecho de los trabajadores a desconectarse fuera de su jornada laboral.",
     },
     {
       title: "Reversibilidad",
-      description: "Establecer mecanismos para que el trabajador pueda regresar a modalidad presencial.",
+      description:
+        "Establecer mecanismos para que el trabajador pueda regresar a modalidad presencial.",
     },
     {
       title: "Equipo y Herramientas",
-      description: "Proporcionar o compensar los equipos, mobiliario y servicios necesarios para el teletrabajo.",
+      description:
+        "Proporcionar o compensar los equipos, mobiliario y servicios necesarios para el teletrabajo.",
     },
   ];
 
@@ -89,24 +110,26 @@ export default function NOM037Landing() {
               Teletrabajo: Condiciones de Seguridad y Salud en el Trabajo
             </p>
             <p className="text-lg mb-10 text-purple-200">
-              Implementa esquemas de teletrabajo seguros, legales y productivos con nuestra
-              plataforma especializada en cumplimiento normativo.
+              Implementa esquemas de teletrabajo seguros, legales y productivos
+              con nuestra plataforma especializada en cumplimiento normativo.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <WhatsAppDemoButton
-              nombre={formData.nombre}
-              email={formData.email}
-              empresa={formData.empresa}
-              normativasSeleccionadas={["NOM-037"]}
-              size="lg"
-              className="bg-green-500 hover:bg-green-600 text-white"
-            />
+                nombre={formData.nombre}
+                email={formData.email}
+                empresa={formData.empresa}
+                normativasSeleccionadas={["NOM-037"]}
+                size="lg"
+                className="bg-green-500 hover:bg-green-600 text-white"
+              />
               <Button
                 size="lg"
                 variant="outline"
                 className="bg-white text-purple-900 hover:bg-purple-50"
                 onClick={() => {
-                  document.getElementById("solicitar-demo")?.scrollIntoView({ behavior: "smooth" });
+                  document
+                    .getElementById("solicitar-demo")
+                    ?.scrollIntoView({ behavior: "smooth" });
                 }}
               >
                 Solicitar Demo Gratuita
@@ -120,10 +143,12 @@ export default function NOM037Landing() {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">¿Por qué implementar la NOM-037?</h2>
+            <h2 className="text-3xl font-bold mb-4">
+              ¿Por qué implementar la NOM-037?
+            </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              La NOM-037 regula el teletrabajo en México. Cumple con la normativa y
-              aprovecha los beneficios del trabajo remoto.
+              La NOM-037 regula el teletrabajo en México. Cumple con la
+              normativa y aprovecha los beneficios del trabajo remoto.
             </p>
           </div>
 
@@ -137,7 +162,9 @@ export default function NOM037Landing() {
                   <CardTitle className="text-lg">{benefit.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{benefit.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {benefit.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -150,7 +177,9 @@ export default function NOM037Landing() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Requisitos de la NOM-037</h2>
+              <h2 className="text-3xl font-bold mb-4">
+                Requisitos de la NOM-037
+              </h2>
               <p className="text-lg text-muted-foreground">
                 Cumple con todos los requisitos legales del teletrabajo
               </p>
@@ -166,7 +195,9 @@ export default function NOM037Landing() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">{req.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {req.description}
+                    </p>
                   </CardContent>
                 </Card>
               ))}
@@ -180,9 +211,12 @@ export default function NOM037Landing() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Nuestra Solución Integral</h2>
+              <h2 className="text-3xl font-bold mb-4">
+                Nuestra Solución Integral
+              </h2>
               <p className="text-lg text-muted-foreground">
-                Todo lo que necesitas para implementar teletrabajo conforme a la NOM-037
+                Todo lo que necesitas para implementar teletrabajo conforme a la
+                NOM-037
               </p>
             </div>
 
@@ -227,7 +261,15 @@ export default function NOM037Landing() {
 
                     <div className="space-y-2">
                       <Label htmlFor="email">Correo electrónico</Label>
-                      <InputWithValidation id="email" type="email" value={formData.email} onValueChange={handleChange("email")} placeholder="juan@empresa.com" validationRules={{ email: true }} showValidationIcon={true} />
+                      <InputWithValidation
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onValueChange={handleChange("email")}
+                        placeholder="juan@empresa.com"
+                        validationRules={{ email: true }}
+                        showValidationIcon={true}
+                      />
                     </div>
                   </div>
 
@@ -245,7 +287,15 @@ export default function NOM037Landing() {
 
                     <div className="space-y-2">
                       <Label htmlFor="telefono">Teléfono</Label>
-                      <InputWithValidation id="telefono" type="tel" value={formData.telefono} onValueChange={handleChange("telefono")} placeholder="+52 55 1234 5678" validationRules={{ phone: true }} showValidationIcon={true} />
+                      <InputWithValidation
+                        id="telefono"
+                        type="tel"
+                        value={formData.telefono}
+                        onValueChange={handleChange("telefono")}
+                        placeholder="+52 55 1234 5678"
+                        validationRules={{ phone: true }}
+                        showValidationIcon={true}
+                      />
                     </div>
                   </div>
 
@@ -261,7 +311,8 @@ export default function NOM037Landing() {
                   </div>
 
                   <p className="text-xs text-center text-muted-foreground">
-                    Al solicitar la demo, aceptas nuestros términos y condiciones y política de privacidad.
+                    Al solicitar la demo, aceptas nuestros términos y
+                    condiciones y política de privacidad.
                   </p>
                 </div>
               </CardContent>
@@ -276,10 +327,13 @@ export default function NOM037Landing() {
           <div className="max-w-4xl mx-auto flex items-start gap-4">
             <AlertTriangle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-semibold text-amber-900 mb-2">Importante: Cumplimiento Obligatorio</h3>
+              <h3 className="font-semibold text-amber-900 mb-2">
+                Importante: Cumplimiento Obligatorio
+              </h3>
               <p className="text-sm text-amber-800">
-                La NOM-037-STPS-2023 es de cumplimiento obligatorio para todos los centros de trabajo que
-                implementen modalidades de teletrabajo en México. Asegura el cumplimiento legal y protege
+                La NOM-037-STPS-2023 es de cumplimiento obligatorio para todos
+                los centros de trabajo que implementen modalidades de
+                teletrabajo en México. Asegura el cumplimiento legal y protege
                 los derechos de tus colaboradores remotos.
               </p>
             </div>

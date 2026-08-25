@@ -6,7 +6,13 @@ import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
 import ProtectedButton from "@/components/ProtectedButton";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -29,8 +35,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ICONS } from '@/lib/iconography';
-import { Loader2 } from 'lucide-react';
+import { ICONS } from "@/lib/iconography";
+import { Loader2 } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ReentryBadge } from "@/components/ReentryBadge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,11 +46,17 @@ import { EMPTY_STATES } from "@/lib/emptyStates";
 // Using alert for now instead of toast
 
 export default function Employees() {
-  const toast = (opts: { title: string; description: string; variant?: string }) => {
+  const toast = (opts: {
+    title: string;
+    description: string;
+    variant?: string;
+  }) => {
     alert(`${opts.title}\n${opts.description}`);
   };
   const [search, setSearch] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState<string | undefined>();
+  const [departmentFilter, setDepartmentFilter] = useState<
+    string | undefined
+  >();
   const [statusFilter, setStatusFilter] = useState<boolean | undefined>(true);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
@@ -57,20 +69,24 @@ export default function Employees() {
   // Campos requeridos para calcular completitud en el frontend
   const getMissingFields = (emp: any): string[] => {
     const missing: string[] = [];
-    if (!emp.curp) missing.push('CURP');
-    if (!emp.rfc) missing.push('RFC');
-    if (!emp.nss) missing.push('NSS');
-    if (!emp.phone) missing.push('Teléfono');
-    if (!emp.departmentId) missing.push('Departamento');
-    if (!emp.positionId) missing.push('Puesto');
-    if (!emp.hireDate) missing.push('Fecha ingreso');
-    if (!emp.educationLevel) missing.push('Escolaridad');
-    if (!emp.gender) missing.push('Género');
+    if (!emp.curp) missing.push("CURP");
+    if (!emp.rfc) missing.push("RFC");
+    if (!emp.nss) missing.push("NSS");
+    if (!emp.phone) missing.push("Teléfono");
+    if (!emp.departmentId) missing.push("Departamento");
+    if (!emp.positionId) missing.push("Puesto");
+    if (!emp.hireDate) missing.push("Fecha ingreso");
+    if (!emp.educationLevel) missing.push("Escolaridad");
+    if (!emp.gender) missing.push("Género");
     return missing;
   };
 
   // Fetch employees with filters
-  const { data: employeesData, isLoading, refetch } = trpc.employees.list.useQuery({
+  const {
+    data: employeesData,
+    isLoading,
+    refetch,
+  } = trpc.employees.list.useQuery({
     search: search || undefined,
     department: departmentFilter,
     isActive: statusFilter,
@@ -103,7 +119,7 @@ export default function Employees() {
 
     try {
       const reader = new FileReader();
-      reader.onload = async (event) => {
+      reader.onload = async event => {
         const base64 = event.target?.result as string;
         const fileData = base64.split(",")[1]; // Remove data:*/*;base64, prefix
 
@@ -119,48 +135,56 @@ export default function Employees() {
   };
   // Mutation para exportar catálogo de empleados a Excel
   const exportExcelMutation = trpc.employees.exportToExcel.useMutation({
-    onSuccess: (data) => {
-      const link = document.createElement('a');
+    onSuccess: data => {
+      const link = document.createElement("a");
       link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
       link.download = data.filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast({ title: 'Exportación completada', description: `${data.count} trabajadores exportados` });
+      toast({
+        title: "Exportación completada",
+        description: `${data.count} trabajadores exportados`,
+      });
     },
-    onError: (error) => {
-      toast({ title: 'Error al exportar', description: error.message, variant: 'destructive' });
+    onError: error => {
+      toast({
+        title: "Error al exportar",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
   // Mutation para generar plantilla Excel
-  const generateTemplateMutation = trpc.employees.generateImportTemplate.useMutation({
-    onSuccess: (data) => {
-      // Descargar archivo
-      const link = document.createElement('a');
-      link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
-      link.download = data.filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+  const generateTemplateMutation =
+    trpc.employees.generateImportTemplate.useMutation({
+      onSuccess: data => {
+        // Descargar archivo
+        const link = document.createElement("a");
+        link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
+        link.download = data.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      toast({
-        title: 'Plantilla generada',
-        description: 'La plantilla se ha descargado correctamente',
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: error.message || 'No se pudo generar la plantilla',
-        variant: 'destructive',
-      });
-    },
-  });
+        toast({
+          title: "Plantilla generada",
+          description: "La plantilla se ha descargado correctamente",
+        });
+      },
+      onError: error => {
+        toast({
+          title: "Error",
+          description: error.message || "No se pudo generar la plantilla",
+          variant: "destructive",
+        });
+      },
+    });
 
   // Mutation para importar empleados
   const importMutation = trpc.employees.importFromFile.useMutation({
-    onSuccess: (result) => {
+    onSuccess: result => {
       setImportResult(result);
       refetch();
       toast({
@@ -182,16 +206,28 @@ export default function Employees() {
     onMutate: async ({ id }) => {
       // Cancel outgoing refetches
       await utils.employees.list.cancel();
-      
+
       // Snapshot previous value
       const previousEmployees = utils.employees.list.getData();
-      
+
       // Optimistically update to the new value
       utils.employees.list.setData(
-        { search: search || undefined, department: departmentFilter, isActive: statusFilter },
-        (old) => old ? { ...old, employees: old.employees.map((emp: any) => emp.id === id ? { ...emp, isActive: false } : emp) } : old
+        {
+          search: search || undefined,
+          department: departmentFilter,
+          isActive: statusFilter,
+        },
+        old =>
+          old
+            ? {
+                ...old,
+                employees: old.employees.map((emp: any) =>
+                  emp.id === id ? { ...emp, isActive: false } : emp
+                ),
+              }
+            : old
       );
-      
+
       return { previousEmployees };
     },
     onSuccess: () => {
@@ -204,7 +240,11 @@ export default function Employees() {
       // Rollback on error
       if (context?.previousEmployees) {
         utils.employees.list.setData(
-          { search: search || undefined, department: departmentFilter, isActive: statusFilter },
+          {
+            search: search || undefined,
+            department: departmentFilter,
+            isActive: statusFilter,
+          },
           context.previousEmployees
         );
       }
@@ -225,16 +265,28 @@ export default function Employees() {
     onMutate: async ({ id }) => {
       // Cancel outgoing refetches
       await utils.employees.list.cancel();
-      
+
       // Snapshot previous value
       const previousEmployees = utils.employees.list.getData();
-      
+
       // Optimistically update to the new value
       utils.employees.list.setData(
-        { search: search || undefined, department: departmentFilter, isActive: statusFilter },
-        (old) => old ? { ...old, employees: old.employees.map((emp: any) => emp.id === id ? { ...emp, isActive: true } : emp) } : old
+        {
+          search: search || undefined,
+          department: departmentFilter,
+          isActive: statusFilter,
+        },
+        old =>
+          old
+            ? {
+                ...old,
+                employees: old.employees.map((emp: any) =>
+                  emp.id === id ? { ...emp, isActive: true } : emp
+                ),
+              }
+            : old
       );
-      
+
       return { previousEmployees };
     },
     onSuccess: () => {
@@ -247,7 +299,11 @@ export default function Employees() {
       // Rollback on error
       if (context?.previousEmployees) {
         utils.employees.list.setData(
-          { search: search || undefined, department: departmentFilter, isActive: statusFilter },
+          {
+            search: search || undefined,
+            department: departmentFilter,
+            isActive: statusFilter,
+          },
           context.previousEmployees
         );
       }
@@ -277,10 +333,12 @@ export default function Employees() {
 
   return (
     <div className="container mx-auto py-8">
-      <Breadcrumb items={[
-        { label: "Gestión de Talento", href: "/" },
-        { label: "Trabajadores" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Gestión de Talento", href: "/" },
+          { label: "Trabajadores" },
+        ]}
+      />
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Catálogo de Trabajadores</h1>
@@ -292,7 +350,10 @@ export default function Employees() {
           <Button
             variant={incompleteOnly ? "destructive" : "outline"}
             size="sm"
-            onClick={() => { setIncompleteOnly(v => !v); setCurrentPage(1); }}
+            onClick={() => {
+              setIncompleteOnly(v => !v);
+              setCurrentPage(1);
+            }}
           >
             <ICONS.status.warning className="mr-2 h-4 w-4" />
             Perfiles incompletos
@@ -318,13 +379,14 @@ export default function Employees() {
             disabled={exportExcelMutation.isPending}
             title="Exportar catálogo de empleados en formato CONTPAQi/NOI"
           >
-            {exportExcelMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ICONS.documents.generic className="mr-2 h-4 w-4" />}
+            {exportExcelMutation.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <ICONS.documents.generic className="mr-2 h-4 w-4" />
+            )}
             Exportar Excel
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => setIsImportDialogOpen(true)}
-          >
+          <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
             <ICONS.actions.upload className="mr-2 h-4 w-4" />
             Importar Empleados
           </Button>
@@ -354,13 +416,15 @@ export default function Employees() {
               <Input
                 placeholder="Buscar por nombre, email, número, RFC o NSS..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={e => setSearch(e.target.value)}
                 className="pl-9"
               />
             </div>
             <Select
               value={departmentFilter || "all"}
-              onValueChange={(value) => setDepartmentFilter(value === "all" ? undefined : value)}
+              onValueChange={value =>
+                setDepartmentFilter(value === "all" ? undefined : value)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Todos los departamentos" />
@@ -375,9 +439,17 @@ export default function Employees() {
               </SelectContent>
             </Select>
             <Select
-              value={statusFilter === undefined ? "all" : statusFilter ? "active" : "inactive"}
-              onValueChange={(value) =>
-                setStatusFilter(value === "all" ? undefined : value === "active")
+              value={
+                statusFilter === undefined
+                  ? "all"
+                  : statusFilter
+                    ? "active"
+                    : "inactive"
+              }
+              onValueChange={value =>
+                setStatusFilter(
+                  value === "all" ? undefined : value === "active"
+                )
               }
             >
               <SelectTrigger>
@@ -420,8 +492,12 @@ export default function Employees() {
           <Card>
             <CardContent className="py-12 text-center">
               <ICONS.users.single className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No se encontraron trabajadores</h3>
-              <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
+              <h3 className="text-lg font-semibold mb-2">
+                No se encontraron trabajadores
+              </h3>
+              <p className="text-muted-foreground">
+                Intenta ajustar los filtros de búsqueda
+              </p>
             </CardContent>
           </Card>
         ) : (
@@ -429,14 +505,17 @@ export default function Employees() {
             {...EMPTY_STATES.employees}
             action={{
               label: "Agregar Primer Trabajador",
-              onClick: () => window.location.href = "/employees/new"
+              onClick: () => (window.location.href = "/employees/new"),
             }}
           />
         )
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {employees.map((employee: any) => (
-            <Card key={employee.id} className="hover:shadow-lg transition-shadow">
+            <Card
+              key={employee.id}
+              className="hover:shadow-lg transition-shadow"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
@@ -447,14 +526,18 @@ export default function Employees() {
                       <CardTitle className="text-lg">
                         {employee.firstName} {employee.lastName}
                       </CardTitle>
-                      <CardDescription>{employee.position || "Sin puesto"}</CardDescription>
+                      <CardDescription>
+                        {employee.position || "Sin puesto"}
+                      </CardDescription>
                     </div>
                   </div>
                   <div className="flex flex-col gap-1 items-end">
-                    <Badge variant={employee.isActive ? "default" : "secondary"}>
+                    <Badge
+                      variant={employee.isActive ? "default" : "secondary"}
+                    >
                       {employee.isActive ? "Activo" : "Inactivo"}
                     </Badge>
-                    <ReentryBadge 
+                    <ReentryBadge
                       reentryCount={employee.reentryCount || 0}
                       previousHireDates={employee.previousHireDates}
                     />
@@ -464,17 +547,27 @@ export default function Employees() {
                         <TooltipProvider delayDuration={200}>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Badge variant="outline" className="border-amber-400 text-amber-600 text-xs cursor-help">
+                              <Badge
+                                variant="outline"
+                                className="border-amber-400 text-amber-600 text-xs cursor-help"
+                              >
                                 <ICONS.status.warning className="mr-1 h-3 w-3" />
-                                {missing.length} campo{missing.length > 1 ? 's' : ''}
+                                {missing.length} campo
+                                {missing.length > 1 ? "s" : ""}
                               </Badge>
                             </TooltipTrigger>
                             <TooltipContent side="left" className="max-w-xs">
-                              <p className="font-semibold mb-1 text-xs">Campos faltantes:</p>
+                              <p className="font-semibold mb-1 text-xs">
+                                Campos faltantes:
+                              </p>
                               <ul className="text-xs space-y-0.5">
                                 {missing.map((field: string) => (
-                                  <li key={field} className="flex items-center gap-1">
-                                    <span className="text-amber-400">•</span> {field}
+                                  <li
+                                    key={field}
+                                    className="flex items-center gap-1"
+                                  >
+                                    <span className="text-amber-400">•</span>{" "}
+                                    {field}
                                   </li>
                                 ))}
                               </ul>
@@ -482,7 +575,10 @@ export default function Employees() {
                           </Tooltip>
                         </TooltipProvider>
                       ) : (
-                        <Badge variant="outline" className="border-green-400 text-green-600 text-xs">
+                        <Badge
+                          variant="outline"
+                          className="border-green-400 text-green-600 text-xs"
+                        >
                           Completo
                         </Badge>
                       );
@@ -519,19 +615,22 @@ export default function Employees() {
                   {employee.hireDate && (
                     <div className="flex items-center text-muted-foreground">
                       <ICONS.datetime.calendar className="mr-2 h-4 w-4" />
-                      Ingreso: {new Date(employee.hireDate).toLocaleDateString("es-MX")}
+                      Ingreso:{" "}
+                      {new Date(employee.hireDate).toLocaleDateString("es-MX")}
                     </div>
                   )}
                   {showRfcNss && employee.rfc && (
                     <div className="flex items-center text-muted-foreground font-mono text-xs">
                       <ICONS.documents.generic className="mr-2 h-4 w-4 flex-shrink-0" />
-                      <span className="font-semibold mr-1">RFC:</span> {employee.rfc}
+                      <span className="font-semibold mr-1">RFC:</span>{" "}
+                      {employee.rfc}
                     </div>
                   )}
                   {showRfcNss && employee.nss && (
                     <div className="flex items-center text-muted-foreground font-mono text-xs">
                       <ICONS.documents.generic className="mr-2 h-4 w-4 flex-shrink-0" />
-                      <span className="font-semibold mr-1">NSS:</span> {employee.nss}
+                      <span className="font-semibold mr-1">NSS:</span>{" "}
+                      {employee.nss}
                     </div>
                   )}
                   {showRfcNss && !employee.rfc && !employee.nss && (
@@ -547,10 +646,13 @@ export default function Employees() {
                       Ver Perfil
                     </Button>
                   </Link>
-                  <Link href={`/employees/${employee.id}/edit`} className="flex-1">
-                    <ProtectedButton 
-                      variant="outline" 
-                      size="sm" 
+                  <Link
+                    href={`/employees/${employee.id}/edit`}
+                    className="flex-1"
+                  >
+                    <ProtectedButton
+                      variant="outline"
+                      size="sm"
                       className="w-full"
                       requiredPermission="can_edit"
                       fallbackMessage="No tienes permisos para editar trabajadores"
@@ -562,7 +664,12 @@ export default function Employees() {
                     <ProtectedButton
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeactivate(employee.id, `${employee.firstName} ${employee.lastName}`)}
+                      onClick={() =>
+                        handleDeactivate(
+                          employee.id,
+                          `${employee.firstName} ${employee.lastName}`
+                        )
+                      }
                       disabled={deactivateMutation.isPending}
                       requiredPermission="can_edit"
                       fallbackMessage="Solo los administradores pueden desactivar trabajadores"
@@ -574,7 +681,12 @@ export default function Employees() {
                     <ProtectedButton
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleReactivate(employee.id, `${employee.firstName} ${employee.lastName}`)}
+                      onClick={() =>
+                        handleReactivate(
+                          employee.id,
+                          `${employee.firstName} ${employee.lastName}`
+                        )
+                      }
                       disabled={reactivateMutation.isPending}
                       requiredPermission="can_edit"
                       fallbackMessage="Solo los administradores pueden reactivar trabajadores"
@@ -598,7 +710,8 @@ export default function Employees() {
               <div>
                 <DialogTitle>Importar Empleados desde Excel/CSV</DialogTitle>
                 <DialogDescription className="mt-2">
-                  Sube un archivo Excel o CSV con la información de los empleados.
+                  Sube un archivo Excel o CSV con la información de los
+                  empleados.
                 </DialogDescription>
               </div>
               <Button
@@ -613,7 +726,7 @@ export default function Employees() {
                     Generando...
                   </>
                 ) : (
-                  'Descargar Plantilla'
+                  "Descargar Plantilla"
                 )}
               </Button>
             </div>
@@ -643,25 +756,41 @@ export default function Employees() {
                   </div>
                   <div>
                     <p className="text-muted-foreground">Exitosos</p>
-                    <p className="text-2xl font-bold text-green-600">{importResult.successful}</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {importResult.successful}
+                    </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Errores</p>
-                    <p className="text-2xl font-bold text-red-600">{importResult.failed}</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      {importResult.failed}
+                    </p>
                   </div>
                 </div>
 
                 {importResult.errors && importResult.errors.length > 0 && (
                   <div className="mt-4">
-                    <h5 className="font-semibold text-sm mb-2">Errores Detectados:</h5>
+                    <h5 className="font-semibold text-sm mb-2">
+                      Errores Detectados:
+                    </h5>
                     <div className="max-h-40 overflow-y-auto space-y-1">
-                      {importResult.errors.slice(0, 10).map((err: any, idx: number) => (
-                        <div key={idx} className="text-xs bg-red-50 p-2 rounded">
-                          <span className="font-semibold">Fila {err.row}:</span> {err.error}
-                        </div>
-                      ))}
+                      {importResult.errors
+                        .slice(0, 10)
+                        .map((err: any, idx: number) => (
+                          <div
+                            key={idx}
+                            className="text-xs bg-red-50 p-2 rounded"
+                          >
+                            <span className="font-semibold">
+                              Fila {err.row}:
+                            </span>{" "}
+                            {err.error}
+                          </div>
+                        ))}
                       {importResult.errors.length > 10 && (
-                        <p className="text-xs text-muted-foreground">...y {importResult.errors.length - 10} errores más</p>
+                        <p className="text-xs text-muted-foreground">
+                          ...y {importResult.errors.length - 10} errores más
+                        </p>
                       )}
                     </div>
                   </div>
@@ -698,8 +827,8 @@ export default function Employees() {
           totalPages={pagination.totalPages}
           pageSize={pagination.pageSize}
           totalCount={pagination.totalCount}
-          onPageChange={(page) => setCurrentPage(page)}
-          onPageSizeChange={(size) => {
+          onPageChange={page => setCurrentPage(page)}
+          onPageSizeChange={size => {
             setPageSize(size);
             setCurrentPage(1);
           }}

@@ -1,6 +1,6 @@
 /**
  * Integración con API de Códigos Postales Mexicanos
- * 
+ *
  * Utiliza Bluewire API (gratuita) como proveedor principal
  * Fallback a COPOMEX API si Bluewire falla
  */
@@ -16,10 +16,12 @@ export interface PostalCodeData {
  * Obtiene información de dirección desde código postal
  * Intenta primero con Bluewire API, luego con COPOMEX como fallback
  */
-export async function getAddressByPostalCode(postalCode: string): Promise<PostalCodeData | null> {
+export async function getAddressByPostalCode(
+  postalCode: string
+): Promise<PostalCodeData | null> {
   // Validar formato de código postal (5 dígitos)
   if (!/^\d{5}$/.test(postalCode)) {
-    throw new Error('Código postal debe tener 5 dígitos');
+    throw new Error("Código postal debe tener 5 dígitos");
   }
 
   // Intentar con Bluewire API (gratuita, sin API key)
@@ -29,7 +31,7 @@ export async function getAddressByPostalCode(postalCode: string): Promise<Postal
       return bluewireData;
     }
   } catch (error) {
-    console.warn('Bluewire API failed, trying COPOMEX:', error);
+    console.warn("Bluewire API failed, trying COPOMEX:", error);
   }
 
   // Fallback a COPOMEX API (gratuita, sin API key)
@@ -39,7 +41,7 @@ export async function getAddressByPostalCode(postalCode: string): Promise<Postal
       return copomexData;
     }
   } catch (error) {
-    console.warn('COPOMEX API failed:', error);
+    console.warn("COPOMEX API failed:", error);
   }
 
   return null;
@@ -49,13 +51,15 @@ export async function getAddressByPostalCode(postalCode: string): Promise<Postal
  * Obtiene datos desde Bluewire API
  * Endpoint: https://codigospostalesmx.bluewire.com.mx/api/codigos_postales/{cp}
  */
-async function fetchFromBluewire(postalCode: string): Promise<PostalCodeData | null> {
+async function fetchFromBluewire(
+  postalCode: string
+): Promise<PostalCodeData | null> {
   const url = `https://codigospostalesmx.bluewire.com.mx/api/codigos_postales/${postalCode}`;
 
   const response = await fetch(url, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Accept': 'application/json',
+      Accept: "application/json",
     },
   });
 
@@ -72,13 +76,17 @@ async function fetchFromBluewire(postalCode: string): Promise<PostalCodeData | n
 
   // Extraer información (Bluewire retorna array de objetos)
   const firstResult = data[0];
-  const state = firstResult.estado || firstResult.state || '';
-  const municipality = firstResult.municipio || firstResult.municipality || '';
-  
+  const state = firstResult.estado || firstResult.state || "";
+  const municipality = firstResult.municipio || firstResult.municipality || "";
+
   // Extraer todas las colonias únicas
-  const coloniesSet = new Set(data.map((item: any) => 
-    item.colonia || item.colony || item.asentamiento || ''
-  ).filter(Boolean));
+  const coloniesSet = new Set(
+    data
+      .map(
+        (item: any) => item.colonia || item.colony || item.asentamiento || ""
+      )
+      .filter(Boolean)
+  );
   const colonies = Array.from(coloniesSet);
 
   return {
@@ -93,13 +101,15 @@ async function fetchFromBluewire(postalCode: string): Promise<PostalCodeData | n
  * Obtiene datos desde COPOMEX API (fallback)
  * Endpoint: https://api.copomex.com/query/info_cp/{cp}
  */
-async function fetchFromCopomex(postalCode: string): Promise<PostalCodeData | null> {
+async function fetchFromCopomex(
+  postalCode: string
+): Promise<PostalCodeData | null> {
   const url = `https://api.copomex.com/query/info_cp/${postalCode}`;
 
   const response = await fetch(url, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Accept': 'application/json',
+      Accept: "application/json",
     },
   });
 
@@ -115,8 +125,8 @@ async function fetchFromCopomex(postalCode: string): Promise<PostalCodeData | nu
   }
 
   const responseData = data.response;
-  const state = responseData.estado || '';
-  const municipality = responseData.municipio || '';
+  const state = responseData.estado || "";
+  const municipality = responseData.municipio || "";
   const colonies = responseData.asentamiento || [];
 
   return {
@@ -140,9 +150,9 @@ export async function searchPostalCodes(query: string): Promise<string[]> {
     const url = `https://api.copomex.com/query/get_cp_por_asentamiento/${encodeURIComponent(query)}`;
 
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Accept': 'application/json',
+        Accept: "application/json",
       },
     });
 
@@ -157,12 +167,14 @@ export async function searchPostalCodes(query: string): Promise<string[]> {
     }
 
     // Extraer códigos postales únicos
-    const postalCodesSet = new Set(data.response.map((item: any) => item.cp).filter(Boolean));
+    const postalCodesSet = new Set(
+      data.response.map((item: any) => item.cp).filter(Boolean)
+    );
     const postalCodes = Array.from(postalCodesSet) as string[];
 
     return postalCodes.slice(0, 10); // Limitar a 10 resultados
   } catch (error) {
-    console.warn('Search postal codes failed:', error);
+    console.warn("Search postal codes failed:", error);
     return [];
   }
 }

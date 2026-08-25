@@ -7,7 +7,11 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { thresholdExperiments, modelThresholds, employeeTurnoverHistory } from "../../drizzle/schema";
+import {
+  thresholdExperiments,
+  modelThresholds,
+  employeeTurnoverHistory,
+} from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 
 export const thresholdExperimentsRouter = router({
@@ -56,10 +60,15 @@ export const thresholdExperimentsRouter = router({
         const metricsB = await calculateMetricsForConfig(configB);
 
         // Determinar ganador basado en F1-Score (balance entre precisión y recall)
-        const winnerConfigId = metricsA.f1Score >= metricsB.f1Score ? input.configIdA : input.configIdB;
+        const winnerConfigId =
+          metricsA.f1Score >= metricsB.f1Score
+            ? input.configIdA
+            : input.configIdB;
 
         // Crear experimento
-        const [experiment] = await (db.insert(thresholdExperiments) as any).values({
+        const [experiment] = await (
+          db.insert(thresholdExperiments) as any
+        ).values({
           name: input.name,
           description: input.description || null,
           configIdA: input.configIdA,
@@ -120,7 +129,7 @@ export const thresholdExperimentsRouter = router({
 
         // Obtener configuraciones asociadas
         const experimentsWithConfigs = await Promise.all(
-          experiments.map(async (exp) => {
+          experiments.map(async exp => {
             const [configA] = await db
               .select()
               .from(modelThresholds)
@@ -263,7 +272,8 @@ async function calculateMetricsForConfig(config: any) {
   for (const record of turnoverRecords) {
     if (!record.riskScoreAtExit) continue;
 
-    const predictedHighRisk = record.riskScoreAtExit >= config.highRiskThreshold;
+    const predictedHighRisk =
+      record.riskScoreAtExit >= config.highRiskThreshold;
     const actualHighRisk = record.wasHighRisk;
 
     if (predictedHighRisk && actualHighRisk) {
@@ -277,21 +287,25 @@ async function calculateMetricsForConfig(config: any) {
     }
   }
 
-  const precision = truePositives + falsePositives > 0
-    ? (truePositives / (truePositives + falsePositives)) * 100
-    : 0;
+  const precision =
+    truePositives + falsePositives > 0
+      ? (truePositives / (truePositives + falsePositives)) * 100
+      : 0;
 
-  const recall = truePositives + falseNegatives > 0
-    ? (truePositives / (truePositives + falseNegatives)) * 100
-    : 0;
+  const recall =
+    truePositives + falseNegatives > 0
+      ? (truePositives / (truePositives + falseNegatives)) * 100
+      : 0;
 
-  const f1Score = precision + recall > 0
-    ? (2 * (precision * recall) / (precision + recall))
-    : 0;
+  const f1Score =
+    precision + recall > 0
+      ? (2 * (precision * recall)) / (precision + recall)
+      : 0;
 
-  const accuracy = turnoverRecords.length > 0
-    ? ((truePositives + trueNegatives) / turnoverRecords.length) * 100
-    : 0;
+  const accuracy =
+    turnoverRecords.length > 0
+      ? ((truePositives + trueNegatives) / turnoverRecords.length) * 100
+      : 0;
 
   return {
     precision,

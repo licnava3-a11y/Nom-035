@@ -75,7 +75,9 @@ describe("Exportación PDF del historial de notificaciones", () => {
       resolve(__dirname, "../client/src/pages/InternalMailbox.tsx"),
       "utf-8"
     );
-    expect(src).toContain("showNotifHistory && notifHistory && notifHistory.history.length > 0");
+    expect(src).toContain(
+      "showNotifHistory && notifHistory && notifHistory.history.length > 0"
+    );
     expect(src).toContain("Exportar historial a PDF (evidencia STPS)");
   });
 
@@ -96,7 +98,9 @@ describe("Selector de período histórico en comparativa psicométrica", () => {
       "utf-8"
     );
     expect(src).toContain("compareMonthsAgo: z.number().min(1).max(12)");
-    expect(src).toContain("const compareMonthsAgo = input?.compareMonthsAgo ?? 1");
+    expect(src).toContain(
+      "const compareMonthsAgo = input?.compareMonthsAgo ?? 1"
+    );
   });
 
   it("getRiskComparison uses compareMonthsAgo for period offset", () => {
@@ -113,7 +117,9 @@ describe("Selector de período histórico en comparativa psicométrica", () => {
       resolve(__dirname, "../client/src/pages/ExecutiveReport.tsx"),
       "utf-8"
     );
-    expect(src).toContain("const [compareMonthsAgo, setCompareMonthsAgo] = useState(1)");
+    expect(src).toContain(
+      "const [compareMonthsAgo, setCompareMonthsAgo] = useState(1)"
+    );
     expect(src).toContain("{ companyId: selectedCompanyId, compareMonthsAgo }");
   });
 

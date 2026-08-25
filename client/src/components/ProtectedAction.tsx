@@ -18,14 +18,14 @@ interface ProtectedActionProps {
 
 /**
  * ProtectedAction - Componente para proteger enlaces, acciones y elementos no-botón según permisos del usuario
- * 
+ *
  * @param children - Elemento hijo a proteger (Link, <a>, div con onClick, etc.)
  * @param requiredPermission - Permiso único requerido
  * @param requiredPermissions - Array de permisos requeridos
  * @param requireAll - Si es true, requiere TODOS los permisos. Si es false, requiere AL MENOS UNO (por defecto false)
  * @param fallbackMessage - Mensaje en tooltip cuando no tiene permisos
  * @param hideIfNoPermission - Si es true, oculta el elemento. Si es false, lo deshabilita (por defecto false)
- * 
+ *
  * @example
  * // Ocultar enlace si no tiene permisos
  * <ProtectedAction
@@ -35,7 +35,7 @@ interface ProtectedActionProps {
  * >
  *   <Link href="/create">Crear</Link>
  * </ProtectedAction>
- * 
+ *
  * @example
  * // Deshabilitar enlace con tooltip si no tiene permisos
  * <ProtectedAction
@@ -53,7 +53,8 @@ export default function ProtectedAction({
   fallbackMessage = "No tienes permisos para realizar esta acción",
   hideIfNoPermission = false,
 }: ProtectedActionProps) {
-  const { hasPermission, hasAllPermissions, hasAnyPermission } = usePermissions();
+  const { hasPermission, hasAllPermissions, hasAnyPermission } =
+    usePermissions();
 
   // Determinar si tiene permisos
   let hasRequiredPermission = true;
@@ -95,9 +96,7 @@ export default function ProtectedAction({
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>
-          {disabledChild}
-        </TooltipTrigger>
+        <TooltipTrigger asChild>{disabledChild}</TooltipTrigger>
         <TooltipContent>
           <p>{fallbackMessage}</p>
         </TooltipContent>

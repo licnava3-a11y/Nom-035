@@ -22,13 +22,15 @@ const alertTypeLabels: Record<string, string> = {
 /**
  * Analyze historical alert data and predict next occurrence
  */
-async function analyzeAlertHistory(alertType: string): Promise<PredictiveAlert | null> {
+async function analyzeAlertHistory(
+  alertType: string
+): Promise<PredictiveAlert | null> {
   const db = await getDb();
   if (!db) {
-    console.error('[Predictive Alerts] Database connection not available');
+    console.error("[Predictive Alerts] Database connection not available");
     return null;
   }
-  
+
   // Get last 180 days of alerts
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setDate(sixMonthsAgo.getDate() - 180);
@@ -60,13 +62,17 @@ async function analyzeAlertHistory(alertType: string): Promise<PredictiveAlert |
 
   // Calculate average interval
   const averageIntervalDays = Math.round(
-    intervals.reduce((sum: any, interval: any) => sum + interval, 0) / intervals.length
+    intervals.reduce((sum: any, interval: any) => sum + interval, 0) /
+      intervals.length
   );
 
   // Calculate standard deviation
   const variance =
-    intervals.reduce((sum: any, interval: any) => sum + Math.pow(interval - averageIntervalDays, 2), 0) /
-    intervals.length;
+    intervals.reduce(
+      (sum: any, interval: any) =>
+        sum + Math.pow(interval - averageIntervalDays, 2),
+      0
+    ) / intervals.length;
   const standardDeviation = Math.sqrt(variance);
 
   // Calculate coefficient of variation (CV) for confidence level
@@ -84,10 +90,12 @@ async function analyzeAlertHistory(alertType: string): Promise<PredictiveAlert |
   const recentIntervals = intervals.slice(0, Math.min(3, intervals.length));
   const olderIntervals = intervals.slice(Math.min(3, intervals.length));
   const recentAvg =
-    recentIntervals.reduce((sum: any, val: any) => sum + val, 0) / recentIntervals.length;
+    recentIntervals.reduce((sum: any, val: any) => sum + val, 0) /
+    recentIntervals.length;
   const olderAvg =
     olderIntervals.length > 0
-      ? olderIntervals.reduce((sum: any, val: any) => sum + val, 0) / olderIntervals.length
+      ? olderIntervals.reduce((sum: any, val: any) => sum + val, 0) /
+        olderIntervals.length
       : recentAvg;
 
   let trend: "increasing" | "stable" | "decreasing";
@@ -135,7 +143,8 @@ async function analyzeAlertHistory(alertType: string): Promise<PredictiveAlert |
  */
 function generateAlertEmail(alerts: PredictiveAlert[]): string {
   const alertRows = alerts
-    .map((alert: any) => `
+    .map(
+      (alert: any) => `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
         <strong>${alertTypeLabels[alert.alertType]}</strong>
@@ -144,8 +153,8 @@ function generateAlertEmail(alerts: PredictiveAlert[]): string {
         <span style="background: ${
           alert.daysUntilPredicted <= 3 ? "#fee2e2" : "#fef3c7"
         }; color: ${
-        alert.daysUntilPredicted <= 3 ? "#991b1b" : "#92400e"
-      }; padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+          alert.daysUntilPredicted <= 3 ? "#991b1b" : "#92400e"
+        }; padding: 4px 8px; border-radius: 4px; font-weight: 600;">
           ${alert.daysUntilPredicted} días
         </span>
       </td>
@@ -154,21 +163,21 @@ function generateAlertEmail(alerts: PredictiveAlert[]): string {
           alert.confidenceLevel === "high"
             ? "#d1fae5"
             : alert.confidenceLevel === "medium"
-            ? "#fef3c7"
-            : "#fee2e2"
+              ? "#fef3c7"
+              : "#fee2e2"
         }; color: ${
-        alert.confidenceLevel === "high"
-          ? "#065f46"
-          : alert.confidenceLevel === "medium"
-          ? "#92400e"
-          : "#991b1b"
-      }; padding: 4px 8px; border-radius: 4px;">
+          alert.confidenceLevel === "high"
+            ? "#065f46"
+            : alert.confidenceLevel === "medium"
+              ? "#92400e"
+              : "#991b1b"
+        }; padding: 4px 8px; border-radius: 4px;">
           ${
             alert.confidenceLevel === "high"
               ? "Alta"
               : alert.confidenceLevel === "medium"
-              ? "Media"
-              : "Baja"
+                ? "Media"
+                : "Baja"
           }
         </span>
       </td>
@@ -180,15 +189,15 @@ function generateAlertEmail(alerts: PredictiveAlert[]): string {
           alert.trend === "increasing"
             ? "#991b1b"
             : alert.trend === "decreasing"
-            ? "#065f46"
-            : "#1e40af"
+              ? "#065f46"
+              : "#1e40af"
         };">
           ${
             alert.trend === "increasing"
               ? "↑ Creciente"
               : alert.trend === "decreasing"
-              ? "↓ Decreciente"
-              : "→ Estable"
+                ? "↓ Decreciente"
+                : "→ Estable"
           }
         </span>
       </td>
@@ -277,10 +286,16 @@ function generateAlertEmail(alerts: PredictiveAlert[]): string {
  * Main job function - runs daily to check for urgent predictive alerts
  */
 export async function runPredictiveAlertsJob(): Promise<void> {
-  console.log("[Predictive Alerts Job] Starting automated predictive alerts check...");
+  console.log(
+    "[Predictive Alerts Job] Starting automated predictive alerts check..."
+  );
 
   try {
-    const alertTypes = ["critical_cases", "low_coverage", "excellent_compliance"];
+    const alertTypes = [
+      "critical_cases",
+      "low_coverage",
+      "excellent_compliance",
+    ];
     const urgentAlerts: PredictiveAlert[] = [];
 
     // Analyze each alert type
@@ -293,12 +308,16 @@ export async function runPredictiveAlertsJob(): Promise<void> {
 
     // If there are urgent alerts, send notification to admin
     if (urgentAlerts.length > 0) {
-      console.log(`[Predictive Alerts Job] Found ${urgentAlerts.length} urgent predictive alerts`);
+      console.log(
+        `[Predictive Alerts Job] Found ${urgentAlerts.length} urgent predictive alerts`
+      );
 
       // Get admin users
       const db = await getDb();
       if (!db) {
-        console.error('[Predictive Alerts Job] Database connection not available for admin lookup');
+        console.error(
+          "[Predictive Alerts Job] Database connection not available for admin lookup"
+        );
         return;
       }
       const admins = await db
@@ -319,9 +338,14 @@ export async function runPredictiveAlertsJob(): Promise<void> {
               subject: `⚠️ Alertas Predictivas Urgentes - ${urgentAlerts.length} Alerta(s) Detectada(s)`,
               html: generateAlertEmail(urgentAlerts),
             });
-            console.log(`[Predictive Alerts Job] Email sent to admin: ${admin.email}`);
+            console.log(
+              `[Predictive Alerts Job] Email sent to admin: ${admin.email}`
+            );
           } catch (error) {
-            console.error(`[Predictive Alerts Job] Failed to send email to ${admin.email}:`, error);
+            console.error(
+              `[Predictive Alerts Job] Failed to send email to ${admin.email}:`,
+              error
+            );
           }
         }
       }
@@ -329,8 +353,13 @@ export async function runPredictiveAlertsJob(): Promise<void> {
       console.log("[Predictive Alerts Job] No urgent predictive alerts found");
     }
 
-    console.log("[Predictive Alerts Job] Automated predictive alerts check completed successfully");
+    console.log(
+      "[Predictive Alerts Job] Automated predictive alerts check completed successfully"
+    );
   } catch (error) {
-    console.error("[Predictive Alerts Job] Error during predictive alerts check:", error);
+    console.error(
+      "[Predictive Alerts Job] Error during predictive alerts check:",
+      error
+    );
   }
 }

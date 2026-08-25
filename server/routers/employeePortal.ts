@@ -46,10 +46,17 @@ export const employeePortalRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       if (ctx.user.role !== "admin") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "Solo administradores pueden generar tokens de acceso." });
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Solo administradores pueden generar tokens de acceso.",
+        });
       }
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       // Obtener datos del empleado
       const [emp] = await db
@@ -63,8 +70,16 @@ export const employeePortalRouter = router({
         .where(eq(employees.id, input.employeeId))
         .limit(1);
 
-      if (!emp) throw new TRPCError({ code: "NOT_FOUND", message: "Empleado no encontrado." });
-      if (!emp.email) throw new TRPCError({ code: "BAD_REQUEST", message: "El empleado no tiene correo registrado." });
+      if (!emp)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Empleado no encontrado.",
+        });
+      if (!emp.email)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "El empleado no tiene correo registrado.",
+        });
 
       // Invalidar tokens anteriores activos
       await db
@@ -126,7 +141,12 @@ export const employeePortalRouter = router({
         });
       }
 
-      return { token, portalUrl, expiresAt: expiresAt.toISOString(), employeeName: `${emp.firstName} ${emp.lastName}` };
+      return {
+        token,
+        portalUrl,
+        expiresAt: expiresAt.toISOString(),
+        employeeName: `${emp.firstName} ${emp.lastName}`,
+      };
     }),
 
   /**
@@ -137,7 +157,11 @@ export const employeePortalRouter = router({
     .input(z.object({ token: z.string().min(10) }))
     .query(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const now = new Date();
 
       const [tokenRow] = await db
@@ -153,7 +177,10 @@ export const employeePortalRouter = router({
         .limit(1);
 
       if (!tokenRow) {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Enlace inválido o expirado." });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Enlace inválido o expirado.",
+        });
       }
 
       // Obtener datos completos del empleado
@@ -174,7 +201,11 @@ export const employeePortalRouter = router({
         .where(eq(employees.id, tokenRow.employeeId))
         .limit(1);
 
-      if (!emp) throw new TRPCError({ code: "NOT_FOUND", message: "Empleado no encontrado." });
+      if (!emp)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Empleado no encontrado.",
+        });
 
       return {
         valid: true,
@@ -190,7 +221,11 @@ export const employeePortalRouter = router({
     .input(z.object({ token: z.string().min(10) }))
     .query(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const now = new Date();
 
       const [tokenRow] = await db
@@ -205,7 +240,11 @@ export const employeePortalRouter = router({
         )
         .limit(1);
 
-      if (!tokenRow) throw new TRPCError({ code: "UNAUTHORIZED", message: "Token inválido." });
+      if (!tokenRow)
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Token inválido.",
+        });
 
       // Obtener userId del empleado
       const [emp] = await db
@@ -228,7 +267,10 @@ export const employeePortalRouter = router({
           assignedDate: trainingAssignments.assignedDate,
         })
         .from(trainingAssignments)
-        .innerJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+        .innerJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
         .where(eq(trainingAssignments.committeeMemberId, emp.userId))
         .orderBy(desc(trainingAssignments.assignedDate))
         .limit(20);
@@ -243,7 +285,11 @@ export const employeePortalRouter = router({
     .input(z.object({ token: z.string().min(10) }))
     .query(async ({ input }) => {
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const now = new Date();
 
       const [tokenRow] = await db
@@ -258,7 +304,11 @@ export const employeePortalRouter = router({
         )
         .limit(1);
 
-      if (!tokenRow) throw new TRPCError({ code: "UNAUTHORIZED", message: "Token inválido." });
+      if (!tokenRow)
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Token inválido.",
+        });
 
       const vacations = await db
         .select()
@@ -278,7 +328,11 @@ export const employeePortalRouter = router({
     .query(async ({ input, ctx }) => {
       if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       const tokens = await db
         .select({
           id: employeePortalTokens.id,
@@ -303,7 +357,11 @@ export const employeePortalRouter = router({
     .mutation(async ({ input, ctx }) => {
       if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
       const db = await getDb();
-            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       await db
         .update(employeePortalTokens)
         .set({ isActive: false })

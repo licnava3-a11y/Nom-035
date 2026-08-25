@@ -88,12 +88,16 @@ export default function FormatCatalog() {
 
   const createMutation = trpc.formatCatalog.create.useMutation({
     onSuccess: () => {
-      toast({ title: "Versión creada", description: "La nueva versión fue registrada exitosamente." });
+      toast({
+        title: "Versión creada",
+        description: "La nueva versión fue registrada exitosamente.",
+      });
       utils.formatCatalog.list.invalidate();
       setShowCreate(false);
       setForm(DEFAULT_FORM);
     },
-    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+    onError: e =>
+      toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   const updateMutation = trpc.formatCatalog.update.useMutation({
@@ -102,15 +106,20 @@ export default function FormatCatalog() {
       utils.formatCatalog.list.invalidate();
       setEditEntry(null);
     },
-    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+    onError: e =>
+      toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   const setActiveMutation = trpc.formatCatalog.setActive.useMutation({
     onSuccess: () => {
-      toast({ title: "Versión activada", description: "Esta versión se usará en los nuevos PDFs DC-3." });
+      toast({
+        title: "Versión activada",
+        description: "Esta versión se usará en los nuevos PDFs DC-3.",
+      });
       utils.formatCatalog.list.invalidate();
     },
-    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+    onError: e =>
+      toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   const deleteMutation = trpc.formatCatalog.delete.useMutation({
@@ -118,12 +127,17 @@ export default function FormatCatalog() {
       toast({ title: "Versión eliminada" });
       utils.formatCatalog.list.invalidate();
     },
-    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+    onError: e =>
+      toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   const handleCreate = () => {
     if (!form.code || !form.name || !form.version || !form.versionDate) {
-      toast({ title: "Campos requeridos", description: "Complete todos los campos obligatorios.", variant: "destructive" });
+      toast({
+        title: "Campos requeridos",
+        description: "Complete todos los campos obligatorios.",
+        variant: "destructive",
+      });
       return;
     }
     createMutation.mutate(form);
@@ -155,7 +169,7 @@ export default function FormatCatalog() {
   };
 
   const entries = (listQuery.data ?? []) as FormatEntry[];
-  const activeEntry = entries.find((e) => e.isActive);
+  const activeEntry = entries.find(e => e.isActive);
 
   return (
     <DashboardLayout>
@@ -168,11 +182,17 @@ export default function FormatCatalog() {
               Catálogo de Formatos
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Gestione las versiones oficiales de los formatos DC-3 y otros documentos normativos.
-              La versión activa se usa para generar el folio en los PDFs.
+              Gestione las versiones oficiales de los formatos DC-3 y otros
+              documentos normativos. La versión activa se usa para generar el
+              folio en los PDFs.
             </p>
           </div>
-          <Button onClick={() => { setShowCreate(true); setForm(DEFAULT_FORM); }}>
+          <Button
+            onClick={() => {
+              setShowCreate(true);
+              setForm(DEFAULT_FORM);
+            }}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nueva versión
           </Button>
@@ -187,10 +207,14 @@ export default function FormatCatalog() {
                 Versión activa: {activeEntry.code} v{activeEntry.version}
               </p>
               <p className="text-green-700 text-xs mt-0.5">
-                Vigente desde {String(activeEntry.versionDate).slice(0, 10)} · Referencia: {activeEntry.reference ?? "—"}
+                Vigente desde {String(activeEntry.versionDate).slice(0, 10)} ·
+                Referencia: {activeEntry.reference ?? "—"}
               </p>
               <p className="text-green-700 text-xs mt-0.5">
-                Nomenclatura de folio: <strong>{activeEntry.code}-XXXX/{new Date().getFullYear()}</strong>
+                Nomenclatura de folio:{" "}
+                <strong>
+                  {activeEntry.code}-XXXX/{new Date().getFullYear()}
+                </strong>
               </p>
             </div>
           </div>
@@ -201,7 +225,7 @@ export default function FormatCatalog() {
           <Label className="text-sm shrink-0">Filtrar por código:</Label>
           <Input
             value={filterCode}
-            onChange={(e) => setFilterCode(e.target.value)}
+            onChange={e => setFilterCode(e.target.value)}
             placeholder="DC-3, DC-4, F-001…"
             className="max-w-[180px]"
           />
@@ -238,9 +262,14 @@ export default function FormatCatalog() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {entries.map((entry) => (
-                  <TableRow key={entry.id} className={entry.isActive ? "bg-green-50/50" : ""}>
-                    <TableCell className="font-mono font-semibold">{entry.code}</TableCell>
+                {entries.map(entry => (
+                  <TableRow
+                    key={entry.id}
+                    className={entry.isActive ? "bg-green-50/50" : ""}
+                  >
+                    <TableCell className="font-mono font-semibold">
+                      {entry.code}
+                    </TableCell>
                     <TableCell>
                       <span className="font-medium">v{entry.version}</span>
                     </TableCell>
@@ -260,7 +289,10 @@ export default function FormatCatalog() {
                           Activa
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-muted-foreground">
+                        <Badge
+                          variant="outline"
+                          className="text-muted-foreground"
+                        >
                           Inactiva
                         </Badge>
                       )}
@@ -272,7 +304,9 @@ export default function FormatCatalog() {
                             variant="ghost"
                             size="sm"
                             className="text-green-700 hover:text-green-900 hover:bg-green-50"
-                            onClick={() => setActiveMutation.mutate({ id: entry.id })}
+                            onClick={() =>
+                              setActiveMutation.mutate({ id: entry.id })
+                            }
                             disabled={setActiveMutation.isPending}
                             title="Activar esta versión"
                           >
@@ -294,7 +328,11 @@ export default function FormatCatalog() {
                             size="icon"
                             className="text-red-600 hover:text-red-800 hover:bg-red-50"
                             onClick={() => {
-                              if (confirm(`¿Eliminar la versión ${entry.version} del formato ${entry.code}?`)) {
+                              if (
+                                confirm(
+                                  `¿Eliminar la versión ${entry.version} del formato ${entry.code}?`
+                                )
+                              ) {
                                 deleteMutation.mutate({ id: entry.id });
                               }
                             }}
@@ -316,8 +354,10 @@ export default function FormatCatalog() {
         <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-blue-800">
           <Info className="w-4 h-4 shrink-0 mt-0.5" />
           <p>
-            La <strong>versión activa</strong> se utiliza automáticamente al generar el PDF de las constancias DC-3.
-            El folio del documento sigue la nomenclatura: <strong>CÓDIGO-CONSECUTIVO/AÑO</strong> (ej. DC-3-0001/2024).
+            La <strong>versión activa</strong> se utiliza automáticamente al
+            generar el PDF de las constancias DC-3. El folio del documento sigue
+            la nomenclatura: <strong>CÓDIGO-CONSECUTIVO/AÑO</strong> (ej.
+            DC-3-0001/2024).
           </p>
         </div>
       </div>
@@ -334,7 +374,9 @@ export default function FormatCatalog() {
                 <Label>Código del formato *</Label>
                 <Input
                   value={form.code}
-                  onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
+                  onChange={e =>
+                    setForm(f => ({ ...f, code: e.target.value.toUpperCase() }))
+                  }
                   placeholder="DC-3"
                 />
               </div>
@@ -342,7 +384,9 @@ export default function FormatCatalog() {
                 <Label>Versión *</Label>
                 <Input
                   value={form.version}
-                  onChange={(e) => setForm((f) => ({ ...f, version: e.target.value }))}
+                  onChange={e =>
+                    setForm(f => ({ ...f, version: e.target.value }))
+                  }
                   placeholder="2.1"
                 />
               </div>
@@ -351,7 +395,7 @@ export default function FormatCatalog() {
               <Label>Nombre del formato *</Label>
               <Input
                 value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -360,14 +404,18 @@ export default function FormatCatalog() {
                 <Input
                   type="date"
                   value={form.versionDate}
-                  onChange={(e) => setForm((f) => ({ ...f, versionDate: e.target.value }))}
+                  onChange={e =>
+                    setForm(f => ({ ...f, versionDate: e.target.value }))
+                  }
                 />
               </div>
               <div className="space-y-1.5">
                 <Label>Referencia normativa</Label>
                 <Input
                   value={form.reference}
-                  onChange={(e) => setForm((f) => ({ ...f, reference: e.target.value }))}
+                  onChange={e =>
+                    setForm(f => ({ ...f, reference: e.target.value }))
+                  }
                   placeholder="NOM-035-STPS-2018"
                 />
               </div>
@@ -376,7 +424,9 @@ export default function FormatCatalog() {
               <Label>Notas de cambios</Label>
               <Textarea
                 value={form.changeNotes}
-                onChange={(e) => setForm((f) => ({ ...f, changeNotes: e.target.value }))}
+                onChange={e =>
+                  setForm(f => ({ ...f, changeNotes: e.target.value }))
+                }
                 placeholder="Describa los cambios principales de esta versión…"
                 rows={3}
               />
@@ -385,16 +435,24 @@ export default function FormatCatalog() {
               <input
                 type="checkbox"
                 checked={form.setActive}
-                onChange={(e) => setForm((f) => ({ ...f, setActive: e.target.checked }))}
+                onChange={e =>
+                  setForm(f => ({ ...f, setActive: e.target.checked }))
+                }
                 className="rounded"
               />
-              <span className="text-sm">Activar esta versión inmediatamente</span>
+              <span className="text-sm">
+                Activar esta versión inmediatamente
+              </span>
             </label>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setShowCreate(false)}>
+              Cancelar
+            </Button>
             <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              {createMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {createMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : null}
               Guardar versión
             </Button>
           </DialogFooter>
@@ -402,10 +460,15 @@ export default function FormatCatalog() {
       </Dialog>
 
       {/* Dialog: Editar versión */}
-      <Dialog open={!!editEntry} onOpenChange={(open) => !open && setEditEntry(null)}>
+      <Dialog
+        open={!!editEntry}
+        onOpenChange={open => !open && setEditEntry(null)}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Editar versión: {editEntry?.code} v{editEntry?.version}</DialogTitle>
+            <DialogTitle>
+              Editar versión: {editEntry?.code} v{editEntry?.version}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-4">
@@ -413,7 +476,9 @@ export default function FormatCatalog() {
                 <Label>Versión</Label>
                 <Input
                   value={form.version}
-                  onChange={(e) => setForm((f) => ({ ...f, version: e.target.value }))}
+                  onChange={e =>
+                    setForm(f => ({ ...f, version: e.target.value }))
+                  }
                 />
               </div>
               <div className="space-y-1.5">
@@ -421,7 +486,9 @@ export default function FormatCatalog() {
                 <Input
                   type="date"
                   value={form.versionDate}
-                  onChange={(e) => setForm((f) => ({ ...f, versionDate: e.target.value }))}
+                  onChange={e =>
+                    setForm(f => ({ ...f, versionDate: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -429,29 +496,37 @@ export default function FormatCatalog() {
               <Label>Nombre del formato</Label>
               <Input
                 value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               />
             </div>
             <div className="space-y-1.5">
               <Label>Referencia normativa</Label>
               <Input
                 value={form.reference}
-                onChange={(e) => setForm((f) => ({ ...f, reference: e.target.value }))}
+                onChange={e =>
+                  setForm(f => ({ ...f, reference: e.target.value }))
+                }
               />
             </div>
             <div className="space-y-1.5">
               <Label>Notas de cambios</Label>
               <Textarea
                 value={form.changeNotes}
-                onChange={(e) => setForm((f) => ({ ...f, changeNotes: e.target.value }))}
+                onChange={e =>
+                  setForm(f => ({ ...f, changeNotes: e.target.value }))
+                }
                 rows={3}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditEntry(null)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setEditEntry(null)}>
+              Cancelar
+            </Button>
             <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {updateMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : null}
               Guardar cambios
             </Button>
           </DialogFooter>

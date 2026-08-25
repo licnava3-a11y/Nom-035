@@ -1,12 +1,16 @@
 import { getDb } from "../db";
-import { correctiveActionPlans, notifications, users } from "../../drizzle/schema";
+import {
+  correctiveActionPlans,
+  notifications,
+  users,
+} from "../../drizzle/schema";
 // import { notifications } from "../../drizzle/schema"; // removed duplicate
 import { eq, and, lt, gte, sql } from "drizzle-orm";
 
 /**
  * Job automático de recordatorios de planes de acción correctiva
  * Ejecuta diariamente a las 9:00 AM
- * 
+ *
  * Funcionalidades:
  * 1. Detectar planes vencidos y enviar alertas
  * 2. Detectar planes próximos a vencer (3 días) y enviar recordatorios
@@ -20,7 +24,9 @@ export async function runCorrectiveActionPlansRemindersJob() {
   try {
     const db = await getDb();
     if (!db) {
-      console.error("[Corrective Action Plans Reminders Job] Database connection failed");
+      console.error(
+        "[Corrective Action Plans Reminders Job] Database connection failed"
+      );
       return;
     }
 
@@ -39,7 +45,9 @@ export async function runCorrectiveActionPlansRemindersJob() {
         )
       );
 
-    console.log(`[Corrective Action Plans Reminders Job] Found ${overduePlans.length} overdue plans`);
+    console.log(
+      `[Corrective Action Plans Reminders Job] Found ${overduePlans.length} overdue plans`
+    );
 
     for (const plan of overduePlans) {
       if (plan.assignedTo) {
@@ -65,7 +73,9 @@ export async function runCorrectiveActionPlansRemindersJob() {
         )
       );
 
-    console.log(`[Corrective Action Plans Reminders Job] Found ${expiringSoonPlans.length} plans expiring soon`);
+    console.log(
+      `[Corrective Action Plans Reminders Job] Found ${expiringSoonPlans.length} plans expiring soon`
+    );
 
     for (const plan of expiringSoonPlans) {
       if (plan.assignedTo) {
@@ -90,7 +100,9 @@ export async function runCorrectiveActionPlansRemindersJob() {
         )
       );
 
-    console.log(`[Corrective Action Plans Reminders Job] Found ${stalePlans.length} stale plans`);
+    console.log(
+      `[Corrective Action Plans Reminders Job] Found ${stalePlans.length} stale plans`
+    );
 
     for (const plan of stalePlans) {
       if (plan.assignedTo) {
@@ -121,7 +133,10 @@ export async function runCorrectiveActionPlansRemindersJob() {
 
       // Obtener administradores (role = 'admin')
       const { users } = await import("../../drizzle/schema");
-      const adminUsers = await db.select().from(users).where(eq(users.role, "admin"));
+      const adminUsers = await db
+        .select()
+        .from(users)
+        .where(eq(users.role, "admin"));
 
       for (const admin of adminUsers) {
         await (db.insert(notifications) as any).values({
@@ -133,10 +148,14 @@ export async function runCorrectiveActionPlansRemindersJob() {
         });
       }
 
-      console.log(`[Corrective Action Plans Reminders Job] Weekly summary sent to ${adminUsers.length} admins`);
+      console.log(
+        `[Corrective Action Plans Reminders Job] Weekly summary sent to ${adminUsers.length} admins`
+      );
     }
 
-    console.log("[Corrective Action Plans Reminders Job] Completed successfully");
+    console.log(
+      "[Corrective Action Plans Reminders Job] Completed successfully"
+    );
   } catch (error) {
     console.error("[Corrective Action Plans Reminders Job] Error:", error);
   }

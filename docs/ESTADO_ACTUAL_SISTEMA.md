@@ -11,6 +11,7 @@
 La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos psicosociales que ha completado 6 fases de optimización crítica, mejorando significativamente la calidad del código, la experiencia de usuario y la infraestructura de testing.
 
 **Métricas clave**:
+
 - **23 módulos principales** operacionales
 - **500+ procedures tRPC** implementados
 - **~85% de cobertura de validación**
@@ -28,6 +29,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 **Problema inicial**: 757 errores de TypeScript relacionados con sintaxis deprecada de Zod y tipado incorrecto.
 
 **Soluciones implementadas**:
+
 - ✅ Actualizada sintaxis de Zod en `server/validators/common.ts` (6 enums)
 - ✅ Corregidos 9 errores en `turnoverManagement.ts` (await + non-null assertions)
 - ✅ Corregidos 4 errores en `notifyOperatingRulesChanges.ts`
@@ -43,6 +45,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 **Componente creado**: `ConfirmDialog.tsx` (reutilizable con AlertDialog de shadcn/ui)
 
 **Páginas implementadas** (5/28):
+
 1. ✅ CommitteeMinutesManagement (eliminar minuta)
 2. ✅ DepartmentManagement (eliminar departamento)
 3. ✅ AssessmentsManagement (eliminar evaluación)
@@ -50,6 +53,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 5. ✅ EfirmaSAT (eliminar certificado digital)
 
 **Características**:
+
 - Mensajes de impacto específicos por acción
 - Confirmación antes de ejecutar eliminación
 - Botón de cancelar para prevenir errores
@@ -67,6 +71,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 **Tests creados**: **34 tests** en 3 archivos
 
 **Archivos de tests**:
+
 1. `workflow-aprobacion-bases.spec.ts` (4 tests)
    - Crear y aprobar base de funcionamiento
    - Validación en tiempo real
@@ -87,6 +92,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
    - Focus trap y roles ARIA
 
 **Navegadores configurados**: 6 proyectos
+
 - Chromium (desktop 1280x720)
 - Firefox (desktop 1280x720)
 - WebKit/Safari (desktop 1280x720)
@@ -95,6 +101,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 - Tablet (768x1024)
 
 **Características**:
+
 - Screenshots automáticos en fallos
 - Videos de ejecución
 - Traces para debugging
@@ -128,6 +135,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
    - Comentarios con resultados
 
 **Características**:
+
 - Triggers: push, pull_request en rama main
 - Upload de artifacts para debugging
 - Configuración de timeouts apropiados
@@ -140,6 +148,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 ### 5. Migración de Schema (nom035_cases)
 
 **Campos agregados**:
+
 - `source` (varchar 100): Origen del caso ("manual", "sentiment_analysis_auto", "survey")
 - `reportedBy` (int): Usuario que reportó el caso (FK a users.id)
 
@@ -152,14 +161,17 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 ### 6. Hooks Reutilizables para Validación y Guardado Automático
 
 **Hooks creados** (en `client/src/hooks/`):
+
 1. `useFormValidation.ts` - Validación en tiempo real con Zod (debounce 300ms)
 2. `useAutoSave.ts` - Guardado automático cada 30 segundos
 3. `useUnsavedChanges.ts` - Confirmación antes de salir con cambios sin guardar
 
 **Componente creado**:
+
 - `SaveIndicator.tsx` - Indicador visual del estado de guardado (idle, saving, saved, error, unsaved)
 
 **Implementación**:
+
 - ✅ CommitteeOperatingRules (validación completa de 15 campos)
 
 **Beneficio**: Mejora significativa de UX con feedback inmediato y prevención de pérdida de datos.
@@ -216,16 +228,16 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 2. **Expandir Confirmaciones a 23 Páginas Restantes**
    - Usar patrón establecido en `ConfirmDialog.tsx`
    - Priorizar páginas con eliminación de datos críticos:
-     * CommitteeTrainingsManagement
-     * JobProfileManagement
-     * Positions
-     * DocumentFormats
-     * EmployeeDocuments
-     * BudgetPlannerDashboard
-     * CommitteeAnnualReports
-     * Departments
-     * EvidencesFolder
-     * NotificationsDashboard
+     - CommitteeTrainingsManagement
+     - JobProfileManagement
+     - Positions
+     - DocumentFormats
+     - EmployeeDocuments
+     - BudgetPlannerDashboard
+     - CommitteeAnnualReports
+     - Departments
+     - EvidencesFolder
+     - NotificationsDashboard
 
 3. **Crear Script de Seed con Datos de Prueba**
    - Resolver inconsistencias en schemas (campos en español vs inglés)
@@ -277,6 +289,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 ## 🔧 Herramientas y Configuración
 
 ### Playwright
+
 - **Versión**: 1.58.2
 - **Navegadores instalados**: Chromium 1208, Firefox 1509, WebKit 2248
 - **Configuración**: `playwright.config.ts`
@@ -284,12 +297,14 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 - **Comando**: `pnpm exec playwright test` o `./tests/e2e/run-tests.sh`
 
 ### GitHub Actions
+
 - **Workflows**: 3 archivos en `.github/workflows/`
 - **Triggers**: push, pull_request en rama main
 - **Artifacts**: reportes, screenshots, videos (7 días de retención)
 - **Branch protection**: Pendiente de configuración manual
 
 ### TypeScript
+
 - **Versión**: 5.x
 - **Errores actuales**: 724
 - **Errores corregidos**: 33 (-4.4%)
@@ -300,16 +315,16 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 
 ## 📈 Métricas de Calidad
 
-| Métrica | Valor | Objetivo |
-|---------|-------|----------|
-| Errores TypeScript | 724 | < 500 |
+| Métrica                    | Valor      | Objetivo     |
+| -------------------------- | ---------- | ------------ |
+| Errores TypeScript         | 724        | < 500        |
 | Páginas con confirmaciones | 5/28 (18%) | 28/28 (100%) |
-| Tests E2E | 34 | 50+ |
-| Workflows CI/CD | 3 | 5 |
-| Navegadores testeados | 6 | 6 ✅ |
-| Cobertura de validación | ~85% | 95% |
-| Hooks reutilizables | 4 | 10 |
-| Documentación | 6 archivos | 10 archivos |
+| Tests E2E                  | 34         | 50+          |
+| Workflows CI/CD            | 3          | 5            |
+| Navegadores testeados      | 6          | 6 ✅         |
+| Cobertura de validación    | ~85%       | 95%          |
+| Hooks reutilizables        | 4          | 10           |
+| Documentación              | 6 archivos | 10 archivos  |
 
 ---
 
@@ -328,6 +343,7 @@ La Plataforma NOM-035 STPS 2018 es un sistema integral de gestión de riesgos ps
 ## 📞 Soporte y Contacto
 
 Para preguntas sobre las implementaciones:
+
 - **Documentación técnica**: `docs/` directory
 - **Tests E2E**: `tests/e2e/` directory
 - **Configuración CI/CD**: `.github/workflows/` directory

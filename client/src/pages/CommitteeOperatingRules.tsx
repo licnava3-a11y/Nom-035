@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,12 +49,18 @@ export default function CommitteeOperatingRules() {
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showCompareDialog, setShowCompareDialog] = useState(false);
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
-  const [selectedVersionId, setSelectedVersionId] = useState<number | null>(null);
+  const [selectedVersionId, setSelectedVersionId] = useState<number | null>(
+    null
+  );
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
+    null
+  );
   const [customTitle, setCustomTitle] = useState("");
   const [showSearchDialog, setShowSearchDialog] = useState(false);
-  const [compareVersionIds, setCompareVersionIds] = useState<[number | null, number | null]>([null, null]);
+  const [compareVersionIds, setCompareVersionIds] = useState<
+    [number | null, number | null]
+  >([null, null]);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -72,56 +84,66 @@ export default function CommitteeOperatingRules() {
   });
 
   // Queries
-  const { data: rules, refetch: refetchRules, isLoading: isLoadingRules } = trpc.committeeOperatingRules.list.useQuery();
+  const {
+    data: rules,
+    refetch: refetchRules,
+    isLoading: isLoadingRules,
+  } = trpc.committeeOperatingRules.list.useQuery();
   const { data: templates } = trpc.operatingRulesTemplates.list.useQuery();
-  const { data: currentRule, refetch: refetchCurrentRule } = trpc.committeeOperatingRules.getById.useQuery(
-    { id: selectedRuleId! },
-    { enabled: !!selectedRuleId && !isCreating }
-  );
-  const { data: versions, refetch: refetchVersions } = trpc.committeeOperatingRules.listVersions.useQuery(
-    { operatingRuleId: selectedRuleId! },
-    { enabled: !!selectedRuleId && showVersionHistory }
-  );
-  const { data: selectedVersion } = trpc.committeeOperatingRules.getVersion.useQuery(
-    { versionId: selectedVersionId! },
-    { enabled: !!selectedVersionId }
-  );
-  const { data: comparison } = trpc.committeeOperatingRules.compareVersions.useQuery(
-    { versionId1: compareVersionIds[0]!, versionId2: compareVersionIds[1]! },
-    { enabled: !!compareVersionIds[0] && !!compareVersionIds[1] }
-  );
+  const { data: currentRule, refetch: refetchCurrentRule } =
+    trpc.committeeOperatingRules.getById.useQuery(
+      { id: selectedRuleId! },
+      { enabled: !!selectedRuleId && !isCreating }
+    );
+  const { data: versions, refetch: refetchVersions } =
+    trpc.committeeOperatingRules.listVersions.useQuery(
+      { operatingRuleId: selectedRuleId! },
+      { enabled: !!selectedRuleId && showVersionHistory }
+    );
+  const { data: selectedVersion } =
+    trpc.committeeOperatingRules.getVersion.useQuery(
+      { versionId: selectedVersionId! },
+      { enabled: !!selectedVersionId }
+    );
+  const { data: comparison } =
+    trpc.committeeOperatingRules.compareVersions.useQuery(
+      { versionId1: compareVersionIds[0]!, versionId2: compareVersionIds[1]! },
+      { enabled: !!compareVersionIds[0] && !!compareVersionIds[1] }
+    );
 
   // Mutations
-  const generatePDFMutation = trpc.committeeOperatingRules.generatePDF.useMutation({
-    onSuccess: (data) => {
-      // Convertir base64 a blob y descargar
-      const byteCharacters = atob(data.pdfBase64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = data.filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      showSuccessToast(
-        "PDF generado",
-        "El documento PDF se ha descargado exitosamente"
-      );
-    },
-    onError: (error) => {
-      showErrorToast(
-        "Error al generar PDF",
-        error.message || "No se pudo generar el documento PDF. Intenta nuevamente."
-      );
-    },
-  });
+  const generatePDFMutation =
+    trpc.committeeOperatingRules.generatePDF.useMutation({
+      onSuccess: data => {
+        // Convertir base64 a blob y descargar
+        const byteCharacters = atob(data.pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = data.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        showSuccessToast(
+          "PDF generado",
+          "El documento PDF se ha descargado exitosamente"
+        );
+      },
+      onError: error => {
+        showErrorToast(
+          "Error al generar PDF",
+          error.message ||
+            "No se pudo generar el documento PDF. Intenta nuevamente."
+        );
+      },
+    });
 
   const createMutation = trpc.committeeOperatingRules.create.useMutation({
     onSuccess: () => {
@@ -133,10 +155,11 @@ export default function CommitteeOperatingRules() {
       setIsCreating(false);
       resetForm();
     },
-    onError: (error) => {
+    onError: error => {
       showErrorToast(
         "Error al crear base de funcionamiento",
-        error.message || "No se pudo crear la base de funcionamiento. Intenta nuevamente."
+        error.message ||
+          "No se pudo crear la base de funcionamiento. Intenta nuevamente."
       );
     },
   });
@@ -151,32 +174,35 @@ export default function CommitteeOperatingRules() {
       refetchVersions();
       setIsEditing(false);
     },
-    onError: (error) => {
+    onError: error => {
       showErrorToast(
         "Error al actualizar",
-        error.message || "No se pudieron guardar los cambios. Intenta nuevamente."
+        error.message ||
+          "No se pudieron guardar los cambios. Intenta nuevamente."
       );
     },
   });
 
-  const restoreMutation = trpc.committeeOperatingRules.restoreVersion.useMutation({
-    onSuccess: () => {
-      showSuccessToast(
-        "Versión restaurada",
-        "La versión anterior se ha restaurado exitosamente"
-      );
-      refetchCurrentRule();
-      refetchVersions();
-      setShowRestoreDialog(false);
-      setSelectedVersionId(null);
-    },
-    onError: (error) => {
-      showErrorToast(
-        "Error al restaurar versión",
-        error.message || "No se pudo restaurar la versión. Intenta nuevamente."
-      );
-    },
-  });
+  const restoreMutation =
+    trpc.committeeOperatingRules.restoreVersion.useMutation({
+      onSuccess: () => {
+        showSuccessToast(
+          "Versión restaurada",
+          "La versión anterior se ha restaurado exitosamente"
+        );
+        refetchCurrentRule();
+        refetchVersions();
+        setShowRestoreDialog(false);
+        setSelectedVersionId(null);
+      },
+      onError: error => {
+        showErrorToast(
+          "Error al restaurar versión",
+          error.message ||
+            "No se pudo restaurar la versión. Intenta nuevamente."
+        );
+      },
+    });
 
   const approveMutation = trpc.committeeOperatingRules.approve.useMutation({
     onSuccess: () => {
@@ -187,34 +213,37 @@ export default function CommitteeOperatingRules() {
       refetchRules();
       refetchCurrentRule();
     },
-    onError: (error) => {
+    onError: error => {
       showErrorToast(
         "Error al aprobar",
-        error.message || "No se pudo aprobar la base de funcionamiento. Intenta nuevamente."
+        error.message ||
+          "No se pudo aprobar la base de funcionamiento. Intenta nuevamente."
       );
     },
   });
 
-  const createFromTemplateMutation = trpc.operatingRulesTemplates.createFromTemplate.useMutation({
-    onSuccess: (data) => {
-      showSuccessToast(
-        "Base creada desde plantilla",
-        "La base de funcionamiento se ha creado exitosamente usando la plantilla seleccionada"
-      );
-      setShowTemplateDialog(false);
-      setSelectedTemplateId(null);
-      setCustomTitle("");
-      refetchRules();
-      setSelectedRuleId(data.id);
-      setIsCreating(false);
-    },
-    onError: (error) => {
-      showErrorToast(
-        "Error al crear desde plantilla",
-        error.message || "No se pudo crear la base de funcionamiento desde la plantilla. Intenta nuevamente."
-      );
-    },
-  });
+  const createFromTemplateMutation =
+    trpc.operatingRulesTemplates.createFromTemplate.useMutation({
+      onSuccess: data => {
+        showSuccessToast(
+          "Base creada desde plantilla",
+          "La base de funcionamiento se ha creado exitosamente usando la plantilla seleccionada"
+        );
+        setShowTemplateDialog(false);
+        setSelectedTemplateId(null);
+        setCustomTitle("");
+        refetchRules();
+        setSelectedRuleId(data.id);
+        setIsCreating(false);
+      },
+      onError: error => {
+        showErrorToast(
+          "Error al crear desde plantilla",
+          error.message ||
+            "No se pudo crear la base de funcionamiento desde la plantilla. Intenta nuevamente."
+        );
+      },
+    });
 
   const resetForm = () => {
     setFormData({
@@ -240,7 +269,8 @@ export default function CommitteeOperatingRules() {
   const loadRuleData = (rule: any) => {
     setFormData({
       version: rule.version || "V1.0",
-      effectiveDate: rule.effectiveDate || new Date().toISOString().split("T")[0],
+      effectiveDate:
+        rule.effectiveDate || new Date().toISOString().split("T")[0],
       reviewDate: rule.reviewDate || "",
       nextReviewDate: rule.nextReviewDate || "",
       objectives: rule.objectives || "",
@@ -284,7 +314,7 @@ export default function CommitteeOperatingRules() {
   // Atajos de teclado
   useKeyboardShortcuts([
     {
-      key: 's',
+      key: "s",
       ctrl: true,
       callback: () => {
         if (isEditing) {
@@ -295,10 +325,10 @@ export default function CommitteeOperatingRules() {
           }
         }
       },
-      description: 'Guardar cambios (Ctrl+S)'
+      description: "Guardar cambios (Ctrl+S)",
     },
     {
-      key: 'Escape',
+      key: "Escape",
       callback: () => {
         if (showVersionHistory) {
           setShowVersionHistory(false);
@@ -317,11 +347,9 @@ export default function CommitteeOperatingRules() {
           resetForm();
         }
       },
-      description: 'Cerrar diálogo o cancelar edición (Esc)'
-    }
+      description: "Cerrar diálogo o cancelar edición (Esc)",
+    },
   ]);
-
-
 
   const startEditing = () => {
     if (currentRule) {
@@ -345,16 +373,23 @@ export default function CommitteeOperatingRules() {
   if (isCreating || isEditing) {
     return (
       <div className="container mx-auto py-6">
-        <Breadcrumb items={[
-          { label: "Comité", href: "/committee" },
-          { label: "Bases de Funcionamiento", href: "/committee-operating-rules" },
-          { label: isCreating ? "Crear" : "Editar" }
-        ]} />
+        <Breadcrumb
+          items={[
+            { label: "Comité", href: "/committee" },
+            {
+              label: "Bases de Funcionamiento",
+              href: "/committee-operating-rules",
+            },
+            { label: isCreating ? "Crear" : "Editar" },
+          ]}
+        />
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ICONS.documents.generic className="h-5 w-5" />
-              {isCreating ? "Crear Bases de Funcionamiento" : "Editar Bases de Funcionamiento"}
+              {isCreating
+                ? "Crear Bases de Funcionamiento"
+                : "Editar Bases de Funcionamiento"}
             </CardTitle>
             <CardDescription>
               {isCreating
@@ -369,7 +404,9 @@ export default function CommitteeOperatingRules() {
                 <Input
                   id="version"
                   value={formData.version}
-                  onChange={(e) => setFormData({ ...formData, version: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, version: e.target.value })
+                  }
                   placeholder="V1.0"
                 />
               </div>
@@ -379,7 +416,9 @@ export default function CommitteeOperatingRules() {
                   id="effectiveDate"
                   type="date"
                   value={formData.effectiveDate}
-                  onChange={(e) => setFormData({ ...formData, effectiveDate: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, effectiveDate: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -388,14 +427,16 @@ export default function CommitteeOperatingRules() {
                   id="nextReviewDate"
                   type="date"
                   value={formData.nextReviewDate}
-                  onChange={(e) => setFormData({ ...formData, nextReviewDate: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, nextReviewDate: e.target.value })
+                  }
                 />
               </div>
             </div>
 
             <div>
-              <LabelWithTooltip 
-                label="Objetivos del Comité" 
+              <LabelWithTooltip
+                label="Objetivos del Comité"
                 htmlFor="objectives"
                 tooltip="Define los propósitos generales del comité según la NOM-035: identificar, analizar y prevenir factores de riesgo psicosocial."
                 required
@@ -403,7 +444,9 @@ export default function CommitteeOperatingRules() {
               <Textarea
                 id="objectives"
                 value={formData.objectives}
-                onChange={(e) => setFormData({ ...formData, objectives: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, objectives: e.target.value })
+                }
                 placeholder="Describa los objetivos del comité..."
                 rows={4}
               />
@@ -414,15 +457,17 @@ export default function CommitteeOperatingRules() {
               <Textarea
                 id="structure"
                 value={formData.structure}
-                onChange={(e) => setFormData({ ...formData, structure: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, structure: e.target.value })
+                }
                 placeholder="Describa la integración y estructura del comité..."
                 rows={4}
               />
             </div>
 
             <div>
-              <LabelWithTooltip 
-                label="Funciones y Responsabilidades" 
+              <LabelWithTooltip
+                label="Funciones y Responsabilidades"
                 htmlFor="roles"
                 tooltip="Especifica las funciones de cada miembro: presidente, secretario, vocales. Incluye responsabilidades de coordinación, seguimiento y toma de decisiones."
                 required
@@ -430,7 +475,9 @@ export default function CommitteeOperatingRules() {
               <Textarea
                 id="roles"
                 value={formData.roles}
-                onChange={(e) => setFormData({ ...formData, roles: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, roles: e.target.value })
+                }
                 placeholder="Describa las funciones de cada miembro..."
                 rows={4}
               />
@@ -438,18 +485,25 @@ export default function CommitteeOperatingRules() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="meetingFrequency">Periodicidad de Reuniones</Label>
+                <Label htmlFor="meetingFrequency">
+                  Periodicidad de Reuniones
+                </Label>
                 <Textarea
                   id="meetingFrequency"
                   value={formData.meetingFrequency}
-                  onChange={(e) => setFormData({ ...formData, meetingFrequency: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      meetingFrequency: e.target.value,
+                    })
+                  }
                   placeholder="Ej: Reuniones mensuales ordinarias..."
                   rows={3}
                 />
               </div>
               <div>
-                <LabelWithTooltip 
-                  label="Quórum Mínimo" 
+                <LabelWithTooltip
+                  label="Quórum Mínimo"
                   htmlFor="quorum"
                   tooltip="Número o porcentaje mínimo de miembros requeridos para que las reuniones sean válidas. Ejemplo: 50% + 1 de los integrantes."
                   required
@@ -457,7 +511,9 @@ export default function CommitteeOperatingRules() {
                 <Textarea
                   id="quorum"
                   value={formData.quorum}
-                  onChange={(e) => setFormData({ ...formData, quorum: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, quorum: e.target.value })
+                  }
                   placeholder="Ej: 50% + 1 de los miembros..."
                   rows={3}
                 />
@@ -469,7 +525,9 @@ export default function CommitteeOperatingRules() {
               <Textarea
                 id="decisionMaking"
                 value={formData.decisionMaking}
-                onChange={(e) => setFormData({ ...formData, decisionMaking: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, decisionMaking: e.target.value })
+                }
                 placeholder="Describa el procedimiento de toma de decisiones..."
                 rows={3}
               />
@@ -480,15 +538,17 @@ export default function CommitteeOperatingRules() {
               <Textarea
                 id="communication"
                 value={formData.communication}
-                onChange={(e) => setFormData({ ...formData, communication: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, communication: e.target.value })
+                }
                 placeholder="Describa los canales de comunicación interna..."
                 rows={3}
               />
             </div>
 
             <div>
-              <LabelWithTooltip 
-                label="Procedimiento de Atención de Casos" 
+              <LabelWithTooltip
+                label="Procedimiento de Atención de Casos"
                 htmlFor="caseHandling"
                 tooltip="Describe el proceso para atender casos de riesgo psicosocial: recepción, evaluación, canalización, seguimiento y cierre."
                 required
@@ -496,15 +556,17 @@ export default function CommitteeOperatingRules() {
               <Textarea
                 id="caseHandling"
                 value={formData.caseHandling}
-                onChange={(e) => setFormData({ ...formData, caseHandling: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, caseHandling: e.target.value })
+                }
                 placeholder="Describa el proceso de atención de casos..."
                 rows={4}
               />
             </div>
 
             <div>
-              <LabelWithTooltip 
-                label="Confidencialidad y Manejo de Información" 
+              <LabelWithTooltip
+                label="Confidencialidad y Manejo de Información"
                 htmlFor="confidentiality"
                 tooltip="Establece cómo se protegerá la información sensible de los trabajadores, quiénes tienen acceso y los protocolos de resguardo."
                 required
@@ -512,7 +574,9 @@ export default function CommitteeOperatingRules() {
               <Textarea
                 id="confidentiality"
                 value={formData.confidentiality}
-                onChange={(e) => setFormData({ ...formData, confidentiality: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, confidentiality: e.target.value })
+                }
                 placeholder="Describa las políticas de confidencialidad..."
                 rows={3}
               />
@@ -523,7 +587,9 @@ export default function CommitteeOperatingRules() {
               <Textarea
                 id="amendments"
                 value={formData.amendments}
-                onChange={(e) => setFormData({ ...formData, amendments: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, amendments: e.target.value })
+                }
                 placeholder="Describa cómo se pueden modificar estas bases..."
                 rows={3}
               />
@@ -534,7 +600,9 @@ export default function CommitteeOperatingRules() {
               <Textarea
                 id="signatures"
                 value={formData.signatures}
-                onChange={(e) => setFormData({ ...formData, signatures: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, signatures: e.target.value })
+                }
                 placeholder='[{"name": "Juan Pérez", "position": "Presidente", "date": "2024-01-15"}]'
                 rows={3}
               />
@@ -542,11 +610,18 @@ export default function CommitteeOperatingRules() {
 
             {isEditing && (
               <div>
-                <Label htmlFor="changeDescription">Descripción de Cambios</Label>
+                <Label htmlFor="changeDescription">
+                  Descripción de Cambios
+                </Label>
                 <Textarea
                   id="changeDescription"
                   value={formData.changeDescription}
-                  onChange={(e) => setFormData({ ...formData, changeDescription: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      changeDescription: e.target.value,
+                    })
+                  }
                   placeholder="Describa los cambios realizados en esta versión..."
                   rows={2}
                 />
@@ -554,7 +629,10 @@ export default function CommitteeOperatingRules() {
             )}
 
             <div className="flex gap-2">
-              <Button onClick={isCreating ? handleCreate : handleUpdate} disabled={createMutation.isPending || updateMutation.isPending}>
+              <Button
+                onClick={isCreating ? handleCreate : handleUpdate}
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
                 <ICONS.actions.save className="h-4 w-4 mr-2" />
                 {isCreating ? "Crear" : "Guardar Cambios"}
               </Button>
@@ -570,14 +648,20 @@ export default function CommitteeOperatingRules() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <Breadcrumb items={[
-        { label: "Comité", href: "/committee" },
-        { label: "Bases de Funcionamiento" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Comité", href: "/committee" },
+          { label: "Bases de Funcionamiento" },
+        ]}
+      />
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Bases de Funcionamiento del Comité</h1>
-          <p className="text-muted-foreground">Gestión de bases de funcionamiento con historial de versiones</p>
+          <h1 className="text-3xl font-bold">
+            Bases de Funcionamiento del Comité
+          </h1>
+          <p className="text-muted-foreground">
+            Gestión de bases de funcionamiento con historial de versiones
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowSearchDialog(true)}>
@@ -615,52 +699,63 @@ export default function CommitteeOperatingRules() {
             <TableBody>
               {isLoadingRules ? (
                 <TableSkeleton rows={3} columns={6} />
-              ) : rules?.map((rule: any) => (
-                <TableRow key={rule.id}>
-                  <TableCell className="font-medium">{rule.version}</TableCell>
-                  <TableCell>
-                    {rule.effectiveDate
-                      ? format(new Date(rule.effectiveDate), "dd/MM/yyyy", { locale: es })
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {rule.nextReviewDate
-                      ? format(new Date(rule.nextReviewDate), "dd/MM/yyyy", { locale: es })
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={rule.status === "active" ? "default" : "secondary"}>
-                      {rule.status === "active" ? "Activo" : "Borrador"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{rule.creatorName || "Desconocido"}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedRuleId(rule.id);
-                          setShowVersionHistory(false);
-                        }}
+              ) : (
+                rules?.map((rule: any) => (
+                  <TableRow key={rule.id}>
+                    <TableCell className="font-medium">
+                      {rule.version}
+                    </TableCell>
+                    <TableCell>
+                      {rule.effectiveDate
+                        ? format(new Date(rule.effectiveDate), "dd/MM/yyyy", {
+                            locale: es,
+                          })
+                        : "-"}
+                    </TableCell>
+                    <TableCell>
+                      {rule.nextReviewDate
+                        ? format(new Date(rule.nextReviewDate), "dd/MM/yyyy", {
+                            locale: es,
+                          })
+                        : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          rule.status === "active" ? "default" : "secondary"
+                        }
                       >
-                        <ICONS.actions.view className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedRuleId(rule.id);
-                          setShowVersionHistory(true);
-                        }}
-                      >
-                        <ICONS.navigation.back className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-
+                        {rule.status === "active" ? "Activo" : "Borrador"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{rule.creatorName || "Desconocido"}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedRuleId(rule.id);
+                            setShowVersionHistory(false);
+                          }}
+                        >
+                          <ICONS.actions.view className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedRuleId(rule.id);
+                            setShowVersionHistory(true);
+                          }}
+                        >
+                          <ICONS.navigation.back className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -674,11 +769,11 @@ export default function CommitteeOperatingRules() {
           description={EMPTY_STATES.operating_rules_empty.description}
           action={{
             label: "Crear Primera Base de Funcionamiento",
-            onClick: startCreating
+            onClick: startCreating,
           }}
           secondaryAction={{
             label: "Usar Plantilla Predefinida",
-            onClick: () => setShowTemplateDialog(true)
+            onClick: () => setShowTemplateDialog(true),
           }}
         />
       )}
@@ -689,14 +784,23 @@ export default function CommitteeOperatingRules() {
           <CardHeader>
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle>Bases de Funcionamiento - {currentRule.version}</CardTitle>
+                <CardTitle>
+                  Bases de Funcionamiento - {currentRule.version}
+                </CardTitle>
                 <CardDescription>
-                  Vigente desde {format(new Date(currentRule.effectiveDate), "dd/MM/yyyy", { locale: es })}
+                  Vigente desde{" "}
+                  {format(new Date(currentRule.effectiveDate), "dd/MM/yyyy", {
+                    locale: es,
+                  })}
                 </CardDescription>
               </div>
               <div className="flex gap-2">
                 {currentRule.status === "draft" && (
-                  <Button size="sm" onClick={handleApprove} disabled={approveMutation.isPending}>
+                  <Button
+                    size="sm"
+                    onClick={handleApprove}
+                    disabled={approveMutation.isPending}
+                  >
                     <ICONS.status.success className="h-4 w-4 mr-2" />
                     Aprobar
                   </Button>
@@ -707,11 +811,15 @@ export default function CommitteeOperatingRules() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => generatePDFMutation.mutate({ id: selectedRuleId })}
+                  onClick={() =>
+                    generatePDFMutation.mutate({ id: selectedRuleId })
+                  }
                   disabled={generatePDFMutation.isPending}
                 >
                   <ICONS.actions.download className="h-4 w-4 mr-2" />
-                  {generatePDFMutation.isPending ? "Generando..." : "Exportar PDF"}
+                  {generatePDFMutation.isPending
+                    ? "Generando..."
+                    : "Exportar PDF"}
                 </Button>
                 <Button
                   size="sm"
@@ -727,46 +835,74 @@ export default function CommitteeOperatingRules() {
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-semibold mb-2">Objetivos del Comité</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.objectives}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {currentRule.objectives}
+              </p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Estructura Organizacional</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.structure}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {currentRule.structure}
+              </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Funciones y Responsabilidades</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.roles}</p>
+              <h3 className="font-semibold mb-2">
+                Funciones y Responsabilidades
+              </h3>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {currentRule.roles}
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h3 className="font-semibold mb-2">Periodicidad de Reuniones</h3>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.meetingFrequency}</p>
+                <h3 className="font-semibold mb-2">
+                  Periodicidad de Reuniones
+                </h3>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {currentRule.meetingFrequency}
+                </p>
               </div>
               <div>
                 <h3 className="font-semibold mb-2">Quórum Mínimo</h3>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.quorum}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {currentRule.quorum}
+                </p>
               </div>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Toma de Decisiones</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.decisionMaking}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {currentRule.decisionMaking}
+              </p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Mecanismos de Comunicación</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.communication}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {currentRule.communication}
+              </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Procedimiento de Atención de Casos</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.caseHandling}</p>
+              <h3 className="font-semibold mb-2">
+                Procedimiento de Atención de Casos
+              </h3>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {currentRule.caseHandling}
+              </p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Confidencialidad</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.confidentiality}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {currentRule.confidentiality}
+              </p>
             </div>
             {currentRule.amendments && (
               <div>
-                <h3 className="font-semibold mb-2">Procedimiento de Modificación</h3>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{currentRule.amendments}</p>
+                <h3 className="font-semibold mb-2">
+                  Procedimiento de Modificación
+                </h3>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {currentRule.amendments}
+                </p>
               </div>
             )}
           </CardContent>
@@ -801,7 +937,10 @@ export default function CommitteeOperatingRules() {
                   <ICONS.data.chart className="h-4 w-4 mr-2" />
                   Comparar Versiones
                 </Button>
-                <Button variant="outline" onClick={() => setShowVersionHistory(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowVersionHistory(false)}
+                >
                   Volver al Detalle
                 </Button>
               </div>
@@ -822,17 +961,23 @@ export default function CommitteeOperatingRules() {
               <TableBody>
                 {versions?.map((version, index) => (
                   <TableRow key={version.id}>
-                    <TableCell className="font-medium">{version.version}</TableCell>
+                    <TableCell className="font-medium">
+                      {version.version}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={index === 0 ? "default" : "secondary"}>
                         V{version.versionNumber} {index === 0 && "(Actual)"}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {format(new Date(version.createdAt), "dd/MM/yyyy HH:mm", { locale: es })}
+                      {format(new Date(version.createdAt), "dd/MM/yyyy HH:mm", {
+                        locale: es,
+                      })}
                     </TableCell>
                     <TableCell>{version.changeDescription || "-"}</TableCell>
-                    <TableCell>{version.creatorName || "Desconocido"}</TableCell>
+                    <TableCell>
+                      {version.creatorName || "Desconocido"}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button
@@ -870,7 +1015,8 @@ export default function CommitteeOperatingRules() {
           <DialogHeader>
             <DialogTitle>Restaurar Versión Anterior</DialogTitle>
             <DialogDescription>
-              ¿Está seguro de que desea restaurar esta versión? Se creará una nueva versión con el contenido seleccionado.
+              ¿Está seguro de que desea restaurar esta versión? Se creará una
+              nueva versión con el contenido seleccionado.
             </DialogDescription>
           </DialogHeader>
           <div>
@@ -878,16 +1024,24 @@ export default function CommitteeOperatingRules() {
             <Textarea
               id="restoreDescription"
               value={formData.changeDescription}
-              onChange={(e) => setFormData({ ...formData, changeDescription: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, changeDescription: e.target.value })
+              }
               placeholder="Describa el motivo de la restauración..."
               rows={3}
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRestoreDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowRestoreDialog(false)}
+            >
               Cancelar
             </Button>
-            <Button onClick={handleRestore} disabled={restoreMutation.isPending}>
+            <Button
+              onClick={handleRestore}
+              disabled={restoreMutation.isPending}
+            >
               <ICONS.actions.undo className="h-4 w-4 mr-2" />
               Restaurar
             </Button>
@@ -896,38 +1050,59 @@ export default function CommitteeOperatingRules() {
       </Dialog>
 
       {/* Dialog de visualización de versión */}
-      <Dialog open={!!selectedVersionId && !showRestoreDialog} onOpenChange={() => setSelectedVersionId(null)}>
+      <Dialog
+        open={!!selectedVersionId && !showRestoreDialog}
+        onOpenChange={() => setSelectedVersionId(null)}
+      >
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              Versión {selectedVersion?.version} - V{selectedVersion?.versionNumber}
+              Versión {selectedVersion?.version} - V
+              {selectedVersion?.versionNumber}
             </DialogTitle>
             <DialogDescription>
-              Creada el {selectedVersion && format(new Date(selectedVersion.createdAt), "dd/MM/yyyy HH:mm", { locale: es })}
+              Creada el{" "}
+              {selectedVersion &&
+                format(
+                  new Date(selectedVersion.createdAt),
+                  "dd/MM/yyyy HH:mm",
+                  { locale: es }
+                )}
             </DialogDescription>
           </DialogHeader>
           {selectedVersion && (
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold mb-2">Descripción de Cambios</h4>
-                <p className="text-sm text-muted-foreground">{selectedVersion.changeDescription || "Sin descripción"}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedVersion.changeDescription || "Sin descripción"}
+                </p>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Objetivos</h4>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedVersion.objectives}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {selectedVersion.objectives}
+                </p>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Estructura</h4>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedVersion.structure}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {selectedVersion.structure}
+                </p>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Roles</h4>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedVersion.roles}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {selectedVersion.roles}
+                </p>
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedVersionId(null)}>
+            <Button
+              variant="outline"
+              onClick={() => setSelectedVersionId(null)}
+            >
               Cerrar
             </Button>
           </DialogFooter>
@@ -946,7 +1121,7 @@ export default function CommitteeOperatingRules() {
               Seleccione dos versiones para comparar sus diferencias
             </DialogDescription>
           </DialogHeader>
-          
+
           {!compareVersionIds[0] || !compareVersionIds[1] ? (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -955,12 +1130,21 @@ export default function CommitteeOperatingRules() {
                   <select
                     className="w-full mt-2 p-2 border rounded-md"
                     value={compareVersionIds[0] || ""}
-                    onChange={(e) => setCompareVersionIds([Number(e.target.value), compareVersionIds[1]])}
+                    onChange={e =>
+                      setCompareVersionIds([
+                        Number(e.target.value),
+                        compareVersionIds[1],
+                      ])
+                    }
                   >
                     <option value="">Seleccione una versión</option>
                     {versions?.map((v: any) => (
                       <option key={v.id} value={v.id}>
-                        V{v.versionNumber} - {v.version} ({format(new Date(v.createdAt), "dd/MM/yyyy", { locale: es })})
+                        V{v.versionNumber} - {v.version} (
+                        {format(new Date(v.createdAt), "dd/MM/yyyy", {
+                          locale: es,
+                        })}
+                        )
                       </option>
                     ))}
                   </select>
@@ -970,12 +1154,21 @@ export default function CommitteeOperatingRules() {
                   <select
                     className="w-full mt-2 p-2 border rounded-md"
                     value={compareVersionIds[1] || ""}
-                    onChange={(e) => setCompareVersionIds([compareVersionIds[0], Number(e.target.value)])}
+                    onChange={e =>
+                      setCompareVersionIds([
+                        compareVersionIds[0],
+                        Number(e.target.value),
+                      ])
+                    }
                   >
                     <option value="">Seleccione una versión</option>
                     {versions?.map((v: any) => (
                       <option key={v.id} value={v.id}>
-                        V{v.versionNumber} - {v.version} ({format(new Date(v.createdAt), "dd/MM/yyyy", { locale: es })})
+                        V{v.versionNumber} - {v.version} (
+                        {format(new Date(v.createdAt), "dd/MM/yyyy", {
+                          locale: es,
+                        })}
+                        )
                       </option>
                     ))}
                   </select>
@@ -1045,9 +1238,12 @@ export default function CommitteeOperatingRules() {
       <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Crear Base de Funcionamiento desde Plantilla</DialogTitle>
+            <DialogTitle>
+              Crear Base de Funcionamiento desde Plantilla
+            </DialogTitle>
             <DialogDescription>
-              Selecciona una plantilla predefinida según el tamaño de tu empresa para agilizar la creación.
+              Selecciona una plantilla predefinida según el tamaño de tu empresa
+              para agilizar la creación.
             </DialogDescription>
           </DialogHeader>
 
@@ -1069,7 +1265,8 @@ export default function CommitteeOperatingRules() {
                     <CardDescription>
                       {template.companySize === "small" && "Hasta 15 empleados"}
                       {template.companySize === "medium" && "16-50 empleados"}
-                      {template.companySize === "large" && "Más de 50 empleados"}
+                      {template.companySize === "large" &&
+                        "Más de 50 empleados"}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -1098,19 +1295,31 @@ export default function CommitteeOperatingRules() {
                       <div>
                         <h4 className="font-semibold mb-2">Objetivos:</h4>
                         <p className="text-sm text-muted-foreground whitespace-pre-line">
-                          {templates.find((t: any) => t.id === selectedTemplateId)?.objectives}
+                          {
+                            templates.find(
+                              (t: any) => t.id === selectedTemplateId
+                            )?.objectives
+                          }
                         </p>
                       </div>
                       <div>
                         <h4 className="font-semibold mb-2">Estructura:</h4>
                         <p className="text-sm text-muted-foreground">
-                          {templates.find((t: any) => t.id === selectedTemplateId)?.structure}
+                          {
+                            templates.find(
+                              (t: any) => t.id === selectedTemplateId
+                            )?.structure
+                          }
                         </p>
                       </div>
                       <div>
                         <h4 className="font-semibold mb-2">Roles:</h4>
                         <p className="text-sm text-muted-foreground whitespace-pre-line">
-                          {templates.find((t: any) => t.id === selectedTemplateId)?.roles}
+                          {
+                            templates.find(
+                              (t: any) => t.id === selectedTemplateId
+                            )?.roles
+                          }
                         </p>
                       </div>
                     </>
@@ -1122,25 +1331,35 @@ export default function CommitteeOperatingRules() {
             {/* Campo de título personalizado */}
             {selectedTemplateId && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Título Personalizado (Opcional)</label>
+                <label className="text-sm font-medium">
+                  Título Personalizado (Opcional)
+                </label>
                 <Input
                   value={customTitle}
-                  onChange={(e) => setCustomTitle(e.target.value)}
+                  onChange={e => setCustomTitle(e.target.value)}
                   placeholder="Deja en blanco para usar el título de la plantilla"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Si no especificas un título, se usará: "{templates?.find((t: any) => t.id === selectedTemplateId)?.title}"
+                  Si no especificas un título, se usará: "
+                  {
+                    templates?.find((t: any) => t.id === selectedTemplateId)
+                      ?.title
+                  }
+                  "
                 </p>
               </div>
             )}
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowTemplateDialog(false);
-              setSelectedTemplateId(null);
-              setCustomTitle("");
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowTemplateDialog(false);
+                setSelectedTemplateId(null);
+                setCustomTitle("");
+              }}
+            >
               Cancelar
             </Button>
             <Button
@@ -1152,9 +1371,13 @@ export default function CommitteeOperatingRules() {
                   });
                 }
               }}
-              disabled={!selectedTemplateId || createFromTemplateMutation.isPending}
+              disabled={
+                !selectedTemplateId || createFromTemplateMutation.isPending
+              }
             >
-              {createFromTemplateMutation.isPending ? "Creando..." : "Crear Base de Funcionamiento"}
+              {createFromTemplateMutation.isPending
+                ? "Creando..."
+                : "Crear Base de Funcionamiento"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1164,7 +1387,7 @@ export default function CommitteeOperatingRules() {
       <SearchOperatingRules
         open={showSearchDialog}
         onOpenChange={setShowSearchDialog}
-        onSelectResult={(ruleId) => {
+        onSelectResult={ruleId => {
           setSelectedRuleId(ruleId);
           setShowSearchDialog(false);
         }}

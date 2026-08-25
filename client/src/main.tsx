@@ -1,5 +1,5 @@
 import { trpc } from "@/lib/trpc";
-import { UNAUTHED_ERR_MSG } from '@shared/const';
+import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
@@ -70,28 +70,30 @@ queryClient.getMutationCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.mutation.state.error;
     redirectToLoginIfUnauthorized(error);
-    
+
     // Manejar errores 403 Forbidden (CSRF token inválido/expirado)
     if (error instanceof TRPCClientError && error.data?.code === "FORBIDDEN") {
       const message = error.message;
-      
+
       // Si es error de CSRF, intentar renovar token
       if (message.includes("CSRF") || message.includes("Token CSRF")) {
         console.warn("[CSRF Error] Token inválido o expirado, renovando...");
-        
+
         if (renewCSRFToken) {
-          renewCSRFToken().then(() => {
-            console.log("[CSRF] Token renovado exitosamente");
-            // Mostrar mensaje al usuario
-            alert("Tu sesión ha expirado. Por favor, intenta nuevamente.");
-          }).catch((err) => {
-            console.error("[CSRF] Error al renovar token:", err);
-            alert("Error de seguridad. Por favor, recarga la página.");
-          });
+          renewCSRFToken()
+            .then(() => {
+              console.log("[CSRF] Token renovado exitosamente");
+              // Mostrar mensaje al usuario
+              alert("Tu sesión ha expirado. Por favor, intenta nuevamente.");
+            })
+            .catch(err => {
+              console.error("[CSRF] Error al renovar token:", err);
+              alert("Error de seguridad. Por favor, recarga la página.");
+            });
         }
       }
     }
-    
+
     console.error("[API Mutation Error]", error);
   }
 });
@@ -115,7 +117,7 @@ const trpcClient = trpc.createClient({
         if (csrfToken) {
           headers.set("x-csrf-token", csrfToken);
         }
-        
+
         return globalThis.fetch(input, {
           ...(init ?? {}),
           headers,
@@ -134,7 +136,9 @@ if (!root) {
 }
 
 // Inicializar métricas Core Web Vitals (carga lazy para no bloquear el render)
-import("./lib/webVitals").then(({ initWebVitals }) => initWebVitals()).catch(() => {});
+import("./lib/webVitals")
+  .then(({ initWebVitals }) => initWebVitals())
+  .catch(() => {});
 
 // Service Worker: deshabilitado completamente
 // El desregistro se hace en index.html antes de que React cargue
@@ -144,14 +148,15 @@ import("./lib/webVitals").then(({ initWebVitals }) => initWebVitals()).catch(() 
 // Alias compatible: hideAppWelcome (antispinner, sprint30)
 function hideAppLoading() {
   // Ocultar el indicador de carga (spinner pequeño)
-  const loadingIndicator = document.getElementById('aw-loading-indicator');
-  if (loadingIndicator) loadingIndicator.style.display = 'none';
+  const loadingIndicator = document.getElementById("aw-loading-indicator");
+  if (loadingIndicator) loadingIndicator.style.display = "none";
 
   // Ocultar toda la pantalla de bienvenida/carga con fade-out
-  const welcome = document.getElementById('app-welcome') ||
-                  document.getElementById('app-loading');
+  const welcome =
+    document.getElementById("app-welcome") ||
+    document.getElementById("app-loading");
   if (!welcome) return;
-  welcome.classList.add('hidden');
+  welcome.classList.add("hidden");
   setTimeout(() => {
     if (welcome.parentNode) welcome.remove();
   }, 350);
@@ -161,14 +166,14 @@ const hideAppWelcome = hideAppLoading;
 
 root.render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
-  <QueryClientProvider client={queryClient}>
-    <CSRFProvider>
-      <NotificationProvider>
-        <Toaster position="top-right" richColors closeButton />
-        <App />
-      </NotificationProvider>
-    </CSRFProvider>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <CSRFProvider>
+        <NotificationProvider>
+          <Toaster position="top-right" richColors closeButton />
+          <App />
+        </NotificationProvider>
+      </CSRFProvider>
+    </QueryClientProvider>
   </trpc.Provider>
 );
 

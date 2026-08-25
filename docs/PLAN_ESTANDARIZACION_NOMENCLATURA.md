@@ -19,6 +19,7 @@ El sistema actualmente presenta inconsistencias en la nomenclatura de campos ent
 **Estado Actual**: Nomenclatura en inglés (camelCase)
 
 **Campos Actuales**:
+
 - `firstName`, `lastName` (inglés)
 - `employeeNumber` (inglés)
 - `email`, `phone` (inglés)
@@ -35,6 +36,7 @@ El sistema actualmente presenta inconsistencias en la nomenclatura de campos ent
 **Estado Actual**: Nomenclatura en inglés (snake_case)
 
 **Campos Actuales**:
+
 - `name`, `description` (inglés)
 - `is_active` (inglés, snake_case)
 - `created_at`, `updated_at` (inglés, snake_case)
@@ -49,18 +51,21 @@ El sistema actualmente presenta inconsistencias en la nomenclatura de campos ent
 **Estado Actual**: Nomenclatura mixta (inglés + nuevos campos)
 
 **Campos Actuales**:
+
 - `title`, `description` (inglés)
 - `status`, `priority` (inglés)
 - `reported_by_id`, `assigned_to_id` (inglés, snake_case)
 - `source`, `reportedBy` (⚠️ NUEVOS - agregados recientemente)
 
 **Problema Detectado**:
+
 - `reportedBy` usa camelCase mientras otros campos usan snake_case
 - Redundancia: `reported_by_id` vs `reportedBy`
 
 **Recomendación**: 🔄 **Estandarizar a snake_case**
 
 **Migración Propuesta**:
+
 ```sql
 -- Eliminar campo redundante reportedBy (ya existe reported_by_id)
 ALTER TABLE nom035_cases DROP COLUMN reportedBy;
@@ -76,6 +81,7 @@ ALTER TABLE nom035_cases DROP COLUMN reportedBy;
 **Estado Actual**: Nomenclatura en inglés (snake_case)
 
 **Campos Actuales**:
+
 - `meeting_date` (inglés, snake_case)
 - `attendees`, `topics`, `agreements` (inglés)
 - `next_meeting_date` (inglés, snake_case)
@@ -90,6 +96,7 @@ ALTER TABLE nom035_cases DROP COLUMN reportedBy;
 ### Estándar Adoptado: **Inglés + snake_case para SQL**
 
 **Razones**:
+
 1. **Inglés**: Lenguaje universal en desarrollo de software
 2. **snake_case**: Convención estándar para bases de datos SQL
 3. **Consistencia**: Facilita mantenimiento y onboarding de nuevos desarrolladores
@@ -98,10 +105,12 @@ ALTER TABLE nom035_cases DROP COLUMN reportedBy;
 ### Reglas de Nomenclatura
 
 **Tablas**:
+
 - Plural en inglés: `employees`, `departments`, `cases`
 - snake_case: `committee_minutes`, `annual_reports`
 
 **Columnas**:
+
 - snake_case: `first_name`, `created_at`, `is_active`
 - Sufijos estándar:
   - `_id` para foreign keys: `department_id`, `user_id`
@@ -109,6 +118,7 @@ ALTER TABLE nom035_cases DROP COLUMN reportedBy;
   - `is_` para booleanos: `is_active`, `is_deleted`
 
 **Enums**:
+
 - snake_case en minúsculas: `open`, `in_progress`, `closed`
 - Evitar mezclas: ❌ `abierto`, ❌ `enProgreso`
 
@@ -121,6 +131,7 @@ ALTER TABLE nom035_cases DROP COLUMN reportedBy;
 **Objetivo**: Eliminar redundancias y inconsistencias críticas
 
 **Acciones**:
+
 1. Eliminar campo `reportedBy` de `nom035_cases` (redundante con `reported_by_id`)
 2. Actualizar routers que usen `reportedBy` para usar `reported_by_id`
 3. Ejecutar tests de validación
@@ -128,6 +139,7 @@ ALTER TABLE nom035_cases DROP COLUMN reportedBy;
 **Impacto**: Bajo (1 archivo afectado)
 
 **Migración SQL**:
+
 ```sql
 -- 0139_remove_redundant_reported_by.sql
 ALTER TABLE nom035_cases DROP COLUMN IF EXISTS reportedBy;
@@ -140,6 +152,7 @@ ALTER TABLE nom035_cases DROP COLUMN IF EXISTS reportedBy;
 **Objetivo**: Unificar valores de enums a inglés
 
 **Tablas Afectadas**:
+
 - `nom035_cases.status`: Verificar que use `open`, `in_progress`, `closed` (✅ ya correcto)
 - `nom035_cases.priority`: Verificar que use `low`, `medium`, `high` (✅ ya correcto)
 - `employees.status`: Verificar que use `active`, `inactive`, `terminated` (✅ ya correcto)
@@ -153,6 +166,7 @@ ALTER TABLE nom035_cases DROP COLUMN IF EXISTS reportedBy;
 **Objetivo**: Prevenir futuras inconsistencias
 
 **Acciones**:
+
 1. Crear `docs/CODING_STANDARDS.md` con convenciones
 2. Agregar validación en CI/CD para nuevas migraciones
 3. Documentar patrones comunes en README
@@ -163,11 +177,11 @@ ALTER TABLE nom035_cases DROP COLUMN IF EXISTS reportedBy;
 
 ## Estimación de Esfuerzo
 
-| Fase | Archivos Afectados | Tiempo Estimado | Riesgo |
-|------|-------------------|-----------------|--------|
-| Fase 1 | 1-2 routers | 30 minutos | Bajo |
-| Fase 2 | 0 (ya correcto) | 0 minutos | Ninguno |
-| Fase 3 | Docs | 1 hora | Ninguno |
+| Fase   | Archivos Afectados | Tiempo Estimado | Riesgo  |
+| ------ | ------------------ | --------------- | ------- |
+| Fase 1 | 1-2 routers        | 30 minutos      | Bajo    |
+| Fase 2 | 0 (ya correcto)    | 0 minutos       | Ninguno |
+| Fase 3 | Docs               | 1 hora          | Ninguno |
 
 **Total**: ~2 horas de trabajo
 

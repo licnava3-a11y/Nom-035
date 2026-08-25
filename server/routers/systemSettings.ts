@@ -119,7 +119,9 @@ export const systemSettingsRouter = router({
         });
       }
 
-      await db.delete(systemSettings).where(eq(systemSettings.settingKey, input.key));
+      await db
+        .delete(systemSettings)
+        .where(eq(systemSettings.settingKey, input.key));
 
       return { success: true };
     }),
@@ -163,7 +165,8 @@ export const systemSettingsRouter = router({
         await (db.insert(systemSettings) as any).values({
           settingKey: "alert_summary_frequency",
           settingValue: input.frequency,
-          description: "Frecuencia de envío de resumen de alertas (weekly/monthly/disabled)",
+          description:
+            "Frecuencia de envío de resumen de alertas (weekly/monthly/disabled)",
           updatedBy: ctx.user.id,
         });
       }
@@ -171,7 +174,10 @@ export const systemSettingsRouter = router({
       // Restart cron job with new configuration
       await restartAlertSummaryCronJob();
 
-      return { success: true, message: `Frecuencia actualizada a: ${input.frequency}` };
+      return {
+        success: true,
+        message: `Frecuencia actualizada a: ${input.frequency}`,
+      };
     }),
 
   /**
@@ -182,10 +188,30 @@ export const systemSettingsRouter = router({
    */
   getSMTPConfig: adminProcedure.query(async () => {
     const db = await getDb();
-    if (!db) return { host: "", port: 587, user: "", pass: "", from: "", secure: false };
-    const keys = ["smtp_host", "smtp_port", "smtp_user", "smtp_pass", "smtp_from", "smtp_secure"];
-    const rows = await db.select().from(systemSettings).where(inArray(systemSettings.settingKey, keys));
-    const map = Object.fromEntries(rows.map((r) => [r.settingKey, r.settingValue ?? ""]));
+    if (!db)
+      return {
+        host: "",
+        port: 587,
+        user: "",
+        pass: "",
+        from: "",
+        secure: false,
+      };
+    const keys = [
+      "smtp_host",
+      "smtp_port",
+      "smtp_user",
+      "smtp_pass",
+      "smtp_from",
+      "smtp_secure",
+    ];
+    const rows = await db
+      .select()
+      .from(systemSettings)
+      .where(inArray(systemSettings.settingKey, keys));
+    const map = Object.fromEntries(
+      rows.map(r => [r.settingKey, r.settingValue ?? ""])
+    );
     return {
       host: map["smtp_host"] ?? "",
       port: Number(map["smtp_port"] ?? 587),
@@ -211,7 +237,11 @@ export const systemSettingsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB error" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB error",
+        });
       const entries: Array<{ key: string; value: string }> = [
         { key: "smtp_host", value: input.host },
         { key: "smtp_port", value: String(input.port) },
@@ -223,11 +253,22 @@ export const systemSettingsRouter = router({
         entries.push({ key: "smtp_pass", value: input.pass });
       }
       for (const { key, value } of entries) {
-        const [existing] = await db.select().from(systemSettings).where(eq(systemSettings.settingKey, key)).limit(1);
+        const [existing] = await db
+          .select()
+          .from(systemSettings)
+          .where(eq(systemSettings.settingKey, key))
+          .limit(1);
         if (existing) {
-          await db.update(systemSettings).set({ settingValue: value } as any).where(eq(systemSettings.settingKey, key));
+          await db
+            .update(systemSettings)
+            .set({ settingValue: value } as any)
+            .where(eq(systemSettings.settingKey, key));
         } else {
-          await (db.insert(systemSettings) as any).values({ settingKey: key, settingValue: value, description: `SMTP config: ${key}` });
+          await (db.insert(systemSettings) as any).values({
+            settingKey: key,
+            settingValue: value,
+            description: `SMTP config: ${key}`,
+          });
         }
       }
       return { success: true };
@@ -254,10 +295,14 @@ export const systemSettingsRouter = router({
       if (!sent) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "No se pudo enviar el correo. Verifica la configuraci\u00f3n SMTP en la base de datos o las variables de entorno SMTP_HOST, SMTP_USER y SMTP_PASS.",
+          message:
+            "No se pudo enviar el correo. Verifica la configuraci\u00f3n SMTP en la base de datos o las variables de entorno SMTP_HOST, SMTP_USER y SMTP_PASS.",
         });
       }
-      return { success: true, message: `Correo de prueba enviado a ${input.toEmail}` };
+      return {
+        success: true,
+        message: `Correo de prueba enviado a ${input.toEmail}`,
+      };
     }),
 
   /**
@@ -265,33 +310,44 @@ export const systemSettingsRouter = router({
    */
   getCompanyInfo: protectedProcedure.query(async () => {
     const COMPANY_KEYS = [
-      "company_name",              // Razón Social
-      "company_rfc",               // RFC
-      "company_address",           // Domicilio fiscal
-      "company_logo",              // Logotipo URL
-      "company_legal_rep",         // Representante Legal
+      "company_name", // Razón Social
+      "company_rfc", // RFC
+      "company_address", // Domicilio fiscal
+      "company_logo", // Logotipo URL
+      "company_legal_rep", // Representante Legal
       "company_registro_patronal", // Registro Patronal IMSS
-      "company_giro",              // Giro / actividad preponderante
-      "company_scian",             // Código SCIAN
-      "company_num_workers",       // Número de trabajadores
-      "company_stps_reg",          // Registro STPS
-      "company_phone",             // Teléfono
-      "company_email",             // Correo electrónico
-      "company_city",              // Ciudad
-      "company_state",             // Estado
-      "company_postal_code",       // Código Postal
-      "company_fiscal_regime",     // Régimen fiscal
-      "company_imss_subdelegacion",// Subdelegación IMSS
+      "company_giro", // Giro / actividad preponderante
+      "company_scian", // Código SCIAN
+      "company_num_workers", // Número de trabajadores
+      "company_stps_reg", // Registro STPS
+      "company_phone", // Teléfono
+      "company_email", // Correo electrónico
+      "company_city", // Ciudad
+      "company_state", // Estado
+      "company_postal_code", // Código Postal
+      "company_fiscal_regime", // Régimen fiscal
+      "company_imss_subdelegacion", // Subdelegación IMSS
     ];
     const db = await getDb();
-    if (!db) return Object.fromEntries(COMPANY_KEYS.map(k => [k, ""])) as Record<string, string>;
+    if (!db)
+      return Object.fromEntries(COMPANY_KEYS.map(k => [k, ""])) as Record<
+        string,
+        string
+      >;
     const rows = await db
-      .select({ key: systemSettings.settingKey, value: systemSettings.settingValue })
+      .select({
+        key: systemSettings.settingKey,
+        value: systemSettings.settingValue,
+      })
       .from(systemSettings)
       .where(inArray(systemSettings.settingKey, COMPANY_KEYS));
     const map: Record<string, string> = {};
-    rows.forEach((r) => { map[r.key] = r.value ?? ""; });
-    return Object.fromEntries(COMPANY_KEYS.map(k => [k, map[k] ?? ""])) as Record<string, string>;
+    rows.forEach(r => {
+      map[r.key] = r.value ?? "";
+    });
+    return Object.fromEntries(
+      COMPANY_KEYS.map(k => [k, map[k] ?? ""])
+    ) as Record<string, string>;
   }),
 
   /**
@@ -321,14 +377,30 @@ export const systemSettingsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB error" });
-      const entries = Object.entries(input).filter(([, v]) => v !== undefined) as [string, string][];
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB error",
+        });
+      const entries = Object.entries(input).filter(
+        ([, v]) => v !== undefined
+      ) as [string, string][];
       for (const [key, value] of entries) {
-        const existing = await db.select({ id: systemSettings.id }).from(systemSettings).where(eq(systemSettings.settingKey, key)).limit(1);
+        const existing = await db
+          .select({ id: systemSettings.id })
+          .from(systemSettings)
+          .where(eq(systemSettings.settingKey, key))
+          .limit(1);
         if (existing.length > 0) {
-          await db.update(systemSettings).set({ settingValue: value }).where(eq(systemSettings.settingKey, key));
+          await db
+            .update(systemSettings)
+            .set({ settingValue: value })
+            .where(eq(systemSettings.settingKey, key));
         } else {
-          await (db.insert(systemSettings) as any).values({ settingKey: key, settingValue: value });
+          await (db.insert(systemSettings) as any).values({
+            settingKey: key,
+            settingValue: value,
+          });
         }
       }
       return { success: true };
@@ -349,7 +421,11 @@ export const systemSettingsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
       const { alertHistory } = await import("../../drizzle/schema");
       const conditions: any[] = [];
       if (input.status && input.status !== "all") {
@@ -361,8 +437,12 @@ export const systemSettingsRouter = router({
       if (input.priority) {
         conditions.push(eq(alertHistory.priority, input.priority as any));
       }
-      if (input.dateFrom) conditions.push(gte(alertHistory.triggeredAt, new Date(input.dateFrom)));
-      if (input.dateTo) conditions.push(lte(alertHistory.triggeredAt, new Date(input.dateTo)));
+      if (input.dateFrom)
+        conditions.push(
+          gte(alertHistory.triggeredAt, new Date(input.dateFrom))
+        );
+      if (input.dateTo)
+        conditions.push(lte(alertHistory.triggeredAt, new Date(input.dateTo)));
       const rows = await db
         .select()
         .from(alertHistory)

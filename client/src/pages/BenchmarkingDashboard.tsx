@@ -1,12 +1,30 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Target, BarChart3, Sparkles } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Target,
+  BarChart3,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   Chart as ChartJS,
@@ -39,24 +57,28 @@ ChartJS.register(
 export default function BenchmarkingDashboard() {
   const [selectedSectorId, setSelectedSectorId] = useState<number | null>(null);
 
-  const { data: sectors, isLoading: loadingSectors } = trpc.benchmarking.listSectors.useQuery();
-  const { data: dashboard, isLoading: loadingDashboard } = trpc.benchmarking.getDashboard.useQuery(
-    { sectorId: selectedSectorId! },
-    { enabled: !!selectedSectorId }
-  );
-  const { data: comparison, isLoading: loadingComparison } = trpc.benchmarking.getComparison.useQuery(
-    { sectorId: selectedSectorId! },
-    { enabled: !!selectedSectorId }
-  );
+  const { data: sectors, isLoading: loadingSectors } =
+    trpc.benchmarking.listSectors.useQuery();
+  const { data: dashboard, isLoading: loadingDashboard } =
+    trpc.benchmarking.getDashboard.useQuery(
+      { sectorId: selectedSectorId! },
+      { enabled: !!selectedSectorId }
+    );
+  const { data: comparison, isLoading: loadingComparison } =
+    trpc.benchmarking.getComparison.useQuery(
+      { sectorId: selectedSectorId! },
+      { enabled: !!selectedSectorId }
+    );
 
-  const generateRecommendationsMutation = trpc.benchmarking.generateRecommendations.useMutation({
-    onSuccess: () => {
-      toast.success("Recomendaciones generadas exitosamente");
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const generateRecommendationsMutation =
+    trpc.benchmarking.generateRecommendations.useMutation({
+      onSuccess: () => {
+        toast.success("Recomendaciones generadas exitosamente");
+      },
+      onError: error => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
   const handleGenerateRecommendations = () => {
     if (!selectedSectorId) {
@@ -67,12 +89,12 @@ export default function BenchmarkingDashboard() {
   };
 
   const generatePDFMutation = trpc.benchmarking.generatePDF.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Descargar PDF automáticamente
       window.open(data.url, "_blank");
       toast.success(`PDF generado exitosamente. Folio: ${data.folio}`);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al generar PDF: ${error.message}`);
     },
   });
@@ -147,17 +169,31 @@ export default function BenchmarkingDashboard() {
         <div>
           <h1 className="text-3xl font-bold">Benchmarking Sectorial</h1>
           <p className="text-muted-foreground mt-2">
-            Compara tus métricas de riesgos psicosociales con los promedios del sector
+            Compara tus métricas de riesgos psicosociales con los promedios del
+            sector
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleExportPDF} disabled={!selectedSectorId || generatePDFMutation.isPending} variant="outline">
+          <Button
+            onClick={handleExportPDF}
+            disabled={!selectedSectorId || generatePDFMutation.isPending}
+            variant="outline"
+          >
             <BarChart3 className="mr-2 h-4 w-4" />
-            {generatePDFMutation.isPending ? "Generando PDF..." : "Exportar a PDF"}
+            {generatePDFMutation.isPending
+              ? "Generando PDF..."
+              : "Exportar a PDF"}
           </Button>
-          <Button onClick={handleGenerateRecommendations} disabled={!selectedSectorId || generateRecommendationsMutation.isPending}>
+          <Button
+            onClick={handleGenerateRecommendations}
+            disabled={
+              !selectedSectorId || generateRecommendationsMutation.isPending
+            }
+          >
             <Sparkles className="mr-2 h-4 w-4" />
-            {generateRecommendationsMutation.isPending ? "Generando..." : "Generar Recomendaciones con IA"}
+            {generateRecommendationsMutation.isPending
+              ? "Generando..."
+              : "Generar Recomendaciones con IA"}
           </Button>
         </div>
       </div>
@@ -166,12 +202,14 @@ export default function BenchmarkingDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Selecciona tu Sector Industrial</CardTitle>
-          <CardDescription>Elige el sector que mejor describe tu organización</CardDescription>
+          <CardDescription>
+            Elige el sector que mejor describe tu organización
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Select
             value={selectedSectorId?.toString() || ""}
-            onValueChange={(value) => setSelectedSectorId(parseInt(value))}
+            onValueChange={value => setSelectedSectorId(parseInt(value))}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Selecciona un sector" />
@@ -193,7 +231,9 @@ export default function BenchmarkingDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Sector</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Sector
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{dashboard.sectorName}</div>
@@ -202,33 +242,45 @@ export default function BenchmarkingDashboard() {
 
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Métricas Evaluadas</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Métricas Evaluadas
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{dashboard.totalMetrics}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Por Encima del Estándar</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                  <div className="text-2xl font-bold text-green-600">{dashboard.betterCount}</div>
+                <div className="text-2xl font-bold">
+                  {dashboard.totalMetrics}
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Por Debajo del Estándar</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Por Encima del Estándar
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-green-600" />
+                  <div className="text-2xl font-bold text-green-600">
+                    {dashboard.betterCount}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Por Debajo del Estándar
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
                   <TrendingDown className="h-5 w-5 text-red-600" />
-                  <div className="text-2xl font-bold text-red-600">{dashboard.worseCount}</div>
+                  <div className="text-2xl font-bold text-red-600">
+                    {dashboard.worseCount}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -242,12 +294,15 @@ export default function BenchmarkingDashboard() {
                 Score de Desempeño Relativo
               </CardTitle>
               <CardDescription>
-                Porcentaje de métricas donde tu organización supera el promedio sectorial
+                Porcentaje de métricas donde tu organización supera el promedio
+                sectorial
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4">
-                <div className="text-5xl font-bold text-blue-600">{dashboard.performanceScore}%</div>
+                <div className="text-5xl font-bold text-blue-600">
+                  {dashboard.performanceScore}%
+                </div>
                 <div className="flex-1">
                   <div className="w-full bg-gray-200 rounded-full h-4">
                     <div
@@ -265,7 +320,10 @@ export default function BenchmarkingDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Comparación Multidimensional</CardTitle>
-                <CardDescription>Vista de radar de todas las métricas (normalizado a escala 0-100)</CardDescription>
+                <CardDescription>
+                  Vista de radar de todas las métricas (normalizado a escala
+                  0-100)
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[400px] flex items-center justify-center">
@@ -300,7 +358,9 @@ export default function BenchmarkingDashboard() {
                   <BarChart3 className="h-5 w-5" />
                   Comparación por Métrica
                 </CardTitle>
-                <CardDescription>Valores reales organizacionales vs. promedios sectoriales</CardDescription>
+                <CardDescription>
+                  Valores reales organizacionales vs. promedios sectoriales
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[400px]">
@@ -331,7 +391,10 @@ export default function BenchmarkingDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Análisis Detallado de Brechas</CardTitle>
-                <CardDescription>Comparación métrica por métrica con identificación de áreas de mejora</CardDescription>
+                <CardDescription>
+                  Comparación métrica por métrica con identificación de áreas de
+                  mejora
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
@@ -339,10 +402,14 @@ export default function BenchmarkingDashboard() {
                     <thead>
                       <tr className="border-b">
                         <th className="text-left p-3 font-semibold">Métrica</th>
-                        <th className="text-right p-3 font-semibold">Organización</th>
+                        <th className="text-right p-3 font-semibold">
+                          Organización
+                        </th>
                         <th className="text-right p-3 font-semibold">Sector</th>
                         <th className="text-right p-3 font-semibold">Brecha</th>
-                        <th className="text-center p-3 font-semibold">Estado</th>
+                        <th className="text-center p-3 font-semibold">
+                          Estado
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -356,19 +423,29 @@ export default function BenchmarkingDashboard() {
                             {c.sectorValue} {c.unit}
                           </td>
                           <td className="text-right p-3">
-                            <span className={c.gap > 0 ? "text-red-600" : "text-green-600"}>
+                            <span
+                              className={
+                                c.gap > 0 ? "text-red-600" : "text-green-600"
+                              }
+                            >
                               {c.gap > 0 ? "+" : ""}
                               {c.gap} {c.unit}
                             </span>
                           </td>
                           <td className="text-center p-3">
                             {c.status === "better" ? (
-                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                              <Badge
+                                variant="outline"
+                                className="bg-green-50 text-green-700 border-green-200"
+                              >
                                 <TrendingUp className="mr-1 h-3 w-3" />
                                 Por encima
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                              <Badge
+                                variant="outline"
+                                className="bg-red-50 text-red-700 border-red-200"
+                              >
                                 <TrendingDown className="mr-1 h-3 w-3" />
                                 Por debajo
                               </Badge>
@@ -392,34 +469,49 @@ export default function BenchmarkingDashboard() {
                   Recomendaciones Generadas por IA
                 </CardTitle>
                 <CardDescription>
-                  Acciones sugeridas para cerrar las brechas identificadas y mejorar tu posicionamiento sectorial
+                  Acciones sugeridas para cerrar las brechas identificadas y
+                  mejorar tu posicionamiento sectorial
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {generateRecommendationsMutation.data.recommendations.map((rec: any, idx: number) => (
-                  <div key={idx} className="border-l-4 border-purple-500 pl-4 py-2">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-lg">{rec.title}</h4>
-                        <p className="text-muted-foreground mt-1">{rec.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge
-                            variant={
-                              rec.priority === "high"
-                                ? "destructive"
+                {generateRecommendationsMutation.data.recommendations.map(
+                  (rec: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="border-l-4 border-purple-500 pl-4 py-2"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-lg">{rec.title}</h4>
+                          <p className="text-muted-foreground mt-1">
+                            {rec.description}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge
+                              variant={
+                                rec.priority === "high"
+                                  ? "destructive"
+                                  : rec.priority === "medium"
+                                    ? "default"
+                                    : "secondary"
+                              }
+                            >
+                              Prioridad:{" "}
+                              {rec.priority === "high"
+                                ? "Alta"
                                 : rec.priority === "medium"
-                                ? "default"
-                                : "secondary"
-                            }
-                          >
-                            Prioridad: {rec.priority === "high" ? "Alta" : rec.priority === "medium" ? "Media" : "Baja"}
-                          </Badge>
-                          <span className="text-sm text-muted-foreground">Métrica objetivo: {rec.targetMetric}</span>
+                                  ? "Media"
+                                  : "Baja"}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">
+                              Métrica objetivo: {rec.targetMetric}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </CardContent>
             </Card>
           )}
@@ -430,7 +522,10 @@ export default function BenchmarkingDashboard() {
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
             <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Selecciona un sector industrial para comenzar el análisis de benchmarking</p>
+            <p>
+              Selecciona un sector industrial para comenzar el análisis de
+              benchmarking
+            </p>
           </CardContent>
         </Card>
       )}

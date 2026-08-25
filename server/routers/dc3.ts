@@ -1,7 +1,15 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { dc3Records, companyDigitalSignature, systemSettings, sirceExportHistory, users, positions, departments } from "../../drizzle/schema";
+import {
+  dc3Records,
+  companyDigitalSignature,
+  systemSettings,
+  sirceExportHistory,
+  users,
+  positions,
+  departments,
+} from "../../drizzle/schema";
 import { eq, desc, and, like, or, sql, gte, lte, inArray } from "drizzle-orm";
 import * as XLSX from "xlsx";
 import { extractCURPData } from "../lib/curp-validator";
@@ -121,9 +129,9 @@ const dc3RecordSchema = z.object({
   trainingAgentName: z.string().max(255).optional().nullable(), // Agente capacitador o STPS
 
   // FIRMANTES (bajo protesta de decir verdad)
-  instructorName: z.string().max(255).optional().nullable(),      // Instructor o tutor
-  employerRepName: z.string().max(255).optional().nullable(),     // Patrón o representante legal
-  workerRepName: z.string().max(255).optional().nullable(),       // Representante de los trabajadores (>50 trabajadores)
+  instructorName: z.string().max(255).optional().nullable(), // Instructor o tutor
+  employerRepName: z.string().max(255).optional().nullable(), // Patrón o representante legal
+  workerRepName: z.string().max(255).optional().nullable(), // Representante de los trabajadores (>50 trabajadores)
 
   // Control interno
   status: z.enum(["draft", "issued", "cancelled"]).default("draft"),
@@ -331,10 +339,12 @@ function buildDC3Template(): Buffer {
 
   // ── Hoja 2: Catálogo CNO (REVERSO del DC-3) ──────────────────────────────────
   const cnoCatalog = [
-    ["CLAVES Y DENOMINACIONES DE ÁREAS Y SUBÁREAS DEL CATÁLOGO NACIONAL DE OCUPACIONES"],
+    [
+      "CLAVES Y DENOMINACIONES DE ÁREAS Y SUBÁREAS DEL CATÁLOGO NACIONAL DE OCUPACIONES",
+    ],
     [""],
     ["CLAVE DEL ÁREA/SUBÁREA", "DENOMINACIÓN"],
-    ...CNO_AREAS.map((a) => [a.key, a.label]),
+    ...CNO_AREAS.map(a => [a.key, a.label]),
   ];
   const wsCno = XLSX.utils.aoa_to_sheet(cnoCatalog);
   wsCno["!cols"] = [{ wch: 22 }, { wch: 55 }];
@@ -346,7 +356,7 @@ function buildDC3Template(): Buffer {
     ["CLAVES Y DENOMINACIONES DEL CATÁLOGO DE ÁREAS TEMÁTICAS DE LOS CURSOS"],
     [""],
     ["CLAVE DEL ÁREA", "DENOMINACIÓN"],
-    ...THEMATIC_AREAS.map((a) => [a.key, a.label]),
+    ...THEMATIC_AREAS.map(a => [a.key, a.label]),
   ];
   const wsThematic = XLSX.utils.aoa_to_sheet(thematicCatalog);
   wsThematic["!cols"] = [{ wch: 16 }, { wch: 55 }];
@@ -360,38 +370,64 @@ function buildDC3Template(): Buffer {
     [""],
     ["INSTRUCCIONES OFICIALES (según el reverso del formato DC-3):"],
     ["  • Llenar a máquina o con letra de molde."],
-    ["  • Deberá entregarse al trabajador dentro de los veinte días hábiles siguientes al término del curso de capacitación aprobado."],
+    [
+      "  • Deberá entregarse al trabajador dentro de los veinte días hábiles siguientes al término del curso de capacitación aprobado.",
+    ],
     [""],
     ["CAMPOS OBLIGATORIOS (marcados con *)"],
-    ["  • Nombre del Trabajador: Anotar apellido paterno, apellido materno y nombre(s)"],
-    ["  • Nombre o Razón Social Empresa: En caso de persona física, anotar apellidos y nombre(s)"],
+    [
+      "  • Nombre del Trabajador: Anotar apellido paterno, apellido materno y nombre(s)",
+    ],
+    [
+      "  • Nombre o Razón Social Empresa: En caso de persona física, anotar apellidos y nombre(s)",
+    ],
     ["  • Nombre del Curso"],
     [""],
     ["CAMPOS OPCIONALES"],
     ["  • Puesto: Dato no obligatorio según el formato oficial DC-3"],
     ["  • CURP: 18 caracteres"],
     ["  • RFC Empresa: Con homoclave (SHCP) — formato: XXXX-XXXXXX-XXX"],
-    ["  • Clave CNO: Consultar hoja 'Catálogo CNO' — Catálogo Nacional de Ocupaciones (www.stps.gob.mx)"],
-    ["  • Clave Área Temática: Consultar hoja 'Áreas Temáticas' (www.stps.gob.mx)"],
+    [
+      "  • Clave CNO: Consultar hoja 'Catálogo CNO' — Catálogo Nacional de Ocupaciones (www.stps.gob.mx)",
+    ],
+    [
+      "  • Clave Área Temática: Consultar hoja 'Áreas Temáticas' (www.stps.gob.mx)",
+    ],
     ["  • Duración: Número entero de horas"],
     ["  • Fechas: Formato YYYY-MM-DD (ej. 2025-01-15)"],
     ["  • Estado: draft (borrador) | issued (emitida) | cancelled (cancelada)"],
     [""],
     ["NOTAS LEGALES (según el formato oficial DC-3):"],
-    ["  1. Las áreas y subáreas ocupacionales del CNO están disponibles en el reverso del formato y en www.stps.gob.mx"],
-    ["  2. Las áreas temáticas de los cursos están disponibles en el reverso del formato y en www.stps.gob.mx"],
-    ["  3. Cursos impartidos por el área competente de la Secretaría del Trabajo y Previsión Social."],
-    ["  4. Para empresas con menos de 51 trabajadores firma el patrón o representante legal."],
-    ["     Para empresas con más de 50 trabajadores firma el representante del patrón ante la Comisión Mixta"],
+    [
+      "  1. Las áreas y subáreas ocupacionales del CNO están disponibles en el reverso del formato y en www.stps.gob.mx",
+    ],
+    [
+      "  2. Las áreas temáticas de los cursos están disponibles en el reverso del formato y en www.stps.gob.mx",
+    ],
+    [
+      "  3. Cursos impartidos por el área competente de la Secretaría del Trabajo y Previsión Social.",
+    ],
+    [
+      "  4. Para empresas con menos de 51 trabajadores firma el patrón o representante legal.",
+    ],
+    [
+      "     Para empresas con más de 50 trabajadores firma el representante del patrón ante la Comisión Mixta",
+    ],
     ["     de capacitación, adiestramiento y productividad."],
-    ["  5. El campo 'Representante de los Trabajadores' solo aplica para empresas con más de 50 trabajadores."],
+    [
+      "  5. El campo 'Representante de los Trabajadores' solo aplica para empresas con más de 50 trabajadores.",
+    ],
     ["  *  El campo 'Puesto' es dato no obligatorio."],
     [""],
-    ["Los datos se asientan bajo protesta de decir verdad, apercibidos de la responsabilidad en que incurre"],
+    [
+      "Los datos se asientan bajo protesta de decir verdad, apercibidos de la responsabilidad en que incurre",
+    ],
     ["todo aquel que no se conduce con verdad."],
     [""],
     ["FUENTE: Formato DC-3 oficial STPS — www.stps.gob.mx"],
-    ["Referencia: DC-3reforma-3 — Constancia de Competencias o de Habilidades Laborales"],
+    [
+      "Referencia: DC-3reforma-3 — Constancia de Competencias o de Habilidades Laborales",
+    ],
   ];
   const wsInst = XLSX.utils.aoa_to_sheet(instructions);
   wsInst["!cols"] = [{ wch: 100 }];
@@ -402,29 +438,48 @@ function buildDC3Template(): Buffer {
 
 // ─── Helper: exportar registros a Excel ──────────────────────────────────────
 
-function buildDC3Export(records: typeof dc3Records.$inferSelect[]): Buffer {
+function buildDC3Export(records: (typeof dc3Records.$inferSelect)[]): Buffer {
   const wb = XLSX.utils.book_new();
 
   // Encabezados en el mismo orden que la plantilla oficial
   const headers = [
-    "ID", "Folio", "Estado",
+    "ID",
+    "Folio",
+    "Estado",
     // BLOQUE 1: DATOS DEL TRABAJADOR
-    "Nombre del Trabajador", "CURP", "Clave CNO", "Descripción CNO", "Puesto",
+    "Nombre del Trabajador",
+    "CURP",
+    "Clave CNO",
+    "Descripción CNO",
+    "Puesto",
     // BLOQUE 2: DATOS DE LA EMPRESA
-    "Nombre o Razón Social Empresa", "RFC Empresa",
+    "Nombre o Razón Social Empresa",
+    "RFC Empresa",
     // BLOQUE 3: DATOS DEL PROGRAMA DE CAPACITACIÓN
-    "Nombre del Curso", "Duración (horas)", "Fecha Inicio", "Fecha Fin",
-    "Clave Área Temática", "Descripción Área Temática", "Agente Capacitador o STPS",
+    "Nombre del Curso",
+    "Duración (horas)",
+    "Fecha Inicio",
+    "Fecha Fin",
+    "Clave Área Temática",
+    "Descripción Área Temática",
+    "Agente Capacitador o STPS",
     // FIRMANTES
-    "Instructor o Tutor", "Patrón o Representante Legal", "Representante de los Trabajadores",
+    "Instructor o Tutor",
+    "Patrón o Representante Legal",
+    "Representante de los Trabajadores",
     // Control
-    "Notas", "Fecha Creación",
+    "Notas",
+    "Fecha Creación",
   ];
 
-  const rows = records.map((r) => [
+  const rows = records.map(r => [
     r.id,
     r.folioNumber ?? "",
-    r.status === "issued" ? "Emitida" : r.status === "cancelled" ? "Cancelada" : "Borrador",
+    r.status === "issued"
+      ? "Emitida"
+      : r.status === "cancelled"
+        ? "Cancelada"
+        : "Borrador",
     // BLOQUE 1
     r.workerName,
     r.workerCurp ?? "",
@@ -452,13 +507,13 @@ function buildDC3Export(records: typeof dc3Records.$inferSelect[]): Buffer {
   ]);
 
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-  ws["!cols"] = headers.map((h) => ({ wch: Math.max(h.length + 2, 18) }));
+  ws["!cols"] = headers.map(h => ({ wch: Math.max(h.length + 2, 18) }));
   XLSX.utils.book_append_sheet(wb, ws, "DC-3 Registros");
 
   // Incluir catálogos de referencia en el export también
   const cnoCatalog = [
     ["CLAVE", "DESCRIPCIÓN OCUPACIÓN (CNO)"],
-    ...CNO_AREAS.map((a) => [a.key, a.label]),
+    ...CNO_AREAS.map(a => [a.key, a.label]),
   ];
   const wsCno = XLSX.utils.aoa_to_sheet(cnoCatalog);
   wsCno["!cols"] = [{ wch: 12 }, { wch: 55 }];
@@ -466,7 +521,7 @@ function buildDC3Export(records: typeof dc3Records.$inferSelect[]): Buffer {
 
   const thematicCatalog = [
     ["CLAVE", "ÁREA TEMÁTICA"],
-    ...THEMATIC_AREAS.map((a) => [a.key, a.label]),
+    ...THEMATIC_AREAS.map(a => [a.key, a.label]),
   ];
   const wsThematic = XLSX.utils.aoa_to_sheet(thematicCatalog);
   wsThematic["!cols"] = [{ wch: 12 }, { wch: 55 }];
@@ -494,14 +549,19 @@ async function lookupCurpExternal(curp: string): Promise<{
       const url = `https://api.valida-curp.com.mx/curp/obtener_datos/?token=${encodeURIComponent(token)}&curp=${encodeURIComponent(curp)}`;
       const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
       if (res.ok) {
-        const json = await res.json() as any;
+        const json = (await res.json()) as any;
         if (!json.error && json.response?.Solicitante) {
           const s = json.response.Solicitante;
           return {
             nombres: s.Nombres ?? undefined,
             apellidoPaterno: s.ApellidoPaterno ?? undefined,
             apellidoMaterno: s.ApellidoMaterno ?? undefined,
-            sexo: s.ClaveSexo === "H" ? "Masculino" : s.ClaveSexo === "M" ? "Femenino" : undefined,
+            sexo:
+              s.ClaveSexo === "H"
+                ? "Masculino"
+                : s.ClaveSexo === "M"
+                  ? "Femenino"
+                  : undefined,
             fechaNacimiento: s.FechaNacimiento ?? undefined,
             entidadNacimiento: s.EntidadNacimiento ?? undefined,
             source: "api",
@@ -524,18 +584,20 @@ export const dc3Router = router({
 
   // Listar registros con paginación y búsqueda
   list: protectedProcedure
-    .input(z.object({
-      page: z.number().int().min(1).default(1),
-      pageSize: z.number().int().min(1).max(100).default(20),
-      search: z.string().optional(),
-      status: z.enum(["draft", "issued", "cancelled", "all"]).default("all"),
-      // Filtros avanzados
-      companyFilter: z.string().optional(),
-      courseFilter: z.string().optional(),
-      dateFrom: z.string().optional(),
-      dateTo: z.string().optional(),
-      thematicAreaFilter: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        page: z.number().int().min(1).default(1),
+        pageSize: z.number().int().min(1).max(100).default(20),
+        search: z.string().optional(),
+        status: z.enum(["draft", "issued", "cancelled", "all"]).default("all"),
+        // Filtros avanzados
+        companyFilter: z.string().optional(),
+        courseFilter: z.string().optional(),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+        thematicAreaFilter: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB no disponible");
@@ -548,7 +610,7 @@ export const dc3Router = router({
             like(dc3Records.workerName, `%${input.search}%`),
             like(dc3Records.courseName, `%${input.search}%`),
             like(dc3Records.companyName, `%${input.search}%`),
-            like(dc3Records.folioNumber, `%${input.search}%`),
+            like(dc3Records.folioNumber, `%${input.search}%`)
           )
         );
       }
@@ -557,30 +619,41 @@ export const dc3Router = router({
       }
       // Filtros avanzados
       if (input.companyFilter) {
-        conditions.push(like(dc3Records.companyName, `%${input.companyFilter}%`));
+        conditions.push(
+          like(dc3Records.companyName, `%${input.companyFilter}%`)
+        );
       }
       if (input.courseFilter) {
         conditions.push(like(dc3Records.courseName, `%${input.courseFilter}%`));
       }
       if (input.dateFrom) {
-        conditions.push(gte(dc3Records.periodStartDate, new Date(input.dateFrom)));
+        conditions.push(
+          gte(dc3Records.periodStartDate, new Date(input.dateFrom))
+        );
       }
       if (input.dateTo) {
         conditions.push(lte(dc3Records.periodEndDate, new Date(input.dateTo)));
       }
       if (input.thematicAreaFilter) {
-        conditions.push(eq(dc3Records.thematicAreaKey, input.thematicAreaFilter));
+        conditions.push(
+          eq(dc3Records.thematicAreaKey, input.thematicAreaFilter)
+        );
       }
 
       const where = conditions.length > 0 ? and(...conditions) : undefined;
 
       const [records, countResult] = await Promise.all([
-        db.select().from(dc3Records)
+        db
+          .select()
+          .from(dc3Records)
           .where(where)
           .orderBy(desc(dc3Records.createdAt))
           .limit(input.pageSize)
           .offset(offset),
-        db.select({ count: sql<number>`COUNT(*)` }).from(dc3Records).where(where),
+        db
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(dc3Records)
+          .where(where),
       ]);
 
       return {
@@ -597,7 +670,10 @@ export const dc3Router = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB no disponible");
-      const [record] = await db.select().from(dc3Records).where(eq(dc3Records.id, input.id));
+      const [record] = await db
+        .select()
+        .from(dc3Records)
+        .where(eq(dc3Records.id, input.id));
       if (!record) throw new Error("Registro no encontrado");
       return record;
     }),
@@ -610,15 +686,22 @@ export const dc3Router = router({
       if (!db) throw new Error("DB no disponible");
       const [result] = await (db.insert(dc3Records) as any).values({
         ...input,
-        periodStartDate: input.periodStartDate ? new Date(input.periodStartDate) : null,
-        periodEndDate: input.periodEndDate ? new Date(input.periodEndDate) : null,
+        periodStartDate: input.periodStartDate
+          ? new Date(input.periodStartDate)
+          : null,
+        periodEndDate: input.periodEndDate
+          ? new Date(input.periodEndDate)
+          : null,
         createdBy: ctx.user.id,
       });
       const insertId = (result as { insertId: number }).insertId;
       // Auto-generar folio si se emite
       if (input.status === "issued") {
         const folio = generateDC3Folio(insertId);
-        await db.update(dc3Records).set({ folioNumber: folio }).where(eq(dc3Records.id, insertId));
+        await db
+          .update(dc3Records)
+          .set({ folioNumber: folio })
+          .where(eq(dc3Records.id, insertId));
       }
       return { id: insertId, success: true };
     }),
@@ -634,30 +717,46 @@ export const dc3Router = router({
         updatedBy: ctx.user.id,
       };
       if (input.data.periodStartDate !== undefined) {
-        updateData.periodStartDate = input.data.periodStartDate ? new Date(input.data.periodStartDate) : null;
+        updateData.periodStartDate = input.data.periodStartDate
+          ? new Date(input.data.periodStartDate)
+          : null;
       }
       if (input.data.periodEndDate !== undefined) {
-        updateData.periodEndDate = input.data.periodEndDate ? new Date(input.data.periodEndDate) : null;
+        updateData.periodEndDate = input.data.periodEndDate
+          ? new Date(input.data.periodEndDate)
+          : null;
       }
       // Auto-generar folio al emitir y enviar notificación por correo
       if (input.data.status === "issued") {
-        const [existing] = await db.select({
-          folioNumber: dc3Records.folioNumber,
-          workerName: dc3Records.workerName,
-          courseName: dc3Records.courseName,
-          companyName: dc3Records.companyName,
-          verificationHash: dc3Records.verificationHash,
-          periodStartDate: dc3Records.periodStartDate,
-          periodEndDate: dc3Records.periodEndDate,
-        }).from(dc3Records).where(eq(dc3Records.id, input.id));
+        const [existing] = await db
+          .select({
+            folioNumber: dc3Records.folioNumber,
+            workerName: dc3Records.workerName,
+            courseName: dc3Records.courseName,
+            companyName: dc3Records.companyName,
+            verificationHash: dc3Records.verificationHash,
+            periodStartDate: dc3Records.periodStartDate,
+            periodEndDate: dc3Records.periodEndDate,
+          })
+          .from(dc3Records)
+          .where(eq(dc3Records.id, input.id));
 
         // Generar folio si no existe
         let folio = existing?.folioNumber;
         if (!folio) {
           // Usar versión activa del catálogo de formatos para la nomenclatura
-          const [activeFormat] = await db.select({ code: formatCatalog.code, version: formatCatalog.version })
+          const [activeFormat] = await db
+            .select({
+              code: formatCatalog.code,
+              version: formatCatalog.version,
+            })
             .from(formatCatalog)
-            .where(and(eq(formatCatalog.code, "DC-3"), eq(formatCatalog.isActive, true)))
+            .where(
+              and(
+                eq(formatCatalog.code, "DC-3"),
+                eq(formatCatalog.isActive, true)
+              )
+            )
             .limit(1);
           const formatCode = activeFormat?.code ?? "DC-3";
           folio = generateDC3Folio(input.id, formatCode);
@@ -665,13 +764,16 @@ export const dc3Router = router({
         }
 
         // Enviar correo de notificación (no bloqueante)
-        const appUrl = process.env.APP_PUBLIC_URL ?? "https://nom035mood-32dy4ksx.manus.space";
+        const appUrl =
+          process.env.APP_PUBLIC_URL ??
+          "https://nom035mood-32dy4ksx.manus.space";
         const verifyUrl = existing?.verificationHash
           ? `${appUrl}/verificar-dc3?hash=${existing.verificationHash}`
           : `${appUrl}/verificar-dc3`;
-        const periodStr = existing?.periodStartDate && existing?.periodEndDate
-          ? `${String(existing.periodStartDate).slice(0, 10)} al ${String(existing.periodEndDate).slice(0, 10)}`
-          : "—";
+        const periodStr =
+          existing?.periodStartDate && existing?.periodEndDate
+            ? `${String(existing.periodStartDate).slice(0, 10)} al ${String(existing.periodEndDate).slice(0, 10)}`
+            : "—";
 
         sendEmail({
           to: ctx.user.email ?? "",
@@ -699,9 +801,14 @@ export const dc3Router = router({
               </div>
             </div>
           `,
-        }).catch((err) => console.error("[DC3] Error al enviar correo de emisión:", err));
+        }).catch(err =>
+          console.error("[DC3] Error al enviar correo de emisión:", err)
+        );
       }
-      await db.update(dc3Records).set(updateData).where(eq(dc3Records.id, input.id));
+      await db
+        .update(dc3Records)
+        .set(updateData)
+        .where(eq(dc3Records.id, input.id));
       return { success: true };
     }),
 
@@ -720,28 +827,35 @@ export const dc3Router = router({
     const buffer = buildDC3Template();
     return {
       filename: "plantilla_dc3_oficial_stps.xlsx",
-      contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      contentType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       data: buffer.toString("base64"),
     };
   }),
 
   // Exportar registros a Excel
   exportToExcel: protectedProcedure
-    .input(z.object({
-      status: z.enum(["draft", "issued", "cancelled", "all"]).default("all"),
-    }))
+    .input(
+      z.object({
+        status: z.enum(["draft", "issued", "cancelled", "all"]).default("all"),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB no disponible");
-      const conditions = input.status !== "all" ? [eq(dc3Records.status, input.status)] : [];
-      const records = await db.select().from(dc3Records)
+      const conditions =
+        input.status !== "all" ? [eq(dc3Records.status, input.status)] : [];
+      const records = await db
+        .select()
+        .from(dc3Records)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(dc3Records.createdAt));
 
       const buffer = buildDC3Export(records);
       return {
         filename: `dc3_registros_${new Date().toISOString().slice(0, 10)}.xlsx`,
-        contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        contentType:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         data: buffer.toString("base64"),
         count: records.length,
       };
@@ -749,10 +863,12 @@ export const dc3Router = router({
 
   // Importar desde Excel (compatible con la plantilla oficial)
   importFromExcel: protectedProcedure
-    .input(z.object({
-      fileBase64: z.string(),
-      fileName: z.string(),
-    }))
+    .input(
+      z.object({
+        fileBase64: z.string(),
+        fileName: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("DB no disponible");
@@ -762,14 +878,18 @@ export const dc3Router = router({
       // Leer la primera hoja (DC-3 Plantilla o DC-3 Datos)
       const sheetName = wb.SheetNames[0];
       const ws = wb.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1 }) as unknown[][];
+      const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, {
+        header: 1,
+      }) as unknown[][];
 
       if (rows.length < 2) {
-        throw new Error("El archivo no contiene datos. Asegúrese de usar la plantilla oficial DC-3.");
+        throw new Error(
+          "El archivo no contiene datos. Asegúrese de usar la plantilla oficial DC-3."
+        );
       }
 
       // Saltar encabezado (fila 0), ignorar filas vacías
-      const dataRows = rows.slice(1).filter((row) => (row as unknown[])[0]);
+      const dataRows = rows.slice(1).filter(row => (row as unknown[])[0]);
 
       const results = { imported: 0, errors: [] as string[] };
 
@@ -791,11 +911,15 @@ export const dc3Router = router({
           const courseName = String(row[7] ?? "").trim();
 
           if (!workerName || !companyName || !courseName) {
-            results.errors.push(`Fila ${rowNum}: Nombre del trabajador (col A), empresa (col F) y curso (col H) son obligatorios.`);
+            results.errors.push(
+              `Fila ${rowNum}: Nombre del trabajador (col A), empresa (col F) y curso (col H) son obligatorios.`
+            );
             continue;
           }
 
-          const statusRaw = String(row[17] ?? "draft").trim().toLowerCase();
+          const statusRaw = String(row[17] ?? "draft")
+            .trim()
+            .toLowerCase();
           const status = ["draft", "issued", "cancelled"].includes(statusRaw)
             ? (statusRaw as "draft" | "issued" | "cancelled")
             : "draft";
@@ -838,14 +962,17 @@ export const dc3Router = router({
           // Auto-generar folio si se emite y no tiene folio
           const insertId = (insertResult as { insertId: number }).insertId;
           if (status === "issued" && !String(row[18] ?? "").trim()) {
-            await db.update(dc3Records)
+            await db
+              .update(dc3Records)
               .set({ folioNumber: generateDC3Folio(insertId) })
               .where(eq(dc3Records.id, insertId));
           }
 
           results.imported++;
         } catch (err) {
-          results.errors.push(`Fila ${rowNum}: ${err instanceof Error ? err.message : "Error desconocido"}`);
+          results.errors.push(
+            `Fila ${rowNum}: ${err instanceof Error ? err.message : "Error desconocido"}`
+          );
         }
       }
 
@@ -872,15 +999,28 @@ export const dc3Router = router({
     .input(z.object({ id: z.number().int() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      const [record] = await db.select().from(dc3Records).where(eq(dc3Records.id, input.id));
-      if (!record) throw new TRPCError({ code: "NOT_FOUND", message: "Registro DC-3 no encontrado" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      const [record] = await db
+        .select()
+        .from(dc3Records)
+        .where(eq(dc3Records.id, input.id));
+      if (!record)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Registro DC-3 no encontrado",
+        });
 
       const PDFDocument = (await import("pdfkit")).default;
       const doc = new PDFDocument({ size: "LETTER", margin: 40 });
       const chunks: Buffer[] = [];
       doc.on("data", (chunk: Buffer) => chunks.push(chunk));
-      const finishPromise = new Promise<Buffer>((resolve) => { doc.on("end", () => resolve(Buffer.concat(chunks))); });
+      const finishPromise = new Promise<Buffer>(resolve => {
+        doc.on("end", () => resolve(Buffer.concat(chunks)));
+      });
 
       // ── Generar / reutilizar hash de verificación SHA-256 ───────────────────────────────────────
       let verificationHash = record.verificationHash;
@@ -894,21 +1034,27 @@ export const dc3Router = router({
           record.companyRfc ?? "",
           record.courseName,
           record.courseDurationHours ?? "",
-          record.periodStartDate ? String(record.periodStartDate).slice(0, 10) : "",
+          record.periodStartDate
+            ? String(record.periodStartDate).slice(0, 10)
+            : "",
           record.periodEndDate ? String(record.periodEndDate).slice(0, 10) : "",
           record.thematicAreaKey ?? "",
           record.folioNumber ?? "",
           record.createdAt.toISOString(),
         ].join("|");
-        verificationHash = createHash("sha256").update(canonical, "utf8").digest("hex");
+        verificationHash = createHash("sha256")
+          .update(canonical, "utf8")
+          .digest("hex");
         // Persistir el hash para que sea inmutable a partir de ahora
-        await db.update(dc3Records)
+        await db
+          .update(dc3Records)
           .set({ verificationHash })
           .where(eq(dc3Records.id, record.id));
       }
 
       // URL pública de verificación
-      const appUrl = process.env.APP_PUBLIC_URL ?? "https://nom035mood-32dy4ksx.manus.space";
+      const appUrl =
+        process.env.APP_PUBLIC_URL ?? "https://nom035mood-32dy4ksx.manus.space";
       const verifyUrl = `${appUrl}/verificar-dc3?hash=${verificationHash}`;
 
       // Generar QR como Buffer PNG (200x200 px)
@@ -922,67 +1068,124 @@ export const dc3Router = router({
 
       // Encabezado
       doc.fontSize(14).font("Helvetica-Bold").text("DC-3", { align: "center" });
-      doc.fontSize(10).font("Helvetica").text("CONSTANCIA DE COMPETENCIAS O HABILIDADES LABORALES", { align: "center" });
-      doc.fontSize(8).text("Formato oficial STPS — Artículo 153-A de la Ley Federal del Trabajo", { align: "center" });
+      doc
+        .fontSize(10)
+        .font("Helvetica")
+        .text("CONSTANCIA DE COMPETENCIAS O HABILIDADES LABORALES", {
+          align: "center",
+        });
+      doc
+        .fontSize(8)
+        .text(
+          "Formato oficial STPS — Artículo 153-A de la Ley Federal del Trabajo",
+          { align: "center" }
+        );
       if (record.folioNumber) {
-        doc.fontSize(9).font("Helvetica-Bold").text(`Folio: ${record.folioNumber}`, { align: "right" });
+        doc
+          .fontSize(9)
+          .font("Helvetica-Bold")
+          .text(`Folio: ${record.folioNumber}`, { align: "right" });
       }
       doc.moveDown(0.5);
       doc.moveTo(40, doc.y).lineTo(572, doc.y).stroke();
       doc.moveDown(0.5);
 
       const field = (label: string, value: string | null | undefined) => {
-        doc.fontSize(8).font("Helvetica-Bold").text(`${label}: `, { continued: true });
+        doc
+          .fontSize(8)
+          .font("Helvetica-Bold")
+          .text(`${label}: `, { continued: true });
         doc.font("Helvetica").text(value ?? "—");
       };
 
       // Bloque 1: Trabajador
-      doc.fontSize(9).font("Helvetica-Bold").fillColor("#1a5276").text("I. DATOS DEL TRABAJADOR");
+      doc
+        .fontSize(9)
+        .font("Helvetica-Bold")
+        .fillColor("#1a5276")
+        .text("I. DATOS DEL TRABAJADOR");
       doc.fillColor("black");
       field("Nombre", record.workerName);
       field("CURP", record.workerCurp);
-      field("Clave CNO", record.workerOccupationCnoKey ? `${record.workerOccupationCnoKey} — ${record.workerOccupationCnoDesc ?? ""}` : null);
+      field(
+        "Clave CNO",
+        record.workerOccupationCnoKey
+          ? `${record.workerOccupationCnoKey} — ${record.workerOccupationCnoDesc ?? ""}`
+          : null
+      );
       field("Puesto", record.workerPosition);
       doc.moveDown(0.5);
 
       // Bloque 2: Empresa
-      doc.fontSize(9).font("Helvetica-Bold").fillColor("#1a5276").text("II. DATOS DE LA EMPRESA");
+      doc
+        .fontSize(9)
+        .font("Helvetica-Bold")
+        .fillColor("#1a5276")
+        .text("II. DATOS DE LA EMPRESA");
       doc.fillColor("black");
       field("Nombre o Razón Social", record.companyName);
       field("RFC", record.companyRfc);
       doc.moveDown(0.5);
 
       // Bloque 3: Programa
-      doc.fontSize(9).font("Helvetica-Bold").fillColor("#1a5276").text("III. DATOS DEL PROGRAMA DE CAPACITACIÓN");
+      doc
+        .fontSize(9)
+        .font("Helvetica-Bold")
+        .fillColor("#1a5276")
+        .text("III. DATOS DEL PROGRAMA DE CAPACITACIÓN");
       doc.fillColor("black");
       field("Nombre del Curso", record.courseName);
-      field("Duración", record.courseDurationHours ? `${record.courseDurationHours} horas` : null);
-      const startDate = record.periodStartDate ? String(record.periodStartDate).slice(0, 10) : "—";
-      const endDate = record.periodEndDate ? String(record.periodEndDate).slice(0, 10) : "—";
+      field(
+        "Duración",
+        record.courseDurationHours
+          ? `${record.courseDurationHours} horas`
+          : null
+      );
+      const startDate = record.periodStartDate
+        ? String(record.periodStartDate).slice(0, 10)
+        : "—";
+      const endDate = record.periodEndDate
+        ? String(record.periodEndDate).slice(0, 10)
+        : "—";
       field("Período", `${startDate} al ${endDate}`);
-      field("Área Temática", record.thematicAreaKey ? `${record.thematicAreaKey} — ${record.thematicAreaDesc ?? ""}` : null);
+      field(
+        "Área Temática",
+        record.thematicAreaKey
+          ? `${record.thematicAreaKey} — ${record.thematicAreaDesc ?? ""}`
+          : null
+      );
       field("Agente Capacitador", record.trainingAgentName);
       doc.moveDown(0.5);
 
       // Bloque 4: Firmantes con imágenes de firma
-      doc.fontSize(9).font("Helvetica-Bold").fillColor("#1a5276").text("IV. FIRMAS");
+      doc
+        .fontSize(9)
+        .font("Helvetica-Bold")
+        .fillColor("#1a5276")
+        .text("IV. FIRMAS");
       doc.fillColor("black");
       doc.moveDown(0.5);
 
       // Descargar imágenes de firma desde S3 (en paralelo)
-      const fetchSignatureBuffer = async (url: string | null | undefined): Promise<Buffer | null> => {
+      const fetchSignatureBuffer = async (
+        url: string | null | undefined
+      ): Promise<Buffer | null> => {
         if (!url) return null;
         try {
           const https = await import("https");
           const http = await import("http");
           return await new Promise<Buffer>((resolve, reject) => {
-            const client = url.startsWith("https") ? https.default : http.default;
-            client.get(url, (res) => {
-              const bufs: Buffer[] = [];
-              res.on("data", (d: Buffer) => bufs.push(d));
-              res.on("end", () => resolve(Buffer.concat(bufs)));
-              res.on("error", reject);
-            }).on("error", reject);
+            const client = url.startsWith("https")
+              ? https.default
+              : http.default;
+            client
+              .get(url, res => {
+                const bufs: Buffer[] = [];
+                res.on("data", (d: Buffer) => bufs.push(d));
+                res.on("end", () => resolve(Buffer.concat(bufs)));
+                res.on("error", reject);
+              })
+              .on("error", reject);
           });
         } catch {
           return null;
@@ -1001,21 +1204,54 @@ export const dc3Router = router({
       const startY = doc.y;
 
       const cols = [
-        { x: 50, label: "Instructor o Tutor", name: record.instructorName, buf: instrBuf },
-        { x: 50 + colW + 20, label: "Patrón o Rep. Legal", name: record.employerRepName, buf: emplBuf },
-        { x: 50 + (colW + 20) * 2, label: "Rep. de Trabajadores", name: record.workerRepName, buf: workerBuf },
+        {
+          x: 50,
+          label: "Instructor o Tutor",
+          name: record.instructorName,
+          buf: instrBuf,
+        },
+        {
+          x: 50 + colW + 20,
+          label: "Patrón o Rep. Legal",
+          name: record.employerRepName,
+          buf: emplBuf,
+        },
+        {
+          x: 50 + (colW + 20) * 2,
+          label: "Rep. de Trabajadores",
+          name: record.workerRepName,
+          buf: workerBuf,
+        },
       ];
 
       for (const col of cols) {
         // Imagen de firma (si existe)
         if (col.buf) {
-          doc.image(col.buf, col.x, startY, { width: colW, height: sigBoxH, fit: [colW, sigBoxH], align: "center", valign: "bottom" });
+          doc.image(col.buf, col.x, startY, {
+            width: colW,
+            height: sigBoxH,
+            fit: [colW, sigBoxH],
+            align: "center",
+            valign: "bottom",
+          });
         }
         // Línea de firma
         const lineY = startY + sigBoxH;
-        doc.moveTo(col.x, lineY).lineTo(col.x + colW, lineY).stroke();
-        doc.fontSize(7).font("Helvetica-Bold").text(col.label, col.x, lineY + 3, { width: colW, align: "center" });
-        doc.fontSize(7).font("Helvetica").text(col.name ?? "(No especificado)", col.x, lineY + 13, { width: colW, align: "center" });
+        doc
+          .moveTo(col.x, lineY)
+          .lineTo(col.x + colW, lineY)
+          .stroke();
+        doc
+          .fontSize(7)
+          .font("Helvetica-Bold")
+          .text(col.label, col.x, lineY + 3, { width: colW, align: "center" });
+        doc
+          .fontSize(7)
+          .font("Helvetica")
+          .text(col.name ?? "(No especificado)", col.x, lineY + 13, {
+            width: colW,
+            align: "center",
+          });
       }
 
       doc.y = startY + sigBoxH + labelH + 15;
@@ -1031,30 +1267,42 @@ export const dc3Router = router({
       const qrY = doc.y;
 
       // Texto legal (columna izquierda, ancho reducido para dejar espacio al QR)
-      doc.fontSize(7).font("Helvetica").fillColor("#555")
+      doc
+        .fontSize(7)
+        .font("Helvetica")
+        .fillColor("#555")
         .text(
           "Los datos asentados en esta constancia se hacen bajo protesta de decir verdad. " +
-          "La constancia debe entregarse al trabajador dentro de los 20 días hábiles siguientes al término del curso.",
-          40, qrY, { width: 460, align: "justify" }
+            "La constancia debe entregarse al trabajador dentro de los 20 días hábiles siguientes al término del curso.",
+          40,
+          qrY,
+          { width: 460, align: "justify" }
         );
 
       // QR incrustado
       doc.image(qrBuffer, qrX, qrY, { width: qrSize, height: qrSize });
 
       // Leyenda bajo el QR
-      doc.fontSize(5.5).fillColor("#444")
-        .text("Verificar autenticidad", qrX, qrY + qrSize + 1, { width: qrSize, align: "center" });
+      doc
+        .fontSize(5.5)
+        .fillColor("#444")
+        .text("Verificar autenticidad", qrX, qrY + qrSize + 1, {
+          width: qrSize,
+          align: "center",
+        });
 
       // Mover el cursor al final del bloque QR
       const blockBottom = qrY + qrSize + 12;
       if (doc.y < blockBottom) doc.y = blockBottom;
 
       doc.moveDown(0.3);
-      doc.fontSize(7).fillColor("#888")
+      doc
+        .fontSize(7)
+        .fillColor("#888")
         .text(
           `Generado: ${new Date().toLocaleDateString("es-MX")} | ` +
-          `Estado: ${record.status === "issued" ? "Emitida" : record.status === "draft" ? "Borrador" : "Cancelada"} | ` +
-          `Hash: ${verificationHash.slice(0, 16)}…`,
+            `Estado: ${record.status === "issued" ? "Emitida" : record.status === "draft" ? "Borrador" : "Cancelada"} | ` +
+            `Hash: ${verificationHash.slice(0, 16)}…`,
           { align: "right" }
         );
 
@@ -1099,10 +1347,10 @@ export const dc3Router = router({
       try {
         const employee = await employeesDb.getEmployeeByCURP(curp);
         if (employee) {
-          const fullName = [
-            employee.lastName ?? "",
-            employee.firstName ?? "",
-          ].filter(Boolean).join(" ").toUpperCase();
+          const fullName = [employee.lastName ?? "", employee.firstName ?? ""]
+            .filter(Boolean)
+            .join(" ")
+            .toUpperCase();
           // Obtener nombre de puesto y departamento con JOIN
           let positionName = "";
           let departmentName = "";
@@ -1146,7 +1394,10 @@ export const dc3Router = router({
           apiData.apellidoPaterno,
           apiData.apellidoMaterno,
           apiData.nombres,
-        ].filter(Boolean).join(" ").toUpperCase();
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toUpperCase();
       }
 
       return {
@@ -1161,41 +1412,62 @@ export const dc3Router = router({
           edad: localData.edad,
         },
         employeeData,
-        apiData: apiData.source === "api" ? {
-          nombres: apiData.nombres,
-          apellidoPaterno: apiData.apellidoPaterno,
-          apellidoMaterno: apiData.apellidoMaterno,
-          sexo: apiData.sexo,
-          fechaNacimiento: apiData.fechaNacimiento,
-          entidadNacimiento: apiData.entidadNacimiento,
-          workerName: workerNameFromApi,
-        } : null,
+        apiData:
+          apiData.source === "api"
+            ? {
+                nombres: apiData.nombres,
+                apellidoPaterno: apiData.apellidoPaterno,
+                apellidoMaterno: apiData.apellidoMaterno,
+                sexo: apiData.sexo,
+                fechaNacimiento: apiData.fechaNacimiento,
+                entidadNacimiento: apiData.entidadNacimiento,
+                workerName: workerNameFromApi,
+              }
+            : null,
       };
     }),
 
   // ─── Guardar firma digital en un registro DC-3 ───────────────────────────────────────────
   // Recibe el data-URL PNG del canvas, lo sube a S3 y actualiza el registro.
   saveSignature: protectedProcedure
-    .input(z.object({
-      id: z.number().int(),
-      role: z.enum(["instructor", "employer", "workerRep"]),
-      signatureDataUrl: z.string().min(10, "Firma requerida"),
-    }))
+    .input(
+      z.object({
+        id: z.number().int(),
+        role: z.enum(["instructor", "employer", "workerRep"]),
+        signatureDataUrl: z.string().min(10, "Firma requerida"),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      const [record] = await db.select().from(dc3Records).where(eq(dc3Records.id, input.id));
-      if (!record) throw new TRPCError({ code: "NOT_FOUND", message: "Registro DC-3 no encontrado" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      const [record] = await db
+        .select()
+        .from(dc3Records)
+        .where(eq(dc3Records.id, input.id));
+      if (!record)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Registro DC-3 no encontrado",
+        });
 
       // Subir imagen a S3
-      const base64Data = input.signatureDataUrl.replace(/^data:image\/\w+;base64,/, "");
+      const base64Data = input.signatureDataUrl.replace(
+        /^data:image\/\w+;base64,/,
+        ""
+      );
       const fileBuffer = Buffer.from(base64Data, "base64");
       const timestamp = Date.now();
       const sigKey = `dc3-signatures/dc3-${input.id}-${input.role}-${timestamp}.png`;
       const { url: sigUrl } = await storagePut(sigKey, fileBuffer, "image/png");
 
       // Actualizar la columna correspondiente
-      const updateData: Record<string, string | Date> = { signaturesUpdatedAt: new Date() };
+      const updateData: Record<string, string | Date> = {
+        signaturesUpdatedAt: new Date(),
+      };
       if (input.role === "instructor") {
         updateData.instructorSignatureUrl = sigUrl;
         updateData.instructorSignatureKey = sigKey;
@@ -1206,7 +1478,10 @@ export const dc3Router = router({
         updateData.workerRepSignatureUrl = sigUrl;
         updateData.workerRepSignatureKey = sigKey;
       }
-      await db.update(dc3Records).set(updateData as any).where(eq(dc3Records.id, input.id));
+      await db
+        .update(dc3Records)
+        .set(updateData as any)
+        .where(eq(dc3Records.id, input.id));
       return { success: true, url: sigUrl };
     }),
 
@@ -1215,27 +1490,46 @@ export const dc3Router = router({
     .input(z.object({ id: z.number().int() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      const [record] = await db.select({
-        instructorSignatureUrl: dc3Records.instructorSignatureUrl,
-        employerSignatureUrl: dc3Records.employerSignatureUrl,
-        workerRepSignatureUrl: dc3Records.workerRepSignatureUrl,
-        signaturesUpdatedAt: dc3Records.signaturesUpdatedAt,
-      }).from(dc3Records).where(eq(dc3Records.id, input.id));
-      if (!record) throw new TRPCError({ code: "NOT_FOUND", message: "Registro DC-3 no encontrado" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      const [record] = await db
+        .select({
+          instructorSignatureUrl: dc3Records.instructorSignatureUrl,
+          employerSignatureUrl: dc3Records.employerSignatureUrl,
+          workerRepSignatureUrl: dc3Records.workerRepSignatureUrl,
+          signaturesUpdatedAt: dc3Records.signaturesUpdatedAt,
+        })
+        .from(dc3Records)
+        .where(eq(dc3Records.id, input.id));
+      if (!record)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Registro DC-3 no encontrado",
+        });
       return record;
     }),
 
   // ─── Borrar una firma de un registro DC-3 ─────────────────────────────────────────────────
   clearSignature: protectedProcedure
-    .input(z.object({
-      id: z.number().int(),
-      role: z.enum(["instructor", "employer", "workerRep"]),
-    }))
+    .input(
+      z.object({
+        id: z.number().int(),
+        role: z.enum(["instructor", "employer", "workerRep"]),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      const updateData: Record<string, null | Date> = { signaturesUpdatedAt: new Date() };
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      const updateData: Record<string, null | Date> = {
+        signaturesUpdatedAt: new Date(),
+      };
       if (input.role === "instructor") {
         updateData.instructorSignatureUrl = null;
         updateData.instructorSignatureKey = null;
@@ -1246,7 +1540,10 @@ export const dc3Router = router({
         updateData.workerRepSignatureUrl = null;
         updateData.workerRepSignatureKey = null;
       }
-      await db.update(dc3Records).set(updateData as any).where(eq(dc3Records.id, input.id));
+      await db
+        .update(dc3Records)
+        .set(updateData as any)
+        .where(eq(dc3Records.id, input.id));
       return { success: true };
     }),
 
@@ -1257,31 +1554,38 @@ export const dc3Router = router({
     .input(z.object({ hash: z.string().min(1).max(64) }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      const [record] = await db.select({
-        id: dc3Records.id,
-        workerName: dc3Records.workerName,
-        workerCurp: dc3Records.workerCurp,
-        companyName: dc3Records.companyName,
-        companyRfc: dc3Records.companyRfc,
-        courseName: dc3Records.courseName,
-        courseDurationHours: dc3Records.courseDurationHours,
-        periodStartDate: dc3Records.periodStartDate,
-        periodEndDate: dc3Records.periodEndDate,
-        thematicAreaKey: dc3Records.thematicAreaKey,
-        thematicAreaDesc: dc3Records.thematicAreaDesc,
-        instructorName: dc3Records.instructorName,
-        employerRepName: dc3Records.employerRepName,
-        workerRepName: dc3Records.workerRepName,
-        status: dc3Records.status,
-        folioNumber: dc3Records.folioNumber,
-        verificationHash: dc3Records.verificationHash,
-        createdAt: dc3Records.createdAt,
-        updatedAt: dc3Records.updatedAt,
-        instructorSignatureUrl: dc3Records.instructorSignatureUrl,
-        employerSignatureUrl: dc3Records.employerSignatureUrl,
-        workerRepSignatureUrl: dc3Records.workerRepSignatureUrl,
-      }).from(dc3Records).where(eq(dc3Records.verificationHash, input.hash));
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      const [record] = await db
+        .select({
+          id: dc3Records.id,
+          workerName: dc3Records.workerName,
+          workerCurp: dc3Records.workerCurp,
+          companyName: dc3Records.companyName,
+          companyRfc: dc3Records.companyRfc,
+          courseName: dc3Records.courseName,
+          courseDurationHours: dc3Records.courseDurationHours,
+          periodStartDate: dc3Records.periodStartDate,
+          periodEndDate: dc3Records.periodEndDate,
+          thematicAreaKey: dc3Records.thematicAreaKey,
+          thematicAreaDesc: dc3Records.thematicAreaDesc,
+          instructorName: dc3Records.instructorName,
+          employerRepName: dc3Records.employerRepName,
+          workerRepName: dc3Records.workerRepName,
+          status: dc3Records.status,
+          folioNumber: dc3Records.folioNumber,
+          verificationHash: dc3Records.verificationHash,
+          createdAt: dc3Records.createdAt,
+          updatedAt: dc3Records.updatedAt,
+          instructorSignatureUrl: dc3Records.instructorSignatureUrl,
+          employerSignatureUrl: dc3Records.employerSignatureUrl,
+          workerRepSignatureUrl: dc3Records.workerRepSignatureUrl,
+        })
+        .from(dc3Records)
+        .where(eq(dc3Records.verificationHash, input.hash));
 
       if (!record) {
         return { found: false as const, record: null };
@@ -1291,62 +1595,88 @@ export const dc3Router = router({
 
   listSigners: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-    return db.select({
-      id: companyDigitalSignature.id,
-      nombreFirmante: companyDigitalSignature.nombreFirmante,
-      cargo: companyDigitalSignature.cargo,
-      departamento: companyDigitalSignature.departamento,
-      firmaUrl: companyDigitalSignature.firmaUrl,
-      tipoFirmante: companyDigitalSignature.tipoFirmante,
-      estadoAutorizacion: companyDigitalSignature.estadoAutorizacion,
-      activo: companyDigitalSignature.activo,
-    }).from(companyDigitalSignature)
-      .where(and(
-        eq(companyDigitalSignature.activo, true),
-        eq(companyDigitalSignature.estadoAutorizacion, "autorizado"),
-      ));
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "DB no disponible",
+      });
+    return db
+      .select({
+        id: companyDigitalSignature.id,
+        nombreFirmante: companyDigitalSignature.nombreFirmante,
+        cargo: companyDigitalSignature.cargo,
+        departamento: companyDigitalSignature.departamento,
+        firmaUrl: companyDigitalSignature.firmaUrl,
+        tipoFirmante: companyDigitalSignature.tipoFirmante,
+        estadoAutorizacion: companyDigitalSignature.estadoAutorizacion,
+        activo: companyDigitalSignature.activo,
+      })
+      .from(companyDigitalSignature)
+      .where(
+        and(
+          eq(companyDigitalSignature.activo, true),
+          eq(companyDigitalSignature.estadoAutorizacion, "autorizado")
+        )
+      );
   }),
 
   // ─── Dashboard de estadísticas DC-3 ────────────────────────────────────────────────────────────────────────────────────
   getDashboardStats: protectedProcedure
-    .input(z.object({
-      dateFrom: z.number().optional(),
-      dateTo: z.number().optional(),
-    }))
+    .input(
+      z.object({
+        dateFrom: z.number().optional(),
+        dateTo: z.number().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const now = new Date();
-      const from = input.dateFrom ? new Date(input.dateFrom) : new Date(now.getFullYear(), 0, 1);
-      const to = input.dateTo ? new Date(input.dateTo) : new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+      const from = input.dateFrom
+        ? new Date(input.dateFrom)
+        : new Date(now.getFullYear(), 0, 1);
+      const to = input.dateTo
+        ? new Date(input.dateTo)
+        : new Date(now.getFullYear(), 11, 31, 23, 59, 59);
 
-      const rows = await db.select({
-        id: dc3Records.id,
-        status: dc3Records.status,
-        companyName: dc3Records.companyName,
-        thematicArea: dc3Records.thematicAreaKey,
-        createdAt: dc3Records.createdAt,
-      }).from(dc3Records)
-        .where(and(
-          gte(dc3Records.createdAt, from),
-          lte(dc3Records.createdAt, to),
-        ));
+      const rows = await db
+        .select({
+          id: dc3Records.id,
+          status: dc3Records.status,
+          companyName: dc3Records.companyName,
+          thematicArea: dc3Records.thematicAreaKey,
+          createdAt: dc3Records.createdAt,
+        })
+        .from(dc3Records)
+        .where(
+          and(gte(dc3Records.createdAt, from), lte(dc3Records.createdAt, to))
+        );
 
       const total = rows.length;
-      const issued = rows.filter((r) => r.status === "issued").length;
-      const draft = rows.filter((r) => r.status === "draft").length;
-      const cancelled = rows.filter((r) => r.status === "cancelled").length;
+      const issued = rows.filter(r => r.status === "issued").length;
+      const draft = rows.filter(r => r.status === "draft").length;
+      const cancelled = rows.filter(r => r.status === "cancelled").length;
       const issueRate = total > 0 ? Math.round((issued / total) * 100) : 0;
 
       // Agrupar por mes (YYYY-MM)
-      const byMonthMap = new Map<string, { draft: number; issued: number; cancelled: number }>();
+      const byMonthMap = new Map<
+        string,
+        { draft: number; issued: number; cancelled: number }
+      >();
       for (const r of rows) {
         const d = r.createdAt ? new Date(r.createdAt) : null;
         if (!d) continue;
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-        const prev = byMonthMap.get(key) ?? { draft: 0, issued: 0, cancelled: 0 };
+        const prev = byMonthMap.get(key) ?? {
+          draft: 0,
+          issued: 0,
+          cancelled: 0,
+        };
         const s = r.status as "draft" | "issued" | "cancelled";
         prev[s] = (prev[s] ?? 0) + 1;
         byMonthMap.set(key, prev);
@@ -1403,17 +1733,27 @@ export const dc3Router = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "BD no disponible",
+        });
 
-      const conditions: ReturnType<typeof eq>[] = [eq(dc3Records.status, "issued")];
+      const conditions: ReturnType<typeof eq>[] = [
+        eq(dc3Records.status, "issued"),
+      ];
       if (input.ids && input.ids.length > 0) {
         conditions.push(inArray(dc3Records.id, input.ids) as any);
       }
       if (input.dateFrom) {
-        conditions.push(gte(dc3Records.updatedAt, new Date(input.dateFrom)) as any);
+        conditions.push(
+          gte(dc3Records.updatedAt, new Date(input.dateFrom)) as any
+        );
       }
       if (input.dateTo) {
-        conditions.push(lte(dc3Records.updatedAt, new Date(input.dateTo)) as any);
+        conditions.push(
+          lte(dc3Records.updatedAt, new Date(input.dateTo)) as any
+        );
       }
 
       const rows = await db
@@ -1425,7 +1765,8 @@ export const dc3Router = router({
       if (rows.length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "No se encontraron constancias emitidas con los filtros especificados",
+          message:
+            "No se encontraron constancias emitidas con los filtros especificados",
         });
       }
 
@@ -1453,7 +1794,7 @@ export const dc3Router = router({
       };
 
       const constanciasXml = rows
-        .map((r) => {
+        .map(r => {
           return `    <Constancia>
       <Folio>${escapeXml(r.folioNumber ?? String(r.id))}</Folio>
       <RFC_Empresa>${escapeXml(r.companyRfc ?? companyRfc)}</RFC_Empresa>
@@ -1495,7 +1836,9 @@ ${constanciasXml}
 </Constancias_DC3>`;
 
       // Calcular hash SHA-256 del contenido XML
-      const fileHash = createHash("sha256").update(xmlContent, "utf8").digest("hex");
+      const fileHash = createHash("sha256")
+        .update(xmlContent, "utf8")
+        .digest("hex");
       const filename = `SIRCE_DC3_${companyRfc}_${formatDate(now).replace(/-/g, "")}.xml`;
 
       // Guardar el XML en S3 para re-descarga posterior
@@ -1508,15 +1851,24 @@ ${constanciasXml}
         fileKey = uploaded.key;
         fileUrl = uploaded.url;
       } catch (storageErr) {
-        console.warn("[DC3 SIRCE Export] No se pudo guardar en S3, continuando sin almacenamiento:", storageErr);
+        console.warn(
+          "[DC3 SIRCE Export] No se pudo guardar en S3, continuando sin almacenamiento:",
+          storageErr
+        );
       }
 
       // Obtener el nombre del usuario exportador
       let exporterName: string | undefined;
       try {
-        const [exporter] = await db.select({ name: users.name }).from(users).where(eq(users.id, ctx.user.id)).limit(1);
+        const [exporter] = await db
+          .select({ name: users.name })
+          .from(users)
+          .where(eq(users.id, ctx.user.id))
+          .limit(1);
         exporterName = exporter?.name ?? undefined;
-      } catch { /* no crítico */ }
+      } catch {
+        /* no crítico */
+      }
 
       // Registrar en el historial de exportaciones
       try {
@@ -1532,7 +1884,10 @@ ${constanciasXml}
           companyRfc,
         });
       } catch (histErr) {
-        console.warn("[DC3 SIRCE Export] No se pudo registrar en historial:", histErr);
+        console.warn(
+          "[DC3 SIRCE Export] No se pudo registrar en historial:",
+          histErr
+        );
       }
 
       console.log(
@@ -1562,25 +1917,38 @@ ${constanciasXml}
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "BD no disponible",
+        });
       const offset = (input.page - 1) * input.pageSize;
 
       // Construir condiciones de filtro
       const conditions = [];
       if (input.dateFrom !== undefined) {
-        conditions.push(gte(sirceExportHistory.exportedAt, new Date(input.dateFrom)));
+        conditions.push(
+          gte(sirceExportHistory.exportedAt, new Date(input.dateFrom))
+        );
       }
       if (input.dateTo !== undefined) {
-        conditions.push(lte(sirceExportHistory.exportedAt, new Date(input.dateTo)));
+        conditions.push(
+          lte(sirceExportHistory.exportedAt, new Date(input.dateTo))
+        );
       }
       if (input.exportedByName) {
-        conditions.push(like(sirceExportHistory.exportedByName, `%${input.exportedByName}%`));
+        conditions.push(
+          like(sirceExportHistory.exportedByName, `%${input.exportedByName}%`)
+        );
       }
       if (input.companyRfc) {
-        conditions.push(like(sirceExportHistory.companyRfc, `%${input.companyRfc}%`));
+        conditions.push(
+          like(sirceExportHistory.companyRfc, `%${input.companyRfc}%`)
+        );
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       const [rows, countRows, sumRows] = await Promise.all([
         db
@@ -1613,14 +1981,21 @@ ${constanciasXml}
     .input(z.object({ id: z.number().int() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "BD no disponible",
+        });
       const [record] = await db
         .select()
         .from(sirceExportHistory)
         .where(eq(sirceExportHistory.id, input.id))
         .limit(1);
       if (!record) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Exportación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Exportación no encontrada",
+        });
       }
       // Si hay fileKey en S3, generar URL de descarga
       if (record.fileKey) {
@@ -1628,52 +2003,83 @@ ${constanciasXml}
           const { url } = await storageGet(record.fileKey);
           return { url, filename: record.filename, fileHash: record.fileHash };
         } catch (err) {
-          console.warn("[DC3 SIRCE Redownload] Error al obtener URL de S3:", err);
+          console.warn(
+            "[DC3 SIRCE Redownload] Error al obtener URL de S3:",
+            err
+          );
         }
       }
       // Si no hay archivo en S3 (exportación antigua), indicar que no está disponible
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "El archivo de esta exportación ya no está disponible en el almacenamiento. Genere una nueva exportación con los mismos filtros.",
+        message:
+          "El archivo de esta exportación ya no está disponible en el almacenamiento. Genere una nueva exportación con los mismos filtros.",
       });
     }),
 
   // P11: Exportar historial SIRCE filtrado a Excel
   exportSirceHistoryExcel: protectedProcedure
-    .input(z.object({
-      dateFrom:       z.string().optional(),
-      dateTo:         z.string().optional(),
-      exportedByName: z.string().optional(),
-      companyRfc:     z.string().optional(),
-    }))
+    .input(
+      z.object({
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+        exportedByName: z.string().optional(),
+        companyRfc: z.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "BD no disponible",
+        });
       const conditions: any[] = [];
-      if (input.dateFrom)       conditions.push(gte(sirceExportHistory.exportedAt, new Date(input.dateFrom)));
-      if (input.dateTo)         conditions.push(lte(sirceExportHistory.exportedAt, new Date(input.dateTo)));
-      if (input.exportedByName) conditions.push(like(sirceExportHistory.exportedByName, `%${input.exportedByName}%`));
-      if (input.companyRfc)     conditions.push(like(sirceExportHistory.companyRfc, `%${input.companyRfc}%`));
+      if (input.dateFrom)
+        conditions.push(
+          gte(sirceExportHistory.exportedAt, new Date(input.dateFrom))
+        );
+      if (input.dateTo)
+        conditions.push(
+          lte(sirceExportHistory.exportedAt, new Date(input.dateTo))
+        );
+      if (input.exportedByName)
+        conditions.push(
+          like(sirceExportHistory.exportedByName, `%${input.exportedByName}%`)
+        );
+      if (input.companyRfc)
+        conditions.push(
+          like(sirceExportHistory.companyRfc, `%${input.companyRfc}%`)
+        );
       const rows = await db
         .select()
         .from(sirceExportHistory)
         .where(conditions.length ? and(...conditions) : undefined)
         .orderBy(desc(sirceExportHistory.exportedAt));
       const data = rows.map((r: any) => ({
-        "Fecha de Exportación": r.exportedAt ? new Date(r.exportedAt).toLocaleString("es-MX") : "",
-        "Usuario Exportador":   r.exportedByName ?? "",
-        "RFC Empresa":          r.companyRfc ?? "",
-        "Constancias":          r.recordCount ?? 0,
-        "Archivo":              r.filename ?? "",
-        "Hash SHA-256":         r.fileHash ?? "",
-        "Folio Inicial":        r.folioStart ?? "",
-        "Folio Final":          r.folioEnd ?? "",
-        "Notas":                r.notes ?? "",
+        "Fecha de Exportación": r.exportedAt
+          ? new Date(r.exportedAt).toLocaleString("es-MX")
+          : "",
+        "Usuario Exportador": r.exportedByName ?? "",
+        "RFC Empresa": r.companyRfc ?? "",
+        Constancias: r.recordCount ?? 0,
+        Archivo: r.filename ?? "",
+        "Hash SHA-256": r.fileHash ?? "",
+        "Folio Inicial": r.folioStart ?? "",
+        "Folio Final": r.folioEnd ?? "",
+        Notas: r.notes ?? "",
       }));
       const ws = XLSX.utils.json_to_sheet(data);
       ws["!cols"] = [
-        { wch: 24 }, { wch: 28 }, { wch: 16 }, { wch: 12 },
-        { wch: 36 }, { wch: 70 }, { wch: 18 }, { wch: 18 }, { wch: 30 },
+        { wch: 24 },
+        { wch: 28 },
+        { wch: 16 },
+        { wch: 12 },
+        { wch: 36 },
+        { wch: 70 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 30 },
       ];
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Historial SIRCE");

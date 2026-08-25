@@ -12,7 +12,7 @@ import { logStructured } from "./logger";
  * Usa ipKeyGenerator oficial para manejar correctamente IPv6
  */
 const generateKey = (req: Request): string => {
-  return ipKeyGenerator(req.ip ?? '');
+  return ipKeyGenerator(req.ip ?? "");
 };
 
 /**
@@ -21,11 +21,12 @@ const generateKey = (req: Request): string => {
  * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const globalLimiter = rateLimit({
-  skip: () => process.env.NODE_ENV === 'development',
+  skip: () => process.env.NODE_ENV === "development",
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 100, // Límite de 100 requests por ventana
   message: {
-    error: "Demasiadas solicitudes desde esta IP, por favor intenta nuevamente en 15 minutos.",
+    error:
+      "Demasiadas solicitudes desde esta IP, por favor intenta nuevamente en 15 minutos.",
     retryAfter: 900, // segundos
   },
   standardHeaders: true, // Retorna info de rate limit en headers `RateLimit-*`
@@ -35,7 +36,8 @@ export const globalLimiter = rateLimit({
   // Handler para cuando se excede el límite
   handler: (req: Request, res: Response) => {
     res.status(429).json({
-      error: "Demasiadas solicitudes desde esta IP, por favor intenta nuevamente en 15 minutos.",
+      error:
+        "Demasiadas solicitudes desde esta IP, por favor intenta nuevamente en 15 minutos.",
       retryAfter: 900,
     });
   },
@@ -48,11 +50,12 @@ export const globalLimiter = rateLimit({
  * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const authLimiter = rateLimit({
-  skip: () => process.env.NODE_ENV === 'development',
+  skip: () => process.env.NODE_ENV === "development",
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 30, // 30 intentos por ventana — suficiente para OAuth callbacks legítimos (era 5, demasiado restrictivo)
   message: {
-    error: "Demasiados intentos de autenticación desde esta IP, por favor intenta nuevamente en 15 minutos.",
+    error:
+      "Demasiados intentos de autenticación desde esta IP, por favor intenta nuevamente en 15 minutos.",
     retryAfter: 900,
   },
   standardHeaders: true,
@@ -62,7 +65,8 @@ export const authLimiter = rateLimit({
   handler: (req: Request, res: Response) => {
     logStructured("warn", "rate_limit_exceeded", { scope: "auth" });
     res.status(429).json({
-      error: "Demasiados intentos de autenticación. Por favor intenta nuevamente en 15 minutos.",
+      error:
+        "Demasiados intentos de autenticación. Por favor intenta nuevamente en 15 minutos.",
       retryAfter: 900,
     });
   },
@@ -75,11 +79,12 @@ export const authLimiter = rateLimit({
  * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const contactFormLimiter = rateLimit({
-  skip: () => process.env.NODE_ENV === 'development',
+  skip: () => process.env.NODE_ENV === "development",
   windowMs: 60 * 60 * 1000, // 1 hora
   max: 3, // Límite de 3 envíos por hora
   message: {
-    error: "Has enviado demasiados mensajes. Por favor intenta nuevamente en 1 hora.",
+    error:
+      "Has enviado demasiados mensajes. Por favor intenta nuevamente en 1 hora.",
     retryAfter: 3600,
   },
   standardHeaders: true,
@@ -88,7 +93,8 @@ export const contactFormLimiter = rateLimit({
   handler: (req: Request, res: Response) => {
     logStructured("warn", "rate_limit_exceeded", { scope: "contact_form" });
     res.status(429).json({
-      error: "Has enviado demasiados mensajes. Por favor intenta nuevamente en 1 hora.",
+      error:
+        "Has enviado demasiados mensajes. Por favor intenta nuevamente en 1 hora.",
       retryAfter: 3600,
     });
   },
@@ -101,20 +107,25 @@ export const contactFormLimiter = rateLimit({
  * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const apiLimiter = rateLimit({
-  skip: () => process.env.NODE_ENV === 'development',
+  skip: () => process.env.NODE_ENV === "development",
   windowMs: 5 * 60 * 1000, // 5 minutos
   max: 20, // Límite de 20 requests por ventana
   message: {
-    error: "Demasiadas solicitudes a este endpoint. Por favor intenta nuevamente en 5 minutos.",
+    error:
+      "Demasiadas solicitudes a este endpoint. Por favor intenta nuevamente en 5 minutos.",
     retryAfter: 300,
   },
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: generateKey,
   handler: (req: Request, res: Response) => {
-    logStructured("warn", "rate_limit_exceeded", { scope: "api", path: req.path });
+    logStructured("warn", "rate_limit_exceeded", {
+      scope: "api",
+      path: req.path,
+    });
     res.status(429).json({
-      error: "Demasiadas solicitudes a este endpoint. Por favor intenta nuevamente en 5 minutos.",
+      error:
+        "Demasiadas solicitudes a este endpoint. Por favor intenta nuevamente en 5 minutos.",
       retryAfter: 300,
     });
   },
@@ -127,11 +138,12 @@ export const apiLimiter = rateLimit({
  * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const exportLimiter = rateLimit({
-  skip: () => process.env.NODE_ENV === 'development',
+  skip: () => process.env.NODE_ENV === "development",
   windowMs: 10 * 60 * 1000, // 10 minutos
   max: 10, // Límite de 10 exportaciones por ventana
   message: {
-    error: "Demasiadas exportaciones solicitadas. Por favor intenta nuevamente en 10 minutos.",
+    error:
+      "Demasiadas exportaciones solicitadas. Por favor intenta nuevamente en 10 minutos.",
     retryAfter: 600,
   },
   standardHeaders: true,
@@ -140,7 +152,8 @@ export const exportLimiter = rateLimit({
   handler: (req: Request, res: Response) => {
     logStructured("warn", "rate_limit_exceeded", { scope: "export" });
     res.status(429).json({
-      error: "Demasiadas exportaciones solicitadas. Por favor intenta nuevamente en 10 minutos.",
+      error:
+        "Demasiadas exportaciones solicitadas. Por favor intenta nuevamente en 10 minutos.",
       retryAfter: 600,
     });
   },

@@ -8,14 +8,38 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import {
-  FileText, Download, Search, Filter, RefreshCw, Loader2,
-  History, User, Calendar, ChevronLeft, ChevronRight, FileSpreadsheet,
-  ArrowUpDown, Clock
+  FileText,
+  Download,
+  Search,
+  Filter,
+  RefreshCw,
+  Loader2,
+  History,
+  User,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  FileSpreadsheet,
+  ArrowUpDown,
+  Clock,
 } from "lucide-react";
 
 // ── Constantes ────────────────────────────────────────────────────────────────
@@ -34,14 +58,20 @@ const CAMPO_LABELS: Record<string, string> = {
 
 const CAMPO_COLORS: Record<string, string> = {
   estado: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  responsable: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-  plazo: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
+  responsable:
+    "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+  plazo:
+    "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
   prioridad: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
-  observaciones: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
-  objetivo: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+  observaciones:
+    "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  objetivo:
+    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
   accion: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
-  recursos: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
-  creacion: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
+  recursos:
+    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+  creacion:
+    "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
 };
 
 const PAGE_SIZE = 30;
@@ -64,8 +94,12 @@ export default function AuditLogReport() {
   // Queries
   const historyQuery = trpc.nom035Matrix.getActionHistory.useQuery(
     {
-      actionId: appliedFilters.actionId ? parseInt(appliedFilters.actionId) : undefined,
-      planId: appliedFilters.planId ? parseInt(appliedFilters.planId) : undefined,
+      actionId: appliedFilters.actionId
+        ? parseInt(appliedFilters.actionId)
+        : undefined,
+      planId: appliedFilters.planId
+        ? parseInt(appliedFilters.planId)
+        : undefined,
       limit: 500,
     },
     { enabled: true }
@@ -75,13 +109,27 @@ export default function AuditLogReport() {
   const allRows = useMemo(() => {
     const rows = historyQuery.data ?? [];
     return rows.filter(row => {
-      if (appliedFilters.campo && row.campo !== appliedFilters.campo) return false;
-      if (appliedFilters.changedByName &&
-        !row.changedByName?.toLowerCase().includes(appliedFilters.changedByName.toLowerCase())) return false;
-      if (appliedFilters.fromDate && row.createdAt &&
-        new Date(row.createdAt) < new Date(appliedFilters.fromDate)) return false;
-      if (appliedFilters.toDate && row.createdAt &&
-        new Date(row.createdAt) > new Date(appliedFilters.toDate + "T23:59:59")) return false;
+      if (appliedFilters.campo && row.campo !== appliedFilters.campo)
+        return false;
+      if (
+        appliedFilters.changedByName &&
+        !row.changedByName
+          ?.toLowerCase()
+          .includes(appliedFilters.changedByName.toLowerCase())
+      )
+        return false;
+      if (
+        appliedFilters.fromDate &&
+        row.createdAt &&
+        new Date(row.createdAt) < new Date(appliedFilters.fromDate)
+      )
+        return false;
+      if (
+        appliedFilters.toDate &&
+        row.createdAt &&
+        new Date(row.createdAt) > new Date(appliedFilters.toDate + "T23:59:59")
+      )
+        return false;
       return true;
     });
   }, [historyQuery.data, appliedFilters]);
@@ -99,7 +147,14 @@ export default function AuditLogReport() {
   };
 
   const handleClearFilters = () => {
-    const empty = { planId: "", actionId: "", campo: "", changedByName: "", fromDate: "", toDate: "" };
+    const empty = {
+      planId: "",
+      actionId: "",
+      campo: "",
+      changedByName: "",
+      fromDate: "",
+      toDate: "",
+    };
     setFilters(empty);
     setAppliedFilters(empty);
     setPage(1);
@@ -109,24 +164,39 @@ export default function AuditLogReport() {
     setIsExporting("xlsx");
     try {
       const result = await exportXlsx.mutateAsync({
-        planId: appliedFilters.planId ? parseInt(appliedFilters.planId) : undefined,
-        actionId: appliedFilters.actionId ? parseInt(appliedFilters.actionId) : undefined,
+        planId: appliedFilters.planId
+          ? parseInt(appliedFilters.planId)
+          : undefined,
+        actionId: appliedFilters.actionId
+          ? parseInt(appliedFilters.actionId)
+          : undefined,
         campo: appliedFilters.campo || undefined,
         changedByName: appliedFilters.changedByName || undefined,
         fromDate: appliedFilters.fromDate || undefined,
         toDate: appliedFilters.toDate || undefined,
       });
-      const byteArray = Uint8Array.from(atob(result.xlsxBase64), c => c.charCodeAt(0));
-      const blob = new Blob([byteArray], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const byteArray = Uint8Array.from(atob(result.xlsxBase64), c =>
+        c.charCodeAt(0)
+      );
+      const blob = new Blob([byteArray], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `Bitacora-NOM035-${new Date().toISOString().split("T")[0]}.xlsx`;
       a.click();
       URL.revokeObjectURL(url);
-      toast({ title: "XLSX exportado", description: `${result.total} registros exportados.` });
+      toast({
+        title: "XLSX exportado",
+        description: `${result.total} registros exportados.`,
+      });
     } catch (err: any) {
-      toast({ title: "Error al exportar XLSX", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error al exportar XLSX",
+        description: err.message,
+        variant: "destructive",
+      });
     } finally {
       setIsExporting(null);
     }
@@ -136,14 +206,20 @@ export default function AuditLogReport() {
     setIsExporting("pdf");
     try {
       const result = await exportPdf.mutateAsync({
-        planId: appliedFilters.planId ? parseInt(appliedFilters.planId) : undefined,
-        actionId: appliedFilters.actionId ? parseInt(appliedFilters.actionId) : undefined,
+        planId: appliedFilters.planId
+          ? parseInt(appliedFilters.planId)
+          : undefined,
+        actionId: appliedFilters.actionId
+          ? parseInt(appliedFilters.actionId)
+          : undefined,
         campo: appliedFilters.campo || undefined,
         changedByName: appliedFilters.changedByName || undefined,
         fromDate: appliedFilters.fromDate || undefined,
         toDate: appliedFilters.toDate || undefined,
       });
-      const byteArray = Uint8Array.from(atob(result.pdfBase64), c => c.charCodeAt(0));
+      const byteArray = Uint8Array.from(atob(result.pdfBase64), c =>
+        c.charCodeAt(0)
+      );
       const blob = new Blob([byteArray], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -151,9 +227,16 @@ export default function AuditLogReport() {
       a.download = `${result.folio}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      toast({ title: "PDF generado", description: `Folio: ${result.folio} | ${result.total} registros.` });
+      toast({
+        title: "PDF generado",
+        description: `Folio: ${result.folio} | ${result.total} registros.`,
+      });
     } catch (err: any) {
-      toast({ title: "Error al generar PDF", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error al generar PDF",
+        description: err.message,
+        variant: "destructive",
+      });
     } finally {
       setIsExporting(null);
     }
@@ -171,7 +254,8 @@ export default function AuditLogReport() {
             Reporte de Bitácora de Cambios
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Historial completo de modificaciones en acciones NOM-035 — auditoría interna
+            Historial completo de modificaciones en acciones NOM-035 — auditoría
+            interna
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -182,7 +266,11 @@ export default function AuditLogReport() {
             disabled={isExporting !== null}
             className="flex items-center gap-1.5"
           >
-            {isExporting === "xlsx" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSpreadsheet className="h-4 w-4 text-green-600" />}
+            {isExporting === "xlsx" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <FileSpreadsheet className="h-4 w-4 text-green-600" />
+            )}
             Exportar XLSX
           </Button>
           <Button
@@ -192,7 +280,11 @@ export default function AuditLogReport() {
             disabled={isExporting !== null}
             className="flex items-center gap-1.5"
           >
-            {isExporting === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4 text-red-600" />}
+            {isExporting === "pdf" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <FileText className="h-4 w-4 text-red-600" />
+            )}
             Exportar PDF
           </Button>
         </div>
@@ -214,45 +306,66 @@ export default function AuditLogReport() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <div className="space-y-1">
-              <label className="text-xs text-gray-500 font-medium">ID Plan</label>
+              <label className="text-xs text-gray-500 font-medium">
+                ID Plan
+              </label>
               <Input
                 type="number"
                 placeholder="Ej: 1"
                 value={filters.planId}
-                onChange={e => setFilters(f => ({ ...f, planId: e.target.value }))}
+                onChange={e =>
+                  setFilters(f => ({ ...f, planId: e.target.value }))
+                }
                 className="h-8 text-sm"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-gray-500 font-medium">ID Acción</label>
+              <label className="text-xs text-gray-500 font-medium">
+                ID Acción
+              </label>
               <Input
                 type="number"
                 placeholder="Ej: 42"
                 value={filters.actionId}
-                onChange={e => setFilters(f => ({ ...f, actionId: e.target.value }))}
+                onChange={e =>
+                  setFilters(f => ({ ...f, actionId: e.target.value }))
+                }
                 className="h-8 text-sm"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-gray-500 font-medium">Campo modificado</label>
-              <Select value={filters.campo} onValueChange={v => setFilters(f => ({ ...f, campo: v === "todos" ? "" : v }))}>
+              <label className="text-xs text-gray-500 font-medium">
+                Campo modificado
+              </label>
+              <Select
+                value={filters.campo}
+                onValueChange={v =>
+                  setFilters(f => ({ ...f, campo: v === "todos" ? "" : v }))
+                }
+              >
                 <SelectTrigger className="h-8 text-sm">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos</SelectItem>
                   {Object.entries(CAMPO_LABELS).map(([k, v]) => (
-                    <SelectItem key={k} value={k}>{v}</SelectItem>
+                    <SelectItem key={k} value={k}>
+                      {v}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-gray-500 font-medium">Usuario</label>
+              <label className="text-xs text-gray-500 font-medium">
+                Usuario
+              </label>
               <Input
                 placeholder="Nombre del usuario"
                 value={filters.changedByName}
-                onChange={e => setFilters(f => ({ ...f, changedByName: e.target.value }))}
+                onChange={e =>
+                  setFilters(f => ({ ...f, changedByName: e.target.value }))
+                }
                 className="h-8 text-sm"
               />
             </div>
@@ -261,7 +374,9 @@ export default function AuditLogReport() {
               <Input
                 type="date"
                 value={filters.fromDate}
-                onChange={e => setFilters(f => ({ ...f, fromDate: e.target.value }))}
+                onChange={e =>
+                  setFilters(f => ({ ...f, fromDate: e.target.value }))
+                }
                 className="h-8 text-sm"
               />
             </div>
@@ -270,18 +385,29 @@ export default function AuditLogReport() {
               <Input
                 type="date"
                 value={filters.toDate}
-                onChange={e => setFilters(f => ({ ...f, toDate: e.target.value }))}
+                onChange={e =>
+                  setFilters(f => ({ ...f, toDate: e.target.value }))
+                }
                 className="h-8 text-sm"
               />
             </div>
           </div>
           <div className="flex items-center gap-2 mt-3">
-            <Button size="sm" onClick={handleApplyFilters} className="flex items-center gap-1.5">
+            <Button
+              size="sm"
+              onClick={handleApplyFilters}
+              className="flex items-center gap-1.5"
+            >
               <Search className="h-3.5 w-3.5" />
               Aplicar filtros
             </Button>
             {hasActiveFilters && (
-              <Button size="sm" variant="ghost" onClick={handleClearFilters} className="text-gray-500">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleClearFilters}
+                className="text-gray-500"
+              >
                 Limpiar
               </Button>
             )}
@@ -293,15 +419,22 @@ export default function AuditLogReport() {
       <div className="flex items-center justify-between text-sm text-gray-500">
         <span>
           {historyQuery.isLoading ? (
-            <span className="flex items-center gap-1"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Cargando...</span>
+            <span className="flex items-center gap-1">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Cargando...
+            </span>
           ) : (
             <>
-              <span className="font-semibold text-gray-900 dark:text-gray-100">{allRows.length}</span> registros encontrados
+              <span className="font-semibold text-gray-900 dark:text-gray-100">
+                {allRows.length}
+              </span>{" "}
+              registros encontrados
               {hasActiveFilters && " (filtrados)"}
             </>
           )}
         </span>
-        <span>Página {page} de {totalPages}</span>
+        <span>
+          Página {page} de {totalPages}
+        </span>
       </div>
 
       {/* Tabla */}
@@ -315,10 +448,14 @@ export default function AuditLogReport() {
               <TableHead className="text-xs">Valor Anterior</TableHead>
               <TableHead className="text-xs">Valor Nuevo</TableHead>
               <TableHead className="w-40 text-xs">
-                <span className="flex items-center gap-1"><User className="h-3 w-3" /> Usuario</span>
+                <span className="flex items-center gap-1">
+                  <User className="h-3 w-3" /> Usuario
+                </span>
               </TableHead>
               <TableHead className="w-36 text-xs">
-                <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Fecha</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" /> Fecha
+                </span>
               </TableHead>
               <TableHead className="text-xs">Nota</TableHead>
             </TableRow>
@@ -348,11 +485,22 @@ export default function AuditLogReport() {
               </TableRow>
             ) : (
               pageRows.map((row, idx) => (
-                <TableRow key={row.id} className={idx % 2 === 0 ? "" : "bg-gray-50/50 dark:bg-gray-800/20"}>
-                  <TableCell className="text-xs text-gray-400">{row.id}</TableCell>
-                  <TableCell className="text-xs font-mono text-gray-600 dark:text-gray-400">{row.actionId}</TableCell>
+                <TableRow
+                  key={row.id}
+                  className={
+                    idx % 2 === 0 ? "" : "bg-gray-50/50 dark:bg-gray-800/20"
+                  }
+                >
+                  <TableCell className="text-xs text-gray-400">
+                    {row.id}
+                  </TableCell>
+                  <TableCell className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                    {row.actionId}
+                  </TableCell>
                   <TableCell>
-                    <Badge className={`text-xs ${CAMPO_COLORS[row.campo] ?? "bg-gray-100 text-gray-700"}`}>
+                    <Badge
+                      className={`text-xs ${CAMPO_COLORS[row.campo] ?? "bg-gray-100 text-gray-700"}`}
+                    >
                       {CAMPO_LABELS[row.campo] ?? row.campo}
                     </Badge>
                   </TableCell>
@@ -384,7 +532,9 @@ export default function AuditLogReport() {
                           {row.changedByName ?? "Sistema"}
                         </p>
                         {row.changedByEmail && (
-                          <p className="text-xs text-gray-400 leading-tight">{row.changedByEmail}</p>
+                          <p className="text-xs text-gray-400 leading-tight">
+                            {row.changedByEmail}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -412,7 +562,8 @@ export default function AuditLogReport() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            Mostrando {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, allRows.length)} de {allRows.length}
+            Mostrando {(page - 1) * PAGE_SIZE + 1}–
+            {Math.min(page * PAGE_SIZE, allRows.length)} de {allRows.length}
           </p>
           <div className="flex items-center gap-2">
             <Button

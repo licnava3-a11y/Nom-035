@@ -1,12 +1,16 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { Award, ArrowRight, Trophy } from "lucide-react";
 import { Link } from "wouter";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -23,7 +27,9 @@ export default function RecognitionsCard() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-green-600" />
-            <CardTitle className="text-green-900">Reconocimientos del Mes</CardTitle>
+            <CardTitle className="text-green-900">
+              Reconocimientos del Mes
+            </CardTitle>
           </div>
           <CardDescription className="text-green-700">
             Cargando estadísticas...
@@ -87,7 +93,10 @@ export default function RecognitionsCard() {
           label: function (context: any) {
             const label = context.label || "";
             const value = context.parsed || 0;
-            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+            const total = context.dataset.data.reduce(
+              (a: number, b: number) => a + b,
+              0
+            );
             const percentage = ((value / total) * 100).toFixed(1);
             return `${label}: ${value} (${percentage}%)`;
           },
@@ -96,70 +105,80 @@ export default function RecognitionsCard() {
     },
   };
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
     const doc = new jsPDF();
-    
+
     // Header
     doc.setFontSize(20);
     doc.setTextColor(22, 101, 52); // verde
     doc.text("Reporte Mensual de Reconocimientos", 20, 20);
-    
+
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     doc.text(`Periodo: ${report.period.month}/${report.period.year}`, 20, 30);
-    doc.text(`Fecha de generación: ${new Date().toLocaleDateString('es-MX')}`, 20, 37);
-    
+    doc.text(
+      `Fecha de generación: ${new Date().toLocaleDateString("es-MX")}`,
+      20,
+      37
+    );
+
     // Estadísticas generales
     doc.setFontSize(14);
     doc.setTextColor(22, 101, 52);
     doc.text("Estadísticas Generales", 20, 50);
-    
+
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
     doc.text(`Total de reconocimientos: ${report.total}`, 25, 58);
-    
+
     // Agregar gráfico de categorías
-    const canvas = document.querySelector('canvas');
+    const canvas = document.querySelector<HTMLCanvasElement>(
+      "#recognitions-category-chart canvas"
+    );
     if (canvas) {
-      const imgData = canvas.toDataURL('image/png');
-      doc.addImage(imgData, 'PNG', 20, 65, 80, 80);
+      const imgData = canvas.toDataURL("image/png");
+      doc.addImage(imgData, "PNG", 20, 65, 80, 80);
     }
-    
+
     // Tabla de categorías
     doc.setFontSize(14);
     doc.setTextColor(22, 101, 52);
     doc.text("Distribución por Categoría", 20, 155);
-    
+
     autoTable(doc, {
       startY: 160,
-      head: [['Categoría', 'Cantidad', 'Porcentaje']],
+      head: [["Categoría", "Cantidad", "Porcentaje"]],
       body: report.byCategory.map(c => [
         c.categoryName,
         c.count.toString(),
-        `${((c.count / report.total) * 100).toFixed(1)}%`
+        `${((c.count / report.total) * 100).toFixed(1)}%`,
       ]),
-      theme: 'striped',
+      theme: "striped",
       headStyles: { fillColor: [22, 101, 52] },
     });
-    
+
     // Top 10 empleados
     const finalY = (doc as any).lastAutoTable.finalY || 75;
     doc.setFontSize(14);
     doc.setTextColor(22, 101, 52);
     doc.text("Top 10 Empleados Más Reconocidos", 20, finalY + 15);
-    
+
     autoTable(doc, {
       startY: finalY + 20,
-      head: [['Posición', 'Empleado', 'Reconocimientos']],
+      head: [["Posición", "Empleado", "Reconocimientos"]],
       body: report.topRecognized.map((emp, index) => [
         `${index + 1}`,
-        emp.userName || 'Sin nombre',
-        emp.count.toString()
+        emp.userName || "Sin nombre",
+        emp.count.toString(),
       ]),
-      theme: 'striped',
+      theme: "striped",
       headStyles: { fillColor: [22, 101, 52] },
     });
-    
+
     // Footer
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
@@ -170,11 +189,13 @@ export default function RecognitionsCard() {
         `Página ${i} de ${pageCount}`,
         doc.internal.pageSize.getWidth() / 2,
         doc.internal.pageSize.getHeight() - 10,
-        { align: 'center' }
+        { align: "center" }
       );
     }
-    
-    doc.save(`reporte-reconocimientos-${report.period.year}-${report.period.month}.pdf`);
+
+    doc.save(
+      `reporte-reconocimientos-${report.period.year}-${report.period.month}.pdf`
+    );
   };
 
   return (
@@ -183,7 +204,9 @@ export default function RecognitionsCard() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-green-600" />
-            <CardTitle className="text-green-900">Reconocimientos del Mes</CardTitle>
+            <CardTitle className="text-green-900">
+              Reconocimientos del Mes
+            </CardTitle>
           </div>
           <Link href="/talent/recognitions">
             <Button variant="outline" size="sm" className="gap-2">
@@ -200,9 +223,11 @@ export default function RecognitionsCard() {
         <div className="grid gap-6 md:grid-cols-2">
           {/* Gráfico de categorías */}
           <div>
-            <h4 className="text-sm font-medium mb-3 text-green-900">Por Categoría</h4>
+            <h4 className="text-sm font-medium mb-3 text-green-900">
+              Por Categoría
+            </h4>
             {report.byCategory.length > 0 ? (
-              <div className="h-[200px]">
+              <div id="recognitions-category-chart" className="h-[200px]">
                 <Doughnut data={categoryData} options={chartOptions} />
               </div>
             ) : (
@@ -231,17 +256,21 @@ export default function RecognitionsCard() {
                           index === 0
                             ? "bg-yellow-400 text-yellow-900"
                             : index === 1
-                            ? "bg-gray-300 text-gray-700"
-                            : index === 2
-                            ? "bg-orange-400 text-orange-900"
-                            : "bg-green-100 text-green-700"
+                              ? "bg-gray-300 text-gray-700"
+                              : index === 2
+                                ? "bg-orange-400 text-orange-900"
+                                : "bg-green-100 text-green-700"
                         }`}
                       >
                         {index + 1}
                       </div>
-                      <span className="text-sm font-medium">{emp.userName}</span>
+                      <span className="text-sm font-medium">
+                        {emp.userName}
+                      </span>
                     </div>
-                    <span className="text-sm font-bold text-green-700">{emp.count}</span>
+                    <span className="text-sm font-bold text-green-700">
+                      {emp.count}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -258,7 +287,7 @@ export default function RecognitionsCard() {
           <Button
             variant="outline"
             className="w-full gap-2"
-            onClick={exportToPDF}
+            onClick={() => void exportToPDF()}
           >
             Exportar Reporte Mensual (PDF)
             <ArrowRight className="h-4 w-4" />

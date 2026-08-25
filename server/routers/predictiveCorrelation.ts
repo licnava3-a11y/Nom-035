@@ -25,7 +25,11 @@ export const predictiveCorrelationRouter = router({
     .query(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "DB no disponible",
+          });
 
         // Obtener empleados de alto riesgo (probabilidad >= 60%)
         const highRiskQuery = await db.execute(sql`
@@ -60,7 +64,7 @@ export const predictiveCorrelationRouter = router({
           HAVING riskScore >= 60
         `);
 
-        const highRiskEmployees = ((highRiskQuery) as any)[0] as any[];
+        const highRiskEmployees = (highRiskQuery as any)[0] as any[];
         const highRiskIds = highRiskEmployees.map((e: any) => e.id);
 
         // Obtener empleados que rotaron
@@ -79,9 +83,15 @@ export const predictiveCorrelationRouter = router({
         const turnoverIds = turnoverEmployees.map((e: any) => e.userId);
 
         // Calcular métricas de confusión
-        const truePositives = turnoverEmployees.filter((e: any) => e.wasHighRisk).length;
-        const falsePositives = highRiskIds.filter((id: any) => !turnoverIds.includes(id)).length;
-        const falseNegatives = turnoverEmployees.filter((e: any) => !e.wasHighRisk).length;
+        const truePositives = turnoverEmployees.filter(
+          (e: any) => e.wasHighRisk
+        ).length;
+        const falsePositives = highRiskIds.filter(
+          (id: any) => !turnoverIds.includes(id)
+        ).length;
+        const falseNegatives = turnoverEmployees.filter(
+          (e: any) => !e.wasHighRisk
+        ).length;
         const trueNegatives = await db
           .select({ count: sql<number>`COUNT(*)` })
           .from(users)
@@ -96,21 +106,27 @@ export const predictiveCorrelationRouter = router({
         const tn = trueNegatives[0]?.count || 0;
 
         // Calcular métricas
-        const precision = truePositives + falsePositives > 0 
-          ? (truePositives / (truePositives + falsePositives)) * 100 
-          : 0;
-        
-        const recall = truePositives + falseNegatives > 0 
-          ? (truePositives / (truePositives + falseNegatives)) * 100 
-          : 0;
-        
-        const f1Score = precision + recall > 0 
-          ? (2 * (precision * recall)) / (precision + recall) 
-          : 0;
-        
-        const accuracy = truePositives + tn + falsePositives + falseNegatives > 0
-          ? ((truePositives + tn) / (truePositives + tn + falsePositives + falseNegatives)) * 100
-          : 0;
+        const precision =
+          truePositives + falsePositives > 0
+            ? (truePositives / (truePositives + falsePositives)) * 100
+            : 0;
+
+        const recall =
+          truePositives + falseNegatives > 0
+            ? (truePositives / (truePositives + falseNegatives)) * 100
+            : 0;
+
+        const f1Score =
+          precision + recall > 0
+            ? (2 * (precision * recall)) / (precision + recall)
+            : 0;
+
+        const accuracy =
+          truePositives + tn + falsePositives + falseNegatives > 0
+            ? ((truePositives + tn) /
+                (truePositives + tn + falsePositives + falseNegatives)) *
+              100
+            : 0;
 
         return {
           metrics: {
@@ -129,10 +145,16 @@ export const predictiveCorrelationRouter = router({
           totalTurnover: turnoverEmployees.length,
         };
       } catch (error) {
-        console.error("[PredictiveCorrelation] Error getting model accuracy:", error);
+        console.error(
+          "[PredictiveCorrelation] Error getting model accuracy:",
+          error
+        );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : "Error al obtener métricas",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Error al obtener métricas",
         });
       }
     }),
@@ -143,7 +165,11 @@ export const predictiveCorrelationRouter = router({
   getTruePositives: protectedProcedure.query(async () => {
     try {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const result = await db
         .select({
@@ -164,10 +190,16 @@ export const predictiveCorrelationRouter = router({
 
       return result;
     } catch (error) {
-      console.error("[PredictiveCorrelation] Error getting true positives:", error);
+      console.error(
+        "[PredictiveCorrelation] Error getting true positives:",
+        error
+      );
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: error instanceof Error ? error.message : "Error al obtener verdaderos positivos",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Error al obtener verdaderos positivos",
       });
     }
   }),
@@ -178,10 +210,16 @@ export const predictiveCorrelationRouter = router({
   getFalsePositives: protectedProcedure.query(async () => {
     try {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       // Obtener IDs de empleados que rotaron
-      const turnoverEmployees = await db.select({ userId: employeeTurnoverHistory.userId }).from(employeeTurnoverHistory);
+      const turnoverEmployees = await db
+        .select({ userId: employeeTurnoverHistory.userId })
+        .from(employeeTurnoverHistory);
       const turnoverIds = turnoverEmployees.map((e: any) => e.userId);
 
       // Obtener empleados de alto riesgo que NO rotaron
@@ -218,12 +256,18 @@ export const predictiveCorrelationRouter = router({
         HAVING riskScore >= 60
       `);
 
-      return ((highRiskQuery) as any)[0] as any[];
+      return (highRiskQuery as any)[0] as any[];
     } catch (error) {
-      console.error("[PredictiveCorrelation] Error getting false positives:", error);
+      console.error(
+        "[PredictiveCorrelation] Error getting false positives:",
+        error
+      );
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: error instanceof Error ? error.message : "Error al obtener falsos positivos",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Error al obtener falsos positivos",
       });
     }
   }),
@@ -234,7 +278,11 @@ export const predictiveCorrelationRouter = router({
   getFalseNegatives: protectedProcedure.query(async () => {
     try {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const result = await db
         .select({
@@ -255,10 +303,16 @@ export const predictiveCorrelationRouter = router({
 
       return result;
     } catch (error) {
-      console.error("[PredictiveCorrelation] Error getting false negatives:", error);
+      console.error(
+        "[PredictiveCorrelation] Error getting false negatives:",
+        error
+      );
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: error instanceof Error ? error.message : "Error al obtener falsos negativos",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Error al obtener falsos negativos",
       });
     }
   }),

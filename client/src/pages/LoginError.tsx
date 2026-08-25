@@ -42,7 +42,8 @@ export default function LoginError() {
     }
   }, []);
 
-  const { title, description } = ERROR_MESSAGES[reason] || ERROR_MESSAGES.default;
+  const { title, description } =
+    ERROR_MESSAGES[reason] || ERROR_MESSAGES.default;
 
   return (
     <div

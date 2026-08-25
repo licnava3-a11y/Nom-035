@@ -24,7 +24,10 @@ vi.mock("../server/db", () => ({
 }));
 
 vi.mock("../server/storage", () => ({
-  storagePut: vi.fn().mockResolvedValue({ url: "https://s3.example.com/sig.png", key: "sig.png" }),
+  storagePut: vi.fn().mockResolvedValue({
+    url: "https://s3.example.com/sig.png",
+    key: "sig.png",
+  }),
 }));
 
 vi.mock("../server/_core/email", () => ({
@@ -78,7 +81,8 @@ describe("generateDC3Folio", () => {
 
 describe("dc3RemoteSign token validation", () => {
   function generateToken(): string {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let token = "";
     for (let i = 0; i < 48; i++) {
       token += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -139,23 +143,50 @@ describe("formatCatalog logic", () => {
   }
 
   function getActiveFormat(entries: FormatEntry[]): FormatEntry | undefined {
-    return entries.find((e) => e.isActive);
+    return entries.find(e => e.isActive);
   }
 
   function setActive(entries: FormatEntry[], id: number): FormatEntry[] {
-    return entries.map((e) => ({ ...e, isActive: e.id === id }));
+    return entries.map(e => ({ ...e, isActive: e.id === id }));
   }
 
-  function buildFolioFromFormat(id: number, format: FormatEntry | undefined): string {
+  function buildFolioFromFormat(
+    id: number,
+    format: FormatEntry | undefined
+  ): string {
     const code = format?.code ?? "DC-3";
     const year = new Date().getFullYear();
     return `${code}-${String(id).padStart(4, "0")}/${year}`;
   }
 
   const sampleEntries: FormatEntry[] = [
-    { id: 1, code: "DC-3", version: "1.0", versionDate: "2018-01-01", isActive: false, reference: "NOM-035", changeNotes: null },
-    { id: 2, code: "DC-3", version: "2.0", versionDate: "2024-01-01", isActive: true, reference: "NOM-035-STPS-2018", changeNotes: "Actualización 2024" },
-    { id: 3, code: "DC-4", version: "1.0", versionDate: "2020-01-01", isActive: false, reference: null, changeNotes: null },
+    {
+      id: 1,
+      code: "DC-3",
+      version: "1.0",
+      versionDate: "2018-01-01",
+      isActive: false,
+      reference: "NOM-035",
+      changeNotes: null,
+    },
+    {
+      id: 2,
+      code: "DC-3",
+      version: "2.0",
+      versionDate: "2024-01-01",
+      isActive: true,
+      reference: "NOM-035-STPS-2018",
+      changeNotes: "Actualización 2024",
+    },
+    {
+      id: 3,
+      code: "DC-4",
+      version: "1.0",
+      versionDate: "2020-01-01",
+      isActive: false,
+      reference: null,
+      changeNotes: null,
+    },
   ];
 
   it("obtiene la versión activa del catálogo", () => {
@@ -165,7 +196,7 @@ describe("formatCatalog logic", () => {
   });
 
   it("solo hay una versión activa a la vez", () => {
-    const activeCount = sampleEntries.filter((e) => e.isActive).length;
+    const activeCount = sampleEntries.filter(e => e.isActive).length;
     expect(activeCount).toBe(1);
   });
 
@@ -175,7 +206,7 @@ describe("formatCatalog logic", () => {
     expect(active?.id).toBe(1);
     expect(active?.version).toBe("1.0");
     // La versión 2 ya no debe estar activa
-    expect(updated.find((e) => e.id === 2)?.isActive).toBe(false);
+    expect(updated.find(e => e.id === 2)?.isActive).toBe(false);
   });
 
   it("buildFolioFromFormat usa el código del formato activo", () => {
@@ -190,9 +221,9 @@ describe("formatCatalog logic", () => {
   });
 
   it("filtra entradas por código correctamente", () => {
-    const dc3Entries = sampleEntries.filter((e) => e.code === "DC-3");
+    const dc3Entries = sampleEntries.filter(e => e.code === "DC-3");
     expect(dc3Entries).toHaveLength(2);
-    const dc4Entries = sampleEntries.filter((e) => e.code === "DC-4");
+    const dc4Entries = sampleEntries.filter(e => e.code === "DC-4");
     expect(dc4Entries).toHaveLength(1);
   });
 
@@ -273,6 +304,8 @@ describe("DC-3 email notification", () => {
     const appUrl = "https://nom035mood-32dy4ksx.manus.space";
     const hash = "a1b2c3d4e5f6";
     const verifyUrl = `${appUrl}/verificar-dc3?hash=${hash}`;
-    expect(verifyUrl).toBe("https://nom035mood-32dy4ksx.manus.space/verificar-dc3?hash=a1b2c3d4e5f6");
+    expect(verifyUrl).toBe(
+      "https://nom035mood-32dy4ksx.manus.space/verificar-dc3?hash=a1b2c3d4e5f6"
+    );
   });
 });

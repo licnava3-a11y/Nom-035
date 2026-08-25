@@ -35,13 +35,19 @@ export const jobMonitoringRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const conditions = [];
-      if (input.jobName) conditions.push(eq(jobExecutions.jobName, input.jobName));
+      if (input.jobName)
+        conditions.push(eq(jobExecutions.jobName, input.jobName));
       if (input.status) conditions.push(eq(jobExecutions.status, input.status));
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       const executions = await db
         .select()
@@ -68,7 +74,11 @@ export const jobMonitoringRouter = router({
    */
   getJobStats: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     // Últimas 24 horas
     const oneDayAgo = new Date();
@@ -92,9 +102,13 @@ export const jobMonitoringRouter = router({
       totalExecutions: Number(stat.totalExecutions) || 0,
       successCount: Number(stat.successCount) || 0,
       failedCount: Number(stat.failedCount) || 0,
-      successRate: Number(stat.totalExecutions) > 0 
-        ? ((Number(stat.successCount) / Number(stat.totalExecutions)) * 100).toFixed(1)
-        : "0.0",
+      successRate:
+        Number(stat.totalExecutions) > 0
+          ? (
+              (Number(stat.successCount) / Number(stat.totalExecutions)) *
+              100
+            ).toFixed(1)
+          : "0.0",
       avgDuration: stat.avgDuration ? Math.round(Number(stat.avgDuration)) : 0,
       lastExecution: stat.lastExecution,
     }));
@@ -106,18 +120,24 @@ export const jobMonitoringRouter = router({
   runPostCaseSurveysJob: protectedProcedure.mutation(async () => {
     const startedAt = new Date();
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     try {
       // Registrar inicio
-      const [execution] = await (db.insert(jobExecutions) as any).values({
-        jobName: "post-case-surveys-job",
-        status: "running",
-        startedAt,
-      }).$returningId();
+      const [execution] = await (db.insert(jobExecutions) as any)
+        .values({
+          jobName: "post-case-surveys-job",
+          status: "running",
+          startedAt,
+        })
+        .$returningId();
 
       // Ejecutar job
-      const result = await runPostCaseSurveysJobs();;
+      const result = await runPostCaseSurveysJobs();
       const completedAt = new Date();
       const duration = completedAt.getTime() - startedAt.getTime();
 
@@ -147,7 +167,10 @@ export const jobMonitoringRouter = router({
         error: error.message,
       });
 
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error.message });
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message,
+      });
     }
   }),
 
@@ -157,14 +180,20 @@ export const jobMonitoringRouter = router({
   runDepartmentalAlertsJob: protectedProcedure.mutation(async () => {
     const startedAt = new Date();
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     try {
-      const [execution] = await (db.insert(jobExecutions) as any).values({
-        jobName: "departmental-alerts-job",
-        status: "running",
-        startedAt,
-      }).$returningId();
+      const [execution] = await (db.insert(jobExecutions) as any)
+        .values({
+          jobName: "departmental-alerts-job",
+          status: "running",
+          startedAt,
+        })
+        .$returningId();
 
       const result = await runDepartmentalAlertsJob();
       const completedAt = new Date();
@@ -194,7 +223,10 @@ export const jobMonitoringRouter = router({
         error: error.message,
       });
 
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error.message });
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message,
+      });
     }
   }),
 
@@ -204,14 +236,20 @@ export const jobMonitoringRouter = router({
   runSurveyRemindersJob: protectedProcedure.mutation(async () => {
     const startedAt = new Date();
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     try {
-      const [execution] = await (db.insert(jobExecutions) as any).values({
-        jobName: "survey-reminders-job",
-        status: "running",
-        startedAt,
-      }).$returningId();
+      const [execution] = await (db.insert(jobExecutions) as any)
+        .values({
+          jobName: "survey-reminders-job",
+          status: "running",
+          startedAt,
+        })
+        .$returningId();
 
       const result = await runSurveyRemindersJob();
       const completedAt = new Date();
@@ -241,7 +279,10 @@ export const jobMonitoringRouter = router({
         error: error.message,
       });
 
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error.message });
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message,
+      });
     }
   }),
 
@@ -258,11 +299,17 @@ export const jobMonitoringRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const conditions = [];
-      if (input.jobName) conditions.push(eq(jobExecutionLog.jobName, input.jobName));
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      if (input.jobName)
+        conditions.push(eq(jobExecutionLog.jobName, input.jobName));
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       const logs = await db
         .select()
@@ -280,7 +327,11 @@ export const jobMonitoringRouter = router({
    */
   getJobStatusSummary: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     const summary = await db
       .select({
@@ -309,32 +360,42 @@ export const jobMonitoringRouter = router({
 
   /** Ejecutar manualmente el Stale Cases Job */
   runStaleCasesJob: protectedProcedure.mutation(async () => {
-    const result = await logJobExecution('stale-cases', runStaleCasesCheck);
+    const result = await logJobExecution("stale-cases", runStaleCasesCheck);
     return { success: true, result };
   }),
 
   /** Ejecutar manualmente el Survey Alerts Job */
   runSurveyAlertsJob: protectedProcedure.mutation(async () => {
-    const result = await logJobExecution('survey-alerts', async () => {
+    const result = await logJobExecution("survey-alerts", async () => {
       const r = await runSurveyAlertsCheck();
-      const sent = (r?.coverage?.alertsSent ?? 0) + (r?.pending?.alertsSent ?? 0);
-      return { notificationsSent: sent, itemsProcessed: r?.coverage?.checked ?? 0 };
+      const sent =
+        (r?.coverage?.alertsSent ?? 0) + (r?.pending?.alertsSent ?? 0);
+      return {
+        notificationsSent: sent,
+        itemsProcessed: r?.coverage?.checked ?? 0,
+      };
     });
     return { success: true, result };
   }),
 
   /** Ejecutar manualmente el Departments Without Manager Job */
   runDepartmentsJob: protectedProcedure.mutation(async () => {
-    const result = await logJobExecution('departments-without-manager', async () => {
-      const r = await runDepartmentsWithoutManagerCheck();
-      return { notificationsSent: r?.alertsSent ?? 0, itemsProcessed: r?.departmentsFound ?? 0 };
-    });
+    const result = await logJobExecution(
+      "departments-without-manager",
+      async () => {
+        const r = await runDepartmentsWithoutManagerCheck();
+        return {
+          notificationsSent: r?.alertsSent ?? 0,
+          itemsProcessed: r?.departmentsFound ?? 0,
+        };
+      }
+    );
     return { success: true, result };
   }),
 
   /** Ejecutar manualmente el Security Alerts Job */
   runSecurityJob: protectedProcedure.mutation(async () => {
-    const result = await logJobExecution('security-alerts', async () => {
+    const result = await logJobExecution("security-alerts", async () => {
       const r = await runSecurityAlertsCheck();
       return { itemsProcessed: r?.alertsCreated ?? 0 };
     });

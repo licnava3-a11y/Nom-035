@@ -1,27 +1,61 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, CheckCircle2, Bell, BellOff, ExternalLink, Filter } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Bell,
+  BellOff,
+  ExternalLink,
+  Filter,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "wouter";
 
 export default function AlertsDashboard() {
-  const [category, setCategory] = useState<"all" | "departmental" | "survey" | "case">("all");
-  const [priority, setPriority] = useState<"all" | "low" | "medium" | "high" | "critical">("all");
-  const [status, setStatus] = useState<"all" | "active" | "resolved" | "silenced">("active");
+  const [category, setCategory] = useState<
+    "all" | "departmental" | "survey" | "case"
+  >("all");
+  const [priority, setPriority] = useState<
+    "all" | "low" | "medium" | "high" | "critical"
+  >("all");
+  const [status, setStatus] = useState<
+    "all" | "active" | "resolved" | "silenced"
+  >("active");
 
   // Query
-  const { data, refetch } = trpc.alertsDashboard.getConsolidatedAlerts.useQuery({
-    category,
-    priority,
-    status,
-  });
+  const { data, refetch } = trpc.alertsDashboard.getConsolidatedAlerts.useQuery(
+    {
+      category,
+      priority,
+      status,
+    }
+  );
 
   // Mutations
   const resolveAlert = trpc.alertsDashboard.resolveAlert.useMutation({
@@ -29,7 +63,7 @@ export default function AlertsDashboard() {
       toast.success("Alerta marcada como resuelta");
       refetch();
     },
-    onError: (error) => toast.error(`Error: ${error.message}`),
+    onError: error => toast.error(`Error: ${error.message}`),
   });
 
   const silenceAlert = trpc.alertsDashboard.silenceAlert.useMutation({
@@ -37,19 +71,35 @@ export default function AlertsDashboard() {
       toast.success("Alerta silenciada por 24 horas");
       refetch();
     },
-    onError: (error) => toast.error(`Error: ${error.message}`),
+    onError: error => toast.error(`Error: ${error.message}`),
   });
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case "critical":
-        return <Badge className="bg-red-100 text-red-800 border-red-300">Crítico</Badge>;
+        return (
+          <Badge className="bg-red-100 text-red-800 border-red-300">
+            Crítico
+          </Badge>
+        );
       case "high":
-        return <Badge className="bg-orange-100 text-orange-800 border-orange-300">Alto</Badge>;
+        return (
+          <Badge className="bg-orange-100 text-orange-800 border-orange-300">
+            Alto
+          </Badge>
+        );
       case "medium":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">Medio</Badge>;
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+            Medio
+          </Badge>
+        );
       case "low":
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-300">Bajo</Badge>;
+        return (
+          <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+            Bajo
+          </Badge>
+        );
       default:
         return <Badge>{priority}</Badge>;
     }
@@ -91,7 +141,9 @@ export default function AlertsDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total de Alertas</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total de Alertas
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{data?.total || 0}</div>
@@ -99,26 +151,38 @@ export default function AlertsDashboard() {
         </Card>
         <Card className="border-red-200 bg-red-50">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-red-700">Críticas</CardTitle>
+            <CardTitle className="text-sm font-medium text-red-700">
+              Críticas
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-700">{data?.criticalCount || 0}</div>
+            <div className="text-3xl font-bold text-red-700">
+              {data?.criticalCount || 0}
+            </div>
           </CardContent>
         </Card>
         <Card className="border-orange-200 bg-orange-50">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-orange-700">Altas</CardTitle>
+            <CardTitle className="text-sm font-medium text-orange-700">
+              Altas
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-700">{data?.highCount || 0}</div>
+            <div className="text-3xl font-bold text-orange-700">
+              {data?.highCount || 0}
+            </div>
           </CardContent>
         </Card>
         <Card className="border-yellow-200 bg-yellow-50">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-yellow-700">Medias</CardTitle>
+            <CardTitle className="text-sm font-medium text-yellow-700">
+              Medias
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-yellow-700">{data?.mediumCount || 0}</div>
+            <div className="text-3xl font-bold text-yellow-700">
+              {data?.mediumCount || 0}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -135,8 +199,13 @@ export default function AlertsDashboard() {
         <CardContent>
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
-              <label className="text-sm font-medium mb-2 block">Categoría</label>
-              <Select value={category} onValueChange={(v) => setCategory(v as any)}>
+              <label className="text-sm font-medium mb-2 block">
+                Categoría
+              </label>
+              <Select
+                value={category}
+                onValueChange={v => setCategory(v as any)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -149,8 +218,13 @@ export default function AlertsDashboard() {
               </Select>
             </div>
             <div className="flex-1 min-w-[200px]">
-              <label className="text-sm font-medium mb-2 block">Prioridad</label>
-              <Select value={priority} onValueChange={(v) => setPriority(v as any)}>
+              <label className="text-sm font-medium mb-2 block">
+                Prioridad
+              </label>
+              <Select
+                value={priority}
+                onValueChange={v => setPriority(v as any)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -165,7 +239,7 @@ export default function AlertsDashboard() {
             </div>
             <div className="flex-1 min-w-[200px]">
               <label className="text-sm font-medium mb-2 block">Estado</label>
-              <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+              <Select value={status} onValueChange={v => setStatus(v as any)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -211,7 +285,9 @@ export default function AlertsDashboard() {
                     <TableCell className="text-sm text-muted-foreground max-w-[300px] truncate">
                       {alert.description}
                     </TableCell>
-                    <TableCell className="text-sm">{formatDate(alert.createdAt)}</TableCell>
+                    <TableCell className="text-sm">
+                      {formatDate(alert.createdAt)}
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {alert.actionUrl && (
@@ -224,7 +300,9 @@ export default function AlertsDashboard() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => resolveAlert.mutate({ alertId: alert.id })}
+                          onClick={() =>
+                            resolveAlert.mutate({ alertId: alert.id })
+                          }
                           disabled={resolveAlert.isPending}
                         >
                           <CheckCircle2 className="w-4 h-4 text-green-600" />
@@ -232,7 +310,12 @@ export default function AlertsDashboard() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => silenceAlert.mutate({ alertId: alert.id, duration: 24 })}
+                          onClick={() =>
+                            silenceAlert.mutate({
+                              alertId: alert.id,
+                              duration: 24,
+                            })
+                          }
                           disabled={silenceAlert.isPending}
                         >
                           <BellOff className="w-4 h-4 text-gray-600" />
@@ -248,7 +331,8 @@ export default function AlertsDashboard() {
               <Bell className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-lg font-medium">No hay alertas activas</p>
               <p className="text-sm text-muted-foreground mt-2">
-                Todas las alertas han sido resueltas o no hay alertas que coincidan con los filtros seleccionados.
+                Todas las alertas han sido resueltas o no hay alertas que
+                coincidan con los filtros seleccionados.
               </p>
             </div>
           )}

@@ -42,8 +42,13 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
       })
       .from(users)
       .where(
-        sql`${users.id} IN (${sql.join(committeeUserIds.map((m: typeof committeeUserIds[number]) => sql`${m.userId}`), sql`, `)})`,
-      );;
+        sql`${users.id} IN (${sql.join(
+          committeeUserIds.map(
+            (m: (typeof committeeUserIds)[number]) => sql`${m.userId}`
+          ),
+          sql`, `
+        )})`
+      );
 
     // Preparar mensaje según tipo de cambio
     let notificationTitle = "";
@@ -145,36 +150,40 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
     }
 
     // Crear notificaciones internas para cada miembro
-    const notificationPromises = committeeUsers.map(async (user: typeof committeeUsers[number]) => {
-      // Crear notificación interna
-      await db!.insert(notifications).values({
-        userId: user.id,
-        title: notificationTitle,
-        message: notificationMessage,
-        type: "committee",
-        relatedEntityType: "operating_rule",
-        relatedEntityId: data.operatingRuleId,
-        isRead: false,
-      });
+    const notificationPromises = committeeUsers.map(
+      async (user: (typeof committeeUsers)[number]) => {
+        // Crear notificación interna
+        await db!.insert(notifications).values({
+          userId: user.id,
+          title: notificationTitle,
+          message: notificationMessage,
+          type: "committee",
+          relatedEntityType: "operating_rule",
+          relatedEntityId: data.operatingRuleId,
+          isRead: false,
+        });
 
-      // Enviar email si el usuario tiene email configurado
-      if (user.email) {
-        try {
-          await sendEmail({
-            to: user.email,
-            subject: emailSubject,
-            html: emailBody,
-          });
-        } catch (emailError) {
-          console.error(`Error sending email to ${user.email}:`, emailError);
-          // No lanzar error, continuar con otros usuarios
+        // Enviar email si el usuario tiene email configurado
+        if (user.email) {
+          try {
+            await sendEmail({
+              to: user.email,
+              subject: emailSubject,
+              html: emailBody,
+            });
+          } catch (emailError) {
+            console.error(`Error sending email to ${user.email}:`, emailError);
+            // No lanzar error, continuar con otros usuarios
+          }
         }
       }
-    });
+    );
 
     await Promise.all(notificationPromises);
 
-    console.log(`Notified ${committeeUsers.length} committee members about operating rules change`);
+    console.log(
+      `Notified ${committeeUsers.length} committee members about operating rules change`
+    );
 
     return {
       success: true,

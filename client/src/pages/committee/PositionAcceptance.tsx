@@ -1,9 +1,21 @@
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import SignatureCanvas from "react-signature-canvas";
 
@@ -79,9 +91,11 @@ export default function PositionAcceptance() {
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const signatureRef = useRef<SignatureCanvas>(null);
 
-  const { data: members, isLoading: membersLoading } = trpc.committeePositionAcceptance.listMembers.useQuery();
+  const { data: members, isLoading: membersLoading } =
+    trpc.committeePositionAcceptance.listMembers.useQuery();
   const createMutation = trpc.committeePositionAcceptance.create.useMutation();
-  const generatePDFMutation = trpc.committeePositionAcceptance.generatePDF.useMutation();
+  const generatePDFMutation =
+    trpc.committeePositionAcceptance.generatePDF.useMutation();
 
   const handleInePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -144,22 +158,30 @@ export default function PositionAcceptance() {
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Aceptación de Cargo - Comité NOM-035</h1>
+        <h1 className="text-3xl font-bold">
+          Aceptación de Cargo - Comité NOM-035
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Documento formal de aceptación de cargo con responsabilidades y firma digital
+          Documento formal de aceptación de cargo con responsabilidades y firma
+          digital
         </p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Formulario de Aceptación</CardTitle>
-          <CardDescription>Completa la información requerida para generar el documento oficial</CardDescription>
+          <CardDescription>
+            Completa la información requerida para generar el documento oficial
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Member Selection */}
           <div className="space-y-2">
             <Label htmlFor="member">Miembro del Comité *</Label>
-            <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
+            <Select
+              value={selectedMemberId}
+              onValueChange={setSelectedMemberId}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un miembro" />
               </SelectTrigger>
@@ -176,7 +198,10 @@ export default function PositionAcceptance() {
           {/* Position Selection */}
           <div className="space-y-2">
             <Label htmlFor="position">Cargo en el Comité *</Label>
-            <Select value={selectedPosition} onValueChange={setSelectedPosition}>
+            <Select
+              value={selectedPosition}
+              onValueChange={setSelectedPosition}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona el cargo" />
               </SelectTrigger>
@@ -219,7 +244,11 @@ export default function PositionAcceptance() {
             />
             {inePhoto && (
               <div className="mt-2">
-                <img src={inePhoto} alt="INE Preview" className="max-w-md border rounded" />
+                <img
+                  src={inePhoto}
+                  alt="INE Preview"
+                  className="max-w-md border rounded"
+                />
               </div>
             )}
           </div>
@@ -228,7 +257,11 @@ export default function PositionAcceptance() {
           <div className="space-y-2">
             <Label>Firma Digital *</Label>
             {!showSignaturePad ? (
-              <Button onClick={() => setShowSignaturePad(true)} variant="outline" className="w-full">
+              <Button
+                onClick={() => setShowSignaturePad(true)}
+                variant="outline"
+                className="w-full"
+              >
                 Abrir Panel de Firma
               </Button>
             ) : (
@@ -240,10 +273,18 @@ export default function PositionAcceptance() {
                   }}
                 />
                 <div className="mt-2 flex gap-2">
-                  <Button onClick={() => signatureRef.current?.clear()} variant="outline" size="sm">
+                  <Button
+                    onClick={() => signatureRef.current?.clear()}
+                    variant="outline"
+                    size="sm"
+                  >
                     Limpiar
                   </Button>
-                  <Button onClick={() => setShowSignaturePad(false)} variant="outline" size="sm">
+                  <Button
+                    onClick={() => setShowSignaturePad(false)}
+                    variant="outline"
+                    size="sm"
+                  >
                     Cerrar
                   </Button>
                 </div>

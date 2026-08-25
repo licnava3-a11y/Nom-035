@@ -1,7 +1,13 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { committeeOperatingRules, committeeOperatingRulesVersions, operatingRulesApprovals, signatures, users } from "../../drizzle/schema";
+import {
+  committeeOperatingRules,
+  committeeOperatingRulesVersions,
+  operatingRulesApprovals,
+  signatures,
+  users,
+} from "../../drizzle/schema";
 import { eq, desc, and, or, like, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { generateOperatingRulesPDF } from "../utils/generateOperatingRulesPDF";
@@ -36,11 +42,13 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Crear la base de funcionamiento principal
-        const [newRule] = await (db.insert(committeeOperatingRules as any) as any).values({
+        const [newRule] = await (
+          db.insert(committeeOperatingRules as any) as any
+        ).values({
           version: input.version,
           effectiveDate: input.effectiveDate,
           reviewDate: input.reviewDate,
@@ -63,27 +71,29 @@ export const committeeOperatingRulesRouter = router({
         const ruleId = newRule.insertId;
 
         // Crear la primera versión en el historial
-        await (db.insert(committeeOperatingRulesVersions as any) as any).values({
-          operatingRuleId: ruleId,
-          versionNumber: 1,
-          version: input.version,
-          objectives: input.objectives,
-          structure: input.structure,
-          roles: input.roles,
-          meetingFrequency: input.meetingFrequency,
-          quorum: input.quorum,
-          decisionMaking: input.decisionMaking,
-          communication: input.communication,
-          caseHandling: input.caseHandling,
-          confidentiality: input.confidentiality,
-          amendments: input.amendments,
-          signatures: input.signatures,
-          effectiveDate: input.effectiveDate,
-          reviewDate: input.reviewDate,
-          nextReviewDate: input.nextReviewDate,
-          changeDescription: "Versión inicial creada",
-          createdBy: ctx.user.id,
-        });
+        await (db.insert(committeeOperatingRulesVersions as any) as any).values(
+          {
+            operatingRuleId: ruleId,
+            versionNumber: 1,
+            version: input.version,
+            objectives: input.objectives,
+            structure: input.structure,
+            roles: input.roles,
+            meetingFrequency: input.meetingFrequency,
+            quorum: input.quorum,
+            decisionMaking: input.decisionMaking,
+            communication: input.communication,
+            caseHandling: input.caseHandling,
+            confidentiality: input.confidentiality,
+            amendments: input.amendments,
+            signatures: input.signatures,
+            effectiveDate: input.effectiveDate,
+            reviewDate: input.reviewDate,
+            nextReviewDate: input.nextReviewDate,
+            changeDescription: "Versión inicial creada",
+            createdBy: ctx.user.id,
+          }
+        );
 
         // Notificar a miembros del comité
         await notifyOperatingRulesChanges({
@@ -131,18 +141,21 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Obtener el número de versión actual
         const versions = await db
-          .select({ versionNumber: committeeOperatingRulesVersions.versionNumber })
+          .select({
+            versionNumber: committeeOperatingRulesVersions.versionNumber,
+          })
           .from(committeeOperatingRulesVersions)
           .where(eq(committeeOperatingRulesVersions.operatingRuleId, input.id))
           .orderBy(desc(committeeOperatingRulesVersions.versionNumber))
           .limit(1);
 
-        const nextVersionNumber = versions.length > 0 ? versions[0].versionNumber + 1 : 1;
+        const nextVersionNumber =
+          versions.length > 0 ? versions[0].versionNumber + 1 : 1;
 
         // Actualizar la base de funcionamiento principal
         await db
@@ -168,27 +181,31 @@ export const committeeOperatingRulesRouter = router({
           .where(eq(committeeOperatingRules.id, input.id));
 
         // Crear nueva versión en el historial
-        await (db.insert(committeeOperatingRulesVersions as any) as any).values({
-          operatingRuleId: input.id,
-          versionNumber: nextVersionNumber,
-          version: input.version,
-          objectives: input.objectives,
-          structure: input.structure,
-          roles: input.roles,
-          meetingFrequency: input.meetingFrequency,
-          quorum: input.quorum,
-          decisionMaking: input.decisionMaking,
-          communication: input.communication,
-          caseHandling: input.caseHandling,
-          confidentiality: input.confidentiality,
-          amendments: input.amendments,
-          signatures: input.signatures,
-          effectiveDate: input.effectiveDate,
-          reviewDate: input.reviewDate,
-          nextReviewDate: input.nextReviewDate,
-          changeDescription: input.changeDescription || `Actualización versión ${nextVersionNumber}`,
-          createdBy: ctx.user.id,
-        });
+        await (db.insert(committeeOperatingRulesVersions as any) as any).values(
+          {
+            operatingRuleId: input.id,
+            versionNumber: nextVersionNumber,
+            version: input.version,
+            objectives: input.objectives,
+            structure: input.structure,
+            roles: input.roles,
+            meetingFrequency: input.meetingFrequency,
+            quorum: input.quorum,
+            decisionMaking: input.decisionMaking,
+            communication: input.communication,
+            caseHandling: input.caseHandling,
+            confidentiality: input.confidentiality,
+            amendments: input.amendments,
+            signatures: input.signatures,
+            effectiveDate: input.effectiveDate,
+            reviewDate: input.reviewDate,
+            nextReviewDate: input.nextReviewDate,
+            changeDescription:
+              input.changeDescription ||
+              `Actualización versión ${nextVersionNumber}`,
+            createdBy: ctx.user.id,
+          }
+        );
 
         // Notificar a miembros del comité
         await notifyOperatingRulesChanges({
@@ -215,7 +232,7 @@ export const committeeOperatingRulesRouter = router({
    */
   list: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
 
     try {
       const rules = await db
@@ -252,7 +269,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         const [rule] = await db
@@ -285,7 +302,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ operatingRuleId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         const versions = await db
@@ -294,14 +311,23 @@ export const committeeOperatingRulesRouter = router({
             versionNumber: committeeOperatingRulesVersions.versionNumber,
             version: committeeOperatingRulesVersions.version,
             effectiveDate: committeeOperatingRulesVersions.effectiveDate,
-            changeDescription: committeeOperatingRulesVersions.changeDescription,
+            changeDescription:
+              committeeOperatingRulesVersions.changeDescription,
             createdBy: committeeOperatingRulesVersions.createdBy,
             createdAt: committeeOperatingRulesVersions.createdAt,
             creatorName: users.name,
           })
           .from(committeeOperatingRulesVersions)
-          .leftJoin(users, eq(committeeOperatingRulesVersions.createdBy, users.id))
-          .where(eq(committeeOperatingRulesVersions.operatingRuleId, input.operatingRuleId))
+          .leftJoin(
+            users,
+            eq(committeeOperatingRulesVersions.createdBy, users.id)
+          )
+          .where(
+            eq(
+              committeeOperatingRulesVersions.operatingRuleId,
+              input.operatingRuleId
+            )
+          )
           .orderBy(desc(committeeOperatingRulesVersions.versionNumber));
 
         return versions;
@@ -321,7 +347,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ versionId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         const [version] = await db
@@ -360,7 +386,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Obtener la versión a restaurar
@@ -378,13 +404,21 @@ export const committeeOperatingRulesRouter = router({
 
         // Obtener el número de versión actual más alto
         const versions = await db
-          .select({ versionNumber: committeeOperatingRulesVersions.versionNumber })
+          .select({
+            versionNumber: committeeOperatingRulesVersions.versionNumber,
+          })
           .from(committeeOperatingRulesVersions)
-          .where(eq(committeeOperatingRulesVersions.operatingRuleId, input.operatingRuleId))
+          .where(
+            eq(
+              committeeOperatingRulesVersions.operatingRuleId,
+              input.operatingRuleId
+            )
+          )
           .orderBy(desc(committeeOperatingRulesVersions.versionNumber))
           .limit(1);
 
-        const nextVersionNumber = versions.length > 0 ? versions[0].versionNumber + 1 : 1;
+        const nextVersionNumber =
+          versions.length > 0 ? versions[0].versionNumber + 1 : 1;
 
         // Actualizar la base de funcionamiento principal con los datos de la versión restaurada
         await db
@@ -410,29 +444,31 @@ export const committeeOperatingRulesRouter = router({
           .where(eq(committeeOperatingRules.id, input.operatingRuleId));
 
         // Crear nueva versión en el historial (restauración)
-        await (db.insert(committeeOperatingRulesVersions as any) as any).values({
-          operatingRuleId: input.operatingRuleId,
-          versionNumber: nextVersionNumber,
-          version: versionToRestore.version,
-          objectives: versionToRestore.objectives,
-          structure: versionToRestore.structure,
-          roles: versionToRestore.roles,
-          meetingFrequency: versionToRestore.meetingFrequency,
-          quorum: versionToRestore.quorum,
-          decisionMaking: versionToRestore.decisionMaking,
-          communication: versionToRestore.communication,
-          caseHandling: versionToRestore.caseHandling,
-          confidentiality: versionToRestore.confidentiality,
-          amendments: versionToRestore.amendments,
-          signatures: versionToRestore.signatures,
-          effectiveDate: versionToRestore.effectiveDate,
-          reviewDate: versionToRestore.reviewDate,
-          nextReviewDate: versionToRestore.nextReviewDate,
-          changeDescription:
-            input.changeDescription ||
-            `Restauración de versión ${versionToRestore.versionNumber}`,
-          createdBy: ctx.user.id,
-        });
+        await (db.insert(committeeOperatingRulesVersions as any) as any).values(
+          {
+            operatingRuleId: input.operatingRuleId,
+            versionNumber: nextVersionNumber,
+            version: versionToRestore.version,
+            objectives: versionToRestore.objectives,
+            structure: versionToRestore.structure,
+            roles: versionToRestore.roles,
+            meetingFrequency: versionToRestore.meetingFrequency,
+            quorum: versionToRestore.quorum,
+            decisionMaking: versionToRestore.decisionMaking,
+            communication: versionToRestore.communication,
+            caseHandling: versionToRestore.caseHandling,
+            confidentiality: versionToRestore.confidentiality,
+            amendments: versionToRestore.amendments,
+            signatures: versionToRestore.signatures,
+            effectiveDate: versionToRestore.effectiveDate,
+            reviewDate: versionToRestore.reviewDate,
+            nextReviewDate: versionToRestore.nextReviewDate,
+            changeDescription:
+              input.changeDescription ||
+              `Restauración de versión ${versionToRestore.versionNumber}`,
+            createdBy: ctx.user.id,
+          }
+        );
 
         // Notificar a miembros del comité
         await notifyOperatingRulesChanges({
@@ -467,7 +503,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         const [version1] = await db
@@ -493,12 +529,14 @@ export const committeeOperatingRulesRouter = router({
           objectives: version1.objectives !== version2.objectives,
           structure: version1.structure !== version2.structure,
           roles: version1.roles !== version2.roles,
-          meetingFrequency: version1.meetingFrequency !== version2.meetingFrequency,
+          meetingFrequency:
+            version1.meetingFrequency !== version2.meetingFrequency,
           quorum: version1.quorum !== version2.quorum,
           decisionMaking: version1.decisionMaking !== version2.decisionMaking,
           communication: version1.communication !== version2.communication,
           caseHandling: version1.caseHandling !== version2.caseHandling,
-          confidentiality: version1.confidentiality !== version2.confidentiality,
+          confidentiality:
+            version1.confidentiality !== version2.confidentiality,
           amendments: version1.amendments !== version2.amendments,
           signatures: version1.signatures !== version2.signatures,
           effectiveDate: version1.effectiveDate !== version2.effectiveDate,
@@ -526,7 +564,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         await db
@@ -574,7 +612,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Obtener la base de funcionamiento con información del creador y aprobador
@@ -625,7 +663,9 @@ export const committeeOperatingRulesRouter = router({
 
         // Obtener número de versión actual
         const [latestVersion] = await db
-          .select({ versionNumber: committeeOperatingRulesVersions.versionNumber })
+          .select({
+            versionNumber: committeeOperatingRulesVersions.versionNumber,
+          })
           .from(committeeOperatingRulesVersions)
           .where(eq(committeeOperatingRulesVersions.operatingRuleId, input.id))
           .orderBy(desc(committeeOperatingRulesVersions.versionNumber))
@@ -636,7 +676,8 @@ export const committeeOperatingRulesRouter = router({
           .select({
             approverName: users.name,
             approverRole: operatingRulesApprovals.approverRole,
-            approverRoleDescription: operatingRulesApprovals.approverRoleDescription,
+            approverRoleDescription:
+              operatingRulesApprovals.approverRoleDescription,
             signatureData: operatingRulesApprovals.signatureData,
             signedAt: operatingRulesApprovals.signedAt,
             comments: operatingRulesApprovals.comments,
@@ -703,7 +744,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Verificar que la base de funcionamiento existe
@@ -725,7 +766,10 @@ export const committeeOperatingRulesRouter = router({
           .delete(operatingRulesApprovals)
           .where(
             and(
-              eq(operatingRulesApprovals.operatingRuleId, input.operatingRuleId),
+              eq(
+                operatingRulesApprovals.operatingRuleId,
+                input.operatingRuleId
+              ),
               sql`${operatingRulesApprovals.status} = 'pending'`
             )
           );
@@ -767,13 +811,15 @@ export const committeeOperatingRulesRouter = router({
       z.object({
         approvalId: z.number(),
         signatureData: z.string(), // Base64 de la firma
-        signatureMethod: z.enum(["digital_pad", "uploaded", "certificate"]).default("digital_pad"),
+        signatureMethod: z
+          .enum(["digital_pad", "uploaded", "certificate"])
+          .default("digital_pad"),
         comments: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Verificar que la aprobación existe y pertenece al usuario
@@ -821,7 +867,12 @@ export const committeeOperatingRulesRouter = router({
         const allApprovals = await db
           .select()
           .from(operatingRulesApprovals)
-          .where(eq(operatingRulesApprovals.operatingRuleId, approval.operatingRuleId));
+          .where(
+            eq(
+              operatingRulesApprovals.operatingRuleId,
+              approval.operatingRuleId
+            )
+          );
 
         const allSigned = allApprovals.every((a: any) => a.status === "signed");
 
@@ -873,7 +924,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ operatingRuleId: z.number() }))
     .query(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         const approvals = await db
@@ -882,7 +933,8 @@ export const committeeOperatingRulesRouter = router({
             approverId: operatingRulesApprovals.approverId,
             approverName: users.name,
             approverRole: operatingRulesApprovals.approverRole,
-            approverRoleDescription: operatingRulesApprovals.approverRoleDescription,
+            approverRoleDescription:
+              operatingRulesApprovals.approverRoleDescription,
             status: operatingRulesApprovals.status,
             signatureData: operatingRulesApprovals.signatureData,
             signatureMethod: operatingRulesApprovals.signatureMethod,
@@ -893,13 +945,21 @@ export const committeeOperatingRulesRouter = router({
           })
           .from(operatingRulesApprovals)
           .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
-          .where(eq(operatingRulesApprovals.operatingRuleId, input.operatingRuleId))
+          .where(
+            eq(operatingRulesApprovals.operatingRuleId, input.operatingRuleId)
+          )
           .orderBy(operatingRulesApprovals.approvalOrder);
 
         const totalApprovals = approvals.length;
-        const signedApprovals = approvals.filter((a: any) => a.status === "signed").length;
-        const pendingApprovals = approvals.filter((a: any) => a.status === "pending").length;
-        const rejectedApprovals = approvals.filter((a: any) => a.status === "rejected").length;
+        const signedApprovals = approvals.filter(
+          (a: any) => a.status === "signed"
+        ).length;
+        const pendingApprovals = approvals.filter(
+          (a: any) => a.status === "pending"
+        ).length;
+        const rejectedApprovals = approvals.filter(
+          (a: any) => a.status === "rejected"
+        ).length;
 
         return {
           approvals,
@@ -908,7 +968,8 @@ export const committeeOperatingRulesRouter = router({
             signed: signedApprovals,
             pending: pendingApprovals,
             rejected: rejectedApprovals,
-            allApproved: totalApprovals > 0 && signedApprovals === totalApprovals,
+            allApproved:
+              totalApprovals > 0 && signedApprovals === totalApprovals,
           },
         };
       } catch (error) {
@@ -925,7 +986,7 @@ export const committeeOperatingRulesRouter = router({
    */
   getMyPendingApprovals: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
 
     try {
       const pendingApprovals = await db
@@ -934,14 +995,18 @@ export const committeeOperatingRulesRouter = router({
           operatingRuleId: operatingRulesApprovals.operatingRuleId,
           operatingRuleVersion: committeeOperatingRules.version,
           approverRole: operatingRulesApprovals.approverRole,
-          approverRoleDescription: operatingRulesApprovals.approverRoleDescription,
+          approverRoleDescription:
+            operatingRulesApprovals.approverRoleDescription,
           approvalOrder: operatingRulesApprovals.approvalOrder,
           createdAt: operatingRulesApprovals.createdAt,
         })
         .from(operatingRulesApprovals)
         .leftJoin(
           committeeOperatingRules,
-          eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id)
+          eq(
+            operatingRulesApprovals.operatingRuleId,
+            committeeOperatingRules.id
+          )
         )
         .where(
           and(
@@ -968,12 +1033,14 @@ export const committeeOperatingRulesRouter = router({
     .input(
       z.object({
         approvalId: z.number(),
-        rejectionReason: z.string().min(10, "El motivo de rechazo debe tener al menos 10 caracteres"),
+        rejectionReason: z
+          .string()
+          .min(10, "El motivo de rechazo debe tener al menos 10 caracteres"),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Obtener la aprobación
@@ -1034,7 +1101,10 @@ export const committeeOperatingRulesRouter = router({
           } as any)
           .where(
             and(
-              eq(operatingRulesApprovals.operatingRuleId, approval.operatingRuleId),
+              eq(
+                operatingRulesApprovals.operatingRuleId,
+                approval.operatingRuleId
+              ),
               sql`${operatingRulesApprovals.status} = 'pending'`,
               sql`${operatingRulesApprovals.id} != ${input.approvalId}`
             )
@@ -1068,7 +1138,8 @@ export const committeeOperatingRulesRouter = router({
 
         return {
           success: true,
-          message: "Aprobación rechazada correctamente. La base de funcionamiento ha regresado a estado borrador.",
+          message:
+            "Aprobación rechazada correctamente. La base de funcionamiento ha regresado a estado borrador.",
         };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
@@ -1098,18 +1169,22 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Construir condiciones de filtro
         const conditions = [];
 
         if (input.dateFrom) {
-          conditions.push(sql`${operatingRulesApprovals.createdAt} >= ${input.dateFrom}`);
+          conditions.push(
+            sql`${operatingRulesApprovals.createdAt} >= ${input.dateFrom}`
+          );
         }
 
         if (input.dateTo) {
-          conditions.push(sql`${operatingRulesApprovals.createdAt} <= ${input.dateTo}`);
+          conditions.push(
+            sql`${operatingRulesApprovals.createdAt} <= ${input.dateTo}`
+          );
         }
 
         if (input.userId) {
@@ -1117,7 +1192,9 @@ export const committeeOperatingRulesRouter = router({
         }
 
         if (input.operatingRuleId) {
-          conditions.push(eq(operatingRulesApprovals.operatingRuleId, input.operatingRuleId));
+          conditions.push(
+            eq(operatingRulesApprovals.operatingRuleId, input.operatingRuleId)
+          );
         }
 
         if (input.role) {
@@ -1146,7 +1223,8 @@ export const committeeOperatingRulesRouter = router({
             approverName: users.name,
             approverEmail: users.email,
             approverRole: operatingRulesApprovals.approverRole,
-            approverRoleDescription: operatingRulesApprovals.approverRoleDescription,
+            approverRoleDescription:
+              operatingRulesApprovals.approverRoleDescription,
             status: operatingRulesApprovals.status,
             comments: operatingRulesApprovals.comments,
             rejectionReason: operatingRulesApprovals.rejectionReason,
@@ -1156,7 +1234,13 @@ export const committeeOperatingRulesRouter = router({
           })
           .from(operatingRulesApprovals)
           .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
-          .leftJoin(committeeOperatingRules, eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id))
+          .leftJoin(
+            committeeOperatingRules,
+            eq(
+              operatingRulesApprovals.operatingRuleId,
+              committeeOperatingRules.id
+            )
+          )
           .where(conditions.length > 0 ? and(...conditions) : undefined)
           .orderBy(sql`${operatingRulesApprovals.createdAt} DESC`)
           .limit(input.limit)
@@ -1187,11 +1271,11 @@ export const committeeOperatingRulesRouter = router({
     .query(async ({ ctx, input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new Error('Database not initialized');
+        if (!db) throw new Error("Database not initialized");
         // Calcular fecha de inicio según período
         const now = new Date();
         let startDate: Date;
-        
+
         if (input.period === "month") {
           startDate = new Date(now.getFullYear(), now.getMonth(), 1);
         } else if (input.period === "quarter") {
@@ -1213,23 +1297,28 @@ export const committeeOperatingRulesRouter = router({
         const approvalsByStatus = await db
           .select({
             status: operatingRulesApprovals.status,
-            count: sql<number>`count(*)`
+            count: sql<number>`count(*)`,
           })
           .from(operatingRulesApprovals)
           .where(sql`${operatingRulesApprovals.createdAt} >= ${startDate}`)
           .groupBy(operatingRulesApprovals.status);
 
-        const approved = approvalsByStatus.find(s => (s.status as string) === "approved")?.count || 0;
-        const rejected = approvalsByStatus.find(s => s.status === "rejected")?.count || 0;
-        const pending = approvalsByStatus.find(s => s.status === "pending")?.count || 0;
+        const approved =
+          approvalsByStatus.find(s => (s.status as string) === "approved")
+            ?.count || 0;
+        const rejected =
+          approvalsByStatus.find(s => s.status === "rejected")?.count || 0;
+        const pending =
+          approvalsByStatus.find(s => s.status === "pending")?.count || 0;
 
         // Tasa de rechazo
-        const rejectionRate = totalApprovals > 0 ? (Number(rejected) / totalApprovals) * 100 : 0;
+        const rejectionRate =
+          totalApprovals > 0 ? (Number(rejected) / totalApprovals) * 100 : 0;
 
         // Tiempo promedio de aprobación (en días)
         const [avgTimeResult] = await db
           .select({
-            avgDays: sql<number>`AVG(TIMESTAMPDIFF(DAY, ${operatingRulesApprovals.createdAt}, ${operatingRulesApprovals.signedAt}))`
+            avgDays: sql<number>`AVG(TIMESTAMPDIFF(DAY, ${operatingRulesApprovals.createdAt}, ${operatingRulesApprovals.signedAt}))`,
           })
           .from(operatingRulesApprovals)
           .where(
@@ -1247,7 +1336,7 @@ export const committeeOperatingRulesRouter = router({
             approverId: operatingRulesApprovals.approverId,
             approverName: users.name,
             approverEmail: users.email,
-            totalApprovals: sql<number>`count(*)`
+            totalApprovals: sql<number>`count(*)`,
           })
           .from(operatingRulesApprovals)
           .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
@@ -1267,12 +1356,18 @@ export const committeeOperatingRulesRouter = router({
             month: sql<string>`DATE_FORMAT(${operatingRulesApprovals.createdAt}, '%Y-%m')`,
             approved: sql<number>`SUM(CASE WHEN ${operatingRulesApprovals.status} = 'approved' THEN 1 ELSE 0 END)`,
             rejected: sql<number>`SUM(CASE WHEN ${operatingRulesApprovals.status} = 'rejected' THEN 1 ELSE 0 END)`,
-            pending: sql<number>`SUM(CASE WHEN ${operatingRulesApprovals.status} = 'pending' THEN 1 ELSE 0 END)`
+            pending: sql<number>`SUM(CASE WHEN ${operatingRulesApprovals.status} = 'pending' THEN 1 ELSE 0 END)`,
           })
           .from(operatingRulesApprovals)
-          .where(sql`${operatingRulesApprovals.createdAt} >= DATE_SUB(NOW(), INTERVAL 6 MONTH)`)
-          .groupBy(sql`DATE_FORMAT(${operatingRulesApprovals.createdAt}, '%Y-%m')`)
-          .orderBy(sql`DATE_FORMAT(${operatingRulesApprovals.createdAt}, '%Y-%m')`);
+          .where(
+            sql`${operatingRulesApprovals.createdAt} >= DATE_SUB(NOW(), INTERVAL 6 MONTH)`
+          )
+          .groupBy(
+            sql`DATE_FORMAT(${operatingRulesApprovals.createdAt}, '%Y-%m')`
+          )
+          .orderBy(
+            sql`DATE_FORMAT(${operatingRulesApprovals.createdAt}, '%Y-%m')`
+          );
 
         return {
           summary: {
@@ -1287,14 +1382,14 @@ export const committeeOperatingRulesRouter = router({
             approverId: a.approverId,
             approverName: a.approverName || "Desconocido",
             approverEmail: a.approverEmail || "",
-            totalApprovals: Number(a.totalApprovals)
+            totalApprovals: Number(a.totalApprovals),
           })),
           approvalsByMonth: approvalsByMonth.map(m => ({
             month: m.month,
             approved: Number(m.approved),
             rejected: Number(m.rejected),
-            pending: Number(m.pending)
-          }))
+            pending: Number(m.pending),
+          })),
         };
       } catch (error) {
         console.error("Error getting approval metrics:", error);
@@ -1307,20 +1402,34 @@ export const committeeOperatingRulesRouter = router({
 
   // Obtener historial completo de eventos de una base de funcionamiento
   getOperatingRulesHistory: protectedProcedure
-    .input(z.object({
-      operatingRuleId: z.number(),
-      eventTypes: z.array(z.enum(["created", "updated", "approved", "rejected", "restored"])).optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      userId: z.number().optional(),
-      limit: z.number().default(50),
-      offset: z.number().default(0),
-    }))
+    .input(
+      z.object({
+        operatingRuleId: z.number(),
+        eventTypes: z
+          .array(
+            z.enum(["created", "updated", "approved", "rejected", "restored"])
+          )
+          .optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        userId: z.number().optional(),
+        limit: z.number().default(50),
+        offset: z.number().default(0),
+      })
+    )
     .query(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new Error('Database not initialized');
-        const { operatingRuleId, eventTypes, startDate, endDate, userId, limit, offset } = input;
+        if (!db) throw new Error("Database not initialized");
+        const {
+          operatingRuleId,
+          eventTypes,
+          startDate,
+          endDate,
+          userId,
+          limit,
+          offset,
+        } = input;
 
         // Obtener eventos de versiones (creación, actualización, restauración)
         const versionEvents = await db
@@ -1341,16 +1450,28 @@ export const committeeOperatingRulesRouter = router({
               'versionId', ${committeeOperatingRulesVersions.id},
               'versionNumber', ${committeeOperatingRulesVersions.versionNumber},
               'title', (committeeOperatingRulesVersions as any).title
-            )`
+            )`,
           })
           .from(committeeOperatingRulesVersions)
-          .leftJoin(users, eq(committeeOperatingRulesVersions.createdBy, users.id))
+          .leftJoin(
+            users,
+            eq(committeeOperatingRulesVersions.createdBy, users.id)
+          )
           .where(
             and(
-              eq(committeeOperatingRulesVersions.operatingRuleId, operatingRuleId),
-              startDate ? sql`${committeeOperatingRulesVersions.createdAt} >= ${startDate}` : undefined,
-              endDate ? sql`${committeeOperatingRulesVersions.createdAt} <= ${endDate}` : undefined,
-              userId ? eq(committeeOperatingRulesVersions.createdBy, userId) : undefined
+              eq(
+                committeeOperatingRulesVersions.operatingRuleId,
+                operatingRuleId
+              ),
+              startDate
+                ? sql`${committeeOperatingRulesVersions.createdAt} >= ${startDate}`
+                : undefined,
+              endDate
+                ? sql`${committeeOperatingRulesVersions.createdAt} <= ${endDate}`
+                : undefined,
+              userId
+                ? eq(committeeOperatingRulesVersions.createdBy, userId)
+                : undefined
             )
           );
 
@@ -1379,7 +1500,7 @@ export const committeeOperatingRulesRouter = router({
               'roleDescription', ${(operatingRulesApprovals as any).roleDescription},
               'status', ${operatingRulesApprovals.status},
               'comments', ${operatingRulesApprovals.comments}
-            )`
+            )`,
           })
           .from(operatingRulesApprovals)
           .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
@@ -1387,9 +1508,15 @@ export const committeeOperatingRulesRouter = router({
             and(
               eq(operatingRulesApprovals.operatingRuleId, operatingRuleId),
               sql`${operatingRulesApprovals.status} IN ('approved', 'rejected')`,
-              startDate ? sql`COALESCE(${operatingRulesApprovals.signedAt}, ${operatingRulesApprovals.rejectedAt}, ${operatingRulesApprovals.createdAt}) >= ${startDate}` : undefined,
-              endDate ? sql`COALESCE(${operatingRulesApprovals.signedAt}, ${operatingRulesApprovals.rejectedAt}, ${operatingRulesApprovals.createdAt}) <= ${endDate}` : undefined,
-              userId ? eq(operatingRulesApprovals.approverId, userId) : undefined
+              startDate
+                ? sql`COALESCE(${operatingRulesApprovals.signedAt}, ${operatingRulesApprovals.rejectedAt}, ${operatingRulesApprovals.createdAt}) >= ${startDate}`
+                : undefined,
+              endDate
+                ? sql`COALESCE(${operatingRulesApprovals.signedAt}, ${operatingRulesApprovals.rejectedAt}, ${operatingRulesApprovals.createdAt}) <= ${endDate}`
+                : undefined,
+              userId
+                ? eq(operatingRulesApprovals.approverId, userId)
+                : undefined
             )
           );
 
@@ -1397,22 +1524,33 @@ export const committeeOperatingRulesRouter = router({
         const allEvents = [
           ...versionEvents.map(e => ({
             ...e,
-            metadata: typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata
+            metadata:
+              typeof e.metadata === "string"
+                ? JSON.parse(e.metadata)
+                : e.metadata,
           })),
           ...approvalEvents.map(e => ({
             ...e,
-            metadata: typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata
-          }))
+            metadata:
+              typeof e.metadata === "string"
+                ? JSON.parse(e.metadata)
+                : e.metadata,
+          })),
         ];
 
         // Filtrar por tipo de evento si se especifica
         let filteredEvents = allEvents;
         if (eventTypes && eventTypes.length > 0) {
-          filteredEvents = allEvents.filter(e => eventTypes.includes(e.eventType as any));
+          filteredEvents = allEvents.filter(e =>
+            eventTypes.includes(e.eventType as any)
+          );
         }
 
         // Ordenar por fecha (más reciente primero)
-        filteredEvents.sort((a: any, b: any) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
+        filteredEvents.sort(
+          (a: any, b: any) =>
+            new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+        );
 
         // Aplicar paginación
         const totalEvents = filteredEvents.length;
@@ -1421,7 +1559,7 @@ export const committeeOperatingRulesRouter = router({
         return {
           events: paginatedEvents,
           total: totalEvents,
-          hasMore: offset + limit < totalEvents
+          hasMore: offset + limit < totalEvents,
         };
       } catch (error) {
         console.error("Error getting operating rules history:", error);
@@ -1449,12 +1587,12 @@ export const committeeOperatingRulesRouter = router({
     .query(async ({ input }) => {
       const { query, status, dateFrom, dateTo, limit, offset } = input;
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Buscar en bases de funcionamiento
         const searchPattern = `%${query}%`;
-        
+
         // Construir condiciones de filtro
         const conditions = [
           or(
@@ -1463,22 +1601,26 @@ export const committeeOperatingRulesRouter = router({
             like(committeeOperatingRules.structure, searchPattern),
             like(committeeOperatingRules.roles, searchPattern),
             like((committeeOperatingRules as any).members, searchPattern)
-          )
+          ),
         ];
-        
+
         // Filtro por estado
         if (status !== "all") {
           conditions.push(eq(committeeOperatingRules.status, status));
         }
-        
+
         // Filtro por rango de fechas
         if (dateFrom) {
-          conditions.push(sql`${committeeOperatingRules.updatedAt} >= ${dateFrom}`);
+          conditions.push(
+            sql`${committeeOperatingRules.updatedAt} >= ${dateFrom}`
+          );
         }
         if (dateTo) {
-          conditions.push(sql`${committeeOperatingRules.updatedAt} <= ${dateTo}`);
+          conditions.push(
+            sql`${committeeOperatingRules.updatedAt} <= ${dateTo}`
+          );
         }
-        
+
         const results = await db
           .select({
             id: committeeOperatingRules.id,
@@ -1499,12 +1641,16 @@ export const committeeOperatingRulesRouter = router({
         const resultsWithRelevance = results.map(result => {
           let relevance = 0;
           const lowerQuery = query.toLowerCase();
-          
-          if ((result as any).title?.toLowerCase().includes(lowerQuery)) relevance += 10;
-          if (result.objectives?.toLowerCase().includes(lowerQuery)) relevance += 5;
-          if (result.structure?.toLowerCase().includes(lowerQuery)) relevance += 3;
+
+          if ((result as any).title?.toLowerCase().includes(lowerQuery))
+            relevance += 10;
+          if (result.objectives?.toLowerCase().includes(lowerQuery))
+            relevance += 5;
+          if (result.structure?.toLowerCase().includes(lowerQuery))
+            relevance += 3;
           if (result.roles?.toLowerCase().includes(lowerQuery)) relevance += 3;
-          if ((result as any).members?.toLowerCase().includes(lowerQuery)) relevance += 2;
+          if ((result as any).members?.toLowerCase().includes(lowerQuery))
+            relevance += 2;
 
           // Extraer fragmento de contexto
           let snippet = "";
@@ -1513,18 +1659,36 @@ export const committeeOperatingRulesRouter = router({
           } else if (result.objectives?.toLowerCase().includes(lowerQuery)) {
             const index = result.objectives.toLowerCase().indexOf(lowerQuery);
             const start = Math.max(0, index - 50);
-            const end = Math.min(result.objectives.length, index + query.length + 50);
-            snippet = (start > 0 ? "..." : "") + result.objectives.substring(start, end) + (end < result.objectives.length ? "..." : "");
+            const end = Math.min(
+              result.objectives.length,
+              index + query.length + 50
+            );
+            snippet =
+              (start > 0 ? "..." : "") +
+              result.objectives.substring(start, end) +
+              (end < result.objectives.length ? "..." : "");
           } else if (result.structure?.toLowerCase().includes(lowerQuery)) {
             const index = result.structure.toLowerCase().indexOf(lowerQuery);
             const start = Math.max(0, index - 50);
-            const end = Math.min(result.structure.length, index + query.length + 50);
-            snippet = (start > 0 ? "..." : "") + result.structure.substring(start, end) + (end < result.structure.length ? "..." : "");
+            const end = Math.min(
+              result.structure.length,
+              index + query.length + 50
+            );
+            snippet =
+              (start > 0 ? "..." : "") +
+              result.structure.substring(start, end) +
+              (end < result.structure.length ? "..." : "");
           } else if (result.roles?.toLowerCase().includes(lowerQuery)) {
             const index = result.roles.toLowerCase().indexOf(lowerQuery);
             const start = Math.max(0, index - 50);
-            const end = Math.min(result.roles.length, index + query.length + 50);
-            snippet = (start > 0 ? "..." : "") + result.roles.substring(start, end) + (end < result.roles.length ? "..." : "");
+            const end = Math.min(
+              result.roles.length,
+              index + query.length + 50
+            );
+            snippet =
+              (start > 0 ? "..." : "") +
+              result.roles.substring(start, end) +
+              (end < result.roles.length ? "..." : "");
           }
 
           return {
@@ -1535,11 +1699,16 @@ export const committeeOperatingRulesRouter = router({
         });
 
         // Ordenar por relevancia
-        resultsWithRelevance.sort((a: any, b: any) => b.relevance - a.relevance);
+        resultsWithRelevance.sort(
+          (a: any, b: any) => b.relevance - a.relevance
+        );
 
         // Paginar
         const total = resultsWithRelevance.length;
-        const paginatedResults = resultsWithRelevance.slice(offset, offset + limit);
+        const paginatedResults = resultsWithRelevance.slice(
+          offset,
+          offset + limit
+        );
 
         return {
           results: paginatedResults,
@@ -1563,12 +1732,15 @@ export const committeeOperatingRulesRouter = router({
       z.object({
         year: z.number(),
         month: z.number().min(1).max(12),
-        status: z.enum(["all", "pending", "completed", "overdue"]).optional().default("all"),
+        status: z
+          .enum(["all", "pending", "completed", "overdue"])
+          .optional()
+          .default("all"),
       })
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Calcular rango de fechas del mes
@@ -1593,7 +1765,10 @@ export const committeeOperatingRulesRouter = router({
           .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
           .leftJoin(
             committeeOperatingRules,
-            eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id)
+            eq(
+              operatingRulesApprovals.operatingRuleId,
+              committeeOperatingRules.id
+            )
           )
           .where(
             and(
@@ -1607,40 +1782,54 @@ export const committeeOperatingRulesRouter = router({
         if (input.status !== "all") {
           filteredApprovals = approvals.filter((approval: any) => {
             if (input.status === "pending") {
-              return approval.status === "pending" && (!approval.deadline || new Date(approval.deadline) >= now);
+              return (
+                approval.status === "pending" &&
+                (!approval.deadline || new Date(approval.deadline) >= now)
+              );
             } else if (input.status === "completed") {
               return approval.status === "signed";
             } else if (input.status === "overdue") {
-              return approval.status === "pending" && approval.deadline && new Date(approval.deadline) < now;
+              return (
+                approval.status === "pending" &&
+                approval.deadline &&
+                new Date(approval.deadline) < now
+              );
             }
             return true;
           });
         }
 
         // Agrupar por día
-        const calendarEvents = filteredApprovals.reduce((acc: any, approval: any) => {
-          if (!approval.deadline) return acc;
+        const calendarEvents = filteredApprovals.reduce(
+          (acc: any, approval: any) => {
+            if (!approval.deadline) return acc;
 
-          const dateKey = new Date(approval.deadline).toISOString().split("T")[0];
-          if (!acc[dateKey]) {
-            acc[dateKey] = [];
-          }
+            const dateKey = new Date(approval.deadline)
+              .toISOString()
+              .split("T")[0];
+            if (!acc[dateKey]) {
+              acc[dateKey] = [];
+            }
 
-          const isOverdue = approval.status === "pending" && new Date(approval.deadline) < now;
+            const isOverdue =
+              approval.status === "pending" &&
+              new Date(approval.deadline) < now;
 
-          acc[dateKey].push({
-            id: approval.id,
-            operatingRuleId: approval.operatingRuleId,
-            ruleVersion: approval.ruleVersion,
-            approverName: approval.approverName || "Usuario desconocido",
-            approverRole: approval.approverRole,
-            status: approval.status,
-            isOverdue,
-            deadline: approval.deadline,
-          });
+            acc[dateKey].push({
+              id: approval.id,
+              operatingRuleId: approval.operatingRuleId,
+              ruleVersion: approval.ruleVersion,
+              approverName: approval.approverName || "Usuario desconocido",
+              approverRole: approval.approverRole,
+              status: approval.status,
+              isOverdue,
+              deadline: approval.deadline,
+            });
 
-          return acc;
-        }, {} as Record<string, any[]>);
+            return acc;
+          },
+          {} as Record<string, any[]>
+        );
 
         return {
           events: calendarEvents,
@@ -1666,7 +1855,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         const now = new Date();
@@ -1690,7 +1879,10 @@ export const committeeOperatingRulesRouter = router({
           .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
           .leftJoin(
             committeeOperatingRules,
-            eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id)
+            eq(
+              operatingRulesApprovals.operatingRuleId,
+              committeeOperatingRules.id
+            )
           )
           .where(
             and(
@@ -1704,13 +1896,21 @@ export const committeeOperatingRulesRouter = router({
         // Calcular días restantes
         const deadlinesWithDaysLeft = upcomingApprovals.map((approval: any) => {
           const daysLeft = approval.deadline
-            ? Math.ceil((new Date(approval.deadline).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+            ? Math.ceil(
+                (new Date(approval.deadline).getTime() - now.getTime()) /
+                  (1000 * 60 * 60 * 24)
+              )
             : null;
 
           return {
             ...approval,
             daysLeft,
-            urgency: daysLeft && daysLeft <= 1 ? "critical" : daysLeft && daysLeft <= 3 ? "high" : "medium",
+            urgency:
+              daysLeft && daysLeft <= 1
+                ? "critical"
+                : daysLeft && daysLeft <= 3
+                  ? "high"
+                  : "medium",
           };
         });
 
@@ -1739,7 +1939,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         // Verificar que la aprobación existe
@@ -1787,7 +1987,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new Error('Database not initialized');
+      if (!db) throw new Error("Database not initialized");
 
       try {
         const now = new Date();
@@ -1812,7 +2012,10 @@ export const committeeOperatingRulesRouter = router({
           .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
           .leftJoin(
             committeeOperatingRules,
-            eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id)
+            eq(
+              operatingRulesApprovals.operatingRuleId,
+              committeeOperatingRules.id
+            )
           )
           .where(
             and(
@@ -1824,13 +2027,25 @@ export const committeeOperatingRulesRouter = router({
         // Métricas principales
         const totalWithDeadline = approvals.length;
         const completed = approvals.filter((a: any) => a.status === "signed");
-        const completedOnTime = completed.filter((a: any) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
+        const completedOnTime = completed.filter(
+          (a: any) =>
+            a.signedAt &&
+            a.deadline &&
+            new Date(a.signedAt) <= new Date(a.deadline)
         );
-        const overdue = approvals.filter((a: any) => a.status === "pending" && a.deadline && new Date(a.deadline) < now
+        const overdue = approvals.filter(
+          (a: any) =>
+            a.status === "pending" && a.deadline && new Date(a.deadline) < now
         );
 
-        const complianceRate = totalWithDeadline > 0 ? (completedOnTime.length / totalWithDeadline) * 100 : 0;
-        const overdueRate = totalWithDeadline > 0 ? (overdue.length / totalWithDeadline) * 100 : 0;
+        const complianceRate =
+          totalWithDeadline > 0
+            ? (completedOnTime.length / totalWithDeadline) * 100
+            : 0;
+        const overdueRate =
+          totalWithDeadline > 0
+            ? (overdue.length / totalWithDeadline) * 100
+            : 0;
 
         // Tiempo promedio de respuesta (solo completadas)
         let avgResponseTime = 0;
@@ -1842,11 +2057,18 @@ export const committeeOperatingRulesRouter = router({
               const signed = new Date(a.signedAt!).getTime();
               return (signed - created) / (1000 * 60 * 60); // horas
             });
-          avgResponseTime = responseTimes.reduce((sum: any, t: any) => sum + t, 0) / responseTimes.length;
+          avgResponseTime =
+            responseTimes.reduce((sum: any, t: any) => sum + t, 0) /
+            responseTimes.length;
         }
 
         // Tendencias mensuales (últimos 6 meses)
-        const monthlyTrends: Array<{ month: string; compliant: number; total: number; rate: number }> = [];
+        const monthlyTrends: Array<{
+          month: string;
+          compliant: number;
+          total: number;
+          rate: number;
+        }> = [];
         for (let i = 5; i >= 0; i--) {
           const monthStart = new Date();
           monthStart.setMonth(monthStart.getMonth() - i);
@@ -1863,14 +2085,26 @@ export const committeeOperatingRulesRouter = router({
             return created >= monthStart && created <= monthEnd;
           });
 
-          const monthCompleted = monthApprovals.filter((a: any) => a.status === "signed");
-          const monthCompliant = monthCompleted.filter((a: any) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
+          const monthCompleted = monthApprovals.filter(
+            (a: any) => a.status === "signed"
+          );
+          const monthCompliant = monthCompleted.filter(
+            (a: any) =>
+              a.signedAt &&
+              a.deadline &&
+              new Date(a.signedAt) <= new Date(a.deadline)
           );
 
-          const rate = monthApprovals.length > 0 ? (monthCompliant.length / monthApprovals.length) * 100 : 0;
+          const rate =
+            monthApprovals.length > 0
+              ? (monthCompliant.length / monthApprovals.length) * 100
+              : 0;
 
           monthlyTrends.push({
-            month: monthStart.toLocaleDateString("es-ES", { month: "short", year: "numeric" }),
+            month: monthStart.toLocaleDateString("es-ES", {
+              month: "short",
+              year: "numeric",
+            }),
             compliant: monthCompliant.length,
             total: monthApprovals.length,
             rate,
@@ -1887,7 +2121,9 @@ export const committeeOperatingRulesRouter = router({
 
         completed.forEach((a: any) => {
           if (!a.signedAt || !a.createdAt) return;
-          const hours = (new Date(a.signedAt).getTime() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60);
+          const hours =
+            (new Date(a.signedAt).getTime() - new Date(a.createdAt).getTime()) /
+            (1000 * 60 * 60);
           if (hours < 24) responseDistribution.lessThan24h++;
           else if (hours < 72) responseDistribution.between1And3Days++;
           else if (hours < 168) responseDistribution.between3And7Days++;
@@ -1925,7 +2161,10 @@ export const committeeOperatingRulesRouter = router({
           stats.totalApprovals++;
 
           if (a.status === "signed" && a.signedAt && a.createdAt) {
-            const responseTime = (new Date(a.signedAt).getTime() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60);
+            const responseTime =
+              (new Date(a.signedAt).getTime() -
+                new Date(a.createdAt).getTime()) /
+              (1000 * 60 * 60);
             stats.avgResponseTime += responseTime;
 
             if (a.deadline && new Date(a.signedAt) <= new Date(a.deadline)) {
@@ -1937,8 +2176,14 @@ export const committeeOperatingRulesRouter = router({
         const approverRanking = Array.from(approverStats.values())
           .map((stats: any) => ({
             ...stats,
-            avgResponseTime: stats.totalApprovals > 0 ? stats.avgResponseTime / stats.totalApprovals : 0,
-            onTimeRate: stats.totalApprovals > 0 ? (stats.onTimeRate / stats.totalApprovals) * 100 : 0,
+            avgResponseTime:
+              stats.totalApprovals > 0
+                ? stats.avgResponseTime / stats.totalApprovals
+                : 0,
+            onTimeRate:
+              stats.totalApprovals > 0
+                ? (stats.onTimeRate / stats.totalApprovals) * 100
+                : 0,
           }))
           .sort((a: any, b: any) => a.avgResponseTime - b.avgResponseTime)
           .slice(0, 10);
@@ -1950,8 +2195,13 @@ export const committeeOperatingRulesRouter = router({
             operatingRuleId: a.operatingRuleId,
             version: a.ruleVersion || "Sin versión",
             approverName: a.approverName || "Usuario desconocido",
-            responseTime: (new Date(a.signedAt!).getTime() - new Date(a.createdAt!).getTime()) / (1000 * 60 * 60),
-            wasOnTime: a.deadline ? new Date(a.signedAt!) <= new Date(a.deadline) : null,
+            responseTime:
+              (new Date(a.signedAt!).getTime() -
+                new Date(a.createdAt!).getTime()) /
+              (1000 * 60 * 60),
+            wasOnTime: a.deadline
+              ? new Date(a.signedAt!) <= new Date(a.deadline)
+              : null,
           }))
           .sort((a: any, b: any) => b.responseTime - a.responseTime)
           .slice(0, 10);
@@ -1963,17 +2213,31 @@ export const committeeOperatingRulesRouter = router({
           { role: "vocal", label: "Vocal" },
           { role: "other", label: "Otro" },
         ].map(({ role, label }) => {
-          const roleApprovals = approvals.filter((a: any) => a.approverRole === role);
-          const roleCompleted = roleApprovals.filter((a: any) => a.status === "signed");
-          const roleCompliant = roleCompleted.filter((a: any) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
+          const roleApprovals = approvals.filter(
+            (a: any) => a.approverRole === role
+          );
+          const roleCompleted = roleApprovals.filter(
+            (a: any) => a.status === "signed"
+          );
+          const roleCompliant = roleCompleted.filter(
+            (a: any) =>
+              a.signedAt &&
+              a.deadline &&
+              new Date(a.signedAt) <= new Date(a.deadline)
           );
 
           let roleAvgTime = 0;
           if (roleCompleted.length > 0) {
             const times = roleCompleted
               .filter((a: any) => a.signedAt && a.createdAt)
-              .map((a: any) => (new Date(a.signedAt!).getTime() - new Date(a.createdAt!).getTime()) / (1000 * 60 * 60));
-            roleAvgTime = times.reduce((sum: any, t: any) => sum + t, 0) / times.length;
+              .map(
+                (a: any) =>
+                  (new Date(a.signedAt!).getTime() -
+                    new Date(a.createdAt!).getTime()) /
+                  (1000 * 60 * 60)
+              );
+            roleAvgTime =
+              times.reduce((sum: any, t: any) => sum + t, 0) / times.length;
           }
 
           return {
@@ -1981,12 +2245,17 @@ export const committeeOperatingRulesRouter = router({
             label,
             total: roleApprovals.length,
             avgResponseTime: roleAvgTime,
-            onTimeRate: roleApprovals.length > 0 ? (roleCompliant.length / roleApprovals.length) * 100 : 0,
+            onTimeRate:
+              roleApprovals.length > 0
+                ? (roleCompliant.length / roleApprovals.length) * 100
+                : 0,
           };
         });
 
         // Identificar cuellos de botella (aprobadores lentos)
-        const bottlenecks = approverRanking.filter((a: any) => a.avgResponseTime > 168).map((a: any) => a.name); // > 7 días
+        const bottlenecks = approverRanking
+          .filter((a: any) => a.avgResponseTime > 168)
+          .map((a: any) => a.name); // > 7 días
 
         return {
           summary: {

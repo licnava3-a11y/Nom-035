@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,16 +24,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 const ITEMS_PER_PAGE = 20;
 
 export default function NotificationHistory() {
-  const [priority, setPriority] = useState<"info" | "warning" | "critical" | undefined>();
+  const [priority, setPriority] = useState<
+    "info" | "warning" | "critical" | undefined
+  >();
   const [currentPage, setCurrentPage] = useState(1);
 
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const { data: notifications, isLoading } = trpc.notificationHistory.getHistory.useQuery({
-    priority,
-    limit: ITEMS_PER_PAGE,
-    offset,
-  });
+  const { data: notifications, isLoading } =
+    trpc.notificationHistory.getHistory.useQuery({
+      priority,
+      limit: ITEMS_PER_PAGE,
+      offset,
+    });
 
   const { data: totalCount } = trpc.notificationHistory.getCount.useQuery({
     priority,
@@ -40,7 +49,11 @@ export default function NotificationHistory() {
       case "critical":
         return <Badge variant="destructive">Crítica</Badge>;
       case "warning":
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Advertencia</Badge>;
+        return (
+          <Badge className="bg-yellow-500 hover:bg-yellow-600">
+            Advertencia
+          </Badge>
+        );
       case "info":
         return <Badge variant="secondary">Información</Badge>;
       default:
@@ -85,7 +98,8 @@ export default function NotificationHistory() {
           Historial de Notificaciones Push
         </h1>
         <p className="text-muted-foreground mt-2">
-          Registro completo de notificaciones enviadas en tiempo real para auditoría NOM-035
+          Registro completo de notificaciones enviadas en tiempo real para
+          auditoría NOM-035
         </p>
       </div>
 
@@ -103,8 +117,12 @@ export default function NotificationHistory() {
               <label className="text-sm font-medium">Prioridad</label>
               <Select
                 value={priority || "all"}
-                onValueChange={(value) => {
-                  setPriority(value === "all" ? undefined : (value as "info" | "warning" | "critical"));
+                onValueChange={value => {
+                  setPriority(
+                    value === "all"
+                      ? undefined
+                      : (value as "info" | "warning" | "critical")
+                  );
                   setCurrentPage(1);
                 }}
               >
@@ -149,24 +167,43 @@ export default function NotificationHistory() {
                   </thead>
                   <tbody>
                     {notifications.map((notification: any) => (
-                      <tr key={notification.id} className="border-b hover:bg-muted/50">
-                        <td className="p-2 font-mono text-sm">{notification.id}</td>
-                        <td className="p-2 text-sm">
-                          {new Date(notification.sentAt).toLocaleString("es-MX", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                      <tr
+                        key={notification.id}
+                        className="border-b hover:bg-muted/50"
+                      >
+                        <td className="p-2 font-mono text-sm">
+                          {notification.id}
                         </td>
-                        <td className="p-2 text-sm">{getAlertTypeLabel(notification.alertType)}</td>
-                        <td className="p-2">{getPriorityBadge(notification.priority)}</td>
-                        <td className="p-2 text-sm max-w-md truncate" title={notification.description}>
+                        <td className="p-2 text-sm">
+                          {new Date(notification.sentAt).toLocaleString(
+                            "es-MX",
+                            {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </td>
+                        <td className="p-2 text-sm">
+                          {getAlertTypeLabel(notification.alertType)}
+                        </td>
+                        <td className="p-2">
+                          {getPriorityBadge(notification.priority)}
+                        </td>
+                        <td
+                          className="p-2 text-sm max-w-md truncate"
+                          title={notification.description}
+                        >
                           {notification.description}
                         </td>
-                        <td className="p-2 text-right font-semibold">{notification.currentValue}</td>
-                        <td className="p-2 text-right text-muted-foreground">{notification.threshold}</td>
+                        <td className="p-2 text-right font-semibold">
+                          {notification.currentValue}
+                        </td>
+                        <td className="p-2 text-right text-muted-foreground">
+                          {notification.threshold}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -183,7 +220,7 @@ export default function NotificationHistory() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
                     >
                       <ChevronLeft className="h-4 w-4 mr-1" />
@@ -192,7 +229,9 @@ export default function NotificationHistory() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      onClick={() =>
+                        setCurrentPage(p => Math.min(totalPages, p + 1))
+                      }
                       disabled={currentPage === totalPages}
                     >
                       Siguiente
@@ -205,7 +244,9 @@ export default function NotificationHistory() {
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No se encontraron notificaciones con los filtros seleccionados</p>
+              <p>
+                No se encontraron notificaciones con los filtros seleccionados
+              </p>
             </div>
           )}
         </CardContent>

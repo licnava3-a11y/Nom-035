@@ -12,7 +12,10 @@ interface UseSocketOptions {
  * @param token - Token JWT para autenticación
  * @param options - Opciones de callbacks
  */
-export function useSocket(token: string | null, options: UseSocketOptions = {}) {
+export function useSocket(
+  token: string | null,
+  options: UseSocketOptions = {}
+) {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -44,26 +47,26 @@ export function useSocket(token: string | null, options: UseSocketOptions = {}) 
       options.onConnect?.();
     });
 
-    socket.on("disconnect", (reason) => {
+    socket.on("disconnect", reason => {
       console.log("[WebSocket] Desconectado:", reason);
       setIsConnected(false);
       options.onDisconnect?.();
     });
 
-    socket.on("connect_error", (error) => {
+    socket.on("connect_error", error => {
       console.error("[WebSocket] Error de conexión:", error.message);
       setConnectionError(error.message);
       setIsConnected(false);
     });
 
     // Listener para notificaciones
-    socket.on("notification", (notification) => {
+    socket.on("notification", notification => {
       console.log("[WebSocket] Notificación recibida:", notification);
       options.onNotification?.(notification);
     });
 
     // Ping/pong para verificar conexión
-    socket.on("pong", (data) => {
+    socket.on("pong", data => {
       console.log("[WebSocket] Pong recibido:", data);
     });
 

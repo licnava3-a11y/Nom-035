@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -15,8 +21,10 @@ import { toast } from "sonner";
 
 export default function CommitteeMemberNew() {
   const [, setLocation] = useLocation();
-  
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
   const [selectedEmployeeName, setSelectedEmployeeName] = useState<string>("");
   const [position, setPosition] = useState("");
   const [responsibilities, setResponsibilities] = useState("");
@@ -34,7 +42,7 @@ export default function CommitteeMemberNew() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedEmployeeId) {
       toast.error("Debes seleccionar un trabajador");
       return;
@@ -66,13 +74,19 @@ export default function CommitteeMemberNew() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" onClick={() => setLocation("/committee")}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setLocation("/committee")}
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Agregar Miembro al Comité</h1>
-          <p className="text-muted-foreground">Selecciona un trabajador y asigna su rol en el comité</p>
+          <p className="text-muted-foreground">
+            Selecciona un trabajador y asigna su rol en el comité
+          </p>
         </div>
       </div>
 
@@ -92,7 +106,9 @@ export default function CommitteeMemberNew() {
               {selectedEmployeeId ? (
                 <div className="flex items-center gap-2 p-3 border rounded-md bg-accent/50">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="flex-1 font-medium">{selectedEmployeeName}</span>
+                  <span className="flex-1 font-medium">
+                    {selectedEmployeeName}
+                  </span>
                   <Button
                     type="button"
                     variant="ghost"
@@ -124,7 +140,7 @@ export default function CommitteeMemberNew() {
               <Input
                 id="position"
                 value={position}
-                onChange={(e) => setPosition(e.target.value)}
+                onChange={e => setPosition(e.target.value)}
                 placeholder="Ej: Coordinador, Secretario, Vocal, Representante de Trabajadores"
                 required
               />
@@ -139,7 +155,7 @@ export default function CommitteeMemberNew() {
               <Textarea
                 id="responsibilities"
                 value={responsibilities}
-                onChange={(e) => setResponsibilities(e.target.value)}
+                onChange={e => setResponsibilities(e.target.value)}
                 placeholder="Describe las responsabilidades específicas del miembro en el comité..."
                 rows={5}
               />
@@ -150,7 +166,10 @@ export default function CommitteeMemberNew() {
 
             {/* Actions */}
             <div className="flex gap-3">
-              <Button type="submit" disabled={addMutation.isPending || !selectedEmployeeId}>
+              <Button
+                type="submit"
+                disabled={addMutation.isPending || !selectedEmployeeId}
+              >
                 <Save className="h-4 w-4 mr-2" />
                 {addMutation.isPending ? "Guardando..." : "Agregar Miembro"}
               </Button>

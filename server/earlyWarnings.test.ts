@@ -34,7 +34,9 @@ describe("earlyWarnings router", () => {
 
       // Total alerts should be sum of all categories
       expect(result.totalAlerts).toBe(
-        result.casesAboutToExpire + result.pendingSurveys + result.actionsWithoutFollowUp
+        result.casesAboutToExpire +
+          result.pendingSurveys +
+          result.actionsWithoutFollowUp
       );
     });
   });
@@ -62,7 +64,7 @@ describe("earlyWarnings router", () => {
       );
 
       // Each case should have required fields
-      result.cases.forEach((caso) => {
+      result.cases.forEach(caso => {
         expect(caso).toHaveProperty("id");
         expect(caso).toHaveProperty("folio");
         expect(caso).toHaveProperty("employeeName");
@@ -104,7 +106,7 @@ describe("earlyWarnings router", () => {
       );
 
       // Each survey should have required fields
-      result.surveys.forEach((survey) => {
+      result.surveys.forEach(survey => {
         expect(survey).toHaveProperty("id");
         expect(survey).toHaveProperty("title");
         expect(survey).toHaveProperty("type");
@@ -149,7 +151,7 @@ describe("earlyWarnings router", () => {
       );
 
       // Each action should have required fields
-      result.actions.forEach((action) => {
+      result.actions.forEach(action => {
         expect(action).toHaveProperty("id");
         expect(action).toHaveProperty("description");
         expect(action).toHaveProperty("status");

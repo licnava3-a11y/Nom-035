@@ -1,5 +1,11 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,9 +80,12 @@ export default function DocumentFuncionesComite() {
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Funciones del Comité</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Funciones del Comité
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Descripción detallada de funciones y responsabilidades del Comité de Atención NOM-035
+          Descripción detallada de funciones y responsabilidades del Comité de
+          Atención NOM-035
         </p>
       </div>
 
@@ -84,7 +93,9 @@ export default function DocumentFuncionesComite() {
       <Card>
         <CardHeader>
           <CardTitle>Información General</CardTitle>
-          <CardDescription>Datos de la organización y fecha del documento</CardDescription>
+          <CardDescription>
+            Datos de la organización y fecha del documento
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -93,7 +104,9 @@ export default function DocumentFuncionesComite() {
               <Input
                 id="organizacion"
                 value={formData.organizacion}
-                onChange={(e) => setFormData({ ...formData, organizacion: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, organizacion: e.target.value })
+                }
                 placeholder="Ingrese el nombre de la organización"
               />
             </div>
@@ -103,7 +116,9 @@ export default function DocumentFuncionesComite() {
                 id="fecha"
                 type="date"
                 value={formData.fecha}
-                onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, fecha: e.target.value })
+                }
               />
             </div>
           </div>
@@ -123,7 +138,9 @@ export default function DocumentFuncionesComite() {
             <ul className="space-y-3">
               {seccion.items.map((item, itemIdx) => (
                 <li key={itemIdx} className="flex gap-3">
-                  <span className="text-primary font-semibold">{itemIdx + 1}.</span>
+                  <span className="text-primary font-semibold">
+                    {itemIdx + 1}.
+                  </span>
                   <span className="text-sm">{item}</span>
                 </li>
               ))}
@@ -136,7 +153,9 @@ export default function DocumentFuncionesComite() {
       <Card>
         <CardHeader>
           <CardTitle>Firma del Coordinador</CardTitle>
-          <CardDescription>El coordinador del comité debe firmar este documento</CardDescription>
+          <CardDescription>
+            El coordinador del comité debe firmar este documento
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -144,7 +163,9 @@ export default function DocumentFuncionesComite() {
             <Input
               id="coordinadorNombre"
               value={formData.coordinadorNombre}
-              onChange={(e) => setFormData({ ...formData, coordinadorNombre: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, coordinadorNombre: e.target.value })
+              }
               placeholder="Nombre completo del coordinador"
             />
           </div>
@@ -152,7 +173,7 @@ export default function DocumentFuncionesComite() {
           <div className="space-y-2">
             <Label>Firma Digital</Label>
             <SignaturePad
-              onSave={(signatureData) => {
+              onSave={signatureData => {
                 setFormData({ ...formData, coordinadorFirma: signatureData });
               }}
             />

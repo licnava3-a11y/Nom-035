@@ -26,13 +26,13 @@ Este documento describe cómo implementar la validación de permisos en el backe
 
 ### Matriz de Permisos
 
-| Rol             | can_view | can_create | can_edit | can_delete | can_approve | can_export |
-|-----------------|----------|------------|----------|------------|-------------|------------|
-| **gerente**     | ✅        | ✅          | ✅        | ✅          | ✅           | ✅          |
-| **instructor**  | ✅        | ✅          | ✅        | ❌          | ❌           | ✅          |
-| **administrativo** | ✅     | ✅          | ✅        | ❌          | ❌           | ✅          |
-| **committee**   | ✅        | ✅          | ❌        | ❌          | ✅           | ❌          |
-| **student**     | ✅        | ❌          | ❌        | ❌          | ❌           | ❌          |
+| Rol                | can_view | can_create | can_edit | can_delete | can_approve | can_export |
+| ------------------ | -------- | ---------- | -------- | ---------- | ----------- | ---------- |
+| **gerente**        | ✅       | ✅         | ✅       | ✅         | ✅          | ✅         |
+| **instructor**     | ✅       | ✅         | ✅       | ❌         | ❌          | ✅         |
+| **administrativo** | ✅       | ✅         | ✅       | ❌         | ❌          | ✅         |
+| **committee**      | ✅       | ✅         | ❌       | ❌         | ✅          | ❌         |
+| **student**        | ✅       | ❌         | ❌       | ❌         | ❌          | ❌         |
 
 ---
 
@@ -88,7 +88,13 @@ requireExport()    // Gerente, instructor y administrativo
 Agregar el import al inicio del archivo del router:
 
 ```typescript
-import { requirePermission, requireDelete, requireApprove, requireExport, requireAnyPermission } from "../permissions";
+import {
+  requirePermission,
+  requireDelete,
+  requireApprove,
+  requireExport,
+  requireAnyPermission,
+} from "../permissions";
 ```
 
 ### Paso 2: Aplicar Middleware en Procedures
@@ -144,7 +150,7 @@ Si TypeScript reporta que `ctx.user` puede ser null, agregar assertion al inicio
 ```typescript
 .mutation(async ({ input, ctx }) => {
   if (!ctx.user) throw new Error('User not authenticated');
-  
+
   // Ahora TypeScript sabe que ctx.user no es null
   const userId = ctx.user.id;
   // ...
@@ -157,11 +163,11 @@ Si TypeScript reporta que `ctx.user` puede ser null, agregar assertion al inicio
 
 ### ✅ Completados
 
-| Router | Procedures Protegidos | Estado |
-|--------|----------------------|--------|
-| **employees.ts** | create, update, deactivate | ✅ Implementado y testeado |
-| **documentFormats.ts** | create, update, delete | ✅ Implementado |
-| **notifications.ts** | create, markAsRead, markAllAsRead, delete | ✅ Implementado |
+| Router                 | Procedures Protegidos                     | Estado                     |
+| ---------------------- | ----------------------------------------- | -------------------------- |
+| **employees.ts**       | create, update, deactivate                | ✅ Implementado y testeado |
+| **documentFormats.ts** | create, update, delete                    | ✅ Implementado            |
+| **notifications.ts**   | create, markAsRead, markAllAsRead, delete | ✅ Implementado            |
 
 ---
 
@@ -171,25 +177,25 @@ Si TypeScript reporta que `ctx.user` puede ser null, agregar assertion al inicio
 
 Estos routers corresponden a las páginas protegidas identificadas en la guía de validación:
 
-| Router | Procedures a Proteger | Permisos Requeridos |
-|--------|----------------------|---------------------|
-| **committeeMinutes.ts** | create, update, delete, publish | can_create, can_edit, can_delete, can_approve |
-| **surveys.ts** | create, update, delete, distribute | can_create, can_edit, can_delete |
-| **surveysAdmin.ts** | export, generateReport | can_export |
-| **investigations.ts** | create, update, delete, close | can_create, can_edit, can_delete, can_approve |
-| **correctiveActions.ts** | create, update, delete, approve | can_create, can_edit, can_delete, can_approve |
-| **training.ts** | create, update, delete, publish | can_create, can_edit, can_delete, can_approve |
+| Router                   | Procedures a Proteger              | Permisos Requeridos                           |
+| ------------------------ | ---------------------------------- | --------------------------------------------- |
+| **committeeMinutes.ts**  | create, update, delete, publish    | can_create, can_edit, can_delete, can_approve |
+| **surveys.ts**           | create, update, delete, distribute | can_create, can_edit, can_delete              |
+| **surveysAdmin.ts**      | export, generateReport             | can_export                                    |
+| **investigations.ts**    | create, update, delete, close      | can_create, can_edit, can_delete, can_approve |
+| **correctiveActions.ts** | create, update, delete, approve    | can_create, can_edit, can_delete, can_approve |
+| **training.ts**          | create, update, delete, publish    | can_create, can_edit, can_delete, can_approve |
 
 ### 📋 Routers Secundarios (Prioridad Media)
 
-| Router | Procedures a Proteger | Permisos Requeridos |
-|--------|----------------------|---------------------|
-| **documents.ts** | create, update, delete | can_create, can_edit, can_delete |
-| **signatures.ts** | create, update, delete | can_create, can_edit, can_delete |
-| **hiring.ts** | create, update, delete, approve | can_create, can_edit, can_delete, can_approve |
-| **jobProfiles.ts** | create, update, delete | can_create, can_edit, can_delete |
-| **departments.ts** | create, update, delete | can_create, can_edit, can_delete |
-| **positions.ts** | create, update, delete | can_create, can_edit, can_delete |
+| Router             | Procedures a Proteger           | Permisos Requeridos                           |
+| ------------------ | ------------------------------- | --------------------------------------------- |
+| **documents.ts**   | create, update, delete          | can_create, can_edit, can_delete              |
+| **signatures.ts**  | create, update, delete          | can_create, can_edit, can_delete              |
+| **hiring.ts**      | create, update, delete, approve | can_create, can_edit, can_delete, can_approve |
+| **jobProfiles.ts** | create, update, delete          | can_create, can_edit, can_delete              |
+| **departments.ts** | create, update, delete          | can_create, can_edit, can_delete              |
+| **positions.ts**   | create, update, delete          | can_create, can_edit, can_delete              |
 
 ---
 
@@ -203,15 +209,17 @@ import { requirePermission } from "../permissions";
 
 export const employeesRouter = router({
   create: protectedProcedure
-    .use(requirePermission('can_create'))
-    .input(z.object({
-      firstName: z.string(),
-      lastName: z.string(),
-      email: z.string().email(),
-    }))
+    .use(requirePermission("can_create"))
+    .input(
+      z.object({
+        firstName: z.string(),
+        lastName: z.string(),
+        email: z.string().email(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user) throw new Error('User not authenticated');
-      
+      if (!ctx.user) throw new Error("User not authenticated");
+
       return await employeesDb.createEmployee({
         ...input,
         createdBy: ctx.user.id,
@@ -228,31 +236,35 @@ import { requirePermission } from "../permissions";
 
 export const documentFormatsRouter = router({
   update: protectedProcedure
-    .use(requirePermission('can_edit'))
-    .input(z.object({
-      id: z.number(),
-      codigo: z.string().optional(),
-      nombre: z.string().optional(),
-    }))
+    .use(requirePermission("can_edit"))
+    .input(
+      z.object({
+        id: z.number(),
+        codigo: z.string().optional(),
+        nombre: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const { id, ...updateData } = input;
-      
-      const existing = await db.select()
+
+      const existing = await db
+        .select()
         .from(documentFormats)
         .where(eq(documentFormats.id, id))
         .limit(1);
-      
+
       if (!existing[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Formato no encontrado",
         });
       }
-      
-      await db.update(documentFormats)
+
+      await db
+        .update(documentFormats)
         .set(updateData)
         .where(eq(documentFormats.id, id));
-      
+
       return { success: true };
     }),
 });
@@ -269,8 +281,8 @@ export const employeesRouter = router({
     .use(requireDelete())
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user) throw new Error('User not authenticated');
-      
+      if (!ctx.user) throw new Error("User not authenticated");
+
       const employee = await employeesDb.getEmployeeById(input.id);
       if (!employee) {
         throw new TRPCError({
@@ -278,9 +290,9 @@ export const employeesRouter = router({
           message: "Empleado no encontrado",
         });
       }
-      
+
       await employeesDb.deactivateEmployee(input.id);
-      
+
       return {
         success: true,
         message: "Empleado desactivado exitosamente",
@@ -300,16 +312,17 @@ export const committeeMinutesRouter = router({
     .use(requireApprove())
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user) throw new Error('User not authenticated');
-      
-      await db.update(committeeMinutes)
-        .set({ 
-          status: 'finalizada',
+      if (!ctx.user) throw new Error("User not authenticated");
+
+      await db
+        .update(committeeMinutes)
+        .set({
+          status: "finalizada",
           approvedBy: ctx.user.id,
           approvedAt: new Date(),
         })
         .where(eq(committeeMinutes.id, input.id));
-      
+
       return { success: true };
     }),
 });
@@ -323,28 +336,30 @@ import { requireAnyPermission } from "../permissions";
 
 export const trainingRouter = router({
   saveDraft: protectedProcedure
-    .use(requireAnyPermission(['can_create', 'can_edit']))
-    .input(z.object({
-      id: z.number().optional(),
-      title: z.string(),
-      content: z.string(),
-    }))
+    .use(requireAnyPermission(["can_create", "can_edit"]))
+    .input(
+      z.object({
+        id: z.number().optional(),
+        title: z.string(),
+        content: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user) throw new Error('User not authenticated');
-      
+      if (!ctx.user) throw new Error("User not authenticated");
+
       if (input.id) {
         // Actualizar borrador existente (requiere can_edit)
-        return await db.update(trainingDrafts)
+        return await db
+          .update(trainingDrafts)
           .set({ title: input.title, content: input.content })
           .where(eq(trainingDrafts.id, input.id));
       } else {
         // Crear nuevo borrador (requiere can_create)
-        return await db.insert(trainingDrafts)
-          .values({
-            title: input.title,
-            content: input.content,
-            createdBy: ctx.user.id,
-          });
+        return await db.insert(trainingDrafts).values({
+          title: input.title,
+          content: input.content,
+          createdBy: ctx.user.id,
+        });
       }
     }),
 });
@@ -359,17 +374,20 @@ import { requireExport } from "../permissions";
 export const surveysAdminRouter = router({
   exportToExcel: protectedProcedure
     .use(requireExport())
-    .input(z.object({
-      surveyId: z.number(),
-      format: z.enum(['xlsx', 'csv']),
-    }))
+    .input(
+      z.object({
+        surveyId: z.number(),
+        format: z.enum(["xlsx", "csv"]),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
-      const data = await db.select()
+      const data = await db
+        .select()
         .from(surveyResponses)
         .where(eq(surveyResponses.surveyId, input.surveyId));
-      
+
       const excelBuffer = await generateExcel(data, input.format);
-      
+
       return {
         success: true,
         downloadUrl: `/api/downloads/${excelBuffer.filename}`,
@@ -456,6 +474,7 @@ pnpm test --watch
 **Causa**: Error de sintaxis en el código (paréntesis, llaves, etc.).
 
 **Solución**: Revisar la sintaxis del código, especialmente:
+
 - Paréntesis de cierre de `.use()`
 - Llaves de cierre de objetos
 - Comas entre propiedades
@@ -465,6 +484,7 @@ pnpm test --watch
 **Causa**: El usuario no tiene el permiso requerido para la acción.
 
 **Solución**: Verificar que:
+
 1. El usuario tiene el rol correcto
 2. El rol tiene el permiso en `rolePermissions`
 3. El middleware correcto está aplicado

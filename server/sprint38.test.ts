@@ -12,7 +12,10 @@ describe("Sprint 38 — terms_acceptance schema", () => {
   it("la tabla terms_acceptance tiene las columnas requeridas", () => {
     // Verificar que el archivo de schema menciona terms_acceptance
     const fs = require("fs");
-    const schema = fs.readFileSync("/home/ubuntu/nom035_moodle_platform/drizzle/schema.ts", "utf8");
+    const schema = fs.readFileSync(
+      "/home/ubuntu/nom035_moodle_platform/drizzle/schema.ts",
+      "utf8"
+    );
     expect(schema).toContain("termsAcceptance");
     expect(schema).toContain("userId");
     expect(schema).toContain("version");
@@ -23,19 +26,28 @@ describe("Sprint 38 — terms_acceptance schema", () => {
 describe("Sprint 38 — termsRouter procedures", () => {
   it("el router de terms exporta termsRouter", () => {
     const fs = require("fs");
-    const content = fs.readFileSync("/home/ubuntu/nom035_moodle_platform/server/routers/terms.ts", "utf8");
+    const content = fs.readFileSync(
+      "/home/ubuntu/nom035_moodle_platform/server/routers/terms.ts",
+      "utf8"
+    );
     expect(content).toContain("export const termsRouter");
   });
 
   it("termsRouter tiene el procedure hasAccepted", () => {
     const fs = require("fs");
-    const content = fs.readFileSync("/home/ubuntu/nom035_moodle_platform/server/routers/terms.ts", "utf8");
+    const content = fs.readFileSync(
+      "/home/ubuntu/nom035_moodle_platform/server/routers/terms.ts",
+      "utf8"
+    );
     expect(content).toContain("hasAccepted");
   });
 
   it("termsRouter tiene el procedure accept", () => {
     const fs = require("fs");
-    const content = fs.readFileSync("/home/ubuntu/nom035_moodle_platform/server/routers/terms.ts", "utf8");
+    const content = fs.readFileSync(
+      "/home/ubuntu/nom035_moodle_platform/server/routers/terms.ts",
+      "utf8"
+    );
     expect(content).toContain(".mutation");
   });
 });
@@ -44,14 +56,20 @@ describe("Sprint 38 — termsRouter procedures", () => {
 describe("Sprint 38 — superAdmin.assignUserToCompany", () => {
   it("el superAdminRouter tiene el procedure assignUserToCompany", () => {
     const fs = require("fs");
-    const content = fs.readFileSync("/home/ubuntu/nom035_moodle_platform/server/routers/superAdmin.ts", "utf8");
+    const content = fs.readFileSync(
+      "/home/ubuntu/nom035_moodle_platform/server/routers/superAdmin.ts",
+      "utf8"
+    );
     expect(content).toContain("assignUserToCompany");
     expect(content).toContain("superAdminProcedure");
   });
 
   it("assignUserToCompany acepta userId y companyId", () => {
     const fs = require("fs");
-    const content = fs.readFileSync("/home/ubuntu/nom035_moodle_platform/server/routers/superAdmin.ts", "utf8");
+    const content = fs.readFileSync(
+      "/home/ubuntu/nom035_moodle_platform/server/routers/superAdmin.ts",
+      "utf8"
+    );
     expect(content).toContain("assignUserToCompany");
     expect(content).toContain("userId: z.number()");
     expect(content).toContain("companyId: z.number()");
@@ -69,7 +87,7 @@ describe("Sprint 38 — TermsAcceptanceModal", () => {
   });
 
   it("el componente exporta TermsAcceptanceModal", async () => {
-    const content = await import("fs").then((fs) =>
+    const content = await import("fs").then(fs =>
       fs.readFileSync(
         "/home/ubuntu/nom035_moodle_platform/client/src/components/TermsAcceptanceModal.tsx",
         "utf8"
@@ -79,7 +97,7 @@ describe("Sprint 38 — TermsAcceptanceModal", () => {
   });
 
   it("el modal tiene scroll obligatorio antes de aceptar", async () => {
-    const content = await import("fs").then((fs) =>
+    const content = await import("fs").then(fs =>
       fs.readFileSync(
         "/home/ubuntu/nom035_moodle_platform/client/src/components/TermsAcceptanceModal.tsx",
         "utf8"
@@ -89,7 +107,7 @@ describe("Sprint 38 — TermsAcceptanceModal", () => {
   });
 
   it("el modal llama a trpc.terms.accept al confirmar", async () => {
-    const content = await import("fs").then((fs) =>
+    const content = await import("fs").then(fs =>
       fs.readFileSync(
         "/home/ubuntu/nom035_moodle_platform/client/src/components/TermsAcceptanceModal.tsx",
         "utf8"
@@ -102,7 +120,7 @@ describe("Sprint 38 — TermsAcceptanceModal", () => {
 // ─── 5. TermsGuard en App.tsx ───────────────────────────────────────────────
 describe("Sprint 38 — TermsGuard integrado en App.tsx", () => {
   it("App.tsx importa TermsAcceptanceModal", async () => {
-    const content = await import("fs").then((fs) =>
+    const content = await import("fs").then(fs =>
       fs.readFileSync(
         "/home/ubuntu/nom035_moodle_platform/client/src/App.tsx",
         "utf8"
@@ -112,7 +130,7 @@ describe("Sprint 38 — TermsGuard integrado en App.tsx", () => {
   });
 
   it("App.tsx tiene el componente TermsGuard", async () => {
-    const content = await import("fs").then((fs) =>
+    const content = await import("fs").then(fs =>
       fs.readFileSync(
         "/home/ubuntu/nom035_moodle_platform/client/src/App.tsx",
         "utf8"
@@ -122,7 +140,7 @@ describe("Sprint 38 — TermsGuard integrado en App.tsx", () => {
   });
 
   it("TermsGuard usa trpc.terms.hasAccepted", async () => {
-    const content = await import("fs").then((fs) =>
+    const content = await import("fs").then(fs =>
       fs.readFileSync(
         "/home/ubuntu/nom035_moodle_platform/client/src/App.tsx",
         "utf8"
@@ -132,7 +150,7 @@ describe("Sprint 38 — TermsGuard integrado en App.tsx", () => {
   });
 
   it("App renderiza <TermsGuard /> dentro del ThemeProvider", async () => {
-    const content = await import("fs").then((fs) =>
+    const content = await import("fs").then(fs =>
       fs.readFileSync(
         "/home/ubuntu/nom035_moodle_platform/client/src/App.tsx",
         "utf8"
@@ -153,7 +171,7 @@ describe("Sprint 38 — LegalPortada con botón PDF", () => {
   });
 
   it("LegalPortada tiene botón de descarga PDF con window.print()", async () => {
-    const content = await import("fs").then((fs) =>
+    const content = await import("fs").then(fs =>
       fs.readFileSync(
         "/home/ubuntu/nom035_moodle_platform/client/src/pages/LegalPortada.tsx",
         "utf8"
@@ -163,7 +181,7 @@ describe("Sprint 38 — LegalPortada con botón PDF", () => {
   });
 
   it("LegalPortada tiene texto 'Descargar PDF'", async () => {
-    const content = await import("fs").then((fs) =>
+    const content = await import("fs").then(fs =>
       fs.readFileSync(
         "/home/ubuntu/nom035_moodle_platform/client/src/pages/LegalPortada.tsx",
         "utf8"

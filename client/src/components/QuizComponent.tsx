@@ -1,11 +1,24 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 
@@ -30,25 +43,38 @@ interface QuizComponentProps {
   onComplete: (score: number, passed: boolean) => void;
 }
 
-export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }: QuizComponentProps) {
+export function QuizComponent({
+  evaluationId,
+  questions,
+  timeLimit,
+  onComplete,
+}: QuizComponentProps) {
   const [, setLocation] = useLocation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<number, number>
+  >({});
   const [attemptId, setAttemptId] = useState<number | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<number | null>(timeLimit ? timeLimit * 60 : null);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(
+    timeLimit ? timeLimit * 60 : null
+  );
   const [showFeedback, setShowFeedback] = useState(false);
-  const [feedback, setFeedback] = useState<{ isCorrect: boolean; points: number } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    isCorrect: boolean;
+    points: number;
+  } | null>(null);
 
   const startAttemptMutation = trpc.evaluations.startAttempt.useMutation();
   const submitAnswerMutation = trpc.evaluations.submitAnswer.useMutation();
-  const completeAttemptMutation = trpc.evaluations.completeAttempt.useMutation();
+  const completeAttemptMutation =
+    trpc.evaluations.completeAttempt.useMutation();
 
   useEffect(() => {
     // Start attempt when component mounts
     startAttemptMutation.mutate(
       { evaluationId },
       {
-        onSuccess: (data) => {
+        onSuccess: data => {
           setAttemptId(data.attemptId);
         },
       }
@@ -64,7 +90,7 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
     }
 
     const timer = setInterval(() => {
-      setTimeRemaining((prev) => (prev !== null ? prev - 1 : null));
+      setTimeRemaining(prev => (prev !== null ? prev - 1 : null));
     }, 1000);
 
     return () => clearInterval(timer);
@@ -80,7 +106,7 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
   };
 
   const handleAnswerSelect = (questionId: number, optionId: number) => {
-    setSelectedAnswers((prev) => ({ ...prev, [questionId]: optionId }));
+    setSelectedAnswers(prev => ({ ...prev, [questionId]: optionId }));
     setShowFeedback(false);
   };
 
@@ -97,7 +123,7 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
         selectedOptionId,
       },
       {
-        onSuccess: (data) => {
+        onSuccess: data => {
           setFeedback({ isCorrect: data.isCorrect, points: data.pointsEarned });
           setShowFeedback(true);
         },
@@ -107,7 +133,7 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      setCurrentQuestionIndex(prev => prev + 1);
       setShowFeedback(false);
       setFeedback(null);
     } else {
@@ -117,7 +143,7 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
+      setCurrentQuestionIndex(prev => prev - 1);
       setShowFeedback(false);
       setFeedback(null);
     }
@@ -129,7 +155,7 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
     completeAttemptMutation.mutate(
       { attemptId },
       {
-        onSuccess: (data) => {
+        onSuccess: data => {
           onComplete(data.score, data.passed);
         },
       }
@@ -140,7 +166,9 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
     return (
       <Card>
         <CardContent className="py-12">
-          <p className="text-center text-muted-foreground">Cargando evaluación...</p>
+          <p className="text-center text-muted-foreground">
+            Cargando evaluación...
+          </p>
         </CardContent>
       </Card>
     );
@@ -171,24 +199,40 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
       {/* Question Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">{currentQuestion.questionText}</CardTitle>
+          <CardTitle className="text-xl">
+            {currentQuestion.questionText}
+          </CardTitle>
           <CardDescription>
-            {currentQuestion.questionType === "multiple_choice" && "Selecciona la respuesta correcta"}
-            {currentQuestion.questionType === "true_false" && "Verdadero o Falso"}
-            {currentQuestion.questionType === "case_analysis" && "Análisis de caso"}
+            {currentQuestion.questionType === "multiple_choice" &&
+              "Selecciona la respuesta correcta"}
+            {currentQuestion.questionType === "true_false" &&
+              "Verdadero o Falso"}
+            {currentQuestion.questionType === "case_analysis" &&
+              "Análisis de caso"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Answer Options */}
           <RadioGroup
             value={selectedAnswers[currentQuestion.id]?.toString()}
-            onValueChange={(value) => handleAnswerSelect(currentQuestion.id, parseInt(value))}
+            onValueChange={value =>
+              handleAnswerSelect(currentQuestion.id, parseInt(value))
+            }
             disabled={showFeedback}
           >
             {currentQuestion.options?.map((option: any) => (
-              <div key={option.id} className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent">
-                <RadioGroupItem value={option.id.toString()} id={`option-${option.id}`} />
-                <Label htmlFor={`option-${option.id}`} className="flex-1 cursor-pointer">
+              <div
+                key={option.id}
+                className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent"
+              >
+                <RadioGroupItem
+                  value={option.id.toString()}
+                  id={`option-${option.id}`}
+                />
+                <Label
+                  htmlFor={`option-${option.id}`}
+                  className="flex-1 cursor-pointer"
+                >
                   {option.optionText}
                 </Label>
               </div>
@@ -207,7 +251,9 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
                 <div className="flex-1">
                   <AlertDescription>
                     {feedback.isCorrect ? (
-                      <span className="font-semibold text-green-600">¡Correcto!</span>
+                      <span className="font-semibold text-green-600">
+                        ¡Correcto!
+                      </span>
                     ) : (
                       <span className="font-semibold">Incorrecto</span>
                     )}
@@ -236,7 +282,10 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
             {!showFeedback ? (
               <Button
                 onClick={handleSubmitAnswer}
-                disabled={!selectedAnswers[currentQuestion.id] || submitAnswerMutation.isPending}
+                disabled={
+                  !selectedAnswers[currentQuestion.id] ||
+                  submitAnswerMutation.isPending
+                }
               >
                 Enviar Respuesta
               </Button>
@@ -246,7 +295,10 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleCompleteQuiz} disabled={completeAttemptMutation.isPending}>
+              <Button
+                onClick={handleCompleteQuiz}
+                disabled={completeAttemptMutation.isPending}
+              >
                 Finalizar Evaluación
               </Button>
             )}

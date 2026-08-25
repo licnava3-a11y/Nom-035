@@ -53,7 +53,9 @@ export default function ProtectedRoute({
     const lastRedirect = sessionStorage.getItem("_last_login_redirect");
     const now = Date.now();
     if (lastRedirect && now - parseInt(lastRedirect, 10) < 3000) {
-      console.warn("[ProtectedRoute] Redirect throttled — too soon after last redirect");
+      console.warn(
+        "[ProtectedRoute] Redirect throttled — too soon after last redirect"
+      );
       return;
     }
 
@@ -92,10 +94,12 @@ export default function ProtectedRoute({
       return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
           <div className="text-center max-w-md">
-            <h1 className="text-4xl font-bold text-destructive mb-4">Acceso Denegado</h1>
+            <h1 className="text-4xl font-bold text-destructive mb-4">
+              Acceso Denegado
+            </h1>
             <p className="text-muted-foreground mb-6">
-              No tienes permisos para acceder a esta página.
-              Esta sección está restringida a: {allowedRoles.join(", ")}.
+              No tienes permisos para acceder a esta página. Esta sección está
+              restringida a: {allowedRoles.join(", ")}.
             </p>
             <a
               href="/"

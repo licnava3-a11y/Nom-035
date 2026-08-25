@@ -31,7 +31,9 @@ export async function getCompanyGeneralData(): Promise<CompanyGeneralData | null
   return data[0] || null;
 }
 
-export async function upsertCompanyGeneralData(data: InsertCompanyGeneralData): Promise<number> {
+export async function upsertCompanyGeneralData(
+  data: InsertCompanyGeneralData
+): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -66,7 +68,9 @@ export async function getCompanyLogo(): Promise<CompanyLogo | null> {
   return logos[0] || null;
 }
 
-export async function createCompanyLogo(data: InsertCompanyLogo): Promise<number> {
+export async function createCompanyLogo(
+  data: InsertCompanyLogo
+): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const [result] = await (db.insert(companyLogo) as any).values(data);
@@ -79,16 +83,23 @@ export async function createCompanyLogo(data: InsertCompanyLogo): Promise<number
  * ============================================================================
  */
 
-export async function getAllLegalRepresentatives(): Promise<CompanyLegalRepresentative[]> {
+export async function getAllLegalRepresentatives(): Promise<
+  CompanyLegalRepresentative[]
+> {
   const db = await getDb();
   if (!db) return [];
   return await db
     .select()
     .from(companyLegalRepresentative)
-    .orderBy(desc(companyLegalRepresentative.activo), desc(companyLegalRepresentative.createdAt));
+    .orderBy(
+      desc(companyLegalRepresentative.activo),
+      desc(companyLegalRepresentative.createdAt)
+    );
 }
 
-export async function getLegalRepresentativeById(id: number): Promise<CompanyLegalRepresentative | null> {
+export async function getLegalRepresentativeById(
+  id: number
+): Promise<CompanyLegalRepresentative | null> {
   const db = await getDb();
   if (!db) return null;
   const [representative] = await db
@@ -98,10 +109,14 @@ export async function getLegalRepresentativeById(id: number): Promise<CompanyLeg
   return representative || null;
 }
 
-export async function createLegalRepresentative(data: InsertCompanyLegalRepresentative): Promise<number> {
+export async function createLegalRepresentative(
+  data: InsertCompanyLegalRepresentative
+): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await (db.insert(companyLegalRepresentative) as any).values(data);
+  const [result] = await (db.insert(companyLegalRepresentative) as any).values(
+    data
+  );
   return result.insertId;
 }
 
@@ -133,16 +148,23 @@ export async function deleteLegalRepresentative(id: number): Promise<void> {
  * ============================================================================
  */
 
-export async function getAllDigitalSignatures(): Promise<CompanyDigitalSignature[]> {
+export async function getAllDigitalSignatures(): Promise<
+  CompanyDigitalSignature[]
+> {
   const db = await getDb();
   if (!db) return [];
   return await db
     .select()
     .from(companyDigitalSignature)
-    .orderBy(desc(companyDigitalSignature.activo), desc(companyDigitalSignature.createdAt));
+    .orderBy(
+      desc(companyDigitalSignature.activo),
+      desc(companyDigitalSignature.createdAt)
+    );
 }
 
-export async function getDigitalSignatureById(id: number): Promise<CompanyDigitalSignature | null> {
+export async function getDigitalSignatureById(
+  id: number
+): Promise<CompanyDigitalSignature | null> {
   const db = await getDb();
   if (!db) return null;
   const [signature] = await db
@@ -152,10 +174,14 @@ export async function getDigitalSignatureById(id: number): Promise<CompanyDigita
   return signature || null;
 }
 
-export async function createDigitalSignature(data: InsertCompanyDigitalSignature): Promise<number> {
+export async function createDigitalSignature(
+  data: InsertCompanyDigitalSignature
+): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await (db.insert(companyDigitalSignature) as any).values(data);
+  const [result] = await (db.insert(companyDigitalSignature) as any).values(
+    data
+  );
   return result.insertId;
 }
 
@@ -202,7 +228,9 @@ export async function getAllSurveyReports(): Promise<CompanySurveyReport[]> {
     .orderBy(desc(companySurveyReport.createdAt));
 }
 
-export async function getSurveyReportById(id: number): Promise<CompanySurveyReport | null> {
+export async function getSurveyReportById(
+  id: number
+): Promise<CompanySurveyReport | null> {
   const db = await getDb();
   if (!db) return null;
   const [report] = await db
@@ -212,7 +240,9 @@ export async function getSurveyReportById(id: number): Promise<CompanySurveyRepo
   return report || null;
 }
 
-export async function createSurveyReport(data: InsertCompanySurveyReport): Promise<number> {
+export async function createSurveyReport(
+  data: InsertCompanySurveyReport
+): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const [result] = await (db.insert(companySurveyReport) as any).values(data);

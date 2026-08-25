@@ -1,23 +1,42 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  AlertTriangle, 
-  TrendingUp, 
-  CheckCircle2, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertTriangle,
+  TrendingUp,
+  CheckCircle2,
   XCircle,
   Brain,
   Lightbulb,
   Clock,
-  User
+  User,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,16 +50,20 @@ export default function IntelligentAlertsDashboard() {
   const utils = trpc.useUtils();
 
   // Queries
-  const { data: dashboard, isLoading: loadingDashboard } = trpc.intelligentAlerts.getDashboard.useQuery();
-  const { data: alerts, isLoading: loadingAlerts } = trpc.intelligentAlerts.list.useQuery({
-    status: statusFilter !== "all" ? (statusFilter as any) : undefined,
-    severity: severityFilter !== "all" ? (severityFilter as any) : undefined,
-  });
+  const { data: dashboard, isLoading: loadingDashboard } =
+    trpc.intelligentAlerts.getDashboard.useQuery();
+  const { data: alerts, isLoading: loadingAlerts } =
+    trpc.intelligentAlerts.list.useQuery({
+      status: statusFilter !== "all" ? (statusFilter as any) : undefined,
+      severity: severityFilter !== "all" ? (severityFilter as any) : undefined,
+    });
 
   // Mutations
   const runAnalysis = trpc.intelligentAlerts.runPredictiveAnalysis.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Análisis completado: ${data.alertsGenerated} alertas generadas`);
+    onSuccess: data => {
+      toast.success(
+        `Análisis completado: ${data.alertsGenerated} alertas generadas`
+      );
       utils.intelligentAlerts.list.invalidate();
       utils.intelligentAlerts.getDashboard.invalidate();
     },
@@ -139,7 +162,10 @@ export default function IntelligentAlertsDashboard() {
             Detección proactiva de patrones de riesgo emergentes
           </p>
         </div>
-        <Button onClick={() => runAnalysis.mutate()} disabled={runAnalysis.isPending}>
+        <Button
+          onClick={() => runAnalysis.mutate()}
+          disabled={runAnalysis.isPending}
+        >
           {runAnalysis.isPending ? "Analizando..." : "Ejecutar Análisis"}
         </Button>
       </div>
@@ -148,11 +174,15 @@ export default function IntelligentAlertsDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas Activas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Alertas Activas
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboard?.activeCount || 0}</div>
+            <div className="text-2xl font-bold">
+              {dashboard?.activeCount || 0}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Requieren atención inmediata
             </p>
@@ -161,11 +191,15 @@ export default function IntelligentAlertsDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas Críticas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Alertas Críticas
+            </CardTitle>
             <XCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{dashboard?.criticalCount || 0}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {dashboard?.criticalCount || 0}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Severidad crítica
             </p>
@@ -174,24 +208,30 @@ export default function IntelligentAlertsDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas Resueltas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Alertas Resueltas
+            </CardTitle>
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{dashboard?.resolvedCount || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Casos cerrados
-            </p>
+            <div className="text-2xl font-bold text-green-600">
+              {dashboard?.resolvedCount || 0}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Casos cerrados</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Resolución</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Resolución
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboard?.resolutionRate || 0}%</div>
+            <div className="text-2xl font-bold">
+              {dashboard?.resolutionRate || 0}%
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Efectividad del equipo
             </p>
@@ -207,24 +247,29 @@ export default function IntelligentAlertsDashboard() {
               <XCircle className="h-5 w-5" />
               Alertas Críticas Activas
             </CardTitle>
-            <CardDescription>
-              Requieren atención inmediata
-            </CardDescription>
+            <CardDescription>Requieren atención inmediata</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {dashboard.criticalAlerts.map((item: any) => (
-                <div key={item.alert.id} className="flex items-start justify-between p-4 bg-white border border-red-200 rounded-lg">
+                <div
+                  key={item.alert.id}
+                  className="flex items-start justify-between p-4 bg-white border border-red-200 rounded-lg"
+                >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       {getSeverityIcon(item.alert.severity)}
                       <p className="font-medium">{item.alert.title}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">{item.alert.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {item.alert.description}
+                    </p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {item.alert.createdAt ? new Date(item.alert.createdAt).toLocaleDateString() : "N/A"}
+                        {item.alert.createdAt
+                          ? new Date(item.alert.createdAt).toLocaleDateString()
+                          : "N/A"}
                       </span>
                       {item.assignedUser && (
                         <span className="flex items-center gap-1">
@@ -236,14 +281,19 @@ export default function IntelligentAlertsDashboard() {
                   </div>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button size="sm" onClick={() => setSelectedAlert(item.alert)}>
+                      <Button
+                        size="sm"
+                        onClick={() => setSelectedAlert(item.alert)}
+                      >
                         Ver Detalles
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                       <DialogHeader>
                         <DialogTitle>{item.alert.title}</DialogTitle>
-                        <DialogDescription>{item.alert.description}</DialogDescription>
+                        <DialogDescription>
+                          {item.alert.description}
+                        </DialogDescription>
                       </DialogHeader>
                       <AlertDetailsContent alert={item.alert} />
                     </DialogContent>
@@ -305,25 +355,38 @@ export default function IntelligentAlertsDashboard() {
         </CardHeader>
         <CardContent>
           {loadingAlerts ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando alertas...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              Cargando alertas...
+            </div>
           ) : alerts && alerts.length > 0 ? (
             <div className="space-y-3">
               {alerts.map((item: any) => (
-                <div key={item.alert.id} className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                <div
+                  key={item.alert.id}
+                  className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       {getSeverityIcon(item.alert.severity)}
                       <p className="font-medium">{item.alert.title}</p>
-                      <Badge variant={getSeverityColor(item.alert.severity) as any}>
+                      <Badge
+                        variant={getSeverityColor(item.alert.severity) as any}
+                      >
                         {item.alert.severity}
                       </Badge>
-                      <Badge variant="outline">{getAlertTypeLabel(item.alert.alertType)}</Badge>
+                      <Badge variant="outline">
+                        {getAlertTypeLabel(item.alert.alertType)}
+                      </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{item.alert.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {item.alert.description}
+                    </p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {item.alert.createdAt ? new Date(item.alert.createdAt).toLocaleDateString() : "N/A"}
+                        {item.alert.createdAt
+                          ? new Date(item.alert.createdAt).toLocaleDateString()
+                          : "N/A"}
                       </span>
                       {item.assignedUser && (
                         <span className="flex items-center gap-1">
@@ -331,14 +394,24 @@ export default function IntelligentAlertsDashboard() {
                           {item.assignedUser.name}
                         </span>
                       )}
-                      <Badge variant={item.alert.status === "active" ? "default" : "secondary"}>
+                      <Badge
+                        variant={
+                          item.alert.status === "active"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
                         {item.alert.status}
                       </Badge>
                     </div>
                   </div>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button size="sm" variant="outline" onClick={() => setSelectedAlert(item.alert)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedAlert(item.alert)}
+                      >
                         Ver Detalles
                       </Button>
                     </DialogTrigger>
@@ -348,9 +421,11 @@ export default function IntelligentAlertsDashboard() {
                           {getSeverityIcon(item.alert.severity)}
                           {item.alert.title}
                         </DialogTitle>
-                        <DialogDescription>{item.alert.description}</DialogDescription>
+                        <DialogDescription>
+                          {item.alert.description}
+                        </DialogDescription>
                       </DialogHeader>
-                      
+
                       {/* Contexto */}
                       <div className="space-y-4">
                         <div>
@@ -361,43 +436,70 @@ export default function IntelligentAlertsDashboard() {
                         </div>
 
                         {/* Sugerencias de IA */}
-                        {(item.alert.suggestions as any)?.suggestions && (item.alert.suggestions as any).suggestions.length > 0 && (
-                          <div>
-                            <h4 className="font-medium mb-2 flex items-center gap-2">
-                              <Lightbulb className="h-4 w-4 text-yellow-500" />
-                              Sugerencias de Intervención (IA)
-                            </h4>
-                            <div className="space-y-3">
-                                   {(item.alert.suggestions as any).suggestions.map((suggestion: any, index: number) => (
-                                <div key={index} className="border rounded-lg p-3">
-                                  <div className="flex items-start justify-between mb-2">
-                                    <p className="font-medium">{suggestion.title}</p>
-                                    <Badge variant={suggestion.priority === "high" ? "destructive" : suggestion.priority === "medium" ? "default" : "secondary"}>
-                                      {suggestion.priority}
-                                    </Badge>
-                                  </div>
-                                  <p className="text-sm text-muted-foreground mb-2">{suggestion.description}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    <strong>Impacto esperado:</strong> {suggestion.estimatedImpact}
-                                  </p>
-                                </div>
-                              ))}
+                        {(item.alert.suggestions as any)?.suggestions &&
+                          (item.alert.suggestions as any).suggestions.length >
+                            0 && (
+                            <div>
+                              <h4 className="font-medium mb-2 flex items-center gap-2">
+                                <Lightbulb className="h-4 w-4 text-yellow-500" />
+                                Sugerencias de Intervención (IA)
+                              </h4>
+                              <div className="space-y-3">
+                                {(
+                                  item.alert.suggestions as any
+                                ).suggestions.map(
+                                  (suggestion: any, index: number) => (
+                                    <div
+                                      key={index}
+                                      className="border rounded-lg p-3"
+                                    >
+                                      <div className="flex items-start justify-between mb-2">
+                                        <p className="font-medium">
+                                          {suggestion.title}
+                                        </p>
+                                        <Badge
+                                          variant={
+                                            suggestion.priority === "high"
+                                              ? "destructive"
+                                              : suggestion.priority === "medium"
+                                                ? "default"
+                                                : "secondary"
+                                          }
+                                        >
+                                          {suggestion.priority}
+                                        </Badge>
+                                      </div>
+                                      <p className="text-sm text-muted-foreground mb-2">
+                                        {suggestion.description}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        <strong>Impacto esperado:</strong>{" "}
+                                        {suggestion.estimatedImpact}
+                                      </p>
+                                    </div>
+                                  )
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
                         {/* Acciones */}
                         {item.alert.status === "active" && (
                           <div className="flex gap-2 pt-4 border-t">
                             <Dialog>
                               <DialogTrigger asChild>
-                                <Button className="flex-1">Marcar como Resuelta</Button>
+                                <Button className="flex-1">
+                                  Marcar como Resuelta
+                                </Button>
                               </DialogTrigger>
                               <DialogContent>
                                 <DialogHeader>
-                                  <DialogTitle>Marcar como Resuelta</DialogTitle>
+                                  <DialogTitle>
+                                    Marcar como Resuelta
+                                  </DialogTitle>
                                   <DialogDescription>
-                                    Proporciona notas sobre cómo se resolvió esta alerta
+                                    Proporciona notas sobre cómo se resolvió
+                                    esta alerta
                                   </DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4">
@@ -405,17 +507,28 @@ export default function IntelligentAlertsDashboard() {
                                     <Label>Notas de Resolución</Label>
                                     <Textarea
                                       value={resolutionNotes}
-                                      onChange={(e) => setResolutionNotes(e.target.value)}
+                                      onChange={e =>
+                                        setResolutionNotes(e.target.value)
+                                      }
                                       placeholder="Describe las acciones tomadas..."
                                       rows={4}
                                     />
                                   </div>
                                   <Button
-                                    onClick={() => resolveAlert.mutate({ id: item.alert.id, resolutionNotes })}
-                                    disabled={!resolutionNotes || resolveAlert.isPending}
+                                    onClick={() =>
+                                      resolveAlert.mutate({
+                                        id: item.alert.id,
+                                        resolutionNotes,
+                                      })
+                                    }
+                                    disabled={
+                                      !resolutionNotes || resolveAlert.isPending
+                                    }
                                     className="w-full"
                                   >
-                                    {resolveAlert.isPending ? "Guardando..." : "Confirmar Resolución"}
+                                    {resolveAlert.isPending
+                                      ? "Guardando..."
+                                      : "Confirmar Resolución"}
                                   </Button>
                                 </div>
                               </DialogContent>
@@ -423,13 +536,16 @@ export default function IntelligentAlertsDashboard() {
 
                             <Dialog>
                               <DialogTrigger asChild>
-                                <Button variant="outline" className="flex-1">Descartar</Button>
+                                <Button variant="outline" className="flex-1">
+                                  Descartar
+                                </Button>
                               </DialogTrigger>
                               <DialogContent>
                                 <DialogHeader>
                                   <DialogTitle>Descartar Alerta</DialogTitle>
                                   <DialogDescription>
-                                    Explica por qué esta alerta no requiere acción
+                                    Explica por qué esta alerta no requiere
+                                    acción
                                   </DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4">
@@ -437,18 +553,29 @@ export default function IntelligentAlertsDashboard() {
                                     <Label>Razón</Label>
                                     <Textarea
                                       value={dismissReason}
-                                      onChange={(e) => setDismissReason(e.target.value)}
+                                      onChange={e =>
+                                        setDismissReason(e.target.value)
+                                      }
                                       placeholder="Explica por qué se descarta..."
                                       rows={4}
                                     />
                                   </div>
                                   <Button
-                                    onClick={() => dismissAlert.mutate({ id: item.alert.id, reason: dismissReason })}
-                                    disabled={!dismissReason || dismissAlert.isPending}
+                                    onClick={() =>
+                                      dismissAlert.mutate({
+                                        id: item.alert.id,
+                                        reason: dismissReason,
+                                      })
+                                    }
+                                    disabled={
+                                      !dismissReason || dismissAlert.isPending
+                                    }
                                     variant="destructive"
                                     className="w-full"
                                   >
-                                    {dismissAlert.isPending ? "Guardando..." : "Confirmar Descarte"}
+                                    {dismissAlert.isPending
+                                      ? "Guardando..."
+                                      : "Confirmar Descarte"}
                                   </Button>
                                 </div>
                               </DialogContent>
@@ -486,30 +613,44 @@ function AlertDetailsContent({ alert }: { alert: any }) {
         </pre>
       </div>
 
-                      {(alert.suggestions as any)?.suggestions && (alert.suggestions as any).suggestions.length > 0 && (
-        <div>
-          <h4 className="font-medium mb-2 flex items-center gap-2">
-            <Lightbulb className="h-4 w-4 text-yellow-500" />
-            Sugerencias de Intervención (IA)
-          </h4>
-          <div className="space-y-3">
-                            {(alert.suggestions as any).suggestions.map((suggestion: any, index: number) => (
-              <div key={index} className="border rounded-lg p-3">
-                <div className="flex items-start justify-between mb-2">
-                  <p className="font-medium">{suggestion.title}</p>
-                  <Badge variant={suggestion.priority === "high" ? "destructive" : suggestion.priority === "medium" ? "default" : "secondary"}>
-                    {suggestion.priority}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">{suggestion.description}</p>
-                <p className="text-xs text-muted-foreground">
-                  <strong>Impacto esperado:</strong> {suggestion.estimatedImpact}
-                </p>
-              </div>
-            ))}
+      {(alert.suggestions as any)?.suggestions &&
+        (alert.suggestions as any).suggestions.length > 0 && (
+          <div>
+            <h4 className="font-medium mb-2 flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 text-yellow-500" />
+              Sugerencias de Intervención (IA)
+            </h4>
+            <div className="space-y-3">
+              {(alert.suggestions as any).suggestions.map(
+                (suggestion: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-3">
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="font-medium">{suggestion.title}</p>
+                      <Badge
+                        variant={
+                          suggestion.priority === "high"
+                            ? "destructive"
+                            : suggestion.priority === "medium"
+                              ? "default"
+                              : "secondary"
+                        }
+                      >
+                        {suggestion.priority}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {suggestion.description}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Impacto esperado:</strong>{" "}
+                      {suggestion.estimatedImpact}
+                    </p>
+                  </div>
+                )
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }

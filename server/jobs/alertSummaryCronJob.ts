@@ -13,7 +13,9 @@ import { sendAlertSummary } from "./alertSummaryJob";
 let weeklyJob: ReturnType<typeof cron.schedule> | null = null;
 let monthlyJob: ReturnType<typeof cron.schedule> | null = null;
 
-async function getAlertSummaryFrequency(): Promise<"weekly" | "monthly" | "disabled"> {
+async function getAlertSummaryFrequency(): Promise<
+  "weekly" | "monthly" | "disabled"
+> {
   try {
     const db = await getDb();
     if (!db) return "disabled";
@@ -25,7 +27,7 @@ async function getAlertSummaryFrequency(): Promise<"weekly" | "monthly" | "disab
       .limit(1);
 
     if (!setting || !setting.settingValue) return "disabled";
-    
+
     const frequency = setting.settingValue as "weekly" | "monthly" | "disabled";
     return frequency;
   } catch (error) {
@@ -51,13 +53,17 @@ export async function startAlertSummaryCronJob() {
     if (weeklyJob) {
       weeklyJob.stop();
     }
-    
-    weeklyJob = cron.schedule("0 9 * * 1", async () => {
-      console.log("[Alert Summary Cron] Ejecutando envío semanal...");
-      await sendAlertSummary("weekly");
-    }, {
-      timezone: "America/Mexico_City"
-    });
+
+    weeklyJob = cron.schedule(
+      "0 9 * * 1",
+      async () => {
+        console.log("[Alert Summary Cron] Ejecutando envío semanal...");
+        await sendAlertSummary("weekly");
+      },
+      {
+        timezone: "America/Mexico_City",
+      }
+    );
 
     console.log("[Alert Summary Cron] Job semanal programado: Lunes 9:00 AM");
   }
@@ -67,15 +73,21 @@ export async function startAlertSummaryCronJob() {
     if (monthlyJob) {
       monthlyJob.stop();
     }
-    
-    monthlyJob = cron.schedule("0 9 1 * *", async () => {
-      console.log("[Alert Summary Cron] Ejecutando envío mensual...");
-      await sendAlertSummary("monthly");
-    }, {
-      timezone: "America/Mexico_City"
-    });
 
-    console.log("[Alert Summary Cron] Job mensual programado: Día 1 de cada mes 9:00 AM");
+    monthlyJob = cron.schedule(
+      "0 9 1 * *",
+      async () => {
+        console.log("[Alert Summary Cron] Ejecutando envío mensual...");
+        await sendAlertSummary("monthly");
+      },
+      {
+        timezone: "America/Mexico_City",
+      }
+    );
+
+    console.log(
+      "[Alert Summary Cron] Job mensual programado: Día 1 de cada mes 9:00 AM"
+    );
   }
 }
 
@@ -84,7 +96,7 @@ export async function startAlertSummaryCronJob() {
  */
 export async function restartAlertSummaryCronJob() {
   console.log("[Alert Summary Cron] Reiniciando job...");
-  
+
   // Detener jobs existentes
   if (weeklyJob) {
     weeklyJob.stop();

@@ -61,7 +61,7 @@ describe("Sprint 6 – Módulo 2: Campo de motivo en updateStatus", () => {
 
   it("updateStatus debe insertar registro de auditoría en notifications", () => {
     expect(routerFile).toContain("db.insert(notifications)");
-    expect(routerFile).toContain("type: \"mailbox_status_change\"");
+    expect(routerFile).toContain('type: "mailbox_status_change"');
   });
 
   it("debe registrar el estado anterior y el nuevo", () => {
@@ -104,7 +104,7 @@ describe("Sprint 6 – Módulo 3: Gráfica de barras agrupadas en ExecutiveRepor
   });
 
   it("RiskComparisonChart debe usar Chart.js tipo bar", () => {
-    expect(reportFile).toContain("type: \"bar\"");
+    expect(reportFile).toContain('type: "bar"');
   });
 
   it("debe tener dos datasets (período anterior y actual)", () => {
@@ -125,6 +125,6 @@ describe("Sprint 6 – Módulo 3: Gráfica de barras agrupadas en ExecutiveRepor
   });
 
   it("debe tener la leyenda en posición bottom", () => {
-    expect(reportFile).toContain("position: \"bottom\"");
+    expect(reportFile).toContain('position: "bottom"');
   });
 });

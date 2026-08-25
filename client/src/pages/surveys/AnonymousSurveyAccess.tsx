@@ -7,7 +7,13 @@ import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 
@@ -24,41 +30,43 @@ export default function AnonymousSurveyAccess() {
     message: string;
   } | null>(null);
 
-  const validateMutation = trpc.surveyAnonymousTokens.validateToken.useMutation({
-    onSuccess: (data) => {
-      setValidationResult({
-        success: true,
-        surveyType: data.surveyType,
-        department: data.department || undefined,
-        message: data.message,
-      });
-      setIsValidating(false);
-      
-      // Guardar token en sessionStorage para que los formularios lo detecten
-      sessionStorage.setItem('anonymousToken', token);
-      
-      // Redirect to appropriate survey after 2 seconds
-      setTimeout(() => {
-        const surveyPaths: Record<string, string> = {
-          guia_i: "/surveys/guide-i",
-          guia_ii: "/surveys/guide-ii",
-          guia_iii: "/surveys/guide-iii",
-        };
-        const path = surveyPaths[data.surveyType];
-        if (path) {
-          setLocation(path);
-        }
-      }, 2000);
-    },
-    onError: (error) => {
-      setValidationResult({
-        success: false,
-        message: error.message,
-      });
-      setIsValidating(false);
-      toast.error(error.message);
-    },
-  });
+  const validateMutation = trpc.surveyAnonymousTokens.validateToken.useMutation(
+    {
+      onSuccess: data => {
+        setValidationResult({
+          success: true,
+          surveyType: data.surveyType,
+          department: data.department || undefined,
+          message: data.message,
+        });
+        setIsValidating(false);
+
+        // Guardar token en sessionStorage para que los formularios lo detecten
+        sessionStorage.setItem("anonymousToken", token);
+
+        // Redirect to appropriate survey after 2 seconds
+        setTimeout(() => {
+          const surveyPaths: Record<string, string> = {
+            guia_i: "/surveys/guide-i",
+            guia_ii: "/surveys/guide-ii",
+            guia_iii: "/surveys/guide-iii",
+          };
+          const path = surveyPaths[data.surveyType];
+          if (path) {
+            setLocation(path);
+          }
+        }, 2000);
+      },
+      onError: error => {
+        setValidationResult({
+          success: false,
+          message: error.message,
+        });
+        setIsValidating(false);
+        toast.error(error.message);
+      },
+    }
+  );
 
   const handleValidateToken = () => {
     if (!token || token.length !== 64) {
@@ -110,7 +118,9 @@ export default function AnonymousSurveyAccess() {
         <CardContent className="space-y-6">
           {/* Token Display */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <p className="text-sm font-medium text-gray-700 mb-2">Token de Acceso:</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Token de Acceso:
+            </p>
             <p className="font-mono text-xs text-gray-600 break-all">
               {token || "No se proporcionó un token"}
             </p>
@@ -147,7 +157,9 @@ export default function AnonymousSurveyAccess() {
                 <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-semibold text-green-900">Token Válido</p>
-                  <p className="text-sm text-green-700 mt-1">{validationResult.message}</p>
+                  <p className="text-sm text-green-700 mt-1">
+                    {validationResult.message}
+                  </p>
                 </div>
               </div>
 
@@ -180,7 +192,9 @@ export default function AnonymousSurveyAccess() {
                 <XCircle className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-semibold text-red-900">Token Inválido</p>
-                  <p className="text-sm text-red-700 mt-1">{validationResult.message}</p>
+                  <p className="text-sm text-red-700 mt-1">
+                    {validationResult.message}
+                  </p>
                 </div>
               </div>
 
@@ -198,7 +212,8 @@ export default function AnonymousSurveyAccess() {
 
               <div className="text-center pt-4">
                 <p className="text-sm text-gray-600 mb-4">
-                  Si crees que esto es un error, contacta al administrador del sistema
+                  Si crees que esto es un error, contacta al administrador del
+                  sistema
                 </p>
                 <Button
                   variant="outline"
@@ -217,8 +232,13 @@ export default function AnonymousSurveyAccess() {
                 ℹ️ Información Importante
               </p>
               <ul className="text-sm text-blue-700 space-y-1">
-                <li>• Este token es de un solo uso y se invalidará después de acceder</li>
-                <li>• No necesitas iniciar sesión para completar la encuesta</li>
+                <li>
+                  • Este token es de un solo uso y se invalidará después de
+                  acceder
+                </li>
+                <li>
+                  • No necesitas iniciar sesión para completar la encuesta
+                </li>
                 <li>• Tus respuestas serán completamente anónimas</li>
                 <li>• Asegúrate de completar la encuesta en una sola sesión</li>
               </ul>

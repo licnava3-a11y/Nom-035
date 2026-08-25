@@ -1,101 +1,199 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, courses, trainingAssignments, trainingNeeds, vacationRequests, cases, internalMessages, psychometricAssessments, departments, annualTrainingPlans, annualTrainingPlanItems, branches } from "../../drizzle/schema";
+import {
+  employees,
+  courses,
+  trainingAssignments,
+  trainingNeeds,
+  vacationRequests,
+  cases,
+  internalMessages,
+  psychometricAssessments,
+  departments,
+  annualTrainingPlans,
+  annualTrainingPlanItems,
+  branches,
+} from "../../drizzle/schema";
 import { eq, inArray, sql, and, gte, lt } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const executiveReportRouter = router({
   getKPIs: protectedProcedure
-    .input(z.object({
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      departmentId: z.number().optional(),
-      branchId: z.number().optional(),
-    }))
+    .input(
+      z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        departmentId: z.number().optional(),
+        branchId: z.number().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const { departmentId, branchId } = input;
 
       // Filtrar empleados por departamento y/o sucursal si se especifica
       const buildEmployeeWhere = () => {
-        if (departmentId && branchId) return and(eq(employees.departmentId, departmentId), eq(employees.branchId, branchId));
+        if (departmentId && branchId)
+          return and(
+            eq(employees.departmentId, departmentId),
+            eq(employees.branchId, branchId)
+          );
         if (departmentId) return eq(employees.departmentId, departmentId);
         if (branchId) return eq(employees.branchId, branchId);
         return undefined;
       };
       const employeeWhere = buildEmployeeWhere();
       const allEmployeesRaw = employeeWhere
-        ? await db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId, branchId: employees.branchId }).from(employees).where(employeeWhere)
-        : await db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId, branchId: employees.branchId }).from(employees);
+        ? await db
+            .select({
+              id: employees.id,
+              isActive: employees.isActive,
+              departmentId: employees.departmentId,
+              branchId: employees.branchId,
+            })
+            .from(employees)
+            .where(employeeWhere)
+        : await db
+            .select({
+              id: employees.id,
+              isActive: employees.isActive,
+              departmentId: employees.departmentId,
+              branchId: employees.branchId,
+            })
+            .from(employees);
       const allEmployees = allEmployeesRaw;
       const employeeIds = allEmployees.map(e => e.id);
       const totalEmployees = allEmployees.length;
       const activeEmployees = allEmployees.filter(e => e.isActive).length;
       const inactiveEmployees = totalEmployees - activeEmployees;
-      const turnoverRate = totalEmployees > 0 ? Math.round((inactiveEmployees / totalEmployees) * 100) : 0;
+      const turnoverRate =
+        totalEmployees > 0
+          ? Math.round((inactiveEmployees / totalEmployees) * 100)
+          : 0;
 
       // Calcular tasa de rotación del año anterior para comparativa interanual
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
       const twoYearsAgo = new Date();
       twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-      const prevYearInactiveRaw = await db.select({ id: employees.id })
+      const prevYearInactiveRaw = await db
+        .select({ id: employees.id })
         .from(employees)
-        .where(and(
-          eq(employees.isActive, false),
-          gte(employees.updatedAt, twoYearsAgo),
-          lt(employees.updatedAt, oneYearAgo)
-        ));
-      const prevYearTurnoverRate = totalEmployees > 0 ? Math.round((prevYearInactiveRaw.length / totalEmployees) * 100) : 0;
+        .where(
+          and(
+            eq(employees.isActive, false),
+            gte(employees.updatedAt, twoYearsAgo),
+            lt(employees.updatedAt, oneYearAgo)
+          )
+        );
+      const prevYearTurnoverRate =
+        totalEmployees > 0
+          ? Math.round((prevYearInactiveRaw.length / totalEmployees) * 100)
+          : 0;
       const turnoverChange = turnoverRate - prevYearTurnoverRate;
 
       const allCourses = await db.select({ id: courses.id }).from(courses);
       const totalCourses = allCourses.length;
 
       // Asignaciones de capacitación (tabla no tiene employeeId directo, se usa sin filtro de departamento)
-      const allAssignments = await db.select({ status: trainingAssignments.status }).from(trainingAssignments);
+      const allAssignments = await db
+        .select({ status: trainingAssignments.status })
+        .from(trainingAssignments);
       const totalAssignments = allAssignments.length;
-      const completedAssignments = allAssignments.filter(a => a.status === "completed").length;
-      const trainingCompletionRate = totalAssignments > 0
-        ? Math.round((completedAssignments / totalAssignments) * 100) : 0;
+      const completedAssignments = allAssignments.filter(
+        a => a.status === "completed"
+      ).length;
+      const trainingCompletionRate =
+        totalAssignments > 0
+          ? Math.round((completedAssignments / totalAssignments) * 100)
+          : 0;
 
       // Filtrar vacaciones por empleados del departamento
-      const vacationsQuery = departmentId && employeeIds.length > 0
-        ? await db.select({ status: vacationRequests.status }).from(vacationRequests).where(inArray(vacationRequests.employeeId, employeeIds))
-        : await db.select({ status: vacationRequests.status }).from(vacationRequests);
+      const vacationsQuery =
+        departmentId && employeeIds.length > 0
+          ? await db
+              .select({ status: vacationRequests.status })
+              .from(vacationRequests)
+              .where(inArray(vacationRequests.employeeId, employeeIds))
+          : await db
+              .select({ status: vacationRequests.status })
+              .from(vacationRequests);
       const allVacations = vacationsQuery;
-      const pendingVacations = allVacations.filter(v => v.status === "pending").length;
-      const approvedVacations = allVacations.filter(v => v.status === "approved").length;
+      const pendingVacations = allVacations.filter(
+        v => v.status === "pending"
+      ).length;
+      const approvedVacations = allVacations.filter(
+        v => v.status === "approved"
+      ).length;
 
-      const allCases = await db.select({ status: cases.status, priority: cases.priority }).from(cases);
+      const allCases = await db
+        .select({ status: cases.status, priority: cases.priority })
+        .from(cases);
       const totalCases = allCases.length;
-      const openCases = allCases.filter(c => c.status !== "closed" && c.status !== "resolved").length;
-      const highRiskCases = allCases.filter(c => c.priority === "high" || c.priority === "critical").length;
+      const openCases = allCases.filter(
+        c => c.status !== "closed" && c.status !== "resolved"
+      ).length;
+      const highRiskCases = allCases.filter(
+        c => c.priority === "high" || c.priority === "critical"
+      ).length;
 
-      const allMessages = await db.select({ status: internalMessages.status }).from(internalMessages);
-      const pendingMessages = allMessages.filter(m => m.status === "nuevo" || m.status === "en_proceso").length;
+      const allMessages = await db
+        .select({ status: internalMessages.status })
+        .from(internalMessages);
+      const pendingMessages = allMessages.filter(
+        m => m.status === "nuevo" || m.status === "en_proceso"
+      ).length;
 
-      const allPsycho = await db.select({ riskLevel: psychometricAssessments.riskLevel }).from(psychometricAssessments);
-      const highPsychoRisk = allPsycho.filter(p => p.riskLevel === "alto" || p.riskLevel === "muy_alto").length;
+      const allPsycho = await db
+        .select({ riskLevel: psychometricAssessments.riskLevel })
+        .from(psychometricAssessments);
+      const highPsychoRisk = allPsycho.filter(
+        p => p.riskLevel === "alto" || p.riskLevel === "muy_alto"
+      ).length;
 
       // Obtener nombre del departamento si se filtró
       let departmentName: string | null = null;
       if (departmentId) {
-        const dept = await db.select({ name: departments.name }).from(departments).where(eq(departments.id, departmentId));
+        const dept = await db
+          .select({ name: departments.name })
+          .from(departments)
+          .where(eq(departments.id, departmentId));
         departmentName = dept[0]?.name ?? null;
       }
 
       return {
-        employees: { total: totalEmployees, active: activeEmployees, inactive: inactiveEmployees, turnoverRate, prevYearTurnoverRate, turnoverChange },
-        training: { totalCourses, totalAssignments, completedAssignments, completionRate: trainingCompletionRate },
-        vacations: { pending: pendingVacations, approved: approvedVacations, total: allVacations.length },
+        employees: {
+          total: totalEmployees,
+          active: activeEmployees,
+          inactive: inactiveEmployees,
+          turnoverRate,
+          prevYearTurnoverRate,
+          turnoverChange,
+        },
+        training: {
+          totalCourses,
+          totalAssignments,
+          completedAssignments,
+          completionRate: trainingCompletionRate,
+        },
+        vacations: {
+          pending: pendingVacations,
+          approved: approvedVacations,
+          total: allVacations.length,
+        },
         cases: { total: totalCases, open: openCases, highRisk: highRiskCases },
         mailbox: { pending: pendingMessages, total: allMessages.length },
         psychometric: { total: allPsycho.length, highRisk: highPsychoRisk },
-        departmentFilter: departmentId ? { id: departmentId, name: departmentName } : null,
+        departmentFilter: departmentId
+          ? { id: departmentId, name: departmentName }
+          : null,
         generatedAt: new Date().toISOString(),
       };
     }),
@@ -104,7 +202,11 @@ export const executiveReportRouter = router({
     .input(z.object({ months: z.number().min(3).max(12).default(6) }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const { months } = input;
       const now = new Date();
@@ -113,7 +215,9 @@ export const executiveReportRouter = router({
       const monthLabels: string[] = [];
       for (let i = months - 1; i >= 0; i--) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        monthLabels.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+        monthLabels.push(
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+        );
       }
 
       // Cases per month (NOM-035 cases)
@@ -124,7 +228,8 @@ export const executiveReportRouter = router({
         GROUP BY month ORDER BY month ASC
       `);
       const casesMap: Record<string, number> = {};
-      for (const row of (casesRaw as any[])) casesMap[row.month] = Number(row.count);
+      for (const row of casesRaw as any[])
+        casesMap[row.month] = Number(row.count);
 
       // Training completions per month
       const trainingRaw = await db.execute(sql`
@@ -134,7 +239,8 @@ export const executiveReportRouter = router({
         GROUP BY month ORDER BY month ASC
       `);
       const trainingMap: Record<string, number> = {};
-      for (const row of (trainingRaw as any[])) trainingMap[row.month] = Number(row.count);
+      for (const row of trainingRaw as any[])
+        trainingMap[row.month] = Number(row.count);
 
       // Employee exits per month (isActive=0, using updatedAt as proxy for exit date)
       const exitRaw = await db.execute(sql`
@@ -144,7 +250,8 @@ export const executiveReportRouter = router({
         GROUP BY month ORDER BY month ASC
       `);
       const exitMap: Record<string, number> = {};
-      for (const row of (exitRaw as any[])) exitMap[row.month] = Number(row.count);
+      for (const row of exitRaw as any[])
+        exitMap[row.month] = Number(row.count);
 
       // Psychometric assessments per month
       const psychoRaw = await db.execute(sql`
@@ -154,7 +261,8 @@ export const executiveReportRouter = router({
         GROUP BY month ORDER BY month ASC
       `);
       const psychoMap: Record<string, number> = {};
-      for (const row of (psychoRaw as any[])) psychoMap[row.month] = Number(row.count);
+      for (const row of psychoRaw as any[])
+        psychoMap[row.month] = Number(row.count);
 
       // Internal mailbox messages per month
       const mailboxRaw = await db.execute(sql`
@@ -164,12 +272,16 @@ export const executiveReportRouter = router({
         GROUP BY month ORDER BY month ASC
       `);
       const mailboxMap: Record<string, number> = {};
-      for (const row of (mailboxRaw as any[])) mailboxMap[row.month] = Number(row.count);
+      for (const row of mailboxRaw as any[])
+        mailboxMap[row.month] = Number(row.count);
 
       return {
         labels: monthLabels.map(m => {
           const [y, mo] = m.split("-");
-          return new Date(Number(y), Number(mo) - 1, 1).toLocaleDateString("es-MX", { month: "short", year: "2-digit" });
+          return new Date(Number(y), Number(mo) - 1, 1).toLocaleDateString(
+            "es-MX",
+            { month: "short", year: "2-digit" }
+          );
         }),
         cases: monthLabels.map(m => casesMap[m] || 0),
         trainingCompletions: monthLabels.map(m => trainingMap[m] || 0),
@@ -184,32 +296,67 @@ export const executiveReportRouter = router({
     .query(async ({ input }) => {
       const { year } = input;
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       // Cargar todos los datos en queries paralelas (evita N+1 de O(N*4) a O(4))
-      const allDepts = await db.select({ id: departments.id, name: departments.name }).from(departments);
+      const allDepts = await db
+        .select({ id: departments.id, name: departments.name })
+        .from(departments);
       const deptIds = allDepts.map(d => d.id);
 
-      const [allEmps, allVacPending, allPsycho, allAssignments, allCasesData] = await Promise.all([
-        deptIds.length > 0
-          ? db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId })
-              .from(employees).where(inArray(employees.departmentId, deptIds))
-          : Promise.resolve([]),
-        db.select({ employeeId: vacationRequests.employeeId }).from(vacationRequests)
-          .where(eq(vacationRequests.status, 'pending')),
-        db.select({ riskLevel: psychometricAssessments.riskLevel }).from(psychometricAssessments),
-        db.select({ status: trainingAssignments.status }).from(trainingAssignments),
-        db.select({ priority: cases.priority }).from(cases),
-      ]);
+      const [allEmps, allVacPending, allPsycho, allAssignments, allCasesData] =
+        await Promise.all([
+          deptIds.length > 0
+            ? db
+                .select({
+                  id: employees.id,
+                  isActive: employees.isActive,
+                  departmentId: employees.departmentId,
+                })
+                .from(employees)
+                .where(inArray(employees.departmentId, deptIds))
+            : Promise.resolve([]),
+          db
+            .select({ employeeId: vacationRequests.employeeId })
+            .from(vacationRequests)
+            .where(eq(vacationRequests.status, "pending")),
+          db
+            .select({ riskLevel: psychometricAssessments.riskLevel })
+            .from(psychometricAssessments),
+          db
+            .select({ status: trainingAssignments.status })
+            .from(trainingAssignments),
+          db.select({ priority: cases.priority }).from(cases),
+        ]);
 
       // Métricas globales (no dependen del departamento)
-      const highRiskPsychoGlobal = allPsycho.filter(p => p.riskLevel === "alto" || p.riskLevel === "muy_alto").length;
-      const completedAssignmentsGlobal = allAssignments.filter(a => a.status === "completed").length;
-      const globalTrainingRate = allAssignments.length > 0
-        ? Math.round((completedAssignmentsGlobal / allAssignments.length) * 100) : 0;
-      const highRiskCasesGlobal = allCasesData.filter(c => c.priority === "high" || c.priority === "critical").length;
-      const globalNom035Score = allCasesData.length > 0
-        ? Math.max(0, 100 - Math.round((highRiskCasesGlobal / allCasesData.length) * 100)) : 100;
+      const highRiskPsychoGlobal = allPsycho.filter(
+        p => p.riskLevel === "alto" || p.riskLevel === "muy_alto"
+      ).length;
+      const completedAssignmentsGlobal = allAssignments.filter(
+        a => a.status === "completed"
+      ).length;
+      const globalTrainingRate =
+        allAssignments.length > 0
+          ? Math.round(
+              (completedAssignmentsGlobal / allAssignments.length) * 100
+            )
+          : 0;
+      const highRiskCasesGlobal = allCasesData.filter(
+        c => c.priority === "high" || c.priority === "critical"
+      ).length;
+      const globalNom035Score =
+        allCasesData.length > 0
+          ? Math.max(
+              0,
+              100 -
+                Math.round((highRiskCasesGlobal / allCasesData.length) * 100)
+            )
+          : 100;
 
       // Agrupar empleados y vacaciones por departamento
       const empByDept = new Map<number, { id: number; isActive: boolean }[]>();
@@ -219,14 +366,21 @@ export const executiveReportRouter = router({
         arr.push(e);
         empByDept.set(e.departmentId, arr);
       });
-      const pendingVacEmpIds = new Set(allVacPending.map(v => v.employeeId).filter((id): id is number => id != null));
+      const pendingVacEmpIds = new Set(
+        allVacPending
+          .map(v => v.employeeId)
+          .filter((id): id is number => id != null)
+      );
 
       const results = allDepts.map(dept => {
         const deptEmps = empByDept.get(dept.id) ?? [];
         const total = deptEmps.length;
         const active = deptEmps.filter(e => e.isActive).length;
-        const turnoverRate = total > 0 ? Math.round(((total - active) / total) * 100) : 0;
-        const pendingVacCount = deptEmps.filter(e => pendingVacEmpIds.has(e.id)).length;
+        const turnoverRate =
+          total > 0 ? Math.round(((total - active) / total) * 100) : 0;
+        const pendingVacCount = deptEmps.filter(e =>
+          pendingVacEmpIds.has(e.id)
+        ).length;
         return {
           deptId: dept.id,
           deptName: dept.name,
@@ -244,38 +398,70 @@ export const executiveReportRouter = router({
     }),
 
   getBranchComparative: protectedProcedure
-    .input(z.object({
-      dateFrom: z.string().optional(),
-      dateTo: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
 
       const { dateFrom, dateTo } = input;
       const fromTs = dateFrom ? new Date(dateFrom).getTime() : undefined;
       const toTs = dateTo ? new Date(dateTo).getTime() : undefined;
 
       // Cargar todos los datos en queries paralelas (evita N+1 de O(N*3) a O(3))
-      const allBranches = await db.select().from(branches).where(eq(branches.isActive, true));
+      const allBranches = await db
+        .select()
+        .from(branches)
+        .where(eq(branches.isActive, true));
       const branchIds = allBranches.map(b => b.id);
 
-      const [allBranchEmps, allTrainingNeeds, allBranchCases] = await Promise.all([
-        branchIds.length > 0
-          ? db.select({ id: employees.id, isActive: employees.isActive, branchId: employees.branchId })
-              .from(employees).where(inArray(employees.branchId, branchIds))
-          : Promise.resolve([]),
-        db.select({ employeeId: trainingNeeds.employeeId, status: trainingNeeds.status }).from(trainingNeeds),
-        db.select({ priority: cases.priority }).from(cases),
-      ]);
+      const [allBranchEmps, allTrainingNeeds, allBranchCases] =
+        await Promise.all([
+          branchIds.length > 0
+            ? db
+                .select({
+                  id: employees.id,
+                  isActive: employees.isActive,
+                  branchId: employees.branchId,
+                })
+                .from(employees)
+                .where(inArray(employees.branchId, branchIds))
+            : Promise.resolve([]),
+          db
+            .select({
+              employeeId: trainingNeeds.employeeId,
+              status: trainingNeeds.status,
+            })
+            .from(trainingNeeds),
+          db.select({ priority: cases.priority }).from(cases),
+        ]);
 
       // Métricas globales de casos
-      const highRiskCasesGlobal = allBranchCases.filter(c => c.priority === "high" || c.priority === "critical").length;
-      const globalNom035Score = allBranchCases.length > 0
-        ? Math.max(0, 100 - Math.round((highRiskCasesGlobal / allBranchCases.length) * 100)) : 100;
+      const highRiskCasesGlobal = allBranchCases.filter(
+        c => c.priority === "high" || c.priority === "critical"
+      ).length;
+      const globalNom035Score =
+        allBranchCases.length > 0
+          ? Math.max(
+              0,
+              100 -
+                Math.round((highRiskCasesGlobal / allBranchCases.length) * 100)
+            )
+          : 100;
 
       // Agrupar empleados y training needs por sucursal
-      const empByBranch = new Map<number, { id: number; isActive: boolean }[]>();
+      const empByBranch = new Map<
+        number,
+        { id: number; isActive: boolean }[]
+      >();
       allBranchEmps.forEach(e => {
         const arr = empByBranch.get(e.branchId!) ?? [];
         arr.push(e);
@@ -293,16 +479,22 @@ export const executiveReportRouter = router({
         const total = branchEmps.length;
         if (total === 0) return null;
         const active = branchEmps.filter(e => e.isActive).length;
-        const turnoverRate = total > 0 ? Math.round(((total - active) / total) * 100) : 0;
+        const turnoverRate =
+          total > 0 ? Math.round(((total - active) / total) * 100) : 0;
         // Capacitación por empleados de la sucursal
         let trainingCompleted = 0;
         let trainingTotal = 0;
         branchEmps.forEach(e => {
           const needs = trainingByEmp.get(e.id) ?? [];
           trainingTotal += needs.length;
-          trainingCompleted += needs.filter(n => n.status === "completada").length;
+          trainingCompleted += needs.filter(
+            n => n.status === "completada"
+          ).length;
         });
-        const trainingRate = trainingTotal > 0 ? Math.round((trainingCompleted / trainingTotal) * 100) : 0;
+        const trainingRate =
+          trainingTotal > 0
+            ? Math.round((trainingCompleted / trainingTotal) * 100)
+            : 0;
         return {
           branchId: branch.id,
           branchName: branch.name,
@@ -322,5 +514,4 @@ export const executiveReportRouter = router({
 
       return results.filter((r): r is NonNullable<typeof r> => r !== null);
     }),
-
 });

@@ -1,6 +1,6 @@
 /**
  * Servicio de correo electrónico para el buzón NOM-035
- * 
+ *
  * Este servicio maneja:
  * - Envío de notificaciones de recepción de solicitudes
  * - Envío de actualizaciones de estado
@@ -106,12 +106,16 @@ export const emailTemplates = {
           <p><strong>Asunto:</strong> ${subject}</p>
           <p><strong>Estado:</strong> Concluido</p>
         </div>
-        ${response ? `
+        ${
+          response
+            ? `
           <div style="background-color: #ecfdf5; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #16a34a;">
             <p><strong>Respuesta:</strong></p>
             <p>${response}</p>
           </div>
-        ` : ''}
+        `
+            : ""
+        }
         <p>Agradecemos su confianza en el comité de atención de la NOM-035.</p>
         <p>Si tiene alguna duda o comentario adicional, no dude en contactarnos.</p>
         <br>
@@ -128,7 +132,7 @@ export const emailTemplates = {
 
 /**
  * Función para enviar correo electrónico
- * 
+ *
  * NOTA: Esta es una implementación de ejemplo.
  * En producción, deberás configurar un servicio de correo real como:
  * - SendGrid
@@ -159,7 +163,7 @@ export async function sendEmail(config: EmailConfig): Promise<boolean> {
     // await transporter.sendMail(config);
 
     // Por ahora, solo registramos en consola para demostración
-    console.log('📧 Correo enviado:', {
+    console.log("📧 Correo enviado:", {
       to: config.to,
       subject: config.subject,
       timestamp: new Date().toISOString(),
@@ -167,7 +171,7 @@ export async function sendEmail(config: EmailConfig): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('❌ Error enviando correo:', error);
+    console.error("❌ Error enviando correo:", error);
     return false;
   }
 }
@@ -179,23 +183,27 @@ export async function sendStatusChangeNotification(
   email: string,
   folio: string,
   subject: string,
-  newStatus: 'recibido' | 'asignado' | 'en_proceso' | 'concluido',
+  newStatus: "recibido" | "asignado" | "en_proceso" | "concluido",
   assignedTo?: string,
   response?: string
 ): Promise<boolean> {
   let template: any;
 
   switch (newStatus) {
-    case 'recibido':
+    case "recibido":
       template = emailTemplates.recibido(folio, subject);
       break;
-    case 'asignado':
-      template = emailTemplates.asignado(folio, subject, assignedTo || 'Comité de Atención');
+    case "asignado":
+      template = emailTemplates.asignado(
+        folio,
+        subject,
+        assignedTo || "Comité de Atención"
+      );
       break;
-    case 'en_proceso':
+    case "en_proceso":
       template = emailTemplates.en_proceso(folio, subject);
       break;
-    case 'concluido':
+    case "concluido":
       template = emailTemplates.concluido(folio, subject, response);
       break;
     default:
@@ -203,7 +211,7 @@ export async function sendStatusChangeNotification(
   }
 
   return sendEmail({
-    from: process.env.MAILBOX_EMAIL_FROM || 'buzon@empresa.com',
+    from: process.env.MAILBOX_EMAIL_FROM || "buzon@empresa.com",
     to: email,
     subject: template.subject,
     html: template.html,
@@ -212,10 +220,10 @@ export async function sendStatusChangeNotification(
 
 /**
  * Parser de correos entrantes
- * 
+ *
  * Esta función procesa correos entrantes y extrae la información necesaria
  * para crear una solicitud en el buzón.
- * 
+ *
  * NOTA: La implementación específica dependerá del servicio de correo que uses:
  * - SendGrid Inbound Parse
  * - AWS SES + Lambda
@@ -240,9 +248,9 @@ export function parseIncomingEmail(rawEmail: any): ParsedEmail {
   // };
 
   return {
-    from: rawEmail.from || '',
-    subject: rawEmail.subject || 'Sin asunto',
-    body: rawEmail.body || rawEmail.text || '',
+    from: rawEmail.from || "",
+    subject: rawEmail.subject || "Sin asunto",
+    body: rawEmail.body || rawEmail.text || "",
     receivedAt: new Date(),
   };
 }

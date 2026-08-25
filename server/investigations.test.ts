@@ -19,7 +19,9 @@ describe("Investigations Router - Unit Tests", () => {
     const expiresAt = new Date();
     expiresAt.setDate(today.getDate() + 30);
 
-    const diffInDays = Math.floor((expiresAt.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor(
+      (expiresAt.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
     expect(diffInDays).toBeGreaterThanOrEqual(29); // Permitir pequeñas variaciones
     expect(diffInDays).toBeLessThanOrEqual(30);
   });
@@ -28,7 +30,7 @@ describe("Investigations Router - Unit Tests", () => {
     // Simular generación de tokens únicos
     const token1 = `test-token-${Date.now()}-${Math.random()}`;
     const token2 = `test-token-${Date.now()}-${Math.random()}`;
-    
+
     expect(token1).not.toBe(token2);
     expect(token1.length).toBeGreaterThan(10);
     expect(token2.length).toBeGreaterThan(10);
@@ -48,7 +50,9 @@ describe("Investigations Router - Unit Tests", () => {
     const token = "abc123def456";
     const questionnaireUrl = `${baseUrl}/questionnaire/${token}`;
 
-    expect(questionnaireUrl).toBe("http://localhost:3000/questionnaire/abc123def456");
+    expect(questionnaireUrl).toBe(
+      "http://localhost:3000/questionnaire/abc123def456"
+    );
     expect(questionnaireUrl).toContain("/questionnaire/");
   });
 

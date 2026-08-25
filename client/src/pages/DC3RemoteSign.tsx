@@ -21,18 +21,32 @@ import {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Field({ label, value }: { label: string; value: string | null | undefined }) {
+function Field({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | null | undefined;
+}) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</span>
-      <span className="text-sm font-medium text-foreground">{value ?? "—"}</span>
+      <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+        {label}
+      </span>
+      <span className="text-sm font-medium text-foreground">
+        {value ?? "—"}
+      </span>
     </div>
   );
 }
 
 // ─── Canvas de firma ──────────────────────────────────────────────────────────
 
-function SignatureCanvas({ onSignatureChange }: { onSignatureChange: (dataUrl: string | null) => void }) {
+function SignatureCanvas({
+  onSignatureChange,
+}: {
+  onSignatureChange: (dataUrl: string | null) => void;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const [hasSignature, setHasSignature] = useState(false);
@@ -43,9 +57,15 @@ function SignatureCanvas({ onSignatureChange }: { onSignatureChange: (dataUrl: s
     const scaleY = canvas.height / rect.height;
     if ("touches" in e) {
       const t = e.touches[0];
-      return { x: (t.clientX - rect.left) * scaleX, y: (t.clientY - rect.top) * scaleY };
+      return {
+        x: (t.clientX - rect.left) * scaleX,
+        y: (t.clientY - rect.top) * scaleY,
+      };
     }
-    return { x: ((e as MouseEvent).clientX - rect.left) * scaleX, y: ((e as MouseEvent).clientY - rect.top) * scaleY };
+    return {
+      x: ((e as MouseEvent).clientX - rect.left) * scaleX,
+      y: ((e as MouseEvent).clientY - rect.top) * scaleY,
+    };
   };
 
   const startDraw = useCallback((e: MouseEvent | TouchEvent) => {
@@ -60,23 +80,26 @@ function SignatureCanvas({ onSignatureChange }: { onSignatureChange: (dataUrl: s
     ctx.moveTo(pos.x, pos.y);
   }, []);
 
-  const draw = useCallback((e: MouseEvent | TouchEvent) => {
-    e.preventDefault();
-    if (!isDrawing.current) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const pos = getPos(e, canvas);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = "#1a1a2e";
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.stroke();
-    setHasSignature(true);
-    onSignatureChange(canvas.toDataURL("image/png"));
-  }, [onSignatureChange]);
+  const draw = useCallback(
+    (e: MouseEvent | TouchEvent) => {
+      e.preventDefault();
+      if (!isDrawing.current) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      const pos = getPos(e, canvas);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.strokeStyle = "#1a1a2e";
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.stroke();
+      setHasSignature(true);
+      onSignatureChange(canvas.toDataURL("image/png"));
+    },
+    [onSignatureChange]
+  );
 
   const stopDraw = useCallback(() => {
     isDrawing.current = false;
@@ -193,7 +216,8 @@ export default function DC3RemoteSign() {
             <div>
               <p className="font-bold text-red-800">Enlace no válido</p>
               <p className="text-red-700 text-sm mt-1">
-                Este enlace de firma no existe o ya fue eliminado. Solicite un nuevo enlace al administrador del sistema.
+                Este enlace de firma no existe o ya fue eliminado. Solicite un
+                nuevo enlace al administrador del sistema.
               </p>
             </div>
           </CardContent>
@@ -213,8 +237,10 @@ export default function DC3RemoteSign() {
               <p className="font-bold text-orange-800">Enlace expirado</p>
               <p className="text-orange-700 text-sm mt-1">
                 Este enlace de firma venció el{" "}
-                {data.expiresAt ? new Date(data.expiresAt).toLocaleString("es-MX") : "—"}.
-                Solicite un nuevo enlace al administrador del sistema.
+                {data.expiresAt
+                  ? new Date(data.expiresAt).toLocaleString("es-MX")
+                  : "—"}
+                . Solicite un nuevo enlace al administrador del sistema.
               </p>
             </div>
           </CardContent>
@@ -234,8 +260,10 @@ export default function DC3RemoteSign() {
               <p className="font-bold text-green-800">Firma ya registrada</p>
               <p className="text-green-700 text-sm mt-1">
                 La firma fue registrada exitosamente el{" "}
-                {data.usedAt ? new Date(data.usedAt).toLocaleString("es-MX") : "—"}.
-                Este enlace ya no puede usarse nuevamente.
+                {data.usedAt
+                  ? new Date(data.usedAt).toLocaleString("es-MX")
+                  : "—"}
+                . Este enlace ya no puede usarse nuevamente.
               </p>
             </div>
           </CardContent>
@@ -252,10 +280,12 @@ export default function DC3RemoteSign() {
           <CardContent className="pt-6 flex items-start gap-3">
             <CheckCircle2 className="w-6 h-6 text-green-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-green-800">¡Firma registrada exitosamente!</p>
+              <p className="font-bold text-green-800">
+                ¡Firma registrada exitosamente!
+              </p>
               <p className="text-green-700 text-sm mt-1">
-                Su firma como <strong>{data.token.roleLabel}</strong> ha sido guardada en la constancia DC-3.
-                Puede cerrar esta ventana.
+                Su firma como <strong>{data.token.roleLabel}</strong> ha sido
+                guardada en la constancia DC-3. Puede cerrar esta ventana.
               </p>
             </div>
           </CardContent>
@@ -277,7 +307,9 @@ export default function DC3RemoteSign() {
               <PenLine className="w-7 h-7 text-primary" />
             </div>
           </div>
-          <h1 className="text-xl font-bold text-foreground">Firma de Constancia DC-3</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            Firma de Constancia DC-3
+          </h1>
           <p className="text-muted-foreground text-sm mt-1">
             Se le solicita firmar como <strong>{data.token.roleLabel}</strong>
           </p>
@@ -294,8 +326,10 @@ export default function DC3RemoteSign() {
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
             <p className="text-xs text-amber-800">
               Este enlace expira el{" "}
-              <strong>{new Date(data.token.expiresAt).toLocaleString("es-MX")}</strong>.
-              Use este enlace una sola vez.
+              <strong>
+                {new Date(data.token.expiresAt).toLocaleString("es-MX")}
+              </strong>
+              . Use este enlace una sola vez.
             </p>
           </CardContent>
         </Card>
@@ -326,7 +360,14 @@ export default function DC3RemoteSign() {
                   : null
               }
             />
-            <Field label="Duración" value={record.courseDurationHours ? `${record.courseDurationHours} hrs` : null} />
+            <Field
+              label="Duración"
+              value={
+                record.courseDurationHours
+                  ? `${record.courseDurationHours} hrs`
+                  : null
+              }
+            />
             {record.folioNumber && (
               <div className="col-span-2">
                 <Field label="Folio" value={record.folioNumber} />
@@ -353,7 +394,9 @@ export default function DC3RemoteSign() {
           <Card className="border-red-200 bg-red-50">
             <CardContent className="pt-3 pb-3 flex items-center gap-2">
               <XCircle className="w-4 h-4 text-red-600 shrink-0" />
-              <p className="text-xs text-red-800">{submitMutation.error?.message}</p>
+              <p className="text-xs text-red-800">
+                {submitMutation.error?.message}
+              </p>
             </CardContent>
           </Card>
         )}
@@ -366,14 +409,21 @@ export default function DC3RemoteSign() {
           onClick={handleSubmit}
         >
           {submitMutation.isPending ? (
-            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Registrando firma…</>
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Registrando firma…
+            </>
           ) : (
-            <><Send className="w-4 h-4 mr-2" />Confirmar y enviar firma</>
+            <>
+              <Send className="w-4 h-4 mr-2" />
+              Confirmar y enviar firma
+            </>
           )}
         </Button>
 
         <p className="text-xs text-muted-foreground text-center">
-          Al enviar su firma, acepta que la misma quedará registrada en la constancia DC-3 con fecha y hora del servidor.
+          Al enviar su firma, acepta que la misma quedará registrada en la
+          constancia DC-3 con fecha y hora del servidor.
         </p>
       </div>
     </div>

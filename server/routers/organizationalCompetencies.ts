@@ -1,7 +1,13 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { competencies, departments, employeeCompetencies, employees, organizationalCompetencies } from "../../drizzle/schema";
+import {
+  competencies,
+  departments,
+  employeeCompetencies,
+  employees,
+  organizationalCompetencies,
+} from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -13,7 +19,12 @@ export const organizationalCompetenciesRouter = router({
     .input(
       z.object({
         competencyName: z.string(),
-        competencyCategory: z.enum(["soft_skill", "organizational", "leadership", "technical_transversal"]),
+        competencyCategory: z.enum([
+          "soft_skill",
+          "organizational",
+          "leadership",
+          "technical_transversal",
+        ]),
         description: z.string().optional(),
         requiredLevel: z.enum(["basico", "intermedio", "avanzado", "experto"]),
         appliesToDepartments: z.array(z.string()).optional(), // Array of department names
@@ -29,10 +40,16 @@ export const organizationalCompetenciesRouter = router({
         });
       }
 
-      const [competency] = await (db.insert(organizationalCompetencies) as any).values({
+      const [competency] = await (
+        db.insert(organizationalCompetencies) as any
+      ).values({
         ...input,
-        appliesToDepartments: input.appliesToDepartments ? JSON.stringify(input.appliesToDepartments) : null,
-        appliesToRoles: input.appliesToRoles ? JSON.stringify(input.appliesToRoles) : null,
+        appliesToDepartments: input.appliesToDepartments
+          ? JSON.stringify(input.appliesToDepartments)
+          : null,
+        appliesToRoles: input.appliesToRoles
+          ? JSON.stringify(input.appliesToRoles)
+          : null,
       });
 
       return { success: true, competencyId: competency.insertId };
@@ -43,10 +60,19 @@ export const organizationalCompetenciesRouter = router({
    */
   list: protectedProcedure
     .input(
-      z.object({
-        category: z.enum(["soft_skill", "organizational", "leadership", "technical_transversal"]).optional(),
-        isActive: z.boolean().optional(),
-      }).optional()
+      z
+        .object({
+          category: z
+            .enum([
+              "soft_skill",
+              "organizational",
+              "leadership",
+              "technical_transversal",
+            ])
+            .optional(),
+          isActive: z.boolean().optional(),
+        })
+        .optional()
     )
     .query(async ({ ctx, input }) => {
       const db = await getDb();
@@ -61,10 +87,14 @@ export const organizationalCompetenciesRouter = router({
 
       const conditions: any[] = [];
       if (input?.category) {
-        conditions.push(eq(organizationalCompetencies.competencyCategory, input.category));
+        conditions.push(
+          eq(organizationalCompetencies.competencyCategory, input.category)
+        );
       }
       if (input?.isActive !== undefined) {
-        conditions.push(eq(organizationalCompetencies.isActive, input.isActive));
+        conditions.push(
+          eq(organizationalCompetencies.isActive, input.isActive)
+        );
       }
 
       if (conditions.length > 0) {
@@ -79,8 +109,14 @@ export const organizationalCompetenciesRouter = router({
       // Parse JSON fields
       return competencies.map((c: any) => ({
         ...c,
-        appliesToDepartments: c.appliesToDepartments && c.appliesToDepartments !== "all" ? JSON.parse(c.appliesToDepartments) : c.appliesToDepartments,
-        appliesToRoles: c.appliesToRoles && c.appliesToRoles !== "all" ? JSON.parse(c.appliesToRoles) : c.appliesToRoles,
+        appliesToDepartments:
+          c.appliesToDepartments && c.appliesToDepartments !== "all"
+            ? JSON.parse(c.appliesToDepartments)
+            : c.appliesToDepartments,
+        appliesToRoles:
+          c.appliesToRoles && c.appliesToRoles !== "all"
+            ? JSON.parse(c.appliesToRoles)
+            : c.appliesToRoles,
       }));
     }),
 
@@ -132,14 +168,21 @@ export const organizationalCompetenciesRouter = router({
         // Handle special case: "all" means applies to everyone
         if (c.appliesToDepartments === "all") return true;
 
-        const departments = c.appliesToDepartments && c.appliesToDepartments !== "all" ? JSON.parse(c.appliesToDepartments) : null;
-        const roles = c.appliesToRoles && c.appliesToRoles !== "all" ? JSON.parse(c.appliesToRoles) : null;
+        const departments =
+          c.appliesToDepartments && c.appliesToDepartments !== "all"
+            ? JSON.parse(c.appliesToDepartments)
+            : null;
+        const roles =
+          c.appliesToRoles && c.appliesToRoles !== "all"
+            ? JSON.parse(c.appliesToRoles)
+            : null;
 
         // If no restrictions, applies to everyone
         if (!departments && !roles) return true;
 
         // Check department match
-        const departmentMatch = !departments || departments.includes(employee.departmentName);
+        const departmentMatch =
+          !departments || departments.includes(employee.departmentName);
 
         // Check role match (if roles are specified)
         const roleMatch = !roles; // For now, we don't have role field in employees table
@@ -149,7 +192,12 @@ export const organizationalCompetenciesRouter = router({
 
       return applicableCompetencies.map((c: any) => ({
         ...c,
-        appliesToDepartments: c.appliesToDepartments === "all" ? "all" : (c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null),
+        appliesToDepartments:
+          c.appliesToDepartments === "all"
+            ? "all"
+            : c.appliesToDepartments
+              ? JSON.parse(c.appliesToDepartments)
+              : null,
         appliesToRoles: c.appliesToRoles ? JSON.parse(c.appliesToRoles) : null,
       }));
     }),
@@ -162,9 +210,18 @@ export const organizationalCompetenciesRouter = router({
       z.object({
         id: z.number(),
         competencyName: z.string().optional(),
-        competencyCategory: z.enum(["soft_skill", "organizational", "leadership", "technical_transversal"]).optional(),
+        competencyCategory: z
+          .enum([
+            "soft_skill",
+            "organizational",
+            "leadership",
+            "technical_transversal",
+          ])
+          .optional(),
         description: z.string().optional(),
-        requiredLevel: z.enum(["basico", "intermedio", "avanzado", "experto"]).optional(),
+        requiredLevel: z
+          .enum(["basico", "intermedio", "avanzado", "experto"])
+          .optional(),
         appliesToDepartments: z.array(z.string()).optional(),
         appliesToRoles: z.array(z.string()).optional(),
         isActive: z.boolean().optional(),
@@ -183,10 +240,14 @@ export const organizationalCompetenciesRouter = router({
 
       const processedData: any = { ...updateData };
       if (updateData.appliesToDepartments) {
-        processedData.appliesToDepartments = JSON.stringify(updateData.appliesToDepartments);
+        processedData.appliesToDepartments = JSON.stringify(
+          updateData.appliesToDepartments
+        );
       }
       if (updateData.appliesToRoles) {
-        processedData.appliesToRoles = JSON.stringify(updateData.appliesToRoles);
+        processedData.appliesToRoles = JSON.stringify(
+          updateData.appliesToRoles
+        );
       }
 
       await db
@@ -203,22 +264,41 @@ export const organizationalCompetenciesRouter = router({
   bulkImport: protectedProcedure
     .input(
       z.object({
-        rows: z.array(z.object({
-          competencyName: z.string().min(1),
-          competencyCategory: z.enum(["soft_skill", "organizational", "leadership", "technical_transversal"]),
-          description: z.string().optional(),
-          requiredLevel: z.enum(["basico", "intermedio", "avanzado", "experto"]),
-          appliesToDepartments: z.string().optional(),
-          appliesToRoles: z.string().optional(),
-        }))
+        rows: z.array(
+          z.object({
+            competencyName: z.string().min(1),
+            competencyCategory: z.enum([
+              "soft_skill",
+              "organizational",
+              "leadership",
+              "technical_transversal",
+            ]),
+            description: z.string().optional(),
+            requiredLevel: z.enum([
+              "basico",
+              "intermedio",
+              "avanzado",
+              "experto",
+            ]),
+            appliesToDepartments: z.string().optional(),
+            appliesToRoles: z.string().optional(),
+          })
+        ),
       })
     )
     .mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin" && ctx.user.role !== "rh") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "Solo administradores o RH pueden importar competencias" });
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Solo administradores o RH pueden importar competencias",
+        });
       }
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       let created = 0;
       let updated = 0;
       const errors: string[] = [];
@@ -227,22 +307,34 @@ export const organizationalCompetenciesRouter = router({
           const existing = await db
             .select({ id: organizationalCompetencies.id })
             .from(organizationalCompetencies)
-            .where(eq(organizationalCompetencies.competencyName, row.competencyName))
+            .where(
+              eq(organizationalCompetencies.competencyName, row.competencyName)
+            )
             .limit(1);
           const depts = row.appliesToDepartments
-            ? row.appliesToDepartments.split(",").map((s: string) => s.trim()).filter(Boolean)
+            ? row.appliesToDepartments
+                .split(",")
+                .map((s: string) => s.trim())
+                .filter(Boolean)
             : [];
           const roles = row.appliesToRoles
-            ? row.appliesToRoles.split(",").map((s: string) => s.trim()).filter(Boolean)
+            ? row.appliesToRoles
+                .split(",")
+                .map((s: string) => s.trim())
+                .filter(Boolean)
             : [];
           if (existing.length > 0) {
-            await (db.update(organizationalCompetencies) as any).set({
-              competencyCategory: row.competencyCategory,
-              description: row.description ?? null,
-              requiredLevel: row.requiredLevel,
-              appliesToDepartments: depts.length ? JSON.stringify(depts) : null,
-              appliesToRoles: roles.length ? JSON.stringify(roles) : null,
-            }).where(eq(organizationalCompetencies.id, existing[0].id));
+            await (db.update(organizationalCompetencies) as any)
+              .set({
+                competencyCategory: row.competencyCategory,
+                description: row.description ?? null,
+                requiredLevel: row.requiredLevel,
+                appliesToDepartments: depts.length
+                  ? JSON.stringify(depts)
+                  : null,
+                appliesToRoles: roles.length ? JSON.stringify(roles) : null,
+              })
+              .where(eq(organizationalCompetencies.id, existing[0].id));
             updated++;
           } else {
             await (db.insert(organizationalCompetencies) as any).values({

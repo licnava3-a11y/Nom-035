@@ -59,7 +59,7 @@ describe("Sprint 53 — Handler Warmup en index.ts", () => {
   });
 
   it("el handler warmup responde con ok:true", () => {
-    expect(content).toContain('ok: true');
+    expect(content).toContain("ok: true");
   });
 });
 
@@ -81,19 +81,25 @@ describe("Sprint 53 — Lógica de deduplicación (unit tests puros)", () => {
   it("debe omitir notificación si fue enviada hace 1 hora", () => {
     const now = new Date("2024-01-15T12:00:00Z");
     const lastNotified = new Date("2024-01-15T11:00:00Z"); // 1h antes
-    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(true);
+    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(
+      true
+    );
   });
 
   it("debe omitir notificación si fue enviada hace 23 horas", () => {
     const now = new Date("2024-01-15T12:00:00Z");
     const lastNotified = new Date("2024-01-14T13:00:00Z"); // 23h antes
-    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(true);
+    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(
+      true
+    );
   });
 
   it("debe enviar notificación si fue enviada hace más de 24 horas", () => {
     const now = new Date("2024-01-15T12:00:00Z");
     const lastNotified = new Date("2024-01-14T11:00:00Z"); // 25h antes
-    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(false);
+    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(
+      false
+    );
   });
 
   it("debe enviar notificación si nunca fue enviada (null)", () => {
@@ -104,12 +110,16 @@ describe("Sprint 53 — Lógica de deduplicación (unit tests puros)", () => {
   it("debe omitir notificación enviada exactamente hace 24h - 1ms", () => {
     const now = new Date("2024-01-15T12:00:00Z");
     const lastNotified = new Date(now.getTime() - DEDUP_WINDOW_MS + 1); // 1ms antes del límite
-    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(true);
+    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(
+      true
+    );
   });
 
   it("debe enviar notificación enviada exactamente hace 24h", () => {
     const now = new Date("2024-01-15T12:00:00Z");
     const lastNotified = new Date(now.getTime() - DEDUP_WINDOW_MS); // exactamente 24h
-    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(false);
+    expect(shouldSkipNotification(lastNotified, DEDUP_WINDOW_MS, now)).toBe(
+      false
+    );
   });
 });

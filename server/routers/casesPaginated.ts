@@ -8,7 +8,10 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { cases } from "../../drizzle/schema";
 import { and, eq, or, desc, sql, gte, lte } from "drizzle-orm";
-import { normalizePaginationParams, calculatePagination } from "../utils/pagination";
+import {
+  normalizePaginationParams,
+  calculatePagination,
+} from "../utils/pagination";
 
 export const casesPaginatedRouter = router({
   /**
@@ -19,9 +22,13 @@ export const casesPaginatedRouter = router({
       z.object({
         page: z.number().min(1).optional(),
         pageSize: z.number().min(1).max(100).optional(),
-        status: z.enum(["open", "investigating", "resolved", "closed"]).optional(),
+        status: z
+          .enum(["open", "investigating", "resolved", "closed"])
+          .optional(),
         priority: z.enum(["low", "medium", "high", "critical"]).optional(),
-        caseType: z.enum(["mobbing", "burnout", "violence", "stress", "other"]).optional(),
+        caseType: z
+          .enum(["mobbing", "burnout", "violence", "stress", "other"])
+          .optional(),
         departmentId: z.number().optional(),
         assignedTo: z.number().optional(),
         search: z.string().optional(),
@@ -75,7 +82,8 @@ export const casesPaginatedRouter = router({
         conditions.push(lte(cases.createdAt, new Date(input.dateTo)));
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       // Ejecutar queries en paralelo
       const [casesList, totalCount] = await Promise.all([
@@ -90,7 +98,7 @@ export const casesPaginatedRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(cases)
           .where(whereClause)
-          .then((r) => r[0]?.count || 0),
+          .then(r => r[0]?.count || 0),
       ]);
 
       const pagination = calculatePagination(page, pageSize, totalCount);
@@ -141,7 +149,7 @@ export const casesPaginatedRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(cases)
           .where(whereClause)
-          .then((r) => r[0]?.count || 0),
+          .then(r => r[0]?.count || 0),
       ]);
 
       const pagination = calculatePagination(page, pageSize, totalCount);
@@ -160,7 +168,10 @@ export const casesPaginatedRouter = router({
       z.object({
         page: z.number().min(1).optional(),
         pageSize: z.number().min(1).max(50).optional().default(20),
-        statusFilter: z.enum(["open", "investigating", "all"]).optional().default("open"),
+        statusFilter: z
+          .enum(["open", "investigating", "all"])
+          .optional()
+          .default("open"),
       })
     )
     .query(async ({ input }) => {
@@ -192,7 +203,7 @@ export const casesPaginatedRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(cases)
           .where(whereClause)
-          .then((r) => r[0]?.count || 0),
+          .then(r => r[0]?.count || 0),
       ]);
 
       const pagination = calculatePagination(page, pageSize, totalCount);
@@ -218,12 +229,35 @@ export const casesPaginatedRouter = router({
       closedCases,
       criticalCases,
     ] = await Promise.all([
-      db.select({ count: sql<number>`count(*)` }).from(cases).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(cases).where(sql`${cases.status} = 'open'`).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(cases).where(sql`${cases.status} = 'investigating'`).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(cases).where(sql`${cases.status} = 'resolved'`).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(cases).where(sql`${cases.status} = 'closed'`).then((r) => r[0]?.count || 0),
-      db.select({ count: sql<number>`count(*)` }).from(cases).where(sql`${cases.priority} = 'critical'`).then((r) => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(cases)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(cases)
+        .where(sql`${cases.status} = 'open'`)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(cases)
+        .where(sql`${cases.status} = 'investigating'`)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(cases)
+        .where(sql`${cases.status} = 'resolved'`)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(cases)
+        .where(sql`${cases.status} = 'closed'`)
+        .then(r => r[0]?.count || 0),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(cases)
+        .where(sql`${cases.priority} = 'critical'`)
+        .then(r => r[0]?.count || 0),
     ]);
 
     return {

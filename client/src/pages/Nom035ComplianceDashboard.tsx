@@ -8,12 +8,30 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  CheckCircle2, AlertTriangle, XCircle, Clock, FileText,
-  TrendingUp, BarChart3, RefreshCw, ExternalLink, AlertCircle,
-  ShieldCheck, Activity, Target, Layers, Download
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Clock,
+  FileText,
+  TrendingUp,
+  BarChart3,
+  RefreshCw,
+  ExternalLink,
+  AlertCircle,
+  ShieldCheck,
+  Activity,
+  Target,
+  Layers,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -31,8 +49,15 @@ import {
 import { Doughnut, Bar, Line } from "react-chartjs-2";
 
 ChartJS.register(
-  ArcElement, Tooltip, Legend, CategoryScale, LinearScale,
-  BarElement, LineElement, PointElement, Filler
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Filler
 );
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -57,28 +82,47 @@ const PRIORIDAD_COLORS: Record<string, string> = {
 };
 
 // ── Componente: Círculo de semáforo animado ───────────────────────────────────
-function SemaforoCircle({ value, size = 120 }: { value: number; size?: number }) {
+function SemaforoCircle({
+  value,
+  size = 120,
+}: {
+  value: number;
+  size?: number;
+}) {
   const color = value >= 80 ? "#16a34a" : value >= 50 ? "#d97706" : "#dc2626";
   const label = value >= 80 ? "Óptimo" : value >= 50 ? "En riesgo" : "Crítico";
-  const radius = (size / 2) - 8;
+  const radius = size / 2 - 8;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (value / 100) * circumference;
 
   return (
     <div className="flex flex-col items-center gap-1">
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#e5e7eb" strokeWidth={10} />
         <circle
-          cx={size / 2} cy={size / 2} r={radius} fill="none"
-          stroke={color} strokeWidth={10}
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth={10}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={10}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           style={{ transition: "stroke-dashoffset 0.8s ease" }}
         />
         <text
-          x={size / 2} y={size / 2 + 2}
-          textAnchor="middle" dominantBaseline="middle"
+          x={size / 2}
+          y={size / 2 + 2}
+          textAnchor="middle"
+          dominantBaseline="middle"
           style={{
             transform: `rotate(90deg)`,
             transformOrigin: `${size / 2}px ${size / 2}px`,
@@ -90,23 +134,31 @@ function SemaforoCircle({ value, size = 120 }: { value: number; size?: number })
           {value}%
         </text>
       </svg>
-      <span className="text-xs font-semibold" style={{ color }}>{label}</span>
+      <span className="text-xs font-semibold" style={{ color }}>
+        {label}
+      </span>
     </div>
   );
 }
 
 // ── Componente: Badge de semáforo ─────────────────────────────────────────────
-function SemaforoBadge({ semaforo }: { semaforo: "verde" | "amarillo" | "rojo" }) {
-  if (semaforo === "verde") return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
-      <CheckCircle2 className="w-3 h-3" /> Óptimo
-    </span>
-  );
-  if (semaforo === "amarillo") return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200">
-      <AlertTriangle className="w-3 h-3" /> En riesgo
-    </span>
-  );
+function SemaforoBadge({
+  semaforo,
+}: {
+  semaforo: "verde" | "amarillo" | "rojo";
+}) {
+  if (semaforo === "verde")
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+        <CheckCircle2 className="w-3 h-3" /> Óptimo
+      </span>
+    );
+  if (semaforo === "amarillo")
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200">
+        <AlertTriangle className="w-3 h-3" /> En riesgo
+      </span>
+    );
   return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
       <XCircle className="w-3 h-3" /> Crítico
@@ -115,7 +167,14 @@ function SemaforoBadge({ semaforo }: { semaforo: "verde" | "amarillo" | "rojo" }
 }
 
 // ── Componente: Tarjeta KPI ───────────────────────────────────────────────────
-function KpiCard({ icon: Icon, label, value, sub, color, bgColor }: {
+function KpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  color,
+  bgColor,
+}: {
   icon: React.ElementType;
   label: string;
   value: number | string;
@@ -128,9 +187,13 @@ function KpiCard({ icon: Icon, label, value, sub, color, bgColor }: {
       <CardContent className="pt-5 pb-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+              {label}
+            </p>
             <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
-            {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
+            {sub && (
+              <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
+            )}
           </div>
           <div className={`p-2.5 rounded-xl ${bgColor}`}>
             <Icon className={`w-5 h-5 ${color}`} />
@@ -146,26 +209,32 @@ export default function Nom035ComplianceDashboard() {
   const [periodoMeses, setPeriodoMeses] = useState(6);
   const [tipoPlanFilter, setTipoPlanFilter] = useState<string>("all");
 
-  const generatePdfMutation = trpc.nom035Matrix.generateCompliancePdf.useMutation({
-    onSuccess: (result) => {
-      const byteChars = atob(result.pdfBase64);
-      const byteNums = new Array(byteChars.length).fill(0).map((_, i) => byteChars.charCodeAt(i));
-      const blob = new Blob([new Uint8Array(byteNums)], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `NOM035-Cumplimiento-${new Date().toISOString().split("T")[0]}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("PDF generado y descargado correctamente");
-    },
-    onError: (err) => toast.error("Error al generar el PDF: " + err.message),
-  });
+  const generatePdfMutation =
+    trpc.nom035Matrix.generateCompliancePdf.useMutation({
+      onSuccess: result => {
+        const byteChars = atob(result.pdfBase64);
+        const byteNums = new Array(byteChars.length)
+          .fill(0)
+          .map((_, i) => byteChars.charCodeAt(i));
+        const blob = new Blob([new Uint8Array(byteNums)], {
+          type: "application/pdf",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `NOM035-Cumplimiento-${new Date().toISOString().split("T")[0]}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("PDF generado y descargado correctamente");
+      },
+      onError: err => toast.error("Error al generar el PDF: " + err.message),
+    });
 
-  const { data, isLoading, refetch, isFetching } = trpc.nom035Matrix.getComplianceDashboard.useQuery(
-    { periodoMeses },
-    { refetchOnWindowFocus: false }
-  );
+  const { data, isLoading, refetch, isFetching } =
+    trpc.nom035Matrix.getComplianceDashboard.useQuery(
+      { periodoMeses },
+      { refetchOnWindowFocus: false }
+    );
 
   // ── Skeleton de carga ─────────────────────────────────────────────────────
   if (isLoading) {
@@ -176,47 +245,104 @@ export default function Nom035ComplianceDashboard() {
           <Skeleton className="h-9 w-36" />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-28" />
+          ))}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-64" />)}
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-64" />
+          ))}
         </div>
       </div>
     );
   }
 
-  if (!data) return (
-    <div className="p-6 text-center text-muted-foreground">
-      No se pudieron cargar los datos del dashboard.
-    </div>
-  );
+  if (!data)
+    return (
+      <div className="p-6 text-center text-muted-foreground">
+        No se pudieron cargar los datos del dashboard.
+      </div>
+    );
 
-  const { kpis, byTipoPlan, byNivel, byPrioridad, planes, proximasAVencer, accionesVencidas, tendenciaMeses } = data;
+  const {
+    kpis,
+    byTipoPlan,
+    byNivel,
+    byPrioridad,
+    planes,
+    proximasAVencer,
+    accionesVencidas,
+    tendenciaMeses,
+  } = data;
 
   // Filtrar planes
-  const planesFiltrados = tipoPlanFilter === "all"
-    ? planes
-    : planes.filter((p: any) => p.tipoPlan === tipoPlanFilter);
+  const planesFiltrados =
+    tipoPlanFilter === "all"
+      ? planes
+      : planes.filter((p: any) => p.tipoPlan === tipoPlanFilter);
 
   // ── Datos para gráficos ───────────────────────────────────────────────────
 
   const doughnutData = {
-    labels: ["Cumplidas", "En proceso", "No iniciadas", "Vencidas", "Canceladas"],
-    datasets: [{
-      data: [kpis.cumplidas, kpis.enProceso, kpis.noIniciadas, kpis.vencidas, kpis.canceladas],
-      backgroundColor: ["#16a34a", "#2563eb", "#94a3b8", "#dc2626", "#6b7280"],
-      borderWidth: 2,
-      borderColor: "#fff",
-    }],
+    labels: [
+      "Cumplidas",
+      "En proceso",
+      "No iniciadas",
+      "Vencidas",
+      "Canceladas",
+    ],
+    datasets: [
+      {
+        data: [
+          kpis.cumplidas,
+          kpis.enProceso,
+          kpis.noIniciadas,
+          kpis.vencidas,
+          kpis.canceladas,
+        ],
+        backgroundColor: [
+          "#16a34a",
+          "#2563eb",
+          "#94a3b8",
+          "#dc2626",
+          "#6b7280",
+        ],
+        borderWidth: 2,
+        borderColor: "#fff",
+      },
+    ],
   };
 
   const barTipoData = {
-    labels: byTipoPlan.map((r: any) => TIPO_PLAN_LABELS[r.tipoPlan] || r.tipoPlan),
+    labels: byTipoPlan.map(
+      (r: any) => TIPO_PLAN_LABELS[r.tipoPlan] || r.tipoPlan
+    ),
     datasets: [
-      { label: "Cumplidas", data: byTipoPlan.map((r: any) => r.cumplidas), backgroundColor: "#16a34a", borderRadius: 4 },
-      { label: "En proceso", data: byTipoPlan.map((r: any) => r.enProceso), backgroundColor: "#2563eb", borderRadius: 4 },
-      { label: "Vencidas", data: byTipoPlan.map((r: any) => r.vencidas), backgroundColor: "#dc2626", borderRadius: 4 },
-      { label: "No iniciadas", data: byTipoPlan.map((r: any) => r.noIniciadas), backgroundColor: "#94a3b8", borderRadius: 4 },
+      {
+        label: "Cumplidas",
+        data: byTipoPlan.map((r: any) => r.cumplidas),
+        backgroundColor: "#16a34a",
+        borderRadius: 4,
+      },
+      {
+        label: "En proceso",
+        data: byTipoPlan.map((r: any) => r.enProceso),
+        backgroundColor: "#2563eb",
+        borderRadius: 4,
+      },
+      {
+        label: "Vencidas",
+        data: byTipoPlan.map((r: any) => r.vencidas),
+        backgroundColor: "#dc2626",
+        borderRadius: 4,
+      },
+      {
+        label: "No iniciadas",
+        data: byTipoPlan.map((r: any) => r.noIniciadas),
+        backgroundColor: "#94a3b8",
+        borderRadius: 4,
+      },
     ],
   };
 
@@ -257,20 +383,46 @@ export default function Nom035ComplianceDashboard() {
   };
 
   const barPrioridadData = {
-    labels: byPrioridad.map((r: any) => r.prioridad.charAt(0).toUpperCase() + r.prioridad.slice(1)),
+    labels: byPrioridad.map(
+      (r: any) => r.prioridad.charAt(0).toUpperCase() + r.prioridad.slice(1)
+    ),
     datasets: [
-      { label: "Cumplidas", data: byPrioridad.map((r: any) => r.cumplidas), backgroundColor: "#16a34a", borderRadius: 4 },
-      { label: "Vencidas", data: byPrioridad.map((r: any) => r.vencidas), backgroundColor: "#dc2626", borderRadius: 4 },
-      { label: "Pendientes", data: byPrioridad.map((r: any) => r.total - r.cumplidas - r.vencidas), backgroundColor: "#94a3b8", borderRadius: 4 },
+      {
+        label: "Cumplidas",
+        data: byPrioridad.map((r: any) => r.cumplidas),
+        backgroundColor: "#16a34a",
+        borderRadius: 4,
+      },
+      {
+        label: "Vencidas",
+        data: byPrioridad.map((r: any) => r.vencidas),
+        backgroundColor: "#dc2626",
+        borderRadius: 4,
+      },
+      {
+        label: "Pendientes",
+        data: byPrioridad.map((r: any) => r.total - r.cumplidas - r.vencidas),
+        backgroundColor: "#94a3b8",
+        borderRadius: 4,
+      },
     ],
   };
 
   const barOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: "bottom" as const, labels: { font: { size: 10 }, boxWidth: 10 } } },
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+        labels: { font: { size: 10 }, boxWidth: 10 },
+      },
+    },
     scales: {
-      x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+      x: {
+        stacked: true,
+        grid: { display: false },
+        ticks: { font: { size: 10 } },
+      },
       y: { stacked: true, beginAtZero: true, ticks: { font: { size: 10 } } },
     },
   };
@@ -278,7 +430,12 @@ export default function Nom035ComplianceDashboard() {
   const lineOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: "bottom" as const, labels: { font: { size: 10 }, boxWidth: 10 } } },
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+        labels: { font: { size: 10 }, boxWidth: 10 },
+      },
+    },
     scales: {
       x: { grid: { display: false }, ticks: { font: { size: 10 } } },
       y: { beginAtZero: true, ticks: { font: { size: 10 } } },
@@ -289,13 +446,17 @@ export default function Nom035ComplianceDashboard() {
     responsive: true,
     maintainAspectRatio: false,
     cutout: "65%",
-    plugins: { legend: { position: "bottom" as const, labels: { font: { size: 10 }, boxWidth: 10, padding: 8 } } },
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+        labels: { font: { size: 10 }, boxWidth: 10, padding: 8 },
+      },
+    },
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -308,7 +469,10 @@ export default function Nom035ComplianceDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Select value={String(periodoMeses)} onValueChange={v => setPeriodoMeses(Number(v))}>
+          <Select
+            value={String(periodoMeses)}
+            onValueChange={v => setPeriodoMeses(Number(v))}
+          >
             <SelectTrigger className="w-40 h-9">
               <SelectValue />
             </SelectTrigger>
@@ -319,8 +483,16 @@ export default function Nom035ComplianceDashboard() {
               <SelectItem value="24">Últimos 24 meses</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="gap-1.5">
-            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="gap-1.5"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`}
+            />
             Actualizar
           </Button>
           <Button
@@ -330,9 +502,11 @@ export default function Nom035ComplianceDashboard() {
             onClick={() => generatePdfMutation.mutate({ periodoMeses })}
             disabled={generatePdfMutation.isPending}
           >
-            {generatePdfMutation.isPending
-              ? <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              : <Download className="w-3.5 h-3.5" />}
+            {generatePdfMutation.isPending ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Download className="w-3.5 h-3.5" />
+            )}
             {generatePdfMutation.isPending ? "Generando..." : "Exportar PDF"}
           </Button>
           <Button asChild size="sm" className="gap-1.5">
@@ -366,12 +540,51 @@ export default function Nom035ComplianceDashboard() {
         </Card>
 
         <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <KpiCard icon={Target} label="Total Acciones" value={kpis.total} color="text-slate-700" bgColor="bg-slate-100" />
-          <KpiCard icon={CheckCircle2} label="Cumplidas" value={kpis.cumplidas} sub={`${kpis.porcentajeCumplimiento}% del total`} color="text-green-600" bgColor="bg-green-100" />
-          <KpiCard icon={Activity} label="En Proceso" value={kpis.enProceso} color="text-blue-600" bgColor="bg-blue-100" />
-          <KpiCard icon={Clock} label="No Iniciadas" value={kpis.noIniciadas} color="text-slate-500" bgColor="bg-slate-100" />
-          <KpiCard icon={XCircle} label="Vencidas" value={kpis.vencidas} sub={kpis.vencidas > 0 ? "Requieren atención" : "Sin vencidas"} color={kpis.vencidas > 0 ? "text-red-600" : "text-green-600"} bgColor={kpis.vencidas > 0 ? "bg-red-100" : "bg-green-100"} />
-          <KpiCard icon={FileText} label="Con Evidencia" value={kpis.conEvidencia} sub={`de ${kpis.total} acciones`} color="text-indigo-600" bgColor="bg-indigo-100" />
+          <KpiCard
+            icon={Target}
+            label="Total Acciones"
+            value={kpis.total}
+            color="text-slate-700"
+            bgColor="bg-slate-100"
+          />
+          <KpiCard
+            icon={CheckCircle2}
+            label="Cumplidas"
+            value={kpis.cumplidas}
+            sub={`${kpis.porcentajeCumplimiento}% del total`}
+            color="text-green-600"
+            bgColor="bg-green-100"
+          />
+          <KpiCard
+            icon={Activity}
+            label="En Proceso"
+            value={kpis.enProceso}
+            color="text-blue-600"
+            bgColor="bg-blue-100"
+          />
+          <KpiCard
+            icon={Clock}
+            label="No Iniciadas"
+            value={kpis.noIniciadas}
+            color="text-slate-500"
+            bgColor="bg-slate-100"
+          />
+          <KpiCard
+            icon={XCircle}
+            label="Vencidas"
+            value={kpis.vencidas}
+            sub={kpis.vencidas > 0 ? "Requieren atención" : "Sin vencidas"}
+            color={kpis.vencidas > 0 ? "text-red-600" : "text-green-600"}
+            bgColor={kpis.vencidas > 0 ? "bg-red-100" : "bg-green-100"}
+          />
+          <KpiCard
+            icon={FileText}
+            label="Con Evidencia"
+            value={kpis.conEvidencia}
+            sub={`de ${kpis.total} acciones`}
+            color="text-indigo-600"
+            bgColor="bg-indigo-100"
+          />
         </div>
       </div>
 
@@ -400,10 +613,13 @@ export default function Nom035ComplianceDashboard() {
           </CardHeader>
           <CardContent className="px-4 pb-4">
             <div style={{ height: 220 }}>
-              {byTipoPlan.length > 0
-                ? <Bar data={barTipoData} options={barOptions} />
-                : <div className="flex items-center justify-center h-full text-muted-foreground text-sm">Sin datos</div>
-              }
+              {byTipoPlan.length > 0 ? (
+                <Bar data={barTipoData} options={barOptions} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                  Sin datos
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -417,10 +633,13 @@ export default function Nom035ComplianceDashboard() {
           </CardHeader>
           <CardContent className="px-4 pb-4">
             <div style={{ height: 220 }}>
-              {byPrioridad.length > 0
-                ? <Bar data={barPrioridadData} options={barOptions} />
-                : <div className="flex items-center justify-center h-full text-muted-foreground text-sm">Sin datos</div>
-              }
+              {byPrioridad.length > 0 ? (
+                <Bar data={barPrioridadData} options={barOptions} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                  Sin datos
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -456,8 +675,12 @@ export default function Nom035ComplianceDashboard() {
               <SelectContent>
                 <SelectItem value="all">Todos los tipos</SelectItem>
                 <SelectItem value="intervencion">Intervención</SelectItem>
-                <SelectItem value="violencia_laboral">Violencia Laboral</SelectItem>
-                <SelectItem value="no_discriminacion">No Discriminación</SelectItem>
+                <SelectItem value="violencia_laboral">
+                  Violencia Laboral
+                </SelectItem>
+                <SelectItem value="no_discriminacion">
+                  No Discriminación
+                </SelectItem>
                 <SelectItem value="consolidado">Consolidado</SelectItem>
               </SelectContent>
             </Select>
@@ -468,22 +691,43 @@ export default function Nom035ComplianceDashboard() {
             <div className="text-center py-12 text-muted-foreground text-sm">
               <ShieldCheck className="w-10 h-10 mx-auto mb-3 opacity-30" />
               No hay planes registrados. Crea tu primer plan desde la{" "}
-              <Link href="/nom035-matrix" className="text-primary underline">Matriz de Acciones</Link>.
+              <Link href="/nom035-matrix" className="text-primary underline">
+                Matriz de Acciones
+              </Link>
+              .
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/40">
-                    <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">Plan</th>
-                    <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">Tipo</th>
-                    <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">Nivel</th>
-                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">Total</th>
-                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">Cumplidas</th>
-                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">Vencidas</th>
-                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">Evidencias</th>
-                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">% Avance</th>
-                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">Semáforo</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">
+                      Plan
+                    </th>
+                    <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">
+                      Tipo
+                    </th>
+                    <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">
+                      Nivel
+                    </th>
+                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">
+                      Total
+                    </th>
+                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">
+                      Cumplidas
+                    </th>
+                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">
+                      Vencidas
+                    </th>
+                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">
+                      Evidencias
+                    </th>
+                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">
+                      % Avance
+                    </th>
+                    <th className="text-center px-4 py-2.5 font-medium text-xs text-muted-foreground">
+                      Semáforo
+                    </th>
                     <th className="px-4 py-2.5"></th>
                   </tr>
                 </thead>
@@ -494,29 +738,45 @@ export default function Nom035ComplianceDashboard() {
                       className={`border-b transition-colors hover:bg-muted/30 ${idx % 2 === 0 ? "" : "bg-muted/10"}`}
                     >
                       <td className="px-4 py-3">
-                        <div className="font-medium text-foreground">{plan.identificadorNivel}</div>
+                        <div className="font-medium text-foreground">
+                          {plan.identificadorNivel}
+                        </div>
                         {plan.centroTrabajo && (
-                          <div className="text-xs text-muted-foreground">{plan.centroTrabajo}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {plan.centroTrabajo}
+                          </div>
                         )}
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">
                         {TIPO_PLAN_LABELS[plan.tipoPlan] || plan.tipoPlan}
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">
-                        {NIVEL_LABELS[plan.nivelAplicacion] || plan.nivelAplicacion}
+                        {NIVEL_LABELS[plan.nivelAplicacion] ||
+                          plan.nivelAplicacion}
                       </td>
-                      <td className="px-4 py-3 text-center font-semibold">{plan.totalAcciones}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="text-green-600 font-semibold">{plan.cumplidas}</span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        {plan.vencidas > 0
-                          ? <span className="text-red-600 font-semibold">{plan.vencidas}</span>
-                          : <span className="text-muted-foreground text-xs">—</span>
-                        }
+                      <td className="px-4 py-3 text-center font-semibold">
+                        {plan.totalAcciones}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className="text-indigo-600 font-semibold">{plan.conEvidencia}</span>
+                        <span className="text-green-600 font-semibold">
+                          {plan.cumplidas}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {plan.vencidas > 0 ? (
+                          <span className="text-red-600 font-semibold">
+                            {plan.vencidas}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">
+                            —
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="text-indigo-600 font-semibold">
+                          {plan.conEvidencia}
+                        </span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
@@ -526,9 +786,11 @@ export default function Nom035ComplianceDashboard() {
                               style={{
                                 width: `${plan.porcentajeCumplimiento}%`,
                                 backgroundColor:
-                                  plan.semaforo === "verde" ? "#16a34a"
-                                  : plan.semaforo === "amarillo" ? "#d97706"
-                                  : "#dc2626",
+                                  plan.semaforo === "verde"
+                                    ? "#16a34a"
+                                    : plan.semaforo === "amarillo"
+                                      ? "#d97706"
+                                      : "#dc2626",
                               }}
                             />
                           </div>
@@ -541,7 +803,12 @@ export default function Nom035ComplianceDashboard() {
                         <SemaforoBadge semaforo={plan.semaforo} />
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <Button asChild variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1">
+                        <Button
+                          asChild
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs gap-1"
+                        >
                           <Link href={`/nom035-matrix?planId=${plan.id}`}>
                             <ExternalLink className="w-3 h-3" />
                             Ver
@@ -559,7 +826,6 @@ export default function Nom035ComplianceDashboard() {
 
       {/* Alertas: próximas a vencer + vencidas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
         {/* Próximas a vencer */}
         <Card className="border-0 shadow-sm">
           <CardHeader className="pb-2 pt-4 px-4">
@@ -567,7 +833,10 @@ export default function Nom035ComplianceDashboard() {
               <AlertCircle className="w-4 h-4" />
               Próximas a Vencer (14 días)
               {proximasAVencer.length > 0 && (
-                <Badge variant="outline" className="ml-auto text-yellow-700 border-yellow-300 bg-yellow-50 text-xs">
+                <Badge
+                  variant="outline"
+                  className="ml-auto text-yellow-700 border-yellow-300 bg-yellow-50 text-xs"
+                >
                   {proximasAVencer.length}
                 </Badge>
               )}
@@ -582,21 +851,35 @@ export default function Nom035ComplianceDashboard() {
             ) : (
               <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                 {proximasAVencer.map((a: any) => (
-                  <div key={a.id} className="flex items-start gap-3 p-2.5 rounded-lg bg-yellow-50 border border-yellow-100">
+                  <div
+                    key={a.id}
+                    className="flex items-start gap-3 p-2.5 rounded-lg bg-yellow-50 border border-yellow-100"
+                  >
                     <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-semibold text-yellow-800">{a.accionId}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded border ${PRIORIDAD_COLORS[a.prioridad]}`}>
+                        <span className="text-xs font-semibold text-yellow-800">
+                          {a.accionId}
+                        </span>
+                        <span
+                          className={`text-xs px-1.5 py-0.5 rounded border ${PRIORIDAD_COLORS[a.prioridad]}`}
+                        >
                           {a.prioridad}
                         </span>
                         <span className="text-xs text-muted-foreground ml-auto">
-                          Vence: {a.plazo ? new Date(a.plazo).toLocaleDateString("es-MX") : "—"}
+                          Vence:{" "}
+                          {a.plazo
+                            ? new Date(a.plazo).toLocaleDateString("es-MX")
+                            : "—"}
                         </span>
                       </div>
-                      <p className="text-xs text-foreground mt-0.5 truncate">{a.objetivo}</p>
+                      <p className="text-xs text-foreground mt-0.5 truncate">
+                        {a.objetivo}
+                      </p>
                       {a.responsable && (
-                        <p className="text-xs text-muted-foreground">Resp: {a.responsable}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Resp: {a.responsable}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -613,7 +896,10 @@ export default function Nom035ComplianceDashboard() {
               <XCircle className="w-4 h-4" />
               Acciones Vencidas
               {accionesVencidas.length > 0 && (
-                <Badge variant="outline" className="ml-auto text-red-700 border-red-300 bg-red-50 text-xs">
+                <Badge
+                  variant="outline"
+                  className="ml-auto text-red-700 border-red-300 bg-red-50 text-xs"
+                >
                   {accionesVencidas.length}
                 </Badge>
               )}
@@ -628,21 +914,35 @@ export default function Nom035ComplianceDashboard() {
             ) : (
               <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                 {accionesVencidas.map((a: any) => (
-                  <div key={a.id} className="flex items-start gap-3 p-2.5 rounded-lg bg-red-50 border border-red-100">
+                  <div
+                    key={a.id}
+                    className="flex items-start gap-3 p-2.5 rounded-lg bg-red-50 border border-red-100"
+                  >
                     <XCircle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-semibold text-red-800">{a.accionId}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded border ${PRIORIDAD_COLORS[a.prioridad]}`}>
+                        <span className="text-xs font-semibold text-red-800">
+                          {a.accionId}
+                        </span>
+                        <span
+                          className={`text-xs px-1.5 py-0.5 rounded border ${PRIORIDAD_COLORS[a.prioridad]}`}
+                        >
                           {a.prioridad}
                         </span>
                         <span className="text-xs text-muted-foreground ml-auto">
-                          Venció: {a.plazo ? new Date(a.plazo).toLocaleDateString("es-MX") : "—"}
+                          Venció:{" "}
+                          {a.plazo
+                            ? new Date(a.plazo).toLocaleDateString("es-MX")
+                            : "—"}
                         </span>
                       </div>
-                      <p className="text-xs text-foreground mt-0.5 truncate">{a.objetivo}</p>
+                      <p className="text-xs text-foreground mt-0.5 truncate">
+                        {a.objetivo}
+                      </p>
                       {a.responsable && (
-                        <p className="text-xs text-muted-foreground">Resp: {a.responsable}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Resp: {a.responsable}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -665,8 +965,13 @@ export default function Nom035ComplianceDashboard() {
           <CardContent className="px-4 pb-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {byNivel.map((n: any) => (
-                <div key={n.nivelAplicacion} className="flex flex-col items-center gap-2 p-4 rounded-xl bg-muted/30">
-                  <p className="text-sm font-semibold">{NIVEL_LABELS[n.nivelAplicacion] || n.nivelAplicacion}</p>
+                <div
+                  key={n.nivelAplicacion}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl bg-muted/30"
+                >
+                  <p className="text-sm font-semibold">
+                    {NIVEL_LABELS[n.nivelAplicacion] || n.nivelAplicacion}
+                  </p>
                   <SemaforoCircle value={n.porcentaje} size={100} />
                   <div className="text-xs text-muted-foreground text-center">
                     {n.cumplidas}/{n.total} cumplidas · {n.vencidas} vencidas
@@ -677,7 +982,6 @@ export default function Nom035ComplianceDashboard() {
           </CardContent>
         </Card>
       )}
-
     </div>
   );
 }

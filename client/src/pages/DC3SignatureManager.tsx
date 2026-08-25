@@ -107,12 +107,13 @@ export default function DC3SignatureManager() {
 
   // ─── Queries ───────────────────────────────────────────────────────────────
 
-  const { data: signers, isLoading } = trpc.company.digitalSignature.list.useQuery();
+  const { data: signers, isLoading } =
+    trpc.company.digitalSignature.list.useQuery();
 
   // ─── Mutations ─────────────────────────────────────────────────────────────
 
   const createMutation = trpc.company.digitalSignature.create.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       utils.company.digitalSignature.list.invalidate();
       setShowNewDialog(false);
       setForm(EMPTY_FORM);
@@ -124,36 +125,53 @@ export default function DC3SignatureManager() {
             "Se enviará una solicitud de autorización al administrador. El firmante estará disponible una vez aprobado.",
         });
       } else {
-        toast({ title: "Firmante registrado", description: "El firmante ya está disponible para DC-3." });
+        toast({
+          title: "Firmante registrado",
+          description: "El firmante ya está disponible para DC-3.",
+        });
       }
     },
-    onError: (err) => {
-      toast({ title: "Error al registrar firmante", description: err.message, variant: "destructive" });
+    onError: err => {
+      toast({
+        title: "Error al registrar firmante",
+        description: err.message,
+        variant: "destructive",
+      });
     },
   });
 
-  const authorizeMutation = trpc.company.digitalSignature.authorize.useMutation({
-    onSuccess: (_, vars) => {
-      utils.company.digitalSignature.list.invalidate();
-      toast({
-        title: vars.approved ? "Firmante autorizado" : "Firmante rechazado",
-        description: vars.approved
-          ? "El firmante puede firmar constancias DC-3."
-          : "El firmante ha sido rechazado.",
-      });
-    },
-    onError: (err) => {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    },
-  });
+  const authorizeMutation = trpc.company.digitalSignature.authorize.useMutation(
+    {
+      onSuccess: (_, vars) => {
+        utils.company.digitalSignature.list.invalidate();
+        toast({
+          title: vars.approved ? "Firmante autorizado" : "Firmante rechazado",
+          description: vars.approved
+            ? "El firmante puede firmar constancias DC-3."
+            : "El firmante ha sido rechazado.",
+        });
+      },
+      onError: err => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+        });
+      },
+    }
+  );
 
   const deleteMutation = trpc.company.digitalSignature.delete.useMutation({
     onSuccess: () => {
       utils.company.digitalSignature.list.invalidate();
       toast({ title: "Firmante eliminado" });
     },
-    onError: (err) => {
-      toast({ title: "Error al eliminar", description: err.message, variant: "destructive" });
+    onError: err => {
+      toast({
+        title: "Error al eliminar",
+        description: err.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -161,19 +179,27 @@ export default function DC3SignatureManager() {
 
   const handleFormNext = () => {
     if (!form.nombreFirmante.trim() || !form.cargo.trim()) {
-      toast({ title: "Campos requeridos", description: "Nombre y cargo son obligatorios.", variant: "destructive" });
+      toast({
+        title: "Campos requeridos",
+        description: "Nombre y cargo son obligatorios.",
+        variant: "destructive",
+      });
       return;
     }
     setCaptureStep("signature");
   };
 
   const handleSignatureSaved = (dataUrl: string) => {
-    setForm((f) => ({ ...f, firmaData: dataUrl }));
+    setForm(f => ({ ...f, firmaData: dataUrl }));
   };
 
   const handleSubmit = () => {
     if (!form.firmaData) {
-      toast({ title: "Firma requerida", description: "Capture la firma antes de guardar.", variant: "destructive" });
+      toast({
+        title: "Firma requerida",
+        description: "Capture la firma antes de guardar.",
+        variant: "destructive",
+      });
       return;
     }
     createMutation.mutate({
@@ -204,7 +230,8 @@ export default function DC3SignatureManager() {
               Catálogo de Firmantes DC-3
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Gestione los firmantes autorizados para constancias de capacitación (Instructor, Patrón, Rep. Trabajadores).
+              Gestione los firmantes autorizados para constancias de
+              capacitación (Instructor, Patrón, Rep. Trabajadores).
             </p>
           </div>
           <Button onClick={() => setShowNewDialog(true)} className="gap-2">
@@ -219,10 +246,12 @@ export default function DC3SignatureManager() {
             <div className="flex gap-3 text-sm text-blue-800">
               <ShieldCheck className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold">Firmantes internos</span> se autorizan automáticamente.{" "}
-                <span className="font-semibold">Firmantes externos</span> requieren aprobación del administrador antes
-                de poder firmar constancias. Las firmas se almacenan de forma segura en S3 y se incrustan en el PDF al
-                momento de exportar.
+                <span className="font-semibold">Firmantes internos</span> se
+                autorizan automáticamente.{" "}
+                <span className="font-semibold">Firmantes externos</span>{" "}
+                requieren aprobación del administrador antes de poder firmar
+                constancias. Las firmas se almacenan de forma segura en S3 y se
+                incrustan en el PDF al momento de exportar.
               </div>
             </div>
           </CardContent>
@@ -235,13 +264,16 @@ export default function DC3SignatureManager() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Cargando firmantes...</div>
+              <div className="text-center py-8 text-muted-foreground">
+                Cargando firmantes...
+              </div>
             ) : !signers || signers.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <PenLine className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p className="font-medium">Sin firmantes registrados</p>
                 <p className="text-sm mt-1">
-                  Agregue firmantes para que sus firmas aparezcan en las constancias DC-3.
+                  Agregue firmantes para que sus firmas aparezcan en las
+                  constancias DC-3.
                 </p>
               </div>
             ) : (
@@ -258,9 +290,11 @@ export default function DC3SignatureManager() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {signers.map((s) => (
+                  {signers.map(s => (
                     <TableRow key={s.id}>
-                      <TableCell className="font-medium">{s.nombreFirmante}</TableCell>
+                      <TableCell className="font-medium">
+                        {s.nombreFirmante}
+                      </TableCell>
                       <TableCell>{s.cargo}</TableCell>
                       <TableCell>{s.departamento}</TableCell>
                       <TableCell>
@@ -280,7 +314,9 @@ export default function DC3SignatureManager() {
                             Ver firma
                           </button>
                         ) : (
-                          <span className="text-muted-foreground text-xs">—</span>
+                          <span className="text-muted-foreground text-xs">
+                            —
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -291,7 +327,12 @@ export default function DC3SignatureManager() {
                                 size="sm"
                                 variant="ghost"
                                 className="text-green-600 hover:text-green-700 hover:bg-green-50 h-7 px-2"
-                                onClick={() => authorizeMutation.mutate({ id: s.id, approved: true })}
+                                onClick={() =>
+                                  authorizeMutation.mutate({
+                                    id: s.id,
+                                    approved: true,
+                                  })
+                                }
                                 disabled={authorizeMutation.isPending}
                               >
                                 <UserCheck className="w-4 h-4" />
@@ -300,7 +341,12 @@ export default function DC3SignatureManager() {
                                 size="sm"
                                 variant="ghost"
                                 className="text-red-600 hover:text-red-700 hover:bg-red-50 h-7 px-2"
-                                onClick={() => authorizeMutation.mutate({ id: s.id, approved: false })}
+                                onClick={() =>
+                                  authorizeMutation.mutate({
+                                    id: s.id,
+                                    approved: false,
+                                  })
+                                }
                                 disabled={authorizeMutation.isPending}
                               >
                                 <UserX className="w-4 h-4" />
@@ -312,7 +358,11 @@ export default function DC3SignatureManager() {
                             variant="ghost"
                             className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
                             onClick={() => {
-                              if (confirm(`¿Eliminar firmante "${s.nombreFirmante}"?`)) {
+                              if (
+                                confirm(
+                                  `¿Eliminar firmante "${s.nombreFirmante}"?`
+                                )
+                              ) {
                                 deleteMutation.mutate({ id: s.id });
                               }
                             }}
@@ -331,12 +381,19 @@ export default function DC3SignatureManager() {
         </Card>
 
         {/* ─── Diálogo: Nuevo firmante ─────────────────────────────────────── */}
-        <Dialog open={showNewDialog} onOpenChange={(open) => { if (!open) handleCloseDialog(); }}>
+        <Dialog
+          open={showNewDialog}
+          onOpenChange={open => {
+            if (!open) handleCloseDialog();
+          }}
+        >
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <PenLine className="w-5 h-5" />
-                {captureStep === "form" ? "Datos del firmante" : "Capturar firma"}
+                {captureStep === "form"
+                  ? "Datos del firmante"
+                  : "Capturar firma"}
               </DialogTitle>
             </DialogHeader>
 
@@ -349,7 +406,12 @@ export default function DC3SignatureManager() {
                       id="nombreFirmante"
                       placeholder="Apellido paterno, apellido materno y nombre(s)"
                       value={form.nombreFirmante}
-                      onChange={(e) => setForm((f) => ({ ...f, nombreFirmante: e.target.value.toUpperCase() }))}
+                      onChange={e =>
+                        setForm(f => ({
+                          ...f,
+                          nombreFirmante: e.target.value.toUpperCase(),
+                        }))
+                      }
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -358,7 +420,9 @@ export default function DC3SignatureManager() {
                       id="cargo"
                       placeholder="Ej: Instructor, Gerente RH"
                       value={form.cargo}
-                      onChange={(e) => setForm((f) => ({ ...f, cargo: e.target.value }))}
+                      onChange={e =>
+                        setForm(f => ({ ...f, cargo: e.target.value }))
+                      }
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -367,26 +431,38 @@ export default function DC3SignatureManager() {
                       id="departamento"
                       placeholder="Ej: Recursos Humanos"
                       value={form.departamento}
-                      onChange={(e) => setForm((f) => ({ ...f, departamento: e.target.value }))}
+                      onChange={e =>
+                        setForm(f => ({ ...f, departamento: e.target.value }))
+                      }
                     />
                   </div>
                   <div className="col-span-2 space-y-1.5">
                     <Label>Tipo de firmante</Label>
                     <Select
                       value={form.tipoFirmante}
-                      onValueChange={(v) => setForm((f) => ({ ...f, tipoFirmante: v as "interno" | "externo" }))}
+                      onValueChange={v =>
+                        setForm(f => ({
+                          ...f,
+                          tipoFirmante: v as "interno" | "externo",
+                        }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="interno">Interno (empleado de la empresa)</SelectItem>
-                        <SelectItem value="externo">Externo (instructor o consultor externo)</SelectItem>
+                        <SelectItem value="interno">
+                          Interno (empleado de la empresa)
+                        </SelectItem>
+                        <SelectItem value="externo">
+                          Externo (instructor o consultor externo)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     {form.tipoFirmante === "externo" && (
                       <p className="text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-2 py-1.5">
-                        Los firmantes externos requieren autorización del administrador antes de poder firmar.
+                        Los firmantes externos requieren autorización del
+                        administrador antes de poder firmar.
                       </p>
                     )}
                   </div>
@@ -395,13 +471,16 @@ export default function DC3SignatureManager() {
                   <Button variant="outline" onClick={handleCloseDialog}>
                     Cancelar
                   </Button>
-                  <Button onClick={handleFormNext}>Siguiente: Capturar firma →</Button>
+                  <Button onClick={handleFormNext}>
+                    Siguiente: Capturar firma →
+                  </Button>
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Firme en el área de abajo con el mouse o con el dedo en pantalla táctil.
+                  Firme en el área de abajo con el mouse o con el dedo en
+                  pantalla táctil.
                 </p>
                 <SignaturePad
                   signerName={form.nombreFirmante}
@@ -411,11 +490,19 @@ export default function DC3SignatureManager() {
                 />
                 {form.firmaData && (
                   <div className="flex justify-end gap-2 pt-2">
-                    <Button variant="outline" onClick={() => setCaptureStep("form")}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCaptureStep("form")}
+                    >
                       ← Volver
                     </Button>
-                    <Button onClick={handleSubmit} disabled={createMutation.isPending}>
-                      {createMutation.isPending ? "Guardando..." : "Guardar firmante"}
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={createMutation.isPending}
+                    >
+                      {createMutation.isPending
+                        ? "Guardando..."
+                        : "Guardar firmante"}
                     </Button>
                   </div>
                 )}
@@ -425,14 +512,23 @@ export default function DC3SignatureManager() {
         </Dialog>
 
         {/* ─── Diálogo: Vista previa de firma ──────────────────────────────── */}
-        <Dialog open={!!previewUrl} onOpenChange={(open) => { if (!open) setPreviewUrl(null); }}>
+        <Dialog
+          open={!!previewUrl}
+          onOpenChange={open => {
+            if (!open) setPreviewUrl(null);
+          }}
+        >
           <DialogContent className="max-w-sm">
             <DialogHeader>
               <DialogTitle>Vista previa de firma</DialogTitle>
             </DialogHeader>
             {previewUrl && (
               <div className="border rounded-lg overflow-hidden bg-white p-4">
-                <img src={previewUrl} alt="Firma digitalizada" className="w-full h-auto max-h-40 object-contain" />
+                <img
+                  src={previewUrl}
+                  alt="Firma digitalizada"
+                  className="w-full h-auto max-h-40 object-contain"
+                />
               </div>
             )}
           </DialogContent>

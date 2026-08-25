@@ -6,9 +6,19 @@
  * Se ejecuta cada 15 minutos.
  */
 import { getDb } from "../db";
-import { alertHistory, employees, operatingRulesApprovals, committeeOperatingRules, users } from "../../drizzle/schema";
+import {
+  alertHistory,
+  employees,
+  operatingRulesApprovals,
+  committeeOperatingRules,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, sql, lte, gte } from "drizzle-orm";
-import { emitNotificationToUser, emitCriticalAlertToAdmins, getWebSocketServer } from "../_core/websocket";
+import {
+  emitNotificationToUser,
+  emitCriticalAlertToAdmins,
+  getWebSocketServer,
+} from "../_core/websocket";
 
 // ── Helper: persistir alerta con deduplicación por día ───────────────────────
 async function persistRealtimeAlert(
@@ -60,7 +70,12 @@ export async function runRealtimeAlertsJob() {
   }
 
   const now = new Date();
-  const results = { overdueApprovals: 0, expiringContracts: 0, persisted: 0, errors: 0 };
+  const results = {
+    overdueApprovals: 0,
+    expiringContracts: 0,
+    persisted: 0,
+    errors: 0,
+  };
 
   // ─── 1. Tareas vencidas: aprobaciones de reglamentos con deadline pasado ───
   try {
@@ -74,7 +89,10 @@ export async function runRealtimeAlertsJob() {
       })
       .from(operatingRulesApprovals)
       .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
-      .leftJoin(committeeOperatingRules, eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id))
+      .leftJoin(
+        committeeOperatingRules,
+        eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id)
+      )
       .where(
         and(
           sql`${operatingRulesApprovals.status} = 'pending'`,
@@ -87,13 +105,20 @@ export async function runRealtimeAlertsJob() {
     for (const approval of overdueApprovals) {
       if (!approval.approverId) continue;
       const daysOverdue = Math.floor(
-        (now.getTime() - new Date(approval.deadline!).getTime()) / (1000 * 60 * 60 * 24)
+        (now.getTime() - new Date(approval.deadline!).getTime()) /
+          (1000 * 60 * 60 * 24)
       );
       const desc = `Aprobación vencida: Reglamento v${approval.ruleVersion ?? "N/A"} — ${approval.approverName ?? "Usuario"} (${daysOverdue}d vencida)`;
-      const priority = daysOverdue >= 7 ? "critical" : daysOverdue >= 3 ? "warning" : "info";
+      const priority =
+        daysOverdue >= 7 ? "critical" : daysOverdue >= 3 ? "warning" : "info";
 
       // Persistir en BD (deduplicada por día)
-      const alertId = await persistRealtimeAlert(db, desc, priority, daysOverdue);
+      const alertId = await persistRealtimeAlert(
+        db,
+        desc,
+        priority,
+        daysOverdue
+      );
       if (alertId) results.persisted++;
 
       // Notificación al usuario responsable
@@ -127,7 +152,11 @@ export async function runRealtimeAlertsJob() {
   try {
     const activeEmployees = await db.select().from(employees).limit(500);
 
-    const expiringList: Array<{ name: string; contractType: string; daysRemaining: number }> = [];
+    const expiringList: Array<{
+      name: string;
+      contractType: string;
+      daysRemaining: number;
+    }> = [];
 
     for (const emp of activeEmployees) {
       const contractFields = [
@@ -138,10 +167,14 @@ export async function runRealtimeAlertsJob() {
       for (const c of contractFields) {
         if (!c.field) continue;
         const expDate = new Date(c.field);
-        const daysRemaining = Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        const daysRemaining = Math.ceil(
+          (expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        );
         if (daysRemaining >= 0 && daysRemaining <= 7) {
           expiringList.push({
-            name: `${emp.firstName ?? ""} ${emp.lastName ?? ""}`.trim() || "Sin nombre",
+            name:
+              `${emp.firstName ?? ""} ${emp.lastName ?? ""}`.trim() ||
+              "Sin nombre",
             contractType: c.type,
             daysRemaining,
           });
@@ -153,10 +186,20 @@ export async function runRealtimeAlertsJob() {
     // Persistir y emitir alerta consolidada si hay contratos próximos a vencer
     if (expiringList.length > 0) {
       const urgentCount = expiringList.filter(e => e.daysRemaining <= 2).length;
-      const consolidatedDesc = `Contratos próximos a vencer: ${expiringList.slice(0, 5).map(e => `${e.name} — ${e.contractType} (${e.daysRemaining}d)`).join("; ")}${expiringList.length > 5 ? ` y ${expiringList.length - 5} más` : ""}`;
+      const consolidatedDesc = `Contratos próximos a vencer: ${expiringList
+        .slice(0, 5)
+        .map(e => `${e.name} — ${e.contractType} (${e.daysRemaining}d)`)
+        .join(
+          "; "
+        )}${expiringList.length > 5 ? ` y ${expiringList.length - 5} más` : ""}`;
       const priority = urgentCount > 0 ? "critical" : "warning";
 
-      const alertId = await persistRealtimeAlert(db, consolidatedDesc, priority, expiringList.length);
+      const alertId = await persistRealtimeAlert(
+        db,
+        consolidatedDesc,
+        priority,
+        expiringList.length
+      );
       if (alertId) results.persisted++;
 
       emitCriticalAlertToAdmins({
@@ -164,10 +207,14 @@ export async function runRealtimeAlertsJob() {
         category: "contract_expiry",
         priority: urgentCount > 0 ? "critical" : "high",
         title: `${expiringList.length} contrato${expiringList.length !== 1 ? "s" : ""} próximo${expiringList.length !== 1 ? "s" : ""} a vencer`,
-        message: expiringList
-          .slice(0, 5)
-          .map(e => `${e.name} — ${e.contractType} (${e.daysRemaining}d)`)
-          .join(", ") + (expiringList.length > 5 ? ` y ${expiringList.length - 5} más...` : ""),
+        message:
+          expiringList
+            .slice(0, 5)
+            .map(e => `${e.name} — ${e.contractType} (${e.daysRemaining}d)`)
+            .join(", ") +
+          (expiringList.length > 5
+            ? ` y ${expiringList.length - 5} más...`
+            : ""),
       });
     }
   } catch (err) {
@@ -175,6 +222,8 @@ export async function runRealtimeAlertsJob() {
     results.errors++;
   }
 
-  console.log(`[Realtime Alerts Job] Completado: ${results.overdueApprovals} aprobaciones vencidas, ${results.expiringContracts} contratos próximos, ${results.persisted} persistidas, ${results.errors} errores`);
+  console.log(
+    `[Realtime Alerts Job] Completado: ${results.overdueApprovals} aprobaciones vencidas, ${results.expiringContracts} contratos próximos, ${results.persisted} persistidas, ${results.errors} errores`
+  );
   return { success: true, ...results };
 }

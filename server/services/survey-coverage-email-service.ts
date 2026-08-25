@@ -18,26 +18,31 @@ interface SendCoverageAlertParams {
   alerts: CoverageAlert[];
 }
 
-export async function sendCoverageAlertNotification({ to, alerts }: SendCoverageAlertParams) {
+export async function sendCoverageAlertNotification({
+  to,
+  alerts,
+}: SendCoverageAlertParams) {
   const subject = `⚠️ Alerta: Cobertura de Encuestas NOM-035 Insuficiente`;
 
   const getPriorityBadge = (priority: string, color: string) => {
     const colors = {
-      red: '#ef4444',
-      yellow: '#eab308',
-      green: '#22c55e',
+      red: "#ef4444",
+      yellow: "#eab308",
+      green: "#22c55e",
     };
-    return `<span style="display: inline-block; padding: 4px 12px; background-color: ${colors[color as keyof typeof colors] || '#6b7280'}; color: white; border-radius: 12px; font-size: 12px; font-weight: 600;">${priority === 'high' ? 'ALTA' : priority === 'medium' ? 'MEDIA' : 'BAJA'}</span>`;
+    return `<span style="display: inline-block; padding: 4px 12px; background-color: ${colors[color as keyof typeof colors] || "#6b7280"}; color: white; border-radius: 12px; font-size: 12px; font-weight: 600;">${priority === "high" ? "ALTA" : priority === "medium" ? "MEDIA" : "BAJA"}</span>`;
   };
 
-  const alertRows = alerts.map((alert: any) => `
+  const alertRows = alerts
+    .map(
+      (alert: any) => `
     <tr style="border-bottom: 1px solid #e5e7eb;">
       <td style="padding: 16px 12px;">
         <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">${alert.surveyTitle}</div>
         <div style="font-size: 14px; color: #6b7280;">${alert.surveyType}</div>
       </td>
       <td style="padding: 16px 12px; text-align: center;">
-        <div style="font-size: 24px; font-weight: 700; color: ${alert.priorityColor === 'red' ? '#ef4444' : alert.priorityColor === 'yellow' ? '#eab308' : '#22c55e'};">
+        <div style="font-size: 24px; font-weight: 700; color: ${alert.priorityColor === "red" ? "#ef4444" : alert.priorityColor === "yellow" ? "#eab308" : "#22c55e"};">
           ${alert.coverage.toFixed(1)}%
         </div>
       </td>
@@ -55,7 +60,9 @@ export async function sendCoverageAlertNotification({ to, alerts }: SendCoverage
         ${getPriorityBadge(alert.priority, alert.priorityColor)}
       </td>
     </tr>
-  `).join('');
+  `
+    )
+    .join("");
 
   const html = `
     <!DOCTYPE html>
@@ -72,7 +79,7 @@ export async function sendCoverageAlertNotification({ to, alerts }: SendCoverage
             ⚠️ Alerta de Cobertura NOM-035
           </h1>
           <p style="margin: 12px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">
-            Se detectaron ${alerts.length} encuesta${alerts.length > 1 ? 's' : ''} con cobertura insuficiente
+            Se detectaron ${alerts.length} encuesta${alerts.length > 1 ? "s" : ""} con cobertura insuficiente
           </p>
         </div>
 
@@ -113,7 +120,7 @@ export async function sendCoverageAlertNotification({ to, alerts }: SendCoverage
 
           <!-- CTA Button -->
           <div style="text-align: center; margin-top: 32px;">
-            <a href="${process.env.VITE_APP_URL || 'http://localhost:3000'}/prevention/early-warnings" 
+            <a href="${process.env.VITE_APP_URL || "http://localhost:3000"}/prevention/early-warnings" 
                style="display: inline-block; background-color: #3b82f6; color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
               Ver Dashboard de Alertas
             </a>
@@ -142,7 +149,7 @@ export async function sendCoverageAlertNotification({ to, alerts }: SendCoverage
     });
     return true;
   } catch (error) {
-    console.error('Error al enviar notificación de cobertura:', error);
+    console.error("Error al enviar notificación de cobertura:", error);
     return false;
   }
 }

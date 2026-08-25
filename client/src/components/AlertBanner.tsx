@@ -14,7 +14,13 @@ interface AlertBannerProps {
   };
 }
 
-export function AlertBanner({ level, title, description, pulse = false, action }: AlertBannerProps) {
+export function AlertBanner({
+  level,
+  title,
+  description,
+  pulse = false,
+  action,
+}: AlertBannerProps) {
   const levelConfig = {
     info: {
       icon: Info,
@@ -37,7 +43,7 @@ export function AlertBanner({ level, title, description, pulse = false, action }
   const Icon = config.icon;
 
   return (
-    <Alert className={`${config.className} ${pulse ? 'animate-pulse' : ''}`}>
+    <Alert className={`${config.className} ${pulse ? "animate-pulse" : ""}`}>
       <Icon className={`h-4 w-4 ${config.iconClassName}`} />
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription className="flex items-center justify-between">

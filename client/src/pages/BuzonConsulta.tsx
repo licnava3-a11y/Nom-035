@@ -3,7 +3,13 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -27,7 +33,10 @@ const REQUEST_TYPE_LABELS: Record<string, string> = {
 };
 
 // ─── Etiquetas y colores de estado ──────────────────────────────────────────
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; color: string; icon: React.ReactNode }
+> = {
   REGISTRADA: {
     label: "Registrada",
     color: "bg-blue-100 text-blue-800 border-blue-200",
@@ -61,7 +70,13 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
 };
 
 // ─── Orden de estados para la línea de tiempo ────────────────────────────────
-const STATUS_ORDER = ["REGISTRADA", "EN_ANALISIS", "EN_INVESTIGACION", "RESUELTA", "NOTIFICADA"];
+const STATUS_ORDER = [
+  "REGISTRADA",
+  "EN_ANALISIS",
+  "EN_INVESTIGACION",
+  "RESUELTA",
+  "NOTIFICADA",
+];
 
 export default function BuzonConsulta() {
   const [folioInput, setFolioInput] = useState("");
@@ -83,7 +98,9 @@ export default function BuzonConsulta() {
     }
   };
 
-  const statusCfg = data?.request ? STATUS_CONFIG[data.request.status] ?? STATUS_CONFIG["REGISTRADA"] : null;
+  const statusCfg = data?.request
+    ? (STATUS_CONFIG[data.request.status] ?? STATUS_CONFIG["REGISTRADA"])
+    : null;
 
   const currentStatusIndex = data?.request
     ? STATUS_ORDER.indexOf(data.request.status)
@@ -98,8 +115,12 @@ export default function BuzonConsulta() {
             <ShieldCheck className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="font-bold text-lg leading-tight">Portal de Consulta — Buzón Interno</h1>
-            <p className="text-xs text-muted-foreground">NOM-035 STPS 2018 · Consulta confidencial</p>
+            <h1 className="font-bold text-lg leading-tight">
+              Portal de Consulta — Buzón Interno
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              NOM-035 STPS 2018 · Consulta confidencial
+            </p>
           </div>
         </div>
       </header>
@@ -111,10 +132,14 @@ export default function BuzonConsulta() {
             <div className="flex items-start gap-3">
               <ShieldCheck className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
               <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">Consulta confidencial y anónima</p>
+                <p className="font-medium mb-1">
+                  Consulta confidencial y anónima
+                </p>
                 <p className="text-blue-700">
-                  Esta página te permite conocer el estado de tu solicitud usando únicamente el folio que
-                  recibiste al momento del registro. No se exponen datos personales ni información interna.
+                  Esta página te permite conocer el estado de tu solicitud
+                  usando únicamente el folio que recibiste al momento del
+                  registro. No se exponen datos personales ni información
+                  interna.
                 </p>
               </div>
             </div>
@@ -129,18 +154,21 @@ export default function BuzonConsulta() {
               Consultar estado de solicitud
             </CardTitle>
             <CardDescription>
-              Ingresa el folio que recibiste al enviar tu solicitud (ej: QUE-2026-0001)
+              Ingresa el folio que recibiste al enviar tu solicitud (ej:
+              QUE-2026-0001)
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSearch} className="flex gap-3">
               <div className="flex-1">
-                <Label htmlFor="folio" className="sr-only">Folio de solicitud</Label>
+                <Label htmlFor="folio" className="sr-only">
+                  Folio de solicitud
+                </Label>
                 <Input
                   id="folio"
                   placeholder="Ej: QUE-2026-0001"
                   value={folioInput}
-                  onChange={(e) => setFolioInput(e.target.value.toUpperCase())}
+                  onChange={e => setFolioInput(e.target.value.toUpperCase())}
                   className="font-mono uppercase"
                   maxLength={20}
                 />
@@ -161,8 +189,9 @@ export default function BuzonConsulta() {
                 <div>
                   <p className="font-medium">Folio no encontrado</p>
                   <p className="text-sm text-red-600 mt-0.5">
-                    No se encontró ninguna solicitud con el folio <strong>{searchFolio}</strong>.
-                    Verifica que el folio esté escrito correctamente.
+                    No se encontró ninguna solicitud con el folio{" "}
+                    <strong>{searchFolio}</strong>. Verifica que el folio esté
+                    escrito correctamente.
                   </p>
                 </div>
               </div>
@@ -178,9 +207,12 @@ export default function BuzonConsulta() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <CardTitle className="text-xl font-mono">{data.request.publicFolio}</CardTitle>
+                    <CardTitle className="text-xl font-mono">
+                      {data.request.publicFolio}
+                    </CardTitle>
                     <CardDescription className="mt-1">
-                      {REQUEST_TYPE_LABELS[data.request.requestType] ?? data.request.requestType}
+                      {REQUEST_TYPE_LABELS[data.request.requestType] ??
+                        data.request.requestType}
                     </CardDescription>
                   </div>
                   {statusCfg && (
@@ -199,32 +231,45 @@ export default function BuzonConsulta() {
                   <div>
                     <p className="text-muted-foreground">Fecha de registro</p>
                     <p className="font-medium">
-                      {new Date(data.request.createdAt).toLocaleDateString("es-MX", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {new Date(data.request.createdAt).toLocaleDateString(
+                        "es-MX",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
                     </p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Última actualización</p>
+                    <p className="text-muted-foreground">
+                      Última actualización
+                    </p>
                     <p className="font-medium">
-                      {new Date(data.request.updatedAt).toLocaleDateString("es-MX", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {new Date(data.request.updatedAt).toLocaleDateString(
+                        "es-MX",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
                     </p>
                   </div>
                   {data.request.resolvedAt && (
                     <div>
-                      <p className="text-muted-foreground">Fecha de resolución</p>
+                      <p className="text-muted-foreground">
+                        Fecha de resolución
+                      </p>
                       <p className="font-medium text-green-700">
-                        {new Date(data.request.resolvedAt).toLocaleDateString("es-MX", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
+                        {new Date(data.request.resolvedAt).toLocaleDateString(
+                          "es-MX",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
                       </p>
                     </div>
                   )}
@@ -234,7 +279,9 @@ export default function BuzonConsulta() {
                   <>
                     <Separator />
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">Resolución comunicada</p>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Resolución comunicada
+                      </p>
                       <p className="text-sm bg-green-50 border border-green-200 rounded-lg p-3 text-green-800">
                         {data.request.resolutionText}
                       </p>
@@ -271,14 +318,16 @@ export default function BuzonConsulta() {
                               isCurrent
                                 ? "border-primary bg-primary text-white scale-110"
                                 : isCompleted
-                                ? "border-green-500 bg-green-500 text-white"
-                                : "border-gray-300 bg-white text-gray-400"
+                                  ? "border-green-500 bg-green-500 text-white"
+                                  : "border-gray-300 bg-white text-gray-400"
                             }`}
                           >
                             {isCompleted && !isCurrent ? (
                               <CheckCircle2 className="h-4 w-4" />
                             ) : (
-                              <span className="text-xs font-bold">{idx + 1}</span>
+                              <span className="text-xs font-bold">
+                                {idx + 1}
+                              </span>
                             )}
                           </div>
                           <span className="text-xs text-center leading-tight max-w-[60px]">
@@ -288,7 +337,9 @@ export default function BuzonConsulta() {
                         {idx < STATUS_ORDER.length - 1 && (
                           <div
                             className={`h-0.5 flex-1 mx-1 rounded ${
-                              idx < currentStatusIndex ? "bg-green-400" : "bg-gray-200"
+                              idx < currentStatusIndex
+                                ? "bg-green-400"
+                                : "bg-gray-200"
                             }`}
                           />
                         )}
@@ -301,32 +352,50 @@ export default function BuzonConsulta() {
                 {data.auditHistory.length > 0 && (
                   <>
                     <Separator className="mb-4" />
-                    <p className="text-sm font-medium text-muted-foreground mb-3">Historial de movimientos</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-3">
+                      Historial de movimientos
+                    </p>
                     <div className="space-y-3">
                       {data.auditHistory.map((entry, idx) => (
-                        <div key={idx} className="flex items-start gap-3 text-sm">
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 text-sm"
+                        >
                           <div className="mt-1 shrink-0">
                             <div className="w-2 h-2 rounded-full bg-primary/60" />
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              {entry.fromStatus && entry.fromStatus !== entry.toStatus && (
-                                <>
-                                  <Badge variant="outline" className="text-xs">
-                                    {STATUS_CONFIG[entry.fromStatus]?.label ?? entry.fromStatus}
-                                  </Badge>
-                                  <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                                </>
-                              )}
-                              <Badge variant="outline" className={`text-xs ${STATUS_CONFIG[entry.toStatus]?.color ?? ""}`}>
-                                {STATUS_CONFIG[entry.toStatus]?.label ?? entry.toStatus}
+                              {entry.fromStatus &&
+                                entry.fromStatus !== entry.toStatus && (
+                                  <>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      {STATUS_CONFIG[entry.fromStatus]?.label ??
+                                        entry.fromStatus}
+                                    </Badge>
+                                    <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                                  </>
+                                )}
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${STATUS_CONFIG[entry.toStatus]?.color ?? ""}`}
+                              >
+                                {STATUS_CONFIG[entry.toStatus]?.label ??
+                                  entry.toStatus}
                               </Badge>
                             </div>
                             {entry.systemNote && (
-                              <p className="text-muted-foreground mt-0.5 text-xs">{entry.systemNote}</p>
+                              <p className="text-muted-foreground mt-0.5 text-xs">
+                                {entry.systemNote}
+                              </p>
                             )}
                             <p className="text-xs text-muted-foreground mt-0.5">
-                              {new Date(entry.createdAt).toLocaleString("es-MX")}
+                              {new Date(entry.createdAt).toLocaleString(
+                                "es-MX"
+                              )}
                             </p>
                           </div>
                         </div>
@@ -342,7 +411,8 @@ export default function BuzonConsulta() {
 
       {/* Footer */}
       <footer className="border-t bg-white py-4 text-center text-xs text-muted-foreground">
-        Portal de Consulta Confidencial · NOM-035 STPS 2018 · Los datos personales están protegidos
+        Portal de Consulta Confidencial · NOM-035 STPS 2018 · Los datos
+        personales están protegidos
       </footer>
     </div>
   );

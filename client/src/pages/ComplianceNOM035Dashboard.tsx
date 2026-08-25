@@ -5,22 +5,38 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, FileCheck, AlertTriangle, CheckSquare, Calendar, Clock } from "lucide-react";
-import { Doughnut } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
+  CheckCircle2,
+  Circle,
+  FileCheck,
+  AlertTriangle,
+  CheckSquare,
+  Calendar,
+  Clock,
+} from "lucide-react";
+import { Doughnut } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -32,8 +48,8 @@ export default function ComplianceNOM035Dashboard() {
 
   const handleExportPDF = () => {
     setIsExporting(true);
-    const printStyle = document.createElement('style');
-    printStyle.id = 'compliance-print-style';
+    const printStyle = document.createElement("style");
+    printStyle.id = "compliance-print-style";
     printStyle.textContent = `
       @media print {
         body * { visibility: hidden !important; }
@@ -48,12 +64,13 @@ export default function ComplianceNOM035Dashboard() {
       window.print();
       document.head.removeChild(printStyle);
       setIsExporting(false);
-      toast.success('Reporte de cumplimiento enviado a impresión / PDF');
+      toast.success("Reporte de cumplimiento enviado a impresión / PDF");
     }, 300);
   };
 
   // Query: cumplimiento por numeral
-  const { data: complianceData = [], isLoading } = trpc.complianceNOM035.getComplianceByNumeral.useQuery();
+  const { data: complianceData = [], isLoading } =
+    trpc.complianceNOM035.getComplianceByNumeral.useQuery();
 
   // Query: estadísticas globales
   const { data: globalStats } = trpc.complianceNOM035.getGlobalStats.useQuery();
@@ -65,7 +82,7 @@ export default function ComplianceNOM035Dashboard() {
       utils.complianceNOM035.getComplianceByNumeral.invalidate();
       utils.complianceNOM035.getGlobalStats.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -77,7 +94,7 @@ export default function ComplianceNOM035Dashboard() {
       utils.complianceNOM035.getComplianceByNumeral.invalidate();
       utils.complianceNOM035.getGlobalStats.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -91,29 +108,45 @@ export default function ComplianceNOM035Dashboard() {
       setSelectedItemForDueDate(null);
       setDueDateInput("");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error: ${error.message}`);
     },
   });
 
   const [dueDateDialogOpen, setDueDateDialogOpen] = useState(false);
-  const [selectedItemForDueDate, setSelectedItemForDueDate] = useState<number | null>(null);
+  const [selectedItemForDueDate, setSelectedItemForDueDate] = useState<
+    number | null
+  >(null);
   const [dueDateInput, setDueDateInput] = useState("");
 
   // Determinar color de semáforo
   const getTrafficLightColor = (percentage: number) => {
-    if (percentage >= 80) return { bg: "bg-green-100", text: "text-green-800", border: "border-green-300" };
-    if (percentage >= 50) return { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-300" };
+    if (percentage >= 80)
+      return {
+        bg: "bg-green-100",
+        text: "text-green-800",
+        border: "border-green-300",
+      };
+    if (percentage >= 50)
+      return {
+        bg: "bg-yellow-100",
+        text: "text-yellow-800",
+        border: "border-yellow-300",
+      };
     return { bg: "bg-red-100", text: "text-red-800", border: "border-red-300" };
   };
 
   // Datos para gráfico de dona
   const doughnutData = {
-    labels: (complianceData as any)?.items ?? complianceData?.map((d: any) => d.numeral),
+    labels:
+      (complianceData as any)?.items ??
+      complianceData?.map((d: any) => d.numeral),
     datasets: [
       {
         label: "Cumplimiento (%)",
-        data: (complianceData as any)?.items ?? complianceData?.map((d: any) => d.percentage),
+        data:
+          (complianceData as any)?.items ??
+          complianceData?.map((d: any) => d.percentage),
         backgroundColor: complianceData?.map((d: any) => {
           const percentage = d.percentage;
           if (percentage >= 80) return "rgba(34, 197, 94, 0.8)"; // green
@@ -173,35 +206,52 @@ export default function ComplianceNOM035Dashboard() {
           className="flex items-center gap-2 no-print"
         >
           <FileCheck className="h-4 w-4" />
-          {isExporting ? 'Generando...' : 'Exportar a PDF'}
+          {isExporting ? "Generando..." : "Exportar a PDF"}
         </Button>
       </div>
       <div>
         <p className="text-muted-foreground mt-2">
-          Monitorea el porcentaje de cumplimiento de requisitos por numeral de la NOM-035-STPS-2018
+          Monitorea el porcentaje de cumplimiento de requisitos por numeral de
+          la NOM-035-STPS-2018
         </p>
       </div>
 
       {/* Estadísticas Globales */}
       {globalStats && (
-        <Card className={`border-2 ${getTrafficLightColor(globalStats.percentage).border}`}>
+        <Card
+          className={`border-2 ${getTrafficLightColor(globalStats.percentage).border}`}
+        >
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Cumplimiento Global</span>
-              <Badge variant={globalStats.level === "high" ? "default" : globalStats.level === "medium" ? "secondary" : "destructive"}>
+              <Badge
+                variant={
+                  globalStats.level === "high"
+                    ? "default"
+                    : globalStats.level === "medium"
+                      ? "secondary"
+                      : "destructive"
+                }
+              >
                 {globalStats.percentage.toFixed(1)}%
               </Badge>
             </CardTitle>
-            <CardDescription>Estado general de cumplimiento normativo</CardDescription>
+            <CardDescription>
+              Estado general de cumplimiento normativo
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-green-600">{globalStats.completed}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {globalStats.completed}
+                </p>
                 <p className="text-sm text-muted-foreground">Completados</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-yellow-600">{globalStats.pending}</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {globalStats.pending}
+                </p>
                 <p className="text-sm text-muted-foreground">Pendientes</p>
               </div>
               <div>
@@ -216,7 +266,9 @@ export default function ComplianceNOM035Dashboard() {
       {/* Grid de Numerales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {isLoading ? (
-          <div className="col-span-full text-center py-8 text-muted-foreground">Cargando numerales...</div>
+          <div className="col-span-full text-center py-8 text-muted-foreground">
+            Cargando numerales...
+          </div>
         ) : complianceData.length === 0 ? (
           <div className="col-span-full text-center py-8 text-muted-foreground">
             <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -243,15 +295,21 @@ export default function ComplianceNOM035Dashboard() {
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Completados:</span>
-                          <span className="font-medium">{numeral.completed}/{numeral.total}</span>
+                          <span className="text-muted-foreground">
+                            Completados:
+                          </span>
+                          <span className="font-medium">
+                            {numeral.completed}/{numeral.total}
+                          </span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
                             className={`h-2 rounded-full transition-all ${
-                              numeral.percentage >= 80 ? "bg-green-600" :
-                              numeral.percentage >= 50 ? "bg-yellow-600" :
-                              "bg-red-600"
+                              numeral.percentage >= 80
+                                ? "bg-green-600"
+                                : numeral.percentage >= 50
+                                  ? "bg-yellow-600"
+                                  : "bg-red-600"
                             }`}
                             style={{ width: `${numeral.percentage}%` }}
                           />
@@ -269,7 +327,8 @@ export default function ComplianceNOM035Dashboard() {
                       </Badge>
                     </DialogTitle>
                     <DialogDescription>
-                      {numeral.completed} de {numeral.total} requisitos completados
+                      {numeral.completed} de {numeral.total} requisitos
+                      completados
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-3 mt-4">
@@ -280,26 +339,53 @@ export default function ComplianceNOM035Dashboard() {
                       >
                         <Checkbox
                           checked={item.isCompleted}
-                          onCheckedChange={() => handleToggleItem(item.id, item.isCompleted)}
+                          onCheckedChange={() =>
+                            handleToggleItem(item.id, item.isCompleted)
+                          }
                           className="mt-1"
                         />
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
                             <Badge variant="outline">{item.itemCode}</Badge>
-                            <span className="text-sm font-medium">{item.section} - {item.sectionName}</span>
+                            <span className="text-sm font-medium">
+                              {item.section} - {item.sectionName}
+                            </span>
                           </div>
-                          <p className="text-sm text-muted-foreground">{item.requirement}</p>
-                          <p className="text-xs text-muted-foreground italic">Evidencia: {item.evidence}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {item.requirement}
+                          </p>
+                          <p className="text-xs text-muted-foreground italic">
+                            Evidencia: {item.evidence}
+                          </p>
                           {item.dueDate && (
                             <div className="flex items-center gap-2 text-xs mt-2">
                               <Clock className="h-3 w-3" />
                               <span className="text-muted-foreground">
-                                Vence: {new Date(item.dueDate).toLocaleDateString()}
+                                Vence:{" "}
+                                {new Date(item.dueDate).toLocaleDateString()}
                                 {(() => {
-                                  const daysUntil = Math.ceil((new Date(item.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                                  if (daysUntil < 0) return <span className="text-red-600 ml-2">(Vencido)</span>;
-                                  if (daysUntil <= 7) return <span className="text-orange-600 ml-2">({daysUntil} días restantes)</span>;
-                                  return <span className="text-green-600 ml-2">({daysUntil} días restantes)</span>;
+                                  const daysUntil = Math.ceil(
+                                    (new Date(item.dueDate).getTime() -
+                                      new Date().getTime()) /
+                                      (1000 * 60 * 60 * 24)
+                                  );
+                                  if (daysUntil < 0)
+                                    return (
+                                      <span className="text-red-600 ml-2">
+                                        (Vencido)
+                                      </span>
+                                    );
+                                  if (daysUntil <= 7)
+                                    return (
+                                      <span className="text-orange-600 ml-2">
+                                        ({daysUntil} días restantes)
+                                      </span>
+                                    );
+                                  return (
+                                    <span className="text-green-600 ml-2">
+                                      ({daysUntil} días restantes)
+                                    </span>
+                                  );
                                 })()}
                               </span>
                             </div>
@@ -308,10 +394,16 @@ export default function ComplianceNOM035Dashboard() {
                             variant="outline"
                             size="sm"
                             className="mt-2"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               setSelectedItemForDueDate(item.id);
-                              setDueDateInput(item.dueDate ? new Date(item.dueDate).toISOString().split('T')[0] : "");
+                              setDueDateInput(
+                                item.dueDate
+                                  ? new Date(item.dueDate)
+                                      .toISOString()
+                                      .split("T")[0]
+                                  : ""
+                              );
                               setDueDateDialogOpen(true);
                             }}
                           >
@@ -337,7 +429,9 @@ export default function ComplianceNOM035Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Distribución de Cumplimiento por Numeral</CardTitle>
-            <CardDescription>Porcentaje de cumplimiento de cada numeral de la NOM-035</CardDescription>
+            <CardDescription>
+              Porcentaje de cumplimiento de cada numeral de la NOM-035
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[400px]">
@@ -363,8 +457,8 @@ export default function ComplianceNOM035Dashboard() {
                 id="dueDate"
                 type="date"
                 value={dueDateInput}
-                onChange={(e) => setDueDateInput(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
+                onChange={e => setDueDateInput(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
               />
             </div>
             <div className="flex justify-end gap-2">

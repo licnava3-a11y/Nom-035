@@ -6,6 +6,7 @@
 ## Resumen
 
 Esta fase implementa tres funcionalidades clave para la plataforma NOM-035:
+
 1. Script de generación de datos demo para facilitar pruebas y demostraciones
 2. Integración de correo electrónico para el buzón con notificaciones automáticas
 3. Modal de asignación de comité con vista de distribución de carga de trabajo
@@ -19,9 +20,11 @@ Esta fase implementa tres funcionalidades clave para la plataforma NOM-035:
 **Archivo**: `server/seed-demo-data.mjs`
 
 #### Descripción
+
 Script completo para generar datos de ejemplo en todos los módulos del sistema, facilitando pruebas y demostraciones.
 
 #### Datos Generados
+
 - ✅ **10 usuarios** (admin, instructores, estudiantes, comité)
 - ✅ **5 cursos** con contenido completo
 - ✅ **15 módulos** distribuidos en los cursos
@@ -37,11 +40,13 @@ Script completo para generar datos de ejemplo en todos los módulos del sistema,
 - ✅ **4 asignaciones de comité** a casos
 
 #### Uso
+
 ```bash
 pnpm exec tsx server/seed-demo-data.mjs
 ```
 
 #### Características
+
 - Manejo automático de duplicados
 - Datos realistas y coherentes
 - Fechas históricas para simular actividad
@@ -53,16 +58,19 @@ pnpm exec tsx server/seed-demo-data.mjs
 ### 2. Integración de Correo Electrónico
 
 **Archivos**:
+
 - `server/lib/email-service.ts` - Servicio de correo
 - `server/routes/mailbox-webhook.ts` - Webhook para recepción
 - `docs/EMAIL_SETUP.md` - Documentación completa
 
 #### Descripción
+
 Sistema completo de correo electrónico para el buzón que permite recibir solicitudes por email y enviar notificaciones automáticas.
 
 #### Características Principales
 
 ##### Recepción de Correos
+
 - ✅ Webhook para recibir correos entrantes
 - ✅ Parser automático de correos
 - ✅ Clasificación automática por palabras clave
@@ -71,6 +79,7 @@ Sistema completo de correo electrónico para el buzón que permite recibir solic
 - ✅ Identificación automática de tipo de queja
 
 ##### Envío de Notificaciones
+
 - ✅ Confirmación automática de recepción
 - ✅ Notificación al asignar caso
 - ✅ Notificación al cambiar a "en proceso"
@@ -90,6 +99,7 @@ Cada estado tiene su propia plantilla profesional:
 #### Servicios Soportados
 
 La documentación incluye guías completas para:
+
 - ✅ SendGrid (Recomendado)
 - ✅ AWS SES
 - ✅ Mailgun
@@ -105,6 +115,7 @@ GET  /api/mailbox-webhook/test
 #### Configuración
 
 Variables de entorno necesarias:
+
 ```bash
 SENDGRID_API_KEY=tu_api_key
 MAILBOX_EMAIL_FROM=buzon@tudominio.com
@@ -115,32 +126,38 @@ MAILBOX_EMAIL_FROM=buzon@tudominio.com
 ### 3. Modal de Asignación de Comité
 
 **Archivos**:
+
 - `client/src/components/AssignCommitteeModal.tsx` - Componente modal
 - `server/routers.ts` - Procedimientos tRPC
 
 #### Descripción
+
 Modal interactivo para asignar casos a miembros del comité con visualización de carga de trabajo en tiempo real.
 
 #### Características Principales
 
 ##### Vista de Miembros
+
 - ✅ Lista de todos los miembros del comité
 - ✅ Información de contacto
 - ✅ Indicador visual de disponibilidad
 - ✅ Selección mediante radio buttons
 
 ##### Distribución de Carga
+
 - ✅ Contador de casos activos por miembro
 - ✅ Indicador de nivel de carga (bajo, medio, alto)
 - ✅ Barra de progreso visual
 - ✅ Código de colores (verde, amarillo, rojo)
 
 ##### Resumen de Distribución
+
 - ✅ Total de casos activos
 - ✅ Promedio por miembro
 - ✅ Miembros disponibles
 
 ##### Funcionalidad
+
 - ✅ Asignación con un clic
 - ✅ Actualización automática del caso
 - ✅ Creación de registro de asignación
@@ -151,26 +168,26 @@ Modal interactivo para asignar casos a miembros del comité con visualización d
 
 ```typescript
 // Obtener miembros del comité
-trpc.cases.getCommitteeMembers.useQuery()
+trpc.cases.getCommitteeMembers.useQuery();
 
 // Obtener distribución de carga
-trpc.cases.getCommitteeWorkload.useQuery()
+trpc.cases.getCommitteeWorkload.useQuery();
 
 // Asignar caso
 trpc.cases.assignCaseToCommittee.useMutation({
   caseId: number,
   userId: number,
-  role: 'investigador_principal' | 'investigador_apoyo' | 'coordinador'
-})
+  role: "investigador_principal" | "investigador_apoyo" | "coordinador",
+});
 ```
 
 #### Niveles de Carga
 
-| Casos Activos | Nivel | Color | Estado |
-|--------------|-------|-------|---------|
-| 0 | Bajo | Verde | Disponible |
-| 1-2 | Medio | Amarillo | Carga moderada |
-| 3+ | Alto | Rojo | Alta carga |
+| Casos Activos | Nivel | Color    | Estado         |
+| ------------- | ----- | -------- | -------------- |
+| 0             | Bajo  | Verde    | Disponible     |
+| 1-2           | Medio | Amarillo | Carga moderada |
+| 3+            | Alto  | Rojo     | Alta carga     |
 
 ---
 
@@ -181,6 +198,7 @@ trpc.cases.assignCaseToCommittee.useMutation({
 **Archivo**: `server/cases.test.ts`
 
 #### Cobertura
+
 - ✅ Listar miembros del comité
 - ✅ Obtener distribución de carga
 - ✅ Asignar casos
@@ -189,6 +207,7 @@ trpc.cases.assignCaseToCommittee.useMutation({
 - ✅ Notificaciones
 
 #### Resultados
+
 ```
 Test Files  3 passed (3)
      Tests  17 passed (17)
@@ -200,16 +219,19 @@ Test Files  3 passed (3)
 ## 📊 Impacto en el Sistema
 
 ### Base de Datos
+
 - Nuevas tablas utilizadas: `caseAssignments`, `notifications`
 - Campos actualizados: `cases.assignedTo`
 - Índices optimizados para consultas de carga de trabajo
 
 ### API
+
 - 3 nuevos procedimientos tRPC
 - 1 nuevo endpoint webhook
 - Mejoras en procedimientos existentes
 
 ### Frontend
+
 - 1 nuevo componente modal
 - Integración con sistema de notificaciones
 - Mejora en UX de gestión de casos
@@ -231,6 +253,7 @@ Ver documentación completa en `docs/EMAIL_SETUP.md`
 ### Para Datos Demo
 
 Ejecutar script una sola vez:
+
 ```bash
 pnpm exec tsx server/seed-demo-data.mjs
 ```
@@ -242,12 +265,14 @@ pnpm exec tsx server/seed-demo-data.mjs
 ## 📝 Tareas Pendientes (Frontend)
 
 ### Integración del Modal
+
 - [ ] Agregar botón "Asignar" en lista de casos
 - [ ] Integrar modal en página de detalle de caso
 - [ ] Mostrar historial de asignaciones
 - [ ] Agregar filtros por miembro asignado
 
 ### Mejoras de UX
+
 - [ ] Agregar búsqueda de miembros en modal
 - [ ] Permitir reasignación de casos
 - [ ] Mostrar notificaciones en tiempo real
@@ -258,16 +283,19 @@ pnpm exec tsx server/seed-demo-data.mjs
 ## 🚀 Próximos Pasos
 
 ### Prioridad Alta
+
 1. Integrar modal en página de casos
 2. Configurar servicio de correo electrónico
 3. Probar flujo completo con datos demo
 
 ### Prioridad Media
+
 1. Agregar filtros avanzados en casos
 2. Implementar reportes de carga de trabajo
 3. Mejorar visualización de distribución
 
 ### Prioridad Baja
+
 1. Agregar gráficas de tendencias
 2. Implementar notificaciones push
 3. Agregar exportación de reportes
@@ -277,11 +305,13 @@ pnpm exec tsx server/seed-demo-data.mjs
 ## 📚 Documentación
 
 ### Archivos de Documentación
+
 - `docs/EMAIL_SETUP.md` - Configuración completa de correo
 - `docs/CHANGELOG_FASE32.md` - Este archivo
 - `server/seed-demo-data.mjs` - Comentarios en código
 
 ### Recursos Adicionales
+
 - Plantillas de correo en `server/lib/email-service.ts`
 - Tests en `server/cases.test.ts`
 - Componente modal en `client/src/components/AssignCommitteeModal.tsx`
@@ -291,11 +321,13 @@ pnpm exec tsx server/seed-demo-data.mjs
 ## 🐛 Problemas Conocidos
 
 ### Limitaciones Actuales
+
 1. **Correo electrónico**: Requiere configuración manual del proveedor
 2. **Modal**: Pendiente integración en páginas de casos
 3. **Datos demo**: No incluye archivos adjuntos reales
 
 ### Soluciones Propuestas
+
 1. Crear guía de configuración paso a paso
 2. Implementar integración en próxima fase
 3. Agregar generación de archivos de prueba
@@ -305,11 +337,13 @@ pnpm exec tsx server/seed-demo-data.mjs
 ## 🔄 Cambios en Archivos Existentes
 
 ### Modificados
+
 - `server/routers.ts` - Agregados 3 procedimientos de comité
 - `server/cases.test.ts` - Agregados 4 tests de asignación
 - `todo.md` - Actualizado con tareas completadas
 
 ### Nuevos
+
 - `server/seed-demo-data.mjs`
 - `server/lib/email-service.ts`
 - `server/routes/mailbox-webhook.ts`
@@ -339,6 +373,7 @@ pnpm exec tsx server/seed-demo-data.mjs
 ## 📞 Soporte
 
 Para preguntas o problemas:
+
 1. Revisar documentación en `docs/`
 2. Revisar tests en `server/*.test.ts`
 3. Consultar código fuente con comentarios

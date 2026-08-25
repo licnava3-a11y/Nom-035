@@ -1,5 +1,11 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -59,28 +65,33 @@ export default function Resources() {
     return `${mb.toFixed(2)} MB`;
   };
 
-  const filteredResources = resources?.filter((resource: any) =>
-    resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    resource.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredResources = resources?.filter(
+    (resource: any) =>
+      resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      resource.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-      <Breadcrumb items={[
-        {
-                label: "Capacitación y Desarrollo",
-                href: "/"
-        },
-        {
-                label: "Recursos"
-        }
-]} />
+        <Breadcrumb
+          items={[
+            {
+              label: "Capacitación y Desarrollo",
+              href: "/",
+            },
+            {
+              label: "Recursos",
+            },
+          ]}
+        />
 
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Recursos</h1>
-            <p className="text-muted-foreground mt-2">Biblioteca de materiales descargables</p>
+            <p className="text-muted-foreground mt-2">
+              Biblioteca de materiales descargables
+            </p>
           </div>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -124,7 +135,7 @@ export default function Resources() {
         <Input
           placeholder="Buscar recursos..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           className="pl-10"
         />
       </div>
@@ -133,11 +144,16 @@ export default function Resources() {
       {filteredResources && filteredResources.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredResources.map((resource: any) => (
-            <Card key={resource.id} className="hover:shadow-lg transition-shadow flex flex-col">
+            <Card
+              key={resource.id}
+              className="hover:shadow-lg transition-shadow flex flex-col"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
-                    <CardTitle className="text-lg line-clamp-2">{resource.title}</CardTitle>
+                    <CardTitle className="text-lg line-clamp-2">
+                      {resource.title}
+                    </CardTitle>
                     <CardDescription className="line-clamp-3 mt-2">
                       {resource.description || "Sin descripción disponible"}
                     </CardDescription>
@@ -160,13 +176,22 @@ export default function Resources() {
                 </div>
                 <div className="flex gap-2">
                   <Button className="flex-1" asChild>
-                    <a href={resource.resourceUrl} download target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={resource.resourceUrl}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Download className="h-4 w-4 mr-2" />
                       Descargar
                     </a>
                   </Button>
                   {(user?.role === "admin" || user?.role === "instructor") && (
-                    <Button variant="outline" size="icon" onClick={() => handleEdit(resource)}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleEdit(resource)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                   )}
@@ -180,19 +205,22 @@ export default function Resources() {
           <CardContent className="flex flex-col items-center justify-center py-12">
             <FileText className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">
-              {searchQuery ? "No se encontraron recursos" : "No hay recursos disponibles"}
+              {searchQuery
+                ? "No se encontraron recursos"
+                : "No hay recursos disponibles"}
             </h3>
             <p className="text-sm text-muted-foreground text-center mb-4">
               {searchQuery
                 ? "Intenta con otros términos de búsqueda"
                 : "Aún no se han subido recursos a la biblioteca"}
             </p>
-            {!searchQuery && (user?.role === "admin" || user?.role === "instructor") && (
-              <Button onClick={handleCreate}>
-                <Plus className="h-4 w-4 mr-2" />
-                Subir Primer Recurso
-              </Button>
-            )}
+            {!searchQuery &&
+              (user?.role === "admin" || user?.role === "instructor") && (
+                <Button onClick={handleCreate}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Subir Primer Recurso
+                </Button>
+              )}
           </CardContent>
         </Card>
       )}
@@ -211,8 +239,8 @@ export default function Resources() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            En esta sección encontrarás materiales de apoyo para la implementación de la NOM-035-STPS-2018,
-            incluyendo:
+            En esta sección encontrarás materiales de apoyo para la
+            implementación de la NOM-035-STPS-2018, incluyendo:
           </p>
           <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
             <li>Manuales del implementador y del comité de atención</li>
@@ -228,49 +256,73 @@ export default function Resources() {
       <Card>
         <CardHeader>
           <CardTitle>Contenido de los Cursos</CardTitle>
-          <CardDescription>Descripción detallada de cada programa de capacitación</CardDescription>
+          <CardDescription>
+            Descripción detallada de cada programa de capacitación
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-3">
-            <h3 className="font-semibold text-base">1. Introducción a la NOM-035-STPS-2018</h3>
+            <h3 className="font-semibold text-base">
+              1. Introducción a la NOM-035-STPS-2018
+            </h3>
             <p className="text-sm text-muted-foreground">
-              <strong>Duración:</strong> 4 horas | <strong>Modalidad:</strong> En línea
+              <strong>Duración:</strong> 4 horas | <strong>Modalidad:</strong>{" "}
+              En línea
             </p>
             <p className="text-sm">
-              Curso introductorio que aborda los fundamentos de la norma oficial mexicana sobre factores de riesgo psicosocial en el trabajo.
+              Curso introductorio que aborda los fundamentos de la norma oficial
+              mexicana sobre factores de riesgo psicosocial en el trabajo.
             </p>
             <div className="text-sm">
               <strong>Objetivos de aprendizaje:</strong>
               <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
                 <li>Comprender el marco legal y obligaciones de la NOM-035</li>
-                <li>Identificar los factores de riesgo psicosocial en el entorno laboral</li>
+                <li>
+                  Identificar los factores de riesgo psicosocial en el entorno
+                  laboral
+                </li>
                 <li>Conocer las responsabilidades del patrón y trabajadores</li>
-                <li>Entender el proceso de identificación, análisis y prevención</li>
+                <li>
+                  Entender el proceso de identificación, análisis y prevención
+                </li>
               </ul>
             </div>
             <div className="text-sm">
               <strong>Temario:</strong>
               <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
                 <li>Módulo 1: Antecedentes y marco normativo</li>
-                <li>Módulo 2: Factores de riesgo psicosocial y entorno organizacional</li>
-                <li>Módulo 3: Obligaciones del patrón según el número de trabajadores</li>
+                <li>
+                  Módulo 2: Factores de riesgo psicosocial y entorno
+                  organizacional
+                </li>
+                <li>
+                  Módulo 3: Obligaciones del patrón según el número de
+                  trabajadores
+                </li>
                 <li>Módulo 4: Política de prevención y medidas de control</li>
               </ul>
             </div>
           </div>
 
           <div className="border-t pt-6 space-y-3">
-            <h3 className="font-semibold text-base">2. Identificación y Análisis de Factores de Riesgo Psicosocial</h3>
+            <h3 className="font-semibold text-base">
+              2. Identificación y Análisis de Factores de Riesgo Psicosocial
+            </h3>
             <p className="text-sm text-muted-foreground">
-              <strong>Duración:</strong> 6 horas | <strong>Modalidad:</strong> En línea
+              <strong>Duración:</strong> 6 horas | <strong>Modalidad:</strong>{" "}
+              En línea
             </p>
             <p className="text-sm">
-              Curso práctico para aplicar las guías de referencia II y III de la NOM-035, utilizando cuestionarios validados para identificar y evaluar factores de riesgo.
+              Curso práctico para aplicar las guías de referencia II y III de la
+              NOM-035, utilizando cuestionarios validados para identificar y
+              evaluar factores de riesgo.
             </p>
             <div className="text-sm">
               <strong>Objetivos de aprendizaje:</strong>
               <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
-                <li>Aplicar correctamente los cuestionarios de las Guías II y III</li>
+                <li>
+                  Aplicar correctamente los cuestionarios de las Guías II y III
+                </li>
                 <li>Interpretar resultados de las evaluaciones</li>
                 <li>Identificar áreas de riesgo alto, medio y bajo</li>
                 <li>Elaborar informes de resultados</li>
@@ -279,8 +331,13 @@ export default function Resources() {
             <div className="text-sm">
               <strong>Temario:</strong>
               <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
-                <li>Módulo 1: Guía de referencia II - Cuestionario de identificación</li>
-                <li>Módulo 2: Guía de referencia III - Cuestionario de evaluación</li>
+                <li>
+                  Módulo 1: Guía de referencia II - Cuestionario de
+                  identificación
+                </li>
+                <li>
+                  Módulo 2: Guía de referencia III - Cuestionario de evaluación
+                </li>
                 <li>Módulo 3: Análisis e interpretación de resultados</li>
                 <li>Módulo 4: Elaboración de informes y documentación</li>
               </ul>
@@ -288,17 +345,24 @@ export default function Resources() {
           </div>
 
           <div className="border-t pt-6 space-y-3">
-            <h3 className="font-semibold text-base">3. Prevención del Mobbing y Burnout</h3>
+            <h3 className="font-semibold text-base">
+              3. Prevención del Mobbing y Burnout
+            </h3>
             <p className="text-sm text-muted-foreground">
-              <strong>Duración:</strong> 5 horas | <strong>Modalidad:</strong> En línea
+              <strong>Duración:</strong> 5 horas | <strong>Modalidad:</strong>{" "}
+              En línea
             </p>
             <p className="text-sm">
-              Curso especializado en la prevención, detección y atención de casos de acoso laboral (mobbing) y síndrome de desgaste ocupacional (burnout).
+              Curso especializado en la prevención, detección y atención de
+              casos de acoso laboral (mobbing) y síndrome de desgaste
+              ocupacional (burnout).
             </p>
             <div className="text-sm">
               <strong>Objetivos de aprendizaje:</strong>
               <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
-                <li>Identificar señales de mobbing y burnout en el entorno laboral</li>
+                <li>
+                  Identificar señales de mobbing y burnout en el entorno laboral
+                </li>
                 <li>Aplicar protocolos de actuación ante casos detectados</li>
                 <li>Implementar medidas preventivas organizacionales</li>
                 <li>Conocer el marco legal y consecuencias jurídicas</li>
@@ -310,18 +374,25 @@ export default function Resources() {
                 <li>Módulo 1: Definición y tipos de mobbing</li>
                 <li>Módulo 2: Síndrome de burnout - causas y consecuencias</li>
                 <li>Módulo 3: Protocolo de atención y canalización</li>
-                <li>Módulo 4: Estrategias de prevención y cultura organizacional</li>
+                <li>
+                  Módulo 4: Estrategias de prevención y cultura organizacional
+                </li>
               </ul>
             </div>
           </div>
 
           <div className="border-t pt-6 space-y-3">
-            <h3 className="font-semibold text-base">4. Formación del Comité de Atención</h3>
+            <h3 className="font-semibold text-base">
+              4. Formación del Comité de Atención
+            </h3>
             <p className="text-sm text-muted-foreground">
-              <strong>Duración:</strong> 8 horas | <strong>Modalidad:</strong> En línea
+              <strong>Duración:</strong> 8 horas | <strong>Modalidad:</strong>{" "}
+              En línea
             </p>
             <p className="text-sm">
-              Curso integral para miembros del comité de atención, cubriendo desde la constitución del comité hasta la investigación y dictaminación de casos.
+              Curso integral para miembros del comité de atención, cubriendo
+              desde la constitución del comité hasta la investigación y
+              dictaminación de casos.
             </p>
             <div className="text-sm">
               <strong>Objetivos de aprendizaje:</strong>
@@ -336,9 +407,16 @@ export default function Resources() {
               <strong>Temario:</strong>
               <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
                 <li>Módulo 1: Constitución del comité y acta constitutiva</li>
-                <li>Módulo 2: Funciones del coordinador, secretario y vocales</li>
-                <li>Módulo 3: Recepción, investigación y seguimiento de casos</li>
-                <li>Módulo 4: Elaboración de dictamenes y programas de intervención</li>
+                <li>
+                  Módulo 2: Funciones del coordinador, secretario y vocales
+                </li>
+                <li>
+                  Módulo 3: Recepción, investigación y seguimiento de casos
+                </li>
+                <li>
+                  Módulo 4: Elaboración de dictamenes y programas de
+                  intervención
+                </li>
                 <li>Módulo 5: Confidencialidad y aspectos éticos</li>
               </ul>
             </div>

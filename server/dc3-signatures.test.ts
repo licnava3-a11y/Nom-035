@@ -20,7 +20,10 @@ vi.mock("../db", () => ({ getDb: vi.fn().mockResolvedValue(mockDb) }));
 
 // Mock de storagePut
 vi.mock("../storage", () => ({
-  storagePut: vi.fn().mockResolvedValue({ url: "https://s3.example.com/dc3-signatures/test.png", key: "dc3-signatures/test.png" }),
+  storagePut: vi.fn().mockResolvedValue({
+    url: "https://s3.example.com/dc3-signatures/test.png",
+    key: "dc3-signatures/test.png",
+  }),
 }));
 
 // ─── Helpers de test ──────────────────────────────────────────────────────────
@@ -53,8 +56,14 @@ describe("dc3.saveSignature — lógica de negocio", () => {
   });
 
   it("construye el updateData correcto para cada rol", () => {
-    const buildUpdateData = (role: "instructor" | "employer" | "workerRep", sigUrl: string, sigKey: string) => {
-      const updateData: Record<string, string | Date> = { signaturesUpdatedAt: new Date() };
+    const buildUpdateData = (
+      role: "instructor" | "employer" | "workerRep",
+      sigUrl: string,
+      sigKey: string
+    ) => {
+      const updateData: Record<string, string | Date> = {
+        signaturesUpdatedAt: new Date(),
+      };
       if (role === "instructor") {
         updateData.instructorSignatureUrl = sigUrl;
         updateData.instructorSignatureKey = sigKey;
@@ -87,7 +96,7 @@ describe("dc3.saveSignature — lógica de negocio", () => {
 
   it("todos los roles válidos son reconocidos", () => {
     const validRoles = ["instructor", "employer", "workerRep"];
-    validRoles.forEach((role) => {
+    validRoles.forEach(role => {
       expect(["instructor", "employer", "workerRep"]).toContain(role);
     });
   });
@@ -98,7 +107,9 @@ describe("dc3.saveSignature — lógica de negocio", () => {
 describe("dc3.clearSignature — lógica de negocio", () => {
   it("construye el updateData de borrado correcto para cada rol", () => {
     const buildClearData = (role: "instructor" | "employer" | "workerRep") => {
-      const updateData: Record<string, null | Date> = { signaturesUpdatedAt: new Date() };
+      const updateData: Record<string, null | Date> = {
+        signaturesUpdatedAt: new Date(),
+      };
       if (role === "instructor") {
         updateData.instructorSignatureUrl = null;
         updateData.instructorSignatureKey = null;
@@ -128,7 +139,9 @@ describe("dc3.clearSignature — lógica de negocio", () => {
 
   it("siempre incluye signaturesUpdatedAt en el updateData", () => {
     const buildClearData = (role: "instructor" | "employer" | "workerRep") => {
-      const updateData: Record<string, null | Date> = { signaturesUpdatedAt: new Date() };
+      const updateData: Record<string, null | Date> = {
+        signaturesUpdatedAt: new Date(),
+      };
       if (role === "instructor") {
         updateData.instructorSignatureUrl = null;
         updateData.instructorSignatureKey = null;
@@ -142,8 +155,10 @@ describe("dc3.clearSignature — lógica de negocio", () => {
       return updateData;
     };
 
-    ["instructor", "employer", "workerRep"].forEach((role) => {
-      const data = buildClearData(role as "instructor" | "employer" | "workerRep");
+    ["instructor", "employer", "workerRep"].forEach(role => {
+      const data = buildClearData(
+        role as "instructor" | "employer" | "workerRep"
+      );
       expect(data.signaturesUpdatedAt).toBeInstanceOf(Date);
     });
   });
@@ -208,7 +223,9 @@ describe("dc3.getSignatures — estructura de respuesta", () => {
 
 describe("fetchSignatureBuffer — lógica de descarga de imágenes", () => {
   it("retorna null para URL nula", async () => {
-    const fetchSignatureBuffer = async (url: string | null | undefined): Promise<Buffer | null> => {
+    const fetchSignatureBuffer = async (
+      url: string | null | undefined
+    ): Promise<Buffer | null> => {
       if (!url) return null;
       return Buffer.from("fake");
     };
@@ -218,7 +235,9 @@ describe("fetchSignatureBuffer — lógica de descarga de imágenes", () => {
   });
 
   it("retorna null para URL undefined", async () => {
-    const fetchSignatureBuffer = async (url: string | null | undefined): Promise<Buffer | null> => {
+    const fetchSignatureBuffer = async (
+      url: string | null | undefined
+    ): Promise<Buffer | null> => {
       if (!url) return null;
       return Buffer.from("fake");
     };
@@ -249,7 +268,7 @@ describe("Integración de firmas en el PDF — validaciones previas", () => {
     ];
 
     // Verificar que todos los nombres siguen la convención camelCase
-    signatureColumns.forEach((col) => {
+    signatureColumns.forEach(col => {
       expect(col).toMatch(/^[a-z][a-zA-Z0-9]*$/);
     });
     expect(signatureColumns).toHaveLength(7);

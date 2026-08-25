@@ -102,12 +102,15 @@
 ## 🎯 Plan de Implementación
 
 ### Fase 1: Prioridad Alta (6 páginas)
+
 Implementar confirmaciones en páginas críticas con acciones destructivas irreversibles.
 
 ### Fase 2: Prioridad Media (7 páginas)
+
 Implementar confirmaciones en páginas con acciones destructivas moderadas.
 
 ### Fase 3: Prioridad Baja (5 páginas)
+
 Evaluar si requieren confirmaciones o solo son acciones de limpieza DOM.
 
 ---

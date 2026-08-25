@@ -24,7 +24,7 @@ export const modelEvolutionRouter = router({
       // Obtener datos de rotación agrupados por mes
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      
+
       const turnoverData = await db
         .select({
           month: sql<string>`DATE_FORMAT(${employeeTurnoverHistory.exitDate}, '%Y-%m')`,
@@ -40,7 +40,9 @@ export const modelEvolutionRouter = router({
           )
         )
         .groupBy(sql`DATE_FORMAT(${employeeTurnoverHistory.exitDate}, '%Y-%m')`)
-        .orderBy(sql`DATE_FORMAT(${employeeTurnoverHistory.exitDate}, '%Y-%m')`);
+        .orderBy(
+          sql`DATE_FORMAT(${employeeTurnoverHistory.exitDate}, '%Y-%m')`
+        );
 
       // Calcular métricas por mes
       const metricsByMonth = turnoverData.map((row: any) => {
@@ -92,9 +94,16 @@ export const modelEvolutionRouter = router({
       const previousCount = previousMetrics.length || 1;
 
       const trend = {
-        precision: Math.round((avgRecent.precision / recentCount) - (avgPrevious.precision / previousCount)),
-        recall: Math.round((avgRecent.recall / recentCount) - (avgPrevious.recall / previousCount)),
-        f1Score: Math.round((avgRecent.f1Score / recentCount) - (avgPrevious.f1Score / previousCount)),
+        precision: Math.round(
+          avgRecent.precision / recentCount -
+            avgPrevious.precision / previousCount
+        ),
+        recall: Math.round(
+          avgRecent.recall / recentCount - avgPrevious.recall / previousCount
+        ),
+        f1Score: Math.round(
+          avgRecent.f1Score / recentCount - avgPrevious.f1Score / previousCount
+        ),
       };
 
       return {

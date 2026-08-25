@@ -2,7 +2,12 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { committeeTrainings, trainingAssignments, trainingCertificates, users } from "../../drizzle/schema";
+import {
+  committeeTrainings,
+  trainingAssignments,
+  trainingCertificates,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, or, desc, sql, inArray } from "drizzle-orm";
 
 export const committeeTrainingsRouter = router({
@@ -11,14 +16,29 @@ export const committeeTrainingsRouter = router({
    */
   list: protectedProcedure
     .input(
-      z.object({
-        type: z.enum(["mobbing", "burnout", "primeros_auxilios_psicologicos", "nom035", "investigacion", "otro"]).optional(),
-        isRequired: z.boolean().optional(),
-      }).optional()
+      z
+        .object({
+          type: z
+            .enum([
+              "mobbing",
+              "burnout",
+              "primeros_auxilios_psicologicos",
+              "nom035",
+              "investigacion",
+              "otro",
+            ])
+            .optional(),
+          isRequired: z.boolean().optional(),
+        })
+        .optional()
     )
     .query(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       let query: any = db.select().from(committeeTrainings);
 
@@ -46,7 +66,11 @@ export const committeeTrainingsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [training] = await db
         .select()
@@ -55,7 +79,10 @@ export const committeeTrainingsRouter = router({
         .limit(1);
 
       if (!training) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Capacitación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Capacitación no encontrada",
+        });
       }
 
       return training;
@@ -69,7 +96,14 @@ export const committeeTrainingsRouter = router({
       z.object({
         title: z.string().min(1, "El título es requerido"),
         description: z.string().optional(),
-        type: z.enum(["mobbing", "burnout", "primeros_auxilios_psicologicos", "nom035", "investigacion", "otro"]),
+        type: z.enum([
+          "mobbing",
+          "burnout",
+          "primeros_auxilios_psicologicos",
+          "nom035",
+          "investigacion",
+          "otro",
+        ]),
         duration: z.number().min(1, "La duración debe ser mayor a 0"),
         validityMonths: z.number().optional(),
         isRequired: z.boolean().default(true),
@@ -78,12 +112,22 @@ export const committeeTrainingsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "committee_coordinator") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para crear capacitaciones" });
+      if (
+        ctx.user.role !== "admin" &&
+        ctx.user.role !== "committee_coordinator"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para crear capacitaciones",
+        });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [result] = await (db.insert(committeeTrainings) as any).values({
         title: input.title,
@@ -96,7 +140,10 @@ export const committeeTrainingsRouter = router({
         content: input.content,
       } as any);
 
-      return { id: result.insertId, message: "Capacitación creada exitosamente" };
+      return {
+        id: result.insertId,
+        message: "Capacitación creada exitosamente",
+      };
     }),
 
   /**
@@ -108,7 +155,16 @@ export const committeeTrainingsRouter = router({
         id: z.number(),
         title: z.string().min(1).optional(),
         description: z.string().optional(),
-        type: z.enum(["mobbing", "burnout", "primeros_auxilios_psicologicos", "nom035", "investigacion", "otro"]).optional(),
+        type: z
+          .enum([
+            "mobbing",
+            "burnout",
+            "primeros_auxilios_psicologicos",
+            "nom035",
+            "investigacion",
+            "otro",
+          ])
+          .optional(),
         duration: z.number().min(1).optional(),
         validityMonths: z.number().optional(),
         isRequired: z.boolean().optional(),
@@ -117,12 +173,22 @@ export const committeeTrainingsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "committee_coordinator") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para actualizar capacitaciones" });
+      if (
+        ctx.user.role !== "admin" &&
+        ctx.user.role !== "committee_coordinator"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para actualizar capacitaciones",
+        });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const { id, ...updateData } = input;
 
@@ -140,14 +206,26 @@ export const committeeTrainingsRouter = router({
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "committee_coordinator") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para eliminar capacitaciones" });
+      if (
+        ctx.user.role !== "admin" &&
+        ctx.user.role !== "committee_coordinator"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para eliminar capacitaciones",
+        });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
-      await db.delete(committeeTrainings).where(eq(committeeTrainings.id, input.id));
+      await db
+        .delete(committeeTrainings)
+        .where(eq(committeeTrainings.id, input.id));
 
       return { message: "Capacitación eliminada exitosamente" };
     }),
@@ -157,7 +235,11 @@ export const committeeTrainingsRouter = router({
    */
   getStats: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     const [stats] = await db
       .select({

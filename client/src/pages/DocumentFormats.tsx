@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -25,7 +31,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Edit, Trash2, FileText, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  FileText,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import ProtectedButton from "@/components/ProtectedButton";
 
@@ -37,11 +50,15 @@ export default function DocumentFormats() {
     nombre: "",
     descripcion: "",
     version: "1.0",
-    fechaVersion: new Date().toISOString().split('T')[0],
+    fechaVersion: new Date().toISOString().split("T")[0],
     referencia: "",
   });
 
-  const { data: formats, isLoading, refetch } = trpc.documentFormats.list.useQuery();
+  const {
+    data: formats,
+    isLoading,
+    refetch,
+  } = trpc.documentFormats.list.useQuery();
   const createMutation = trpc.documentFormats.create.useMutation();
   const updateMutation = trpc.documentFormats.update.useMutation();
   const deleteMutation = trpc.documentFormats.delete.useMutation();
@@ -54,7 +71,9 @@ export default function DocumentFormats() {
         nombre: format.nombre,
         descripcion: format.descripcion || "",
         version: format.version,
-        fechaVersion: format.fechaVersion ? new Date(format.fechaVersion).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        fechaVersion: format.fechaVersion
+          ? new Date(format.fechaVersion).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0],
         referencia: format.referencia || "",
       });
     } else {
@@ -64,7 +83,7 @@ export default function DocumentFormats() {
         nombre: "",
         descripcion: "",
         version: "1.0",
-        fechaVersion: new Date().toISOString().split('T')[0],
+        fechaVersion: new Date().toISOString().split("T")[0],
         referencia: "",
       });
     }
@@ -93,7 +112,10 @@ export default function DocumentFormats() {
     }
   };
 
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   const handleDelete = (id: number, name: string) => {
     setDeleteConfirm({ id, name });
@@ -118,7 +140,9 @@ export default function DocumentFormats() {
         id: format.id,
         activo: !format.activo,
       });
-      toast.success(`Formato ${!format.activo ? 'activado' : 'desactivado'} exitosamente`);
+      toast.success(
+        `Formato ${!format.activo ? "activado" : "desactivado"} exitosamente`
+      );
       refetch();
     } catch (error: any) {
       toast.error(error.message || "Error al cambiar estado del formato");
@@ -128,13 +152,13 @@ export default function DocumentFormats() {
   if (isLoading) {
     return (
       <div className="p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Cargando formatos...</CardTitle>
-        </CardHeader>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Cargando formatos...</CardTitle>
+          </CardHeader>
+        </Card>
       </div>
-    );  
+    );
   }
 
   return (
@@ -143,10 +167,11 @@ export default function DocumentFormats() {
         <div>
           <h1 className="text-3xl font-bold">Catálogo de Formatos</h1>
           <p className="text-muted-foreground mt-1">
-            Gestión de nomenclatura de folios para documentos del sistema de gestión
+            Gestión de nomenclatura de folios para documentos del sistema de
+            gestión
           </p>
         </div>
-        <ProtectedButton 
+        <ProtectedButton
           onClick={() => handleOpenDialog()}
           requiredPermission="can_create"
           fallbackMessage="No tienes permisos para crear formatos"
@@ -169,7 +194,9 @@ export default function DocumentFormats() {
             <div className="text-center py-12 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No hay formatos registrados</p>
-              <p className="text-sm mt-2">Cree un nuevo formato para comenzar</p>
+              <p className="text-sm mt-2">
+                Cree un nuevo formato para comenzar
+              </p>
             </div>
           ) : (
             <Table>
@@ -187,19 +214,25 @@ export default function DocumentFormats() {
               <TableBody>
                 {formats.map((format: any) => (
                   <TableRow key={format.id}>
-                    <TableCell className="font-mono font-semibold">{format.codigo}</TableCell>
+                    <TableCell className="font-mono font-semibold">
+                      {format.codigo}
+                    </TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium">{format.nombre}</p>
                         {format.descripcion && (
-                          <p className="text-sm text-muted-foreground">{format.descripcion}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {format.descripcion}
+                          </p>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{format.version}</Badge>
                     </TableCell>
-                    <TableCell className="font-mono">{format.consecutivoActual}</TableCell>
+                    <TableCell className="font-mono">
+                      {format.consecutivoActual}
+                    </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {format.referencia || "-"}
                     </TableCell>
@@ -262,7 +295,8 @@ export default function DocumentFormats() {
               {editingFormat ? "Editar Formato" : "Nuevo Formato"}
             </DialogTitle>
             <DialogDescription>
-              Configure la nomenclatura de folios para documentos del sistema de gestión
+              Configure la nomenclatura de folios para documentos del sistema de
+              gestión
             </DialogDescription>
           </DialogHeader>
 
@@ -273,7 +307,12 @@ export default function DocumentFormats() {
                 <Input
                   id="codigo"
                   value={formData.codigo}
-                  onChange={(e) => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      codigo: e.target.value.toUpperCase(),
+                    })
+                  }
                   placeholder="Ej: VN, AC, RN"
                   maxLength={20}
                   required
@@ -289,7 +328,9 @@ export default function DocumentFormats() {
                 <Input
                   id="version"
                   value={formData.version}
-                  onChange={(e) => setFormData({ ...formData, version: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, version: e.target.value })
+                  }
                   placeholder="1.0"
                   required
                 />
@@ -301,7 +342,9 @@ export default function DocumentFormats() {
               <Input
                 id="nombre"
                 value={formData.nombre}
-                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, nombre: e.target.value })
+                }
                 placeholder="Ej: Verificación de Numerales NOM-035"
                 maxLength={255}
                 required
@@ -313,7 +356,9 @@ export default function DocumentFormats() {
               <Textarea
                 id="descripcion"
                 value={formData.descripcion}
-                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, descripcion: e.target.value })
+                }
                 placeholder="Descripción detallada del formato"
                 rows={3}
               />
@@ -326,7 +371,9 @@ export default function DocumentFormats() {
                   id="fechaVersion"
                   type="date"
                   value={formData.fechaVersion}
-                  onChange={(e) => setFormData({ ...formData, fechaVersion: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, fechaVersion: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -336,7 +383,9 @@ export default function DocumentFormats() {
                 <Input
                   id="referencia"
                   value={formData.referencia}
-                  onChange={(e) => setFormData({ ...formData, referencia: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, referencia: e.target.value })
+                  }
                   placeholder="Ej: NOM-035-STPS-2018"
                   maxLength={500}
                 />
@@ -344,18 +393,24 @@ export default function DocumentFormats() {
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm font-medium text-blue-900">Vista previa del folio:</p>
+              <p className="text-sm font-medium text-blue-900">
+                Vista previa del folio:
+              </p>
               <p className="text-lg font-mono font-bold text-blue-700 mt-1">
                 {formData.codigo || "XXX"}-001/{new Date().getFullYear()}
               </p>
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+              >
                 Cancelar
               </Button>
-              <ProtectedButton 
-                type="submit" 
+              <ProtectedButton
+                type="submit"
                 disabled={createMutation.isPending || updateMutation.isPending}
                 requiredPermissions={["can_create", "can_edit"]}
                 requireAll={false}
@@ -370,7 +425,7 @@ export default function DocumentFormats() {
 
       <ConfirmDialog
         open={deleteConfirm !== null}
-        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onOpenChange={open => !open && setDeleteConfirm(null)}
         onConfirm={confirmDelete}
         title="Eliminar Formato"
         description={`¿Estás seguro de eliminar el formato "${deleteConfirm?.name}"? Esta acción no se puede deshacer.`}

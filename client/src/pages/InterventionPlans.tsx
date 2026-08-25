@@ -41,11 +41,11 @@ export default function InterventionPlans() {
 
   // Mutation para generar plan de intervención
   const generatePlan = trpc.interventions.generateInterventionPlan.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setGeneratedPlan(data);
       toast.success("Plan de intervención generado exitosamente");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al generar plan: ${error.message}`);
     },
   });
@@ -83,9 +83,13 @@ export default function InterventionPlans() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Planes de Intervención Personalizada</h1>
+        <h1 className="text-3xl font-bold">
+          Planes de Intervención Personalizada
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Genera planes de acción automáticos para empleados en riesgo crítico con asignación de mentores, cursos recomendados y seguimiento trimestral
+          Genera planes de acción automáticos para empleados en riesgo crítico
+          con asignación de mentores, cursos recomendados y seguimiento
+          trimestral
         </p>
       </div>
 
@@ -103,7 +107,7 @@ export default function InterventionPlans() {
               <label className="text-sm font-medium">Empleado en Riesgo</label>
               <Select
                 value={selectedEmployee?.toString() || ""}
-                onValueChange={(value) => setSelectedEmployee(Number(value))}
+                onValueChange={value => setSelectedEmployee(Number(value))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona un empleado" />
@@ -115,7 +119,10 @@ export default function InterventionPlans() {
                     </SelectItem>
                   ) : (
                     atRiskEmployees?.employees.map((emp: any) => (
-                      <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
+                      <SelectItem
+                        key={emp.employeeId}
+                        value={emp.employeeId.toString()}
+                      >
                         {emp.employeeName} - Score: {emp.retentionScore}
                       </SelectItem>
                     ))
@@ -128,7 +135,7 @@ export default function InterventionPlans() {
               <label className="text-sm font-medium">Ciclo de Evaluación</label>
               <Select
                 value={selectedCycle?.toString() || ""}
-                onValueChange={(value) => setSelectedCycle(Number(value))}
+                onValueChange={value => setSelectedCycle(Number(value))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona un ciclo" />
@@ -141,7 +148,9 @@ export default function InterventionPlans() {
                   ) : (
                     cycles?.map((cycle: any) => (
                       <SelectItem key={cycle.id} value={cycle.id.toString()}>
-                        {cycle.name} ({new Date(cycle.startDate).toLocaleDateString('es-MX')} - {new Date(cycle.endDate).toLocaleDateString('es-MX')})
+                        {cycle.name} (
+                        {new Date(cycle.startDate).toLocaleDateString("es-MX")}{" "}
+                        - {new Date(cycle.endDate).toLocaleDateString("es-MX")})
                       </SelectItem>
                     ))
                   )}
@@ -152,10 +161,14 @@ export default function InterventionPlans() {
             <div className="flex items-end">
               <Button
                 onClick={handleGeneratePlan}
-                disabled={!selectedEmployee || !selectedCycle || generatePlan.isPending}
+                disabled={
+                  !selectedEmployee || !selectedCycle || generatePlan.isPending
+                }
                 className="w-full"
               >
-                {generatePlan.isPending ? "Generando..." : "Generar Plan de Intervención"}
+                {generatePlan.isPending
+                  ? "Generando..."
+                  : "Generar Plan de Intervención"}
               </Button>
             </div>
           </div>
@@ -180,15 +193,23 @@ export default function InterventionPlans() {
                   <p className="font-semibold">{generatedPlan.employeeName}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Score de Retención</p>
-                  <p className="text-2xl font-bold">{generatedPlan.retentionScore}%</p>
+                  <p className="text-sm text-muted-foreground">
+                    Score de Retención
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {generatedPlan.retentionScore}%
+                  </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Nivel de Riesgo</p>
+                  <p className="text-sm text-muted-foreground">
+                    Nivel de Riesgo
+                  </p>
                   {getRiskBadge(generatedPlan.riskLevel)}
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Competencias Críticas</p>
+                  <p className="text-sm text-muted-foreground">
+                    Competencias Críticas
+                  </p>
                   <p className="text-2xl font-bold text-red-500">
                     {generatedPlan.criticalCompetencies}
                   </p>
@@ -222,42 +243,54 @@ export default function InterventionPlans() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {generatedPlan.courseRecommendations.map((rec: any, idx: number) => (
-                      <div key={idx} className="border-l-4 border-blue-500 pl-4 space-y-3">
-                        <div>
-                          <h3 className="font-semibold text-lg">{rec.competencyName}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Brecha detectada: {rec.gap} puntos
-                          </p>
+                    {generatedPlan.courseRecommendations.map(
+                      (rec: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="border-l-4 border-blue-500 pl-4 space-y-3"
+                        >
+                          <div>
+                            <h3 className="font-semibold text-lg">
+                              {rec.competencyName}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              Brecha detectada: {rec.gap} puntos
+                            </p>
+                          </div>
+                          <div className="space-y-2">
+                            {rec.recommendedCourses.map(
+                              (course: any, courseIdx: number) => (
+                                <div
+                                  key={courseIdx}
+                                  className="bg-muted/50 p-3 rounded-lg flex items-start justify-between"
+                                >
+                                  <div className="space-y-1">
+                                    <p className="font-medium">
+                                      {course.courseName}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                      Duración: {course.duration} | Modalidad:{" "}
+                                      {course.modality}
+                                    </p>
+                                  </div>
+                                  <Badge
+                                    variant={
+                                      course.priority === "Alta"
+                                        ? "destructive"
+                                        : course.priority === "Media"
+                                          ? "default"
+                                          : "secondary"
+                                    }
+                                  >
+                                    {course.priority}
+                                  </Badge>
+                                </div>
+                              )
+                            )}
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          {rec.recommendedCourses.map((course: any, courseIdx: number) => (
-                            <div
-                              key={courseIdx}
-                              className="bg-muted/50 p-3 rounded-lg flex items-start justify-between"
-                            >
-                              <div className="space-y-1">
-                                <p className="font-medium">{course.courseName}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Duración: {course.duration} | Modalidad: {course.modality}
-                                </p>
-                              </div>
-                              <Badge
-                                variant={
-                                  course.priority === "Alta"
-                                    ? "destructive"
-                                    : course.priority === "Media"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                              >
-                                {course.priority}
-                              </Badge>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -284,7 +317,8 @@ export default function InterventionPlans() {
                             ID: {generatedPlan.assignedMentor.mentorId}
                           </p>
                           <p className="text-sm font-medium mt-1">
-                            Calificación Promedio: {generatedPlan.assignedMentor.averageRating}/5.0
+                            Calificación Promedio:{" "}
+                            {generatedPlan.assignedMentor.averageRating}/5.0
                           </p>
                         </div>
                         <Badge className="bg-green-500 text-white">
@@ -293,21 +327,31 @@ export default function InterventionPlans() {
                         </Badge>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold">Responsabilidades del Mentor:</h4>
+                        <h4 className="font-semibold">
+                          Responsabilidades del Mentor:
+                        </h4>
                         <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                          <li>Sesiones de mentoría quincenales (primeros 6 meses)</li>
+                          <li>
+                            Sesiones de mentoría quincenales (primeros 6 meses)
+                          </li>
                           <li>Revisión de progreso en competencias críticas</li>
                           <li>Apoyo en aplicación práctica de conocimientos</li>
-                          <li>Retroalimentación constructiva y seguimiento continuo</li>
+                          <li>
+                            Retroalimentación constructiva y seguimiento
+                            continuo
+                          </li>
                         </ul>
                       </div>
                     </div>
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
                       <AlertCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>No se encontró un mentor disponible en el departamento</p>
+                      <p>
+                        No se encontró un mentor disponible en el departamento
+                      </p>
                       <p className="text-sm mt-1">
-                        Considera asignar un mentor de otro departamento o externo
+                        Considera asignar un mentor de otro departamento o
+                        externo
                       </p>
                     </div>
                   )}
@@ -323,31 +367,39 @@ export default function InterventionPlans() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {generatedPlan.followUpPlan.map((quarter: any, idx: number) => (
-                      <div
-                        key={idx}
-                        className="border-l-4 border-purple-500 pl-4 space-y-2 pb-4"
-                      >
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-semibold text-lg">
-                            {quarter.quarter} - {quarter.month}
-                          </h3>
-                          <Badge variant="outline">{quarter.quarter}</Badge>
+                    {generatedPlan.followUpPlan.map(
+                      (quarter: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="border-l-4 border-purple-500 pl-4 space-y-2 pb-4"
+                        >
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold text-lg">
+                              {quarter.quarter} - {quarter.month}
+                            </h3>
+                            <Badge variant="outline">{quarter.quarter}</Badge>
+                          </div>
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium">Actividades:</p>
+                            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                              {quarter.activities.map(
+                                (activity: string, actIdx: number) => (
+                                  <li key={actIdx}>{activity}</li>
+                                )
+                              )}
+                            </ul>
+                          </div>
+                          <div className="bg-muted/50 p-3 rounded-lg">
+                            <p className="text-sm font-medium">
+                              Resultado Esperado:
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {quarter.expectedOutcome}
+                            </p>
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium">Actividades:</p>
-                          <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                            {quarter.activities.map((activity: string, actIdx: number) => (
-                              <li key={actIdx}>{activity}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="bg-muted/50 p-3 rounded-lg">
-                          <p className="text-sm font-medium">Resultado Esperado:</p>
-                          <p className="text-sm text-muted-foreground">{quarter.expectedOutcome}</p>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -362,9 +414,12 @@ export default function InterventionPlans() {
           <CardContent className="py-12">
             <div className="text-center text-muted-foreground">
               <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">No hay plan de intervención generado</p>
+              <p className="text-lg font-medium">
+                No hay plan de intervención generado
+              </p>
               <p className="text-sm mt-2">
-                Selecciona un empleado en riesgo y un ciclo de evaluación para generar un plan personalizado
+                Selecciona un empleado en riesgo y un ciclo de evaluación para
+                generar un plan personalizado
               </p>
             </div>
           </CardContent>

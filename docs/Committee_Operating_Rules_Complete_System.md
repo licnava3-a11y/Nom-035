@@ -40,17 +40,17 @@ await trpc.committeeOperatingRules.update.mutate({ id, changeDescription, ... })
 const versions = await trpc.committeeOperatingRules.listVersions.useQuery({ operatingRuleId });
 
 // Comparar versiones
-const comparison = await trpc.committeeOperatingRules.compareVersions.useQuery({ 
-  operatingRuleId, 
-  versionId1, 
-  versionId2 
+const comparison = await trpc.committeeOperatingRules.compareVersions.useQuery({
+  operatingRuleId,
+  versionId1,
+  versionId2
 });
 
 // Restaurar versión
-await trpc.committeeOperatingRules.restoreVersion.mutate({ 
-  operatingRuleId, 
-  versionId, 
-  changeDescription 
+await trpc.committeeOperatingRules.restoreVersion.mutate({
+  operatingRuleId,
+  versionId,
+  changeDescription
 });
 ```
 
@@ -82,9 +82,10 @@ Genera documentos PDF profesionales con marca de agua, número de versión, cód
 
 ```typescript
 // Generar PDF con firmas digitales
-const { pdfBase64, filename } = await trpc.committeeOperatingRules.generatePDF.mutate({
-  id: operatingRuleId
-});
+const { pdfBase64, filename } =
+  await trpc.committeeOperatingRules.generatePDF.mutate({
+    id: operatingRuleId,
+  });
 ```
 
 ---
@@ -256,8 +257,13 @@ await trpc.smtpConfig.updateConfig.mutate({
 
 // Probar conexión
 await trpc.smtpConfig.testConnection.mutate({
-  host, port, secure, user, password, fromEmail,
-  testEmail: "tu-email@example.com"
+  host,
+  port,
+  secure,
+  user,
+  password,
+  fromEmail,
+  testEmail: "tu-email@example.com",
 });
 ```
 

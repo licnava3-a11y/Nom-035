@@ -51,6 +51,7 @@ Si necesita regenerar tokens o crear tokens para empleados específicos, contact
 ### Paso 3: Enviar Invitaciones por Email
 
 **Configuración previa requerida:**
+
 - SMTP configurado (ver [Guía de Configuración SMTP](./SMTP_Configuration_Guide.md))
 - Empleados con correos electrónicos válidos en el sistema
 
@@ -231,21 +232,25 @@ CREATE TABLE survey_employee_tokens (
 ### Error: "Token inválido o expirado"
 
 **Causas comunes:**
+
 - Token ya fue utilizado
 - Token expiró (>30 días desde generación)
 - Token no existe en la base de datos
 
 **Solución:**
+
 - Contacte al administrador para regenerar el token
 - Verifique que el link copiado esté completo
 
 ### Error: "CURP incorrecto"
 
 **Causas comunes:**
+
 - CURP ingresado no coincide con el empleado del token
 - Error tipográfico en el CURP
 
 **Solución:**
+
 - Verifique su CURP en documentos oficiales
 - Asegúrese de ingresar exactamente 18 caracteres
 - Contacte a Recursos Humanos si el error persiste
@@ -253,20 +258,24 @@ CREATE TABLE survey_employee_tokens (
 ### Error: "Encuesta no disponible"
 
 **Causas comunes:**
+
 - Periodo de encuesta cerrado
 - Encuesta eliminada por el administrador
 
 **Solución:**
+
 - Contacte al administrador para verificar el estado del periodo
 
 ### Correo de invitación no llega
 
 **Causas comunes:**
+
 - Correo electrónico incorrecto en el sistema
 - Correo marcado como spam
 - SMTP no configurado correctamente
 
 **Solución:**
+
 - Verifique la carpeta de spam
 - Contacte a Recursos Humanos para actualizar su correo
 - Administrador: verifique configuración SMTP

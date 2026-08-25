@@ -53,20 +53,27 @@ export const webVitalsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB error" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB error",
+        });
 
       const since = new Date();
       since.setDate(since.getDate() - input.days);
 
       const metrics = ["LCP", "CLS", "INP", "FCP", "TTFB"] as const;
-      const summary: Record<string, {
-        avg: number;
-        p75: number;
-        good: number;
-        needsImprovement: number;
-        poor: number;
-        total: number;
-      }> = {};
+      const summary: Record<
+        string,
+        {
+          avg: number;
+          p75: number;
+          good: number;
+          needsImprovement: number;
+          poor: number;
+          total: number;
+        }
+      > = {};
 
       for (const metric of metrics) {
         const rows = await db
@@ -84,20 +91,36 @@ export const webVitalsRouter = router({
           .orderBy(webVitalsMetrics.value);
 
         if (rows.length === 0) {
-          summary[metric] = { avg: 0, p75: 0, good: 0, needsImprovement: 0, poor: 0, total: 0 };
+          summary[metric] = {
+            avg: 0,
+            p75: 0,
+            good: 0,
+            needsImprovement: 0,
+            poor: 0,
+            total: 0,
+          };
           continue;
         }
 
-        const values = rows.map((r) => Number(r.value));
+        const values = rows.map(r => Number(r.value));
         const avg = values.reduce((a, b) => a + b, 0) / values.length;
         const p75Index = Math.floor(values.length * 0.75);
         const p75 = values[p75Index] ?? values[values.length - 1];
 
-        const good = rows.filter((r) => r.rating === "good").length;
-        const needsImprovement = rows.filter((r) => r.rating === "needs-improvement").length;
-        const poor = rows.filter((r) => r.rating === "poor").length;
+        const good = rows.filter(r => r.rating === "good").length;
+        const needsImprovement = rows.filter(
+          r => r.rating === "needs-improvement"
+        ).length;
+        const poor = rows.filter(r => r.rating === "poor").length;
 
-        summary[metric] = { avg: Math.round(avg * 10) / 10, p75: Math.round(p75 * 10) / 10, good, needsImprovement, poor, total: rows.length };
+        summary[metric] = {
+          avg: Math.round(avg * 10) / 10,
+          p75: Math.round(p75 * 10) / 10,
+          good,
+          needsImprovement,
+          poor,
+          total: rows.length,
+        };
       }
 
       return summary;
@@ -115,7 +138,11 @@ export const webVitalsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB error" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB error",
+        });
 
       const since = new Date();
       since.setDate(since.getDate() - input.days);
@@ -148,16 +175,24 @@ export const webVitalsRouter = router({
     .input(
       z.object({
         limit: z.number().int().min(1).max(200).optional().default(50),
-        metric: z.enum(["LCP", "CLS", "INP", "FCP", "TTFB", "all"]).optional().default("all"),
+        metric: z
+          .enum(["LCP", "CLS", "INP", "FCP", "TTFB", "all"])
+          .optional()
+          .default("all"),
       })
     )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB error" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB error",
+        });
 
-      const conditions = input.metric !== "all"
-        ? [eq(webVitalsMetrics.metricName, input.metric)]
-        : [];
+      const conditions =
+        input.metric !== "all"
+          ? [eq(webVitalsMetrics.metricName, input.metric)]
+          : [];
 
       const rows = await db
         .select()

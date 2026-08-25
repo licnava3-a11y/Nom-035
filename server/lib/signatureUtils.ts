@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 /**
  * Utilidades para manejo de firmas digitales conforme a NOM-151-SCFI-2016
@@ -11,13 +11,13 @@ import crypto from 'crypto';
  */
 export function calculateSignatureHash(signatureDataUrl: string): string {
   // Extraer solo la parte base64 (sin el prefijo data:image/png;base64,)
-  const base64Data = signatureDataUrl.replace(/^data:image\/\w+;base64,/, '');
-  
+  const base64Data = signatureDataUrl.replace(/^data:image\/\w+;base64,/, "");
+
   // Calcular SHA-256
-  const hash = crypto.createHash('sha256');
+  const hash = crypto.createHash("sha256");
   hash.update(base64Data);
-  
-  return hash.digest('hex');
+
+  return hash.digest("hex");
 }
 
 /**

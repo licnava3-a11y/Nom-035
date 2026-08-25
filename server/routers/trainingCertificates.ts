@@ -2,7 +2,13 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb, createNotification } from "../db";
-import { certificates, committeeTrainings, trainingAssignments, trainingCertificates, users } from "../../drizzle/schema";
+import {
+  certificates,
+  committeeTrainings,
+  trainingAssignments,
+  trainingCertificates,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
 import { randomUUID } from "crypto";
@@ -40,9 +46,7 @@ async function generateCertificatePDF(data: {
       const accentColor = "#f59e0b"; // Dorado
 
       // Encabezado con borde decorativo
-      doc
-        .rect(0, 0, doc.page.width, 150)
-        .fill(primaryColor);
+      doc.rect(0, 0, doc.page.width, 150).fill(primaryColor);
 
       // Título principal
       doc
@@ -108,10 +112,15 @@ async function generateCertificatePDF(data: {
         .fontSize(12)
         .font("Helvetica")
         .fillColor("#000000")
-        .text("Por haber completado satisfactoriamente la capacitación:", 50, 300, {
-          align: "center",
-          width: doc.page.width - 100,
-        });
+        .text(
+          "Por haber completado satisfactoriamente la capacitación:",
+          50,
+          300,
+          {
+            align: "center",
+            width: doc.page.width - 100,
+          }
+        );
 
       // Título de la capacitación
       doc
@@ -125,10 +134,7 @@ async function generateCertificatePDF(data: {
 
       // Detalles de la capacitación
       const detailsY = 380;
-      doc
-        .fontSize(11)
-        .font("Helvetica")
-        .fillColor(secondaryColor);
+      doc.fontSize(11).font("Helvetica").fillColor(secondaryColor);
 
       doc.text(`Duración: ${data.duration} horas`, 50, detailsY, {
         align: "center",
@@ -136,11 +142,14 @@ async function generateCertificatePDF(data: {
       });
 
       doc.text(
-        `Fecha de completación: ${data.completionDate.toLocaleDateString("es-MX", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}`,
+        `Fecha de completación: ${data.completionDate.toLocaleDateString(
+          "es-MX",
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        )}`,
         50,
         detailsY + 20,
         {
@@ -248,12 +257,22 @@ export const trainingCertificatesRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "committee_coordinator") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para generar certificados" });
+      if (
+        ctx.user.role !== "admin" &&
+        ctx.user.role !== "committee_coordinator"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para generar certificados",
+        });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener datos de la asignación
       const [assignmentData] = await db
@@ -263,21 +282,33 @@ export const trainingCertificatesRouter = router({
           member: users,
         })
         .from(trainingAssignments)
-        .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
         .leftJoin(users, eq(trainingAssignments.committeeMemberId, users.id))
         .where(eq(trainingAssignments.id, input.assignmentId))
         .limit(1);
 
       if (!assignmentData) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Asignación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Asignación no encontrada",
+        });
       }
 
       if (assignmentData.assignment.status !== "completed") {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "La capacitación debe estar completada" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "La capacitación debe estar completada",
+        });
       }
 
       if (!assignmentData.assignment.completionDate) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Falta fecha de completación" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Falta fecha de completación",
+        });
       }
 
       // Verificar si ya existe certificado
@@ -288,7 +319,10 @@ export const trainingCertificatesRouter = router({
         .limit(1);
 
       if (existingCert) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Ya existe un certificado para esta asignación" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Ya existe un certificado para esta asignación",
+        });
       }
 
       // Generar número de certificado único
@@ -302,7 +336,9 @@ export const trainingCertificatesRouter = router({
       let expiryDate: Date | null = null;
       if (assignmentData.training?.validityMonths) {
         expiryDate = new Date(assignmentData.assignment.completionDate);
-        expiryDate.setMonth(expiryDate.getMonth() + assignmentData.training.validityMonths);
+        expiryDate.setMonth(
+          expiryDate.getMonth() + assignmentData.training.validityMonths
+        );
       }
 
       // Generar PDF del certificado
@@ -320,14 +356,20 @@ export const trainingCertificatesRouter = router({
 
       // Subir PDF a S3
       const fileName = `certificates/${certificateNumber}.pdf`;
-      const { url: pdfUrl } = await storagePut(fileName, pdfBuffer, "application/pdf");
+      const { url: pdfUrl } = await storagePut(
+        fileName,
+        pdfBuffer,
+        "application/pdf"
+      );
 
       // Guardar registro del certificado
       const [result] = await (db.insert(trainingCertificates) as any).values({
         assignmentId: input.assignmentId,
         certificateNumber,
         issueDate: new Date().toISOString().split("T")[0] as any,
-        expiryDate: expiryDate ? expiryDate.toISOString().split("T")[0] as any : null,
+        expiryDate: expiryDate
+          ? (expiryDate.toISOString().split("T")[0] as any)
+          : null,
         pdfUrl,
         verificationCode,
         signedBy: input.signedBy,
@@ -358,7 +400,11 @@ export const trainingCertificatesRouter = router({
     .input(z.object({ verificationCode: z.string() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [certData] = await db
         .select({
@@ -368,10 +414,18 @@ export const trainingCertificatesRouter = router({
           member: users,
         })
         .from(trainingCertificates)
-        .leftJoin(trainingAssignments, eq(trainingCertificates.assignmentId, trainingAssignments.id))
-        .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+        .leftJoin(
+          trainingAssignments,
+          eq(trainingCertificates.assignmentId, trainingAssignments.id)
+        )
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
         .leftJoin(users, eq(trainingAssignments.committeeMemberId, users.id))
-        .where(eq(trainingCertificates.verificationCode, input.verificationCode))
+        .where(
+          eq(trainingCertificates.verificationCode, input.verificationCode)
+        )
         .limit(1);
 
       if (!certData) {
@@ -382,7 +436,8 @@ export const trainingCertificatesRouter = router({
       }
 
       const isExpired =
-        certData.certificate.expiryDate && new Date(certData.certificate.expiryDate) < new Date();
+        certData.certificate.expiryDate &&
+        new Date(certData.certificate.expiryDate) < new Date();
 
       return {
         valid: !isExpired,
@@ -406,7 +461,11 @@ export const trainingCertificatesRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const [certData] = await db
         .select({
@@ -414,12 +473,18 @@ export const trainingCertificatesRouter = router({
           assignment: trainingAssignments,
         })
         .from(trainingCertificates)
-        .leftJoin(trainingAssignments, eq(trainingCertificates.assignmentId, trainingAssignments.id))
+        .leftJoin(
+          trainingAssignments,
+          eq(trainingCertificates.assignmentId, trainingAssignments.id)
+        )
         .where(eq(trainingCertificates.id, input.id))
         .limit(1);
 
       if (!certData) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Certificado no encontrado" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Certificado no encontrado",
+        });
       }
 
       // Verificar permisos
@@ -428,7 +493,10 @@ export const trainingCertificatesRouter = router({
         ctx.user.role !== "committee_coordinator" &&
         ctx.user.id !== certData.assignment?.committeeMemberId
       ) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para descargar este certificado" });
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para descargar este certificado",
+        });
       }
 
       return {
@@ -442,7 +510,11 @@ export const trainingCertificatesRouter = router({
    */
   getMyCertificates: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     const results = await db
       .select({
@@ -451,8 +523,14 @@ export const trainingCertificatesRouter = router({
         training: committeeTrainings,
       })
       .from(trainingCertificates)
-      .leftJoin(trainingAssignments, eq(trainingCertificates.assignmentId, trainingAssignments.id))
-      .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+      .leftJoin(
+        trainingAssignments,
+        eq(trainingCertificates.assignmentId, trainingAssignments.id)
+      )
+      .leftJoin(
+        committeeTrainings,
+        eq(trainingAssignments.trainingId, committeeTrainings.id)
+      )
       .where(eq(trainingAssignments.committeeMemberId, ctx.user.id))
       .orderBy(desc(trainingCertificates.issueDate));
 
@@ -464,18 +542,30 @@ export const trainingCertificatesRouter = router({
    */
   listAll: protectedProcedure
     .input(
-      z.object({
-        committeeMemberId: z.number().optional(),
-        trainingId: z.number().optional(),
-      }).optional()
+      z
+        .object({
+          committeeMemberId: z.number().optional(),
+          trainingId: z.number().optional(),
+        })
+        .optional()
     )
     .query(async ({ input, ctx }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "committee_coordinator") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para ver todos los certificados" });
+      if (
+        ctx.user.role !== "admin" &&
+        ctx.user.role !== "committee_coordinator"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para ver todos los certificados",
+        });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       let query = db
         .select({
@@ -485,13 +575,21 @@ export const trainingCertificatesRouter = router({
           member: users,
         })
         .from(trainingCertificates)
-        .leftJoin(trainingAssignments, eq(trainingCertificates.assignmentId, trainingAssignments.id))
-        .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+        .leftJoin(
+          trainingAssignments,
+          eq(trainingCertificates.assignmentId, trainingAssignments.id)
+        )
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
         .leftJoin(users, eq(trainingAssignments.committeeMemberId, users.id));
 
       const conditions = [];
       if (input?.committeeMemberId) {
-        conditions.push(eq(trainingAssignments.committeeMemberId, input.committeeMemberId));
+        conditions.push(
+          eq(trainingAssignments.committeeMemberId, input.committeeMemberId)
+        );
       }
       if (input?.trainingId) {
         conditions.push(eq(trainingAssignments.trainingId, input.trainingId));

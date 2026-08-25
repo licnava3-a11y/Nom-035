@@ -24,10 +24,14 @@ export const algorithmEffectivenessRouter = router({
       // Construir condiciones de fecha
       const dateConditions = [];
       if (startDate) {
-        dateConditions.push(gte(predictionHistory.predictionDate, new Date(startDate)));
+        dateConditions.push(
+          gte(predictionHistory.predictionDate, new Date(startDate))
+        );
       }
       if (endDate) {
-        dateConditions.push(lte(predictionHistory.predictionDate, new Date(endDate)));
+        dateConditions.push(
+          lte(predictionHistory.predictionDate, new Date(endDate))
+        );
       }
 
       // Obtener predicciones evaluadas (con datos reales)
@@ -56,7 +60,7 @@ export const algorithmEffectivenessRouter = router({
 
       // Calcular métricas de precisión
       const totalPredictions = evaluatedPredictions.length;
-      
+
       if (totalPredictions === 0) {
         return {
           totalPredictions: 0,
@@ -81,11 +85,15 @@ export const algorithmEffectivenessRouter = router({
       const averageError = totalError / totalPredictions;
 
       // Clasificar por nivel de precisión
-      const highAccuracyCount = evaluatedPredictions.filter((pred: any) => Number(pred.accuracyScore) >= 80
+      const highAccuracyCount = evaluatedPredictions.filter(
+        (pred: any) => Number(pred.accuracyScore) >= 80
       ).length;
-      const mediumAccuracyCount = evaluatedPredictions.filter((pred: any) => Number(pred.accuracyScore) >= 60 && Number(pred.accuracyScore) < 80
+      const mediumAccuracyCount = evaluatedPredictions.filter(
+        (pred: any) =>
+          Number(pred.accuracyScore) >= 60 && Number(pred.accuracyScore) < 80
       ).length;
-      const lowAccuracyCount = evaluatedPredictions.filter((pred: any) => Number(pred.accuracyScore) < 60
+      const lowAccuracyCount = evaluatedPredictions.filter(
+        (pred: any) => Number(pred.accuracyScore) < 60
       ).length;
 
       return {
@@ -140,7 +148,8 @@ export const algorithmEffectivenessRouter = router({
 
       return trends.map((trend: any) => ({
         month: trend.month,
-        avgPredictedRate: Math.round(Number(trend.avgPredictedRate) * 100) / 100,
+        avgPredictedRate:
+          Math.round(Number(trend.avgPredictedRate) * 100) / 100,
         avgActualRate: Math.round(Number(trend.avgActualRate) * 100) / 100,
         avgAccuracy: Math.round(Number(trend.avgAccuracy) * 100) / 100,
         count: Number(trend.count),
@@ -236,7 +245,10 @@ export const algorithmEffectivenessRouter = router({
       // Calcular precisión
       const predictedRate = Number(prediction.predictedTurnoverRate) || 0;
       const predictionError = Math.abs(predictedRate - actualTurnoverRate);
-      const accuracyScore = Math.max(0, 100 - (predictionError / predictedRate) * 100);
+      const accuracyScore = Math.max(
+        0,
+        100 - (predictionError / predictedRate) * 100
+      );
 
       // Actualizar predicción
       await db

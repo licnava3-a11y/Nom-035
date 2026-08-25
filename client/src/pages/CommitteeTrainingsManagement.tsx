@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -33,12 +39,23 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Users, Clock, Award, BookOpen } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Users,
+  Clock,
+  Award,
+  BookOpen,
+} from "lucide-react";
 
 const TRAINING_TYPES = [
   { value: "mobbing", label: "Mobbing / Acoso Laboral" },
   { value: "burnout", label: "Burnout / Agotamiento" },
-  { value: "primeros_auxilios_psicologicos", label: "Primeros Auxilios Psicológicos" },
+  {
+    value: "primeros_auxilios_psicologicos",
+    label: "Primeros Auxilios Psicológicos",
+  },
   { value: "nom035", label: "NOM-035 STPS 2018" },
   { value: "investigacion", label: "Investigación de Casos" },
   { value: "otro", label: "Otro" },
@@ -51,7 +68,11 @@ export default function CommitteeTrainingsManagement() {
   const [selectedTraining, setSelectedTraining] = useState<any>(null);
   const [filterType, setFilterType] = useState<string | undefined>(undefined);
 
-  const { data: trainings, isLoading, refetch } = trpc.committeeTrainings.list.useQuery({
+  const {
+    data: trainings,
+    isLoading,
+    refetch,
+  } = trpc.committeeTrainings.list.useQuery({
     type: filterType as any,
   });
 
@@ -63,7 +84,7 @@ export default function CommitteeTrainingsManagement() {
       setIsCreateDialogOpen(false);
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -74,7 +95,7 @@ export default function CommitteeTrainingsManagement() {
       setIsEditDialogOpen(false);
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -84,31 +105,34 @@ export default function CommitteeTrainingsManagement() {
       toast.success("Capacitación eliminada exitosamente");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
 
-  const assignToRoleMutation = trpc.trainingAssignments.assignToRole.useMutation({
-    onSuccess: (data) => {
-      toast.success(data.message);
-      setIsAssignDialogOpen(false);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const assignToRoleMutation =
+    trpc.trainingAssignments.assignToRole.useMutation({
+      onSuccess: data => {
+        toast.success(data.message);
+        setIsAssignDialogOpen(false);
+      },
+      onError: error => {
+        toast.error(error.message);
+      },
+    });
 
   const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
+
     createMutation.mutate({
       title: formData.get("title") as string,
       description: formData.get("description") as string,
       type: formData.get("type") as any,
       duration: parseInt(formData.get("duration") as string),
-      validityMonths: formData.get("validityMonths") ? parseInt(formData.get("validityMonths") as string) : undefined,
+      validityMonths: formData.get("validityMonths")
+        ? parseInt(formData.get("validityMonths") as string)
+        : undefined,
       isRequired: formData.get("isRequired") === "true",
       content: formData.get("content") as string,
     });
@@ -117,14 +141,16 @@ export default function CommitteeTrainingsManagement() {
   const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
+
     updateMutation.mutate({
       id: selectedTraining.id,
       title: formData.get("title") as string,
       description: formData.get("description") as string,
       type: formData.get("type") as any,
       duration: parseInt(formData.get("duration") as string),
-      validityMonths: formData.get("validityMonths") ? parseInt(formData.get("validityMonths") as string) : undefined,
+      validityMonths: formData.get("validityMonths")
+        ? parseInt(formData.get("validityMonths") as string)
+        : undefined,
       isRequired: formData.get("isRequired") === "true",
       content: formData.get("content") as string,
     });
@@ -133,7 +159,7 @@ export default function CommitteeTrainingsManagement() {
   const handleAssignToRole = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
+
     assignToRoleMutation.mutate({
       trainingId: selectedTraining.id,
       targetRole: formData.get("targetRole") as string,
@@ -141,7 +167,10 @@ export default function CommitteeTrainingsManagement() {
     });
   };
 
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; title: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
 
   const handleDelete = (id: number, title: string) => {
     setDeleteConfirm({ id, title });
@@ -162,9 +191,12 @@ export default function CommitteeTrainingsManagement() {
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Gestión de Capacitaciones del Comité</h1>
+          <h1 className="text-3xl font-bold">
+            Gestión de Capacitaciones del Comité
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Administra el catálogo de capacitaciones obligatorias para miembros del comité
+            Administra el catálogo de capacitaciones obligatorias para miembros
+            del comité
           </p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
@@ -177,7 +209,9 @@ export default function CommitteeTrainingsManagement() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Capacitaciones</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Capacitaciones
+            </CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -228,7 +262,9 @@ export default function CommitteeTrainingsManagement() {
               <Label>Tipo de Capacitación</Label>
               <Select
                 value={filterType || "all"}
-                onValueChange={(value) => setFilterType(value === "all" ? undefined : value)}
+                onValueChange={value =>
+                  setFilterType(value === "all" ? undefined : value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos" />
@@ -273,16 +309,24 @@ export default function CommitteeTrainingsManagement() {
               <TableBody>
                 {trainings.map((training: any) => (
                   <TableRow key={training.id}>
-                    <TableCell className="font-medium">{training.title}</TableCell>
+                    <TableCell className="font-medium">
+                      {training.title}
+                    </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{getTypeLabel(training.type)}</Badge>
+                      <Badge variant="outline">
+                        {getTypeLabel(training.type)}
+                      </Badge>
                     </TableCell>
                     <TableCell>{training.duration} hrs</TableCell>
                     <TableCell>
-                      {training.validityMonths ? `${training.validityMonths} meses` : "Sin vencimiento"}
+                      {training.validityMonths
+                        ? `${training.validityMonths} meses`
+                        : "Sin vencimiento"}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={training.isRequired ? "default" : "secondary"}>
+                      <Badge
+                        variant={training.isRequired ? "default" : "secondary"}
+                      >
                         {training.isRequired ? "Sí" : "No"}
                       </Badge>
                     </TableCell>
@@ -311,7 +355,9 @@ export default function CommitteeTrainingsManagement() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(training.id, training.title)}
+                          onClick={() =>
+                            handleDelete(training.id, training.title)
+                          }
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -365,13 +411,24 @@ export default function CommitteeTrainingsManagement() {
               </div>
               <div>
                 <Label htmlFor="duration">Duración (horas) *</Label>
-                <Input id="duration" name="duration" type="number" min="1" required />
+                <Input
+                  id="duration"
+                  name="duration"
+                  type="number"
+                  min="1"
+                  required
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="validityMonths">Vigencia (meses)</Label>
-                <Input id="validityMonths" name="validityMonths" type="number" min="1" />
+                <Input
+                  id="validityMonths"
+                  name="validityMonths"
+                  type="number"
+                  min="1"
+                />
               </div>
               <div>
                 <Label htmlFor="isRequired">¿Es obligatoria? *</Label>
@@ -391,10 +448,20 @@ export default function CommitteeTrainingsManagement() {
               <Textarea id="content" name="content" rows={4} />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCreateDialogOpen(false)}
+              >
                 Cancelar
               </Button>
-              <LoadingButton type="submit" loading={createMutation.isPending} loadingText="Creando...">Crear</LoadingButton>
+              <LoadingButton
+                type="submit"
+                loading={createMutation.isPending}
+                loadingText="Creando..."
+              >
+                Crear
+              </LoadingButton>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -413,11 +480,21 @@ export default function CommitteeTrainingsManagement() {
             <form onSubmit={handleUpdate} className="space-y-4">
               <div>
                 <Label htmlFor="edit-title">Título *</Label>
-                <Input id="edit-title" name="title" defaultValue={selectedTraining.title} required />
+                <Input
+                  id="edit-title"
+                  name="title"
+                  defaultValue={selectedTraining.title}
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="edit-description">Descripción</Label>
-                <Textarea id="edit-description" name="description" defaultValue={selectedTraining.description || ""} rows={3} />
+                <Textarea
+                  id="edit-description"
+                  name="description"
+                  defaultValue={selectedTraining.description || ""}
+                  rows={3}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -437,17 +514,35 @@ export default function CommitteeTrainingsManagement() {
                 </div>
                 <div>
                   <Label htmlFor="edit-duration">Duración (horas) *</Label>
-                  <Input id="edit-duration" name="duration" type="number" min="1" defaultValue={selectedTraining.duration} required />
+                  <Input
+                    id="edit-duration"
+                    name="duration"
+                    type="number"
+                    min="1"
+                    defaultValue={selectedTraining.duration}
+                    required
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-validityMonths">Vigencia (meses)</Label>
-                  <Input id="edit-validityMonths" name="validityMonths" type="number" min="1" defaultValue={selectedTraining.validityMonths || ""} />
+                  <Input
+                    id="edit-validityMonths"
+                    name="validityMonths"
+                    type="number"
+                    min="1"
+                    defaultValue={selectedTraining.validityMonths || ""}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="edit-isRequired">¿Es obligatoria? *</Label>
-                  <Select name="isRequired" defaultValue={selectedTraining.isRequired ? "true" : "false"}>
+                  <Select
+                    name="isRequired"
+                    defaultValue={
+                      selectedTraining.isRequired ? "true" : "false"
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -460,13 +555,28 @@ export default function CommitteeTrainingsManagement() {
               </div>
               <div>
                 <Label htmlFor="edit-content">Contenido / Temario</Label>
-                <Textarea id="edit-content" name="content" defaultValue={selectedTraining.content || ""} rows={4} />
+                <Textarea
+                  id="edit-content"
+                  name="content"
+                  defaultValue={selectedTraining.content || ""}
+                  rows={4}
+                />
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
-                <LoadingButton type="submit" loading={updateMutation.isPending} loadingText="Guardando...">Guardar</LoadingButton>
+                <LoadingButton
+                  type="submit"
+                  loading={updateMutation.isPending}
+                  loadingText="Guardando..."
+                >
+                  Guardar
+                </LoadingButton>
               </DialogFooter>
             </form>
           )}
@@ -479,7 +589,8 @@ export default function CommitteeTrainingsManagement() {
           <DialogHeader>
             <DialogTitle>Asignar a Rol</DialogTitle>
             <DialogDescription>
-              Asigna esta capacitación a todos los miembros con un rol específico
+              Asigna esta capacitación a todos los miembros con un rol
+              específico
             </DialogDescription>
           </DialogHeader>
           {selectedTraining && (
@@ -495,8 +606,12 @@ export default function CommitteeTrainingsManagement() {
                     <SelectValue placeholder="Selecciona rol" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="committee_member">Miembro del Comité</SelectItem>
-                    <SelectItem value="committee_coordinator">Coordinador del Comité</SelectItem>
+                    <SelectItem value="committee_member">
+                      Miembro del Comité
+                    </SelectItem>
+                    <SelectItem value="committee_coordinator">
+                      Coordinador del Comité
+                    </SelectItem>
                     <SelectItem value="committee">Comité (General)</SelectItem>
                   </SelectContent>
                 </Select>
@@ -506,10 +621,20 @@ export default function CommitteeTrainingsManagement() {
                 <Textarea id="notes" name="notes" rows={3} />
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsAssignDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAssignDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
-                <LoadingButton type="submit" loading={assignToRoleMutation.isPending} loadingText="Asignando...">Asignar</LoadingButton>
+                <LoadingButton
+                  type="submit"
+                  loading={assignToRoleMutation.isPending}
+                  loadingText="Asignando..."
+                >
+                  Asignar
+                </LoadingButton>
               </DialogFooter>
             </form>
           )}
@@ -518,7 +643,7 @@ export default function CommitteeTrainingsManagement() {
 
       <ConfirmDialog
         open={deleteConfirm !== null}
-        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onOpenChange={open => !open && setDeleteConfirm(null)}
         onConfirm={confirmDelete}
         title="Eliminar Capacitación"
         description={`¿Estás seguro de eliminar la capacitación "${deleteConfirm?.title}"? Esta acción no se puede deshacer.`}

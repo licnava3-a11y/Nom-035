@@ -4,7 +4,9 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-export interface LoadingButtonProps extends React.ComponentProps<"button">, VariantProps<typeof buttonVariants> {
+export interface LoadingButtonProps
+  extends React.ComponentProps<"button">,
+    VariantProps<typeof buttonVariants> {
   loading?: boolean;
   loadingText?: string;
   children?: React.ReactNode;

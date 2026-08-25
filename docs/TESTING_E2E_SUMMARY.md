@@ -2,14 +2,14 @@
 
 ## 📊 Métricas Generales
 
-| Métrica | Valor |
-|---------|-------|
-| **Total de Tests** | 34 tests E2E |
-| **Archivos de Test** | 3 archivos spec |
-| **Navegadores Configurados** | 6 proyectos (Chrome, Firefox, Safari, Mobile Chrome, Mobile Safari, Tablet) |
-| **Funcionalidades Críticas Cubiertas** | 7 funcionalidades |
-| **Cobertura de Funcionalidades Críticas** | 100% |
-| **Tiempo Estimado de Ejecución** | ~15-20 minutos (todos los navegadores) |
+| Métrica                                   | Valor                                                                       |
+| ----------------------------------------- | --------------------------------------------------------------------------- |
+| **Total de Tests**                        | 34 tests E2E                                                                |
+| **Archivos de Test**                      | 3 archivos spec                                                             |
+| **Navegadores Configurados**              | 6 proyectos (Chrome, Firefox, Safari, Mobile Chrome, Mobile Safari, Tablet) |
+| **Funcionalidades Críticas Cubiertas**    | 7 funcionalidades                                                           |
+| **Cobertura de Funcionalidades Críticas** | 100%                                                                        |
+| **Tiempo Estimado de Ejecución**          | ~15-20 minutos (todos los navegadores)                                      |
 
 ---
 
@@ -19,14 +19,15 @@
 
 **Archivo**: `tests/e2e/workflow-aprobacion-bases.spec.ts`
 
-| # | Test | Descripción |
-|---|------|-------------|
-| 1 | Crear y aprobar base completa | Flujo end-to-end desde creación hasta aprobación |
-| 2 | Validación en tiempo real | Verifica debounce 300ms y mensajes de error |
-| 3 | Confirmación de salida | Previene pérdida de datos con cambios sin guardar |
-| 4 | Recuperación de borradores | Verifica guardado automático en localStorage |
+| #   | Test                          | Descripción                                       |
+| --- | ----------------------------- | ------------------------------------------------- |
+| 1   | Crear y aprobar base completa | Flujo end-to-end desde creación hasta aprobación  |
+| 2   | Validación en tiempo real     | Verifica debounce 300ms y mensajes de error       |
+| 3   | Confirmación de salida        | Previene pérdida de datos con cambios sin guardar |
+| 4   | Recuperación de borradores    | Verifica guardado automático en localStorage      |
 
 **Validaciones cubiertas**:
+
 - ✅ 6 campos con validación de longitud mínima
 - ✅ Border rojo en campos inválidos
 - ✅ Mensajes de error contextuales
@@ -40,12 +41,12 @@
 
 **Archivo**: `tests/e2e/calendario-graficos.spec.ts`
 
-| # | Test | Descripción |
-|---|------|-------------|
-| 1 | Navegación entre meses | Verifica botones prev/next funcionan |
-| 2 | Filtros por tipo de evento | Valida filtrado de eventos |
-| 3 | Click en evento muestra detalles | Verifica modal/dialog con información |
-| 4 | Eventos en fechas correctas | Valida renderizado correcto |
+| #   | Test                             | Descripción                           |
+| --- | -------------------------------- | ------------------------------------- |
+| 1   | Navegación entre meses           | Verifica botones prev/next funcionan  |
+| 2   | Filtros por tipo de evento       | Valida filtrado de eventos            |
+| 3   | Click en evento muestra detalles | Verifica modal/dialog con información |
+| 4   | Eventos en fechas correctas      | Valida renderizado correcto           |
 
 ---
 
@@ -53,15 +54,15 @@
 
 **Archivo**: `tests/e2e/calendario-graficos.spec.ts`
 
-| # | Test | Descripción |
-|---|------|-------------|
-| 1 | Renderizado de Chart.js | Verifica canvas existen y tienen dimensiones |
-| 2 | Interacción con hover | Valida tooltips de Chart.js |
-| 3 | Gráfico de casos por mes | Verifica datos correctos |
-| 4 | Gráfico de distribución por tipo | Valida pie/doughnut charts |
-| 5 | Gráficos NMX-025 | Verifica brecha salarial, distribución jerárquica, género |
-| 6 | Respuesta a cambios de datos | Valida actualización dinámica |
-| 7 | Compatibilidad multi-viewport | Desktop (1920x1080), Tablet (768x1024), Mobile (375x667) |
+| #   | Test                             | Descripción                                               |
+| --- | -------------------------------- | --------------------------------------------------------- |
+| 1   | Renderizado de Chart.js          | Verifica canvas existen y tienen dimensiones              |
+| 2   | Interacción con hover            | Valida tooltips de Chart.js                               |
+| 3   | Gráfico de casos por mes         | Verifica datos correctos                                  |
+| 4   | Gráfico de distribución por tipo | Valida pie/doughnut charts                                |
+| 5   | Gráficos NMX-025                 | Verifica brecha salarial, distribución jerárquica, género |
+| 6   | Respuesta a cambios de datos     | Valida actualización dinámica                             |
+| 7   | Compatibilidad multi-viewport    | Desktop (1920x1080), Tablet (768x1024), Mobile (375x667)  |
 
 ---
 
@@ -69,13 +70,13 @@
 
 **Archivo**: `tests/e2e/busqueda-confirmaciones.spec.ts`
 
-| # | Test | Descripción |
-|---|------|-------------|
-| 1 | Abrir con Ctrl+K | Verifica shortcut funciona |
-| 2 | Búsqueda funciona | Valida resultados aparecen |
-| 3 | Navegación a resultados | Verifica click navega correctamente |
-| 4 | Cerrar con Escape | Valida shortcut de cierre |
-| 5 | Búsqueda vacía | Verifica mensaje "sin resultados" |
+| #   | Test                    | Descripción                         |
+| --- | ----------------------- | ----------------------------------- |
+| 1   | Abrir con Ctrl+K        | Verifica shortcut funciona          |
+| 2   | Búsqueda funciona       | Valida resultados aparecen          |
+| 3   | Navegación a resultados | Verifica click navega correctamente |
+| 4   | Cerrar con Escape       | Valida shortcut de cierre           |
+| 5   | Búsqueda vacía          | Verifica mensaje "sin resultados"   |
 
 ---
 
@@ -83,18 +84,18 @@
 
 **Archivo**: `tests/e2e/busqueda-confirmaciones.spec.ts`
 
-| # | Test | Descripción |
-|---|------|-------------|
-| 1 | Confirmación: Minuta del comité | Verifica dialog antes de eliminar |
-| 2 | Confirmación: Departamento | Valida mensaje de impacto (empleados afectados) |
-| 3 | Confirmación: Evaluación | Verifica botón destructivo (rojo) |
-| 4 | Confirmación: Solicitud de gasto | Valida mensaje sobre documentos adjuntos |
-| 5 | Confirmación: Certificado digital | Verifica mensaje sobre llave privada |
-| 6 | Confirmar eliminación ejecuta acción | Valida que la eliminación ocurre |
-| 7 | Componente reutilizable | Verifica mismo componente en múltiples páginas |
-| 8 | Roles ARIA correctos | Valida accesibilidad (role="alertdialog") |
-| 9 | Focus trap funciona | Verifica navegación con Tab |
-| 10 | Escape cierra dialog | Valida shortcut de cierre |
+| #   | Test                                 | Descripción                                     |
+| --- | ------------------------------------ | ----------------------------------------------- |
+| 1   | Confirmación: Minuta del comité      | Verifica dialog antes de eliminar               |
+| 2   | Confirmación: Departamento           | Valida mensaje de impacto (empleados afectados) |
+| 3   | Confirmación: Evaluación             | Verifica botón destructivo (rojo)               |
+| 4   | Confirmación: Solicitud de gasto     | Valida mensaje sobre documentos adjuntos        |
+| 5   | Confirmación: Certificado digital    | Verifica mensaje sobre llave privada            |
+| 6   | Confirmar eliminación ejecuta acción | Valida que la eliminación ocurre                |
+| 7   | Componente reutilizable              | Verifica mismo componente en múltiples páginas  |
+| 8   | Roles ARIA correctos                 | Valida accesibilidad (role="alertdialog")       |
+| 9   | Focus trap funciona                  | Verifica navegación con Tab                     |
+| 10  | Escape cierra dialog                 | Valida shortcut de cierre                       |
 
 ---
 
@@ -102,11 +103,11 @@
 
 **Archivo**: `tests/e2e/busqueda-confirmaciones.spec.ts`
 
-| # | Test | Descripción |
-|---|------|-------------|
-| 1 | Roles ARIA correctos | Verifica `aria-labelledby`, `aria-describedby` |
-| 2 | Focus trap | Valida que Tab no sale del dialog |
-| 3 | Escape cierra dialog | Verifica accesibilidad de teclado |
+| #   | Test                 | Descripción                                    |
+| --- | -------------------- | ---------------------------------------------- |
+| 1   | Roles ARIA correctos | Verifica `aria-labelledby`, `aria-describedby` |
+| 2   | Focus trap           | Valida que Tab no sale del dialog              |
+| 3   | Escape cierra dialog | Verifica accesibilidad de teclado              |
 
 ---
 
@@ -114,9 +115,9 @@
 
 **Archivo**: `tests/e2e/calendario-graficos.spec.ts`
 
-| # | Test | Descripción |
-|---|------|-------------|
-| 1 | Dashboard en múltiples viewports | Desktop, Tablet, Mobile |
+| #   | Test                             | Descripción             |
+| --- | -------------------------------- | ----------------------- |
+| 1   | Dashboard en múltiples viewports | Desktop, Tablet, Mobile |
 
 ---
 
@@ -124,24 +125,24 @@
 
 ### Desktop
 
-| Navegador | Motor | Versión | Estado |
-|-----------|-------|---------|--------|
-| Chromium | Blink | Última | ✅ Configurado |
-| Firefox | Gecko | Última | ✅ Configurado |
-| WebKit | WebKit | Última | ✅ Configurado |
+| Navegador | Motor  | Versión | Estado         |
+| --------- | ------ | ------- | -------------- |
+| Chromium  | Blink  | Última  | ✅ Configurado |
+| Firefox   | Gecko  | Última  | ✅ Configurado |
+| WebKit    | WebKit | Última  | ✅ Configurado |
 
 ### Mobile
 
-| Dispositivo | Viewport | User Agent | Estado |
-|-------------|----------|------------|--------|
-| Mobile Chrome | 375x667 | Android Chrome | ✅ Configurado |
-| Mobile Safari | 375x667 | iOS Safari | ✅ Configurado |
+| Dispositivo   | Viewport | User Agent     | Estado         |
+| ------------- | -------- | -------------- | -------------- |
+| Mobile Chrome | 375x667  | Android Chrome | ✅ Configurado |
+| Mobile Safari | 375x667  | iOS Safari     | ✅ Configurado |
 
 ### Tablet
 
-| Dispositivo | Viewport | Estado |
-|-------------|----------|--------|
-| iPad | 768x1024 | ✅ Configurado |
+| Dispositivo | Viewport | Estado         |
+| ----------- | -------- | -------------- |
+| iPad        | 768x1024 | ✅ Configurado |
 
 ---
 
@@ -167,6 +168,7 @@ playwright.config.ts                     # Configuración de Playwright
 ### Prerequisitos
 
 1. **Servidor corriendo**:
+
    ```bash
    pnpm run dev
    ```
@@ -179,11 +181,13 @@ playwright.config.ts                     # Configuración de Playwright
 ### Ejecución
 
 **Opción 1: Script automatizado** (Recomendado)
+
 ```bash
 ./tests/e2e/run-tests.sh
 ```
 
 **Opción 2: Comandos manuales**
+
 ```bash
 # Todos los navegadores
 pnpm exec playwright test
@@ -208,17 +212,17 @@ pnpm exec playwright show-report
 
 ## 📊 Cobertura de Funcionalidades Críticas
 
-| Funcionalidad | Tests | Cobertura | Prioridad |
-|---------------|-------|-----------|-----------|
-| Workflow de Aprobación | 4 | 100% | 🔴 Crítica |
-| Validación en Tiempo Real | 2 | 100% | 🔴 Crítica |
-| Guardado Automático | 2 | 100% | 🔴 Crítica |
-| Calendario | 4 | 100% | 🟡 Alta |
-| Gráficos Chart.js | 7 | 100% | 🟡 Alta |
-| Búsqueda Global | 5 | 100% | 🟡 Alta |
-| Confirmaciones Destructivas | 10 | 100% | 🔴 Crítica |
-| Accesibilidad | 3 | 80% | 🟢 Media |
-| Responsive Design | 1 | 60% | 🟢 Media |
+| Funcionalidad               | Tests | Cobertura | Prioridad  |
+| --------------------------- | ----- | --------- | ---------- |
+| Workflow de Aprobación      | 4     | 100%      | 🔴 Crítica |
+| Validación en Tiempo Real   | 2     | 100%      | 🔴 Crítica |
+| Guardado Automático         | 2     | 100%      | 🔴 Crítica |
+| Calendario                  | 4     | 100%      | 🟡 Alta    |
+| Gráficos Chart.js           | 7     | 100%      | 🟡 Alta    |
+| Búsqueda Global             | 5     | 100%      | 🟡 Alta    |
+| Confirmaciones Destructivas | 10    | 100%      | 🔴 Crítica |
+| Accesibilidad               | 3     | 80%       | 🟢 Media   |
+| Responsive Design           | 1     | 60%       | 🟢 Media   |
 
 **Total**: 34 tests | **Cobertura promedio**: 93%
 
@@ -290,11 +294,13 @@ pnpm exec playwright show-report
 ### Corto Plazo (1-2 semanas)
 
 1. **Instalar navegadores de Playwright**
+
    ```bash
    pnpm exec playwright install chromium firefox webkit
    ```
 
 2. **Ejecutar suite completa**
+
    ```bash
    ./tests/e2e/run-tests.sh
    ```
@@ -355,12 +361,13 @@ test.setTimeout(60000); // 60 segundos
 **Solución**: Agregar esperas explícitas
 
 ```typescript
-await expect(page.locator('button')).toBeVisible({ timeout: 10000 });
+await expect(page.locator("button")).toBeVisible({ timeout: 10000 });
 ```
 
 ### Tests Intermitentes (Flaky)
 
-**Solución**: 
+**Solución**:
+
 - Usar `waitForLoadState('networkidle')`
 - Evitar `waitForTimeout()` fijos
 - Aumentar retries en configuración
@@ -370,6 +377,7 @@ await expect(page.locator('button')).toBeVisible({ timeout: 10000 });
 ## 📞 Contacto
 
 Para preguntas o problemas con los tests E2E:
+
 - Consultar `docs/TESTING_E2E_GUIDE.md`
 - Revisar issues en el repositorio
 - Contactar al equipo de QA

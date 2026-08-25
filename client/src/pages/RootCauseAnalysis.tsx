@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -13,15 +19,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Brain, 
-  TrendingUp, 
-  AlertTriangle, 
-  Target, 
+import {
+  Brain,
+  TrendingUp,
+  AlertTriangle,
+  Target,
   Calendar,
   Loader2,
   CheckCircle2,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Chart, registerables } from "chart.js";
@@ -32,28 +38,36 @@ export default function RootCauseAnalysis() {
   const [periodFilter, setPeriodFilter] = useState("last_month");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  
+
   const causesChartRef = useRef<HTMLCanvasElement>(null);
   const correlationsChartRef = useRef<HTMLCanvasElement>(null);
   const causesChartInstance = useRef<Chart | null>(null);
   const correlationsChartInstance = useRef<Chart | null>(null);
 
   // Queries
-  const { data: latestAnalysis, isLoading, refetch } = trpc.rootCauseAnalysis.getLatestAnalysis.useQuery();
-  const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
+  const {
+    data: latestAnalysis,
+    isLoading,
+    refetch,
+  } = trpc.rootCauseAnalysis.getLatestAnalysis.useQuery();
+  const { data: departments } = trpc.departments.list.useQuery({
+    page: 1,
+    pageSize: 100,
+  });
 
   // Mutation
-  const analyzeClosedCases = trpc.rootCauseAnalysis.analyzeClosedCases.useMutation({
-    onSuccess: () => {
-      toast.success("Análisis completado exitosamente");
-      setIsAnalyzing(false);
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(`Error al analizar: ${error.message}`);
-      setIsAnalyzing(false);
-    },
-  });
+  const analyzeClosedCases =
+    trpc.rootCauseAnalysis.analyzeClosedCases.useMutation({
+      onSuccess: () => {
+        toast.success("Análisis completado exitosamente");
+        setIsAnalyzing(false);
+        refetch();
+      },
+      onError: error => {
+        toast.error(`Error al analizar: ${error.message}`);
+        setIsAnalyzing(false);
+      },
+    });
 
   // Calcular período de fechas
   const getPeriodDates = (period: string) => {
@@ -80,8 +94,8 @@ export default function RootCauseAnalysis() {
     }
 
     return {
-      periodStart: start.toISOString().split('T')[0],
-      periodEnd: end.toISOString().split('T')[0],
+      periodStart: start.toISOString().split("T")[0],
+      periodEnd: end.toISOString().split("T")[0],
     };
   };
 
@@ -92,17 +106,18 @@ export default function RootCauseAnalysis() {
   };
 
   // Filtrar datos por departamento
-  const filteredData = latestAnalysis && departmentFilter !== "all"
-    ? {
-        ...latestAnalysis,
-        rootCauses: latestAnalysis.rootCauses?.filter((cause: any) =>
-          cause.affectedDepartments.includes(departmentFilter)
-        ),
-        patterns: latestAnalysis.patterns?.filter((pattern: any) =>
-          pattern.departments.includes(departmentFilter)
-        ),
-      }
-    : latestAnalysis;
+  const filteredData =
+    latestAnalysis && departmentFilter !== "all"
+      ? {
+          ...latestAnalysis,
+          rootCauses: latestAnalysis.rootCauses?.filter((cause: any) =>
+            cause.affectedDepartments.includes(departmentFilter)
+          ),
+          patterns: latestAnalysis.patterns?.filter((pattern: any) =>
+            pattern.departments.includes(departmentFilter)
+          ),
+        }
+      : latestAnalysis;
 
   // Renderizar gráfico de causas raíz
   useEffect(() => {
@@ -130,18 +145,26 @@ export default function RootCauseAnalysis() {
             data: sortedCauses.map((c: any) => c.frequency),
             backgroundColor: sortedCauses.map((c: any) => {
               switch (c.severity) {
-                case "critical": return "rgba(239, 68, 68, 0.8)";
-                case "high": return "rgba(249, 115, 22, 0.8)";
-                case "medium": return "rgba(234, 179, 8, 0.8)";
-                default: return "rgba(34, 197, 94, 0.8)";
+                case "critical":
+                  return "rgba(239, 68, 68, 0.8)";
+                case "high":
+                  return "rgba(249, 115, 22, 0.8)";
+                case "medium":
+                  return "rgba(234, 179, 8, 0.8)";
+                default:
+                  return "rgba(34, 197, 94, 0.8)";
               }
             }),
             borderColor: sortedCauses.map((c: any) => {
               switch (c.severity) {
-                case "critical": return "rgb(239, 68, 68)";
-                case "high": return "rgb(249, 115, 22)";
-                case "medium": return "rgb(234, 179, 8)";
-                default: return "rgb(34, 197, 94)";
+                case "critical":
+                  return "rgb(239, 68, 68)";
+                case "high":
+                  return "rgb(249, 115, 22)";
+                case "medium":
+                  return "rgb(234, 179, 8)";
+                default:
+                  return "rgb(34, 197, 94)";
               }
             }),
             borderWidth: 1,
@@ -158,7 +181,7 @@ export default function RootCauseAnalysis() {
           },
           tooltip: {
             callbacks: {
-              label: (context) => {
+              label: context => {
                 const cause = sortedCauses[context.dataIndex];
                 return [
                   `Frecuencia: ${cause.frequency}`,
@@ -206,11 +229,15 @@ export default function RootCauseAnalysis() {
     correlationsChartInstance.current = new Chart(ctx, {
       type: "bar",
       data: {
-        labels: sortedCorrelations.map((c: any) => `${c.factor1} ↔ ${c.factor2}`),
+        labels: sortedCorrelations.map(
+          (c: any) => `${c.factor1} ↔ ${c.factor2}`
+        ),
         datasets: [
           {
             label: "Fuerza de Correlación",
-            data: sortedCorrelations.map((c: any) => c.correlationStrength * 100),
+            data: sortedCorrelations.map(
+              (c: any) => c.correlationStrength * 100
+            ),
             backgroundColor: "rgba(59, 130, 246, 0.8)",
             borderColor: "rgb(59, 130, 246)",
             borderWidth: 1,
@@ -226,7 +253,7 @@ export default function RootCauseAnalysis() {
           },
           tooltip: {
             callbacks: {
-              label: (context) => {
+              label: context => {
                 const corr = sortedCorrelations[context.dataIndex];
                 return [
                   `Correlación: ${(corr.correlationStrength * 100).toFixed(1)}%`,
@@ -241,7 +268,7 @@ export default function RootCauseAnalysis() {
             beginAtZero: true,
             max: 100,
             ticks: {
-              callback: (value) => `${value}%`,
+              callback: value => `${value}%`,
             },
           },
         },
@@ -256,7 +283,13 @@ export default function RootCauseAnalysis() {
   }, [filteredData?.correlations]);
 
   const getSeverityBadge = (severity: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        label: string;
+      }
+    > = {
       critical: { variant: "destructive", label: "Crítica" },
       high: { variant: "destructive", label: "Alta" },
       medium: { variant: "secondary", label: "Media" },
@@ -266,7 +299,10 @@ export default function RootCauseAnalysis() {
   };
 
   const getPriorityBadge = (priority: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive"; label: string }> = {
+    const variants: Record<
+      string,
+      { variant: "default" | "secondary" | "destructive"; label: string }
+    > = {
       high: { variant: "destructive", label: "Alta Prioridad" },
       medium: { variant: "secondary", label: "Media Prioridad" },
       low: { variant: "default", label: "Baja Prioridad" },
@@ -283,7 +319,8 @@ export default function RootCauseAnalysis() {
             Análisis de Causas Raíz con IA
           </h1>
           <p className="text-muted-foreground mt-1">
-            Identificación automatizada de patrones y causas recurrentes en casos cerrados
+            Identificación automatizada de patrones y causas recurrentes en
+            casos cerrados
           </p>
         </div>
         <Button
@@ -331,7 +368,10 @@ export default function RootCauseAnalysis() {
 
             <div className="space-y-2">
               <Label>Departamento</Label>
-              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <Select
+                value={departmentFilter}
+                onValueChange={setDepartmentFilter}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los departamentos" />
                 </SelectTrigger>
@@ -358,9 +398,12 @@ export default function RootCauseAnalysis() {
         <Card>
           <CardContent className="py-12 text-center">
             <Brain className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No hay análisis disponibles</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              No hay análisis disponibles
+            </h3>
             <p className="text-muted-foreground mb-4">
-              Ejecuta el primer análisis para identificar patrones en casos cerrados
+              Ejecuta el primer análisis para identificar patrones en casos
+              cerrados
             </p>
             <Button onClick={handleAnalyze} disabled={isAnalyzing}>
               <Brain className="mr-2 h-4 w-4" />
@@ -374,24 +417,39 @@ export default function RootCauseAnalysis() {
           <div className="grid gap-4 md:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Casos Analizados</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Casos Analizados
+                </CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{filteredData?.totalCasesAnalyzed || 0}</div>
+                <div className="text-2xl font-bold">
+                  {filteredData?.totalCasesAnalyzed || 0}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  Período: {filteredData?.periodStart ? new Date(filteredData.periodStart).toLocaleDateString() : 'N/A'} - {filteredData?.periodEnd ? new Date(filteredData.periodEnd).toLocaleDateString() : 'N/A'}
+                  Período:{" "}
+                  {filteredData?.periodStart
+                    ? new Date(filteredData.periodStart).toLocaleDateString()
+                    : "N/A"}{" "}
+                  -{" "}
+                  {filteredData?.periodEnd
+                    ? new Date(filteredData.periodEnd).toLocaleDateString()
+                    : "N/A"}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Causas Identificadas</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Causas Identificadas
+                </CardTitle>
                 <AlertTriangle className="h-4 w-4 text-orange-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{filteredData?.rootCauses?.length || 0}</div>
+                <div className="text-2xl font-bold">
+                  {filteredData?.rootCauses?.length || 0}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Causas raíz detectadas
                 </p>
@@ -400,11 +458,15 @@ export default function RootCauseAnalysis() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Patrones Detectados</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Patrones Detectados
+                </CardTitle>
                 <Brain className="h-4 w-4 text-purple-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{filteredData?.patterns?.length || 0}</div>
+                <div className="text-2xl font-bold">
+                  {filteredData?.patterns?.length || 0}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Patrones recurrentes
                 </p>
@@ -413,11 +475,15 @@ export default function RootCauseAnalysis() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Recomendaciones</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Recomendaciones
+                </CardTitle>
                 <Target className="h-4 w-4 text-green-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{filteredData?.recommendations?.length || 0}</div>
+                <div className="text-2xl font-bold">
+                  {filteredData?.recommendations?.length || 0}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Acciones preventivas
                 </p>
@@ -474,23 +540,34 @@ export default function RootCauseAnalysis() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant={getPriorityBadge(rec.priority).variant as any}>
+                          <Badge
+                            variant={
+                              getPriorityBadge(rec.priority).variant as any
+                            }
+                          >
                             {getPriorityBadge(rec.priority).label}
                           </Badge>
                           <span className="text-sm text-muted-foreground">
                             {rec.targetDepartments.join(", ")}
                           </span>
                         </div>
-                        <h4 className="font-semibold mb-1">{rec.recommendation}</h4>
+                        <h4 className="font-semibold mb-1">
+                          {rec.recommendation}
+                        </h4>
                         <p className="text-sm text-muted-foreground mb-2">
-                          <strong>Impacto esperado:</strong> {rec.expectedImpact}
+                          <strong>Impacto esperado:</strong>{" "}
+                          {rec.expectedImpact}
                         </p>
                         <div className="space-y-1">
-                          <p className="text-sm font-medium">Acciones concretas:</p>
+                          <p className="text-sm font-medium">
+                            Acciones concretas:
+                          </p>
                           <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                            {rec.actionItems.map((action: string, i: number) => (
-                              <li key={i}>{action}</li>
-                            ))}
+                            {rec.actionItems.map(
+                              (action: string, i: number) => (
+                                <li key={i}>{action}</li>
+                              )
+                            )}
                           </ul>
                         </div>
                       </div>
@@ -518,11 +595,17 @@ export default function RootCauseAnalysis() {
                   <div key={idx} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="font-semibold">{pattern.pattern}</h4>
-                      <Badge variant="outline">{pattern.casesAffected} casos</Badge>
+                      <Badge variant="outline">
+                        {pattern.casesAffected} casos
+                      </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">{pattern.description}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {pattern.description}
+                    </p>
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground">Departamentos:</span>
+                      <span className="text-muted-foreground">
+                        Departamentos:
+                      </span>
                       <span>{pattern.departments.join(", ")}</span>
                     </div>
                   </div>
@@ -532,53 +615,72 @@ export default function RootCauseAnalysis() {
           </Card>
 
           {/* Insights Departamentales */}
-          {filteredData?.departmentInsights && Object.keys(filteredData.departmentInsights).length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Insights por Departamento</CardTitle>
-                <CardDescription>
-                  Análisis específico de cada área organizacional
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {Object.entries(filteredData?.departmentInsights || {}).map(([dept, insights]: [string, any]) => (
-                    <div key={dept} className="border rounded-lg p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <h4 className="font-semibold text-lg">{dept}</h4>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={getSeverityBadge(insights.riskLevel).variant as any}>
-                            Riesgo: {getSeverityBadge(insights.riskLevel).label}
-                          </Badge>
-                          <Badge variant="outline">{insights.totalCases} casos</Badge>
+          {filteredData?.departmentInsights &&
+            Object.keys(filteredData.departmentInsights).length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Insights por Departamento</CardTitle>
+                  <CardDescription>
+                    Análisis específico de cada área organizacional
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {Object.entries(filteredData?.departmentInsights || {}).map(
+                      ([dept, insights]: [string, any]) => (
+                        <div key={dept} className="border rounded-lg p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <h4 className="font-semibold text-lg">{dept}</h4>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={
+                                  getSeverityBadge(insights.riskLevel)
+                                    .variant as any
+                                }
+                              >
+                                Riesgo:{" "}
+                                {getSeverityBadge(insights.riskLevel).label}
+                              </Badge>
+                              <Badge variant="outline">
+                                {insights.totalCases} casos
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-sm font-medium mb-1">
+                                Principales causas:
+                              </p>
+                              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                {insights.topCauses.map(
+                                  (cause: string, i: number) => (
+                                    <li key={i}>{cause}</li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+
+                            <div>
+                              <p className="text-sm font-medium mb-1">
+                                Recomendaciones específicas:
+                              </p>
+                              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                {insights.specificRecommendations.map(
+                                  (rec: string, i: number) => (
+                                    <li key={i}>{rec}</li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <p className="text-sm font-medium mb-1">Principales causas:</p>
-                          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                            {insights.topCauses.map((cause: string, i: number) => (
-                              <li key={i}>{cause}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        
-                        <div>
-                          <p className="text-sm font-medium mb-1">Recomendaciones específicas:</p>
-                          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                            {insights.specificRecommendations.map((rec: string, i: number) => (
-                              <li key={i}>{rec}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                      )
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
         </>
       )}
     </div>

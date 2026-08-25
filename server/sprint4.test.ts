@@ -11,9 +11,18 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-const EXEC_REPORT = readFileSync(resolve(__dirname, "../client/src/pages/ExecutiveReport.tsx"), "utf8");
-const MAILBOX_ROUTER = readFileSync(resolve(__dirname, "routers/internalMailbox.ts"), "utf8");
-const MAILBOX_UI = readFileSync(resolve(__dirname, "../client/src/pages/InternalMailbox.tsx"), "utf8");
+const EXEC_REPORT = readFileSync(
+  resolve(__dirname, "../client/src/pages/ExecutiveReport.tsx"),
+  "utf8"
+);
+const MAILBOX_ROUTER = readFileSync(
+  resolve(__dirname, "routers/internalMailbox.ts"),
+  "utf8"
+);
+const MAILBOX_UI = readFileSync(
+  resolve(__dirname, "../client/src/pages/InternalMailbox.tsx"),
+  "utf8"
+);
 
 // ── 1. Exportación Excel comparativa psicométrica ────────────────────────────
 describe("ExecutiveReport — exportRiskComparisonToExcel", () => {
@@ -22,7 +31,7 @@ describe("ExecutiveReport — exportRiskComparisonToExcel", () => {
   });
 
   it("usa importación dinámica de xlsx", () => {
-    expect(EXEC_REPORT).toContain("await import(\"xlsx\")");
+    expect(EXEC_REPORT).toContain('await import("xlsx")');
   });
 
   it("genera hoja 'Comparativa Psicométrica'", () => {
@@ -47,7 +56,9 @@ describe("ExecutiveReport — exportRiskComparisonToExcel", () => {
 // ── 2. notifyEmployee acepta customMessage opcional ──────────────────────────
 describe("internalMailbox router — notifyEmployee customMessage", () => {
   it("acepta customMessage opcional en el input", () => {
-    expect(MAILBOX_ROUTER).toContain("customMessage: z.string().max(300).optional()");
+    expect(MAILBOX_ROUTER).toContain(
+      "customMessage: z.string().max(300).optional()"
+    );
   });
 });
 
@@ -79,7 +90,9 @@ describe("InternalMailbox UI — modal de notificación personalizada", () => {
   });
 
   it("pasa customMessage al mutate de notifyEmployee", () => {
-    expect(MAILBOX_UI).toContain("customMessage: notifyCustomMsg.trim() || undefined");
+    expect(MAILBOX_UI).toContain(
+      "customMessage: notifyCustomMsg.trim() || undefined"
+    );
   });
 
   it("el modal muestra el asunto del mensaje seleccionado", () => {

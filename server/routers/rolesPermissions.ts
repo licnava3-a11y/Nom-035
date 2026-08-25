@@ -162,7 +162,11 @@ export const rolesPermissionsRouter = router({
 
       // Get user count for each role
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const roleCounts = await db
         .select({
@@ -178,11 +182,13 @@ export const rolesPermissionsRouter = router({
       );
 
       // Combine permissions with counts
-      const roles = Object.entries(rolePermissions).map(([role, permissions]: [string, any]) => ({
-        role,
-        permissions,
-        userCount: countsByRole[role] || 0,
-      }));
+      const roles = Object.entries(rolePermissions).map(
+        ([role, permissions]: [string, any]) => ({
+          role,
+          permissions,
+          userCount: countsByRole[role] || 0,
+        })
+      );
 
       return roles;
     }),
@@ -206,7 +212,11 @@ export const rolesPermissionsRouter = router({
       const offset = (page - 1) * limit;
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Build where conditions
       const conditions = [];
@@ -223,7 +233,11 @@ export const rolesPermissionsRouter = router({
       const [{ count: totalCount }] = await db
         .select({ count: sql<number>`count(*)` })
         .from(users)
-        .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined);
+        .where(
+          conditions.length > 0
+            ? sql`${sql.join(conditions, sql` AND `)}`
+            : undefined
+        );
 
       // Get users
       const userList = await db
@@ -237,7 +251,11 @@ export const rolesPermissionsRouter = router({
           createdAt: users.createdAt,
         })
         .from(users)
-        .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined)
+        .where(
+          conditions.length > 0
+            ? sql`${sql.join(conditions, sql` AND `)}`
+            : undefined
+        )
         .limit(limit)
         .offset(offset)
         .orderBy(users.name);
@@ -284,7 +302,11 @@ export const rolesPermissionsRouter = router({
       const { userId, newRole } = input;
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Prevent users from changing their own role
       if (ctx.user!.id === userId) {
@@ -295,7 +317,11 @@ export const rolesPermissionsRouter = router({
       }
 
       // Get user before update
-      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
 
       if (!user) {
         throw new TRPCError({
@@ -305,7 +331,10 @@ export const rolesPermissionsRouter = router({
       }
 
       // Update user role
-      await db.update(users).set({ role: newRole } as any).where(eq(users.id, userId));
+      await db
+        .update(users)
+        .set({ role: newRole } as any)
+        .where(eq(users.id, userId));
 
       // Register change in audit history
       await (db.insert(permissionChangeHistory) as any).values({
@@ -322,8 +351,8 @@ export const rolesPermissionsRouter = router({
         if (user.email) {
           await sendEmail({
             to: user.email,
-          subject: "Cambio de Rol en Plataforma NOM-035",
-          html: `
+            subject: "Cambio de Rol en Plataforma NOM-035",
+            html: `
             <h2>Cambio de Rol</h2>
             <p>Hola ${user.name},</p>
             <p>Tu rol en la Plataforma de Capacitación NOM-035 ha sido modificado.</p>
@@ -361,7 +390,11 @@ export const rolesPermissionsRouter = router({
     .use(requirePermission("can_view"))
     .query(async () => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       const distribution = await db
         .select({

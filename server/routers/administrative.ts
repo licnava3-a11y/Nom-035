@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
-import { 
-  getInvoicesSummary, 
-  getPurchaseOrdersSummary, 
+import {
+  getInvoicesSummary,
+  getPurchaseOrdersSummary,
   getExpenseRequestsSummary,
   getAllInvoices,
   getAllPurchaseOrders,
-  getAllExpenseRequests
+  getAllExpenseRequests,
 } from "../db";
 
 /**
@@ -19,15 +19,19 @@ export const administrativeRouter = router({
     const invoicesSummary = await getInvoicesSummary();
     const purchaseOrdersSummary = await getPurchaseOrdersSummary();
     const expenseRequestsSummary = await getExpenseRequestsSummary();
-    
+
     const allInvoices = await getAllInvoices();
-    const pendingInvoices = allInvoices.filter(inv => inv.estado === 'pendiente');
-    
+    const pendingInvoices = allInvoices.filter(
+      inv => inv.estado === "pendiente"
+    );
+
     const allPurchaseOrders = await getAllPurchaseOrders();
-    const pendingPOs = allPurchaseOrders.filter(po => po.estado === 'borrador');
-    
+    const pendingPOs = allPurchaseOrders.filter(po => po.estado === "borrador");
+
     const allExpenseRequests = await getAllExpenseRequests();
-    const pendingExpenses = allExpenseRequests.filter(req => req.estado === 'pendiente');
+    const pendingExpenses = allExpenseRequests.filter(
+      req => req.estado === "pendiente"
+    );
 
     return {
       pendingPaymentsAmount: invoicesSummary.montoTotal,
@@ -46,7 +50,7 @@ export const administrativeRouter = router({
   getPendingPayments: protectedProcedure.query(async ({ ctx }) => {
     const allInvoices = await getAllInvoices();
     const pendingInvoices = allInvoices
-      .filter(inv => inv.estado === 'pendiente' || inv.estado === 'vencida')
+      .filter(inv => inv.estado === "pendiente" || inv.estado === "vencida")
       .map(inv => ({
         id: inv.id,
         supplier: inv.clienteNombre,
@@ -63,7 +67,9 @@ export const administrativeRouter = router({
   getPurchaseOrders: protectedProcedure
     .input(
       z.object({
-        status: z.enum(["borrador", "enviada", "recibida", "cancelada"]).optional(),
+        status: z
+          .enum(["borrador", "enviada", "recibida", "cancelada"])
+          .optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -86,7 +92,9 @@ export const administrativeRouter = router({
   getExpenseRequests: protectedProcedure
     .input(
       z.object({
-        status: z.enum(["pendiente", "aprobada", "rechazada", "pagada"]).optional(),
+        status: z
+          .enum(["pendiente", "aprobada", "rechazada", "pagada"])
+          .optional(),
       })
     )
     .query(async ({ ctx, input }) => {

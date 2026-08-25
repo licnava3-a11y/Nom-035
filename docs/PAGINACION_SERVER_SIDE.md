@@ -9,16 +9,19 @@ Se implementó paginación server-side para optimizar consultas de tablas grande
 ## 🎯 Objetivos Alcanzados
 
 ### 1. **Optimización de Rendimiento**
+
 - Reducción de carga en queries de tablas con miles de registros
 - Implementación de límites y offsets para paginación eficiente
 - Ejecución paralela de queries de datos y conteos totales
 
 ### 2. **Reutilización de Código**
+
 - Helpers genéricos en `server/utils/pagination.ts`
 - Normalización automática de parámetros de paginación
 - Cálculo consistente de metadata de paginación
 
 ### 3. **Cobertura de Tests**
+
 - 18 tests unitarios para helpers de paginación
 - Validación de casos edge (valores negativos, límites, etc.)
 - Suite completa de 374 tests pasando al 100%
@@ -28,12 +31,14 @@ Se implementó paginación server-side para optimizar consultas de tablas grande
 ## 📁 Archivos Creados
 
 ### Helpers Reutilizables
+
 ```
 server/utils/pagination.ts
 server/utils/pagination.test.ts
 ```
 
 ### Routers tRPC Especializados
+
 ```
 server/routers/casesPaginated.ts
 server/routers/usersPaginated.ts
@@ -55,6 +60,7 @@ normalizePaginationParams(params?: PaginationParams): {
 ```
 
 **Características**:
+
 - Normaliza `page` a mínimo 1
 - Limita `pageSize` a máximo 100
 - Calcula `offset` automáticamente: `(page - 1) * pageSize`
@@ -71,6 +77,7 @@ calculatePagination(
 ```
 
 **Retorna**:
+
 ```typescript
 {
   page: number;
@@ -87,12 +94,14 @@ calculatePagination(
 #### **casesPaginated Router**
 
 **Procedimientos**:
+
 - `listPaginated` - Listado con filtros avanzados (status, priority, caseType, departmentId, assignedTo, search, dateFrom, dateTo)
 - `listOpen` - Casos abiertos optimizado para dashboard
 - `listCritical` - Casos críticos optimizado para alertas
 - `getStats` - Estadísticas agregadas sin paginación
 
 **Ejemplo de uso**:
+
 ```typescript
 const { cases, pagination } = await trpc.casesPaginated.listPaginated.query({
   page: 2,
@@ -106,6 +115,7 @@ const { cases, pagination } = await trpc.casesPaginated.listPaginated.query({
 #### **usersPaginated Router**
 
 **Procedimientos**:
+
 - `listPaginated` - Listado con filtros (role, departamento, search, isActive)
 - `listByRole` - Usuarios por rol optimizado para asignaciones
 - `listByDepartment` - Usuarios por departamento optimizado para reportes
@@ -113,6 +123,7 @@ const { cases, pagination } = await trpc.casesPaginated.listPaginated.query({
 - `getDepartmentDistribution` - Distribución por departamento (top 20)
 
 **Ejemplo de uso**:
+
 ```typescript
 const { users, pagination } = await trpc.usersPaginated.listByRole.query({
   role: "admin",
@@ -125,6 +136,7 @@ const { users, pagination } = await trpc.usersPaginated.listByRole.query({
 #### **surveysPaginated Router**
 
 **Procedimientos**:
+
 - `listPaginated` - Listado con filtros (status, type, search, dateFrom, dateTo)
 - `listActive` - Encuestas activas optimizado para dashboard
 - `listWithStats` - Encuestas con conteo de respuestas
@@ -132,12 +144,15 @@ const { users, pagination } = await trpc.usersPaginated.listByRole.query({
 - `getTypeDistribution` - Distribución por tipo de encuesta
 
 **Ejemplo de uso**:
+
 ```typescript
-const { surveys, pagination } = await trpc.surveysPaginated.listWithStats.query({
-  page: 1,
-  pageSize: 10,
-  status: "active",
-});
+const { surveys, pagination } = await trpc.surveysPaginated.listWithStats.query(
+  {
+    page: 1,
+    pageSize: 10,
+    status: "active",
+  }
+);
 ```
 
 ---
@@ -172,7 +187,7 @@ const [data, totalCount] = await Promise.all([
     .select({ count: sql<number>`count(*)` })
     .from(table)
     .where(whereClause)
-    .then((r) => r[0]?.count || 0),
+    .then(r => r[0]?.count || 0),
 ]);
 
 const pagination = calculatePagination(page, pageSize, totalCount);
@@ -187,6 +202,7 @@ return { data, pagination };
 ### Cobertura de Tests (18 tests)
 
 **normalizePaginationParams** (8 tests):
+
 - ✅ Valores por defecto cuando no se proporcionan parámetros
 - ✅ Normalización de page a mínimo 1
 - ✅ Normalización de page negativo a 1
@@ -197,6 +213,7 @@ return { data, pagination };
 - ✅ Cálculo correcto de offset para page 5 con pageSize personalizado
 
 **calculatePagination** (7 tests):
+
 - ✅ Cálculo de paginación para primera página
 - ✅ Cálculo de paginación para página intermedia
 - ✅ Cálculo de paginación para última página
@@ -206,6 +223,7 @@ return { data, pagination };
 - ✅ Manejo de límite exacto de página
 
 **Edge Cases** (3 tests):
+
 - ✅ Manejo de números de página muy grandes
 - ✅ Manejo de conteos totales muy grandes
 - ✅ Manejo de pageSize de 1
@@ -215,22 +233,25 @@ return { data, pagination };
 ## 📈 Mejoras de Rendimiento
 
 ### Antes de la Implementación
+
 - Queries sin límites cargaban todos los registros en memoria
 - Dashboard lento con tablas de 1000+ registros
 - Consumo excesivo de memoria en el servidor
 
 ### Después de la Implementación
+
 - Queries limitadas a 20-100 registros por página
 - Dashboard responsivo incluso con miles de registros
 - Consumo de memoria optimizado
 - Queries de conteo ejecutadas en paralelo
 
 ### Métricas Estimadas
-| Métrica | Antes | Después | Mejora |
-|---------|-------|---------|--------|
-| Tiempo de carga (1000 registros) | ~2-3s | ~200-300ms | **10x más rápido** |
-| Memoria consumida | ~50MB | ~5MB | **90% reducción** |
-| Queries SQL | 1 query grande | 2 queries paralelas | **Más eficiente** |
+
+| Métrica                          | Antes          | Después             | Mejora             |
+| -------------------------------- | -------------- | ------------------- | ------------------ |
+| Tiempo de carga (1000 registros) | ~2-3s          | ~200-300ms          | **10x más rápido** |
+| Memoria consumida                | ~50MB          | ~5MB                | **90% reducción**  |
+| Queries SQL                      | 1 query grande | 2 queries paralelas | **Más eficiente**  |
 
 ---
 
@@ -258,7 +279,7 @@ function CasesList() {
       {data?.cases.map((case) => (
         <div key={case.id}>{case.title}</div>
       ))}
-      
+
       <Pagination
         currentPage={data?.pagination.page}
         totalPages={data?.pagination.totalPages}
@@ -276,21 +297,25 @@ function CasesList() {
 ## 🚀 Próximos Pasos Recomendados
 
 ### 1. **Actualizar Frontend con Controles de Paginación**
+
 - Crear componente `<Pagination />` reutilizable
 - Integrar en páginas de casos, usuarios y encuestas
 - Agregar controles de pageSize (10, 20, 50, 100)
 
 ### 2. **Agregar Índices SQL**
+
 - Crear índices en columnas frecuentemente filtradas:
   - `cases.status`, `cases.priority`, `cases.departmentId`
   - `users.role`, `users.departamento`
   - `surveys.status`, `surveys.type`
 
 ### 3. **Implementar Caché de Queries**
+
 - Usar `staleTime` en tRPC para cachear resultados
 - Implementar invalidación inteligente de caché
 
 ### 4. **Monitorear Rendimiento**
+
 - Agregar logging de tiempos de query
 - Crear dashboard de métricas de paginación
 
@@ -299,16 +324,19 @@ function CasesList() {
 ## 📝 Notas Técnicas
 
 ### Limitaciones Conocidas
+
 - **MAX_PAGE_SIZE**: Limitado a 100 registros por página para prevenir sobrecarga
 - **Queries Paralelas**: Requiere soporte de transacciones en la base de datos
 - **Conteos Totales**: Pueden ser lentos en tablas muy grandes (>100k registros)
 
 ### Consideraciones de Seguridad
+
 - Validación de parámetros con Zod en todos los procedimientos
 - Protección contra inyección SQL usando `sql` templates
 - Límites de rate limiting en endpoints públicos
 
 ### Compatibilidad
+
 - ✅ Drizzle ORM 0.44.5+
 - ✅ tRPC 11.x
 - ✅ MySQL/TiDB

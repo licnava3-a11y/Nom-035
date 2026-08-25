@@ -63,7 +63,9 @@ describe("Sprint 32 - Exportación PDF Dictamen con firma digital", () => {
     const filePath = path.join(ROOT, "client/src/pages/LegalDocGenerator.tsx");
     const content = fs.readFileSync(filePath, "utf-8");
     // Debe tener referencia al responsable técnico en el HTML generado
-    expect(content).toMatch(/responsableTecnico|Responsable Técnico|responsable_tecnico/);
+    expect(content).toMatch(
+      /responsableTecnico|Responsable Técnico|responsable_tecnico/
+    );
   });
 });
 
@@ -72,7 +74,9 @@ describe("Sprint 32 - Reporte entrevistas de salida por período", () => {
   it("el router exitInterviews exporta getAnalytics", async () => {
     const { exitInterviewsRouter } = await import("./routers/exitInterviews");
     expect(exitInterviewsRouter).toBeDefined();
-    expect((exitInterviewsRouter as any)._def?.procedures?.getAnalytics).toBeDefined();
+    expect(
+      (exitInterviewsRouter as any)._def?.procedures?.getAnalytics
+    ).toBeDefined();
   });
 
   it("el backend de getAnalytics retorna departmentBreakdown", () => {

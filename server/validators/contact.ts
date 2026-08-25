@@ -41,11 +41,11 @@ export const phoneValidatorMX = z
     /^(\+?52)?[\s-]?(\(?\d{2,3}\)?[\s-]?)?\d{3,4}[\s-]?\d{4}$/,
     "Formato de teléfono inválido. Use formato: 5512345678 o (55) 1234-5678"
   )
-  .transform((val) => {
+  .transform(val => {
     // Normalizar: eliminar espacios, guiones, paréntesis y +52
     return val.replace(/[\s\-\(\)\+]/g, "").replace(/^52/, "");
   })
-  .refine((val) => val.length === 10, {
+  .refine(val => val.length === 10, {
     message: "El teléfono debe tener exactamente 10 dígitos",
   });
 
@@ -58,16 +58,13 @@ export const phoneValidatorMXOptional = z
     /^(\+?52)?[\s-]?(\(?\d{2,3}\)?[\s-]?)?\d{3,4}[\s-]?\d{4}$/,
     "Formato de teléfono inválido. Use formato: 5512345678 o (55) 1234-5678"
   )
-  .transform((val) => {
+  .transform(val => {
     if (!val) return "";
     return val.replace(/[\s\-\(\)\+]/g, "").replace(/^52/, "");
   })
-  .refine(
-    (val) => !val || val.length === 10,
-    {
-      message: "El teléfono debe tener exactamente 10 dígitos",
-    }
-  )
+  .refine(val => !val || val.length === 10, {
+    message: "El teléfono debe tener exactamente 10 dígitos",
+  })
   .optional()
   .or(z.literal(""));
 
@@ -112,7 +109,10 @@ export function formatPhoneMX(phone: string): string {
  * Entrada: "5512345678" (asume México si no tiene código)
  * Salida: "+525512345678"
  */
-export function formatPhoneE164(phone: string, countryCode: string = "52"): string {
+export function formatPhoneE164(
+  phone: string,
+  countryCode: string = "52"
+): string {
   const cleaned = phone.replace(/\D/g, "");
   if (cleaned.startsWith(countryCode)) {
     return `+${cleaned}`;

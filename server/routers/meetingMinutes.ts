@@ -1,7 +1,15 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, meetingAttachments, meetingMinutes, meetingParticipants, users, minuteDispatches, minuteRecipients } from "../../drizzle/schema";
+import {
+  employees,
+  meetingAttachments,
+  meetingMinutes,
+  meetingParticipants,
+  users,
+  minuteDispatches,
+  minuteRecipients,
+} from "../../drizzle/schema";
 import { eq, desc, and, like, gte, lte, inArray, sql } from "drizzle-orm";
 import { sendDispatchEmails } from "../dispatchEmail";
 import { storagePut } from "../storage";
@@ -30,10 +38,13 @@ async function generateFolio(prefix: string = "MIN"): Promise<string> {
 }
 
 // Función para generar código QR único (NOM-151)
-async function generateQRCode(minuteId: number, folio: string): Promise<{ qrCode: string; qrCodeUrl: string }> {
+async function generateQRCode(
+  minuteId: number,
+  folio: string
+): Promise<{ qrCode: string; qrCodeUrl: string }> {
   // Generar URL única para la minuta
   const minuteUrl = `${process.env.VITE_APP_URL || "https://app.example.com"}/meeting-minutes/${minuteId}`;
-  
+
   // Generar código QR como data URL
   const qrCodeDataUrl = await QRCode.toDataURL(minuteUrl, {
     errorCorrectionLevel: "H",
@@ -59,25 +70,29 @@ async function generateQRCode(minuteId: number, folio: string): Promise<{ qrCode
 export const meetingMinutesRouter = router({
   // Crear nueva minuta
   create: protectedProcedure
-    .input(z.object({
-      title: z.string().min(1),
-      meetingDate: z.string(), // ISO string
-      meetingType: z.string(),
-      location: z.string().optional(),
-      agenda: z.string().min(1),
-      agreements: z.string().optional(),
-      observations: z.string().optional(),
-      participants: z.array(z.object({
-        employeeId: z.number().optional(),
-        name: z.string(),
-        curp: z.string().optional(),
-        ineNumber: z.string().optional(),
-        role: z.string().optional(),
-      })),
-    }))
+    .input(
+      z.object({
+        title: z.string().min(1),
+        meetingDate: z.string(), // ISO string
+        meetingType: z.string(),
+        location: z.string().optional(),
+        agenda: z.string().min(1),
+        agreements: z.string().optional(),
+        observations: z.string().optional(),
+        participants: z.array(
+          z.object({
+            employeeId: z.number().optional(),
+            name: z.string(),
+            curp: z.string().optional(),
+            ineNumber: z.string().optional(),
+            role: z.string().optional(),
+          })
+        ),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = (await getDb())!;
-      
+
       // Generar folio automático
       const folio = await generateFolio();
 
@@ -101,7 +116,8 @@ export const meetingMinutesRouter = router({
       const { qrCode, qrCodeUrl } = await generateQRCode(minuteId, folio);
 
       // Actualizar minuta con código QR
-      await db.update(meetingMinutes)
+      await db
+        .update(meetingMinutes)
         .set({ qrCode, qrCodeUrl } as any)
         .where(eq(meetingMinutes.id, minuteId));
 
@@ -124,16 +140,18 @@ export const meetingMinutesRouter = router({
 
   // Listar minutas con filtros
   list: protectedProcedure
-    .input(z.object({
-      status: z.enum(["draft", "finalized", "signed"]).optional(),
-      meetingType: z.string().optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      search: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        status: z.enum(["draft", "finalized", "signed"]).optional(),
+        meetingType: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        search: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
       const db = (await getDb())!;
-      
+
       const conditions = [];
       if (input.status) {
         conditions.push(eq(meetingMinutes.status, input.status));
@@ -142,10 +160,14 @@ export const meetingMinutesRouter = router({
         conditions.push(eq(meetingMinutes.meetingType, input.meetingType));
       }
       if (input.startDate) {
-        conditions.push(gte(meetingMinutes.meetingDate, new Date(input.startDate)));
+        conditions.push(
+          gte(meetingMinutes.meetingDate, new Date(input.startDate))
+        );
       }
       if (input.endDate) {
-        conditions.push(lte(meetingMinutes.meetingDate, new Date(input.endDate)));
+        conditions.push(
+          lte(meetingMinutes.meetingDate, new Date(input.endDate))
+        );
       }
       if (input.search) {
         conditions.push(like(meetingMinutes.title, `%${input.search}%`));
@@ -165,7 +187,7 @@ export const meetingMinutesRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = (await getDb())!;
-      
+
       const [minute] = await db
         .select()
         .from(meetingMinutes)
@@ -205,29 +227,35 @@ export const meetingMinutesRouter = router({
 
   // Actualizar minuta
   update: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      title: z.string().optional(),
-      meetingDate: z.string().optional(),
-      meetingType: z.string().optional(),
-      location: z.string().optional(),
-      agenda: z.string().optional(),
-      agreements: z.string().optional(),
-      observations: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        title: z.string().optional(),
+        meetingDate: z.string().optional(),
+        meetingType: z.string().optional(),
+        location: z.string().optional(),
+        agenda: z.string().optional(),
+        agreements: z.string().optional(),
+        observations: z.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       const db = (await getDb())!;
-      
+
       const updateData: Record<string, unknown> = {};
       if (input.title) updateData.title = input.title;
-      if (input.meetingDate) updateData.meetingDate = new Date(input.meetingDate);
+      if (input.meetingDate)
+        updateData.meetingDate = new Date(input.meetingDate);
       if (input.meetingType) updateData.meetingType = input.meetingType;
       if (input.location !== undefined) updateData.location = input.location;
       if (input.agenda) updateData.agenda = input.agenda;
-      if (input.agreements !== undefined) updateData.agreements = input.agreements;
-      if (input.observations !== undefined) updateData.observations = input.observations;
+      if (input.agreements !== undefined)
+        updateData.agreements = input.agreements;
+      if (input.observations !== undefined)
+        updateData.observations = input.observations;
 
-      await db.update(meetingMinutes)
+      await db
+        .update(meetingMinutes)
         .set(updateData)
         .where(eq(meetingMinutes.id, input.id));
 
@@ -239,8 +267,9 @@ export const meetingMinutesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = (await getDb())!;
-      
-      await db.update(meetingMinutes)
+
+      await db
+        .update(meetingMinutes)
         .set({
           status: "finalized",
           finalizedAt: new Date(),
@@ -252,14 +281,17 @@ export const meetingMinutesRouter = router({
 
   // Agregar firma de participante
   addSignature: protectedProcedure
-    .input(z.object({
-      participantId: z.number(),
-      signature: z.string(), // Base64 de la firma
-    }))
+    .input(
+      z.object({
+        participantId: z.number(),
+        signature: z.string(), // Base64 de la firma
+      })
+    )
     .mutation(async ({ input }) => {
       const db = (await getDb())!;
-      
-      await db.update(meetingParticipants)
+
+      await db
+        .update(meetingParticipants)
         .set({
           signature: input.signature,
           signedAt: new Date(),
@@ -275,13 +307,16 @@ export const meetingMinutesRouter = router({
       const allParticipants = await db
         .select()
         .from(meetingParticipants)
-        .where(eq(meetingParticipants.meetingMinuteId, participant.meetingMinuteId));
+        .where(
+          eq(meetingParticipants.meetingMinuteId, participant.meetingMinuteId)
+        );
 
       const allSigned = allParticipants.every(p => p.signature !== null);
 
       // Si todos firmaron, cambiar estado a "signed"
       if (allSigned) {
-        await db.update(meetingMinutes)
+        await db
+          .update(meetingMinutes)
           .set({ status: "signed" } as any)
           .where(eq(meetingMinutes.id, participant.meetingMinuteId));
       }
@@ -291,22 +326,25 @@ export const meetingMinutesRouter = router({
 
   // Subir adjunto (evidencia fotográfica)
   uploadAttachment: protectedProcedure
-    .input(z.object({
-      meetingMinuteId: z.number(),
-      fileName: z.string(),
-      fileData: z.string(), // Base64
-      fileType: z.enum(["photo", "document", "other"]),
-    }))
+    .input(
+      z.object({
+        meetingMinuteId: z.number(),
+        fileName: z.string(),
+        fileData: z.string(), // Base64
+        fileType: z.enum(["photo", "document", "other"]),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = (await getDb())!;
-      
+
       // Convertir base64 a buffer
       const buffer = Buffer.from(input.fileData, "base64");
       const fileSize = buffer.length;
 
       // Subir a S3
       const fileKey = `meeting-minutes/${input.meetingMinuteId}/${Date.now()}-${input.fileName}`;
-      const mimeType = input.fileType === "photo" ? "image/jpeg" : "application/pdf";
+      const mimeType =
+        input.fileType === "photo" ? "image/jpeg" : "application/pdf";
       const { url } = await storagePut(fileKey, buffer, mimeType);
 
       // Guardar en base de datos
@@ -327,33 +365,33 @@ export const meetingMinutesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = (await getDb())!;
-      
-      await db.delete(meetingAttachments)
+
+      await db
+        .delete(meetingAttachments)
         .where(eq(meetingAttachments.id, input.id));
 
       return { success: true };
     }),
 
   // Obtener tipos de reunión disponibles
-  getMeetingTypes: protectedProcedure
-    .query(async () => {
-      return [
-        { value: "Ordinaria", label: "Reunión Ordinaria" },
-        { value: "Extraordinaria", label: "Reunión Extraordinaria" },
-        { value: "Comité", label: "Sesión de Comité" },
-        { value: "Junta Directiva", label: "Junta Directiva" },
-        { value: "Capacitación", label: "Sesión de Capacitación" },
-        { value: "Evaluación", label: "Sesión de Evaluación" },
-        { value: "Otra", label: "Otra" },
-      ];
-    }),
+  getMeetingTypes: protectedProcedure.query(async () => {
+    return [
+      { value: "Ordinaria", label: "Reunión Ordinaria" },
+      { value: "Extraordinaria", label: "Reunión Extraordinaria" },
+      { value: "Comité", label: "Sesión de Comité" },
+      { value: "Junta Directiva", label: "Junta Directiva" },
+      { value: "Capacitación", label: "Sesión de Capacitación" },
+      { value: "Evaluación", label: "Sesión de Evaluación" },
+      { value: "Otra", label: "Otra" },
+    ];
+  }),
 
   // Generar PDF de minuta
   generatePDF: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = (await getDb())!;
-      
+
       // Obtener minuta completa
       const [minute] = await db
         .select()
@@ -377,7 +415,7 @@ export const meetingMinutesRouter = router({
         .where(eq(meetingAttachments.meetingMinuteId, input.id));
 
       // Obtener nombre del creador
-      const { users } = await import('../../drizzle/schema');
+      const { users } = await import("../../drizzle/schema");
       const [creator] = await db
         .select({ name: users.name })
         .from(users)
@@ -385,7 +423,7 @@ export const meetingMinutesRouter = router({
         .limit(1);
 
       // Importar generador PDF de minutas
-      const { generateMinutaPDF } = await import('../pdfGenerators/minutas');
+      const { generateMinutaPDF } = await import("../pdfGenerators/minutas");
 
       // Generar PDF
       const pdfBuffer = await generateMinutaPDF({
@@ -398,7 +436,7 @@ export const meetingMinutesRouter = router({
         agenda: minute.agenda,
         agreements: minute.agreements,
         observations: minute.observations,
-        qrCode: minute.qrCode || '',
+        qrCode: minute.qrCode || "",
         qrCodeUrl: minute.qrCodeUrl,
         status: minute.status,
         participants: participants.map(p => ({
@@ -414,14 +452,18 @@ export const meetingMinutesRouter = router({
           fileUrl: a.fileUrl,
           fileType: a.fileType,
         })),
-        createdBy: creator?.name || 'Usuario',
+        createdBy: creator?.name || "Usuario",
         createdAt: minute.createdAt,
         finalizedAt: minute.finalizedAt,
       });
 
       // Subir PDF a S3
       const fileName = `meeting-minutes/${minute.folio}-minuta.pdf`;
-      const { url: pdfUrl } = await storagePut(fileName, pdfBuffer, 'application/pdf');
+      const { url: pdfUrl } = await storagePut(
+        fileName,
+        pdfBuffer,
+        "application/pdf"
+      );
 
       // Actualizar minuta con URL del PDF
       await db
@@ -463,21 +505,29 @@ export const meetingMinutesRouter = router({
       const activeRecipients = await db
         .select({ id: minuteRecipients.id })
         .from(minuteRecipients)
-        .where(and(inArray(minuteRecipients.id, input.recipientIds), eq(minuteRecipients.isActive, true)));
+        .where(
+          and(
+            inArray(minuteRecipients.id, input.recipientIds),
+            eq(minuteRecipients.isActive, true)
+          )
+        );
 
-      if (activeRecipients.length === 0) throw new Error("No se encontraron destinatarios activos");
+      if (activeRecipients.length === 0)
+        throw new Error("No se encontraron destinatarios activos");
 
       const existingDispatches = await db
         .select({ recipientId: minuteDispatches.recipientId })
         .from(minuteDispatches)
         .where(eq(minuteDispatches.minuteId, input.minuteId));
 
-      const existingIds = new Set(existingDispatches.map((d) => d.recipientId));
-      const newRecipients = activeRecipients.filter((r) => !existingIds.has(r.id));
+      const existingIds = new Set(existingDispatches.map(d => d.recipientId));
+      const newRecipients = activeRecipients.filter(
+        r => !existingIds.has(r.id)
+      );
 
       if (newRecipients.length > 0) {
         await db.insert(minuteDispatches).values(
-          newRecipients.map((r) => ({
+          newRecipients.map(r => ({
             minuteId: input.minuteId,
             recipientId: r.id,
             status: "sent" as const,
@@ -512,19 +562,28 @@ export const meetingMinutesRouter = router({
               email: minuteRecipients.email,
             })
             .from(minuteDispatches)
-            .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
+            .leftJoin(
+              minuteRecipients,
+              eq(minuteDispatches.recipientId, minuteRecipients.id)
+            )
             .where(
               and(
                 eq(minuteDispatches.minuteId, input.minuteId),
-                inArray(minuteDispatches.recipientId, newRecipients.map((r) => r.id))
+                inArray(
+                  minuteDispatches.recipientId,
+                  newRecipients.map(r => r.id)
+                )
               )
             );
 
-          const baseUrl = process.env.VITE_APP_URL || process.env.PUBLIC_URL || "https://app.example.com";
+          const baseUrl =
+            process.env.VITE_APP_URL ||
+            process.env.PUBLIC_URL ||
+            "https://app.example.com";
 
           const emailData = dispatchesCreated
-            .filter((d) => d.email)
-            .map((d) => ({
+            .filter(d => d.email)
+            .map(d => ({
               dispatchId: d.dispatchId,
               recipientName: d.name || "",
               recipientEmail: d.email!,
@@ -573,9 +632,12 @@ export const meetingMinutesRouter = router({
           status: minuteDispatches.status,
         })
         .from(minuteDispatches)
-        .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
+        .leftJoin(
+          minuteRecipients,
+          eq(minuteDispatches.recipientId, minuteRecipients.id)
+        )
         .where(eq(minuteDispatches.minuteId, input.minuteId))
-                .orderBy(minuteRecipients.name);
+        .orderBy(minuteRecipients.name);
       return results;
     }),
 
@@ -604,7 +666,10 @@ export const meetingMinutesRouter = router({
         .from(minuteDispatches)
         .where(gte(minuteDispatches.sentAt, startDate));
 
-      const monthMap = new Map<string, { sent: number; read: number; bounced: number }>();
+      const monthMap = new Map<
+        string,
+        { sent: number; read: number; bounced: number }
+      >();
 
       for (let i = 0; i < input.months; i++) {
         const d = new Date();
@@ -624,7 +689,20 @@ export const meetingMinutesRouter = router({
         if (dispatch.status === "bounced") entry.bounced++;
       }
 
-      const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+      const monthNames = [
+        "Ene",
+        "Feb",
+        "Mar",
+        "Abr",
+        "May",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dic",
+      ];
       const trends = Array.from(monthMap.entries()).map(([key, data]) => {
         const [year, month] = key.split("-");
         return {
@@ -633,7 +711,8 @@ export const meetingMinutesRouter = router({
           sent: data.sent,
           read: data.read,
           bounced: data.bounced,
-          readRate: data.sent > 0 ? Math.round((data.read / data.sent) * 100) : 0,
+          readRate:
+            data.sent > 0 ? Math.round((data.read / data.sent) * 100) : 0,
         };
       });
 

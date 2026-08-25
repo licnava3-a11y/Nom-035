@@ -67,7 +67,9 @@ export function serveStatic(app: Express) {
       : path.resolve(import.meta.dirname, "public");
 
   if (!fs.existsSync(distPath)) {
-    logStructured("warn", "static_directory_missing", { environment: process.env.NODE_ENV ?? "unknown" });
+    logStructured("warn", "static_directory_missing", {
+      environment: process.env.NODE_ENV ?? "unknown",
+    });
   }
 
   // Ensure dist/public/index.html always has the correct %VITE_*% placeholders.
@@ -75,16 +77,30 @@ export function serveStatic(app: Express) {
   // In production (Cloud Run), the Dockerfile runs vite build which produces the
   // compiled index.html with hashed asset references — we must NOT overwrite it.
   const indexPath = path.resolve(distPath, "index.html");
-  const clientIndexPath = path.resolve(import.meta.dirname, "../..", "client", "index.html");
+  const clientIndexPath = path.resolve(
+    import.meta.dirname,
+    "../..",
+    "client",
+    "index.html"
+  );
   const restoreDevelopmentIndex = () => {
-    if (process.env.NODE_ENV !== "development" || !fs.existsSync(clientIndexPath)) return false;
+    if (
+      process.env.NODE_ENV !== "development" ||
+      !fs.existsSync(clientIndexPath)
+    )
+      return false;
     fs.mkdirSync(distPath, { recursive: true });
     fs.copyFileSync(clientIndexPath, indexPath);
-    logStructured("info", "preview_index_restored", { environment: "development" });
+    logStructured("info", "preview_index_restored", {
+      environment: "development",
+    });
     return true;
   };
 
-  if (process.env.NODE_ENV === "development" && fs.existsSync(clientIndexPath)) {
+  if (
+    process.env.NODE_ENV === "development" &&
+    fs.existsSync(clientIndexPath)
+  ) {
     // Always refresh in dev to keep placeholders in sync with client/index.html
     restoreDevelopmentIndex();
   } else if (!fs.existsSync(indexPath) && fs.existsSync(clientIndexPath)) {
@@ -118,18 +134,41 @@ export function serveStatic(app: Express) {
       // as process.env at startup — both in Cloud Run and in the sandbox dev server.
       html = html
         .replace(/%VITE_APP_ID%/g, process.env.VITE_APP_ID ?? "")
-        .replace(/%VITE_OAUTH_PORTAL_URL%/g, process.env.VITE_OAUTH_PORTAL_URL ?? "https://manus.im")
-        .replace(/%VITE_ANALYTICS_ENDPOINT%/g, process.env.VITE_ANALYTICS_ENDPOINT ?? "")
-        .replace(/%VITE_ANALYTICS_WEBSITE_ID%/g, process.env.VITE_ANALYTICS_WEBSITE_ID ?? "")
-        .replace(/%VITE_APP_TITLE%/g, process.env.VITE_APP_TITLE ?? "NOM-035 STPS")
+        .replace(
+          /%VITE_OAUTH_PORTAL_URL%/g,
+          process.env.VITE_OAUTH_PORTAL_URL ?? "https://manus.im"
+        )
+        .replace(
+          /%VITE_ANALYTICS_ENDPOINT%/g,
+          process.env.VITE_ANALYTICS_ENDPOINT ?? ""
+        )
+        .replace(
+          /%VITE_ANALYTICS_WEBSITE_ID%/g,
+          process.env.VITE_ANALYTICS_WEBSITE_ID ?? ""
+        )
+        .replace(
+          /%VITE_APP_TITLE%/g,
+          process.env.VITE_APP_TITLE ?? "NOM-035 STPS"
+        )
         .replace(/%VITE_APP_ID%/g, process.env.VITE_APP_ID ?? "")
-        .replace(/%VITE_FRONTEND_FORGE_API_KEY%/g, process.env.VITE_FRONTEND_FORGE_API_KEY ?? "")
-        .replace(/%VITE_FRONTEND_FORGE_API_URL%/g, process.env.VITE_FRONTEND_FORGE_API_URL ?? "");
+        .replace(
+          /%VITE_FRONTEND_FORGE_API_KEY%/g,
+          process.env.VITE_FRONTEND_FORGE_API_KEY ?? ""
+        )
+        .replace(
+          /%VITE_FRONTEND_FORGE_API_URL%/g,
+          process.env.VITE_FRONTEND_FORGE_API_URL ?? ""
+        );
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       res.send(html);
     } catch (error) {
       logNonBlockingFailure("preview_index_restore_failed", error);
-      res.status(503).type("text/plain").send("La vista previa se está recuperando. Actualiza la página en unos segundos.");
+      res
+        .status(503)
+        .type("text/plain")
+        .send(
+          "La vista previa se está recuperando. Actualiza la página en unos segundos."
+        );
     }
   });
 }

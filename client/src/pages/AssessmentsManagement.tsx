@@ -1,26 +1,57 @@
-import { useState } from 'react';
-import { trpc } from '@/lib/trpc';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { Plus, Edit, Trash2, FileText, CheckCircle, XCircle, Archive } from 'lucide-react';
-import { useLocation } from 'wouter';
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  FileText,
+  CheckCircle,
+  XCircle,
+  Archive,
+} from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function AssessmentsManagement() {
   const [, setLocation] = useLocation();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<'draft' | 'active' | 'archived' | undefined>();
+  const [selectedStatus, setSelectedStatus] = useState<
+    "draft" | "active" | "archived" | undefined
+  >();
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [assessmentToDelete, setAssessmentToDelete] = useState<number | null>(null);
+  const [assessmentToDelete, setAssessmentToDelete] = useState<number | null>(
+    null
+  );
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     courseId: undefined as number | undefined,
     passingScore: 70,
     timeLimit: undefined as number | undefined,
@@ -31,7 +62,11 @@ export default function AssessmentsManagement() {
   });
 
   // Queries
-  const { data: assessments, isLoading, refetch } = trpc.assessments.list.useQuery({
+  const {
+    data: assessments,
+    isLoading,
+    refetch,
+  } = trpc.assessments.list.useQuery({
     status: selectedStatus,
   });
   const { data: courses } = trpc.courses.list.useQuery();
@@ -59,8 +94,8 @@ export default function AssessmentsManagement() {
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      description: '',
+      title: "",
+      description: "",
       courseId: undefined,
       passingScore: 70,
       timeLimit: undefined,
@@ -86,17 +121,20 @@ export default function AssessmentsManagement() {
     }
   };
 
-  const handleChangeStatus = (id: number, status: 'draft' | 'active' | 'archived') => {
+  const handleChangeStatus = (
+    id: number,
+    status: "draft" | "active" | "archived"
+  ) => {
     updateStatusMutation.mutate({ id, status });
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'draft':
+      case "draft":
         return <Badge variant="secondary">Borrador</Badge>;
-      case 'active':
+      case "active":
         return <Badge className="bg-green-500">Activa</Badge>;
-      case 'archived':
+      case "archived":
         return <Badge variant="outline">Archivada</Badge>;
       default:
         return null;
@@ -116,7 +154,9 @@ export default function AssessmentsManagement() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Gestión de Evaluaciones</h1>
-          <p className="text-muted-foreground">Administre exámenes y evaluaciones en línea</p>
+          <p className="text-muted-foreground">
+            Administre exámenes y evaluaciones en línea
+          </p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
@@ -131,8 +171,12 @@ export default function AssessmentsManagement() {
             <div className="flex-1">
               <Label>Filtrar por estado</Label>
               <Select
-                value={selectedStatus || 'all'}
-                onValueChange={(value) => setSelectedStatus(value === 'all' ? undefined : value as any)}
+                value={selectedStatus || "all"}
+                onValueChange={value =>
+                  setSelectedStatus(
+                    value === "all" ? undefined : (value as any)
+                  )
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los estados" />
@@ -161,7 +205,9 @@ export default function AssessmentsManagement() {
                       <CardTitle>{assessment.title}</CardTitle>
                       {getStatusBadge(assessment.status)}
                     </div>
-                    <CardDescription>{assessment.description || 'Sin descripción'}</CardDescription>
+                    <CardDescription>
+                      {assessment.description || "Sin descripción"}
+                    </CardDescription>
                     {assessment.courseName && (
                       <p className="text-sm text-muted-foreground mt-2">
                         Curso: {assessment.courseName}
@@ -172,7 +218,9 @@ export default function AssessmentsManagement() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setLocation(`/assessments/${assessment.id}/questions`)}
+                      onClick={() =>
+                        setLocation(`/assessments/${assessment.id}/questions`)
+                      }
                     >
                       <FileText className="mr-2 h-4 w-4" />
                       Preguntas
@@ -180,7 +228,9 @@ export default function AssessmentsManagement() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setLocation(`/assessments/${assessment.id}/edit`)}
+                      onClick={() =>
+                        setLocation(`/assessments/${assessment.id}/edit`)
+                      }
                     >
                       <Edit className="mr-2 h-4 w-4" />
                       Editar
@@ -205,37 +255,47 @@ export default function AssessmentsManagement() {
                   <div>
                     <p className="text-muted-foreground">Tiempo límite</p>
                     <p className="font-medium">
-                      {assessment.timeLimit ? `${assessment.timeLimit} min` : 'Sin límite'}
+                      {assessment.timeLimit
+                        ? `${assessment.timeLimit} min`
+                        : "Sin límite"}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Intentos máximos</p>
-                    <p className="font-medium">{assessment.maxAttempts || 'Ilimitados'}</p>
+                    <p className="font-medium">
+                      {assessment.maxAttempts || "Ilimitados"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Creado por</p>
-                    <p className="font-medium">{assessment.creatorName || 'N/A'}</p>
+                    <p className="font-medium">
+                      {assessment.creatorName || "N/A"}
+                    </p>
                   </div>
                 </div>
 
                 {/* Acciones de estado */}
                 <div className="flex gap-2 mt-4">
-                  {assessment.status === 'draft' && (
+                  {assessment.status === "draft" && (
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleChangeStatus(assessment.id, 'active')}
+                      onClick={() =>
+                        handleChangeStatus(assessment.id, "active")
+                      }
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
                       Activar
                     </Button>
                   )}
-                  {assessment.status === 'active' && (
+                  {assessment.status === "active" && (
                     <>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleChangeStatus(assessment.id, 'draft')}
+                        onClick={() =>
+                          handleChangeStatus(assessment.id, "draft")
+                        }
                       >
                         <XCircle className="mr-2 h-4 w-4" />
                         Desactivar
@@ -243,18 +303,20 @@ export default function AssessmentsManagement() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleChangeStatus(assessment.id, 'archived')}
+                        onClick={() =>
+                          handleChangeStatus(assessment.id, "archived")
+                        }
                       >
                         <Archive className="mr-2 h-4 w-4" />
                         Archivar
                       </Button>
                     </>
                   )}
-                  {assessment.status === 'archived' && (
+                  {assessment.status === "archived" && (
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleChangeStatus(assessment.id, 'draft')}
+                      onClick={() => handleChangeStatus(assessment.id, "draft")}
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
                       Restaurar
@@ -267,8 +329,13 @@ export default function AssessmentsManagement() {
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">No hay evaluaciones disponibles</p>
-              <Button className="mt-4" onClick={() => setIsCreateDialogOpen(true)}>
+              <p className="text-muted-foreground">
+                No hay evaluaciones disponibles
+              </p>
+              <Button
+                className="mt-4"
+                onClick={() => setIsCreateDialogOpen(true)}
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Crear primera evaluación
               </Button>
@@ -283,7 +350,8 @@ export default function AssessmentsManagement() {
           <DialogHeader>
             <DialogTitle>Nueva Evaluación</DialogTitle>
             <DialogDescription>
-              Configure los parámetros de la evaluación. Podrá agregar preguntas después de crearla.
+              Configure los parámetros de la evaluación. Podrá agregar preguntas
+              después de crearla.
             </DialogDescription>
           </DialogHeader>
 
@@ -293,7 +361,9 @@ export default function AssessmentsManagement() {
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 placeholder="Ej: Evaluación de Conocimientos NOM-035"
               />
             </div>
@@ -303,7 +373,9 @@ export default function AssessmentsManagement() {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Descripción de la evaluación"
                 rows={3}
               />
@@ -312,9 +384,12 @@ export default function AssessmentsManagement() {
             <div>
               <Label htmlFor="courseId">Curso asociado (opcional)</Label>
               <Select
-                value={formData.courseId?.toString() || 'none'}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, courseId: value === 'none' ? undefined : parseInt(value) })
+                value={formData.courseId?.toString() || "none"}
+                onValueChange={value =>
+                  setFormData({
+                    ...formData,
+                    courseId: value === "none" ? undefined : parseInt(value),
+                  })
                 }
               >
                 <SelectTrigger>
@@ -340,7 +415,12 @@ export default function AssessmentsManagement() {
                   min="0"
                   max="100"
                   value={formData.passingScore}
-                  onChange={(e) => setFormData({ ...formData, passingScore: parseInt(e.target.value) })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      passingScore: parseInt(e.target.value),
+                    })
+                  }
                 />
               </div>
 
@@ -350,9 +430,14 @@ export default function AssessmentsManagement() {
                   id="timeLimit"
                   type="number"
                   min="0"
-                  value={formData.timeLimit || ''}
-                  onChange={(e) =>
-                    setFormData({ ...formData, timeLimit: e.target.value ? parseInt(e.target.value) : undefined })
+                  value={formData.timeLimit || ""}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      timeLimit: e.target.value
+                        ? parseInt(e.target.value)
+                        : undefined,
+                    })
                   }
                   placeholder="Sin límite"
                 />
@@ -366,7 +451,12 @@ export default function AssessmentsManagement() {
                 type="number"
                 min="1"
                 value={formData.maxAttempts}
-                onChange={(e) => setFormData({ ...formData, maxAttempts: parseInt(e.target.value) })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    maxAttempts: parseInt(e.target.value),
+                  })
+                }
               />
             </div>
 
@@ -376,7 +466,12 @@ export default function AssessmentsManagement() {
                   type="checkbox"
                   id="shuffleQuestions"
                   checked={formData.shuffleQuestions}
-                  onChange={(e) => setFormData({ ...formData, shuffleQuestions: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      shuffleQuestions: e.target.checked,
+                    })
+                  }
                   className="rounded"
                 />
                 <Label htmlFor="shuffleQuestions" className="cursor-pointer">
@@ -389,7 +484,12 @@ export default function AssessmentsManagement() {
                   type="checkbox"
                   id="shuffleOptions"
                   checked={formData.shuffleOptions}
-                  onChange={(e) => setFormData({ ...formData, shuffleOptions: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      shuffleOptions: e.target.checked,
+                    })
+                  }
                   className="rounded"
                 />
                 <Label htmlFor="shuffleOptions" className="cursor-pointer">
@@ -402,7 +502,9 @@ export default function AssessmentsManagement() {
                   type="checkbox"
                   id="showResults"
                   checked={formData.showResults}
-                  onChange={(e) => setFormData({ ...formData, showResults: e.target.checked })}
+                  onChange={e =>
+                    setFormData({ ...formData, showResults: e.target.checked })
+                  }
                   className="rounded"
                 />
                 <Label htmlFor="showResults" className="cursor-pointer">
@@ -413,11 +515,17 @@ export default function AssessmentsManagement() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsCreateDialogOpen(false)}
+            >
               Cancelar
             </Button>
-            <Button onClick={handleCreate} disabled={!formData.title || createMutation.isPending}>
-              {createMutation.isPending ? 'Creando...' : 'Crear Evaluación'}
+            <Button
+              onClick={handleCreate}
+              disabled={!formData.title || createMutation.isPending}
+            >
+              {createMutation.isPending ? "Creando..." : "Crear Evaluación"}
             </Button>
           </DialogFooter>
         </DialogContent>

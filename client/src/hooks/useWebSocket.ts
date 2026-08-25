@@ -36,7 +36,7 @@ export function useWebSocket() {
     socket.on("critical-alert", (alert: CriticalAlert) => {
       console.log("[WebSocket] Alerta crítica recibida:", alert);
       setLastAlert(alert);
-      
+
       // Mostrar notificación del navegador si está permitido
       if ("Notification" in window && Notification.permission === "granted") {
         new Notification("⚠️ Alerta Crítica NOM-035", {

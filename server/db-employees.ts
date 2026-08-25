@@ -1,6 +1,13 @@
 import { eq, like, and, or, desc, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { committeeMembers, departments, employeeHistory, employees, positions, users } from "../drizzle/schema";
+import {
+  committeeMembers,
+  departments,
+  employeeHistory,
+  employees,
+  positions,
+  users,
+} from "../drizzle/schema";
 import type { Employee, InsertEmployee } from "../drizzle/schema";
 
 // Type for employee with department and position names
@@ -19,7 +26,15 @@ export async function getAllEmployees(filters?: {
   page?: number;
   pageSize?: number;
   incompleteOnly?: boolean;
-}): Promise<{ employees: EmployeeWithRelations[]; pagination: { page: number; pageSize: number; totalCount: number; totalPages: number } }> {
+}): Promise<{
+  employees: EmployeeWithRelations[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    totalCount: number;
+    totalPages: number;
+  };
+}> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -62,67 +77,74 @@ export async function getAllEmployees(filters?: {
     );
   }
 
-  const query = conditions.length > 0
-    ? db.select({
-        id: employees.id,
-        firstName: employees.firstName,
-        lastName: employees.lastName,
-        email: employees.email,
-        phone: employees.phone,
-        curp: employees.curp,
-        employeeNumber: employees.employeeNumber,
-        departmentId: employees.departmentId,
-        positionId: employees.positionId,
-        hireDate: employees.hireDate,
-        contractType: employees.contractType,
-        isActive: employees.isActive,
-        userId: employees.userId,
-        cedulaProfesional: employees.cedulaProfesional,
-        rfc: employees.rfc,
-        nss: employees.nss,
-        createdAt: employees.createdAt,
-        updatedAt: employees.updatedAt,
-        department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
-        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
-        educationLevel: employees.educationLevel,
-      })
-      .from(employees)
-      .leftJoin(departments, eq(employees.departmentId, departments.id))
-      .leftJoin(positions, eq(employees.positionId, positions.id))
-      .where(and(...conditions))
-      .orderBy(desc(employees.createdAt))
-    : db.select({
-        id: employees.id,
-        firstName: employees.firstName,
-        lastName: employees.lastName,
-        email: employees.email,
-        phone: employees.phone,
-        curp: employees.curp,
-        employeeNumber: employees.employeeNumber,
-        departmentId: employees.departmentId,
-        positionId: employees.positionId,
-        hireDate: employees.hireDate,
-        contractType: employees.contractType,
-        isActive: employees.isActive,
-        userId: employees.userId,
-        cedulaProfesional: employees.cedulaProfesional,
-        rfc: employees.rfc,
-        nss: employees.nss,
-        createdAt: employees.createdAt,
-        updatedAt: employees.updatedAt,
-        department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
-        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
-        educationLevel: employees.educationLevel,
-      })
-      .from(employees)
-      .leftJoin(departments, eq(employees.departmentId, departments.id))
-      .leftJoin(positions, eq(employees.positionId, positions.id))
-      .orderBy(desc(employees.createdAt))
+  const query =
+    conditions.length > 0
+      ? db
+          .select({
+            id: employees.id,
+            firstName: employees.firstName,
+            lastName: employees.lastName,
+            email: employees.email,
+            phone: employees.phone,
+            curp: employees.curp,
+            employeeNumber: employees.employeeNumber,
+            departmentId: employees.departmentId,
+            positionId: employees.positionId,
+            hireDate: employees.hireDate,
+            contractType: employees.contractType,
+            isActive: employees.isActive,
+            userId: employees.userId,
+            cedulaProfesional: employees.cedulaProfesional,
+            rfc: employees.rfc,
+            nss: employees.nss,
+            createdAt: employees.createdAt,
+            updatedAt: employees.updatedAt,
+            department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
+            position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
+            educationLevel: employees.educationLevel,
+          })
+          .from(employees)
+          .leftJoin(departments, eq(employees.departmentId, departments.id))
+          .leftJoin(positions, eq(employees.positionId, positions.id))
+          .where(and(...conditions))
+          .orderBy(desc(employees.createdAt))
+      : db
+          .select({
+            id: employees.id,
+            firstName: employees.firstName,
+            lastName: employees.lastName,
+            email: employees.email,
+            phone: employees.phone,
+            curp: employees.curp,
+            employeeNumber: employees.employeeNumber,
+            departmentId: employees.departmentId,
+            positionId: employees.positionId,
+            hireDate: employees.hireDate,
+            contractType: employees.contractType,
+            isActive: employees.isActive,
+            userId: employees.userId,
+            cedulaProfesional: employees.cedulaProfesional,
+            rfc: employees.rfc,
+            nss: employees.nss,
+            createdAt: employees.createdAt,
+            updatedAt: employees.updatedAt,
+            department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
+            position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
+            educationLevel: employees.educationLevel,
+          })
+          .from(employees)
+          .leftJoin(departments, eq(employees.departmentId, departments.id))
+          .leftJoin(positions, eq(employees.positionId, positions.id))
+          .orderBy(desc(employees.createdAt));
   // Contar total de empleados
-  const countQuery = conditions.length > 0
-    ? db.select({ count: sql<number>`count(*)` }).from(employees).where(and(...conditions))
-    : db.select({ count: sql<number>`count(*)` }).from(employees);
-  
+  const countQuery =
+    conditions.length > 0
+      ? db
+          .select({ count: sql<number>`count(*)` })
+          .from(employees)
+          .where(and(...conditions))
+      : db.select({ count: sql<number>`count(*)` }).from(employees);
+
   const [{ count: totalCount }] = await countQuery;
 
   // Aplicar paginación
@@ -130,9 +152,10 @@ export async function getAllEmployees(filters?: {
   const pageSize = filters?.pageSize || 20;
   const offset = (page - 1) * pageSize;
 
-  const paginatedQuery = conditions.length > 0
-    ? query.limit(pageSize).offset(offset)
-    : query.limit(pageSize).offset(offset);
+  const paginatedQuery =
+    conditions.length > 0
+      ? query.limit(pageSize).offset(offset)
+      : query.limit(pageSize).offset(offset);
 
   const employeesList = (await paginatedQuery) as EmployeeWithRelations[];
 
@@ -150,7 +173,9 @@ export async function getAllEmployees(filters?: {
 /**
  * Get employee by ID
  */
-export async function getEmployeeById(id: number): Promise<EmployeeWithRelations | null> {
+export async function getEmployeeById(
+  id: number
+): Promise<EmployeeWithRelations | null> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -248,7 +273,7 @@ export async function createEmployeeWithHistory(
   employeeData: InsertEmployee,
   historyData: {
     curp: string;
-    eventType: 'hire' | 'reentry';
+    eventType: "hire" | "reentry";
     eventDate: Date;
     processedBy?: number;
     departmentId?: number;
@@ -260,11 +285,13 @@ export async function createEmployeeWithHistory(
 
   const { employeeHistory } = await import("../drizzle/schema");
 
-  return await db.transaction(async (tx) => {
+  return await db.transaction(async tx => {
     // 1. Insert employee
     const result = await tx.insert(employees).values(employeeData);
     // Drizzle MySQL2 returns [ResultSetHeader, ...] array
-    const employeeId = Number((result as any)?.[0]?.insertId ?? (result as any)?.insertId);
+    const employeeId = Number(
+      (result as any)?.[0]?.insertId ?? (result as any)?.insertId
+    );
 
     // 2. Insert history event
     await tx.insert(employeeHistory).values({
@@ -321,7 +348,7 @@ export async function terminateEmployeeWithHistory(
 
   const { employeeHistory } = await import("../drizzle/schema");
 
-  return await db.transaction(async (tx) => {
+  return await db.transaction(async tx => {
     // 1. Update employee with termination data
     await tx
       .update(employees)
@@ -340,7 +367,7 @@ export async function terminateEmployeeWithHistory(
     await tx.insert(employeeHistory).values({
       employeeId: id,
       curp: historyData.curp,
-      eventType: 'termination',
+      eventType: "termination",
       eventDate: terminationData.terminationDate,
       terminationReason: terminationData.terminationReason,
       terminationCategory: terminationData.terminationCategory,
@@ -365,7 +392,10 @@ export async function terminateEmployeeWithHistory(
 /**
  * Update employee
  */
-export async function updateEmployee(id: number, data: Partial<InsertEmployee>) {
+export async function updateEmployee(
+  id: number,
+  data: Partial<InsertEmployee>
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -479,10 +509,12 @@ export async function isCommitteeMember(employeeId: number) {
   const result = await db
     .select()
     .from(committeeMembers)
-    .where(and(
-      eq(committeeMembers.employeeId, employeeId),
-      eq(committeeMembers.isActive, true)
-    ))
+    .where(
+      and(
+        eq(committeeMembers.employeeId, employeeId),
+        eq(committeeMembers.isActive, true)
+      )
+    )
     .limit(1);
 
   return result.length > 0;
@@ -525,7 +557,6 @@ export async function getEmployeeStats() {
     })),
   };
 }
-
 
 /**
  * Create a new department
@@ -578,10 +609,9 @@ export async function getEmployeeByCURP(curp: string) {
     .from(employees)
     .where(eq(employees.curp, curp))
     .limit(1);
-  
+
   return employee;
 }
-
 
 /**
  * Add event to employee history
@@ -589,7 +619,7 @@ export async function getEmployeeByCURP(curp: string) {
 export async function addEmployeeHistoryEvent(data: {
   employeeId: number;
   curp: string;
-  eventType: 'hire' | 'termination' | 'reentry';
+  eventType: "hire" | "termination" | "reentry";
   eventDate: Date;
   terminationReason?: string;
   terminationCategory?: string;
@@ -603,7 +633,7 @@ export async function addEmployeeHistoryEvent(data: {
   if (!db) throw new Error("Database not available");
 
   const { employeeHistory } = await import("../drizzle/schema");
-  
+
   await (db.insert(employeeHistory) as any).values({
     employeeId: data.employeeId,
     curp: data.curp,
@@ -627,7 +657,7 @@ export async function getEmployeeHistory(employeeId: number) {
   if (!db) throw new Error("Database not available");
 
   const { employeeHistory } = await import("../drizzle/schema");
-  
+
   const history = await db
     .select({
       id: employeeHistory.id,
@@ -647,11 +677,14 @@ export async function getEmployeeHistory(employeeId: number) {
       createdAt: employeeHistory.createdAt,
     })
     .from(employeeHistory)
-    .leftJoin(departments, sql`${employeeHistory.departmentId} = ${departments.id}`)
+    .leftJoin(
+      departments,
+      sql`${employeeHistory.departmentId} = ${departments.id}`
+    )
     .leftJoin(positions, sql`${employeeHistory.positionId} = ${positions.id}`)
     .where(sql`${employeeHistory.employeeId} = ${employeeId}`)
     .orderBy(sql`${employeeHistory.eventDate} DESC`);
-  
+
   return history;
 }
 
@@ -663,7 +696,7 @@ export async function getEmployeeHistoryByCURP(curp: string) {
   if (!db) throw new Error("Database not available");
 
   const { employeeHistory } = await import("../drizzle/schema");
-  
+
   const history = await db
     .select({
       id: employeeHistory.id,
@@ -683,11 +716,14 @@ export async function getEmployeeHistoryByCURP(curp: string) {
       createdAt: employeeHistory.createdAt,
     })
     .from(employeeHistory)
-    .leftJoin(departments, sql`${employeeHistory.departmentId} = ${departments.id}`)
+    .leftJoin(
+      departments,
+      sql`${employeeHistory.departmentId} = ${departments.id}`
+    )
     .leftJoin(positions, sql`${employeeHistory.positionId} = ${positions.id}`)
     .where(sql`${employeeHistory.curp} = ${curp}`)
     .orderBy(sql`${employeeHistory.eventDate} DESC`);
-  
+
   return history;
 }
 
@@ -719,7 +755,7 @@ export async function getTurnoverStats(startDate: Date, endDate: Date) {
   if (!db) throw new Error("Database not available");
 
   const { employeeHistory, departments } = await import("../drizzle/schema");
-  
+
   // Get total terminations in period
   const terminations = await db
     .select({
@@ -731,11 +767,14 @@ export async function getTurnoverStats(startDate: Date, endDate: Date) {
       departmentName: departments.name,
     })
     .from(employeeHistory)
-    .leftJoin(departments, sql`${employeeHistory.departmentId} = ${departments.id}`)
+    .leftJoin(
+      departments,
+      sql`${employeeHistory.departmentId} = ${departments.id}`
+    )
     .where(
       sql`${employeeHistory.eventType} = 'termination' 
-          AND ${employeeHistory.eventDate} >= ${startDate.toISOString().split('T')[0]}
-          AND ${employeeHistory.eventDate} <= ${endDate.toISOString().split('T')[0]}`
+          AND ${employeeHistory.eventDate} >= ${startDate.toISOString().split("T")[0]}
+          AND ${employeeHistory.eventDate} <= ${endDate.toISOString().split("T")[0]}`
     );
 
   // Get average employee count in period
@@ -750,10 +789,16 @@ export async function getTurnoverStats(startDate: Date, endDate: Date) {
   const totalTerminations = terminations.length;
 
   // Calculate turnover rate
-  const turnoverRate = totalActive > 0 ? (totalTerminations / totalActive) * 100 : 0;
+  const turnoverRate =
+    totalActive > 0 ? (totalTerminations / totalActive) * 100 : 0;
 
   // Calculate average monthly terminations
-  const months = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+  const months = Math.max(
+    1,
+    Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+    )
+  );
   const averageMonthly = Math.round((totalTerminations / months) * 100) / 100;
 
   return {
@@ -774,7 +819,7 @@ export async function getMonthlyTerminationTrends(months: number = 12) {
   if (!db) throw new Error("Database not available");
 
   const { employeeHistory } = await import("../drizzle/schema");
-  
+
   const trends = await db
     .select({
       month: sql<string>`DATE_FORMAT(${employeeHistory.eventDate}, '%Y-%m')`,
@@ -799,7 +844,7 @@ export async function getTerminationsByReason(startDate: Date, endDate: Date) {
   if (!db) throw new Error("Database not available");
 
   const { employeeHistory } = await import("../drizzle/schema");
-  
+
   const distribution = await db
     .select({
       reason: employeeHistory.terminationReason,
@@ -809,10 +854,13 @@ export async function getTerminationsByReason(startDate: Date, endDate: Date) {
     .from(employeeHistory)
     .where(
       sql`${employeeHistory.eventType} = 'termination' 
-          AND ${employeeHistory.eventDate} >= ${startDate.toISOString().split('T')[0]}
-          AND ${employeeHistory.eventDate} <= ${endDate.toISOString().split('T')[0]}`
+          AND ${employeeHistory.eventDate} >= ${startDate.toISOString().split("T")[0]}
+          AND ${employeeHistory.eventDate} <= ${endDate.toISOString().split("T")[0]}`
     )
-    .groupBy(employeeHistory.terminationReason, employeeHistory.terminationCategory);
+    .groupBy(
+      employeeHistory.terminationReason,
+      employeeHistory.terminationCategory
+    );
 
   return distribution;
 }
@@ -820,12 +868,15 @@ export async function getTerminationsByReason(startDate: Date, endDate: Date) {
 /**
  * Get termination metrics by department
  */
-export async function getTerminationsByDepartment(startDate: Date, endDate: Date) {
+export async function getTerminationsByDepartment(
+  startDate: Date,
+  endDate: Date
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   const { employeeHistory, departments } = await import("../drizzle/schema");
-  
+
   const metrics = await db
     .select({
       departmentId: employeeHistory.departmentId,
@@ -833,11 +884,14 @@ export async function getTerminationsByDepartment(startDate: Date, endDate: Date
       count: sql<number>`COUNT(*)`,
     })
     .from(employeeHistory)
-    .leftJoin(departments, sql`${employeeHistory.departmentId} = ${departments.id}`)
+    .leftJoin(
+      departments,
+      sql`${employeeHistory.departmentId} = ${departments.id}`
+    )
     .where(
       sql`${employeeHistory.eventType} = 'termination' 
-          AND ${employeeHistory.eventDate} >= ${startDate.toISOString().split('T')[0]}
-          AND ${employeeHistory.eventDate} <= ${endDate.toISOString().split('T')[0]}`
+          AND ${employeeHistory.eventDate} >= ${startDate.toISOString().split("T")[0]}
+          AND ${employeeHistory.eventDate} <= ${endDate.toISOString().split("T")[0]}`
     )
     .groupBy(employeeHistory.departmentId, departments.name);
 

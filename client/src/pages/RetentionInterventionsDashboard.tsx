@@ -1,18 +1,61 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Plus, TrendingUp, TrendingDown, DollarSign, Users, Target } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Users,
+  Target,
+} from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -27,37 +70,52 @@ const interventionTypeLabels: Record<string, string> = {
 
 export default function RetentionInterventionsDashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedOutcome, setSelectedOutcome] = useState<"all" | "retained" | "left" | "pending">("all");
-  
+  const [selectedOutcome, setSelectedOutcome] = useState<
+    "all" | "retained" | "left" | "pending"
+  >("all");
+
   // Form state
   const [employeeId, setEmployeeId] = useState("");
   const [employeeName, setEmployeeName] = useState("");
   const [employeePosition, setEmployeePosition] = useState("");
   const [department, setDepartment] = useState("");
-  const [interventionType, setInterventionType] = useState<"training" | "salary_adjustment" | "position_change" | "benefits" | "recognition" | "other">("training");
+  const [interventionType, setInterventionType] = useState<
+    | "training"
+    | "salary_adjustment"
+    | "position_change"
+    | "benefits"
+    | "recognition"
+    | "other"
+  >("training");
   const [interventionDescription, setInterventionDescription] = useState("");
   const [cost, setCost] = useState("");
   const [implementationDate, setImplementationDate] = useState("");
   const [riskScoreBefore, setRiskScoreBefore] = useState("");
 
-  const { data: interventions = [], isLoading: loadingInterventions, refetch } = trpc.retentionInterventions.getInterventions.useQuery({ 
+  const {
+    data: interventions = [],
+    isLoading: loadingInterventions,
+    refetch,
+  } = trpc.retentionInterventions.getInterventions.useQuery({
     limit: 50,
     outcome: selectedOutcome,
   });
-  
-  const { data: stats, isLoading: loadingStats } = trpc.retentionInterventions.getEffectivenessStats.useQuery();
 
-  const createInterventionMutation = trpc.retentionInterventions.createIntervention.useMutation({
-    onSuccess: () => {
-      toast.success("Intervención registrada exitosamente");
-      setIsDialogOpen(false);
-      resetForm();
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al registrar intervención");
-    },
-  });
+  const { data: stats, isLoading: loadingStats } =
+    trpc.retentionInterventions.getEffectivenessStats.useQuery();
+
+  const createInterventionMutation =
+    trpc.retentionInterventions.createIntervention.useMutation({
+      onSuccess: () => {
+        toast.success("Intervención registrada exitosamente");
+        setIsDialogOpen(false);
+        resetForm();
+        refetch();
+      },
+      onError: error => {
+        toast.error(error.message || "Error al registrar intervención");
+      },
+    });
 
   const resetForm = () => {
     setEmployeeId("");
@@ -72,7 +130,12 @@ export default function RetentionInterventionsDashboard() {
   };
 
   const handleCreateIntervention = () => {
-    if (!employeeId || !employeeName || !interventionDescription || !implementationDate) {
+    if (
+      !employeeId ||
+      !employeeName ||
+      !interventionDescription ||
+      !implementationDate
+    ) {
       toast.error("Completa los campos requeridos");
       return;
     }
@@ -86,7 +149,9 @@ export default function RetentionInterventionsDashboard() {
       interventionDescription,
       cost: cost ? parseFloat(cost) : undefined,
       implementationDate,
-      riskScoreBefore: riskScoreBefore ? parseFloat(riskScoreBefore) : undefined,
+      riskScoreBefore: riskScoreBefore
+        ? parseFloat(riskScoreBefore)
+        : undefined,
     });
   };
 
@@ -99,19 +164,23 @@ export default function RetentionInterventionsDashboard() {
   }
 
   // Preparar datos para gráfico de efectividad por tipo
-  const effectivenessChartData = stats?.effectivenessByType.map(item => ({
-    type: interventionTypeLabels[item.type] || item.type,
-    efectividad: parseFloat(item.avgEffectiveness),
-    retenidos: item.retainedCount,
-  })) || [];
+  const effectivenessChartData =
+    stats?.effectivenessByType.map(item => ({
+      type: interventionTypeLabels[item.type] || item.type,
+      efectividad: parseFloat(item.avgEffectiveness),
+      retenidos: item.retainedCount,
+    })) || [];
 
   return (
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Impacto de Intervenciones de Retención</h1>
+          <h1 className="text-3xl font-bold">
+            Impacto de Intervenciones de Retención
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Visualiza cómo las acciones de retención afectan las métricas de rotación predicha vs real
+            Visualiza cómo las acciones de retención afectan las métricas de
+            rotación predicha vs real
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -123,9 +192,12 @@ export default function RetentionInterventionsDashboard() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Registrar Nueva Intervención de Retención</DialogTitle>
+              <DialogTitle>
+                Registrar Nueva Intervención de Retención
+              </DialogTitle>
               <DialogDescription>
-                Documenta las acciones tomadas para retener empleados de alto riesgo
+                Documenta las acciones tomadas para retener empleados de alto
+                riesgo
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
@@ -136,7 +208,7 @@ export default function RetentionInterventionsDashboard() {
                     id="employeeId"
                     type="number"
                     value={employeeId}
-                    onChange={(e) => setEmployeeId(e.target.value)}
+                    onChange={e => setEmployeeId(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -144,7 +216,7 @@ export default function RetentionInterventionsDashboard() {
                   <Input
                     id="employeeName"
                     value={employeeName}
-                    onChange={(e) => setEmployeeName(e.target.value)}
+                    onChange={e => setEmployeeName(e.target.value)}
                   />
                 </div>
               </div>
@@ -154,7 +226,7 @@ export default function RetentionInterventionsDashboard() {
                   <Input
                     id="employeePosition"
                     value={employeePosition}
-                    onChange={(e) => setEmployeePosition(e.target.value)}
+                    onChange={e => setEmployeePosition(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -162,20 +234,27 @@ export default function RetentionInterventionsDashboard() {
                   <Input
                     id="department"
                     value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
+                    onChange={e => setDepartment(e.target.value)}
                   />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="interventionType">Tipo de Intervención *</Label>
-                <Select value={interventionType} onValueChange={(value: any) => setInterventionType(value)}>
+                <Select
+                  value={interventionType}
+                  onValueChange={(value: any) => setInterventionType(value)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="training">Capacitación</SelectItem>
-                    <SelectItem value="salary_adjustment">Ajuste Salarial</SelectItem>
-                    <SelectItem value="position_change">Cambio de Puesto</SelectItem>
+                    <SelectItem value="salary_adjustment">
+                      Ajuste Salarial
+                    </SelectItem>
+                    <SelectItem value="position_change">
+                      Cambio de Puesto
+                    </SelectItem>
                     <SelectItem value="benefits">Beneficios</SelectItem>
                     <SelectItem value="recognition">Reconocimiento</SelectItem>
                     <SelectItem value="other">Otro</SelectItem>
@@ -187,7 +266,7 @@ export default function RetentionInterventionsDashboard() {
                 <Textarea
                   id="interventionDescription"
                   value={interventionDescription}
-                  onChange={(e) => setInterventionDescription(e.target.value)}
+                  onChange={e => setInterventionDescription(e.target.value)}
                   rows={3}
                 />
               </div>
@@ -199,27 +278,31 @@ export default function RetentionInterventionsDashboard() {
                     type="number"
                     step="0.01"
                     value={cost}
-                    onChange={(e) => setCost(e.target.value)}
+                    onChange={e => setCost(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="implementationDate">Fecha de Implementación *</Label>
+                  <Label htmlFor="implementationDate">
+                    Fecha de Implementación *
+                  </Label>
                   <Input
                     id="implementationDate"
                     type="date"
                     value={implementationDate}
-                    onChange={(e) => setImplementationDate(e.target.value)}
+                    onChange={e => setImplementationDate(e.target.value)}
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="riskScoreBefore">Riesgo Antes de Intervención (%)</Label>
+                <Label htmlFor="riskScoreBefore">
+                  Riesgo Antes de Intervención (%)
+                </Label>
                 <Input
                   id="riskScoreBefore"
                   type="number"
                   step="0.01"
                   value={riskScoreBefore}
-                  onChange={(e) => setRiskScoreBefore(e.target.value)}
+                  onChange={e => setRiskScoreBefore(e.target.value)}
                 />
               </div>
             </div>
@@ -227,8 +310,13 @@ export default function RetentionInterventionsDashboard() {
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleCreateIntervention} disabled={createInterventionMutation.isPending}>
-                {createInterventionMutation.isPending ? "Registrando..." : "Registrar Intervención"}
+              <Button
+                onClick={handleCreateIntervention}
+                disabled={createInterventionMutation.isPending}
+              >
+                {createInterventionMutation.isPending
+                  ? "Registrando..."
+                  : "Registrar Intervención"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -239,40 +327,54 @@ export default function RetentionInterventionsDashboard() {
       <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Intervenciones</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Intervenciones
+            </CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.total || 0}</div>
-            <p className="text-xs text-muted-foreground">Acciones de retención</p>
+            <p className="text-xs text-muted-foreground">
+              Acciones de retención
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Empleados Retenidos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Empleados Retenidos
+            </CardTitle>
             <Users className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats?.retained || 0}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats?.retained || 0}
+            </div>
             <p className="text-xs text-muted-foreground">Retención exitosa</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Retención</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasa de Retención
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats?.retentionRate || 0}%</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats?.retentionRate || 0}%
+            </div>
             <p className="text-xs text-muted-foreground">Efectividad general</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inversión Total</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Inversión Total
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
@@ -283,11 +385,15 @@ export default function RetentionInterventionsDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Costo por Retención</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Costo por Retención
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats?.avgCostPerRetention || 0}</div>
+            <div className="text-2xl font-bold">
+              ${stats?.avgCostPerRetention || 0}
+            </div>
             <p className="text-xs text-muted-foreground">ROI promedio</p>
           </CardContent>
         </Card>
@@ -297,7 +403,9 @@ export default function RetentionInterventionsDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Efectividad por Tipo de Intervención</CardTitle>
-          <CardDescription>Comparación de efectividad y empleados retenidos por tipo de acción</CardDescription>
+          <CardDescription>
+            Comparación de efectividad y empleados retenidos por tipo de acción
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -308,8 +416,18 @@ export default function RetentionInterventionsDashboard() {
               <YAxis yAxisId="right" orientation="right" stroke="#10b981" />
               <Tooltip />
               <Legend />
-              <Bar yAxisId="left" dataKey="efectividad" fill="#3b82f6" name="Efectividad (%)" />
-              <Bar yAxisId="right" dataKey="retenidos" fill="#10b981" name="Empleados Retenidos" />
+              <Bar
+                yAxisId="left"
+                dataKey="efectividad"
+                fill="#3b82f6"
+                name="Efectividad (%)"
+              />
+              <Bar
+                yAxisId="right"
+                dataKey="retenidos"
+                fill="#10b981"
+                name="Empleados Retenidos"
+              />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -321,9 +439,14 @@ export default function RetentionInterventionsDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Historial de Intervenciones</CardTitle>
-              <CardDescription>Registro de acciones de retención y sus resultados</CardDescription>
+              <CardDescription>
+                Registro de acciones de retención y sus resultados
+              </CardDescription>
             </div>
-            <Select value={selectedOutcome} onValueChange={(value: any) => setSelectedOutcome(value)}>
+            <Select
+              value={selectedOutcome}
+              onValueChange={(value: any) => setSelectedOutcome(value)}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filtrar por outcome" />
               </SelectTrigger>
@@ -340,9 +463,12 @@ export default function RetentionInterventionsDashboard() {
           {interventions.length === 0 ? (
             <div className="text-center py-12">
               <Target className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No hay intervenciones registradas</p>
+              <p className="text-muted-foreground">
+                No hay intervenciones registradas
+              </p>
               <p className="text-sm text-muted-foreground mt-2">
-                Comienza registrando acciones de retención para empleados de alto riesgo
+                Comienza registrando acciones de retención para empleados de
+                alto riesgo
               </p>
             </div>
           ) : (
@@ -365,8 +491,12 @@ export default function RetentionInterventionsDashboard() {
                   <TableRow key={intervention.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{intervention.employeeName}</p>
-                        <p className="text-sm text-muted-foreground">{intervention.employeePosition}</p>
+                        <p className="font-medium">
+                          {intervention.employeeName}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {intervention.employeePosition}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell className="text-sm">
@@ -376,16 +506,25 @@ export default function RetentionInterventionsDashboard() {
                       {intervention.interventionDescription}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {format(new Date(intervention.implementationDate), "dd/MM/yyyy")}
+                      {format(
+                        new Date(intervention.implementationDate),
+                        "dd/MM/yyyy"
+                      )}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {intervention.cost ? `$${parseFloat(intervention.cost).toFixed(2)}` : "-"}
+                      {intervention.cost
+                        ? `$${parseFloat(intervention.cost).toFixed(2)}`
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {intervention.riskScoreBefore ? `${intervention.riskScoreBefore}%` : "-"}
+                      {intervention.riskScoreBefore
+                        ? `${intervention.riskScoreBefore}%`
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {intervention.riskScoreAfter ? `${intervention.riskScoreAfter}%` : "-"}
+                      {intervention.riskScoreAfter
+                        ? `${intervention.riskScoreAfter}%`
+                        : "-"}
                     </TableCell>
                     <TableCell>
                       {intervention.riskReduction ? (
@@ -395,7 +534,9 @@ export default function RetentionInterventionsDashboard() {
                           ) : (
                             <TrendingUp className="h-4 w-4 text-red-600" />
                           )}
-                          <span className="text-sm">{intervention.riskReduction}%</span>
+                          <span className="text-sm">
+                            {intervention.riskReduction}%
+                          </span>
                         </div>
                       ) : (
                         "-"
@@ -408,15 +549,15 @@ export default function RetentionInterventionsDashboard() {
                             intervention.outcome === "retained"
                               ? "default"
                               : intervention.outcome === "left"
-                              ? "destructive"
-                              : "secondary"
+                                ? "destructive"
+                                : "secondary"
                           }
                         >
                           {intervention.outcome === "retained"
                             ? "Retenido"
                             : intervention.outcome === "left"
-                            ? "Salió"
-                            : "Pendiente"}
+                              ? "Salió"
+                              : "Pendiente"}
                         </Badge>
                       ) : (
                         <Badge variant="secondary">Pendiente</Badge>

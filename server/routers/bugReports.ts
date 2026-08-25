@@ -7,30 +7,54 @@ import { TRPCError } from "@trpc/server";
 
 export const bugReportsRouter = router({
   list: protectedProcedure
-    .input(z.object({
-      status: z.enum(["pendiente","en_revision","corregido","descartado","all"]).default("all"),
-      limit: z.number().default(50),
-    }))
+    .input(
+      z.object({
+        status: z
+          .enum(["pendiente", "en_revision", "corregido", "descartado", "all"])
+          .default("all"),
+        limit: z.number().default(50),
+      })
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      const rows = input.status === "all"
-        ? await db.select().from(bugReports).orderBy(desc(bugReports.createdAt)).limit(input.limit)
-        : await db.select().from(bugReports).where(eq(bugReports.status, input.status as any)).orderBy(desc(bugReports.createdAt)).limit(input.limit);
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      const rows =
+        input.status === "all"
+          ? await db
+              .select()
+              .from(bugReports)
+              .orderBy(desc(bugReports.createdAt))
+              .limit(input.limit)
+          : await db
+              .select()
+              .from(bugReports)
+              .where(eq(bugReports.status, input.status as any))
+              .orderBy(desc(bugReports.createdAt))
+              .limit(input.limit);
       return rows;
     }),
 
   create: protectedProcedure
-    .input(z.object({
-      title: z.string().min(5).max(300),
-      description: z.string().min(10),
-      stepsToReproduce: z.string().optional(),
-      severity: z.enum(["critico","alto","medio","bajo"]).default("medio"),
-      module: z.string().max(100).optional(),
-    }))
+    .input(
+      z.object({
+        title: z.string().min(5).max(300),
+        description: z.string().min(10),
+        stepsToReproduce: z.string().optional(),
+        severity: z.enum(["critico", "alto", "medio", "bajo"]).default("medio"),
+        module: z.string().max(100).optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       await db.insert(bugReports).values({
         reportedBy: ctx.user.id,
         title: input.title,
@@ -44,36 +68,55 @@ export const bugReportsRouter = router({
     }),
 
   updateStatus: protectedProcedure
-    .input(z.object({
-      id: z.number(),
-      status: z.enum(["pendiente","en_revision","corregido","descartado"]),
-      resolution: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        id: z.number(),
+        status: z.enum(["pendiente", "en_revision", "corregido", "descartado"]),
+        resolution: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-      await db.update(bugReports).set({
-        status: input.status,
-        resolution: input.resolution ?? null,
-        resolvedBy: input.status === "corregido" ? ctx.user.id : null,
-        resolvedAt: input.status === "corregido" ? new Date() : null,
-      }).where(eq(bugReports.id, input.id));
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
+      await db
+        .update(bugReports)
+        .set({
+          status: input.status,
+          resolution: input.resolution ?? null,
+          resolvedBy: input.status === "corregido" ? ctx.user.id : null,
+          resolvedAt: input.status === "corregido" ? new Date() : null,
+        })
+        .where(eq(bugReports.id, input.id));
       return { success: true };
     }),
 
   getStats: protectedProcedure
-    .input(z.object({
-      days: z.number().optional(),
-      dateFrom: z.string().optional(), // ISO date "YYYY-MM-DD"
-      dateTo: z.string().optional(),   // ISO date "YYYY-MM-DD"
-    }).optional())
+    .input(
+      z
+        .object({
+          days: z.number().optional(),
+          dateFrom: z.string().optional(), // ISO date "YYYY-MM-DD"
+          dateTo: z.string().optional(), // ISO date "YYYY-MM-DD"
+        })
+        .optional()
+    )
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "DB no disponible",
+        });
       let all = await db.select().from(bugReports);
       // Rango libre de fechas tiene precedencia sobre days
       if (input?.dateFrom || input?.dateTo) {
-        const from = input.dateFrom ? new Date(input.dateFrom + "T00:00:00") : null;
+        const from = input.dateFrom
+          ? new Date(input.dateFrom + "T00:00:00")
+          : null;
         const to = input.dateTo ? new Date(input.dateTo + "T23:59:59") : null;
         all = all.filter(r => {
           if (from && r.createdAt < from) return false;

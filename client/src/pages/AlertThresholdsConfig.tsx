@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -11,11 +17,19 @@ import { Settings, Save, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AlertThresholdsConfig() {
-  const toast = (opts: { title: string; description: string; variant?: string }) => {
+  const toast = (opts: {
+    title: string;
+    description: string;
+    variant?: string;
+  }) => {
     alert(`${opts.title}\n${opts.description}`);
   };
 
-  const { data: thresholds, isLoading, refetch } = trpc.alertThresholds.getAll.useQuery();
+  const {
+    data: thresholds,
+    isLoading,
+    refetch,
+  } = trpc.alertThresholds.getAll.useQuery();
   const updateMutation = trpc.alertThresholds.update.useMutation({
     onSuccess: () => {
       toast({
@@ -24,7 +38,7 @@ export default function AlertThresholdsConfig() {
       });
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast({
         title: "Error",
         description: error.message || "No se pudieron actualizar los umbrales",
@@ -62,7 +76,8 @@ export default function AlertThresholdsConfig() {
       updateMutation.mutateAsync({
         alertType: "low_coverage",
         threshold: formData.low_coverage,
-        description: "Porcentaje mínimo de cobertura de encuestas (alerta si está por debajo)",
+        description:
+          "Porcentaje mínimo de cobertura de encuestas (alerta si está por debajo)",
       }),
       updateMutation.mutateAsync({
         alertType: "excellent_compliance",
@@ -98,7 +113,8 @@ export default function AlertThresholdsConfig() {
           Configuración de Umbrales de Alertas
         </h1>
         <p className="text-muted-foreground mt-2">
-          Define los valores que disparan alertas automáticas en el sistema NOM-035
+          Define los valores que disparan alertas automáticas en el sistema
+          NOM-035
         </p>
       </div>
 
@@ -106,14 +122,18 @@ export default function AlertThresholdsConfig() {
         <CardHeader>
           <CardTitle>Umbrales Configurables</CardTitle>
           <CardDescription>
-            Ajusta los valores numéricos que determinan cuándo se generan alertas automáticas
+            Ajusta los valores numéricos que determinan cuándo se generan
+            alertas automáticas
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Casos Críticos */}
             <div className="space-y-2">
-              <Label htmlFor="critical_cases" className="flex items-center gap-2">
+              <Label
+                htmlFor="critical_cases"
+                className="flex items-center gap-2"
+              >
                 <AlertTriangle className="h-4 w-4 text-red-500" />
                 Casos Críticos Abiertos
               </Label>
@@ -122,13 +142,17 @@ export default function AlertThresholdsConfig() {
                 type="number"
                 min="1"
                 value={formData.critical_cases}
-                onChange={(e) =>
-                  setFormData({ ...formData, critical_cases: parseInt(e.target.value) || 0 })
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    critical_cases: parseInt(e.target.value) || 0,
+                  })
                 }
                 required
               />
               <p className="text-sm text-muted-foreground">
-                Número de casos críticos abiertos que disparan una alerta (actualmente: {formData.critical_cases})
+                Número de casos críticos abiertos que disparan una alerta
+                (actualmente: {formData.critical_cases})
               </p>
             </div>
 
@@ -144,19 +168,26 @@ export default function AlertThresholdsConfig() {
                 min="1"
                 max="100"
                 value={formData.low_coverage}
-                onChange={(e) =>
-                  setFormData({ ...formData, low_coverage: parseInt(e.target.value) || 0 })
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    low_coverage: parseInt(e.target.value) || 0,
+                  })
                 }
                 required
               />
               <p className="text-sm text-muted-foreground">
-                Porcentaje mínimo de cobertura de encuestas (alerta si está por debajo de {formData.low_coverage}%)
+                Porcentaje mínimo de cobertura de encuestas (alerta si está por
+                debajo de {formData.low_coverage}%)
               </p>
             </div>
 
             {/* Cumplimiento Excelente */}
             <div className="space-y-2">
-              <Label htmlFor="excellent_compliance" className="flex items-center gap-2">
+              <Label
+                htmlFor="excellent_compliance"
+                className="flex items-center gap-2"
+              >
                 <AlertTriangle className="h-4 w-4 text-green-500" />
                 Cumplimiento Excelente (%)
               </Label>
@@ -166,22 +197,22 @@ export default function AlertThresholdsConfig() {
                 min="1"
                 max="100"
                 value={formData.excellent_compliance}
-                onChange={(e) =>
-                  setFormData({ ...formData, excellent_compliance: parseInt(e.target.value) || 0 })
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    excellent_compliance: parseInt(e.target.value) || 0,
+                  })
                 }
                 required
               />
               <p className="text-sm text-muted-foreground">
-                Porcentaje de cumplimiento excelente para reconocimiento (actualmente: {formData.excellent_compliance}%)
+                Porcentaje de cumplimiento excelente para reconocimiento
+                (actualmente: {formData.excellent_compliance}%)
               </p>
             </div>
 
             <div className="flex justify-end gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => refetch()}
-              >
+              <Button type="button" variant="outline" onClick={() => refetch()}>
                 Cancelar
               </Button>
               <Button
@@ -203,11 +234,13 @@ export default function AlertThresholdsConfig() {
         </CardHeader>
         <CardContent className="text-yellow-700">
           <p>
-            Los cambios en los umbrales afectarán las alertas generadas a partir de este momento.
-            Las alertas históricas mantendrán los umbrales con los que fueron creadas.
+            Los cambios en los umbrales afectarán las alertas generadas a partir
+            de este momento. Las alertas históricas mantendrán los umbrales con
+            los que fueron creadas.
           </p>
           <p className="mt-2">
-            Los jobs automáticos utilizarán estos nuevos valores en su próxima ejecución.
+            Los jobs automáticos utilizarán estos nuevos valores en su próxima
+            ejecución.
           </p>
         </CardContent>
       </Card>

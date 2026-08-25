@@ -29,7 +29,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Building2, Plus, Pencil, PowerOff, Power, Search, MapPin, Phone } from "lucide-react";
+import {
+  Building2,
+  Plus,
+  Pencil,
+  PowerOff,
+  Power,
+  Search,
+  MapPin,
+  Phone,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface BranchForm {
@@ -40,7 +49,13 @@ interface BranchForm {
   phone: string;
 }
 
-const emptyForm: BranchForm = { name: "", address: "", city: "", state: "", phone: "" };
+const emptyForm: BranchForm = {
+  name: "",
+  address: "",
+  city: "",
+  state: "",
+  phone: "",
+};
 
 export default function BranchesManagement() {
   const utils = trpc.useUtils();
@@ -61,7 +76,7 @@ export default function BranchesManagement() {
       setShowForm(false);
       setForm(emptyForm);
     },
-    onError: (e) => toast.error(e.message),
+    onError: e => toast.error(e.message),
   });
 
   const updateMutation = trpc.branches.update.useMutation({
@@ -73,7 +88,7 @@ export default function BranchesManagement() {
       setEditingId(null);
       setForm(emptyForm);
     },
-    onError: (e) => toast.error(e.message),
+    onError: e => toast.error(e.message),
   });
 
   const toggleMutation = trpc.branches.update.useMutation({
@@ -83,11 +98,11 @@ export default function BranchesManagement() {
       toast.success("Estado de la sucursal actualizado");
       setConfirmToggleId(null);
     },
-    onError: (e) => toast.error(e.message),
+    onError: e => toast.error(e.message),
   });
 
-  const filtered = branches.filter((b) =>
-    [b.name, b.city, b.state, b.address].some((v) =>
+  const filtered = branches.filter(b =>
+    [b.name, b.city, b.state, b.address].some(v =>
       v?.toLowerCase().includes(search.toLowerCase())
     )
   );
@@ -98,7 +113,7 @@ export default function BranchesManagement() {
     setShowForm(true);
   }
 
-  function openEdit(b: typeof branches[0]) {
+  function openEdit(b: (typeof branches)[0]) {
     setEditingId(b.id);
     setForm({
       name: b.name,
@@ -142,11 +157,14 @@ export default function BranchesManagement() {
 
   function confirmToggle() {
     if (confirmToggleId === null) return;
-    toggleMutation.mutate({ id: confirmToggleId, isActive: !confirmToggleActive });
+    toggleMutation.mutate({
+      id: confirmToggleId,
+      isActive: !confirmToggleActive,
+    });
   }
 
-  const activeBranches = branches.filter((b) => b.isActive).length;
-  const inactiveBranches = branches.filter((b) => !b.isActive).length;
+  const activeBranches = branches.filter(b => b.isActive).length;
+  const inactiveBranches = branches.filter(b => !b.isActive).length;
 
   return (
     <div className="space-y-6 p-6">
@@ -158,7 +176,9 @@ export default function BranchesManagement() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Sucursales</h1>
-            <p className="text-sm text-slate-500">Gestión de sucursales y centros de trabajo</p>
+            <p className="text-sm text-slate-500">
+              Gestión de sucursales y centros de trabajo
+            </p>
           </div>
         </div>
         <Button onClick={openCreate} className="gap-2">
@@ -179,7 +199,9 @@ export default function BranchesManagement() {
         </div>
         <div className="bg-white border rounded-lg p-4">
           <p className="text-sm text-slate-500">Inactivas</p>
-          <p className="text-3xl font-bold text-slate-400">{inactiveBranches}</p>
+          <p className="text-3xl font-bold text-slate-400">
+            {inactiveBranches}
+          </p>
         </div>
       </div>
 
@@ -189,7 +211,7 @@ export default function BranchesManagement() {
         <Input
           placeholder="Buscar por nombre, ciudad, estado..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           className="pl-9"
         />
       </div>
@@ -210,21 +232,32 @@ export default function BranchesManagement() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-slate-400">
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-8 text-slate-400"
+                >
                   Cargando sucursales...
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-slate-400">
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-12 text-slate-400"
+                >
                   <Building2 className="h-10 w-10 mx-auto mb-3 opacity-30" />
                   <p className="font-medium">No hay sucursales registradas</p>
-                  <p className="text-sm mt-1">Haz clic en "Nueva Sucursal" para comenzar</p>
+                  <p className="text-sm mt-1">
+                    Haz clic en "Nueva Sucursal" para comenzar
+                  </p>
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((branch) => (
-                <TableRow key={branch.id} className={!branch.isActive ? "opacity-50" : ""}>
+              filtered.map(branch => (
+                <TableRow
+                  key={branch.id}
+                  className={!branch.isActive ? "opacity-50" : ""}
+                >
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-slate-400" />
@@ -243,7 +276,8 @@ export default function BranchesManagement() {
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-slate-600">
-                      {[branch.city, branch.state].filter(Boolean).join(", ") || "—"}
+                      {[branch.city, branch.state].filter(Boolean).join(", ") ||
+                        "—"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -275,11 +309,17 @@ export default function BranchesManagement() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => requestToggle(branch.id, branch.isActive)}
+                        onClick={() =>
+                          requestToggle(branch.id, branch.isActive)
+                        }
                         className={`h-8 w-8 p-0 ${branch.isActive ? "text-red-500 hover:text-red-700" : "text-green-500 hover:text-green-700"}`}
                         title={branch.isActive ? "Desactivar" : "Activar"}
                       >
-                        {branch.isActive ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
+                        {branch.isActive ? (
+                          <PowerOff className="h-4 w-4" />
+                        ) : (
+                          <Power className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </TableCell>
@@ -291,19 +331,32 @@ export default function BranchesManagement() {
       </div>
 
       {/* Create / Edit Dialog */}
-      <Dialog open={showForm} onOpenChange={(open) => { setShowForm(open); if (!open) { setEditingId(null); setForm(emptyForm); } }}>
+      <Dialog
+        open={showForm}
+        onOpenChange={open => {
+          setShowForm(open);
+          if (!open) {
+            setEditingId(null);
+            setForm(emptyForm);
+          }
+        }}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingId !== null ? "Editar Sucursal" : "Nueva Sucursal"}</DialogTitle>
+            <DialogTitle>
+              {editingId !== null ? "Editar Sucursal" : "Nueva Sucursal"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1">
-              <Label htmlFor="branch-name">Nombre <span className="text-red-500">*</span></Label>
+              <Label htmlFor="branch-name">
+                Nombre <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="branch-name"
                 placeholder="Ej. Sucursal Norte"
                 value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               />
             </div>
             <div className="space-y-1">
@@ -312,7 +365,9 @@ export default function BranchesManagement() {
                 id="branch-address"
                 placeholder="Calle, número, colonia"
                 value={form.address}
-                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                onChange={e =>
+                  setForm(f => ({ ...f, address: e.target.value }))
+                }
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -322,7 +377,7 @@ export default function BranchesManagement() {
                   id="branch-city"
                   placeholder="Ciudad"
                   value={form.city}
-                  onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+                  onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
                 />
               </div>
               <div className="space-y-1">
@@ -331,7 +386,9 @@ export default function BranchesManagement() {
                   id="branch-state"
                   placeholder="Estado"
                   value={form.state}
-                  onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))}
+                  onChange={e =>
+                    setForm(f => ({ ...f, state: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -341,12 +398,14 @@ export default function BranchesManagement() {
                 id="branch-phone"
                 placeholder="614-000-0000"
                 value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setShowForm(false)}>
+              Cancelar
+            </Button>
             <Button
               onClick={handleSubmit}
               disabled={createMutation.isPending || updateMutation.isPending}
@@ -358,7 +417,12 @@ export default function BranchesManagement() {
       </Dialog>
 
       {/* Toggle Confirm */}
-      <AlertDialog open={confirmToggleId !== null} onOpenChange={(open) => { if (!open) setConfirmToggleId(null); }}>
+      <AlertDialog
+        open={confirmToggleId !== null}
+        onOpenChange={open => {
+          if (!open) setConfirmToggleId(null);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
@@ -374,7 +438,11 @@ export default function BranchesManagement() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmToggle}
-              className={confirmToggleActive ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
+              className={
+                confirmToggleActive
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-green-600 hover:bg-green-700"
+              }
             >
               {confirmToggleActive ? "Desactivar" : "Activar"}
             </AlertDialogAction>

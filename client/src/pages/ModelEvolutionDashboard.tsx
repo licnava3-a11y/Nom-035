@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { trpc } from "../lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -12,11 +18,25 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { TrendingUp, TrendingDown, Minus, FileDown, Loader2 } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  FileDown,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function ModelEvolutionDashboard() {
   const [dateRange, setDateRange] = useState({
@@ -26,11 +46,11 @@ export default function ModelEvolutionDashboard() {
 
   // Mutation: generar reporte PDF
   const generatePDF = trpc.predictiveReports.generatePredictivePDF.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success("Reporte PDF generado exitosamente");
       window.open(data.pdfUrl, "_blank");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || "Error al generar reporte PDF");
     },
   });
@@ -132,13 +152,21 @@ export default function ModelEvolutionDashboard() {
     <div className="container py-8">
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Evolución del Modelo Predictivo</h1>
+          <h1 className="text-3xl font-bold">
+            Evolución del Modelo Predictivo
+          </h1>
           <p className="text-muted-foreground">
             Análisis temporal de precisión, recall y F1-score
           </p>
         </div>
         <Button
-          onClick={() => generatePDF.mutate({ includeConfusionMatrix: true, includeEvolution: true, includeRecommendations: true })}
+          onClick={() =>
+            generatePDF.mutate({
+              includeConfusionMatrix: true,
+              includeEvolution: true,
+              includeRecommendations: true,
+            })
+          }
           disabled={generatePDF.isPending}
           variant="outline"
         >
@@ -164,22 +192,26 @@ export default function ModelEvolutionDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Fecha Inicio</label>
+              <label className="block text-sm font-medium mb-2">
+                Fecha Inicio
+              </label>
               <input
                 type="date"
                 value={dateRange.startDate}
-                onChange={(e) =>
+                onChange={e =>
                   setDateRange({ ...dateRange, startDate: e.target.value })
                 }
                 className="w-full px-3 py-2 border rounded-md"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Fecha Fin</label>
+              <label className="block text-sm font-medium mb-2">
+                Fecha Fin
+              </label>
               <input
                 type="date"
                 value={dateRange.endDate}
-                onChange={(e) =>
+                onChange={e =>
                   setDateRange({ ...dateRange, endDate: e.target.value })
                 }
                 className="w-full px-3 py-2 border rounded-md"
@@ -201,7 +233,9 @@ export default function ModelEvolutionDashboard() {
               <p className="text-3xl font-bold">{summary.avgPrecision}%</p>
               <div className="flex items-center gap-2">
                 {getTrendIcon(trend.precision)}
-                <span className={`text-sm font-medium ${getTrendColor(trend.precision)}`}>
+                <span
+                  className={`text-sm font-medium ${getTrendColor(trend.precision)}`}
+                >
                   {trend.precision > 0 ? "+" : ""}
                   {trend.precision}%
                 </span>
@@ -220,7 +254,9 @@ export default function ModelEvolutionDashboard() {
               <p className="text-3xl font-bold">{summary.avgRecall}%</p>
               <div className="flex items-center gap-2">
                 {getTrendIcon(trend.recall)}
-                <span className={`text-sm font-medium ${getTrendColor(trend.recall)}`}>
+                <span
+                  className={`text-sm font-medium ${getTrendColor(trend.recall)}`}
+                >
                   {trend.recall > 0 ? "+" : ""}
                   {trend.recall}%
                 </span>
@@ -239,7 +275,9 @@ export default function ModelEvolutionDashboard() {
               <p className="text-3xl font-bold">{summary.avgF1Score}%</p>
               <div className="flex items-center gap-2">
                 {getTrendIcon(trend.f1Score)}
-                <span className={`text-sm font-medium ${getTrendColor(trend.f1Score)}`}>
+                <span
+                  className={`text-sm font-medium ${getTrendColor(trend.f1Score)}`}
+                >
                   {trend.f1Score > 0 ? "+" : ""}
                   {trend.f1Score}%
                 </span>

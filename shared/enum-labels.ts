@@ -1,9 +1,9 @@
 /**
  * Traducciones de Enums del Sistema
- * 
+ *
  * Este archivo centraliza todas las traducciones de valores de enum
  * del backend (en inglés) al frontend (en español).
- * 
+ *
  * Convención:
  * - Backend: Siempre usar valores en inglés (snake_case o camelCase)
  * - Frontend: Usar este archivo para mostrar etiquetas en español
@@ -14,26 +14,26 @@
 // ============================================================================
 
 export const CASE_TYPE_LABELS = {
-  harassment: 'Acoso',
-  discrimination: 'Discriminación',
-  violence: 'Violencia',
-  stress: 'Estrés',
-  workload: 'Carga de Trabajo',
-  other: 'Otro',
+  harassment: "Acoso",
+  discrimination: "Discriminación",
+  violence: "Violencia",
+  stress: "Estrés",
+  workload: "Carga de Trabajo",
+  other: "Otro",
 } as const;
 
 export const CASE_PRIORITY_LABELS = {
-  low: 'Baja',
-  medium: 'Media',
-  high: 'Alta',
-  critical: 'Crítica',
+  low: "Baja",
+  medium: "Media",
+  high: "Alta",
+  critical: "Crítica",
 } as const;
 
 export const CASE_STATUS_LABELS = {
-  open: 'Abierto',
-  investigating: 'En Investigación',
-  resolved: 'Resuelto',
-  closed: 'Cerrado',
+  open: "Abierto",
+  investigating: "En Investigación",
+  resolved: "Resuelto",
+  closed: "Cerrado",
 } as const;
 
 // ============================================================================
@@ -41,17 +41,17 @@ export const CASE_STATUS_LABELS = {
 // ============================================================================
 
 export const GENDER_LABELS = {
-  male: 'Masculino',
-  female: 'Femenino',
-  other: 'Otro',
-  prefer_not_to_say: 'Prefiero no decir',
+  male: "Masculino",
+  female: "Femenino",
+  other: "Otro",
+  prefer_not_to_say: "Prefiero no decir",
 } as const;
 
 export const EMPLOYMENT_STATUS_LABELS = {
-  active: 'Activo',
-  inactive: 'Inactivo',
-  suspended: 'Suspendido',
-  terminated: 'Terminado',
+  active: "Activo",
+  inactive: "Inactivo",
+  suspended: "Suspendido",
+  terminated: "Terminado",
 } as const;
 
 // ============================================================================
@@ -59,17 +59,17 @@ export const EMPLOYMENT_STATUS_LABELS = {
 // ============================================================================
 
 export const OPERATING_RULES_STATUS_LABELS = {
-  draft: 'Borrador',
-  pending_approval: 'Pendiente de Aprobación',
-  approved: 'Aprobado',
-  rejected: 'Rechazado',
-  archived: 'Archivado',
+  draft: "Borrador",
+  pending_approval: "Pendiente de Aprobación",
+  approved: "Aprobado",
+  rejected: "Rechazado",
+  archived: "Archivado",
 } as const;
 
 export const APPROVAL_STATUS_LABELS = {
-  pending: 'Pendiente',
-  approved: 'Aprobado',
-  rejected: 'Rechazado',
+  pending: "Pendiente",
+  approved: "Aprobado",
+  rejected: "Rechazado",
 } as const;
 
 // ============================================================================
@@ -77,17 +77,17 @@ export const APPROVAL_STATUS_LABELS = {
 // ============================================================================
 
 export const SURVEY_STATUS_LABELS = {
-  draft: 'Borrador',
-  active: 'Activa',
-  closed: 'Cerrada',
-  archived: 'Archivada',
+  draft: "Borrador",
+  active: "Activa",
+  closed: "Cerrada",
+  archived: "Archivada",
 } as const;
 
 export const RISK_LEVEL_LABELS = {
-  low: 'Bajo',
-  medium: 'Medio',
-  high: 'Alto',
-  critical: 'Crítico',
+  low: "Bajo",
+  medium: "Medio",
+  high: "Alto",
+  critical: "Crítico",
 } as const;
 
 // ============================================================================
@@ -95,15 +95,15 @@ export const RISK_LEVEL_LABELS = {
 // ============================================================================
 
 export const COURSE_STATUS_LABELS = {
-  draft: 'Borrador',
-  published: 'Publicado',
-  archived: 'Archivado',
+  draft: "Borrador",
+  published: "Publicado",
+  archived: "Archivado",
 } as const;
 
 export const COURSE_MODALITY_LABELS = {
-  online: 'En Línea',
-  in_person: 'Presencial',
-  hybrid: 'Híbrido',
+  online: "En Línea",
+  in_person: "Presencial",
+  hybrid: "Híbrido",
 } as const;
 
 // ============================================================================
@@ -111,12 +111,12 @@ export const COURSE_MODALITY_LABELS = {
 // ============================================================================
 
 export const RECOGNITION_TYPE_LABELS = {
-  achievement: 'Logro',
-  anniversary: 'Aniversario',
-  excellence: 'Excelencia',
-  teamwork: 'Trabajo en Equipo',
-  innovation: 'Innovación',
-  other: 'Otro',
+  achievement: "Logro",
+  anniversary: "Aniversario",
+  excellence: "Excelencia",
+  teamwork: "Trabajo en Equipo",
+  innovation: "Innovación",
+  other: "Otro",
 } as const;
 
 // ============================================================================
@@ -124,9 +124,9 @@ export const RECOGNITION_TYPE_LABELS = {
 // ============================================================================
 
 export const COMPLIANCE_STATUS_LABELS = {
-  compliant: 'Cumple',
-  partial: 'Cumple Parcialmente',
-  non_compliant: 'No Cumple',
+  compliant: "Cumple",
+  partial: "Cumple Parcialmente",
+  non_compliant: "No Cumple",
 } as const;
 
 // ============================================================================
@@ -134,10 +134,10 @@ export const COMPLIANCE_STATUS_LABELS = {
 // ============================================================================
 
 export const EVIDENCE_TYPE_LABELS = {
-  survey: 'Encuesta',
-  training: 'Capacitación',
-  medical: 'Médico',
-  other: 'Otro',
+  survey: "Encuesta",
+  training: "Capacitación",
+  medical: "Médico",
+  other: "Otro",
 } as const;
 
 // ============================================================================
@@ -145,17 +145,17 @@ export const EVIDENCE_TYPE_LABELS = {
 // ============================================================================
 
 export const QUESTION_TYPE_LABELS = {
-  likert: 'Escala Likert',
-  multiple_choice: 'Opción Múltiple',
-  open_ended: 'Respuesta Abierta',
+  likert: "Escala Likert",
+  multiple_choice: "Opción Múltiple",
+  open_ended: "Respuesta Abierta",
 } as const;
 
 export const QUESTION_CATEGORY_LABELS = {
-  leadership: 'Liderazgo',
-  communication: 'Comunicación',
-  work_environment: 'Ambiente de Trabajo',
-  benefits: 'Beneficios',
-  growth: 'Crecimiento',
+  leadership: "Liderazgo",
+  communication: "Comunicación",
+  work_environment: "Ambiente de Trabajo",
+  benefits: "Beneficios",
+  growth: "Crecimiento",
 } as const;
 
 // ============================================================================
@@ -163,10 +163,10 @@ export const QUESTION_CATEGORY_LABELS = {
 // ============================================================================
 
 export const MILESTONE_STATUS_LABELS = {
-  pending: 'Pendiente',
-  in_progress: 'En Progreso',
-  completed: 'Completado',
-  cancelled: 'Cancelado',
+  pending: "Pendiente",
+  in_progress: "En Progreso",
+  completed: "Completado",
+  cancelled: "Cancelado",
 } as const;
 
 // ============================================================================

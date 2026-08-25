@@ -12,17 +12,20 @@ interface ReentryBadgeProps {
   previousHireDates?: string[] | null;
 }
 
-export function ReentryBadge({ reentryCount, previousHireDates }: ReentryBadgeProps) {
+export function ReentryBadge({
+  reentryCount,
+  previousHireDates,
+}: ReentryBadgeProps) {
   if (reentryCount === 0 || !reentryCount) {
     return null;
   }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("es-MX", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -30,8 +33,8 @@ export function ReentryBadge({ reentryCount, previousHireDates }: ReentryBadgePr
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className="bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 cursor-help gap-1"
           >
             <RotateCcw className="h-3 w-3" />

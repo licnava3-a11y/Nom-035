@@ -79,7 +79,11 @@ export const turnoverManagementRouter = router({
       if (!db) throw new Error("Database not available");
 
       // Validar que el empleado existe
-      const employee = await db!.select().from(users).where(eq(users.id, input.userId)).limit(1);
+      const employee = await db!
+        .select()
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1);
 
       if (employee.length === 0) {
         throw new TRPCError({
@@ -100,7 +104,7 @@ export const turnoverManagementRouter = router({
         .from(employeeTurnoverHistory)
         .where(
           and(
-            eq(employeeTurnoverHistory.userId, input.userId),
+            eq(employeeTurnoverHistory.userId, input.userId)
             // Nota: Drizzle no tiene operadores de rango directo, usamos lógica en memoria
           )
         );
@@ -113,7 +117,8 @@ export const turnoverManagementRouter = router({
       if (duplicate) {
         throw new TRPCError({
           code: "CONFLICT",
-          message: "Ya existe un registro de rotación para este empleado en fechas similares",
+          message:
+            "Ya existe un registro de rotación para este empleado en fechas similares",
         });
       }
 
@@ -148,7 +153,9 @@ export const turnoverManagementRouter = router({
       z.object({
         id: z.number({ message: "ID de registro requerido" }),
         exitDate: z.string().optional(),
-        exitReason: z.enum(["voluntary", "involuntary", "retirement"]).optional(),
+        exitReason: z
+          .enum(["voluntary", "involuntary", "retirement"])
+          .optional(),
         riskScoreAtExit: z.number().min(0).max(100).optional(),
       })
     )
@@ -180,7 +187,10 @@ export const turnoverManagementRouter = router({
       }
 
       // Actualizar registro
-      await db!.update(employeeTurnoverHistory).set(updates).where(eq(employeeTurnoverHistory.id, input.id));
+      await db!
+        .update(employeeTurnoverHistory)
+        .set(updates)
+        .where(eq(employeeTurnoverHistory.id, input.id));
 
       return {
         success: true,
@@ -217,7 +227,9 @@ export const turnoverManagementRouter = router({
       }
 
       // Eliminar registro
-      await db!.delete(employeeTurnoverHistory).where(eq(employeeTurnoverHistory.id, input.id));
+      await db!
+        .delete(employeeTurnoverHistory)
+        .where(eq(employeeTurnoverHistory.id, input.id));
 
       return {
         success: true,

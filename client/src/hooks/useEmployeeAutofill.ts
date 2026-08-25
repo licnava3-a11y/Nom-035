@@ -43,7 +43,9 @@ export interface EmployeeAutofillData {
  * ```
  */
 export function useEmployeeAutofill() {
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
 
   const { data: workersRaw, isLoading } = trpc.employees.list.useQuery({
     isActive: true,

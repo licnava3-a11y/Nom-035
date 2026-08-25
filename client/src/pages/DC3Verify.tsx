@@ -23,17 +23,39 @@ import {
 
 function statusBadge(status: string) {
   if (status === "issued")
-    return <Badge className="bg-green-100 text-green-800 border-green-200">Emitida</Badge>;
+    return (
+      <Badge className="bg-green-100 text-green-800 border-green-200">
+        Emitida
+      </Badge>
+    );
   if (status === "cancelled")
-    return <Badge className="bg-red-100 text-red-800 border-red-200">Cancelada</Badge>;
-  return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Borrador</Badge>;
+    return (
+      <Badge className="bg-red-100 text-red-800 border-red-200">
+        Cancelada
+      </Badge>
+    );
+  return (
+    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+      Borrador
+    </Badge>
+  );
 }
 
-function Field({ label, value }: { label: string; value: string | null | undefined }) {
+function Field({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | null | undefined;
+}) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</span>
-      <span className="text-sm font-medium text-foreground">{value ?? "—"}</span>
+      <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+        {label}
+      </span>
+      <span className="text-sm font-medium text-foreground">
+        {value ?? "—"}
+      </span>
     </div>
   );
 }
@@ -79,9 +101,12 @@ export default function DC3Verify() {
             <FileText className="w-8 h-8 text-primary" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-foreground">Verificación de Constancia DC-3</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          Verificación de Constancia DC-3
+        </h1>
         <p className="text-muted-foreground text-sm mt-2">
-          Ingrese el código de verificación impreso en la constancia para confirmar su autenticidad.
+          Ingrese el código de verificación impreso en la constancia para
+          confirmar su autenticidad.
         </p>
         <p className="text-xs text-muted-foreground mt-1">
           Plataforma NOM-035-STPS-2018 — Formato oficial STPS
@@ -95,8 +120,8 @@ export default function DC3Verify() {
             <Input
               placeholder="Código de verificación SHA-256 (64 caracteres)"
               value={inputHash}
-              onChange={(e) => setInputHash(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              onChange={e => setInputHash(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSearch()}
               className="font-mono text-xs"
             />
             <Button onClick={handleSearch} disabled={verifyQuery.isFetching}>
@@ -108,7 +133,8 @@ export default function DC3Verify() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            El código aparece en el pie de página del PDF, junto al QR de verificación.
+            El código aparece en el pie de página del PDF, junto al QR de
+            verificación.
           </p>
         </CardContent>
       </Card>
@@ -127,32 +153,41 @@ export default function DC3Verify() {
           <CardContent className="pt-5 flex items-start gap-3">
             <XCircle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold text-red-800 text-sm">Error al consultar</p>
-              <p className="text-red-700 text-xs mt-0.5">{verifyQuery.error?.message}</p>
+              <p className="font-semibold text-red-800 text-sm">
+                Error al consultar
+              </p>
+              <p className="text-red-700 text-xs mt-0.5">
+                {verifyQuery.error?.message}
+              </p>
             </div>
           </CardContent>
         </Card>
       )}
 
       {/* Estado: no encontrado */}
-      {verifyQuery.data && !verifyQuery.data.found && !verifyQuery.isFetching && (
-        <Card className="w-full max-w-xl border-red-200 bg-red-50">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-red-800">
-              <ShieldX className="w-5 h-5" />
-              Constancia no encontrada
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-red-700 space-y-2">
-            <p>
-              El código de verificación proporcionado <strong>no corresponde a ninguna constancia DC-3</strong> registrada en este sistema.
-            </p>
-            <p className="text-xs">
-              Posibles causas: el código fue alterado, la constancia fue emitida en otro sistema, o el PDF es apócrifo.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      {verifyQuery.data &&
+        !verifyQuery.data.found &&
+        !verifyQuery.isFetching && (
+          <Card className="w-full max-w-xl border-red-200 bg-red-50">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-red-800">
+                <ShieldX className="w-5 h-5" />
+                Constancia no encontrada
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-red-700 space-y-2">
+              <p>
+                El código de verificación proporcionado{" "}
+                <strong>no corresponde a ninguna constancia DC-3</strong>{" "}
+                registrada en este sistema.
+              </p>
+              <p className="text-xs">
+                Posibles causas: el código fue alterado, la constancia fue
+                emitida en otro sistema, o el PDF es apócrifo.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Estado: encontrado */}
       {verifyQuery.data?.found && record && !verifyQuery.isFetching && (
@@ -164,7 +199,8 @@ export default function DC3Verify() {
               <div>
                 <p className="font-bold text-green-800">Constancia Auténtica</p>
                 <p className="text-green-700 text-xs mt-0.5">
-                  Esta constancia fue emitida por el sistema NOM-035 y sus datos son íntegros.
+                  Esta constancia fue emitida por el sistema NOM-035 y sus datos
+                  son íntegros.
                 </p>
               </div>
               <div className="ml-auto">{statusBadge(record.status)}</div>
@@ -211,8 +247,22 @@ export default function DC3Verify() {
               <div className="col-span-2">
                 <Field label="Nombre del Curso" value={record.courseName} />
               </div>
-              <Field label="Duración" value={record.courseDurationHours ? `${record.courseDurationHours} horas` : null} />
-              <Field label="Área Temática" value={record.thematicAreaKey ? `${record.thematicAreaKey} — ${record.thematicAreaDesc ?? ""}` : null} />
+              <Field
+                label="Duración"
+                value={
+                  record.courseDurationHours
+                    ? `${record.courseDurationHours} horas`
+                    : null
+                }
+              />
+              <Field
+                label="Área Temática"
+                value={
+                  record.thematicAreaKey
+                    ? `${record.thematicAreaKey} — ${record.thematicAreaDesc ?? ""}`
+                    : null
+                }
+              />
             </CardContent>
           </Card>
 
@@ -227,11 +277,19 @@ export default function DC3Verify() {
             <CardContent className="grid grid-cols-2 gap-3">
               <Field
                 label="Inicio"
-                value={record.periodStartDate ? String(record.periodStartDate).slice(0, 10) : null}
+                value={
+                  record.periodStartDate
+                    ? String(record.periodStartDate).slice(0, 10)
+                    : null
+                }
               />
               <Field
                 label="Término"
-                value={record.periodEndDate ? String(record.periodEndDate).slice(0, 10) : null}
+                value={
+                  record.periodEndDate
+                    ? String(record.periodEndDate).slice(0, 10)
+                    : null
+                }
               />
             </CardContent>
           </Card>
@@ -251,7 +309,10 @@ export default function DC3Verify() {
                 ) : (
                   <XCircle className="w-4 h-4 text-muted-foreground shrink-0" />
                 )}
-                <Field label="Instructor o Tutor" value={record.instructorName} />
+                <Field
+                  label="Instructor o Tutor"
+                  value={record.instructorName}
+                />
               </div>
               <div className="flex items-center gap-2">
                 {record.employerSignatureUrl ? (
@@ -259,7 +320,10 @@ export default function DC3Verify() {
                 ) : (
                   <XCircle className="w-4 h-4 text-muted-foreground shrink-0" />
                 )}
-                <Field label="Patrón o Rep. Legal" value={record.employerRepName} />
+                <Field
+                  label="Patrón o Rep. Legal"
+                  value={record.employerRepName}
+                />
               </div>
               <div className="flex items-center gap-2">
                 {record.workerRepSignatureUrl ? (
@@ -267,7 +331,10 @@ export default function DC3Verify() {
                 ) : (
                   <XCircle className="w-4 h-4 text-muted-foreground shrink-0" />
                 )}
-                <Field label="Rep. de Trabajadores" value={record.workerRepName} />
+                <Field
+                  label="Rep. de Trabajadores"
+                  value={record.workerRepName}
+                />
               </div>
             </CardContent>
           </Card>
@@ -277,15 +344,21 @@ export default function DC3Verify() {
             <CardContent className="pt-4 pb-4 space-y-2">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span className="font-medium">Folio:</span>
-                <span className="font-mono">{record.folioNumber ?? `DC3-${record.id}`}</span>
+                <span className="font-mono">
+                  {record.folioNumber ?? `DC3-${record.id}`}
+                </span>
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span className="font-medium">Registrado:</span>
-                <span>{new Date(record.createdAt).toLocaleDateString("es-MX")}</span>
+                <span>
+                  {new Date(record.createdAt).toLocaleDateString("es-MX")}
+                </span>
               </div>
               <div className="flex items-start justify-between text-xs text-muted-foreground gap-2">
                 <span className="font-medium shrink-0">Hash SHA-256:</span>
-                <span className="font-mono break-all text-right">{record.verificationHash}</span>
+                <span className="font-mono break-all text-right">
+                  {record.verificationHash}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -294,7 +367,8 @@ export default function DC3Verify() {
 
       {/* Pie de página */}
       <p className="text-xs text-muted-foreground mt-10 text-center">
-        Plataforma NOM-035-STPS-2018 · Verificación de autenticidad de constancias DC-3
+        Plataforma NOM-035-STPS-2018 · Verificación de autenticidad de
+        constancias DC-3
       </p>
     </div>
   );

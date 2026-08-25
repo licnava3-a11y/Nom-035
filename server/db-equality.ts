@@ -51,13 +51,13 @@ export async function createEqualityPolicy(data: InsertEqualityPolicy) {
   return result.insertId;
 }
 
-export async function updateEqualityPolicy(id: number, data: Partial<InsertEqualityPolicy>) {
+export async function updateEqualityPolicy(
+  id: number,
+  data: Partial<InsertEqualityPolicy>
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db
-    .update(equalityPolicy)
-    .set(data)
-    .where(eq(equalityPolicy.id, id));
+  await db.update(equalityPolicy).set(data).where(eq(equalityPolicy.id, id));
 }
 
 /**
@@ -131,10 +131,14 @@ export async function listAffirmativeActions(filters?: {
     conditions.push(eq(equalityAffirmativeActions.tipo, filters.tipo as any));
   }
   if (filters?.estado) {
-    conditions.push(eq(equalityAffirmativeActions.estado, filters.estado as any));
+    conditions.push(
+      eq(equalityAffirmativeActions.estado, filters.estado as any)
+    );
   }
   if (filters?.departamento) {
-    conditions.push(eq(equalityAffirmativeActions.departamento, filters.departamento));
+    conditions.push(
+      eq(equalityAffirmativeActions.departamento, filters.departamento)
+    );
   }
 
   if (conditions.length > 0) {
@@ -155,10 +159,14 @@ export async function getAffirmativeAction(id: number) {
   return actions[0] || null;
 }
 
-export async function createAffirmativeAction(data: InsertEqualityAffirmativeAction) {
+export async function createAffirmativeAction(
+  data: InsertEqualityAffirmativeAction
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await (db.insert(equalityAffirmativeActions) as any).values(data);
+  const [result] = await (db.insert(equalityAffirmativeActions) as any).values(
+    data
+  );
   return result.insertId;
 }
 
@@ -244,7 +252,10 @@ export async function createComplaint(data: InsertEqualityComplaint) {
   return result.insertId;
 }
 
-export async function updateComplaint(id: number, data: Partial<InsertEqualityComplaint>) {
+export async function updateComplaint(
+  id: number,
+  data: Partial<InsertEqualityComplaint>
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db
@@ -279,7 +290,10 @@ export async function listCommitteeMembers(activeOnly = true) {
     query = query.where(eq(equalityCommittee.activo, true)) as any;
   }
 
-  return query.orderBy(equalityCommittee.cargo, equalityCommittee.fechaDesignacion);
+  return query.orderBy(
+    equalityCommittee.cargo,
+    equalityCommittee.fechaDesignacion
+  );
 }
 
 export async function getCommitteeMember(id: number) {
@@ -296,7 +310,7 @@ export async function getCommitteeMember(id: number) {
 export async function addCommitteeMember(data: InsertEqualityCommitteeMember) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   // Construir objeto con solo los campos que tienen valores
   const insertData: any = {
     userId: data.userId,
@@ -304,13 +318,15 @@ export async function addCommitteeMember(data: InsertEqualityCommitteeMember) {
     fechaDesignacion: data.fechaDesignacion,
     activo: data.activo ?? true,
   };
-  
+
   // Agregar campos opcionales solo si tienen valores
   if (data.observaciones) insertData.observaciones = data.observaciones;
   if (data.designadoPor) insertData.designadoPor = data.designadoPor;
   if (data.fechaTermino) insertData.fechaTermino = data.fechaTermino;
-  
-  const [result] = await (db.insert(equalityCommittee) as any).values(insertData);
+
+  const [result] = await (db.insert(equalityCommittee) as any).values(
+    insertData
+  );
   return result.insertId;
 }
 

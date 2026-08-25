@@ -8,8 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, XCircle, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  CheckCircle,
+  XCircle,
+  Loader2,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
 import { toast } from "sonner";
 
 type WorkHistoryEntry = {
@@ -35,7 +47,7 @@ export default function JobApplication() {
   const params = useParams();
   const jobId = parseInt(params.jobId || "0");
   const [, setLocation] = useLocation();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
 
@@ -60,11 +72,12 @@ export default function JobApplication() {
   const [curpValidated, setCurpValidated] = useState(false);
   const [curpError, setCurpError] = useState("");
   const [curpToValidate, setCurpToValidate] = useState("");
-  
-  const { data: curpData, isLoading: validatingCurp } = trpc.employees.validateCURP.useQuery(
-    { curp: curpToValidate },
-    { enabled: curpToValidate.length === 18 }
-  );
+
+  const { data: curpData, isLoading: validatingCurp } =
+    trpc.employees.validateCURP.useQuery(
+      { curp: curpToValidate },
+      { enabled: curpToValidate.length === 18 }
+    );
 
   // Paso 2: Cláusulas ARCO
   const [arcoAccepted, setArcoAccepted] = useState(false);
@@ -95,19 +108,20 @@ export default function JobApplication() {
     },
   ]);
 
-  const { data: jobOpening, isLoading: loadingJob } = trpc.recruitment.getJobOpenings.useQuery(
-    { status: "open" },
-    {
-      select: (data) => data.find((job: any) => job.id === jobId),
-    }
-  );
+  const { data: jobOpening, isLoading: loadingJob } =
+    trpc.recruitment.getJobOpenings.useQuery(
+      { status: "open" },
+      {
+        select: data => data.find((job: any) => job.id === jobId),
+      }
+    );
 
   const createCandidateMutation = trpc.recruitment.createCandidate.useMutation({
     onSuccess: () => {
       toast.success("¡Postulación enviada exitosamente!");
       setLocation("/application-success");
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Error al enviar postulación: ${error.message}`);
     },
   });
@@ -156,7 +170,11 @@ export default function JobApplication() {
     setWorkHistory(workHistory.filter((_, i) => i !== index));
   };
 
-  const updateWorkHistory = (index: number, field: keyof WorkHistoryEntry, value: any) => {
+  const updateWorkHistory = (
+    index: number,
+    field: keyof WorkHistoryEntry,
+    value: any
+  ) => {
     const updated = [...workHistory];
     updated[index] = { ...updated[index], [field]: value };
     setWorkHistory(updated);
@@ -180,7 +198,11 @@ export default function JobApplication() {
     setReferences(references.filter((_, i) => i !== index));
   };
 
-  const updateReference = (index: number, field: keyof ReferenceEntry, value: string) => {
+  const updateReference = (
+    index: number,
+    field: keyof ReferenceEntry,
+    value: string
+  ) => {
     const updated = [...references];
     updated[index] = { ...updated[index], [field]: value };
     setReferences(updated);
@@ -207,7 +229,8 @@ export default function JobApplication() {
   };
 
   const validateStep3 = () => {
-    const hasValidEntry = workHistory.some((entry: any) => entry.companyName && entry.position && entry.startDate
+    const hasValidEntry = workHistory.some(
+      (entry: any) => entry.companyName && entry.position && entry.startDate
     );
     if (!hasValidEntry) {
       toast.error("Agrega al menos una experiencia laboral válida");
@@ -217,7 +240,8 @@ export default function JobApplication() {
   };
 
   const validateStep4 = () => {
-    const hasValidReference = references.some((ref: any) => ref.name && ref.phone && ref.relationship
+    const hasValidReference = references.some(
+      (ref: any) => ref.name && ref.phone && ref.relationship
     );
     if (!hasValidReference) {
       toast.error("Agrega al menos una referencia válida");
@@ -230,7 +254,7 @@ export default function JobApplication() {
     if (currentStep === 1 && !validateStep1()) return;
     if (currentStep === 2 && !validateStep2()) return;
     if (currentStep === 3 && !validateStep3()) return;
-    
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
@@ -265,11 +289,12 @@ export default function JobApplication() {
         fieldOfStudy,
         arcoAccepted,
         verificationAuthorized,
-        workHistory: workHistory.filter((wh: any) => wh.companyName && wh.position),
+        workHistory: workHistory.filter(
+          (wh: any) => wh.companyName && wh.position
+        ),
         references: references.filter((ref: any) => ref.name && ref.phone),
       });
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   if (loadingJob) {
@@ -284,7 +309,9 @@ export default function JobApplication() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <h1 className="text-2xl font-bold">Vacante no encontrada</h1>
-        <p className="text-muted-foreground">La vacante que buscas no existe o ha sido cerrada.</p>
+        <p className="text-muted-foreground">
+          La vacante que buscas no existe o ha sido cerrada.
+        </p>
       </div>
     );
   }
@@ -294,7 +321,9 @@ export default function JobApplication() {
       <div className="max-w-4xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle className="text-3xl">Postulación: {jobOpening.title}</CardTitle>
+            <CardTitle className="text-3xl">
+              Postulación: {jobOpening.title}
+            </CardTitle>
             <CardDescription>{jobOpening.description}</CardDescription>
             <div className="flex items-center gap-2 mt-4">
               {Array.from({ length: totalSteps }).map((_, index) => (
@@ -315,14 +344,14 @@ export default function JobApplication() {
             {currentStep === 1 && (
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold">Datos Personales</h3>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="firstName">Nombre(s) *</Label>
                     <Input
                       id="firstName"
                       value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
+                      onChange={e => setFirstName(e.target.value)}
                       placeholder="Juan"
                     />
                   </div>
@@ -331,7 +360,7 @@ export default function JobApplication() {
                     <Input
                       id="lastName"
                       value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
+                      onChange={e => setLastName(e.target.value)}
                       placeholder="Pérez García"
                     />
                   </div>
@@ -344,7 +373,7 @@ export default function JobApplication() {
                       id="email"
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={e => setEmail(e.target.value)}
                       placeholder="juan.perez@example.com"
                     />
                   </div>
@@ -353,7 +382,7 @@ export default function JobApplication() {
                     <Input
                       id="phone"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={e => setPhone(e.target.value)}
                       placeholder="5512345678"
                     />
                   </div>
@@ -365,7 +394,7 @@ export default function JobApplication() {
                     <Input
                       id="curp"
                       value={curp}
-                      onChange={(e) => {
+                      onChange={e => {
                         setCurp(e.target.value.toUpperCase());
                         setCurpValidated(false);
                       }}
@@ -386,10 +415,13 @@ export default function JobApplication() {
                       )}
                     </Button>
                   </div>
-                  {curpError && <p className="text-sm text-red-600 mt-1">{curpError}</p>}
+                  {curpError && (
+                    <p className="text-sm text-red-600 mt-1">{curpError}</p>
+                  )}
                   {curpValidated && (
                     <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
-                      <CheckCircle className="h-4 w-4" /> CURP validado correctamente
+                      <CheckCircle className="h-4 w-4" /> CURP validado
+                      correctamente
                     </p>
                   )}
                 </div>
@@ -417,7 +449,7 @@ export default function JobApplication() {
                     <Input
                       id="education"
                       value={education}
-                      onChange={(e) => setEducation(e.target.value)}
+                      onChange={e => setEducation(e.target.value)}
                       placeholder="Licenciatura"
                     />
                   </div>
@@ -426,7 +458,7 @@ export default function JobApplication() {
                     <Input
                       id="fieldOfStudy"
                       value={fieldOfStudy}
-                      onChange={(e) => setFieldOfStudy(e.target.value)}
+                      onChange={e => setFieldOfStudy(e.target.value)}
                       placeholder="Ingeniería en Sistemas"
                     />
                   </div>
@@ -437,7 +469,7 @@ export default function JobApplication() {
                   <Input
                     id="address"
                     value={address}
-                    onChange={(e) => setAddress(e.target.value)}
+                    onChange={e => setAddress(e.target.value)}
                     placeholder="Calle, Número, Colonia"
                   />
                 </div>
@@ -448,7 +480,7 @@ export default function JobApplication() {
                     <Input
                       id="city"
                       value={city}
-                      onChange={(e) => setCity(e.target.value)}
+                      onChange={e => setCity(e.target.value)}
                       placeholder="Ciudad de México"
                     />
                   </div>
@@ -457,7 +489,7 @@ export default function JobApplication() {
                     <Input
                       id="state"
                       value={state}
-                      onChange={(e) => setState(e.target.value)}
+                      onChange={e => setState(e.target.value)}
                       placeholder="CDMX"
                     />
                   </div>
@@ -466,7 +498,7 @@ export default function JobApplication() {
                     <Input
                       id="postalCode"
                       value={postalCode}
-                      onChange={(e) => setPostalCode(e.target.value)}
+                      onChange={e => setPostalCode(e.target.value)}
                       placeholder="01000"
                     />
                   </div>
@@ -477,19 +509,28 @@ export default function JobApplication() {
             {/* Paso 2: Cláusulas ARCO */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold">Aviso de Privacidad y Autorización</h3>
-                
+                <h3 className="text-xl font-semibold">
+                  Aviso de Privacidad y Autorización
+                </h3>
+
                 <div className="p-6 bg-blue-50 rounded-lg space-y-4">
-                  <h4 className="font-semibold text-lg">Aviso de Privacidad ARCO</h4>
+                  <h4 className="font-semibold text-lg">
+                    Aviso de Privacidad ARCO
+                  </h4>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    En cumplimiento con la Ley Federal de Protección de Datos Personales en Posesión de los Particulares,
-                    le informamos que los datos personales que nos proporcione serán utilizados exclusivamente para fines
-                    de reclutamiento y selección de personal. Sus datos serán tratados de manera confidencial y no serán
-                    compartidos con terceros sin su consentimiento expreso.
+                    En cumplimiento con la Ley Federal de Protección de Datos
+                    Personales en Posesión de los Particulares, le informamos
+                    que los datos personales que nos proporcione serán
+                    utilizados exclusivamente para fines de reclutamiento y
+                    selección de personal. Sus datos serán tratados de manera
+                    confidencial y no serán compartidos con terceros sin su
+                    consentimiento expreso.
                   </p>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    Usted tiene derecho a Acceder, Rectificar, Cancelar u Oponerse (Derechos ARCO) al tratamiento de sus
-                    datos personales en cualquier momento, contactando a nuestro departamento de Recursos Humanos.
+                    Usted tiene derecho a Acceder, Rectificar, Cancelar u
+                    Oponerse (Derechos ARCO) al tratamiento de sus datos
+                    personales en cualquier momento, contactando a nuestro
+                    departamento de Recursos Humanos.
                   </p>
                 </div>
 
@@ -497,23 +538,30 @@ export default function JobApplication() {
                   <Checkbox
                     id="arco"
                     checked={arcoAccepted}
-                    onCheckedChange={(checked) => setArcoAccepted(checked as boolean)}
+                    onCheckedChange={checked =>
+                      setArcoAccepted(checked as boolean)
+                    }
                   />
                   <label
                     htmlFor="arco"
                     className="text-sm font-medium leading-relaxed cursor-pointer"
                   >
-                    He leído y acepto el Aviso de Privacidad. Autorizo el tratamiento de mis datos personales
-                    para fines de reclutamiento y selección de personal. *
+                    He leído y acepto el Aviso de Privacidad. Autorizo el
+                    tratamiento de mis datos personales para fines de
+                    reclutamiento y selección de personal. *
                   </label>
                 </div>
 
                 <div className="p-6 bg-amber-50 rounded-lg space-y-4">
-                  <h4 className="font-semibold text-lg">Declaración de Veracidad</h4>
+                  <h4 className="font-semibold text-lg">
+                    Declaración de Veracidad
+                  </h4>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    Declaro bajo protesta de decir verdad que la información proporcionada en esta solicitud es
-                    verídica y completa. Comprendo que cualquier falsedad u omisión puede ser causa de rechazo
-                    de mi solicitud o, en su caso, de rescisión de mi contrato de trabajo.
+                    Declaro bajo protesta de decir verdad que la información
+                    proporcionada en esta solicitud es verídica y completa.
+                    Comprendo que cualquier falsedad u omisión puede ser causa
+                    de rechazo de mi solicitud o, en su caso, de rescisión de mi
+                    contrato de trabajo.
                   </p>
                 </div>
 
@@ -521,14 +569,17 @@ export default function JobApplication() {
                   <Checkbox
                     id="verification"
                     checked={verificationAuthorized}
-                    onCheckedChange={(checked) => setVerificationAuthorized(checked as boolean)}
+                    onCheckedChange={checked =>
+                      setVerificationAuthorized(checked as boolean)
+                    }
                   />
                   <label
                     htmlFor="verification"
                     className="text-sm font-medium leading-relaxed cursor-pointer"
                   >
-                    Declaro que la información proporcionada es verdadera y autorizo la verificación de
-                    referencias laborales, académicas y personales. *
+                    Declaro que la información proporcionada es verdadera y
+                    autorizo la verificación de referencias laborales,
+                    académicas y personales. *
                   </label>
                 </div>
               </div>
@@ -539,7 +590,12 @@ export default function JobApplication() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold">Historial Laboral</h3>
-                  <Button type="button" onClick={addWorkHistoryEntry} variant="outline" size="sm">
+                  <Button
+                    type="button"
+                    onClick={addWorkHistoryEntry}
+                    variant="outline"
+                    size="sm"
+                  >
                     Agregar Empleo
                   </Button>
                 </div>
@@ -565,7 +621,13 @@ export default function JobApplication() {
                         <Label>Empresa *</Label>
                         <Input
                           value={entry.companyName}
-                          onChange={(e) => updateWorkHistory(index, "companyName", e.target.value)}
+                          onChange={e =>
+                            updateWorkHistory(
+                              index,
+                              "companyName",
+                              e.target.value
+                            )
+                          }
                           placeholder="Nombre de la empresa"
                         />
                       </div>
@@ -573,7 +635,9 @@ export default function JobApplication() {
                         <Label>Puesto *</Label>
                         <Input
                           value={entry.position}
-                          onChange={(e) => updateWorkHistory(index, "position", e.target.value)}
+                          onChange={e =>
+                            updateWorkHistory(index, "position", e.target.value)
+                          }
                           placeholder="Título del puesto"
                         />
                       </div>
@@ -585,7 +649,13 @@ export default function JobApplication() {
                         <Input
                           type="date"
                           value={entry.startDate}
-                          onChange={(e) => updateWorkHistory(index, "startDate", e.target.value)}
+                          onChange={e =>
+                            updateWorkHistory(
+                              index,
+                              "startDate",
+                              e.target.value
+                            )
+                          }
                         />
                       </div>
                       <div>
@@ -593,7 +663,9 @@ export default function JobApplication() {
                         <Input
                           type="date"
                           value={entry.endDate}
-                          onChange={(e) => updateWorkHistory(index, "endDate", e.target.value)}
+                          onChange={e =>
+                            updateWorkHistory(index, "endDate", e.target.value)
+                          }
                           disabled={entry.isCurrent}
                         />
                       </div>
@@ -603,11 +675,18 @@ export default function JobApplication() {
                       <Checkbox
                         id={`current-${index}`}
                         checked={entry.isCurrent}
-                        onCheckedChange={(checked) =>
-                          updateWorkHistory(index, "isCurrent", checked as boolean)
+                        onCheckedChange={checked =>
+                          updateWorkHistory(
+                            index,
+                            "isCurrent",
+                            checked as boolean
+                          )
                         }
                       />
-                      <label htmlFor={`current-${index}`} className="text-sm cursor-pointer">
+                      <label
+                        htmlFor={`current-${index}`}
+                        className="text-sm cursor-pointer"
+                      >
                         Trabajo actual
                       </label>
                     </div>
@@ -616,7 +695,13 @@ export default function JobApplication() {
                       <Label>Responsabilidades</Label>
                       <Textarea
                         value={entry.responsibilities}
-                        onChange={(e) => updateWorkHistory(index, "responsibilities", e.target.value)}
+                        onChange={e =>
+                          updateWorkHistory(
+                            index,
+                            "responsibilities",
+                            e.target.value
+                          )
+                        }
                         placeholder="Describe tus principales responsabilidades..."
                         rows={3}
                       />
@@ -627,7 +712,13 @@ export default function JobApplication() {
                         <Label>Motivo de Salida</Label>
                         <Input
                           value={entry.reasonForLeaving}
-                          onChange={(e) => updateWorkHistory(index, "reasonForLeaving", e.target.value)}
+                          onChange={e =>
+                            updateWorkHistory(
+                              index,
+                              "reasonForLeaving",
+                              e.target.value
+                            )
+                          }
                           placeholder="Motivo por el que dejaste este empleo"
                         />
                       </div>
@@ -641,8 +732,15 @@ export default function JobApplication() {
             {currentStep === 4 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold">Referencias Laborales</h3>
-                  <Button type="button" onClick={addReference} variant="outline" size="sm">
+                  <h3 className="text-xl font-semibold">
+                    Referencias Laborales
+                  </h3>
+                  <Button
+                    type="button"
+                    onClick={addReference}
+                    variant="outline"
+                    size="sm"
+                  >
                     Agregar Referencia
                   </Button>
                 </div>
@@ -668,7 +766,9 @@ export default function JobApplication() {
                         <Label>Nombre Completo *</Label>
                         <Input
                           value={ref.name}
-                          onChange={(e) => updateReference(index, "name", e.target.value)}
+                          onChange={e =>
+                            updateReference(index, "name", e.target.value)
+                          }
                           placeholder="Nombre de la referencia"
                         />
                       </div>
@@ -676,7 +776,9 @@ export default function JobApplication() {
                         <Label>Puesto</Label>
                         <Input
                           value={ref.position}
-                          onChange={(e) => updateReference(index, "position", e.target.value)}
+                          onChange={e =>
+                            updateReference(index, "position", e.target.value)
+                          }
                           placeholder="Puesto que ocupa"
                         />
                       </div>
@@ -687,7 +789,9 @@ export default function JobApplication() {
                         <Label>Empresa</Label>
                         <Input
                           value={ref.company}
-                          onChange={(e) => updateReference(index, "company", e.target.value)}
+                          onChange={e =>
+                            updateReference(index, "company", e.target.value)
+                          }
                           placeholder="Nombre de la empresa"
                         />
                       </div>
@@ -695,7 +799,13 @@ export default function JobApplication() {
                         <Label>Relación *</Label>
                         <Input
                           value={ref.relationship}
-                          onChange={(e) => updateReference(index, "relationship", e.target.value)}
+                          onChange={e =>
+                            updateReference(
+                              index,
+                              "relationship",
+                              e.target.value
+                            )
+                          }
                           placeholder="Ej: Jefe directo, Colega, etc."
                         />
                       </div>
@@ -706,7 +816,9 @@ export default function JobApplication() {
                         <Label>Teléfono *</Label>
                         <Input
                           value={ref.phone}
-                          onChange={(e) => updateReference(index, "phone", e.target.value)}
+                          onChange={e =>
+                            updateReference(index, "phone", e.target.value)
+                          }
                           placeholder="Número de contacto"
                         />
                       </div>
@@ -715,7 +827,9 @@ export default function JobApplication() {
                         <Input
                           type="email"
                           value={ref.email}
-                          onChange={(e) => updateReference(index, "email", e.target.value)}
+                          onChange={e =>
+                            updateReference(index, "email", e.target.value)
+                          }
                           placeholder="correo@example.com"
                         />
                       </div>

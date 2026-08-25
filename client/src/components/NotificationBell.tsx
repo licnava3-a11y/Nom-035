@@ -36,7 +36,7 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const [token, setToken] = useState<string | null>(null);
-  
+
   // Obtener token JWT de cookies
   useEffect(() => {
     if (isAuthenticated) {
@@ -44,17 +44,19 @@ export function NotificationBell() {
       setToken(authToken);
     }
   }, [isAuthenticated]);
-  
+
   // Queries (sin polling, se actualizará vía WebSocket)
-  const { data: unreadData, refetch: refetchUnread } = trpc.notifications.getUnreadCount.useQuery(undefined, {
-    refetchInterval: false, // Deshabilitado: usamos WebSocket
-    enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
-  });
-  
-  const { data: notifications, refetch: refetchNotifications } = trpc.notifications.getAll.useQuery(
-    { limit: 20, unreadOnly: false },
-    { enabled: open }
-  );
+  const { data: unreadData, refetch: refetchUnread } =
+    trpc.notifications.getUnreadCount.useQuery(undefined, {
+      refetchInterval: false, // Deshabilitado: usamos WebSocket
+      enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
+    });
+
+  const { data: notifications, refetch: refetchNotifications } =
+    trpc.notifications.getAll.useQuery(
+      { limit: 20, unreadOnly: false },
+      { enabled: open }
+    );
 
   // Mutations
   const markAsReadMutation = trpc.notifications.markAsRead.useMutation({
@@ -79,7 +81,8 @@ export function NotificationBell() {
   });
 
   // Browser Notifications
-  const { permission, showNotification, shouldNotify, requestPermission } = useBrowserNotifications();
+  const { permission, showNotification, shouldNotify, requestPermission } =
+    useBrowserNotifications();
 
   // Solicitar permiso de notificaciones al montar (solo si está autenticado)
   useEffect(() => {
@@ -93,31 +96,38 @@ export function NotificationBell() {
   }, [isAuthenticated, permission, requestPermission]);
 
   // Callback para notificaciones en tiempo real
-  const handleNewNotification = useCallback((notification: any) => {
-    console.log("[NotificationBell] Nueva notificación recibida:", notification);
-    
-    // Mostrar notificación del navegador si es crítica
-    if (shouldNotify(notification.type)) {
-      showNotification({
-        title: notification.title,
-        body: notification.message,
-        tag: `notification-${notification.id}`,
-        requireInteraction: notification.type === "deadline_approaching",
-      });
-    }
-    
-    // Refrescar contadores y lista
-    refetchUnread();
-    if (open) {
-      refetchNotifications();
-    }
-  }, [refetchUnread, refetchNotifications, open, shouldNotify, showNotification]);
+  const handleNewNotification = useCallback(
+    (notification: any) => {
+      console.log(
+        "[NotificationBell] Nueva notificación recibida:",
+        notification
+      );
+
+      // Mostrar notificación del navegador si es crítica
+      if (shouldNotify(notification.type)) {
+        showNotification({
+          title: notification.title,
+          body: notification.message,
+          tag: `notification-${notification.id}`,
+          requireInteraction: notification.type === "deadline_approaching",
+        });
+      }
+
+      // Refrescar contadores y lista
+      refetchUnread();
+      if (open) {
+        refetchNotifications();
+      }
+    },
+    [refetchUnread, refetchNotifications, open, shouldNotify, showNotification]
+  );
 
   // Conectar WebSocket
   const { isConnected } = useSocket(token, {
     onNotification: handleNewNotification,
     onConnect: () => console.log("[NotificationBell] WebSocket conectado"),
-    onDisconnect: () => console.log("[NotificationBell] WebSocket desconectado"),
+    onDisconnect: () =>
+      console.log("[NotificationBell] WebSocket desconectado"),
   });
 
   const unreadCount = unreadData?.count || 0;
@@ -206,7 +216,7 @@ export function NotificationBell() {
                 className={`flex flex-col items-start p-4 cursor-pointer ${
                   !notification.isRead ? "bg-blue-50 dark:bg-blue-950" : ""
                 }`}
-                onSelect={(e) => e.preventDefault()}
+                onSelect={e => e.preventDefault()}
               >
                 <div className="flex items-start justify-between w-full">
                   <div className="flex items-start gap-3 flex-1">
@@ -239,7 +249,7 @@ export function NotificationBell() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={(e) => handleMarkAsRead(notification.id, e)}
+                        onClick={e => handleMarkAsRead(notification.id, e)}
                       >
                         <Check className="h-4 w-4" />
                       </Button>
@@ -248,7 +258,7 @@ export function NotificationBell() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-destructive"
-                      onClick={(e) => handleDelete(notification.id, e)}
+                      onClick={e => handleDelete(notification.id, e)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

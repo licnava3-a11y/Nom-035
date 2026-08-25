@@ -3,10 +3,10 @@
  * Muestra título, descripción y acción sugerida
  */
 
-import { AlertCircle, AlertTriangle, Info, XCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { ErrorMessage } from '@/lib/errorMessages';
+import { AlertCircle, AlertTriangle, Info, XCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { ErrorMessage } from "@/lib/errorMessages";
 
 interface AlertErrorProps {
   error: ErrorMessage;
@@ -15,11 +15,14 @@ interface AlertErrorProps {
 }
 
 export function AlertError({ error, onAction, className }: AlertErrorProps) {
-  const Icon = error.severity === 'error' ? XCircle : 
-               error.severity === 'warning' ? AlertTriangle : 
-               Info;
+  const Icon =
+    error.severity === "error"
+      ? XCircle
+      : error.severity === "warning"
+        ? AlertTriangle
+        : Info;
 
-  const variant = error.severity === 'error' ? 'destructive' : 'default';
+  const variant = error.severity === "error" ? "destructive" : "default";
 
   return (
     <Alert variant={variant} className={className}>
@@ -28,8 +31,8 @@ export function AlertError({ error, onAction, className }: AlertErrorProps) {
       <AlertDescription className="mt-2">
         <p className="mb-3">{error.description}</p>
         {error.action && onAction && (
-          <Button 
-            variant={error.severity === 'error' ? 'destructive' : 'default'}
+          <Button
+            variant={error.severity === "error" ? "destructive" : "default"}
             size="sm"
             onClick={onAction}
           >
@@ -49,7 +52,10 @@ interface ErrorBoundaryFallbackProps {
   resetError: () => void;
 }
 
-export function ErrorBoundaryFallback({ error, resetError }: ErrorBoundaryFallbackProps) {
+export function ErrorBoundaryFallback({
+  error,
+  resetError,
+}: ErrorBoundaryFallbackProps) {
   return (
     <div className="flex items-center justify-center min-h-[400px] p-6">
       <Alert variant="destructive" className="max-w-2xl">
@@ -57,7 +63,8 @@ export function ErrorBoundaryFallback({ error, resetError }: ErrorBoundaryFallba
         <AlertTitle className="text-lg">Algo salió mal</AlertTitle>
         <AlertDescription className="mt-3 space-y-3">
           <p>
-            Ocurrió un error inesperado al cargar esta página. Tus datos están seguros.
+            Ocurrió un error inesperado al cargar esta página. Tus datos están
+            seguros.
           </p>
           <details className="text-sm opacity-75">
             <summary className="cursor-pointer hover:opacity-100">
@@ -71,10 +78,10 @@ export function ErrorBoundaryFallback({ error, resetError }: ErrorBoundaryFallba
             <Button onClick={resetError} size="sm">
               Reintentar
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
-              onClick={() => window.location.href = '/'}
+              onClick={() => (window.location.href = "/")}
             >
               Ir al inicio
             </Button>

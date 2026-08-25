@@ -6,17 +6,19 @@
 ## 1. ERRORES CRÍTICOS IDENTIFICADOS
 
 ### 1.1 Error en Generación de DNC - ✅ CORREGIDO
+
 - **Ubicación**: `/employees/:id/training-needs`
 - **Descripción**: La página mostraba "No se pudo generar el análisis" cuando el empleado no tenía un puesto asignado con competencias definidas
 - **Causa**: El procedimiento `jobProfiles.generateDNC` requiere que el empleado tenga un puesto (`position`) que coincida con un registro en `jobProfiles`
 - **Impacto**: CRÍTICO - Funcionalidad no utilizable sin datos previos
-- **Solución implementada**: 
+- **Solución implementada**:
   1. ✅ Creado script `seed-test-data.ts` para generar datos completos
   2. ✅ Generados 3 puestos con perfiles de competencias
   3. ✅ Actualizado empleado de prueba con puesto y 4 competencias
   4. ✅ Funcionalidad DNC ahora operativa mostrando 3 brechas detectadas
 
 ### 1.2 Empleado de Prueba Sin Configuración Completa - ✅ CORREGIDO
+
 - **Descripción**: El empleado "Test Employee" no tenía puesto asignado con competencias
 - **Impacto**: MEDIO - Impedía probar funcionalidades de DNC y perfiles
 - **Solución implementada**: ✅ Datos de prueba completos creados:
@@ -28,6 +30,7 @@
 ## 2. RUTAS Y PÁGINAS VERIFICADAS
 
 ### 2.1 Rutas Funcionando Correctamente
+
 - ✅ `/` - Dashboard principal
 - ✅ `/employees` - Catálogo de trabajadores
 - ✅ `/employees/:id` - Perfil del trabajador
@@ -36,6 +39,7 @@
 - ✅ `/competencies-dashboard` - Dashboard de competencias
 
 ### 2.2 Rutas Pendientes de Verificación
+
 - ⏳ `/courses` - Cursos
 - ⏳ `/evaluations` - Evaluaciones
 - ⏳ `/cases` - Casos psicosociales
@@ -48,6 +52,7 @@
 ## 3. BACKEND - PROCEDIMIENTOS tRPC
 
 ### 3.1 Routers Registrados
+
 - ✅ `system` - Sistema
 - ✅ `signatures` - Firmas digitales
 - ✅ `documents` - Documentos
@@ -61,6 +66,7 @@
 - ✅ `employees` - Empleados (router faltante en lista inicial)
 
 ### 3.2 Procedimientos Pendientes de Auditoría
+
 - ⏳ Verificar todos los procedimientos de cada router
 - ⏳ Validar esquemas de entrada (zod schemas)
 - ⏳ Verificar manejo de errores
@@ -69,6 +75,7 @@
 ## 4. FRONTEND - COMPONENTES Y BOTONES
 
 ### 4.1 Botones Verificados
+
 - ✅ Navegación del sidebar (todos funcionan)
 - ✅ Botón "Agregar Trabajador"
 - ✅ Botón "Ver Perfil"
@@ -77,6 +84,7 @@
 - ✅ Botón "Editar"
 
 ### 4.2 Componentes Pendientes de Verificación
+
 - ⏳ Formulario de alta de empleados
 - ⏳ Formulario de edición de empleados
 - ⏳ Desplegables de departamentos
@@ -87,6 +95,7 @@
 ## 5. BASE DE DATOS
 
 ### 5.1 Tablas Verificadas
+
 - ✅ `employees` - Empleados
 - ✅ `employeeDocuments` - Documentos de empleados
 - ✅ `employeeCompetencies` - Competencias de empleados
@@ -94,6 +103,7 @@
 - ✅ `jobProfiles` - Perfiles de puesto
 
 ### 5.2 Integridad de Datos Pendiente
+
 - ⏳ Verificar relaciones entre tablas
 - ⏳ Validar constraints y foreign keys
 - ⏳ Revisar índices para optimización
@@ -101,16 +111,19 @@
 ## 6. TAREAS PENDIENTES IDENTIFICADAS
 
 ### 6.1 Correcciones Críticas
+
 1. Mejorar manejo de errores en página de DNC
 2. Crear datos de prueba completos para validación
 3. Agregar validaciones previas antes de llamar procedimientos
 
 ### 6.2 Nuevas Funcionalidades Solicitadas
+
 1. Integrar generación automática de credenciales en formulario de alta
 2. Agregar configuración de correo RRHH en settings
 3. Crear widget de competencias críticas en dashboard
 
 ### 6.3 Optimizaciones
+
 1. Mejorar mensajes de error para usuarios
 2. Agregar loaders y estados de carga
 3. Implementar validaciones de formularios más robustas
@@ -130,26 +143,28 @@
 **Estado**: AUDITORÍA EN PROGRESO (20% completada)  
 **Siguiente acción**: Continuar con verificación de rutas y procedimientos tRPC
 
-
 ## 3. HALLAZGOS DE AUDITORÍA DE BOTONES Y RUTAS
 
 ### 3.1 Problema de Duplicación de Cursos - 🔴 CRÍTICO
+
 - **Ubicación**: `/courses`
 - **Descripción**: Los mismos 5 cursos se repiten múltiples veces en la página (aparecen 7 veces cada uno)
 - **Causa probable**: Loop infinito o falta de paginación en el componente de cursos
 - **Impacto**: ALTO - Mala experiencia de usuario, confusión visual
-- **Solución propuesta**: 
+- **Solución propuesta**:
   1. Revisar componente Courses.tsx para identificar loop de renderizado
   2. Implementar paginación o límite de resultados
   3. Verificar query tRPC `courses.list`
 
 ### 3.2 Rutas de Encuestas Funcionando Correctamente - ✅
+
 - **Ubicación**: `/surveys/guide-i`, `/surveys/guide-ii`, `/surveys/guide-iii`
 - **Estado**: Funcionando correctamente
 - **Descripción**: Las encuestas NOM-035 (Guía I - ATS) se cargan correctamente con formulario interactivo
 - **Validación**: Formulario con 4 preguntas, barra de progreso, botones de acción
 
 ### 3.3 Navegación del Sidebar - ✅
+
 - **Estado**: Todos los enlaces del sidebar funcionan correctamente
 - **Rutas verificadas**:
   - ✅ Dashboard
@@ -172,7 +187,6 @@
 **Estado de auditoría**: 35% completada  
 **Próxima acción**: Continuar verificación de rutas restantes y corregir problema de duplicación de cursos
 
-
 ---
 
 # 🔍 AUDITORÍA PROFUNDA COMPLETA - 2026-02-08
@@ -189,29 +203,30 @@ El sistema NOM-035 ha sido auditado exhaustivamente en 7 áreas críticas. El si
 
 ### Métricas Generales:
 
-| Categoría | Métrica | Valor | Estado |
-|-----------|---------|-------|--------|
-| **Backend** | Routers | 38 | ✅ |
-| **Backend** | Procedimientos tRPC | 280 | ✅ |
-| **Base de Datos** | Tablas | 73 | ✅ |
-| **Base de Datos** | Migraciones | 36 | ✅ |
-| **Frontend** | Páginas | 84 | ✅ |
-| **Frontend** | Componentes UI | 79 | ✅ |
-| **Frontend** | Select Components | 431 | ✅ |
-| **Rutas** | Rutas en App.tsx | 81 | ✅ |
-| **Rutas** | Enlaces en DashboardLayout | 44 | ✅ |
-| **Compilación** | Errores TypeScript | 0 | ✅ |
-| **Compilación** | Warnings TypeScript | 0 | ✅ |
-| **Importación** | Funciones de importación | 0 | ⚠️ |
-| **Exportación** | Funciones de exportación | 5 | ✅ |
-| **Servicios** | Total de servicios | 3 | ✅ |
-| **Tests** | Tests pasados | 131/143 | ✅ 91.6% |
+| Categoría         | Métrica                    | Valor   | Estado   |
+| ----------------- | -------------------------- | ------- | -------- |
+| **Backend**       | Routers                    | 38      | ✅       |
+| **Backend**       | Procedimientos tRPC        | 280     | ✅       |
+| **Base de Datos** | Tablas                     | 73      | ✅       |
+| **Base de Datos** | Migraciones                | 36      | ✅       |
+| **Frontend**      | Páginas                    | 84      | ✅       |
+| **Frontend**      | Componentes UI             | 79      | ✅       |
+| **Frontend**      | Select Components          | 431     | ✅       |
+| **Rutas**         | Rutas en App.tsx           | 81      | ✅       |
+| **Rutas**         | Enlaces en DashboardLayout | 44      | ✅       |
+| **Compilación**   | Errores TypeScript         | 0       | ✅       |
+| **Compilación**   | Warnings TypeScript        | 0       | ✅       |
+| **Importación**   | Funciones de importación   | 0       | ⚠️       |
+| **Exportación**   | Funciones de exportación   | 5       | ✅       |
+| **Servicios**     | Total de servicios         | 3       | ✅       |
+| **Tests**         | Tests pasados              | 131/143 | ✅ 91.6% |
 
 ---
 
 ## 🎯 HALLAZGOS CRÍTICOS Y RECOMENDACIONES
 
 ### ✅ Fortalezas del Sistema:
+
 1. **0 errores TypeScript** - Código 100% tipado y compilable
 2. **280 procedimientos tRPC** - Backend robusto y escalable
 3. **73 tablas de base de datos** - Schema completo y bien correlacionado
@@ -220,6 +235,7 @@ El sistema NOM-035 ha sido auditado exhaustivamente en 7 áreas críticas. El si
 6. **81 rutas** - Navegación completa y sin errores 404
 
 ### ⚠️ Áreas de Mejora (Prioridad Media):
+
 1. **Importación de datos** - Implementar funciones de importación desde Excel/CSV
 2. **Configuración SMTP** - Configurar variables de entorno para envío de correos
 3. **Datos de prueba** - Agregar más datos ficticios para validación completa
@@ -227,6 +243,7 @@ El sistema NOM-035 ha sido auditado exhaustivamente en 7 áreas críticas. El si
 ### 🎯 Recomendaciones Prioritarias:
 
 #### P0 - Crítico (Implementar Inmediatamente):
+
 1. **Configurar variables SMTP**
    - Usar `webdev_request_secrets` para solicitar SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
    - Habilitar envío automático de correos en cuestionarios y alertas
@@ -237,6 +254,7 @@ El sistema NOM-035 ha sido auditado exhaustivamente en 7 áreas críticas. El si
    - Crear procedimiento `importPositions` en router `import.ts`
 
 #### P1 - Alto (Implementar Próximamente):
+
 3. **Completar frontend de registro de asistencia**
    - Crear modal con lista de miembros del comité
    - Implementar checkboxes interactivos
@@ -253,4 +271,3 @@ El sistema NOM-035 ha sido auditado exhaustivamente en 7 áreas críticas. El si
 **Fecha de auditoría**: 2026-02-08 12:30:00 CST  
 **Versión auditada**: 3e6aabcc  
 **Próxima auditoría recomendada**: 2026-02-15 (7 días)
-

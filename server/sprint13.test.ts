@@ -47,10 +47,10 @@ describe("Sprint 13 - Auditoría y Módulos", () => {
     it("Asigna el color correcto según el nivel de riesgo", () => {
       const getRiskColor = (level: string) => {
         const colors: Record<string, string> = {
-          "Nulo": "#22c55e",
-          "Bajo": "#86efac",
-          "Medio": "#facc15",
-          "Alto": "#f97316",
+          Nulo: "#22c55e",
+          Bajo: "#86efac",
+          Medio: "#facc15",
+          Alto: "#f97316",
           "Muy Alto": "#ef4444",
         };
         return colors[level] || "#6b7280";
@@ -82,7 +82,9 @@ describe("Sprint 13 - Auditoría y Módulos", () => {
       const in10Days = new Date(today.getTime() + 10 * 24 * 60 * 60 * 1000);
 
       const isDueSoon = (dueDate: Date, status: string) => {
-        const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.ceil(
+          (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        );
         return diffDays <= 7 && diffDays >= 0 && status !== "completado";
       };
 
@@ -92,7 +94,12 @@ describe("Sprint 13 - Auditoría y Módulos", () => {
     });
 
     it("Valida los estados permitidos de un acuerdo", () => {
-      const validStatuses = ["pendiente", "en_proceso", "completado", "cancelado"];
+      const validStatuses = [
+        "pendiente",
+        "en_proceso",
+        "completado",
+        "cancelado",
+      ];
       expect(validStatuses).toContain("pendiente");
       expect(validStatuses).toContain("en_proceso");
       expect(validStatuses).toContain("completado");
@@ -103,7 +110,8 @@ describe("Sprint 13 - Auditoría y Módulos", () => {
 
   describe("Validación de email en empleados", () => {
     it("Valida formato de correo electrónico correctamente", () => {
-      const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      const isValidEmail = (email: string) =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       expect(isValidEmail("usuario@empresa.com")).toBe(true);
       expect(isValidEmail("nombre.apellido@dominio.mx")).toBe(true);
       expect(isValidEmail("invalido")).toBe(false);
@@ -114,12 +122,15 @@ describe("Sprint 13 - Auditoría y Módulos", () => {
     it("Rechaza email vacío como obligatorio", () => {
       const validateEmail = (email: string): string | null => {
         if (!email.trim()) return "El correo electrónico es requerido";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "El correo electrónico no es válido";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+          return "El correo electrónico no es válido";
         return null;
       };
       expect(validateEmail("")).toBe("El correo electrónico es requerido");
       expect(validateEmail("   ")).toBe("El correo electrónico es requerido");
-      expect(validateEmail("invalido")).toBe("El correo electrónico no es válido");
+      expect(validateEmail("invalido")).toBe(
+        "El correo electrónico no es válido"
+      );
       expect(validateEmail("valido@empresa.com")).toBeNull();
     });
   });
@@ -139,12 +150,13 @@ describe("Sprint 13 - Auditoría y Módulos", () => {
     it("Compara correctamente dos períodos", () => {
       const periodA = { bugs: 15, features: 8, implementedFeatures: 5 };
       const periodB = { bugs: 8, features: 12, implementedFeatures: 10 };
-      
+
       const improvement = {
         bugsReduced: periodA.bugs - periodB.bugs,
-        featuresGrowth: periodB.implementedFeatures - periodA.implementedFeatures,
+        featuresGrowth:
+          periodB.implementedFeatures - periodA.implementedFeatures,
       };
-      
+
       expect(improvement.bugsReduced).toBe(7); // Mejora: menos bugs
       expect(improvement.featuresGrowth).toBe(5); // Mejora: más features implementadas
     });

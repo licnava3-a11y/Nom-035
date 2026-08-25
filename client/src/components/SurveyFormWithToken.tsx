@@ -2,11 +2,24 @@ import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { AlertCircle, CheckCircle2, Loader2, Shield, FileText, Building2 } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Shield,
+  FileText,
+  Building2,
+} from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 
@@ -17,16 +30,21 @@ interface SurveyFormWithTokenProps {
   employeeId: number;
 }
 
-export default function SurveyFormWithToken({ 
-  token, 
-  surveyType, 
-  periodId 
+export default function SurveyFormWithToken({
+  token,
+  surveyType,
+  periodId,
 }: SurveyFormWithTokenProps) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [lastSavedAnswer, setLastSavedAnswer] = useState<{ questionId: number; value: string } | null>(null);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  
+  const [lastSavedAnswer, setLastSavedAnswer] = useState<{
+    questionId: number;
+    value: string;
+  } | null>(null);
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
+
   // Debounce de respuestas para auto-guardado
   const debouncedAnswers = useDebounce(answers, 1000);
 
@@ -47,28 +65,35 @@ export default function SurveyFormWithToken({
   const surveyId = getSurveyId(surveyType);
 
   // Obtener preguntas de la encuesta
-  const { data: questions, isLoading } = (trpc as any).surveys.getQuestions.useQuery(surveyId);
-  
-  const submitSurveyWithToken = trpc.surveyTokensAdvanced.submitSurveyResponse.useMutation({
-    onSuccess: (data: any) => {
-      toast.success("¡Encuesta completada exitosamente!");
-      
-      // Si hay una siguiente encuesta, recargar la página para mostrarla
-      if (data.nextSurvey) {
-        toast.info(`Ahora procederás a completar ${getSurveyDisplayName(data.nextSurvey)}`);
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        // Mostrar mensaje de finalización
-        toast.success("Has completado todas las encuestas requeridas. ¡Gracias por tu participación!");
-      }
-    },
-    onError: (error: any) => {
-      toast.error(`Error: ${error.message}`);
-      setIsSubmitting(false);
-    },
-  });
+  const { data: questions, isLoading } = (
+    trpc as any
+  ).surveys.getQuestions.useQuery(surveyId);
+
+  const submitSurveyWithToken =
+    trpc.surveyTokensAdvanced.submitSurveyResponse.useMutation({
+      onSuccess: (data: any) => {
+        toast.success("¡Encuesta completada exitosamente!");
+
+        // Si hay una siguiente encuesta, recargar la página para mostrarla
+        if (data.nextSurvey) {
+          toast.info(
+            `Ahora procederás a completar ${getSurveyDisplayName(data.nextSurvey)}`
+          );
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          // Mostrar mensaje de finalización
+          toast.success(
+            "Has completado todas las encuestas requeridas. ¡Gracias por tu participación!"
+          );
+        }
+      },
+      onError: (error: any) => {
+        toast.error(`Error: ${error.message}`);
+        setIsSubmitting(false);
+      },
+    });
 
   // Mutation para auto-guardado (opcional, por ahora no implementado en backend)
   // const savePartialMutation = (trpc as any).surveys.savePartialResponse.useMutation({
@@ -85,7 +110,7 @@ export default function SurveyFormWithToken({
   // Auto-guardar cuando cambian las respuestas (con debounce)
   // useEffect(() => {
   //   if (!lastSavedAnswer) return;
-  //   
+  //
   //   setSaveStatus('saving');
   //   savePartialMutation.mutate({
   //     surveyId,
@@ -101,14 +126,14 @@ export default function SurveyFormWithToken({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!questions || Object.keys(answers).length < questions.length) {
       toast.error("Por favor responde todas las preguntas antes de continuar.");
       return;
     }
 
     setIsSubmitting(true);
-    
+
     // Convertir respuestas a formato esperado
     const validQuestions = Array.isArray(questions) ? questions : [];
     const formattedAnswers = validQuestions.map((q: any) => ({
@@ -126,9 +151,9 @@ export default function SurveyFormWithToken({
 
   const getIcon = () => {
     switch (surveyType) {
-      case 'guia_i':
+      case "guia_i":
         return <Shield className="h-6 w-6 text-blue-600" />;
-      case 'guia_ii':
+      case "guia_ii":
         return <Building2 className="h-6 w-6 text-green-600" />;
       default:
         return <FileText className="h-6 w-6 text-purple-600" />;
@@ -137,22 +162,22 @@ export default function SurveyFormWithToken({
 
   const getIconBg = () => {
     switch (surveyType) {
-      case 'guia_i':
-        return 'bg-blue-100';
-      case 'guia_ii':
-        return 'bg-green-100';
+      case "guia_i":
+        return "bg-blue-100";
+      case "guia_ii":
+        return "bg-green-100";
       default:
-        return 'bg-purple-100';
+        return "bg-purple-100";
     }
   };
 
   const getSurveyTitle = () => {
     switch (surveyType) {
-      case 'guia_i':
+      case "guia_i":
         return "Guía de Referencia I";
-      case 'guia_ii':
+      case "guia_ii":
         return "Guía de Referencia II";
-      case 'guia_iii':
+      case "guia_iii":
         return "Guía de Referencia III";
       default:
         return "Encuesta NOM-035";
@@ -161,11 +186,11 @@ export default function SurveyFormWithToken({
 
   const getSurveyDescription = () => {
     switch (surveyType) {
-      case 'guia_i':
+      case "guia_i":
         return "Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos";
-      case 'guia_ii':
+      case "guia_ii":
         return "Cuestionario para identificar y analizar los factores de riesgo psicosocial";
-      case 'guia_iii':
+      case "guia_iii":
         return "Cuestionario para identificar y analizar los factores de riesgo psicosocial y evaluar el entorno organizacional";
       default:
         return "Encuesta NOM-035 STPS";
@@ -190,7 +215,8 @@ export default function SurveyFormWithToken({
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            No se pudieron cargar las preguntas del cuestionario. Por favor intenta nuevamente.
+            No se pudieron cargar las preguntas del cuestionario. Por favor
+            intenta nuevamente.
           </AlertDescription>
         </Alert>
       </div>
@@ -205,9 +231,7 @@ export default function SurveyFormWithToken({
       <Card>
         <CardHeader className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className={`p-2 ${getIconBg()} rounded-lg`}>
-              {getIcon()}
-            </div>
+            <div className={`p-2 ${getIconBg()} rounded-lg`}>{getIcon()}</div>
             <div>
               <CardTitle className="text-2xl">{getSurveyTitle()}</CardTitle>
               <CardDescription>{getSurveyDescription()}</CardDescription>
@@ -218,9 +242,10 @@ export default function SurveyFormWithToken({
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Instrucciones</AlertTitle>
             <AlertDescription>
-              Las siguientes preguntas están relacionadas con tu experiencia laboral. 
-              Por favor responde con honestidad. La información es confidencial y será 
-              utilizada únicamente para cumplir con la NOM-035-STPS-2018.
+              Las siguientes preguntas están relacionadas con tu experiencia
+              laboral. Por favor responde con honestidad. La información es
+              confidencial y será utilizada únicamente para cumplir con la
+              NOM-035-STPS-2018.
             </AlertDescription>
           </Alert>
 
@@ -228,22 +253,23 @@ export default function SurveyFormWithToken({
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-4">
                 <span className="text-muted-foreground">
-                  Progreso: {Object.keys(answers).length} de {questions.length} preguntas
+                  Progreso: {Object.keys(answers).length} de {questions.length}{" "}
+                  preguntas
                 </span>
                 {/* Indicador de auto-guardado */}
-                {saveStatus === 'saving' && (
+                {saveStatus === "saving" && (
                   <span className="flex items-center gap-2 text-blue-600 text-xs">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     Guardando...
                   </span>
                 )}
-                {saveStatus === 'saved' && (
+                {saveStatus === "saved" && (
                   <span className="flex items-center gap-2 text-green-600 text-xs">
                     <CheckCircle2 className="h-3 w-3" />
                     Guardado
                   </span>
                 )}
-                {saveStatus === 'error' && (
+                {saveStatus === "error" && (
                   <span className="flex items-center gap-2 text-red-600 text-xs">
                     <AlertCircle className="h-3 w-3" />
                     Error al guardar
@@ -261,16 +287,22 @@ export default function SurveyFormWithToken({
             {questions.map((question: any, index: number) => {
               let options = [];
               try {
-                options = typeof question.options === 'string' 
-                  ? JSON.parse(question.options) 
-                  : (Array.isArray(question.options) ? question.options : []);
+                options =
+                  typeof question.options === "string"
+                    ? JSON.parse(question.options)
+                    : Array.isArray(question.options)
+                      ? question.options
+                      : [];
               } catch (e) {
-                console.error('Error parsing options:', e);
+                console.error("Error parsing options:", e);
                 options = [];
               }
 
               return (
-                <div key={question.id} className="space-y-4 p-6 border rounded-lg bg-card hover:border-primary/50 transition-colors">
+                <div
+                  key={question.id}
+                  className="space-y-4 p-6 border rounded-lg bg-card hover:border-primary/50 transition-colors"
+                >
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold text-sm">
                       {index + 1}
@@ -289,13 +321,21 @@ export default function SurveyFormWithToken({
 
                   <RadioGroup
                     value={answers[question.id]}
-                    onValueChange={(value) => handleAnswerChange(question.id, value)}
+                    onValueChange={value =>
+                      handleAnswerChange(question.id, value)
+                    }
                     className="ml-11 space-y-2"
                   >
                     {options.map((option: string) => (
-                      <div key={option} className="flex items-center space-x-3 p-3 rounded-md hover:bg-accent transition-colors">
-                        <RadioGroupItem value={option} id={`${question.id}-${option}`} />
-                        <Label 
+                      <div
+                        key={option}
+                        className="flex items-center space-x-3 p-3 rounded-md hover:bg-accent transition-colors"
+                      >
+                        <RadioGroupItem
+                          value={option}
+                          id={`${question.id}-${option}`}
+                        />
+                        <Label
                           htmlFor={`${question.id}-${option}`}
                           className="flex-1 cursor-pointer font-normal"
                         >
@@ -318,14 +358,16 @@ export default function SurveyFormWithToken({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => window.location.href = window.location.href}
+                onClick={() => (window.location.href = window.location.href)}
                 disabled={isSubmitting}
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || Object.keys(answers).length < questions.length}
+                disabled={
+                  isSubmitting || Object.keys(answers).length < questions.length
+                }
                 size="lg"
               >
                 {isSubmitting ? (
@@ -349,7 +391,8 @@ export default function SurveyFormWithToken({
         <Shield className="h-4 w-4" />
         <AlertTitle>Confidencialidad y Protección de Datos</AlertTitle>
         <AlertDescription>
-          Tus respuestas son completamente confidenciales y serán utilizadas únicamente para cumplir con la NOM-035-STPS-2018.
+          Tus respuestas son completamente confidenciales y serán utilizadas
+          únicamente para cumplir con la NOM-035-STPS-2018.
         </AlertDescription>
       </Alert>
     </div>

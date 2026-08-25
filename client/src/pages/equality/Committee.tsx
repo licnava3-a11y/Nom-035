@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +27,8 @@ export default function Committee() {
   });
 
   const utils = trpc.useUtils();
-  const { data: members = [], isLoading } = trpc.equality.committee.list.useQuery();
+  const { data: members = [], isLoading } =
+    trpc.equality.committee.list.useQuery();
   const { data: usersData } = trpc.employees.list.useQuery({});
   const users = usersData?.employees ?? [];
 
@@ -32,20 +39,22 @@ export default function Committee() {
       setIsAdding(false);
       setFormData({ userId: "", cargo: "", fechaDesignacion: "" });
     },
-    onError: (error) => {
+    onError: error => {
       alert(`Error: ${error.message}`);
     },
   });
 
-  const removeMemberMutation = trpc.equality.committee.removeMember.useMutation({
-    onSuccess: () => {
-      alert("Miembro removido exitosamente");
-      utils.equality.committee.list.invalidate();
-    },
-    onError: (error) => {
-      alert(`Error: ${error.message}`);
-    },
-  });
+  const removeMemberMutation = trpc.equality.committee.removeMember.useMutation(
+    {
+      onSuccess: () => {
+        alert("Miembro removido exitosamente");
+        utils.equality.committee.list.invalidate();
+      },
+      onError: error => {
+        alert(`Error: ${error.message}`);
+      },
+    }
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,15 +86,22 @@ export default function Committee() {
 
   return (
     <div className="p-6 space-y-6">
-      <Breadcrumb items={[
-        { label: "Igualdad Laboral y No Discriminación", href: "/equality/policy" },
-        { label: "Comité de Igualdad" }
-      ]} />
-      
+      <Breadcrumb
+        items={[
+          {
+            label: "Igualdad Laboral y No Discriminación",
+            href: "/equality/policy",
+          },
+          { label: "Comité de Igualdad" },
+        ]}
+      />
+
       <div className="flex items-center justify-between mt-4">
         <div>
           <h1 className="text-3xl font-bold">Comité de Igualdad</h1>
-          <p className="text-muted-foreground">NMX-025-SCFI-2015 - Requisito 4.4.1</p>
+          <p className="text-muted-foreground">
+            NMX-025-SCFI-2015 - Requisito 4.4.1
+          </p>
         </div>
         <Button onClick={() => setIsAdding(!isAdding)}>
           <Plus className="h-4 w-4 mr-2" />
@@ -107,13 +123,17 @@ export default function Committee() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Miembros Activos</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{activeMembers}</CardTitle>
+            <CardTitle className="text-3xl text-green-600">
+              {activeMembers}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Miembros Inactivos</CardDescription>
-            <CardTitle className="text-3xl text-gray-600">{inactiveMembers}</CardTitle>
+            <CardTitle className="text-3xl text-gray-600">
+              {inactiveMembers}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -134,14 +154,17 @@ export default function Committee() {
                 <select
                   id="userId"
                   value={formData.userId}
-                  onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, userId: e.target.value })
+                  }
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   required
                 >
                   <option value="">Seleccionar usuario...</option>
                   {users.map((user: any) => (
                     <option key={user.id} value={user.id}>
-                      {user.firstName} {user.lastName} - Puesto ID: {user.positionId || "N/A"}
+                      {user.firstName} {user.lastName} - Puesto ID:{" "}
+                      {user.positionId || "N/A"}
                     </option>
                   ))}
                 </select>
@@ -152,7 +175,9 @@ export default function Committee() {
                 <select
                   id="cargo"
                   value={formData.cargo}
-                  onChange={(e) => setFormData({ ...formData, cargo: e.target.value as any })}
+                  onChange={e =>
+                    setFormData({ ...formData, cargo: e.target.value as any })
+                  }
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   required
                 >
@@ -170,16 +195,27 @@ export default function Committee() {
                   id="fechaDesignacion"
                   type="date"
                   value={formData.fechaDesignacion}
-                  onChange={(e) => setFormData({ ...formData, fechaDesignacion: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      fechaDesignacion: e.target.value,
+                    })
+                  }
                   required
                 />
               </div>
 
               <div className="flex gap-2">
                 <Button type="submit" disabled={addMemberMutation.isPending}>
-                  {addMemberMutation.isPending ? "Agregando..." : "Agregar al Comité"}
+                  {addMemberMutation.isPending
+                    ? "Agregando..."
+                    : "Agregar al Comité"}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setIsAdding(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAdding(false)}
+                >
                   Cancelar
                 </Button>
               </div>
@@ -192,7 +228,9 @@ export default function Committee() {
       <Card>
         <CardHeader>
           <CardTitle>Miembros del Comité</CardTitle>
-          <CardDescription>Integrantes del Comité de Igualdad Laboral</CardDescription>
+          <CardDescription>
+            Integrantes del Comité de Igualdad Laboral
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {members.length === 0 ? (
@@ -209,7 +247,10 @@ export default function Committee() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium">{member.cargo}</h3>
-                      <Badge variant={member.activo ? "default" : "outline"} className="gap-1">
+                      <Badge
+                        variant={member.activo ? "default" : "outline"}
+                        className="gap-1"
+                      >
                         {member.activo ? (
                           <>
                             <CheckCircle className="h-3 w-3" />
@@ -227,9 +268,14 @@ export default function Committee() {
                       Usuario ID: {member.userId}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Designado: {new Date(member.fechaDesignacion).toLocaleDateString()}
+                      Designado:{" "}
+                      {new Date(member.fechaDesignacion).toLocaleDateString()}
                       {member.fechaTermino && (
-                        <> • Término: {new Date(member.fechaTermino).toLocaleDateString()}</>
+                        <>
+                          {" "}
+                          • Término:{" "}
+                          {new Date(member.fechaTermino).toLocaleDateString()}
+                        </>
                       )}
                     </p>
                   </div>
@@ -258,7 +304,8 @@ export default function Committee() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
-            El Comité de Igualdad Laboral y No Discriminación es el órgano responsable de:
+            El Comité de Igualdad Laboral y No Discriminación es el órgano
+            responsable de:
           </p>
           <ul className="list-disc list-inside space-y-1 ml-4">
             <li>Vigilar el cumplimiento de la política de igualdad laboral</li>

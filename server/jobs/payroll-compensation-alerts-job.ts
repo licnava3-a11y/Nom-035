@@ -12,12 +12,16 @@ import { notifyOwner } from "../_core/notification";
 export function startPayrollCompensationAlertsJob() {
   // Ejecutar el primer día de cada mes a las 09:00 AM
   cron.schedule("0 9 1 * *", async () => {
-    console.log("[Payroll Compensation Alerts Job] Starting monthly compensation review...");
+    console.log(
+      "[Payroll Compensation Alerts Job] Starting monthly compensation review..."
+    );
 
     try {
       const db = await getDb();
       if (!db) {
-        console.error("[Payroll Compensation Alerts Job] Database connection failed");
+        console.error(
+          "[Payroll Compensation Alerts Job] Database connection failed"
+        );
         return;
       }
 
@@ -28,13 +32,19 @@ export function startPayrollCompensationAlertsJob() {
         .where(sql`${payrollData.requiresReview} = true`);
 
       if (criticalGaps.length === 0) {
-        console.log("[Payroll Compensation Alerts Job] No critical salary gaps found");
+        console.log(
+          "[Payroll Compensation Alerts Job] No critical salary gaps found"
+        );
         return;
       }
 
       // Agrupar por nivel de riesgo
-      const critical = criticalGaps.filter((e: any) => e.compensationRiskLevel === "critical");
-      const high = criticalGaps.filter((e: any) => e.compensationRiskLevel === "high");
+      const critical = criticalGaps.filter(
+        (e: any) => e.compensationRiskLevel === "critical"
+      );
+      const high = criticalGaps.filter(
+        (e: any) => e.compensationRiskLevel === "high"
+      );
 
       // Generar reporte de alertas
       let alertMessage = `🚨 **Alerta de Compensación Mensual**\n\n`;
@@ -70,14 +80,20 @@ export function startPayrollCompensationAlertsJob() {
       });
 
       if (notificationSent) {
-        console.log(`[Payroll Compensation Alerts Job] Alert sent: ${criticalGaps.length} employees require review`);
+        console.log(
+          `[Payroll Compensation Alerts Job] Alert sent: ${criticalGaps.length} employees require review`
+        );
       } else {
-        console.error("[Payroll Compensation Alerts Job] Failed to send notification");
+        console.error(
+          "[Payroll Compensation Alerts Job] Failed to send notification"
+        );
       }
     } catch (error) {
       console.error("[Payroll Compensation Alerts Job] Error:", error);
     }
   });
 
-  console.log("[Payroll Compensation Alerts Job] Scheduled to run on 1st of each month at 09:00 AM");
+  console.log(
+    "[Payroll Compensation Alerts Job] Scheduled to run on 1st of each month at 09:00 AM"
+  );
 }

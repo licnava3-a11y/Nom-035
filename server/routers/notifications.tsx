@@ -1,6 +1,6 @@
-import { z } from 'zod';
-import { router, protectedProcedure } from '../_core/trpc';
-import { getDb } from '../db';
+import { z } from "zod";
+import { router, protectedProcedure } from "../_core/trpc";
+import { getDb } from "../db";
 import {
   notificationTemplates,
   notificationQueue,
@@ -8,16 +8,16 @@ import {
   employees,
   users,
   compliance_reports,
-} from '../../drizzle/schema';
-import { eq, and, desc, sql, lt, gte } from 'drizzle-orm';
-import nodemailer from 'nodemailer';
+} from "../../drizzle/schema";
+import { eq, and, desc, sql, lt, gte } from "drizzle-orm";
+import nodemailer from "nodemailer";
 
 // Configuración SMTP
 const createTransporter = () => {
   const config = {
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port: parseInt(process.env.SMTP_PORT || "587"),
+    secure: process.env.SMTP_SECURE === "true",
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -25,7 +25,9 @@ const createTransporter = () => {
   };
 
   if (!config.auth.user || !config.auth.pass) {
-    throw new Error('Configuración SMTP incompleta. Configure SMTP_USER y SMTP_PASS');
+    throw new Error(
+      "Configuración SMTP incompleta. Configure SMTP_USER y SMTP_PASS"
+    );
   }
 
   return nodemailer.createTransporter(config);
@@ -34,7 +36,7 @@ const createTransporter = () => {
 // Función para enviar correo
 const sendEmail = async (to: string, subject: string, html: string) => {
   const transporter = createTransporter();
-  
+
   const mailOptions = {
     from: process.env.SMTP_FROM || process.env.SMTP_USER,
     to,
@@ -49,7 +51,7 @@ const sendEmail = async (to: string, subject: string, html: string) => {
 const processTemplate = (template: string, variables: Record<string, any>) => {
   let processed = template;
   for (const [key, value] of Object.entries(variables)) {
-    processed = processed.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
+    processed = processed.replace(new RegExp(`{{${key}}}`, "g"), String(value));
   }
   return processed;
 };
@@ -63,13 +65,22 @@ export const notificationsRouter = router({
         description: z.string().optional(),
         subject: z.string(),
         body: z.string(),
-        type: z.enum(['email', 'sms', 'both']),
-        category: z.enum(['certificate_expiry', 'training_reminder', 'course_available', 'exam_reminder', 'general']),
+        type: z.enum(["email", "sms", "both"]),
+        category: z.enum([
+          "certificate_expiry",
+          "training_reminder",
+          "course_available",
+          "exam_reminder",
+          "general",
+        ]),
       })
     )
     .mutation(async ({ input }) => {
       const db = getDb();
-      const [template] = await db.insert(notificationTemplates).values(input).returning();
+      const [template] = await db
+        .insert(notificationTemplates)
+        .values(input)
+        .returning();
       return template;
     }),
 
@@ -77,13 +88,21 @@ export const notificationsRouter = router({
   listTemplates: protectedProcedure
     .input(
       z.object({
-        category: z.enum(['certificate_expiry', 'training_reminder', 'course_available', 'exam_reminder', 'general']).optional(),
+        category: z
+          .enum([
+            "certificate_expiry",
+            "training_reminder",
+            "course_available",
+            "exam_reminder",
+            "general",
+          ])
+          .optional(),
       })
     )
     .query(async ({ input }) => {
       const db = getDb();
       const conditions = [];
-      
+
       if (input.category) {
         conditions.push(eq(notificationTemplates.category, input.category));
       }
@@ -104,8 +123,16 @@ export const notificationsRouter = router({
         description: z.string().optional(),
         subject: z.string().optional(),
         body: z.string().optional(),
-        type: z.enum(['email', 'sms', 'both']).optional(),
-        category: z.enum(['certificate_expiry', 'training_reminder', 'course_available', 'exam_reminder', 'general']).optional(),
+        type: z.enum(["email", "sms", "both"]).optional(),
+        category: z
+          .enum([
+            "certificate_expiry",
+            "training_reminder",
+            "course_available",
+            "exam_reminder",
+            "general",
+          ])
+          .optional(),
         isActive: z.boolean().optional(),
       })
     )
@@ -125,7 +152,9 @@ export const notificationsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = getDb();
-      await db.delete(notificationTemplates).where(eq(notificationTemplates.id, input.id));
+      await db
+        .delete(notificationTemplates)
+        .where(eq(notificationTemplates.id, input.id));
       return { success: true };
     }),
 
@@ -149,7 +178,7 @@ export const notificationsRouter = router({
         .where(eq(notificationTemplates.id, input.templateId));
 
       if (!template || !template.isActive) {
-        throw new Error('Plantilla no encontrada o inactiva');
+        throw new Error("Plantilla no encontrada o inactiva");
       }
 
       // Procesar plantilla
@@ -161,7 +190,7 @@ export const notificationsRouter = router({
       let error = null;
 
       // Enviar correo
-      if (template.type === 'email' || template.type === 'both') {
+      if (template.type === "email" || template.type === "both") {
         try {
           await sendEmail(input.recipientEmail, subject, body);
           emailSent = true;
@@ -171,7 +200,7 @@ export const notificationsRouter = router({
       }
 
       // Enviar SMS (placeholder - requiere integración con Twilio u otro servicio)
-      if (template.type === 'sms' || template.type === 'both') {
+      if (template.type === "sms" || template.type === "both") {
         if (input.recipientPhone) {
           // TODO: Implementar envío de SMS con Twilio
           smsSent = false;
@@ -185,7 +214,7 @@ export const notificationsRouter = router({
         recipientPhone: input.recipientPhone,
         subject,
         body,
-        status: emailSent || smsSent ? 'sent' : 'failed',
+        status: emailSent || smsSent ? "sent" : "failed",
         sentAt: emailSent || smsSent ? new Date() : null,
         error,
       });
@@ -224,7 +253,7 @@ export const notificationsRouter = router({
           // TODO: Enviar notificación usando plantilla de certificate_expiry
           notificationsSent++;
         } catch (err) {
-          console.error('Error al enviar notificación:', err);
+          console.error("Error al enviar notificación:", err);
         }
       }
 
@@ -238,7 +267,7 @@ export const notificationsRouter = router({
   getNotificationLogs: protectedProcedure
     .input(
       z.object({
-        status: z.enum(['sent', 'failed', 'pending']).optional(),
+        status: z.enum(["sent", "failed", "pending"]).optional(),
         limit: z.number().default(50),
         offset: z.number().default(0),
       })
@@ -265,7 +294,10 @@ export const notificationsRouter = router({
           templateName: notificationTemplates.name,
         })
         .from(notificationLogs)
-        .leftJoin(notificationTemplates, eq(notificationLogs.templateId, notificationTemplates.id))
+        .leftJoin(
+          notificationTemplates,
+          eq(notificationLogs.templateId, notificationTemplates.id)
+        )
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(notificationLogs.createdAt))
         .limit(input.limit)
@@ -312,11 +344,11 @@ export const notificationsRouter = router({
         .where(eq(notificationLogs.id, input.logId));
 
       if (!log) {
-        throw new Error('Notificación no encontrada');
+        throw new Error("Notificación no encontrada");
       }
 
-      if (log.status === 'sent') {
-        throw new Error('Esta notificación ya fue enviada exitosamente');
+      if (log.status === "sent") {
+        throw new Error("Esta notificación ya fue enviada exitosamente");
       }
 
       try {
@@ -325,7 +357,7 @@ export const notificationsRouter = router({
         await db
           .update(notificationLogs)
           .set({
-            status: 'sent',
+            status: "sent",
             sentAt: new Date(),
             error: null,
           })

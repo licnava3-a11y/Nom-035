@@ -1,10 +1,16 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Briefcase, LogOut, RotateCcw, FileText } from "lucide-react";
 
 interface EmployeeHistoryEvent {
   id: number;
-  eventType: 'hire' | 'reentry' | 'termination';
+  eventType: "hire" | "reentry" | "termination";
   eventDate: string;
   notes?: string | null;
   terminationReason?: string | null;
@@ -15,23 +21,26 @@ interface EmployeeTimelineProps {
   employeeName: string;
 }
 
-export function EmployeeTimeline({ history, employeeName }: EmployeeTimelineProps) {
+export function EmployeeTimeline({
+  history,
+  employeeName,
+}: EmployeeTimelineProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("es-MX", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const getEventIcon = (eventType: string) => {
     switch (eventType) {
-      case 'hire':
+      case "hire":
         return <Briefcase className="h-5 w-5 text-green-600" />;
-      case 'reentry':
+      case "reentry":
         return <RotateCcw className="h-5 w-5 text-blue-600" />;
-      case 'termination':
+      case "termination":
         return <LogOut className="h-5 w-5 text-red-600" />;
       default:
         return <Calendar className="h-5 w-5 text-gray-600" />;
@@ -40,27 +49,27 @@ export function EmployeeTimeline({ history, employeeName }: EmployeeTimelineProp
 
   const getEventLabel = (eventType: string) => {
     switch (eventType) {
-      case 'hire':
-        return 'Contratación Inicial';
-      case 'reentry':
-        return 'Reingreso';
-      case 'termination':
-        return 'Terminación';
+      case "hire":
+        return "Contratación Inicial";
+      case "reentry":
+        return "Reingreso";
+      case "termination":
+        return "Terminación";
       default:
-        return 'Evento';
+        return "Evento";
     }
   };
 
   const getEventColor = (eventType: string) => {
     switch (eventType) {
-      case 'hire':
-        return 'bg-green-100 text-green-800 border-green-300';
-      case 'reentry':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'termination':
-        return 'bg-red-100 text-red-800 border-red-300';
+      case "hire":
+        return "bg-green-100 text-green-800 border-green-300";
+      case "reentry":
+        return "bg-blue-100 text-blue-800 border-blue-300";
+      case "termination":
+        return "bg-red-100 text-red-800 border-red-300";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return "bg-gray-100 text-gray-800 border-gray-300";
     }
   };
 
@@ -72,9 +81,7 @@ export function EmployeeTimeline({ history, employeeName }: EmployeeTimelineProp
             <Calendar className="h-5 w-5" />
             Historial Laboral
           </CardTitle>
-          <CardDescription>
-            Línea de tiempo de {employeeName}
-          </CardDescription>
+          <CardDescription>Línea de tiempo de {employeeName}</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-8">
@@ -86,8 +93,9 @@ export function EmployeeTimeline({ history, employeeName }: EmployeeTimelineProp
   }
 
   // Ordenar eventos por fecha descendente (más reciente primero)
-  const sortedHistory = [...history].sort((a: any, b: any) => 
-    new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+  const sortedHistory = [...history].sort(
+    (a: any, b: any) =>
+      new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
   );
 
   return (
@@ -98,7 +106,8 @@ export function EmployeeTimeline({ history, employeeName }: EmployeeTimelineProp
           Historial Laboral
         </CardTitle>
         <CardDescription>
-          Línea de tiempo de {employeeName} ({sortedHistory.length} {sortedHistory.length === 1 ? 'evento' : 'eventos'})
+          Línea de tiempo de {employeeName} ({sortedHistory.length}{" "}
+          {sortedHistory.length === 1 ? "evento" : "eventos"})
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -116,7 +125,10 @@ export function EmployeeTimeline({ history, employeeName }: EmployeeTimelineProp
               {/* Contenido del evento */}
               <div className="flex-1 space-y-2 pb-4">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline" className={getEventColor(event.eventType)}>
+                  <Badge
+                    variant="outline"
+                    className={getEventColor(event.eventType)}
+                  >
                     {getEventLabel(event.eventType)}
                   </Badge>
                   <span className="text-sm text-muted-foreground">
@@ -129,7 +141,9 @@ export function EmployeeTimeline({ history, employeeName }: EmployeeTimelineProp
                     <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div>
                       <span className="font-medium">Motivo: </span>
-                      <span className="text-muted-foreground">{event.terminationReason}</span>
+                      <span className="text-muted-foreground">
+                        {event.terminationReason}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -139,7 +153,9 @@ export function EmployeeTimeline({ history, employeeName }: EmployeeTimelineProp
                     <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div>
                       <span className="font-medium">Notas: </span>
-                      <span className="text-muted-foreground">{event.notes}</span>
+                      <span className="text-muted-foreground">
+                        {event.notes}
+                      </span>
                     </div>
                   </div>
                 )}

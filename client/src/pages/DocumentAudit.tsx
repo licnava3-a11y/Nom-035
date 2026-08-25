@@ -1,13 +1,40 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Download, Eye, CheckCircle, Users, Activity, FileSpreadsheet } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  FileText,
+  Download,
+  Eye,
+  CheckCircle,
+  Users,
+  Activity,
+  FileSpreadsheet,
+} from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { loadXlsx } from "@/lib/loadXlsx";
@@ -48,10 +75,13 @@ export default function DocumentAudit() {
     pageSize: 50,
   });
 
-  const [trendsPeriod, setTrendsPeriod] = useState<"day" | "week" | "month">("day");
+  const [trendsPeriod, setTrendsPeriod] = useState<"day" | "week" | "month">(
+    "day"
+  );
 
   // Obtener log de auditoría
-  const { data: auditData, isLoading } = trpc.documentAudit.getAuditLog.useQuery(filters);
+  const { data: auditData, isLoading } =
+    trpc.documentAudit.getAuditLog.useQuery(filters);
 
   // Obtener estadísticas
   const { data: stats } = trpc.documentAudit.getStatistics.useQuery({
@@ -67,7 +97,7 @@ export default function DocumentAudit() {
   });
 
   const handleFilterChange = (key: string, value: any) => {
-    setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
+    setFilters(prev => ({ ...prev, [key]: value, page: 1 }));
   };
 
   const getActionIcon = (action: string) => {
@@ -92,10 +122,12 @@ export default function DocumentAudit() {
 
     // Preparar datos para Excel
     const excelData = auditData.logs.map((log: any) => ({
-      "Fecha y Hora": format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss", { locale: es }),
-      "Acción": getActionLabel(log.action),
-      "Usuario": log.userName,
-      "Email": log.userEmail || "N/A",
+      "Fecha y Hora": format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss", {
+        locale: es,
+      }),
+      Acción: getActionLabel(log.action),
+      Usuario: log.userName,
+      Email: log.userEmail || "N/A",
       "Reporte ID": log.reportId,
       "Dirección IP": log.ipAddress || "N/A",
       "User Agent": log.userAgent || "N/A",
@@ -142,9 +174,12 @@ export default function DocumentAudit() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Auditoría de Documentos</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Auditoría de Documentos
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Registro completo de accesos, visualizaciones y descargas de documentos según ISO 9001
+          Registro completo de accesos, visualizaciones y descargas de
+          documentos según ISO 9001
         </p>
       </div>
 
@@ -153,7 +188,9 @@ export default function DocumentAudit() {
         <div className="grid gap-4 md:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Accesos</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total de Accesos
+              </CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -163,7 +200,9 @@ export default function DocumentAudit() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Visualizaciones</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Visualizaciones
+              </CardTitle>
               <Eye className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
@@ -183,7 +222,9 @@ export default function DocumentAudit() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Verificaciones</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Verificaciones
+              </CardTitle>
               <CheckCircle className="h-4 w-4 text-purple-500" />
             </CardHeader>
             <CardContent>
@@ -193,7 +234,9 @@ export default function DocumentAudit() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Usuarios Únicos</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Usuarios Únicos
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -212,11 +255,15 @@ export default function DocumentAudit() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Accesos por Periodo</CardTitle>
-                  <CardDescription>Tendencia de accesos a documentos</CardDescription>
+                  <CardDescription>
+                    Tendencia de accesos a documentos
+                  </CardDescription>
                 </div>
                 <Select
                   value={trendsPeriod}
-                  onValueChange={(value: "day" | "week" | "month") => setTrendsPeriod(value)}
+                  onValueChange={(value: "day" | "week" | "month") =>
+                    setTrendsPeriod(value)
+                  }
                 >
                   <SelectTrigger className="w-[150px]">
                     <SelectValue />
@@ -233,11 +280,15 @@ export default function DocumentAudit() {
               <div style={{ height: "300px" }}>
                 <Line
                   data={{
-                    labels: trendsData.accessesByPeriod.map((item: any) => item.period),
+                    labels: trendsData.accessesByPeriod.map(
+                      (item: any) => item.period
+                    ),
                     datasets: [
                       {
                         label: "Accesos",
-                        data: trendsData.accessesByPeriod.map((item: any) => item.count),
+                        data: trendsData.accessesByPeriod.map(
+                          (item: any) => item.count
+                        ),
                         borderColor: "rgb(59, 130, 246)",
                         backgroundColor: "rgba(59, 130, 246, 0.1)",
                         tension: 0.4,
@@ -267,7 +318,9 @@ export default function DocumentAudit() {
           <Card>
             <CardHeader>
               <CardTitle>Distribución por Tipo de Acción</CardTitle>
-              <CardDescription>Proporción de acciones realizadas</CardDescription>
+              <CardDescription>
+                Proporción de acciones realizadas
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ height: "300px" }}>
@@ -319,11 +372,15 @@ export default function DocumentAudit() {
               <div style={{ height: "300px" }}>
                 <Bar
                   data={{
-                    labels: trendsData.topUsers.map((user: any) => user.userName),
+                    labels: trendsData.topUsers.map(
+                      (user: any) => user.userName
+                    ),
                     datasets: [
                       {
                         label: "Accesos",
-                        data: trendsData.topUsers.map((user: any) => user.count),
+                        data: trendsData.topUsers.map(
+                          (user: any) => user.count
+                        ),
                         backgroundColor: "rgba(59, 130, 246, 0.8)",
                         borderColor: "rgb(59, 130, 246)",
                         borderWidth: 1,
@@ -356,7 +413,9 @@ export default function DocumentAudit() {
       <Card>
         <CardHeader>
           <CardTitle>Filtros de Búsqueda</CardTitle>
-          <CardDescription>Filtra el log de auditoría por acción, fecha o usuario</CardDescription>
+          <CardDescription>
+            Filtra el log de auditoría por acción, fecha o usuario
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-4">
@@ -364,7 +423,12 @@ export default function DocumentAudit() {
               <Label htmlFor="action">Tipo de Acción</Label>
               <Select
                 value={filters.action || "all"}
-                onValueChange={(value) => handleFilterChange("action", value === "all" ? undefined : value)}
+                onValueChange={value =>
+                  handleFilterChange(
+                    "action",
+                    value === "all" ? undefined : value
+                  )
+                }
               >
                 <SelectTrigger id="action">
                   <SelectValue placeholder="Todas las acciones" />
@@ -384,7 +448,7 @@ export default function DocumentAudit() {
                 id="startDate"
                 type="date"
                 value={filters.startDate}
-                onChange={(e) => handleFilterChange("startDate", e.target.value)}
+                onChange={e => handleFilterChange("startDate", e.target.value)}
               />
             </div>
 
@@ -394,7 +458,7 @@ export default function DocumentAudit() {
                 id="endDate"
                 type="date"
                 value={filters.endDate}
-                onChange={(e) => handleFilterChange("endDate", e.target.value)}
+                onChange={e => handleFilterChange("endDate", e.target.value)}
               />
             </div>
 
@@ -405,7 +469,7 @@ export default function DocumentAudit() {
                 type="text"
                 placeholder="Nombre o email..."
                 value={filters.search}
-                onChange={(e) => handleFilterChange("search", e.target.value)}
+                onChange={e => handleFilterChange("search", e.target.value)}
               />
             </div>
           </div>
@@ -437,7 +501,9 @@ export default function DocumentAudit() {
             <div>
               <CardTitle>Registro de Auditoría</CardTitle>
               <CardDescription>
-                {auditData ? `${auditData.total} registros encontrados` : "Cargando..."}
+                {auditData
+                  ? `${auditData.total} registros encontrados`
+                  : "Cargando..."}
               </CardDescription>
             </div>
             <Button
@@ -452,7 +518,9 @@ export default function DocumentAudit() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando registros...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              Cargando registros...
+            </div>
           ) : auditData && auditData.logs.length > 0 ? (
             <>
               <div className="rounded-md border">
@@ -471,7 +539,11 @@ export default function DocumentAudit() {
                     {auditData.logs.map((log: any) => (
                       <TableRow key={log.id}>
                         <TableCell>
-                          {format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss", { locale: es })}
+                          {format(
+                            new Date(log.timestamp),
+                            "dd/MM/yyyy HH:mm:ss",
+                            { locale: es }
+                          )}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -479,20 +551,28 @@ export default function DocumentAudit() {
                             <span>{getActionLabel(log.action)}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-xs truncate">{log.reportTitle || "Sin título"}</TableCell>
+                        <TableCell className="max-w-xs truncate">
+                          {log.reportTitle || "Sin título"}
+                        </TableCell>
                         <TableCell>
-                          <span className="font-mono text-sm">{log.reportFolio || "N/A"}</span>
+                          <span className="font-mono text-sm">
+                            {log.reportFolio || "N/A"}
+                          </span>
                         </TableCell>
                         <TableCell>
                           <div>
                             <div className="font-medium">{log.userName}</div>
                             {log.userEmail && (
-                              <div className="text-sm text-muted-foreground">{log.userEmail}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {log.userEmail}
+                              </div>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="font-mono text-xs">{log.ipAddress || "N/A"}</span>
+                          <span className="font-mono text-xs">
+                            {log.ipAddress || "N/A"}
+                          </span>
                         </TableCell>
                       </TableRow>
                     ))}

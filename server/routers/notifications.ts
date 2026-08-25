@@ -60,7 +60,7 @@ export const notificationsRouter = router({
    * Mark notification as read
    */
   markAsRead: protectedProcedure
-    .use(requirePermission('can_edit'))
+    .use(requirePermission("can_edit"))
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -83,23 +83,23 @@ export const notificationsRouter = router({
    * Mark all notifications as read
    */
   markAllAsRead: protectedProcedure
-    .use(requirePermission('can_edit'))
+    .use(requirePermission("can_edit"))
     .mutation(async ({ ctx }) => {
-    const db = await getDb();
-    if (!db) throw new Error("Database not available");
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
-    await db
-      .update(notifications)
-      .set({ isRead: true } as any)
-      .where(
-        and(
-          eq(notifications.userId, ctx.user!.id),
-          eq(notifications.isRead, false)
-        )
-      );
+      await db
+        .update(notifications)
+        .set({ isRead: true } as any)
+        .where(
+          and(
+            eq(notifications.userId, ctx.user!.id),
+            eq(notifications.isRead, false)
+          )
+        );
 
-    return { success: true };
-  }),
+      return { success: true };
+    }),
 
   /**
    * Create notification (admin only)
@@ -151,7 +151,11 @@ export const notificationsRouter = router({
       // Emitir notificación en tiempo real vía WebSocket
       try {
         // Buscar el openId del usuario para emitir la notificación
-        const userResult = await db.select().from(notifications).where(eq(notifications.id, result.insertId)).limit(1);
+        const userResult = await db
+          .select()
+          .from(notifications)
+          .where(eq(notifications.id, result.insertId))
+          .limit(1);
         if (userResult.length > 0) {
           const notification = userResult[0];
           // Nota: Necesitamos el openId del usuario, no el id numérico
@@ -167,7 +171,10 @@ export const notificationsRouter = router({
           });
         }
       } catch (err) {
-        console.error("[Notifications] Error al emitir notificación WebSocket:", err);
+        console.error(
+          "[Notifications] Error al emitir notificación WebSocket:",
+          err
+        );
       }
 
       return { success: true, id: result.insertId };
@@ -177,7 +184,7 @@ export const notificationsRouter = router({
    * Delete notification
    */
   delete: protectedProcedure
-    .use(requirePermission('can_delete'))
+    .use(requirePermission("can_delete"))
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();

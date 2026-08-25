@@ -49,8 +49,9 @@ describe("Sprint 80 — Módulo de Comité NOM-035", () => {
       ];
 
       const umbral = 30;
-      const proximos = integrantes.filter((m) => {
-        const diff = (m.expiryDate.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24);
+      const proximos = integrantes.filter(m => {
+        const diff =
+          (m.expiryDate.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24);
         return diff >= 0 && diff <= umbral;
       });
 
@@ -106,7 +107,7 @@ describe("Sprint 80 — Módulo de Comité NOM-035", () => {
     it("calcula el porcentaje de cumplimiento de acuerdos", () => {
       const calcularCumplimiento = (acuerdos: { status: string }[]) => {
         if (!acuerdos.length) return 0;
-        const cumplidos = acuerdos.filter((a) => a.status === "completed").length;
+        const cumplidos = acuerdos.filter(a => a.status === "completed").length;
         return Math.round((cumplidos / acuerdos.length) * 100);
       };
 
@@ -131,7 +132,7 @@ describe("Sprint 80 — Módulo de Comité NOM-035", () => {
       ];
 
       const vencidos = acuerdos.filter(
-        (a) => a.status !== "completed" && a.dueDate < hoy
+        a => a.status !== "completed" && a.dueDate < hoy
       );
 
       expect(vencidos).toHaveLength(1);
@@ -170,7 +171,8 @@ describe("Sprint 80 — Módulo de Comité NOM-035", () => {
         return b64Regex.test(s.replace(/^data:image\/[a-z]+;base64,/, ""));
       };
 
-      const firmaValida = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+      const firmaValida =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
       const firmaInvalida = "no-es-base64";
 
       expect(esBase64Valido(firmaValida)).toBe(true);
@@ -200,7 +202,9 @@ describe("Sprint 81 — Portal del Empleado", () => {
     it("genera un token UUID v4 válido", () => {
       const uuidRegex =
         /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-      const { v4: uuidv4 } = { v4: () => "550e8400-e29b-41d4-a716-446655440000" };
+      const { v4: uuidv4 } = {
+        v4: () => "550e8400-e29b-41d4-a716-446655440000",
+      };
       expect(uuidRegex.test(uuidv4())).toBe(true);
     });
 
@@ -212,8 +216,7 @@ describe("Sprint 81 — Portal del Empleado", () => {
       };
 
       const expiry = calcularExpiracion(7);
-      const diffDias =
-        (expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      const diffDias = (expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
       expect(diffDias).toBeGreaterThan(6.9);
       expect(diffDias).toBeLessThan(7.1);
     });
@@ -229,8 +232,14 @@ describe("Sprint 81 — Portal del Empleado", () => {
     });
 
     it("valida que el token no haya sido revocado", () => {
-      const tokenActivo = { isActive: true, expiresAt: new Date(Date.now() + 86400000) };
-      const tokenRevocado = { isActive: false, expiresAt: new Date(Date.now() + 86400000) };
+      const tokenActivo = {
+        isActive: true,
+        expiresAt: new Date(Date.now() + 86400000),
+      };
+      const tokenRevocado = {
+        isActive: false,
+        expiresAt: new Date(Date.now() + 86400000),
+      };
 
       const esValido = (t: { isActive: boolean; expiresAt: Date }) =>
         t.isActive && new Date() < t.expiresAt;
@@ -248,16 +257,14 @@ describe("Sprint 81 — Portal del Empleado", () => {
         { id: 3, title: "Encuesta NOM-035 Q2 2026", status: "pending" },
       ];
 
-      const pendientes = encuestas.filter((e) => e.status === "pending");
+      const pendientes = encuestas.filter(e => e.status === "pending");
       expect(pendientes).toHaveLength(2);
     });
 
     it("calcula el porcentaje de cursos completados del empleado", () => {
-      const calcularAvanceCursos = (
-        cursos: { status: string }[]
-      ) => {
+      const calcularAvanceCursos = (cursos: { status: string }[]) => {
         if (!cursos.length) return 0;
-        const completados = cursos.filter((c) => c.status === "completed").length;
+        const completados = cursos.filter(c => c.status === "completed").length;
         return Math.round((completados / cursos.length) * 100);
       };
 
@@ -279,7 +286,7 @@ describe("Sprint 81 — Portal del Empleado", () => {
         { id: 3, type: "acta", signedAt: new Date("2026-05-01") },
       ];
 
-      const firmados = documentos.filter((d) => d.signedAt !== null);
+      const firmados = documentos.filter(d => d.signedAt !== null);
       expect(firmados).toHaveLength(2);
     });
   });
@@ -342,7 +349,8 @@ describe("Sprint 82 — Formatos STPS/IMSS (DC-1 y SIRCE)", () => {
     });
 
     it("valida que la duración de la capacitación sea positiva", () => {
-      const validarDuracion = (horas: number) => horas > 0 && Number.isInteger(horas);
+      const validarDuracion = (horas: number) =>
+        horas > 0 && Number.isInteger(horas);
       expect(validarDuracion(8)).toBe(true);
       expect(validarDuracion(0)).toBe(false);
       expect(validarDuracion(-1)).toBe(false);
@@ -368,7 +376,11 @@ describe("Sprint 82 — Formatos STPS/IMSS (DC-1 y SIRCE)", () => {
 
   describe("XML SIRCE — Registro de Capacitación STPS", () => {
     it("genera el XML SIRCE con la estructura correcta", () => {
-      const buildSirceXml = (rfcEmpresa: string, razonSocial: string, registros: number) => {
+      const buildSirceXml = (
+        rfcEmpresa: string,
+        razonSocial: string,
+        registros: number
+      ) => {
         return `<?xml version="1.0" encoding="UTF-8"?>
 <SIRCE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="2.0">
   <Empresa>

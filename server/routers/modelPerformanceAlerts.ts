@@ -67,7 +67,9 @@ export const modelPerformanceAlertsRouter = router({
           .limit(input.limit);
 
         if (input.severity) {
-          query = query.where(eq(modelPerformanceAlerts.severity, input.severity)) as any;
+          query = query.where(
+            eq(modelPerformanceAlerts.severity, input.severity)
+          ) as any;
         }
 
         const alerts = await query;
@@ -139,16 +141,24 @@ export const modelPerformanceAlertsRouter = router({
       const allAlerts = await db.select().from(modelPerformanceAlerts);
 
       const activeAlerts = allAlerts.filter(a => !a.isResolved);
-      const criticalAlerts = activeAlerts.filter(a => a.severity === "critical");
+      const criticalAlerts = activeAlerts.filter(
+        a => a.severity === "critical"
+      );
       const highAlerts = activeAlerts.filter(a => a.severity === "high");
       const mediumAlerts = activeAlerts.filter(a => a.severity === "medium");
       const lowAlerts = activeAlerts.filter(a => a.severity === "low");
 
       // Alertas por tipo de métrica
-      const precisionAlerts = activeAlerts.filter(a => a.metricName === "precision");
+      const precisionAlerts = activeAlerts.filter(
+        a => a.metricName === "precision"
+      );
       const recallAlerts = activeAlerts.filter(a => a.metricName === "recall");
-      const f1ScoreAlerts = activeAlerts.filter(a => a.metricName === "f1Score");
-      const accuracyAlerts = activeAlerts.filter(a => a.metricName === "accuracy");
+      const f1ScoreAlerts = activeAlerts.filter(
+        a => a.metricName === "f1Score"
+      );
+      const accuracyAlerts = activeAlerts.filter(
+        a => a.metricName === "accuracy"
+      );
 
       return {
         total: allAlerts.length,

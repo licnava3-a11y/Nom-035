@@ -20,7 +20,8 @@ describe("Cases Debug - Crear caso con datos del formulario", () => {
       reporterPhone: "(555) 987-6543",
       isAnonymous: false,
       caseType: "stress",
-      description: "Caso de prueba para verificar la creación desde el formulario. El empleado reporta altos niveles de estrés debido a sobrecarga de trabajo.",
+      description:
+        "Caso de prueba para verificar la creación desde el formulario. El empleado reporta altos niveles de estrés debido a sobrecarga de trabajo.",
     });
 
     console.log("✅ Resultado de creación:", result);
@@ -41,7 +42,8 @@ describe("Cases Debug - Crear caso con datos del formulario", () => {
     const result = await caller.cases.create({
       isAnonymous: true,
       caseType: "mobbing",
-      description: "Caso anónimo de mobbing laboral. Se reporta acoso por parte de un supervisor.",
+      description:
+        "Caso anónimo de mobbing laboral. Se reporta acoso por parte de un supervisor.",
     });
 
     console.log("✅ Resultado de creación anónima:", result);

@@ -7,17 +7,19 @@ export default function GuideI() {
 
   useEffect(() => {
     // Detectar si hay un token anónimo en sessionStorage (viene de AnonymousSurveyAccess)
-    const token = sessionStorage.getItem('anonymousToken');
+    const token = sessionStorage.getItem("anonymousToken");
     if (token) {
       setAnonymousToken(token);
     }
   }, []);
   return (
     <div>
-      <Breadcrumb items={[
-        { label: "Encuestas NOM-035", href: "/surveys" },
-        { label: "Guía I - ATS" }
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: "Encuestas NOM-035", href: "/surveys" },
+          { label: "Guía I - ATS" },
+        ]}
+      />
       <SurveyForm
         surveyId={1}
         title="Guía de Referencia I"

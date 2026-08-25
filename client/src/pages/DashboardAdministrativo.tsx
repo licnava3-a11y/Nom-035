@@ -2,11 +2,23 @@ import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import ProtectedButton from "@/components/ProtectedButton";
-import { DollarSign, ShoppingCart, Receipt, TrendingUp, Download } from "lucide-react";
+import {
+  DollarSign,
+  ShoppingCart,
+  Receipt,
+  TrendingUp,
+  Download,
+} from "lucide-react";
 import Chart from "chart.js/auto";
 
 export default function DashboardAdministrativo() {
@@ -21,12 +33,15 @@ export default function DashboardAdministrativo() {
   const barChartInstance = useRef<Chart | null>(null);
 
   // Función para descargar gráfico como PNG
-  const downloadChartAsPNG = (canvas: HTMLCanvasElement | null, filename: string) => {
+  const downloadChartAsPNG = (
+    canvas: HTMLCanvasElement | null,
+    filename: string
+  ) => {
     if (!canvas) return;
-    canvas.toBlob((blob) => {
+    canvas.toBlob(blob => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = filename;
       link.click();
@@ -42,26 +57,58 @@ export default function DashboardAdministrativo() {
       [""],
       ["KPIs Generales"],
       ["Métrica", "Cantidad", "Monto Total"],
-      ["Facturas Registradas", totalInvoices, `$${totalInvoiceAmount.toFixed(2)}`],
-      ["Órdenes de Compra", totalPurchaseOrders, `$${totalPurchaseAmount.toFixed(2)}`],
-      ["Solicitudes de Gasto", totalExpenseRequests, `$${totalExpenseAmount.toFixed(2)}`],
+      [
+        "Facturas Registradas",
+        totalInvoices,
+        `$${totalInvoiceAmount.toFixed(2)}`,
+      ],
+      [
+        "Órdenes de Compra",
+        totalPurchaseOrders,
+        `$${totalPurchaseAmount.toFixed(2)}`,
+      ],
+      [
+        "Solicitudes de Gasto",
+        totalExpenseRequests,
+        `$${totalExpenseAmount.toFixed(2)}`,
+      ],
       [""],
       ["Facturas Detalle"],
       ["Folio", "Proveedor", "Monto", "Fecha", "Estado"],
-      ...filteredInvoices.map(inv => [inv.folio, inv.proveedor, inv.monto, inv.fecha, inv.estado]),
+      ...filteredInvoices.map(inv => [
+        inv.folio,
+        inv.proveedor,
+        inv.monto,
+        inv.fecha,
+        inv.estado,
+      ]),
       [""],
       ["Órdenes de Compra Detalle"],
       ["Folio", "Proveedor", "Monto", "Fecha", "Estado"],
-      ...filteredPurchaseOrders.map(po => [po.folio, po.proveedor, po.monto, po.fecha, po.estado]),
+      ...filteredPurchaseOrders.map(po => [
+        po.folio,
+        po.proveedor,
+        po.monto,
+        po.fecha,
+        po.estado,
+      ]),
       [""],
       ["Solicitudes de Gasto Detalle"],
       ["Folio", "Concepto", "Monto", "Categoría", "Estado"],
-      ...filteredExpenseRequests.map(exp => [exp.folio, exp.concepto, exp.monto, exp.categoria, exp.estado]),
+      ...filteredExpenseRequests.map(exp => [
+        exp.folio,
+        exp.concepto,
+        exp.monto,
+        exp.categoria,
+        exp.estado,
+      ]),
     ];
 
     // Convertir a CSV
     const csv = data.map(row => row.join(",")).join("\n");
-    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["\ufeff" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `dashboard-financiero-${new Date().toISOString().split("T")[0]}.csv`;
@@ -129,27 +176,35 @@ export default function DashboardAdministrativo() {
 
   // Queries
   const { data: invoices } = trpc.financial.getAllInvoices.useQuery();
-  const { data: purchaseOrders } = trpc.financial.getAllPurchaseOrders.useQuery();
-  const { data: expenseRequests } = trpc.financial.getAllExpenseRequests.useQuery();
+  const { data: purchaseOrders } =
+    trpc.financial.getAllPurchaseOrders.useQuery();
+  const { data: expenseRequests } =
+    trpc.financial.getAllExpenseRequests.useQuery();
 
   // Función de filtrado
   const filterData = (data: any[] | undefined, type: string) => {
     if (!data) return [];
-    
+
     return data.filter((item: any) => {
       // Filtro por departamento
-      if (departamento !== "todos" && item.departamento !== departamento) return false;
-      
+      if (departamento !== "todos" && item.departamento !== departamento)
+        return false;
+
       // Filtro por categoría (solo para solicitudes de gasto)
-      if (categoria !== "todos" && type === "expenses" && item.categoria !== categoria) return false;
-      
+      if (
+        categoria !== "todos" &&
+        type === "expenses" &&
+        item.categoria !== categoria
+      )
+        return false;
+
       // Filtro por rango de fechas
       if (fechaInicio || fechaFin) {
         const itemDate = new Date(item.fecha || item.fechaSolicitud);
         if (fechaInicio && itemDate < new Date(fechaInicio)) return false;
         if (fechaFin && itemDate > new Date(fechaFin)) return false;
       }
-      
+
       return true;
     });
   };
@@ -164,13 +219,28 @@ export default function DashboardAdministrativo() {
   const totalPurchaseOrders = filteredPurchaseOrders.length;
   const totalExpenseRequests = filteredExpenseRequests.length;
 
-  const totalInvoiceAmount = filteredInvoices.reduce((sum: any, inv: any) => sum + parseFloat(inv.monto), 0);
-  const totalPurchaseAmount = filteredPurchaseOrders.reduce((sum: any, po: any) => sum + parseFloat(po.monto), 0);
-  const totalExpenseAmount = filteredExpenseRequests.reduce((sum: any, exp: any) => sum + parseFloat(exp.monto), 0);
+  const totalInvoiceAmount = filteredInvoices.reduce(
+    (sum: any, inv: any) => sum + parseFloat(inv.monto),
+    0
+  );
+  const totalPurchaseAmount = filteredPurchaseOrders.reduce(
+    (sum: any, po: any) => sum + parseFloat(po.monto),
+    0
+  );
+  const totalExpenseAmount = filteredExpenseRequests.reduce(
+    (sum: any, exp: any) => sum + parseFloat(exp.monto),
+    0
+  );
 
   // Preparar datos para gráfico de tendencias
   useEffect(() => {
-    if (!chartRef.current || !filteredInvoices || !filteredPurchaseOrders || !filteredExpenseRequests) return;
+    if (
+      !chartRef.current ||
+      !filteredInvoices ||
+      !filteredPurchaseOrders ||
+      !filteredExpenseRequests
+    )
+      return;
 
     // Destruir gráfico anterior si existe
     if (chartInstance.current) {
@@ -178,17 +248,24 @@ export default function DashboardAdministrativo() {
     }
 
     // Agrupar datos por mes
-    const monthlyData = new Map<string, { invoices: number; purchaseOrders: number; expenseRequests: number }>();
+    const monthlyData = new Map<
+      string,
+      { invoices: number; purchaseOrders: number; expenseRequests: number }
+    >();
 
     const processData = (items: any[], key: string) => {
       items.forEach((item: any) => {
         const date = new Date(item.fecha || item.fechaSolicitud);
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-        
+
         if (!monthlyData.has(monthKey)) {
-          monthlyData.set(monthKey, { invoices: 0, purchaseOrders: 0, expenseRequests: 0 });
+          monthlyData.set(monthKey, {
+            invoices: 0,
+            purchaseOrders: 0,
+            expenseRequests: 0,
+          });
         }
-        
+
         const current = monthlyData.get(monthKey)!;
         if (key === "invoices") current.invoices += 1;
         if (key === "purchaseOrders") current.purchaseOrders += 1;
@@ -202,18 +279,28 @@ export default function DashboardAdministrativo() {
 
     // Ordenar por fecha y obtener últimos N meses según periodo
     const sortedMonths = Array.from(monthlyData.keys()).sort();
-    const monthsToShow = periodo === "mes" ? 6 : periodo === "trimestre" ? 12 : 24;
+    const monthsToShow =
+      periodo === "mes" ? 6 : periodo === "trimestre" ? 12 : 24;
     const recentMonths = sortedMonths.slice(-monthsToShow);
 
     const labels = recentMonths.map((month: any) => {
       const [year, monthNum] = month.split("-");
       const date = new Date(parseInt(year), parseInt(monthNum) - 1);
-      return date.toLocaleDateString("es-MX", { month: "short", year: "numeric" });
+      return date.toLocaleDateString("es-MX", {
+        month: "short",
+        year: "numeric",
+      });
     });
 
-    const invoicesData = recentMonths.map((month: any) => monthlyData.get(month)?.invoices || 0);
-    const purchaseOrdersData = recentMonths.map((month: any) => monthlyData.get(month)?.purchaseOrders || 0);
-    const expenseRequestsData = recentMonths.map((month: any) => monthlyData.get(month)?.expenseRequests || 0);
+    const invoicesData = recentMonths.map(
+      (month: any) => monthlyData.get(month)?.invoices || 0
+    );
+    const purchaseOrdersData = recentMonths.map(
+      (month: any) => monthlyData.get(month)?.purchaseOrders || 0
+    );
+    const expenseRequestsData = recentMonths.map(
+      (month: any) => monthlyData.get(month)?.expenseRequests || 0
+    );
 
     // Crear gráfico con Chart.js
     const ctx = chartRef.current.getContext("2d");
@@ -302,11 +389,22 @@ export default function DashboardAdministrativo() {
         chartInstance.current.destroy();
       }
     };
-  }, [filteredInvoices, filteredPurchaseOrders, filteredExpenseRequests, periodo]);
+  }, [
+    filteredInvoices,
+    filteredPurchaseOrders,
+    filteredExpenseRequests,
+    periodo,
+  ]);
 
   // Preparar datos para bar chart comparativo por departamento
   useEffect(() => {
-    if (!barChartRef.current || !filteredInvoices || !filteredPurchaseOrders || !filteredExpenseRequests) return;
+    if (
+      !barChartRef.current ||
+      !filteredInvoices ||
+      !filteredPurchaseOrders ||
+      !filteredExpenseRequests
+    )
+      return;
 
     // Destruir gráfico anterior si existe
     if (barChartInstance.current) {
@@ -314,16 +412,23 @@ export default function DashboardAdministrativo() {
     }
 
     // Agrupar datos por departamento
-    const departmentData = new Map<string, { invoices: number; purchaseOrders: number; expenseRequests: number }>();
+    const departmentData = new Map<
+      string,
+      { invoices: number; purchaseOrders: number; expenseRequests: number }
+    >();
 
     const processByDepartment = (items: any[], key: string) => {
       items.forEach((item: any) => {
         const dept = item.departamento || "Sin departamento";
-        
+
         if (!departmentData.has(dept)) {
-          departmentData.set(dept, { invoices: 0, purchaseOrders: 0, expenseRequests: 0 });
+          departmentData.set(dept, {
+            invoices: 0,
+            purchaseOrders: 0,
+            expenseRequests: 0,
+          });
         }
-        
+
         const current = departmentData.get(dept)!;
         const amount = parseFloat(item.monto || 0);
         if (key === "invoices") current.invoices += amount;
@@ -337,9 +442,15 @@ export default function DashboardAdministrativo() {
     processByDepartment(filteredExpenseRequests, "expenseRequests");
 
     const departments = Array.from(departmentData.keys());
-    const invoicesAmounts = departments.map((dept: any) => departmentData.get(dept)?.invoices || 0);
-    const purchaseOrdersAmounts = departments.map((dept: any) => departmentData.get(dept)?.purchaseOrders || 0);
-    const expenseRequestsAmounts = departments.map((dept: any) => departmentData.get(dept)?.expenseRequests || 0);
+    const invoicesAmounts = departments.map(
+      (dept: any) => departmentData.get(dept)?.invoices || 0
+    );
+    const purchaseOrdersAmounts = departments.map(
+      (dept: any) => departmentData.get(dept)?.purchaseOrders || 0
+    );
+    const expenseRequestsAmounts = departments.map(
+      (dept: any) => departmentData.get(dept)?.expenseRequests || 0
+    );
 
     // Crear bar chart con Chart.js
     const ctx = barChartRef.current.getContext("2d");
@@ -353,23 +464,35 @@ export default function DashboardAdministrativo() {
           {
             label: "Facturas",
             data: invoicesAmounts,
-            backgroundColor: departments.map((dept: any) => dept === departamento ? "#059669" : "#10b981"), // Verde más intenso si filtrado
+            backgroundColor: departments.map((dept: any) =>
+              dept === departamento ? "#059669" : "#10b981"
+            ), // Verde más intenso si filtrado
             borderColor: "#10b981",
-            borderWidth: departments.map((dept: any) => dept === departamento ? 3 : 1),
+            borderWidth: departments.map((dept: any) =>
+              dept === departamento ? 3 : 1
+            ),
           },
           {
             label: "Órdenes de Compra",
             data: purchaseOrdersAmounts,
-            backgroundColor: departments.map((dept: any) => dept === departamento ? "#1e3a8a" : "rgba(30, 58, 138, 0.8)"), // Azul más intenso si filtrado
+            backgroundColor: departments.map((dept: any) =>
+              dept === departamento ? "#1e3a8a" : "rgba(30, 58, 138, 0.8)"
+            ), // Azul más intenso si filtrado
             borderColor: "#1e3a8a",
-            borderWidth: departments.map((dept: any) => dept === departamento ? 3 : 1),
+            borderWidth: departments.map((dept: any) =>
+              dept === departamento ? 3 : 1
+            ),
           },
           {
             label: "Solicitudes de Gasto",
             data: expenseRequestsAmounts,
-            backgroundColor: departments.map((dept: any) => dept === departamento ? "#b91c1c" : "#dc2626"), // Rojo más intenso si filtrado
+            backgroundColor: departments.map((dept: any) =>
+              dept === departamento ? "#b91c1c" : "#dc2626"
+            ), // Rojo más intenso si filtrado
             borderColor: "#dc2626",
-            borderWidth: departments.map((dept: any) => dept === departamento ? 3 : 1),
+            borderWidth: departments.map((dept: any) =>
+              dept === departamento ? 3 : 1
+            ),
           },
         ],
       },
@@ -384,7 +507,7 @@ export default function DashboardAdministrativo() {
           if (elements.length > 0) {
             const index = elements[0].index;
             const clickedDepartment = departments[index];
-            
+
             // Si ya está filtrado por este departamento, limpiar filtro
             if (departamento === clickedDepartment) {
               setDepartamento("todos");
@@ -415,15 +538,15 @@ export default function DashboardAdministrativo() {
           },
           tooltip: {
             callbacks: {
-              title: function(context) {
+              title: function (context) {
                 return context[0].label || "";
               },
-              label: function(context) {
+              label: function (context) {
                 const value = context.parsed.y || 0;
                 const datasetLabel = context.dataset.label || "";
                 return `${datasetLabel}: $${value.toLocaleString()}`;
               },
-              afterBody: function() {
+              afterBody: function () {
                 return "\nℹ️ Haz clic para filtrar por departamento";
               },
             },
@@ -434,7 +557,7 @@ export default function DashboardAdministrativo() {
             beginAtZero: true,
             ticks: {
               color: "#000000",
-              callback: function(value) {
+              callback: function (value) {
                 return "$" + value.toLocaleString();
               },
             },
@@ -459,7 +582,12 @@ export default function DashboardAdministrativo() {
         barChartInstance.current.destroy();
       }
     };
-  }, [filteredInvoices, filteredPurchaseOrders, filteredExpenseRequests, departamento]);
+  }, [
+    filteredInvoices,
+    filteredPurchaseOrders,
+    filteredExpenseRequests,
+    departamento,
+  ]);
 
   return (
     <div className="container mx-auto py-6">
@@ -473,8 +601,13 @@ export default function DashboardAdministrativo() {
       <div className="mb-6 mt-6">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard Administrativo Financiero</h1>
-            <p className="text-muted-foreground mt-2">Resumen y tendencias de facturas, órdenes de compra y solicitudes de gasto</p>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Dashboard Administrativo Financiero
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Resumen y tendencias de facturas, órdenes de compra y solicitudes
+              de gasto
+            </p>
           </div>
           <div className="flex gap-2">
             <ProtectedButton
@@ -495,12 +628,15 @@ export default function DashboardAdministrativo() {
             </ProtectedButton>
           </div>
         </div>
-        
+
         {/* Filtros Avanzados */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-muted/50 rounded-lg">
           <div>
             <label className="text-sm font-medium mb-2 block">Periodo</label>
-            <Select value={periodo} onValueChange={(value: any) => setPeriodo(value)}>
+            <Select
+              value={periodo}
+              onValueChange={(value: any) => setPeriodo(value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -511,23 +647,27 @@ export default function DashboardAdministrativo() {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
-            <label className="text-sm font-medium mb-2 block">Departamento</label>
+            <label className="text-sm font-medium mb-2 block">
+              Departamento
+            </label>
             <Select value={departamento} onValueChange={setDepartamento}>
               <SelectTrigger>
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="Recursos Humanos">Recursos Humanos</SelectItem>
+                <SelectItem value="Recursos Humanos">
+                  Recursos Humanos
+                </SelectItem>
                 <SelectItem value="Administración">Administración</SelectItem>
                 <SelectItem value="Operaciones">Operaciones</SelectItem>
                 <SelectItem value="Capacitación">Capacitación</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <label className="text-sm font-medium mb-2 block">Categoría</label>
             <Select value={categoria} onValueChange={setCategoria}>
@@ -544,23 +684,25 @@ export default function DashboardAdministrativo() {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
-            <label className="text-sm font-medium mb-2 block">Fecha Inicio</label>
+            <label className="text-sm font-medium mb-2 block">
+              Fecha Inicio
+            </label>
             <input
               type="date"
               value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
+              onChange={e => setFechaInicio(e.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
           </div>
-          
+
           <div>
             <label className="text-sm font-medium mb-2 block">Fecha Fin</label>
             <input
               type="date"
               value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
+              onChange={e => setFechaFin(e.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
           </div>
@@ -571,7 +713,9 @@ export default function DashboardAdministrativo() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Facturas Registradas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Facturas Registradas
+            </CardTitle>
             <Receipt className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -584,7 +728,9 @@ export default function DashboardAdministrativo() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Órdenes de Compra</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Órdenes de Compra
+            </CardTitle>
             <ShoppingCart className="w-4 h-4 text-blue-900" />
           </CardHeader>
           <CardContent>
@@ -597,7 +743,9 @@ export default function DashboardAdministrativo() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Solicitudes de Gasto</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Solicitudes de Gasto
+            </CardTitle>
             <DollarSign className="w-4 h-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -620,7 +768,12 @@ export default function DashboardAdministrativo() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => downloadChartAsPNG(chartRef.current, 'tendencias-financieras.png')}
+              onClick={() =>
+                downloadChartAsPNG(
+                  chartRef.current,
+                  "tendencias-financieras.png"
+                )
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               Descargar PNG
@@ -645,7 +798,12 @@ export default function DashboardAdministrativo() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => downloadChartAsPNG(barChartRef.current, 'comparativo-departamento.png')}
+              onClick={() =>
+                downloadChartAsPNG(
+                  barChartRef.current,
+                  "comparativo-departamento.png"
+                )
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               Descargar PNG

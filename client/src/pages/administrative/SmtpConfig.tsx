@@ -3,11 +3,25 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 // Toast no disponible, usar Alert nativo
-import { Loader2, Mail, Server, Lock, User, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  Loader2,
+  Mail,
+  Server,
+  Lock,
+  User,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
 
 export default function SmtpConfig() {
   // const { toast } = useToast();
@@ -22,24 +36,27 @@ export default function SmtpConfig() {
     testEmail: "",
   });
   const [isTestingConnection, setIsTestingConnection] = useState(false);
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [testResult, setTestResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   // Get existing config
   const { data: config, isLoading } = trpc.smtpConfig.getConfig.useQuery();
 
   // Update mutation
   const updateConfig = trpc.smtpConfig.updateConfig.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       alert(`✅ Configuración guardada: ${data.message}`);
     },
-    onError: (error) => {
+    onError: error => {
       alert(`❌ Error: ${error.message}`);
     },
   });
 
   // Test connection mutation
   const testConnection = trpc.smtpConfig.testConnection.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setTestResult(data);
       setIsTestingConnection(false);
       if (data.success) {
@@ -48,7 +65,7 @@ export default function SmtpConfig() {
         alert(`❌ Error de conexión: ${data.message}`);
       }
     },
-    onError: (error) => {
+    onError: error => {
       setTestResult({ success: false, message: error.message });
       setIsTestingConnection(false);
       alert(`❌ Error: ${error.message}`);
@@ -73,7 +90,7 @@ export default function SmtpConfig() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.password) {
       alert("❌ Error: La contraseña es requerida");
       return;
@@ -127,14 +144,17 @@ export default function SmtpConfig() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Configuración SMTP</h1>
         <p className="text-muted-foreground">
-          Configura el servidor de correo electrónico para enviar notificaciones automáticas
+          Configura el servidor de correo electrónico para enviar notificaciones
+          automáticas
         </p>
       </div>
 
       <Alert className="mb-6">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Esta configuración es necesaria para habilitar el envío de correos electrónicos automáticos (recordatorios de acciones correctivas, notificaciones de encuestas, etc.)
+          Esta configuración es necesaria para habilitar el envío de correos
+          electrónicos automáticos (recordatorios de acciones correctivas,
+          notificaciones de encuestas, etc.)
         </AlertDescription>
       </Alert>
 
@@ -157,7 +177,9 @@ export default function SmtpConfig() {
                   id="host"
                   placeholder="smtp.gmail.com"
                   value={formData.host}
-                  onChange={(e) => setFormData({ ...formData, host: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, host: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -169,7 +191,12 @@ export default function SmtpConfig() {
                   type="number"
                   placeholder="587"
                   value={formData.port}
-                  onChange={(e) => setFormData({ ...formData, port: parseInt(e.target.value) || 587 })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      port: parseInt(e.target.value) || 587,
+                    })
+                  }
                   required
                 />
               </div>
@@ -179,7 +206,9 @@ export default function SmtpConfig() {
               <Switch
                 id="secure"
                 checked={formData.secure}
-                onCheckedChange={(checked) => setFormData({ ...formData, secure: checked })}
+                onCheckedChange={checked =>
+                  setFormData({ ...formData, secure: checked })
+                }
               />
               <Label htmlFor="secure" className="cursor-pointer">
                 Conexión segura (SSL/TLS) - Usar para puerto 465
@@ -208,7 +237,9 @@ export default function SmtpConfig() {
                   className="pl-9"
                   placeholder="usuario@ejemplo.com"
                   value={formData.user}
-                  onChange={(e) => setFormData({ ...formData, user: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, user: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -224,7 +255,9 @@ export default function SmtpConfig() {
                   className="pl-9"
                   placeholder={config ? "••••••••" : "Contraseña"}
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   required={!config}
                 />
               </div>
@@ -255,7 +288,9 @@ export default function SmtpConfig() {
                 type="email"
                 placeholder="noreply@empresa.com"
                 value={formData.fromEmail}
-                onChange={(e) => setFormData({ ...formData, fromEmail: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, fromEmail: e.target.value })
+                }
                 required
               />
             </div>
@@ -266,7 +301,9 @@ export default function SmtpConfig() {
                 id="fromName"
                 placeholder="Sistema NOM-035"
                 value={formData.fromName}
-                onChange={(e) => setFormData({ ...formData, fromName: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, fromName: e.target.value })
+                }
                 required
               />
             </div>
@@ -289,7 +326,9 @@ export default function SmtpConfig() {
                   type="email"
                   placeholder="tu@correo.com"
                   value={formData.testEmail}
-                  onChange={(e) => setFormData({ ...formData, testEmail: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, testEmail: e.target.value })
+                  }
                 />
                 <Button
                   type="button"
@@ -323,10 +362,7 @@ export default function SmtpConfig() {
         </Card>
 
         <div className="flex justify-end gap-4">
-          <Button
-            type="submit"
-            disabled={updateConfig.isPending}
-          >
+          <Button type="submit" disabled={updateConfig.isPending}>
             {updateConfig.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

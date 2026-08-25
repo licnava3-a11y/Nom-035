@@ -59,14 +59,20 @@ export const employeeDocumentsRouter = router({
       const fileKey = `employee-documents/${input.employeeId}/${timestamp}-${randomSuffix}.${fileExtension}`;
 
       // Upload to S3
-      const { url: fileUrl } = await storagePut(fileKey, fileBuffer, input.mimeType);
+      const { url: fileUrl } = await storagePut(
+        fileKey,
+        fileBuffer,
+        input.mimeType
+      );
 
       // Calculate status based on expiration date
       let status: "vigente" | "por_vencer" | "vencido" = "vigente";
       if (input.expiresAt) {
         const expiresDate = new Date(input.expiresAt);
         const today = new Date();
-        const daysUntilExpiration = Math.ceil((expiresDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        const daysUntilExpiration = Math.ceil(
+          (expiresDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        );
 
         if (daysUntilExpiration < 0) {
           status = "vencido";
@@ -185,7 +191,9 @@ export const employeeDocumentsRouter = router({
       }
 
       // Delete from database
-      await db.delete(employeeDocuments).where(eq(employeeDocuments.id, input.documentId));
+      await db
+        .delete(employeeDocuments)
+        .where(eq(employeeDocuments.id, input.documentId));
 
       return { success: true };
     }),
@@ -220,10 +228,14 @@ export const employeeDocumentsRouter = router({
         .from(employeeDocuments)
         .where(eq(employeeDocuments.employeeId, input.employeeId));
 
-      const existingTypes = new Set(existingDocs.map((d: { documentType: string }) => d.documentType));
+      const existingTypes = new Set(
+        existingDocs.map((d: { documentType: string }) => d.documentType)
+      );
 
       // Find missing types
-      const missingTypes = requiredTypes.filter((type: any) => !existingTypes.has(type));
+      const missingTypes = requiredTypes.filter(
+        (type: any) => !existingTypes.has(type)
+      );
 
       return missingTypes;
     }),
@@ -252,7 +264,9 @@ export const employeeDocumentsRouter = router({
       for (const doc of documents) {
         if (doc.expiresAt) {
           const expiresDate = new Date(doc.expiresAt);
-          const daysUntilExpiration = Math.ceil((expiresDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          const daysUntilExpiration = Math.ceil(
+            (expiresDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+          );
 
           let newStatus: "vigente" | "por_vencer" | "vencido" = "vigente";
           if (daysUntilExpiration < 0) {
@@ -278,9 +292,15 @@ export const employeeDocumentsRouter = router({
         .where(eq(employeeDocuments.employeeId, input.employeeId));
 
       const total = updatedDocuments.length;
-      const vigente = updatedDocuments.filter((d: any) => d.status === "vigente").length;
-      const porVencer = updatedDocuments.filter((d: any) => d.status === "por_vencer").length;
-      const vencido = updatedDocuments.filter((d: any) => d.status === "vencido").length;
+      const vigente = updatedDocuments.filter(
+        (d: any) => d.status === "vigente"
+      ).length;
+      const porVencer = updatedDocuments.filter(
+        (d: any) => d.status === "por_vencer"
+      ).length;
+      const vencido = updatedDocuments.filter(
+        (d: any) => d.status === "vencido"
+      ).length;
 
       return {
         total,

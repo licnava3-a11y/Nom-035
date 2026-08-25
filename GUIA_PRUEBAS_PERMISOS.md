@@ -4,30 +4,31 @@ Este documento describe cómo validar manualmente que el sistema de protección 
 
 ## Usuarios de Prueba Creados
 
-| Email | Rol | Permisos Esperados |
-|-------|-----|-------------------|
-| gerente.prueba@test.com | gerente | can_create, can_edit, can_view, can_export, can_approve |
-| instructor.prueba@test.com | instructor | can_create, can_edit, can_view, can_export |
-| administrativo.prueba@test.com | administrativo | can_view, can_export |
-| committee.prueba@test.com | committee | can_view, can_approve |
-| student.prueba@test.com | student | can_view, can_export |
+| Email                          | Rol            | Permisos Esperados                                      |
+| ------------------------------ | -------------- | ------------------------------------------------------- |
+| gerente.prueba@test.com        | gerente        | can_create, can_edit, can_view, can_export, can_approve |
+| instructor.prueba@test.com     | instructor     | can_create, can_edit, can_view, can_export              |
+| administrativo.prueba@test.com | administrativo | can_view, can_export                                    |
+| committee.prueba@test.com      | committee      | can_view, can_approve                                   |
+| student.prueba@test.com        | student        | can_view, can_export                                    |
 
 ## Matriz de Permisos por Rol
 
-| Permiso | admin | gerente | instructor | administrativo | committee | student |
-|---------|-------|---------|------------|----------------|-----------|---------|
-| can_create | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| can_edit | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| can_delete | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| can_view | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| can_export | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
-| can_approve | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Permiso     | admin | gerente | instructor | administrativo | committee | student |
+| ----------- | ----- | ------- | ---------- | -------------- | --------- | ------- |
+| can_create  | ✅    | ✅      | ✅         | ❌             | ❌        | ❌      |
+| can_edit    | ✅    | ✅      | ✅         | ❌             | ❌        | ❌      |
+| can_delete  | ✅    | ✅      | ❌         | ❌             | ❌        | ❌      |
+| can_view    | ✅    | ✅      | ✅         | ✅             | ✅        | ✅      |
+| can_export  | ✅    | ✅      | ✅         | ✅             | ❌        | ✅      |
+| can_approve | ✅    | ✅      | ❌         | ❌             | ✅        | ❌      |
 
 ## Páginas con Protección Implementada (7/16)
 
 ### 1. Employees.tsx (Trabajadores)
 
 **Botones protegidos:**
+
 - "Agregar Trabajador" → `can_create`, oculto si no tiene permisos
 - "Desactivar" → `can_delete`, deshabilitado si no tiene permisos
 - "Reactivar" → `can_edit`, deshabilitado si no tiene permisos
@@ -45,6 +46,7 @@ Este documento describe cómo validar manualmente que el sistema de protección 
 ### 2. Departments.tsx (Departamentos)
 
 **Botones protegidos:**
+
 - "Crear Departamento" → `can_create`, oculto
 - "Editar" → `can_edit`, deshabilitado
 - "Eliminar" → `can_delete`, deshabilitado
@@ -62,6 +64,7 @@ Este documento describe cómo validar manualmente que el sistema de protección 
 ### 3. Positions.tsx (Puestos)
 
 **Botones protegidos:**
+
 - "Crear Puesto" → `can_create`, oculto
 - "Editar" → `can_edit`, deshabilitado
 - "Eliminar" → `can_delete`, deshabilitado
@@ -71,6 +74,7 @@ Este documento describe cómo validar manualmente que el sistema de protección 
 ### 4. Courses.tsx (Cursos)
 
 **Botones protegidos:**
+
 - "Crear Curso" → `can_create O can_edit`, oculto
 - "Editar" → `can_create O can_edit`, deshabilitado
 
@@ -87,6 +91,7 @@ Este documento describe cómo validar manualmente que el sistema de protección 
 ### 5. Cases.tsx (Casos)
 
 **Botones protegidos:**
+
 - "Crear Caso" → `can_create`, oculto
 - "Editar" → `can_edit`, deshabilitado
 - "Cerrar" → `can_approve`, deshabilitado
@@ -104,6 +109,7 @@ Este documento describe cómo validar manualmente que el sistema de protección 
 ### 6. Committee.tsx (Comité)
 
 **Botones protegidos:**
+
 - "Agregar Miembro" → `can_create`, oculto
 - "Editar" → `can_edit`, oculto
 - "Ver Perfil" → Visible para todos
@@ -121,6 +127,7 @@ Este documento describe cómo validar manualmente que el sistema de protección 
 ### 7. DC2Form.tsx (Reportes STPS)
 
 **Botones protegidos:**
+
 - "Generar Reporte DC-2" → `can_create`, oculto
 
 **Pruebas esperadas:**
@@ -149,80 +156,80 @@ Para cada página listada arriba:
 
 ### Employees.tsx
 
-| Rol | Agregar | Desactivar | Reactivar | Estado |
-|-----|---------|------------|-----------|--------|
-| admin | | | | ⏳ Pendiente |
-| gerente | | | | ⏳ Pendiente |
-| instructor | | | | ⏳ Pendiente |
-| administrativo | | | | ⏳ Pendiente |
-| committee | | | | ⏳ Pendiente |
-| student | | | | ⏳ Pendiente |
+| Rol            | Agregar | Desactivar | Reactivar | Estado       |
+| -------------- | ------- | ---------- | --------- | ------------ |
+| admin          |         |            |           | ⏳ Pendiente |
+| gerente        |         |            |           | ⏳ Pendiente |
+| instructor     |         |            |           | ⏳ Pendiente |
+| administrativo |         |            |           | ⏳ Pendiente |
+| committee      |         |            |           | ⏳ Pendiente |
+| student        |         |            |           | ⏳ Pendiente |
 
 ### Departments.tsx
 
-| Rol | Crear | Editar | Eliminar | Estado |
-|-----|-------|--------|----------|--------|
-| admin | | | | ⏳ Pendiente |
-| gerente | | | | ⏳ Pendiente |
-| instructor | | | | ⏳ Pendiente |
-| administrativo | | | | ⏳ Pendiente |
-| committee | | | | ⏳ Pendiente |
-| student | | | | ⏳ Pendiente |
+| Rol            | Crear | Editar | Eliminar | Estado       |
+| -------------- | ----- | ------ | -------- | ------------ |
+| admin          |       |        |          | ⏳ Pendiente |
+| gerente        |       |        |          | ⏳ Pendiente |
+| instructor     |       |        |          | ⏳ Pendiente |
+| administrativo |       |        |          | ⏳ Pendiente |
+| committee      |       |        |          | ⏳ Pendiente |
+| student        |       |        |          | ⏳ Pendiente |
 
 ### Positions.tsx
 
-| Rol | Crear | Editar | Eliminar | Estado |
-|-----|-------|--------|----------|--------|
-| admin | | | | ⏳ Pendiente |
-| gerente | | | | ⏳ Pendiente |
-| instructor | | | | ⏳ Pendiente |
-| administrativo | | | | ⏳ Pendiente |
-| committee | | | | ⏳ Pendiente |
-| student | | | | ⏳ Pendiente |
+| Rol            | Crear | Editar | Eliminar | Estado       |
+| -------------- | ----- | ------ | -------- | ------------ |
+| admin          |       |        |          | ⏳ Pendiente |
+| gerente        |       |        |          | ⏳ Pendiente |
+| instructor     |       |        |          | ⏳ Pendiente |
+| administrativo |       |        |          | ⏳ Pendiente |
+| committee      |       |        |          | ⏳ Pendiente |
+| student        |       |        |          | ⏳ Pendiente |
 
 ### Courses.tsx
 
-| Rol | Crear | Editar | Estado |
-|-----|-------|--------|--------|
-| admin | | | ⏳ Pendiente |
-| gerente | | | ⏳ Pendiente |
-| instructor | | | ⏳ Pendiente |
-| administrativo | | | ⏳ Pendiente |
-| committee | | | ⏳ Pendiente |
-| student | | | ⏳ Pendiente |
+| Rol            | Crear | Editar | Estado       |
+| -------------- | ----- | ------ | ------------ |
+| admin          |       |        | ⏳ Pendiente |
+| gerente        |       |        | ⏳ Pendiente |
+| instructor     |       |        | ⏳ Pendiente |
+| administrativo |       |        | ⏳ Pendiente |
+| committee      |       |        | ⏳ Pendiente |
+| student        |       |        | ⏳ Pendiente |
 
 ### Cases.tsx
 
-| Rol | Crear | Editar | Cerrar | Estado |
-|-----|-------|--------|--------|--------|
-| admin | | | | ⏳ Pendiente |
-| gerente | | | | ⏳ Pendiente |
-| instructor | | | | ⏳ Pendiente |
-| administrativo | | | | ⏳ Pendiente |
-| committee | | | | ⏳ Pendiente |
-| student | | | | ⏳ Pendiente |
+| Rol            | Crear | Editar | Cerrar | Estado       |
+| -------------- | ----- | ------ | ------ | ------------ |
+| admin          |       |        |        | ⏳ Pendiente |
+| gerente        |       |        |        | ⏳ Pendiente |
+| instructor     |       |        |        | ⏳ Pendiente |
+| administrativo |       |        |        | ⏳ Pendiente |
+| committee      |       |        |        | ⏳ Pendiente |
+| student        |       |        |        | ⏳ Pendiente |
 
 ### Committee.tsx
 
-| Rol | Agregar | Editar | Ver Perfil | Estado |
-|-----|---------|--------|------------|--------|
-| admin | | | | ⏳ Pendiente |
-| gerente | | | | ⏳ Pendiente |
-| instructor | | | | ⏳ Pendiente |
-| administrativo | | | | ⏳ Pendiente |
-| committee | | | | ⏳ Pendiente |
-| student | | | | ⏳ Pendiente |
+| Rol            | Agregar | Editar | Ver Perfil | Estado       |
+| -------------- | ------- | ------ | ---------- | ------------ |
+| admin          |         |        |            | ⏳ Pendiente |
+| gerente        |         |        |            | ⏳ Pendiente |
+| instructor     |         |        |            | ⏳ Pendiente |
+| administrativo |         |        |            | ⏳ Pendiente |
+| committee      |         |        |            | ⏳ Pendiente |
+| student        |         |        |            | ⏳ Pendiente |
 
 ### DC2Form.tsx
 
-| Rol | Generar | Estado |
-|-----|---------|--------|
-| admin | | ⏳ Pendiente |
-| gerente | | ⏳ Pendiente |
-| instructor | | ⏳ Pendiente |
-| administrativo | | ⏳ Pendiente |
-| committee | | ⏳ Pendiente |
-| student | | ⏳ Pendiente |
+| Rol            | Generar | Estado       |
+| -------------- | ------- | ------------ |
+| admin          |         | ⏳ Pendiente |
+| gerente        |         | ⏳ Pendiente |
+| instructor     |         | ⏳ Pendiente |
+| administrativo |         | ⏳ Pendiente |
+| committee      |         | ⏳ Pendiente |
+| student        |         | ⏳ Pendiente |
 
 ## Notas
 

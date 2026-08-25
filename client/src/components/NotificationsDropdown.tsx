@@ -19,43 +19,60 @@ export function NotificationsDropdown() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
   const { isAuthenticated } = useAuth();
-  
+
   // Integrar websockets para notificaciones en tiempo real
   const { unreadCount: wsUnreadCount } = useNotifications();
-  
-  const { data: notifications = [] } = trpc.notifications.getAll.useQuery({}, {
-    refetchInterval: 30000, // Refetch every 30 seconds
-    enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
-  });
-  
-  const { data: unreadCount = 0 } = trpc.notifications.getUnreadCount.useQuery(undefined, {
-    refetchInterval: 30000,
-    enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
-  });
-  
+
+  const { data: notifications = [] } = trpc.notifications.getAll.useQuery(
+    {},
+    {
+      refetchInterval: 30000, // Refetch every 30 seconds
+      enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
+    }
+  );
+
+  const { data: unreadCount = 0 } = trpc.notifications.getUnreadCount.useQuery(
+    undefined,
+    {
+      refetchInterval: 30000,
+      enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
+    }
+  );
+
   // Usar contador de websocket si está disponible, sino usar de tRPC
-  const displayUnreadCount = wsUnreadCount > 0 ? wsUnreadCount : (typeof unreadCount === 'object' ? unreadCount.count : 0);
-  
+  const displayUnreadCount =
+    wsUnreadCount > 0
+      ? wsUnreadCount
+      : typeof unreadCount === "object"
+        ? unreadCount.count
+        : 0;
+
   const markAsRead = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
       utils.notifications.getAll.invalidate();
       utils.notifications.getUnreadCount.invalidate();
     },
   });
-  
+
   const handleNotificationClick = (notification: any) => {
     if (!notification.isRead) {
       markAsRead.mutate({ id: notification.id });
     }
-    
+
     // Navigate to related entity
-    if (notification.relatedEntityType === "case" && notification.relatedEntityId) {
+    if (
+      notification.relatedEntityType === "case" &&
+      notification.relatedEntityId
+    ) {
       setLocation(`/cases/${notification.relatedEntityId}`);
-    } else if (notification.relatedEntityType === "mailbox" && notification.relatedEntityId) {
+    } else if (
+      notification.relatedEntityType === "mailbox" &&
+      notification.relatedEntityId
+    ) {
       setLocation("/mailbox");
     }
   };
-  
+
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "new_case":
@@ -71,38 +88,43 @@ export function NotificationsDropdown() {
         return "🔔";
     }
   };
-  
+
   const formatTimeAgo = (date: Date) => {
     const now = new Date();
     const diffInMs = now.getTime() - new Date(date).getTime();
     const diffInMinutes = Math.floor(diffInMs / 60000);
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
-    
+
     if (diffInMinutes < 1) return "Ahora mismo";
     if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`;
     if (diffInHours < 24) return `Hace ${diffInHours} h`;
     if (diffInDays < 7) return `Hace ${diffInDays} d`;
     return new Date(date).toLocaleDateString();
   };
-  
+
   // Mensajes no leídos del buzón interno del usuario
-  const { data: myMessages = [] } = trpc.internalMailbox.myMessages.useQuery({ limit: 50 }, {
-    refetchInterval: 30000,
-    enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
-  });
-  const unreadMailboxCount = (myMessages as any[]).filter((m: any) => m.responseBody && !m.responseReadAt).length;
+  const { data: myMessages = [] } = trpc.internalMailbox.myMessages.useQuery(
+    { limit: 50 },
+    {
+      refetchInterval: 30000,
+      enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
+    }
+  );
+  const unreadMailboxCount = (myMessages as any[]).filter(
+    (m: any) => m.responseBody && !m.responseReadAt
+  ).length;
 
   const recentNotifications = notifications.slice(0, 5);
-  
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {displayUnreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
               {displayUnreadCount > 9 ? "9+" : displayUnreadCount}
@@ -127,7 +149,8 @@ export function NotificationsDropdown() {
               <MessageSquare className="h-4 w-4 text-blue-600 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-blue-700">
-                  {unreadMailboxCount} respuesta{unreadMailboxCount > 1 ? "s" : ""} sin leer
+                  {unreadMailboxCount} respuesta
+                  {unreadMailboxCount > 1 ? "s" : ""} sin leer
                 </p>
                 <p className="text-xs text-blue-500">Ver en Mis Mensajes</p>
               </div>
@@ -151,7 +174,9 @@ export function NotificationsDropdown() {
                 onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex items-start gap-2 w-full">
-                  <span className="text-lg">{getNotificationIcon(notification.type)}</span>
+                  <span className="text-lg">
+                    {getNotificationIcon(notification.type)}
+                  </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-none mb-1">
                       {notification.title}

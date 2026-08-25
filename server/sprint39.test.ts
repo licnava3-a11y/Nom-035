@@ -10,23 +10,34 @@ import path from "path";
 const ROOT = path.resolve(__dirname, "..");
 
 function projectDependencies() {
-  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf-8"));
+  const pkg = JSON.parse(
+    fs.readFileSync(path.join(ROOT, "package.json"), "utf-8")
+  );
   return { ...(pkg.dependencies ?? {}), ...(pkg.devDependencies ?? {}) };
 }
 
 describe("Sprint 39 — PWAUpdateBanner", () => {
   it("el componente PWAUpdateBanner existe", () => {
-    expect(fs.existsSync(path.join(ROOT, "client/src/components/PWAUpdateBanner.tsx"))).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(ROOT, "client/src/components/PWAUpdateBanner.tsx")
+      )
+    ).toBe(true);
   });
 
   it("PWAUpdateBanner está integrado en App.tsx", () => {
-    const content = fs.readFileSync(path.join(ROOT, "client/src/App.tsx"), "utf-8");
+    const content = fs.readFileSync(
+      path.join(ROOT, "client/src/App.tsx"),
+      "utf-8"
+    );
     expect(content).toContain("PWAUpdateBanner");
     expect(content).toContain("<PWAUpdateBanner />");
   });
 
   it("tsconfig.json es un JSON válido con compilerOptions", () => {
-    const parsed = JSON.parse(fs.readFileSync(path.join(ROOT, "tsconfig.json"), "utf-8"));
+    const parsed = JSON.parse(
+      fs.readFileSync(path.join(ROOT, "tsconfig.json"), "utf-8")
+    );
     expect(parsed.compilerOptions).toBeDefined();
   });
 
@@ -35,7 +46,10 @@ describe("Sprint 39 — PWAUpdateBanner", () => {
   });
 
   it("index.html desregistra Service Workers heredados", () => {
-    const content = fs.readFileSync(path.join(ROOT, "client/index.html"), "utf-8");
+    const content = fs.readFileSync(
+      path.join(ROOT, "client/index.html"),
+      "utf-8"
+    );
     expect(content).toContain("serviceWorker");
     expect(content).toContain("unregister");
   });
@@ -59,7 +73,10 @@ describe("Sprint 39 — Alertas LCP Email", () => {
   });
 
   it("el scheduler documenta que el job LCP está deshabilitado por no ser crítico", () => {
-    const content = fs.readFileSync(path.join(ROOT, "server/_core/index.ts"), "utf-8");
+    const content = fs.readFileSync(
+      path.join(ROOT, "server/_core/index.ts"),
+      "utf-8"
+    );
     expect(content).toContain("DESHABILITADO: performance-lcp-alerts-job");
   });
 });
@@ -67,7 +84,12 @@ describe("Sprint 39 — Alertas LCP Email", () => {
 describe("Sprint 39 — Consolidación Skeletons", () => {
   it("mantiene los skeletons consolidados", () => {
     const dir = path.join(ROOT, "client/src/components/skeletons");
-    for (const name of ["DashboardSkeleton.tsx", "TableSkeleton.tsx", "ChartSkeleton.tsx", "CalendarSkeleton.tsx"]) {
+    for (const name of [
+      "DashboardSkeleton.tsx",
+      "TableSkeleton.tsx",
+      "ChartSkeleton.tsx",
+      "CalendarSkeleton.tsx",
+    ]) {
       expect(fs.existsSync(path.join(dir, name))).toBe(true);
     }
   });

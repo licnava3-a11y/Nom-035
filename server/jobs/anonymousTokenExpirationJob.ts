@@ -4,7 +4,12 @@
  */
 
 import { getDb } from "../db";
-import { notifications, surveyAnonymousTokens, surveys, users } from "../../drizzle/schema";
+import {
+  notifications,
+  surveyAnonymousTokens,
+  surveys,
+  users,
+} from "../../drizzle/schema";
 import { and, eq, gte, lte, isNull } from "drizzle-orm";
 import { sendEmail } from "../lib/email-sender";
 
@@ -56,7 +61,10 @@ async function getExpiringTokens(): Promise<TokenExpirationNotification[]> {
       ),
     }));
   } catch (error) {
-    console.error("[Token Expiration Job] Error fetching expiring tokens:", error);
+    console.error(
+      "[Token Expiration Job] Error fetching expiring tokens:",
+      error
+    );
     return [];
   }
 }
@@ -72,7 +80,7 @@ function groupTokensByUser(
   for (const token of tokens) {
     // Filtrar tokens sin generatedBy
     if (token.generatedBy === null) continue;
-    
+
     const existing = grouped.get(token.generatedBy) || [];
     existing.push(token);
     grouped.set(token.generatedBy, existing);
@@ -84,7 +92,9 @@ function groupTokensByUser(
 /**
  * Obtiene información del usuario por ID
  */
-async function getUserInfo(userId: number): Promise<{ name: string | null; email: string | null } | null> {
+async function getUserInfo(
+  userId: number
+): Promise<{ name: string | null; email: string | null } | null> {
   const db = await getDb();
   if (!db) return null;
 
@@ -177,10 +187,10 @@ function generateEmailHTML(
 
           <p style="margin: 0 0 24px; font-size: 14px; color: #6b7280;">
             Te informamos que tienes <strong>${tokens.length}</strong> token${
-    tokens.length === 1 ? "" : "es"
-  } anónimo${tokens.length === 1 ? "" : "s"} que expirará${
-    tokens.length === 1 ? "" : "n"
-  } en los próximos 7 días. Los tokens que no se utilicen antes de su fecha de expiración dejarán de ser válidos.
+              tokens.length === 1 ? "" : "es"
+            } anónimo${tokens.length === 1 ? "" : "s"} que expirará${
+              tokens.length === 1 ? "" : "n"
+            } en los próximos 7 días. Los tokens que no se utilicen antes de su fecha de expiración dejarán de ser válidos.
           </p>
 
           <!-- Tokens Table -->
@@ -266,7 +276,10 @@ async function sendExpirationNotification(
 
     return true;
   } catch (error) {
-    console.error(`[Token Expiration Job] Error sending email to ${userEmail}:`, error);
+    console.error(
+      `[Token Expiration Job] Error sending email to ${userEmail}:`,
+      error
+    );
     return false;
   }
 }
@@ -286,12 +299,16 @@ export async function runTokenExpirationJob(): Promise<void> {
       return;
     }
 
-    console.log(`[Token Expiration Job] Found ${expiringTokens.length} expiring tokens`);
+    console.log(
+      `[Token Expiration Job] Found ${expiringTokens.length} expiring tokens`
+    );
 
     // 2. Agrupar por usuario
     const tokensByUser = groupTokensByUser(expiringTokens);
 
-    console.log(`[Token Expiration Job] Grouped into ${tokensByUser.size} users`);
+    console.log(
+      `[Token Expiration Job] Grouped into ${tokensByUser.size} users`
+    );
 
     // 3. Enviar notificaciones
     let successCount = 0;
@@ -301,7 +318,9 @@ export async function runTokenExpirationJob(): Promise<void> {
       const userInfo = await getUserInfo(userId);
 
       if (!userInfo || !userInfo.email) {
-        console.error(`[Token Expiration Job] User info or email not found for userId: ${userId}`);
+        console.error(
+          `[Token Expiration Job] User info or email not found for userId: ${userId}`
+        );
         errorCount++;
         continue;
       }

@@ -2,26 +2,39 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { committeeOperatingRules, committeeOperatingRulesVersions, operatingRulesTemplates, signatures } from "../../drizzle/schema";
+import {
+  committeeOperatingRules,
+  committeeOperatingRulesVersions,
+  operatingRulesTemplates,
+  signatures,
+} from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 export const operatingRulesTemplatesRouter = router({
   // Listar plantillas activas
   list: protectedProcedure
     .input(
-      z.object({
-        companySize: z.enum(["small", "medium", "large"]).optional(),
-      }).optional()
+      z
+        .object({
+          companySize: z.enum(["small", "medium", "large"]).optional(),
+        })
+        .optional()
     )
     .query(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-        
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
         const conditions = [eq(operatingRulesTemplates.isActive, true)];
-        
+
         if (input?.companySize) {
-          conditions.push(eq(operatingRulesTemplates.companySize, input.companySize));
+          conditions.push(
+            eq(operatingRulesTemplates.companySize, input.companySize)
+          );
         }
 
         const templates = await db
@@ -46,8 +59,12 @@ export const operatingRulesTemplatesRouter = router({
     .query(async ({ input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-        
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
         const [template] = await db
           .select()
           .from(operatingRulesTemplates)
@@ -82,8 +99,12 @@ export const operatingRulesTemplatesRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-        
+        if (!db)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
         // Obtener plantilla
         const [template] = await db
           .select()
@@ -98,8 +119,9 @@ export const operatingRulesTemplatesRouter = router({
         }
 
         // Crear nueva base de funcionamiento
-        const [newOperatingRule] = await (db
-          .insert(committeeOperatingRules) as any)
+        const [newOperatingRule] = await (
+          db.insert(committeeOperatingRules) as any
+        )
           .values({
             version: "1",
             objectives: template.objectives || "",
@@ -113,7 +135,7 @@ export const operatingRulesTemplatesRouter = router({
             confidentiality: template.confidentiality || "",
             amendments: template.amendments,
             signatures: "",
-            effectiveDate: new Date().toISOString().split('T')[0],
+            effectiveDate: new Date().toISOString().split("T")[0],
             status: "draft",
             createdBy: ctx.user.id,
           })
@@ -135,7 +157,7 @@ export const operatingRulesTemplatesRouter = router({
           confidentiality: template.confidentiality || "",
           amendments: template.amendments,
           signatures: "",
-          effectiveDate: new Date().toISOString().split('T')[0],
+          effectiveDate: new Date().toISOString().split("T")[0],
           changeDescription: `Creado desde plantilla: ${template.name}`,
           createdBy: ctx.user.id,
         });

@@ -2,7 +2,12 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb, createNotification } from "../db";
-import { committeeTrainings, trainingAssignments, trainingCertificates, users } from "../../drizzle/schema";
+import {
+  committeeTrainings,
+  trainingAssignments,
+  trainingCertificates,
+  users,
+} from "../../drizzle/schema";
 import { eq, and, or, desc, sql, inArray } from "drizzle-orm";
 
 export const trainingAssignmentsRouter = router({
@@ -18,12 +23,22 @@ export const trainingAssignmentsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "committee_coordinator") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para asignar capacitaciones" });
+      if (
+        ctx.user.role !== "admin" &&
+        ctx.user.role !== "committee_coordinator"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para asignar capacitaciones",
+        });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Verificar si ya existe asignación activa
       const [existing] = await db
@@ -39,7 +54,10 @@ export const trainingAssignmentsRouter = router({
         .limit(1);
 
       if (existing) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "El miembro ya tiene esta capacitación asignada" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "El miembro ya tiene esta capacitación asignada",
+        });
       }
 
       // Crear asignación
@@ -65,7 +83,10 @@ export const trainingAssignmentsRouter = router({
         message: `Se te ha asignado la capacitación: ${training?.title}. Duración: ${training?.duration} horas.`,
       });
 
-      return { id: result.insertId, message: "Capacitación asignada exitosamente" };
+      return {
+        id: result.insertId,
+        message: "Capacitación asignada exitosamente",
+      };
     }),
 
   /**
@@ -80,12 +101,22 @@ export const trainingAssignmentsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "committee_coordinator") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para asignar capacitaciones" });
+      if (
+        ctx.user.role !== "admin" &&
+        ctx.user.role !== "committee_coordinator"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para asignar capacitaciones",
+        });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Obtener todos los usuarios con el rol especificado
       const members = await db
@@ -94,7 +125,10 @@ export const trainingAssignmentsRouter = router({
         .where(eq(users.role, input.targetRole as any));
 
       if (members.length === 0) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "No se encontraron miembros con ese rol" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No se encontraron miembros con ese rol",
+        });
       }
 
       // Obtener datos de la capacitación
@@ -105,7 +139,10 @@ export const trainingAssignmentsRouter = router({
         .limit(1);
 
       if (!training) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Capacitación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Capacitación no encontrada",
+        });
       }
 
       let assignedCount = 0;
@@ -170,7 +207,11 @@ export const trainingAssignmentsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       // Verificar que el usuario sea admin, coordinador o el miembro asignado
       const [assignment] = await db
@@ -180,7 +221,10 @@ export const trainingAssignmentsRouter = router({
         .limit(1);
 
       if (!assignment) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Asignación no encontrada" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Asignación no encontrada",
+        });
       }
 
       if (
@@ -188,7 +232,10 @@ export const trainingAssignmentsRouter = router({
         ctx.user.role !== "committee_coordinator" &&
         ctx.user.id !== assignment.committeeMemberId
       ) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para actualizar esta asignación" });
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para actualizar esta asignación",
+        });
       }
 
       const updateData: any = {
@@ -223,16 +270,26 @@ export const trainingAssignmentsRouter = router({
    */
   getMyTrainings: protectedProcedure
     .input(
-      z.object({
-        status: z.enum(["pending", "in_progress", "completed", "expired"]).optional(),
-      }).optional()
+      z
+        .object({
+          status: z
+            .enum(["pending", "in_progress", "completed", "expired"])
+            .optional(),
+        })
+        .optional()
     )
     .query(async ({ input, ctx }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
-      const conditions = [eq(trainingAssignments.committeeMemberId, ctx.user.id)];
-      
+      const conditions = [
+        eq(trainingAssignments.committeeMemberId, ctx.user.id),
+      ];
+
       if (input?.status) {
         conditions.push(eq(trainingAssignments.status, input.status));
       }
@@ -244,11 +301,19 @@ export const trainingAssignmentsRouter = router({
           certificate: trainingCertificates,
         })
         .from(trainingAssignments)
-        .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
-        .leftJoin(trainingCertificates, eq(trainingAssignments.id, trainingCertificates.assignmentId))
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
+        .leftJoin(
+          trainingCertificates,
+          eq(trainingAssignments.id, trainingCertificates.assignmentId)
+        )
         .where(and(...conditions));
 
-      const results = await query.orderBy(desc(trainingAssignments.assignedDate));
+      const results = await query.orderBy(
+        desc(trainingAssignments.assignedDate)
+      );
 
       return results;
     }),
@@ -257,12 +322,22 @@ export const trainingAssignmentsRouter = router({
    * Obtener dashboard de cumplimiento (admin/coordinador)
    */
   getDashboard: protectedProcedure.query(async ({ ctx }) => {
-    if (ctx.user.role !== "admin" && ctx.user.role !== "committee_coordinator") {
-      throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para ver el dashboard" });
+    if (
+      ctx.user.role !== "admin" &&
+      ctx.user.role !== "committee_coordinator"
+    ) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "No tienes permisos para ver el dashboard",
+      });
     }
 
     const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    if (!db)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database not available",
+      });
 
     // Estadísticas generales
     const [stats] = await db
@@ -299,8 +374,14 @@ export const trainingAssignmentsRouter = router({
         member: users,
       })
       .from(trainingCertificates)
-      .leftJoin(trainingAssignments, eq(trainingCertificates.assignmentId, trainingAssignments.id))
-      .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+      .leftJoin(
+        trainingAssignments,
+        eq(trainingCertificates.assignmentId, trainingAssignments.id)
+      )
+      .leftJoin(
+        committeeTrainings,
+        eq(trainingAssignments.trainingId, committeeTrainings.id)
+      )
       .leftJoin(users, eq(trainingAssignments.committeeMemberId, users.id))
       .where(
         and(
@@ -323,19 +404,33 @@ export const trainingAssignmentsRouter = router({
    */
   listAll: protectedProcedure
     .input(
-      z.object({
-        status: z.enum(["pending", "in_progress", "completed", "expired"]).optional(),
-        trainingId: z.number().optional(),
-        committeeMemberId: z.number().optional(),
-      }).optional()
+      z
+        .object({
+          status: z
+            .enum(["pending", "in_progress", "completed", "expired"])
+            .optional(),
+          trainingId: z.number().optional(),
+          committeeMemberId: z.number().optional(),
+        })
+        .optional()
     )
     .query(async ({ input, ctx }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "committee_coordinator") {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para ver todas las asignaciones" });
+      if (
+        ctx.user.role !== "admin" &&
+        ctx.user.role !== "committee_coordinator"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permisos para ver todas las asignaciones",
+        });
       }
 
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
 
       let query = db
         .select({
@@ -345,9 +440,15 @@ export const trainingAssignmentsRouter = router({
           certificate: trainingCertificates,
         })
         .from(trainingAssignments)
-        .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id))
+        .leftJoin(
+          committeeTrainings,
+          eq(trainingAssignments.trainingId, committeeTrainings.id)
+        )
         .leftJoin(users, eq(trainingAssignments.committeeMemberId, users.id))
-        .leftJoin(trainingCertificates, eq(trainingAssignments.id, trainingCertificates.assignmentId));
+        .leftJoin(
+          trainingCertificates,
+          eq(trainingAssignments.id, trainingCertificates.assignmentId)
+        );
 
       const conditions = [];
       if (input?.status) {
@@ -357,14 +458,18 @@ export const trainingAssignmentsRouter = router({
         conditions.push(eq(trainingAssignments.trainingId, input.trainingId));
       }
       if (input?.committeeMemberId) {
-        conditions.push(eq(trainingAssignments.committeeMemberId, input.committeeMemberId));
+        conditions.push(
+          eq(trainingAssignments.committeeMemberId, input.committeeMemberId)
+        );
       }
 
       if (conditions.length > 0) {
         query = query.where(and(...conditions)) as any;
       }
 
-      const results = await query.orderBy(desc(trainingAssignments.assignedDate));
+      const results = await query.orderBy(
+        desc(trainingAssignments.assignedDate)
+      );
 
       return results;
     }),

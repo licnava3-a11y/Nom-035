@@ -1,7 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { appRouter } from "./routers";
 import { getDb } from "./db";
-import { employees, employeeCompetencies, jobProfiles, jobPositions } from "../drizzle/schema";
+import {
+  employees,
+  employeeCompetencies,
+  jobProfiles,
+  jobPositions,
+} from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import type { TrpcContext } from "./_core/context";
 
@@ -31,7 +36,6 @@ function createTestContext(): TrpcContext {
 }
 
 describe("CompetenciesStats Router", () => {
-
   it("should get overall statistics", async () => {
     const ctx = createTestContext();
     const caller = appRouter.createCaller(ctx);
@@ -75,7 +79,7 @@ describe("CompetenciesStats Router", () => {
     expect(Array.isArray(stats)).toBe(true);
     expect(stats.length).toBe(3); // tecnica, transversal, conocimiento
 
-    const tecnica = stats.find((s) => s.type === "Técnica");
+    const tecnica = stats.find(s => s.type === "Técnica");
     expect(tecnica).toBeDefined();
     if (tecnica) {
       expect(tecnica.count).toBeGreaterThanOrEqual(0);

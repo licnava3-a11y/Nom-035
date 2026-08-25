@@ -10,7 +10,11 @@ export const alertsRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        alertType: z.enum(["critical_cases", "low_coverage", "excellent_compliance"]),
+        alertType: z.enum([
+          "critical_cases",
+          "low_coverage",
+          "excellent_compliance",
+        ]),
         priority: z.enum(["info", "warning", "critical"]).optional(),
         threshold: z.number(),
         currentValue: z.number(),
@@ -20,7 +24,7 @@ export const alertsRouter = router({
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      
+
       // Verificar si ya existe una alerta activa del mismo tipo
       const [existingAlert] = await db
         .select()
@@ -32,22 +36,25 @@ export const alertsRouter = router({
           )
         )
         .limit(1);
-      
+
       // Si ya existe, retornar la alerta existente sin crear duplicado
       if (existingAlert) {
-        return { 
-          success: true, 
-          alertId: existingAlert.id, 
+        return {
+          success: true,
+          alertId: existingAlert.id,
           isDuplicate: true,
-          message: "Ya existe una alerta activa de este tipo" 
+          message: "Ya existe una alerta activa de este tipo",
         };
       }
-      
+
       // Si no existe, crear nueva alerta
       const [alert] = await (db.insert(alertHistory) as any).values(input);
-      
+
       // Si la alerta es crítica, emitir notificación por WebSocket
-      if (input.priority === "critical" || input.alertType === "critical_cases") {
+      if (
+        input.priority === "critical" ||
+        input.alertType === "critical_cases"
+      ) {
         emitCriticalAlert({
           id: alert.insertId,
           alertType: input.alertType,
@@ -57,7 +64,7 @@ export const alertsRouter = router({
           threshold: input.threshold,
         });
       }
-      
+
       return { success: true, alertId: alert.insertId, isDuplicate: false };
     }),
 
@@ -65,7 +72,9 @@ export const alertsRouter = router({
   getHistory: protectedProcedure
     .input(
       z.object({
-        alertType: z.enum(["critical_cases", "low_coverage", "excellent_compliance"]).optional(),
+        alertType: z
+          .enum(["critical_cases", "low_coverage", "excellent_compliance"])
+          .optional(),
         status: z.enum(["active", "resolved"]).optional(),
         priority: z.enum(["info", "warning", "critical"]).optional(),
         startDate: z.string().optional(),
@@ -75,18 +84,29 @@ export const alertsRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const { alertType, status, priority, startDate, endDate, page, pageSize } = input;
+      const {
+        alertType,
+        status,
+        priority,
+        startDate,
+        endDate,
+        page,
+        pageSize,
+      } = input;
 
       const conditions = [];
       if (alertType) conditions.push(eq(alertHistory.alertType, alertType));
       if (status) conditions.push(eq(alertHistory.status, status));
       if (priority) conditions.push(eq(alertHistory.priority, priority));
-      if (startDate) conditions.push(gte(alertHistory.triggeredAt, new Date(startDate)));
-      if (endDate) conditions.push(lte(alertHistory.triggeredAt, new Date(endDate)));
+      if (startDate)
+        conditions.push(gte(alertHistory.triggeredAt, new Date(startDate)));
+      if (endDate)
+        conditions.push(lte(alertHistory.triggeredAt, new Date(endDate)));
 
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
 
       // Total para paginación
       const [{ total }] = await db
@@ -105,7 +125,13 @@ export const alertsRouter = router({
         .limit(pageSize)
         .offset((page - 1) * pageSize);
 
-      return { alerts, total: Number(total), page, pageSize, totalPages: Math.ceil(Number(total) / pageSize) };
+      return {
+        alerts,
+        total: Number(total),
+        page,
+        pageSize,
+        totalPages: Math.ceil(Number(total) / pageSize),
+      };
     }),
 
   // Resolver alerta
@@ -119,7 +145,7 @@ export const alertsRouter = router({
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      
+
       await db
         .update(alertHistory)
         .set({
@@ -137,7 +163,7 @@ export const alertsRouter = router({
   getStats: protectedProcedure.query(async () => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
-    
+
     const [stats] = await db
       .select({
         totalAlerts: sql<number>`COUNT(*)`,
@@ -162,11 +188,11 @@ export const alertsRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      
+
       // Calcular fecha de inicio (N meses atrás)
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - input.months);
-      
+
       const trends = await db
         .select({
           month: sql<string>`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`,
@@ -177,7 +203,7 @@ export const alertsRouter = router({
         .where(gte(alertHistory.triggeredAt, startDate))
         .groupBy(sql`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`)
         .orderBy(sql`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`);
-      
+
       return trends;
     }),
 
@@ -189,7 +215,9 @@ export const alertsRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const { sendManualAlertSummary } = await import("../jobs/alertSummaryJob");
+      const { sendManualAlertSummary } = await import(
+        "../jobs/alertSummaryJob"
+      );
       const result = await sendManualAlertSummary(input.frequency);
       return result;
     }),
@@ -221,11 +249,15 @@ export const alertsRouter = router({
 
     const avgResolutionTime =
       resolutionTimes.length > 0
-        ? resolutionTimes.reduce((a: any, b: any) => a + b, 0) / resolutionTimes.length
+        ? resolutionTimes.reduce((a: any, b: any) => a + b, 0) /
+          resolutionTimes.length
         : 0;
 
     // Calcular tiempo promedio por tipo de alerta
-    const byType: Record<string, { total: number; count: number; avg: number }> = {
+    const byType: Record<
+      string,
+      { total: number; count: number; avg: number }
+    > = {
       critical_cases: { total: 0, count: 0, avg: 0 },
       low_coverage: { total: 0, count: 0, avg: 0 },
       excellent_compliance: { total: 0, count: 0, avg: 0 },
@@ -286,7 +318,8 @@ export const alertsRouter = router({
     try {
       const { sendEmail } = await import("../_core/email");
       const adminEmail = (ctx.user as any).email as string | undefined;
-      const adminName = (ctx.user as any).name as string | undefined || "Administrador";
+      const adminName =
+        ((ctx.user as any).name as string | undefined) || "Administrador";
       if (adminEmail) {
         await sendEmail({
           to: adminEmail,
@@ -348,12 +381,24 @@ export const alertsRouter = router({
         )
         .orderBy(sql`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`);
       // Pivotar: { month, critical, warning, info }
-      const byMonth: Record<string, { month: string; critical: number; warning: number; info: number }> = {};
+      const byMonth: Record<
+        string,
+        { month: string; critical: number; warning: number; info: number }
+      > = {};
       for (const row of rows) {
-        if (!byMonth[row.month]) byMonth[row.month] = { month: row.month, critical: 0, warning: 0, info: 0 };
-        if (row.priority === "critical") byMonth[row.month].critical += Number(row.count);
-        else if (row.priority === "warning") byMonth[row.month].warning += Number(row.count);
-        else if (row.priority === "info") byMonth[row.month].info += Number(row.count);
+        if (!byMonth[row.month])
+          byMonth[row.month] = {
+            month: row.month,
+            critical: 0,
+            warning: 0,
+            info: 0,
+          };
+        if (row.priority === "critical")
+          byMonth[row.month].critical += Number(row.count);
+        else if (row.priority === "warning")
+          byMonth[row.month].warning += Number(row.count);
+        else if (row.priority === "info")
+          byMonth[row.month].info += Number(row.count);
       }
       return Object.values(byMonth);
     }),

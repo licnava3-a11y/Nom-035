@@ -31,8 +31,15 @@ export async function runPacStaleItemsJob(): Promise<{
   alertsSent: number;
   errors: string[];
 }> {
-  console.log(`${JOB_TAG} Iniciando verificación de cursos PAC sin actualizar...`);
-  const result = { success: false, checked: 0, alertsSent: 0, errors: [] as string[] };
+  console.log(
+    `${JOB_TAG} Iniciando verificación de cursos PAC sin actualizar...`
+  );
+  const result = {
+    success: false,
+    checked: 0,
+    alertsSent: 0,
+    errors: [] as string[],
+  };
 
   try {
     const db = await getDb();
@@ -61,19 +68,24 @@ export async function runPacStaleItemsJob(): Promise<{
         responsibleEmail: employees.email,
       })
       .from(annualTrainingPlanItems)
-      .innerJoin(annualTrainingPlans, eq(annualTrainingPlanItems.planId, annualTrainingPlans.id))
+      .innerJoin(
+        annualTrainingPlans,
+        eq(annualTrainingPlanItems.planId, annualTrainingPlans.id)
+      )
       .leftJoin(employees, eq(annualTrainingPlans.responsibleId, employees.id))
       .where(
         and(
           inArray(annualTrainingPlanItems.status, ["pendiente", "en_proceso"]),
           lte(annualTrainingPlanItems.updatedAt, cutoff),
           // Solo planes activos (no cerrados)
-          ne(annualTrainingPlans.status, "cerrado"),
+          ne(annualTrainingPlans.status, "cerrado")
         )
       );
 
     result.checked = staleItems.length;
-    console.log(`${JOB_TAG} Cursos estancados encontrados: ${staleItems.length}`);
+    console.log(
+      `${JOB_TAG} Cursos estancados encontrados: ${staleItems.length}`
+    );
 
     if (staleItems.length === 0) {
       result.success = true;
@@ -114,15 +126,18 @@ export async function runPacStaleItemsJob(): Promise<{
         .limit(1);
 
       if (existing.length > 0) {
-        console.log(`${JOB_TAG} Alerta ya enviada hoy para plan ${planId}, omitiendo.`);
+        console.log(
+          `${JOB_TAG} Alerta ya enviada hoy para plan ${planId}, omitiendo.`
+        );
         continue;
       }
 
       // Construir lista de cursos para el correo
       const courseList = (items as typeof staleItems)
-        .map((i) => {
+        .map(i => {
           const diasSinActualizar = Math.floor(
-            (Date.now() - new Date(i.updatedAt).getTime()) / (1000 * 60 * 60 * 24)
+            (Date.now() - new Date(i.updatedAt).getTime()) /
+              (1000 * 60 * 60 * 24)
           );
           return `• ${i.courseName} (${i.status === "pendiente" ? "Pendiente" : "En Proceso"}) — ${diasSinActualizar} días sin actualizar`;
         })
@@ -174,15 +189,22 @@ export async function runPacStaleItemsJob(): Promise<{
               </div>
             `,
           });
-          console.log(`${JOB_TAG} Correo enviado a ${responsibleEmail} para plan ${planId}`);
+          console.log(
+            `${JOB_TAG} Correo enviado a ${responsibleEmail} para plan ${planId}`
+          );
           result.alertsSent++;
         } catch (emailErr) {
-          const msg = emailErr instanceof Error ? emailErr.message : String(emailErr);
-          console.error(`${JOB_TAG} Error enviando correo para plan ${planId}: ${msg}`);
+          const msg =
+            emailErr instanceof Error ? emailErr.message : String(emailErr);
+          console.error(
+            `${JOB_TAG} Error enviando correo para plan ${planId}: ${msg}`
+          );
           result.errors.push(`Plan ${planId}: ${msg}`);
         }
       } else {
-        console.log(`${JOB_TAG} Plan ${planId} sin email de responsable, solo notificación interna.`);
+        console.log(
+          `${JOB_TAG} Plan ${planId} sin email de responsable, solo notificación interna.`
+        );
         result.alertsSent++;
       }
     }
@@ -197,7 +219,9 @@ export async function runPacStaleItemsJob(): Promise<{
     }
 
     result.success = true;
-    console.log(`${JOB_TAG} Completado. Alertas enviadas: ${result.alertsSent}, errores: ${result.errors.length}`);
+    console.log(
+      `${JOB_TAG} Completado. Alertas enviadas: ${result.alertsSent}, errores: ${result.errors.length}`
+    );
     return result;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

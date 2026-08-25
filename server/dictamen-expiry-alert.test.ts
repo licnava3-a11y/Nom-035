@@ -23,11 +23,13 @@ import { notifyOwner } from "./_core/notification";
 import { runDictamenExpiryAlertJob } from "./jobs/dictamen-expiry-alert-job";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function buildMockDb(overrides: Partial<{
-  dictamenes: any[];
-  settings: any[];
-  insertResult: any;
-}> = {}) {
+function buildMockDb(
+  overrides: Partial<{
+    dictamenes: any[];
+    settings: any[];
+    insertResult: any;
+  }> = {}
+) {
   const dictamenes = overrides.dictamenes ?? [];
   const settings = overrides.settings ?? [{ settingValue: "rh@empresa.com" }];
 
@@ -136,7 +138,12 @@ describe("PAC - Módulo Programa Anual de Capacitación", () => {
   });
 
   it("los estados de los items del plan son los correctos", () => {
-    const validItemStatuses = ["pendiente", "en_proceso", "completado", "cancelado"];
+    const validItemStatuses = [
+      "pendiente",
+      "en_proceso",
+      "completado",
+      "cancelado",
+    ];
     expect(validItemStatuses).toContain("pendiente");
     expect(validItemStatuses).toContain("completado");
     expect(validItemStatuses.length).toBe(4);
@@ -152,21 +159,24 @@ describe("PAC - Módulo Programa Anual de Capacitación", () => {
   it("calcula correctamente el porcentaje de avance", () => {
     const total = 10;
     const completed = 4;
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const completionRate =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
     expect(completionRate).toBe(40);
   });
 
   it("calcula 0% de avance cuando no hay items", () => {
     const total = 0;
     const completed = 0;
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const completionRate =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
     expect(completionRate).toBe(0);
   });
 
   it("calcula 100% de avance cuando todos los items están completados", () => {
     const total = 5;
     const completed = 5;
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const completionRate =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
     expect(completionRate).toBe(100);
   });
 });
@@ -182,7 +192,9 @@ describe("KPIDashboard - Filtro de Departamento", () => {
     ];
 
     const filterByDept = (deptId: number | null) =>
-      deptId === null ? employees : employees.filter(e => e.departmentId === deptId);
+      deptId === null
+        ? employees
+        : employees.filter(e => e.departmentId === deptId);
 
     const allEmployees = filterByDept(null);
     expect(allEmployees.length).toBe(4);
@@ -196,7 +208,9 @@ describe("KPIDashboard - Filtro de Departamento", () => {
 
   it("calcula la rotación correctamente por departamento", () => {
     const calculateTurnover = (terminations: number, avgEmployees: number) =>
-      avgEmployees > 0 ? Math.round((terminations / avgEmployees) * 100 * 10) / 10 : 0;
+      avgEmployees > 0
+        ? Math.round((terminations / avgEmployees) * 100 * 10) / 10
+        : 0;
 
     expect(calculateTurnover(2, 20)).toBe(10);
     expect(calculateTurnover(0, 20)).toBe(0);

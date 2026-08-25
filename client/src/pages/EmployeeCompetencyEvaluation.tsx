@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Card } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Save, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -40,13 +46,26 @@ const categoryLabels: Record<string, string> = {
 };
 
 export default function EmployeeCompetencyEvaluation() {
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
-  const [competencyLevels, setCompetencyLevels] = useState<Record<number, CompetencyLevel>>({});
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
+  const [competencyLevels, setCompetencyLevels] = useState<
+    Record<number, CompetencyLevel>
+  >({});
   const [isSaving, setIsSaving] = useState(false);
 
   // Fetch employees
-  const { data: employeesData, isLoading: loadingEmployees } = trpc.employees.list.useQuery();
-  const employees = (employeesData as any) as Array<{ id: number; firstName: string; lastName: string; position: string; department: string }> | undefined;
+  const { data: employeesData, isLoading: loadingEmployees } =
+    trpc.employees.list.useQuery();
+  const employees = employeesData as any as
+    | Array<{
+        id: number;
+        firstName: string;
+        lastName: string;
+        position: string;
+        department: string;
+      }>
+    | undefined;
 
   // Fetch organizational competencies
   const { data: orgCompetencies, isLoading: loadingCompetencies } =
@@ -87,22 +106,24 @@ export default function EmployeeCompetencyEvaluation() {
   );
 
   // Add competency mutation
-  const addCompetencyMutation = trpc.jobProfiles.addEmployeeCompetency.useMutation({
-    onSuccess: () => {
-      refetchEmployeeComp();
-      toast.success("Competencia guardada exitosamente");
-    },
-    onError: (error) => {
-      toast.error(`Error al guardar: ${error.message}`);
-    },
-  });
+  const addCompetencyMutation =
+    trpc.jobProfiles.addEmployeeCompetency.useMutation({
+      onSuccess: () => {
+        refetchEmployeeComp();
+        toast.success("Competencia guardada exitosamente");
+      },
+      onError: error => {
+        toast.error(`Error al guardar: ${error.message}`);
+      },
+    });
 
   // Load existing competency levels when employee changes
   useEffect(() => {
     if (employeeCompetencies && applicableCompetencies) {
       const levels: Record<number, CompetencyLevel> = {};
       applicableCompetencies.forEach((comp: any) => {
-        const existing = employeeCompetencies.find((ec: any) => ec.competencyName === comp.competencyName
+        const existing = employeeCompetencies.find(
+          (ec: any) => ec.competencyName === comp.competencyName
         );
         if (existing) {
           levels[comp.id] = existing.currentLevel as CompetencyLevel;
@@ -114,7 +135,7 @@ export default function EmployeeCompetencyEvaluation() {
   }, [employeeCompetencies, applicableCompetencies]);
 
   const handleLevelChange = (competencyId: number, level: CompetencyLevel) => {
-    setCompetencyLevels((prev) => ({
+    setCompetencyLevels(prev => ({
       ...prev,
       [competencyId]: level,
     }));
@@ -142,7 +163,10 @@ export default function EmployeeCompetencyEvaluation() {
     }
   };
 
-  const calculateGap = (requiredLevel: CompetencyLevel, currentLevel: CompetencyLevel) => {
+  const calculateGap = (
+    requiredLevel: CompetencyLevel,
+    currentLevel: CompetencyLevel
+  ) => {
     return levelValue[requiredLevel] - levelValue[currentLevel];
   };
 
@@ -163,15 +187,17 @@ export default function EmployeeCompetencyEvaluation() {
   if (loadingEmployees || loadingCompetencies) {
     return (
       <div className="flex items-center justify-center h-64">
-      <Breadcrumb items={[
-        {
-                label: "Gestión de Talento",
-                href: "/"
-        },
-        {
-                label: "Evaluación de Competencias"
-        }
-]} />
+        <Breadcrumb
+          items={[
+            {
+              label: "Gestión de Talento",
+              href: "/",
+            },
+            {
+              label: "Evaluación de Competencias",
+            },
+          ]}
+        />
 
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
@@ -182,9 +208,12 @@ export default function EmployeeCompetencyEvaluation() {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Evaluación de Competencias Organizacionales</h1>
+          <h1 className="text-3xl font-bold">
+            Evaluación de Competencias Organizacionales
+          </h1>
           <p className="text-gray-600 mt-1">
-            Evalúa las habilidades blandas y competencias transversales de los empleados
+            Evalúa las habilidades blandas y competencias transversales de los
+            empleados
           </p>
         </div>
       </div>
@@ -194,7 +223,9 @@ export default function EmployeeCompetencyEvaluation() {
         <h2 className="text-lg font-semibold mb-4">Seleccionar Empleado</h2>
         <Select
           value={selectedEmployeeId?.toString() || ""}
-          onValueChange={(value) => setSelectedEmployeeId(value ? Number(value) : null)}
+          onValueChange={value =>
+            setSelectedEmployeeId(value ? Number(value) : null)
+          }
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="-- Selecciona un empleado --" />
@@ -229,7 +260,12 @@ export default function EmployeeCompetencyEvaluation() {
 
           {applicableCompetencies.map((comp: any) => {
             const currentLevel = competencyLevels[comp.id];
-            const gap = currentLevel ? calculateGap(comp.requiredLevel as CompetencyLevel, currentLevel) : levelValue[comp.requiredLevel as CompetencyLevel];
+            const gap = currentLevel
+              ? calculateGap(
+                  comp.requiredLevel as CompetencyLevel,
+                  currentLevel
+                )
+              : levelValue[comp.requiredLevel as CompetencyLevel];
 
             return (
               <Card key={comp.id} className="p-6">
@@ -238,17 +274,25 @@ export default function EmployeeCompetencyEvaluation() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-semibold">{comp.competencyName}</h3>
+                        <h3 className="text-lg font-semibold">
+                          {comp.competencyName}
+                        </h3>
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                           {categoryLabels[comp.competencyCategory]}
                         </span>
                       </div>
-                      <p className="text-gray-600 text-sm mt-1">{comp.description}</p>
+                      <p className="text-gray-600 text-sm mt-1">
+                        {comp.description}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
                       {getGapIcon(gap)}
                       <span className={`text-sm ${getGapColor(gap)}`}>
-                        {gap > 0 ? `Brecha: ${gap}` : gap < 0 ? "Supera requerido" : "Cumple"}
+                        {gap > 0
+                          ? `Brecha: ${gap}`
+                          : gap < 0
+                            ? "Supera requerido"
+                            : "Cumple"}
                       </span>
                     </div>
                   </div>
@@ -256,7 +300,9 @@ export default function EmployeeCompetencyEvaluation() {
                   {/* Levels */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Nivel Requerido</label>
+                      <label className="text-sm font-medium text-gray-700">
+                        Nivel Requerido
+                      </label>
                       <div
                         className={`mt-1 px-3 py-2 rounded-lg border ${
                           levelColors[comp.requiredLevel as CompetencyLevel]
@@ -266,10 +312,12 @@ export default function EmployeeCompetencyEvaluation() {
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Nivel Actual</label>
+                      <label className="text-sm font-medium text-gray-700">
+                        Nivel Actual
+                      </label>
                       <Select
                         value={currentLevel || ""}
-                        onValueChange={(value) =>
+                        onValueChange={value =>
                           handleLevelChange(comp.id, value as CompetencyLevel)
                         }
                       >
@@ -278,7 +326,10 @@ export default function EmployeeCompetencyEvaluation() {
                         </SelectTrigger>
                         <SelectContent>
                           {levelOptions.map((option: any) => (
-                            <SelectItem key={`level-${comp.id}-${option.value}`} value={option.value}>
+                            <SelectItem
+                              key={`level-${comp.id}-${option.value}`}
+                              value={option.value}
+                            >
                               {option.label}
                             </SelectItem>
                           ))}
