@@ -1,0 +1,98 @@
+name: security
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dast_target_url:
+        description: "URL HTTPS autorizada para prueba DAST controlada (opcional)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  authorization-pentest:
+    name: Authorization pentest simulation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Run horizontal-access and parameter-tampering simulations
+        run: pnpm exec vitest run server/assessments.authorization.test.ts --pool=forks --maxWorkers=1 --minWorkers=1
+
+  dependency-audit:
+    name: Dependency vulnerability audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --audit-level=high
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sast:
+    name: SAST (OWASP rules)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install semgrep
+      - name: Scan application source
+        run: semgrep scan --config p/owasp-top-ten server client --exclude node_modules --exclude dist --severity ERROR --error
+
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          build-mode: none
+      - uses: github/codeql-action/analyze@v3
+
+  dast-smoke:
+    name: DAST smoke scan (manual target)
+    if: github.event_name == 'workflow_dispatch' && inputs.dast_target_url != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate authorized HTTPS target
+        run: |
+          test "${{ inputs.dast_target_url }}" != ""
+          case "${{ inputs.dast_target_url }}" in https://*) ;; *) exit 1 ;; esac
+      - name: Run OWASP ZAP baseline scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: "${{ inputs.dast_target_url }}"
+          cmd_options: "-a"

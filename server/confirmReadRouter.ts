@@ -96,12 +96,13 @@ confirmReadRouter.get("/confirm-read/:token", async (req, res) => {
         timeZone: "America/Mexico_City",
       });
       const signerInfo = dispatch.signerName
-        ? `<br>Firmado por: <strong>${dispatch.signerName}</strong>`
+        ? `<br>Firmado por: <strong>${escapeHtml(dispatch.signerName)}</strong>`
         : "";
+      const minuteLabel = `${escapeHtml(dispatch.minuteFolio || "")} — ${escapeHtml(dispatch.minuteTitle || "")}`;
       return res.send(
         buildResultHtml(
           "Lectura ya registrada",
-          `La lectura de la minuta <strong>${dispatch.minuteFolio || ""} — ${dispatch.minuteTitle || ""}</strong> ya fue confirmada el ${readDate}.${signerInfo}`,
+          `La lectura de la minuta <strong>${minuteLabel}</strong> ya fue confirmada el ${readDate}.${signerInfo}`,
           true
         )
       );
@@ -265,7 +266,7 @@ confirmReadRouter.post("/confirm-read/:token", async (req, res) => {
     return res.send(
       buildResultHtml(
         "¡Recepción confirmada!",
-        `Estimado/a <strong>${signerName}</strong>, su recepción de la minuta <strong>${dispatch.minuteFolio || ""} — ${dispatch.minuteTitle || ""}</strong> ha sido registrada exitosamente el ${nowStr}.<br><br>Este registro queda como evidencia de recepción documental.`,
+        `Estimado/a <strong>${escapeHtml(signerName)}</strong>, su recepción de la minuta <strong>${escapeHtml(dispatch.minuteFolio || "")} — ${escapeHtml(dispatch.minuteTitle || "")}</strong> ha sido registrada exitosamente el ${nowStr}.<br><br>Este registro queda como evidencia de recepción documental.`,
         true
       )
     );
