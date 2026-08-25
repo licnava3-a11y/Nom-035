@@ -1873,3 +1873,6 @@
 - [x] P2-C: Extraer cálculo y persistencia de Guía II a `services/guideIIResults.ts`, reduciendo responsabilidad del router sin modificar el contrato tRPC.
 - [x] P2-D: Extraer la recomendación de Guías I–III y nivel de cumplimiento a `lib/nom035-guides.ts`, con pruebas por umbral de trabajadores.
 - [x] P2-F: Corregir el mock incompleto de `minuteRecipients.test.ts`, que bloqueaba la carga del router global; la suite hermética completa volvió a aprobar (114 archivos, 1,553 pruebas).
+
+## Continuidad local con integración externa diferida (2026-08-24)
+- [x] Exponer en el reporte de encuestas los dominios de riesgo de Guía III y un estado explícito cuando no sean aplicables o no existan datos. El dashboard representa dominios, nivel y promedio cuando existen, y explica `not_applicable` o `no_domain_data` sin dejar un bloque vacío.

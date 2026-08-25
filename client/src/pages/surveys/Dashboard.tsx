@@ -19,6 +19,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import React from "react";
 
+const DOMAIN_RISK_STATUS_COPY: Record<string, string> = {
+  not_applicable: "El desglose por dominio aplica únicamente a los resultados de Guía III.",
+  no_domain_data: "Aún no hay respuestas con dominios calificados para mostrar este desglose.",
+};
+
 export default function SurveysDashboard() {
   const [, setLocation] = useLocation();
   const [isDownloading, setIsDownloading] = React.useState<boolean>(false);
@@ -281,6 +286,50 @@ export default function SurveysDashboard() {
                 );
               })}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Riesgo promedio por dominio — exclusivo Guía III */}
+      {stats && (
+        <Card aria-label="Riesgo promedio por dominio de Guía III">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Riesgo Promedio por Dominio
+            </CardTitle>
+            <CardDescription>
+              Desglose disponible para la Guía III de la NOM-035-STPS-2018
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {stats.domainRiskStatus === "available" && stats.domainRisks?.length ? (
+              <div className="space-y-4">
+                {stats.domainRisks.map((domain: any) => {
+                  const percentage = Math.min(100, Math.max(0, domain.avgScore ?? 0));
+                  return (
+                    <div key={domain.domain} className="space-y-2">
+                      <div className="flex items-center justify-between gap-4 text-sm">
+                        <span className="font-medium">{domain.domain}</span>
+                        <span className="text-right text-muted-foreground">
+                          {getRiskLevelLabel(domain.riskLevel)} · {(domain.avgScore ?? 0).toFixed(1)} puntos
+                        </span>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className={`h-full ${getRiskLevelColor(domain.riskLevel)}`}
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div role="status" className="rounded-md bg-muted px-4 py-3 text-sm text-muted-foreground">
+                {DOMAIN_RISK_STATUS_COPY[stats.domainRiskStatus] ?? DOMAIN_RISK_STATUS_COPY.no_domain_data}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
