@@ -31,7 +31,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Run horizontal-access and parameter-tampering simulations
-        run: pnpm exec vitest run server/assessments.authorization.test.ts --pool=forks --maxWorkers=1 --minWorkers=1
+        run: pnpm exec vitest run server/assessments.authorization.test.ts --pool=forks --maxWorkers=1
 
   dependency-audit:
     name: Dependency vulnerability audit
