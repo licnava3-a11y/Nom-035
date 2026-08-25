@@ -50,11 +50,14 @@ function queryResult<T>(result: T) {
 
 function configureSelectSequence(results: unknown[]) {
   const queue = [...results];
-  mockDb.select.mockImplementation(() => ({
-    from: vi.fn(() => ({
+  mockDb.select.mockImplementation(() => {
+    const source = {
       where: vi.fn(() => queryResult(queue.shift() ?? [])),
-    })),
-  }));
+      leftJoin: vi.fn(() => source),
+      orderBy: vi.fn(() => source),
+    };
+    return { from: vi.fn(() => source) };
+  });
 }
 
 describe("assessmentsRouter — autorización de intentos", () => {
@@ -100,5 +103,57 @@ describe("assessmentsRouter — autorización de intentos", () => {
     await expect(
       caller.listEmployeeAttempts({ employeeId: 99 })
     ).rejects.toThrow("No tiene permiso para consultar estos intentos.");
+  });
+
+  it("ignora un employeeId inyectado en la petición de inicio y conserva la identidad de sesión", async () => {
+    configureSelectSequence([
+      [{ id: 42 }],
+      [{ id: 7, status: "active", maxAttempts: 3 }],
+      [],
+    ]);
+    const values = vi.fn().mockResolvedValue([{ insertId: 101 }]);
+    mockDb.insert.mockReturnValue({ values });
+
+    const caller = assessmentsRouter.createCaller(createContext(501));
+    await caller.startAttempt({ assessmentId: 7, employeeId: 99 } as never);
+
+    expect(values).toHaveBeenCalledWith(
+      expect.objectContaining({ assessmentId: 7, employeeId: 42 })
+    );
+  });
+
+  it("rechaza el envío de respuestas a un intento ajeno", async () => {
+    configureSelectSequence([
+      [{ id: 100, employeeId: 99, assessmentId: 7, status: "in_progress" }],
+      [{ id: 42 }],
+    ]);
+
+    const caller = assessmentsRouter.createCaller(createContext(501));
+
+    await expect(
+      caller.submitAnswers({ attemptId: 100, answers: [] })
+    ).rejects.toThrow("No tiene permiso para enviar este intento.");
+  });
+
+  it("rechaza el inicio de examen cuando la cuenta no tiene un perfil de colaborador", async () => {
+    configureSelectSequence([[]]);
+
+    const caller = assessmentsRouter.createCaller(createContext(777));
+
+    await expect(caller.startAttempt({ assessmentId: 7 })).rejects.toThrow(
+      "No existe un perfil de colaborador vinculado a esta cuenta."
+    );
+  });
+
+  it("mantiene el acceso transversal para un rol gestor autorizado", async () => {
+    configureSelectSequence([
+      [{ id: 100, employeeId: 99, assessmentId: 7, status: "completed" }],
+      [],
+    ]);
+
+    const caller = assessmentsRouter.createCaller(createContext(900, "admin"));
+    const result = await caller.getAttemptResults({ attemptId: 100 });
+
+    expect(result.employeeId).toBe(99);
   });
 });

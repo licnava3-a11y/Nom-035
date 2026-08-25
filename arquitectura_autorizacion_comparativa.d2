@@ -1,0 +1,79 @@
+direction: right
+
+classes: {
+  title: {
+    style: {
+      font-size: 26
+      bold: true
+    }
+  }
+  client: {
+    style: {
+      fill: "#183247"
+      stroke: "#5A92B7"
+      font-color: "#FFFFFF"
+    }
+  }
+  danger: {
+    style: {
+      fill: "#4B2024"
+      stroke: "#E87870"
+      font-color: "#FFFFFF"
+    }
+  }
+  warning: {
+    style: {
+      fill: "#533D1A"
+      stroke: "#E6B566"
+      font-color: "#FFFFFF"
+    }
+  }
+  secure: {
+    style: {
+      fill: "#153E3A"
+      stroke: "#35C0B0"
+      font-color: "#FFFFFF"
+    }
+  }
+  database: {
+    shape: cylinder
+    style: {
+      fill: "#16283A"
+      stroke: "#9CB7CC"
+      font-color: "#FFFFFF"
+    }
+  }
+}
+
+vulnerable: "MODELO INICIAL — VULNERABLE" {
+  class: title
+  direction: right
+  browser: "Cliente / Navegador\nEnvía employeeId = 99" { class: client }
+  router: "Router assessments\nConfía en employeeId" { class: danger }
+  attempt: "Intento de evaluación\nPuede atribuirse o consultarse\ncon identidad ajena" { class: warning }
+  db: "Base de datos" { class: database }
+
+  browser -> router: "assessmentId + employeeId"
+  router -> attempt: "Sin validar propiedad"
+  attempt -> db: "Lee / escribe"
+}
+
+secure: "MODELO IMPLEMENTADO — SEGURO" {
+  class: title
+  direction: right
+  browser: "Cliente / Navegador\nEnvía solo assessmentId" { class: client }
+  session: "Sesión autenticada\nctx.user.id" { class: secure }
+  resolver: "Resolvedor de colaborador\nemployees.userId = ctx.user.id" { class: secure }
+  guard: "Guardia de propiedad\nattempt.employeeId === employee.id\nRoles gestores explícitos" { class: secure }
+  db: "Base de datos" { class: database }
+
+  browser -> session: "Solicitud"
+  session -> resolver: "Identidad autenticada"
+  resolver -> guard: "employeeId derivado"
+  guard -> db: "Autoriza o responde FORBIDDEN"
+}
+
+vulnerable -> secure: "Corrección PR #2\nIdentidad y permiso en servidor" {
+  style.stroke: "#E6B566"
+  style.font-color: "#E6B566"
+}
