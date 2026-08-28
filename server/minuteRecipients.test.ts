@@ -9,19 +9,6 @@ vi.mock("./db", () => ({
   getRecipientById: vi.fn(),
 }));
 
-vi.mock("../drizzle/schema", () => ({
-  minuteRecipients: {
-    id: "id",
-    name: "name",
-    email: "email",
-    position: "position",
-    department: "department",
-    isActive: "is_active",
-    createdAt: "created_at",
-    updatedAt: "updated_at",
-  },
-}));
-
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
 function createAuthContext(): { ctx: TrpcContext } {

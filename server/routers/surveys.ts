@@ -8,7 +8,8 @@ import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
 import * as scoring from "../lib/nom035-scoring";
-import { calculateGuideIIResults, validateGuideIIAnswers } from "../guideIICalculator";
+import { calculateAndPersistGuideIIResult } from "../services/guideIIResults";
+import { getNom035ComplianceLevel, getRecommendedNom035Guides } from "../lib/nom035-guides";
 import { calculateSampleSize } from "../lib/sample-size-calculator";
 import { sendSurveyTokensNotification } from "../lib/email-sender";
 import { generateConsolidatedNOM035Report } from "../lib/nom035-pdf-generator";
@@ -36,6 +37,52 @@ async function determineApplicableGuide(db: SurveyDatabase): Promise<'guia_ii' |
 function detectATS(answers: Array<{ questionId: number; answerValue: string }>): boolean {
   // Guía I tiene 4 preguntas, si alguna respuesta es "Sí", se detecta ATS
   return answers.some(answer => answer.answerValue === 'Si' || answer.answerValue === 'Sí');
+}
+
+type ScoringAnswer = {
+  questionId: number;
+  answer: string;
+  isReverseScored: boolean | null;
+  category: string | null;
+  domain: string | null;
+  dimension: string | null;
+};
+
+async function getScoringAnswersByResponseId(
+  db: SurveyDatabase,
+  responseIds: number[],
+): Promise<Map<number, ScoringAnswer[]>> {
+  if (responseIds.length === 0) return new Map();
+
+  const rows = await db
+    .select({
+      responseId: surveyAnswers.responseId,
+      questionId: surveyAnswers.questionId,
+      answer: surveyAnswers.answerValue,
+      isReverseScored: surveyQuestions.isReverseScored,
+      category: surveyQuestions.category,
+      domain: surveyQuestions.domain,
+      dimension: surveyQuestions.dimension,
+    })
+    .from(surveyAnswers)
+    .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
+    .where(inArray(surveyAnswers.responseId, responseIds));
+
+  const answersByResponseId = new Map<number, ScoringAnswer[]>();
+  for (const row of rows) {
+    const answers = answersByResponseId.get(row.responseId) ?? [];
+    answers.push({
+      questionId: row.questionId,
+      answer: row.answer,
+      isReverseScored: row.isReverseScored,
+      category: row.category,
+      domain: row.domain,
+      dimension: row.dimension,
+    });
+    answersByResponseId.set(row.responseId, answers);
+  }
+
+  return answersByResponseId;
 }
 
 export const surveysRouter = router({
@@ -176,17 +223,17 @@ export const surveysRouter = router({
     .input(z.object({
       surveyId: z.number(),
       token: z.string().optional(), // Token de acceso anónimo
-      userId: z.number().optional(), // ID de usuario autenticado
+      periodId: z.number().optional(), // Requerido cuando el flujo usa un token de periodo
       questionId: z.number(),
       answerValue: z.string(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      // Validar que se proporcione token o userId
-      if (!input.token && !input.userId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Se requiere token o userId" });
+      // El usuario autenticado se toma exclusivamente de la sesión; nunca del cliente.
+      if (!input.token && !ctx.user) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Debes iniciar sesión o proporcionar un token" });
       }
 
       // Buscar o crear respuesta parcial
@@ -204,13 +251,18 @@ export const surveysRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "Token inválido" });
         }
 
+        if (input.periodId !== undefined && tokenData.periodId !== input.periodId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "El token no corresponde a este periodo" });
+        }
+
         // Buscar respuesta existente
         const [existingResponse] = await db
           .select()
           .from(surveyResponses)
           .where(and(
             eq(surveyResponses.surveyId, input.surveyId),
-            eq(surveyResponses.userId, tokenData.userId)
+            eq(surveyResponses.userId, tokenData.userId),
+            eq(surveyResponses.periodId, tokenData.periodId)
           ))
           .limit(1);
 
@@ -222,6 +274,7 @@ export const surveysRouter = router({
           const [newResponse] = await (db.insert(surveyResponses) as any).values({
             surveyId: input.surveyId,
             userId: tokenData.userId,
+            periodId: tokenData.periodId,
             token: responseToken,
             startedAt: new Date(),
           });
@@ -229,12 +282,16 @@ export const surveysRouter = router({
         }
       } else {
         // Acceso autenticado
+        const userId = ctx.user?.id;
+        if (userId === undefined) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Debes iniciar sesión para guardar respuestas" });
+        }
         const [existingResponse] = await db
           .select()
           .from(surveyResponses)
           .where(and(
             eq(surveyResponses.surveyId, input.surveyId),
-            eq(surveyResponses.userId, input.userId!)
+            eq(surveyResponses.userId, userId)
           ))
           .limit(1);
 
@@ -245,7 +302,7 @@ export const surveysRouter = router({
           const responseToken = generateToken();
           const [newResponse] = await (db.insert(surveyResponses) as any).values({
             surveyId: input.surveyId,
-            userId: input.userId!,
+            userId,
             token: responseToken,
             startedAt: new Date(),
           });
@@ -443,23 +500,30 @@ export const surveysRouter = router({
         
         // Crear caso automáticamente si se detecta ATS
         if (atsDetected) {
-          const caseNumber = `ATS-${Date.now()}-${ctx.user!.id}`;
-          // Obtener departmentId del usuario si existe
-          const [userEmployee] = await db.select({ departmentId: employees.departmentId })
-            .from(employees)
-            .where(eq(employees.userId, ctx.user!.id))
-            .limit(1);
+          const actor = ctx.user;
+          const caseNumber = `ATS-${Date.now()}-${actor?.id ?? "anonimo"}`;
+          let departmentId: number | null = null;
+
+          if (actor) {
+            const [userEmployee] = await db.select({ departmentId: employees.departmentId })
+              .from(employees)
+              .where(eq(employees.userId, actor.id))
+              .limit(1);
+            departmentId = userEmployee?.departmentId ?? null;
+          }
           
           await db.insert(cases).values({
             caseNumber,
-            reporterName: ctx.user!.name || 'Anónimo',
-            reporterEmail: ctx.user!.email || '',
-            isAnonymous: false,
+            reporterName: actor?.name ?? null,
+            reporterEmail: actor?.email ?? null,
+            isAnonymous: !actor,
             caseType: 'other',
-            description: `Se detectó un Acontecimiento Traumático Severo en la respuesta de la Guía I del trabajador ${ctx.user!.name || ctx.user!.email}. Se requiere investigación y dictamen por parte del comité.`,
+            description: actor
+              ? `Se detectó un Acontecimiento Traumático Severo en la respuesta de la Guía I del trabajador ${actor.name || actor.email || actor.id}. Se requiere investigación y dictamen por parte del comité.`
+              : 'Se detectó un Acontecimiento Traumático Severo en una respuesta anónima de la Guía I. Se requiere investigación y dictamen por parte del comité.',
             status: 'open',
             priority: 'critical',
-            departmentId: userEmployee?.departmentId || null,
+            departmentId,
             createdAt: new Date(),
           });
         }
@@ -660,20 +724,10 @@ export const surveysRouter = router({
       }
       
       // Calcular resultados para cada respuesta
+      const answersByResponseId = await getScoringAnswersByResponseId(db, responses.map(response => response.id));
       const results = [];
       for (const response of responses) {
-        const answers = await db
-          .select({
-            questionId: surveyAnswers.questionId,
-            answer: surveyAnswers.answerValue,
-            isReverseScored: surveyQuestions.isReverseScored,
-            category: surveyQuestions.category,
-            domain: surveyQuestions.domain,
-            dimension: surveyQuestions.dimension,
-          })
-          .from(surveyAnswers)
-          .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
-          .where(eq(surveyAnswers.responseId, response.id));
+        const answers = answersByResponseId.get(response.id) ?? [];
         
         const result = calculator.calculateSurveyResult(
           answers.map(a => ({
@@ -698,6 +752,7 @@ export const surveysRouter = router({
       
       // Calcular riesgos promedio por categoría
       const categoryRisks: Record<string, { count: number; avgScore: number }> = {};
+      const domainRiskTotals: Record<string, { count: number; avgScore: number }> = {};
       for (const result of results) {
         for (const cat of result.categories) {
           if (!categoryRisks[cat.category]) {
@@ -706,12 +761,34 @@ export const surveysRouter = router({
           categoryRisks[cat.category].count++;
           categoryRisks[cat.category].avgScore += cat.score;
         }
+
+        if (survey.type === 'guia_iii') {
+          for (const domain of result.domains) {
+            if (!domainRiskTotals[domain.domain]) {
+              domainRiskTotals[domain.domain] = { count: 0, avgScore: 0 };
+            }
+            domainRiskTotals[domain.domain].count++;
+            domainRiskTotals[domain.domain].avgScore += domain.score;
+          }
+        }
       }
       
       // Calcular promedios
       for (const cat in categoryRisks) {
         categoryRisks[cat].avgScore = categoryRisks[cat].avgScore / categoryRisks[cat].count;
       }
+
+      for (const domain in domainRiskTotals) {
+        domainRiskTotals[domain].avgScore = domainRiskTotals[domain].avgScore / domainRiskTotals[domain].count;
+      }
+
+      const domainRisks = survey.type === 'guia_iii'
+        ? Object.entries(domainRiskTotals).map(([domain, data]) => ({
+            domain,
+            avgScore: data.avgScore,
+            riskLevel: calculator.determineRiskLevel(data.avgScore, 'guia_iii').level,
+          }))
+        : [];
       
       return {
         totalResponses: responses.length,
@@ -721,7 +798,10 @@ export const surveysRouter = router({
           avgScore: data.avgScore,
           riskLevel: calculator.determineRiskLevel(data.avgScore, survey.type as 'guia_ii' | 'guia_iii').level,
         })),
-        domainRisks: [], // TODO: Implementar si es necesario
+        domainRisks,
+        domainRiskStatus: survey.type === 'guia_iii'
+          ? (domainRisks.length > 0 ? 'available' : 'no_domain_data')
+          : 'not_applicable',
       };
     }),
 
@@ -868,14 +948,12 @@ export const surveysRouter = router({
       const riskDistribution: Record<string, number> = {};
       const categoryScores: Record<string, number[]> = {};
       let atsDetected = 0;
+      const answersByResponseId = await getScoringAnswersByResponseId(db, responses.map(response => response.id));
       
       if (survey.type === 'guia_i') {
         // Contar casos ATS
         for (const response of responses) {
-          const answers = await db
-            .select({ questionId: surveyAnswers.questionId, answer: surveyAnswers.answerValue })
-            .from(surveyAnswers)
-            .where(eq(surveyAnswers.responseId, response.id));
+          const answers = answersByResponseId.get(response.id) ?? [];
           
           if (detectATS(answers.map(a => ({ questionId: a.questionId, answerValue: a.answer })))) {
             atsDetected++;
@@ -884,18 +962,7 @@ export const surveysRouter = router({
       } else {
         // Calcular para Guía II y III
         for (const response of responses) {
-          const answers = await db
-            .select({
-              questionId: surveyAnswers.questionId,
-              answer: surveyAnswers.answerValue,
-              isReverseScored: surveyQuestions.isReverseScored,
-              category: surveyQuestions.category,
-              domain: surveyQuestions.domain,
-              dimension: surveyQuestions.dimension,
-            })
-            .from(surveyAnswers)
-            .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
-            .where(eq(surveyAnswers.responseId, response.id));
+          const answers = answersByResponseId.get(response.id) ?? [];
           
           const guideType: "guia_ii" | "guia_iii" = survey.type === "guia_ii" ? "guia_ii" : "guia_iii";
           const result = calculator.calculateSurveyResult(
@@ -2597,47 +2664,12 @@ export const surveysRouter = router({
     
     const totalWorkers = Number(result?.count || 0);
 
-    // Determinar guías según NOM-035-STPS-2018
-    const guides = [];
-    
-    // Guía I (ATS) - Obligatoria para todos
-    guides.push({
-      id: 'guia_i',
-      name: 'Guía de Referencia I',
-      description: 'Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos',
-      required: true,
-      workerRange: 'Todos los centros de trabajo',
-      questionCount: 4,
-    });
-
-    // Guía II - Para 16-50 trabajadores
-    if (totalWorkers >= 16) {
-      guides.push({
-        id: 'guia_ii',
-        name: 'Guía de Referencia II',
-        description: 'Cuestionario para identificar factores de riesgo psicosocial en los centros de trabajo',
-        required: totalWorkers >= 16 && totalWorkers <= 50,
-        workerRange: '16 a 50 trabajadores',
-        questionCount: 46,
-      });
-    }
-
-    // Guía III - Para 51+ trabajadores
-    if (totalWorkers > 50) {
-      guides.push({
-        id: 'guia_iii',
-        name: 'Guía de Referencia III',
-        description: 'Cuestionario para identificar y analizar factores de riesgo psicosocial y evaluar el entorno organizacional',
-        required: true,
-        workerRange: 'Más de 50 trabajadores',
-        questionCount: 72,
-      });
-    }
+    const guides = getRecommendedNom035Guides(totalWorkers);
 
     return {
       totalWorkers,
       recommendedGuides: guides,
-      complianceLevel: totalWorkers <= 15 ? 'basic' : totalWorkers <= 50 ? 'intermediate' : 'complete',
+      complianceLevel: getNom035ComplianceLevel(totalWorkers),
     };
   }),
 
@@ -2668,59 +2700,7 @@ export const surveysRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      // Obtener respuesta de encuesta
-      const [response] = await db
-        .select()
-        .from(surveyResponses)
-        .where(eq(surveyResponses.id, input.responseId));
-
-      if (!response) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta de encuesta no encontrada" });
-      }
-
-      // Obtener respuestas individuales
-      const answers = await db
-        .select()
-        .from(surveyAnswers)
-        .where(eq(surveyAnswers.responseId, input.responseId));
-
-      if (answers.length === 0) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "No se encontraron respuestas para calcular" });
-      }
-
-      // Convertir respuestas a formato requerido por calculadora
-      const answersMap: Record<number, string> = {};
-      for (const answer of answers) {
-        // Obtener número de pregunta
-        const [question] = await db
-          .select()
-          .from(surveyQuestions)
-          .where(eq(surveyQuestions.id, answer.questionId));
-        
-        if (question) {
-          answersMap[question.order] = answer.answerValue;
-        }
-      }
-
-      // Validar respuestas
-      const validation = validateGuideIIAnswers(answersMap);
-      if (!validation.valid) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `Respuestas inválidas: ${validation.errors.join(', ')}`
-        });
-      }
-
-      // Calcular resultados
-      const results = calculateGuideIIResults(answersMap);
-
-      // Guardar resultados en campo results de surveyResponses
-      await db
-        .update(surveyResponses)
-        .set({
-          results: JSON.stringify(results),
-        } as any)
-        .where(eq(surveyResponses.id, input.responseId));
+      const results = await calculateAndPersistGuideIIResult(db, input.responseId);
 
       return {
         success: true,

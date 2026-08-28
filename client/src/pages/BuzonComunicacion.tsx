@@ -225,6 +225,7 @@ function QuejaForm({ onSubmit, loading }: { onSubmit: (data: Record<string, unkn
 // ─── Formulario de Felicitación ───────────────────────────────────────────────
 function FelicitacionForm({ onSubmit, loading }: { onSubmit: (data: Record<string, unknown>) => void; loading: boolean }) {
   const [form, setForm] = useState({
+    recognizedEmployeeId: "",
     recognizedName: "",
     recognizedDepartment: "",
     recognizedDate: "",
@@ -234,6 +235,20 @@ function FelicitacionForm({ onSubmit, loading }: { onSubmit: (data: Record<strin
     publicRecognition: false,
   });
 
+  const handleRecognizedEmployeeSelect = (data: EmployeeAutofillData | null) => {
+    setForm(p => data ? {
+      ...p,
+      recognizedEmployeeId: String(data.employeeId),
+      recognizedName: data.fullName,
+      recognizedDepartment: data.departmentName,
+    } : {
+      ...p,
+      recognizedEmployeeId: "",
+      recognizedName: "",
+      recognizedDepartment: "",
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(form);
@@ -241,6 +256,13 @@ function FelicitacionForm({ onSubmit, loading }: { onSubmit: (data: Record<strin
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <EmployeeAutofillSelector
+        onSelect={handleRecognizedEmployeeSelect}
+        value={form.recognizedEmployeeId || undefined}
+        label="Seleccionar persona reconocida"
+        helperText="Prellena nombre y departamento desde el catálogo de empleados"
+        placeholder="Buscar empleado reconocido..."
+      />
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>Nombre del reconocido *</Label>
