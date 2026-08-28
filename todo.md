@@ -1830,11 +1830,11 @@
 ## Endurecimiento de exportación y Quality Gate (2026-08-17)
 - [x] Migrar las exportaciones e importaciones XLSX menos frecuentes al cargador dinámico `loadXlsx`.
 - [x] Medir y publicar el tamaño de `vendor-xlsx` en el reporte de presupuesto de CI.
-- [ ] Exigir el estado `quality / Types and tests` mediante protección de la rama `main` en GitHub. **Bloqueado:** el repositorio objetivo ya está identificado, pero el remoto local continúa en `s3://` y `licnava3-a11y/Nom-035` no tiene rama principal, workflow ni ejecuciones de CI que puedan protegerse.
-- [ ] Sincronizar el código y `.github/workflows/quality.yml` con `licnava3-a11y/Nom-035`; generar la primera ejecución exitosa de `quality / Types and tests`.
-- [ ] Configurar y verificar la protección de `main` en `licnava3-a11y/Nom-035` con el estado obligatorio `quality / Types and tests`.
-- [ ] Actualizar desde Secretos o Integraciones la autorización de GitHub con permiso efectivo de escritura para `licnava3-a11y/Nom-035`; pendiente externo solicitado por el usuario.
-- [ ] Verificar el permiso efectivo de escritura de la autorización de GitHub reportada como actualizada antes de sincronizar el repositorio.
+- [x] Exigir el Quality Gate mediante protección de la rama `main` en GitHub. La comprobación real de GitHub es `Types and tests` y se exige con rama estrictamente actualizada.
+- [x] Sincronizar el código y `.github/workflows/quality.yml` con `licnava3-a11y/Nom-035`; la primera ejecución exitosa del Quality Gate fue `32624320903` sobre el commit `84ec4b6`.
+- [x] Configurar y verificar la protección de `main` en `licnava3-a11y/Nom-035` con el estado obligatorio `Types and tests`, administración incluida y sin permitir force-push ni eliminación de la rama.
+- [x] Actualizar desde Secretos o Integraciones la autorización de GitHub con permiso efectivo de escritura para `licnava3-a11y/Nom-035`.
+- [x] Verificar el permiso efectivo de escritura de GitHub antes de sincronizar el repositorio; la operación de sincronización a `main` completó correctamente.
 - [x] Validar regresiones de carga diferida y del reporte de bundle antes del checkpoint. Pruebas focalizadas: 3 archivos / 4 pruebas aprobadas.
 
 ## Incidente crítico — Vista previa temporal rechaza la conexión (2026-08-19)
@@ -1844,3 +1844,9 @@
 
 ## Rendimiento e integridad — Auditoría histórica priorizada (2026-08-23)
 - [x] Auditar y, si faltan, declarar y aplicar índices para las relaciones de alta consulta. La auditoría confirmó índices existentes —incluidos los FK— para empleados, casos y respuestas de encuesta; se declararon y aplicaron cinco índices faltantes para `correctiveActions` (`status,dueDate`, responsable, respuesta, periodo y ámbito), verificados en la base de datos.
+
+## Validación de protección e integración (2026-08-24)
+- [x] Configurar un workflow independiente de integración con MySQL aislado y credenciales externas exclusivamente desde GitHub Secrets (`BUILT_IN_FORGE_API_URL`, `BUILT_IN_FORGE_API_KEY`, `OPENAI_API_KEY`).
+- [x] Crear un Pull Request de prueba contra `main` y confirmar que exige la comprobación `Types and tests`. PR #1 permanece abierto sin fusionar; el Quality Gate `32677660671` fue exitoso y la comprobación requerida quedó aprobada.
+- [ ] Ejecutar `Integration Tests` con secretos reales de prueba y verificar el flujo externo. **Bloqueado:** la autorización actual de GitHub puede escribir código y protección de ramas, pero recibe 403 al consultar o administrar GitHub Actions Secrets.
+- [x] Validar los flujos disponibles, actualizar el seguimiento y guardar checkpoint.
