@@ -1,0 +1,80 @@
+TABLERO: Seguridad y Remediación NOM-035
+
+OBJETIVO
+Centralizar vulnerabilidades, excepciones y acciones de remediación derivadas de pnpm audit, SAST, DAST y pruebas de autorización.
+
+1. CREAR EL TABLERO
+1. Abra el perfil de GitHub licnava3-a11y.
+2. Entre a Projects y seleccione New project.
+3. Elija la plantilla Board.
+4. Asigne el nombre: Seguridad y Remediación NOM-035.
+5. Cree el proyecto y agregue el repositorio Nom-035 como fuente de ítems.
+
+2. CONFIGURAR CAMPOS
+Conserve el campo Status y cree los siguientes campos personalizados:
+
+- Prioridad | tipo: Single select | valores: Crítica, Alta, Media, Baja.
+- Componente | tipo: Single select | valores: ExcelJS, PostCSS, Vitest, CI/CD, Autorización, DAST, Otro.
+- Riesgo residual | tipo: Single select | valores: Alto, Medio, Bajo.
+- Responsable | tipo: Assignees.
+- Fecha objetivo | tipo: Date.
+- Evidencia | tipo: Text; use enlaces a reportes, pruebas o ejecuciones de Actions.
+- Categoría | tipo: Single select | valores: Dependencia, SAST, DAST, Secretos, Autorización, Calidad.
+- Excepción temporal | tipo: Single select | valores: No, Sí.
+- Fecha de revisión | tipo: Date.
+
+3. CONFIGURAR ESTADOS
+Edite Status con estos valores:
+- Backlog
+- En análisis
+- En remediación
+- En validación
+- Cerrado
+- Excepción temporal
+
+4. CREAR VISTAS
+
+VISTA 1: Tablero de remediación
+- Diseño: Board.
+- Agrupar por: Status.
+- Mostrar: Prioridad, Componente, Responsable, Fecha objetivo, Riesgo residual.
+- Filtro: Status no es Cerrado.
+
+VISTA 2: Riesgo por prioridad
+- Diseño: Table.
+- Agrupar por: Prioridad.
+- Orden: Crítica, Alta, Media, Baja.
+- Filtro: Status no es Cerrado.
+- Columnas: Título, Componente, Prioridad, Riesgo residual, Responsable, Fecha objetivo.
+
+VISTA 3: Antigüedad y SLA
+- Diseño: Table.
+- Ordenar por: Fecha objetivo ascendente.
+- Filtro: Status no es Cerrado.
+- Mostrar: Título, Fecha objetivo, Prioridad, Responsable, Status, Evidencia.
+
+VISTA 4: Excepciones temporales
+- Diseño: Table.
+- Filtro: Excepción temporal es Sí.
+- Ordenar por: Fecha de revisión ascendente.
+- Mostrar: Título, Componente, Riesgo residual, Fecha de revisión, Evidencia.
+
+VISTA 5: Métricas ejecutivas
+- Diseño: Table.
+- Agrupar por: Componente.
+- Filtro: Status no es Cerrado.
+- Mostrar: Prioridad, Riesgo residual, Fecha objetivo y Responsable.
+
+5. ALIMENTAR EL TABLERO
+1. Conecte la incidencia semanal creada por el workflow de pnpm audit.
+2. Cree un ítem por cadena vulnerable o decisión de remediación significativa.
+3. Enlace la evidencia al reporte, ejecución de GitHub Actions o checkpoint.
+4. Asigne responsable y fecha objetivo.
+5. No cierre un ítem hasta que pnpm audit, pruebas y build hayan validado el cambio.
+
+6. RUTINA SEMANAL
+- Lunes: revisar la incidencia y el artefacto pnpm-audit generado por GitHub Actions.
+- Martes: clasificar por Prioridad, Componente y Riesgo residual.
+- Miércoles: asignar responsable y fecha objetivo.
+- Viernes: revisar ítems En validación y mover a Cerrado únicamente con evidencia.
+- Mensual: revisar excepciones temporales y eliminar las que ya no sean necesarias.
