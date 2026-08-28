@@ -1848,15 +1848,16 @@
 ## Validación de protección e integración (2026-08-24)
 - [x] Configurar un workflow independiente de integración con MySQL aislado y credenciales externas exclusivamente desde GitHub Secrets (`BUILT_IN_FORGE_API_URL`, `BUILT_IN_FORGE_API_KEY`, `OPENAI_API_KEY`).
 - [x] Crear un Pull Request de prueba contra `main` y confirmar que exige la comprobación `Types and tests`. PR #1 permanece abierto sin fusionar; el Quality Gate `32677660671` fue exitoso y la comprobación requerida quedó aprobada.
-- [ ] Ejecutar la integración de base de datos con MySQL aislado y validar las suites que no consumen servicios externos.
+- [x] Ejecutar la integración de base de datos con MySQL aislado y validar las suites que no consumen servicios externos. Ejecución `33133143373` aprobada con esquema aislado y datos de prueba.
 - [ ] Ejecutar la integración de almacenamiento/PDF con credenciales de prueba para el proxy de almacenamiento; requiere `BUILT_IN_FORGE_API_URL` y `BUILT_IN_FORGE_API_KEY` en GitHub Actions Secrets.
+- [x] Corregir la condición booleana de `run_external_integrations`, que ignoró una ejecución explícitamente solicitada en GitHub Actions. El workflow ahora evalúa el input booleano directamente y las pruebas de configuración aprobaron.
 - [x] Separar `test:integration:database` de `test:integration:storage` y condicionar almacenamiento/PDF a una ejecución explícita con secretos de GitHub.
 - [x] Preparar la integración de base aislada: sembrado de diez empleados y rutas de Sprint 38 resueltas desde `process.cwd()` para compatibilidad con GitHub Actions.
 - [x] Separar `interventionImpact.test.ts` como integración de IA opcional, protegida por el mismo input de servicios externos.
 - [x] Corregir los supuestos de integración: seed con cinco puestos y quince registros financieros, Sprint 4 alineado al cargador XLSX y prueba de permisos con rol realmente de solo lectura.
 - [x] Corregir la expectativa heredada de Sprint 55 para validar el límite de heap de build vigente (3,072 MB) en lugar del valor obsoleto de 4,096 MB.
 - [x] Verificar el acceso de GitHub Actions y eliminar la condición de secretos no utilizados que impedía ejecutar la integración aislada.
-- [ ] Crear un Pull Request de corrección para publicar el workflow de integración ajustado, aprobar `Types and tests` y fusionar mediante la protección de `main`.
+- [x] Crear los Pull Requests de corrección requeridos para publicar el workflow de integración ajustado, aprobar `Types and tests` y fusionar mediante la protección de `main`. PR #4–#7 fueron aprobados y fusionados sin omitir la regla.
 - [x] Validar los flujos disponibles, actualizar el seguimiento y guardar checkpoint.
 
 ## Auditoría integral de calidad, rendimiento y datos (2026-08-24)

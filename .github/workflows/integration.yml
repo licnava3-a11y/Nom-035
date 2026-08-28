@@ -66,16 +66,16 @@ jobs:
         run: pnpm test:integration:database --pool=forks --maxWorkers=1 --minWorkers=1
 
       - name: Verify external integration secrets
-        if: inputs.run_external_integrations == 'true'
+        if: inputs.run_external_integrations
         run: |
           test -n "$BUILT_IN_FORGE_API_URL" || (echo "Missing BUILT_IN_FORGE_API_URL GitHub secret" && exit 1)
           test -n "$BUILT_IN_FORGE_API_KEY" || (echo "Missing BUILT_IN_FORGE_API_KEY GitHub secret" && exit 1)
           test -n "$OPENAI_API_KEY" || (echo "Missing OPENAI_API_KEY GitHub secret" && exit 1)
 
       - name: Run storage and PDF integration suite
-        if: inputs.run_external_integrations == 'true'
+        if: inputs.run_external_integrations
         run: pnpm test:integration:storage --pool=forks --maxWorkers=1 --minWorkers=1
 
       - name: Run AI integration suite
-        if: inputs.run_external_integrations == 'true'
+        if: inputs.run_external_integrations
         run: pnpm test:integration:ai --pool=forks --maxWorkers=1 --minWorkers=1
