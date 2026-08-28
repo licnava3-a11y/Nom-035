@@ -61,10 +61,10 @@ describe("Sprint 55 — Corrección definitiva del segfault en producción", () 
     expect(buildScript).not.toContain("@builder.io/vite-plugin-jsx-loc");
   });
 
-  it("package.json build script usa NODE_OPTIONS=--max-old-space-size=4096", () => {
+  it("package.json build script declara un límite de heap explícito para Vite", () => {
     const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
     const buildScript = pkg.scripts?.build || "";
-    expect(buildScript).toContain("--max-old-space-size=4096");
+    expect(buildScript).toContain("--max-old-space-size=3072");
   });
 
   it("Dockerfile usa pnpm build (que incluye los flags de esbuild)", () => {
