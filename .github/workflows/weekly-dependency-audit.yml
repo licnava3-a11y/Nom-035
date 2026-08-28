@@ -1,0 +1,54 @@
+name: Weekly dependency audit
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    name: pnpm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Ejecutar auditoría de vulnerabilidades
+        id: audit
+        run: |
+          set +e
+          pnpm audit --json > pnpm-audit.json
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Conservar reporte de auditoría
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-audit-${{ github.run_id }}
+          path: pnpm-audit.json
+          retention-days: 90
+      - name: Crear o actualizar incidencia de vulnerabilidades
+        if: steps.audit.outputs.status != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- weekly-pnpm-audit -->';
+            const title = 'Seguridad: pnpm audit semanal requiere revisión';
+            const body = `${marker}\n\nLa auditoría semanal detectó vulnerabilidades de dependencias. Revise el artefacto \`pnpm-audit-${context.runId}\` y priorice hallazgos críticos/altos antes de integrar cambios.\n\nEjecución: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const issues = await github.paginate(github.rest.issues.listForRepo, { owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'security' });
+            const existing = issues.find(issue => issue.title === title && issue.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['security', 'dependencies'] });
+            }
