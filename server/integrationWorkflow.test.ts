@@ -14,7 +14,8 @@ describe("workflow de integración", () => {
     expect(workflow).toContain("${{ secrets.BUILT_IN_FORGE_API_URL }}");
     expect(workflow).toContain("${{ secrets.BUILT_IN_FORGE_API_KEY }}");
     expect(workflow).toContain("${{ secrets.OPENAI_API_KEY }}");
-    expect(workflow).toContain("if: inputs.run_external_integrations == 'true'");
+    expect(workflow).toContain("if: inputs.run_external_integrations");
+    expect(workflow).not.toContain("inputs.run_external_integrations == 'true'");
     expect(workflow).toContain("pnpm drizzle-kit push --force");
     expect(workflow).toContain("pnpm seed:test");
     expect(workflow).toContain("pnpm test:integration:database --pool=forks --maxWorkers=1 --minWorkers=1");
