@@ -1854,6 +1854,7 @@
 - [x] Preparar la integración de base aislada: sembrado de diez empleados y rutas de Sprint 38 resueltas desde `process.cwd()` para compatibilidad con GitHub Actions.
 - [x] Separar `interventionImpact.test.ts` como integración de IA opcional, protegida por el mismo input de servicios externos.
 - [x] Corregir los supuestos de integración: seed con cinco puestos y quince registros financieros, Sprint 4 alineado al cargador XLSX y prueba de permisos con rol realmente de solo lectura.
+- [x] Corregir la expectativa heredada de Sprint 55 para validar el límite de heap de build vigente (3,072 MB) en lugar del valor obsoleto de 4,096 MB.
 - [x] Verificar el acceso de GitHub Actions y eliminar la condición de secretos no utilizados que impedía ejecutar la integración aislada.
 - [ ] Crear un Pull Request de corrección para publicar el workflow de integración ajustado, aprobar `Types and tests` y fusionar mediante la protección de `main`.
 - [x] Validar los flujos disponibles, actualizar el seguimiento y guardar checkpoint.
