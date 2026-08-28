@@ -18,7 +18,7 @@ La auditoría identificó dos correcciones funcionales de impacto inmediato en e
 | Dependencias productivas | Sin hallazgos en la ejecución actual | `pnpm audit --prod` | Control continuo |
 | Quality Gate remoto | Aprobado y exigido en `main` | Comprobación `Types and tests` | Completado |
 | Suite hermética local | Aprobada tras corregir mock de esquema | 114 archivos y 1,553 pruebas | Completado |
-| Integration Tests remoto | Configurado, ejecución externa pendiente | Requiere GitHub Actions Secrets | Dependencia externa |
+| Integration Tests remoto | Configurado, pendiente de nueva ejecución | MySQL aislado; los secretos se retiraron porque la suite actual no consume servicios externos | Dependencia de validación |
 
 ## Correcciones aplicadas durante la auditoría
 
