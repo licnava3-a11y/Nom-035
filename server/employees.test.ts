@@ -27,7 +27,7 @@ describe("Employees Module", () => {
       updatedAt: new Date(),
     };
 
-    // Create user context (role 'user' has limited permissions)
+    // Create a view-only worker context for access-control assertions.
     userContext = await createContext({
       req: { headers: {}, cookies: {} } as any,
       res: {} as any,
@@ -37,7 +37,7 @@ describe("Employees Module", () => {
       openId: "user-test",
       name: "User Test",
       email: "user@test.com",
-      role: "user",
+      role: "trabajador",
       createdAt: new Date(),
       updatedAt: new Date(),
     };

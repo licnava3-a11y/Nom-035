@@ -18,7 +18,7 @@ La auditoría identificó dos correcciones funcionales de impacto inmediato en e
 | Dependencias productivas | Sin hallazgos en la ejecución actual | `pnpm audit --prod` | Control continuo |
 | Quality Gate remoto | Aprobado y exigido en `main` | Comprobación `Types and tests` | Completado |
 | Suite hermética local | Aprobada tras corregir mock de esquema | 114 archivos y 1,553 pruebas | Completado |
-| Integration Tests remoto | Segmentado, pendiente de nueva ejecución | MySQL aislado se siembra con diez empleados y se valida por defecto; almacenamiento/PDF e IA se activan solo con credenciales de prueba explícitas. Sprint 38 dejó de depender de una ruta local absoluta. | Dependencia de validación |
+| Integration Tests remoto | Segmentado, pendiente de nueva ejecución | MySQL aislado se siembra con diez empleados, cinco puestos y quince registros financieros; almacenamiento/PDF e IA se activan solo con credenciales de prueba explícitas. Sprint 38 dejó de depender de una ruta local absoluta y las pruebas de permisos usan un rol de solo lectura. | Dependencia de validación |
 
 ## Correcciones aplicadas durante la auditoría
 
