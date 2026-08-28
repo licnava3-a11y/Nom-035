@@ -23,6 +23,8 @@ describe("canalización de calidad", () => {
     expect(workflow).not.toMatch(/pnpm\/action-setup@v4[\s\S]{0,160}version:\s*10/);
     expect(packageJson.scripts["test:ci"]).toContain("--maxWorkers=1");
     expect(packageJson.scripts["test:ci"]).toContain("correctiveActions.generatePDF");
-    expect(packageJson.scripts["test:integration"]).toContain("correctiveActions.generatePDF.test.ts");
+    expect(packageJson.scripts["test:integration"]).toContain("test:integration:database");
+    expect(packageJson.scripts["test:integration"]).toContain("test:integration:storage");
+    expect(packageJson.scripts["test:integration:storage"]).toContain("correctiveActions.generatePDF.test.ts");
   });
 });

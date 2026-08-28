@@ -1848,8 +1848,11 @@
 ## Validación de protección e integración (2026-08-24)
 - [x] Configurar un workflow independiente de integración con MySQL aislado y credenciales externas exclusivamente desde GitHub Secrets (`BUILT_IN_FORGE_API_URL`, `BUILT_IN_FORGE_API_KEY`, `OPENAI_API_KEY`).
 - [x] Crear un Pull Request de prueba contra `main` y confirmar que exige la comprobación `Types and tests`. PR #1 permanece abierto sin fusionar; el Quality Gate `32677660671` fue exitoso y la comprobación requerida quedó aprobada.
-- [ ] Ejecutar `Integration Tests` con MySQL aislado y verificar la suite de integración. El flujo no consume secretos externos en sus pruebas actuales, por lo que se desacopló de GitHub Actions Secrets.
+- [ ] Ejecutar la integración de base de datos con MySQL aislado y validar las suites que no consumen servicios externos.
+- [ ] Ejecutar la integración de almacenamiento/PDF con credenciales de prueba para el proxy de almacenamiento; requiere `BUILT_IN_FORGE_API_URL` y `BUILT_IN_FORGE_API_KEY` en GitHub Actions Secrets.
+- [x] Separar `test:integration:database` de `test:integration:storage` y condicionar almacenamiento/PDF a una ejecución explícita con secretos de GitHub.
 - [x] Verificar el acceso de GitHub Actions y eliminar la condición de secretos no utilizados que impedía ejecutar la integración aislada.
+- [ ] Crear un Pull Request de corrección para publicar el workflow de integración ajustado, aprobar `Types and tests` y fusionar mediante la protección de `main`.
 - [x] Validar los flujos disponibles, actualizar el seguimiento y guardar checkpoint.
 
 ## Auditoría integral de calidad, rendimiento y datos (2026-08-24)
