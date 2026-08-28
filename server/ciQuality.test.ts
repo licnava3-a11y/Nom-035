@@ -25,6 +25,7 @@ describe("canalización de calidad", () => {
     expect(packageJson.scripts["test:ci"]).toContain("correctiveActions.generatePDF");
     expect(packageJson.scripts["test:integration"]).toContain("test:integration:database");
     expect(packageJson.scripts["test:integration"]).toContain("test:integration:storage");
+    expect(packageJson.scripts["test:integration"]).toContain("test:integration:ai");
     expect(packageJson.scripts["test:integration:storage"]).toContain("correctiveActions.generatePDF.test.ts");
   });
 });

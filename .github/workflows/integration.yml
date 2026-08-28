@@ -3,8 +3,8 @@ name: Integration Tests
 on:
   workflow_dispatch:
     inputs:
-      run_storage_integration:
-        description: Ejecutar las pruebas de almacenamiento y PDF que requieren secretos de prueba
+      run_external_integrations:
+        description: Ejecutar pruebas de almacenamiento, PDF e IA que requieren secretos de prueba
         required: true
         default: false
         type: boolean
@@ -38,6 +38,7 @@ jobs:
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/nom035_integration
       BUILT_IN_FORGE_API_URL: ${{ secrets.BUILT_IN_FORGE_API_URL }}
       BUILT_IN_FORGE_API_KEY: ${{ secrets.BUILT_IN_FORGE_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
       - name: Checkout
@@ -58,15 +59,23 @@ jobs:
       - name: Synchronize isolated integration schema
         run: pnpm drizzle-kit push --force
 
+      - name: Seed isolated integration data
+        run: pnpm seed:test
+
       - name: Run database integration suite sequentially
         run: pnpm test:integration:database --pool=forks --maxWorkers=1 --minWorkers=1
 
-      - name: Verify storage integration secrets
-        if: inputs.run_storage_integration == 'true'
+      - name: Verify external integration secrets
+        if: inputs.run_external_integrations == 'true'
         run: |
           test -n "$BUILT_IN_FORGE_API_URL" || (echo "Missing BUILT_IN_FORGE_API_URL GitHub secret" && exit 1)
           test -n "$BUILT_IN_FORGE_API_KEY" || (echo "Missing BUILT_IN_FORGE_API_KEY GitHub secret" && exit 1)
+          test -n "$OPENAI_API_KEY" || (echo "Missing OPENAI_API_KEY GitHub secret" && exit 1)
 
       - name: Run storage and PDF integration suite
-        if: inputs.run_storage_integration == 'true'
+        if: inputs.run_external_integrations == 'true'
         run: pnpm test:integration:storage --pool=forks --maxWorkers=1 --minWorkers=1
+
+      - name: Run AI integration suite
+        if: inputs.run_external_integrations == 'true'
+        run: pnpm test:integration:ai --pool=forks --maxWorkers=1 --minWorkers=1

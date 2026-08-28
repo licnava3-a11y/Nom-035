@@ -1851,6 +1851,8 @@
 - [ ] Ejecutar la integración de base de datos con MySQL aislado y validar las suites que no consumen servicios externos.
 - [ ] Ejecutar la integración de almacenamiento/PDF con credenciales de prueba para el proxy de almacenamiento; requiere `BUILT_IN_FORGE_API_URL` y `BUILT_IN_FORGE_API_KEY` en GitHub Actions Secrets.
 - [x] Separar `test:integration:database` de `test:integration:storage` y condicionar almacenamiento/PDF a una ejecución explícita con secretos de GitHub.
+- [x] Preparar la integración de base aislada: sembrado de diez empleados y rutas de Sprint 38 resueltas desde `process.cwd()` para compatibilidad con GitHub Actions.
+- [x] Separar `interventionImpact.test.ts` como integración de IA opcional, protegida por el mismo input de servicios externos.
 - [x] Verificar el acceso de GitHub Actions y eliminar la condición de secretos no utilizados que impedía ejecutar la integración aislada.
 - [ ] Crear un Pull Request de corrección para publicar el workflow de integración ajustado, aprobar `Types and tests` y fusionar mediante la protección de `main`.
 - [x] Validar los flujos disponibles, actualizar el seguimiento y guardar checkpoint.
