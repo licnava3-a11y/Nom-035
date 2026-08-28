@@ -1,0 +1,106 @@
+{
+  "generatedAt": "2026-08-28T01:06:05.532Z",
+  "count": 20,
+  "findings": [
+    {
+      "file": "server/lib/excel-generator.ts",
+      "line": 1,
+      "snippet": "import ExcelJS from \"exceljs\";"
+    },
+    {
+      "file": "server/lib/excel-generator.ts",
+      "line": 61,
+      "snippet": "const workbook = new ExcelJS.Workbook();"
+    },
+    {
+      "file": "server/reports.ts",
+      "line": 2,
+      "snippet": "import ExcelJS from \"exceljs\";"
+    },
+    {
+      "file": "server/reports.ts",
+      "line": 473,
+      "snippet": "const workbook = new ExcelJS.Workbook();"
+    },
+    {
+      "file": "server/reports.ts",
+      "line": 568,
+      "snippet": "const workbook = new ExcelJS.Workbook();"
+    },
+    {
+      "file": "server/reports.ts",
+      "line": 657,
+      "snippet": "const workbook = new ExcelJS.Workbook();"
+    },
+    {
+      "file": "server/routers/executiveDashboard.ts",
+      "line": 986,
+      "snippet": "const ExcelJS = await import(\"exceljs\");"
+    },
+    {
+      "file": "server/routers/executiveDashboard.ts",
+      "line": 994,
+      "snippet": "const workbook = new ExcelJS.Workbook();"
+    },
+    {
+      "file": "server/routers/interventionImpact.ts",
+      "line": 722,
+      "snippet": "// Generar Excel con ExcelJS"
+    },
+    {
+      "file": "server/routers/interventionImpact.ts",
+      "line": 723,
+      "snippet": "const ExcelJS = (await import(\"exceljs\")).default;"
+    },
+    {
+      "file": "server/routers/interventionImpact.ts",
+      "line": 724,
+      "snippet": "const workbook = new ExcelJS.Workbook();"
+    },
+    {
+      "file": "server/routers/nom035Matrix.ts",
+      "line": 1399,
+      "snippet": "const ExcelJS = (await import(\"exceljs\")).default;"
+    },
+    {
+      "file": "server/routers/nom035Matrix.ts",
+      "line": 1400,
+      "snippet": "const workbook = new ExcelJS.Workbook();"
+    },
+    {
+      "file": "server/routers/nom035Matrix.ts",
+      "line": 2305,
+      "snippet": "const ExcelJS = (await import(\"exceljs\")).default;"
+    },
+    {
+      "file": "server/routers/nom035Matrix.ts",
+      "line": 2338,
+      "snippet": "const wb = new ExcelJS.Workbook();"
+    },
+    {
+      "file": "server/routers/reportsExport.ts",
+      "line": 16,
+      "snippet": "import ExcelJS from \"exceljs\";"
+    },
+    {
+      "file": "server/routers/reportsExport.ts",
+      "line": 254,
+      "snippet": "const workbook = new ExcelJS.Workbook();"
+    },
+    {
+      "file": "server/routers/sharedReports.ts",
+      "line": 169,
+      "snippet": "// Importar ExcelJS dinámicamente"
+    },
+    {
+      "file": "server/routers/sharedReports.ts",
+      "line": 170,
+      "snippet": "const ExcelJS = await import(\"exceljs\");"
+    },
+    {
+      "file": "server/routers/sharedReports.ts",
+      "line": 171,
+      "snippet": "const workbook = new ExcelJS.default.Workbook();"
+    }
+  ]
+}
