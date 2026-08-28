@@ -17,10 +17,14 @@ async function seed() {
   try {
     // 0. Limpiar datos de prueba existentes
     console.log('🧹 Limpiando datos de prueba existentes...');
+    await connection.execute('DELETE FROM expense_requests WHERE folio LIKE "GST-%"');
+    await connection.execute('DELETE FROM purchase_orders WHERE folio LIKE "OC-%"');
+    await connection.execute('DELETE FROM invoices WHERE folio LIKE "FAC-%"');
     await connection.execute('DELETE FROM committee_minutes WHERE folio LIKE "MC-%"');
     await connection.execute('DELETE FROM nom035_cases WHERE folio LIKE "CASO-%"');
     await connection.execute('DELETE FROM users WHERE openId LIKE "test-user-%"');
     await connection.execute('DELETE FROM employees WHERE employeeNumber LIKE "EMP0%"');
+    await connection.execute('DELETE FROM positions WHERE code LIKE "PST-%"');
     await connection.execute('DELETE FROM departments WHERE name IN ("Recursos Humanos", "Tecnología", "Operaciones", "Ventas", "Marketing")');
     console.log('✅ Datos de prueba anteriores eliminados\n');
 
@@ -44,26 +48,44 @@ async function seed() {
     }
     console.log(`✅ ${departments.length} departamentos creados\n`);
 
+    // 1.1 Crear puestos del catálogo necesarios para las consultas de empleados
+    const positionIds = [];
+    const positions = [
+      { title: 'Coordinador de RH', code: 'PST-001', departmentId: deptIds[0], level: 'management' },
+      { title: 'Analista de Sistemas', code: 'PST-002', departmentId: deptIds[1], level: 'specialist' },
+      { title: 'Supervisor Operativo', code: 'PST-003', departmentId: deptIds[2], level: 'supervisor' },
+      { title: 'Ejecutivo Comercial', code: 'PST-004', departmentId: deptIds[3], level: 'specialist' },
+      { title: 'Especialista de Marketing', code: 'PST-005', departmentId: deptIds[4], level: 'specialist' },
+    ];
+    for (const position of positions) {
+      const [result] = await connection.execute(
+        'INSERT INTO positions (title, code, departmentId, level, isActive, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [position.title, position.code, position.departmentId, position.level, true, new Date(), new Date()]
+      );
+      positionIds.push(result.insertId);
+    }
+    console.log(`✅ ${positions.length} puestos creados\n`);
+
     // 2. Crear empleados
     console.log('👥 Creando empleados...');
     const employees = [
-      { firstName: 'Juan', lastName: 'Pérez', employeeNumber: 'EMP001', email: 'juan.perez@test.com', departmentId: deptIds[0], hireDate: '2020-01-15' },
-      { firstName: 'María', lastName: 'García', employeeNumber: 'EMP002', email: 'maria.garcia@test.com', departmentId: deptIds[1], hireDate: '2019-03-20' },
-      { firstName: 'Carlos', lastName: 'López', employeeNumber: 'EMP003', email: 'carlos.lopez@test.com', departmentId: deptIds[2], hireDate: '2021-06-10' },
-      { firstName: 'Ana', lastName: 'Martínez', employeeNumber: 'EMP004', email: 'ana.martinez@test.com', departmentId: deptIds[3], hireDate: '2018-09-05' },
-      { firstName: 'Luis', lastName: 'Rodríguez', employeeNumber: 'EMP005', email: 'luis.rodriguez@test.com', departmentId: deptIds[4], hireDate: '2022-02-28' },
-      { firstName: 'Sofia', lastName: 'Hernández', employeeNumber: 'EMP006', email: 'sofia.hernandez@test.com', departmentId: deptIds[0], hireDate: '2020-11-12' },
-      { firstName: 'Pedro', lastName: 'González', employeeNumber: 'EMP007', email: 'pedro.gonzalez@test.com', departmentId: deptIds[1], hireDate: '2023-01-08' },
-      { firstName: 'Laura', lastName: 'Díaz', employeeNumber: 'EMP008', email: 'laura.diaz@test.com', departmentId: deptIds[2], hireDate: '2021-04-22' },
-      { firstName: 'Miguel', lastName: 'Torres', employeeNumber: 'EMP009', email: 'miguel.torres@test.com', departmentId: deptIds[3], hireDate: '2019-07-30' },
-      { firstName: 'Carmen', lastName: 'Ramírez', employeeNumber: 'EMP010', email: 'carmen.ramirez@test.com', departmentId: deptIds[4], hireDate: '2020-05-18' },
+      { firstName: 'Juan', lastName: 'Pérez', employeeNumber: 'EMP001', email: 'juan.perez@test.com', departmentId: deptIds[0], positionId: positionIds[0], hireDate: '2020-01-15' },
+      { firstName: 'María', lastName: 'García', employeeNumber: 'EMP002', email: 'maria.garcia@test.com', departmentId: deptIds[1], positionId: positionIds[1], hireDate: '2019-03-20' },
+      { firstName: 'Carlos', lastName: 'López', employeeNumber: 'EMP003', email: 'carlos.lopez@test.com', departmentId: deptIds[2], positionId: positionIds[2], hireDate: '2021-06-10' },
+      { firstName: 'Ana', lastName: 'Martínez', employeeNumber: 'EMP004', email: 'ana.martinez@test.com', departmentId: deptIds[3], positionId: positionIds[3], hireDate: '2018-09-05' },
+      { firstName: 'Luis', lastName: 'Rodríguez', employeeNumber: 'EMP005', email: 'luis.rodriguez@test.com', departmentId: deptIds[4], positionId: positionIds[4], hireDate: '2022-02-28' },
+      { firstName: 'Sofia', lastName: 'Hernández', employeeNumber: 'EMP006', email: 'sofia.hernandez@test.com', departmentId: deptIds[0], positionId: positionIds[0], hireDate: '2020-11-12' },
+      { firstName: 'Pedro', lastName: 'González', employeeNumber: 'EMP007', email: 'pedro.gonzalez@test.com', departmentId: deptIds[1], positionId: positionIds[1], hireDate: '2023-01-08' },
+      { firstName: 'Laura', lastName: 'Díaz', employeeNumber: 'EMP008', email: 'laura.diaz@test.com', departmentId: deptIds[2], positionId: positionIds[2], hireDate: '2021-04-22' },
+      { firstName: 'Miguel', lastName: 'Torres', employeeNumber: 'EMP009', email: 'miguel.torres@test.com', departmentId: deptIds[3], positionId: positionIds[3], hireDate: '2019-07-30' },
+      { firstName: 'Carmen', lastName: 'Ramírez', employeeNumber: 'EMP010', email: 'carmen.ramirez@test.com', departmentId: deptIds[4], positionId: positionIds[4], hireDate: '2020-05-18' },
     ];
 
     const empIds = [];
     for (const emp of employees) {
       const [result] = await connection.execute(
-        'INSERT INTO employees (firstName, lastName, employeeNumber, email, departmentId, hireDate, isActive, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [emp.firstName, emp.lastName, emp.employeeNumber, emp.email, emp.departmentId, emp.hireDate, true, new Date()]
+        'INSERT INTO employees (firstName, lastName, employeeNumber, email, departmentId, positionId, hireDate, isActive, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [emp.firstName, emp.lastName, emp.employeeNumber, emp.email, emp.departmentId, emp.positionId, emp.hireDate, true, new Date()]
       );
       empIds.push(result.insertId);
     }
@@ -85,6 +107,23 @@ async function seed() {
       userIds.push(result.insertId);
     }
     console.log(`✅ ${testUsers.length} usuarios creados\n`);
+
+    // 3.1 Crear registros financieros para probar resúmenes y listados sin datos productivos
+    for (let index = 1; index <= 5; index++) {
+      await connection.execute(
+        'INSERT INTO invoices (folio, cliente_nombre, monto, moneda, fecha_emision, fecha_vencimiento, estado, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [`FAC-${String(index).padStart(3, '0')}`, `Cliente de prueba ${index}`, 1000 * index, 'MXN', '2026-01-01', '2026-02-01', index === 3 ? 'vencida' : 'pendiente', userIds[0], new Date()]
+      );
+      await connection.execute(
+        'INSERT INTO purchase_orders (folio, proveedor, monto, moneda, fecha, estado, descripcion, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [`OC-${String(index).padStart(3, '0')}`, `Proveedor de prueba ${index}`, 750 * index, 'MXN', '2026-01-01', index === 1 ? 'borrador' : 'enviada', 'Orden de compra de integración', userIds[0], new Date()]
+      );
+      await connection.execute(
+        'INSERT INTO expense_requests (folio, solicitante_id, monto, moneda, concepto, categoria, fecha_solicitud, estado, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [`GST-${String(index).padStart(3, '0')}`, userIds[0], 500 * index, 'MXN', `Solicitud de prueba ${index}`, 'capacitacion', '2026-01-01', index === 1 ? 'pendiente' : 'aprobada', new Date()]
+      );
+    }
+    console.log('✅ 15 registros financieros creados\n');
 
     // 4. Crear casos NOM-035
     console.log('📋 Creando casos NOM-035...');

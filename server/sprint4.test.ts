@@ -21,8 +21,9 @@ describe("ExecutiveReport — exportRiskComparisonToExcel", () => {
     expect(EXEC_REPORT).toContain("exportRiskComparisonToExcel");
   });
 
-  it("usa importación dinámica de xlsx", () => {
-    expect(EXEC_REPORT).toContain("await import(\"xlsx\")");
+  it("usa el cargador dinámico compartido de xlsx", () => {
+    expect(EXEC_REPORT).toContain("loadXlsx");
+    expect(EXEC_REPORT).toContain("await loadXlsx()");
   });
 
   it("genera hoja 'Comparativa Psicométrica'", () => {
